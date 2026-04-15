@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Routes, Route, NavLink, useNavigate, Navigate, useLocation } from 'react-router-dom'
 import { onAuthStateChanged, onIdTokenChanged, signOut } from 'firebase/auth'
 import './firebaseConfig.js'
@@ -82,6 +82,9 @@ function HeaderSoundToggleButton() {
   )
 }
 
+const MOBILE_NAV_FOCUSABLE =
+  'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+
 function App() {
   const [currentUser, setCurrentUser] = useState(null)
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false)
@@ -91,6 +94,9 @@ function App() {
   const navigate = useNavigate()
   const location = useLocation()
   const { forceRandomWeatherChange } = useSkyTheme()
+  const mobileNavToggleRef = useRef(null)
+  const mobileNavDrawerRef = useRef(null)
+  const prevMobileNavOpenRef = useRef(false)
 
   useEffect(() => {
     if (!auth) return
@@ -120,6 +126,58 @@ function App() {
     return () => {
       document.body.style.overflow = prev
     }
+  }, [mobileNavOpen])
+
+  useEffect(() => {
+    if (!mobileNavOpen) return
+    const id = window.requestAnimationFrame(() => {
+      const root = mobileNavDrawerRef.current
+      if (!root) return
+      const nodes = [...root.querySelectorAll(MOBILE_NAV_FOCUSABLE)].filter(
+        (el) => !el.closest('[aria-hidden="true"]') && el.getAttribute('tabindex') !== '-1',
+      )
+      nodes[0]?.focus({ preventScroll: true })
+    })
+    return () => window.cancelAnimationFrame(id)
+  }, [mobileNavOpen])
+
+  useEffect(() => {
+    if (!mobileNavOpen) return
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        setMobileNavOpen(false)
+        return
+      }
+      if (event.key !== 'Tab') return
+      const root = mobileNavDrawerRef.current
+      if (!root) return
+      const nodes = [...root.querySelectorAll(MOBILE_NAV_FOCUSABLE)].filter(
+        (el) => !el.closest('[aria-hidden="true"]') && el.getAttribute('tabindex') !== '-1',
+      )
+      if (nodes.length === 0) return
+      const first = nodes[0]
+      const last = nodes[nodes.length - 1]
+      const active = document.activeElement
+      if (event.shiftKey) {
+        if (active === first || !root.contains(active)) {
+          event.preventDefault()
+          last.focus()
+        }
+      } else if (active === last) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [mobileNavOpen])
+
+  useEffect(() => {
+    if (prevMobileNavOpenRef.current && !mobileNavOpen) {
+      mobileNavToggleRef.current?.focus({ preventScroll: true })
+    }
+    prevMobileNavOpenRef.current = mobileNavOpen
   }, [mobileNavOpen])
 
   useEffect(() => {
@@ -219,9 +277,10 @@ function App() {
         data-sky-warmth={skyWarmth}
       >
         {location.pathname !== '/' && <SkyBackground />}
-        <header className="app-header">
+        <header className={`app-header${location.pathname === '/' ? ' app-header--landing' : ''}`}>
           <div className="app-header-inner">
             <button
+              ref={mobileNavToggleRef}
               type="button"
               className="app-header-menu-toggle"
               aria-expanded={mobileNavOpen}
@@ -349,12 +408,17 @@ function App() {
             onClick={() => setMobileNavOpen(false)}
           />
           <div
+            ref={mobileNavDrawerRef}
             id="app-mobile-nav-drawer"
             className="app-mobile-nav-drawer"
             role="dialog"
             aria-modal="true"
-            aria-label="Navigazione"
+            aria-labelledby="app-mobile-nav-sheet-title"
           >
+            <div className="app-mobile-nav-sheet-handle" aria-hidden="true" />
+            <p id="app-mobile-nav-sheet-title" className="app-mobile-nav-sheet-title">
+              Menu
+            </p>
             <nav className="app-mobile-nav-links" aria-label="Collegamenti">
               {currentUser ? (
                 <>
@@ -436,7 +500,7 @@ function App() {
             location.pathname === '/' || location.pathname === '/risultati/report'
               ? ' app-main--landing'
               : ''
-          }`}
+          }${location.pathname === '/' ? ' app-main--landing-home' : ''}`}
         >
           <div
             className={`app-main-inner${

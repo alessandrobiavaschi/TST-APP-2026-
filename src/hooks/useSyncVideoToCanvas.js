@@ -30,6 +30,11 @@ export function useSyncVideoToCanvas({
     if (!enabled) return
 
     let raf = 0
+    let lastUserGestureMs = 0
+
+    const markUserGesture = () => {
+      lastUserGestureMs = typeof performance !== 'undefined' ? performance.now() : Date.now()
+    }
 
     const getContainer = () =>
       containerRef?.current ?? canvasRef.current?.parentElement ?? null
@@ -38,7 +43,9 @@ export function useSyncVideoToCanvas({
       const canvas = canvasRef.current
       const container = getContainer()
       if (!canvas || !container) return
-      const dpr = Math.min(window.devicePixelRatio || 1, 2)
+      const narrow = typeof window !== 'undefined' && window.innerWidth < 768
+      const dprCap = narrow ? 1.25 : 2
+      const dpr = Math.min(window.devicePixelRatio || 1, dprCap)
       const w = container.clientWidth
       const h = container.clientHeight
       if (w < 1 || h < 1) return
@@ -52,7 +59,9 @@ export function useSyncVideoToCanvas({
       const canvas = canvasRef.current
       const video = videoRef.current
       const container = getContainer()
-      if (canvas && video && container && canvas.width > 0) {
+      const now = typeof performance !== 'undefined' ? performance.now() : Date.now()
+      const isScrolling = now - lastUserGestureMs < 140
+      if (canvas && video && container && canvas.width > 0 && !isScrolling) {
         const ctx = canvas.getContext('2d', { alpha: false })
         const styleW = parseFloat(canvas.style.width)
         const cw = container.clientWidth
@@ -72,6 +81,9 @@ export function useSyncVideoToCanvas({
     const container = getContainer()
     if (container) ro.observe(container)
     window.addEventListener('resize', resize)
+    window.addEventListener('scroll', markUserGesture, { passive: true, capture: true })
+    window.addEventListener('touchmove', markUserGesture, { passive: true, capture: true })
+    window.addEventListener('wheel', markUserGesture, { passive: true, capture: true })
     resize()
     raf = requestAnimationFrame(loop)
 
@@ -79,6 +91,9 @@ export function useSyncVideoToCanvas({
       cancelAnimationFrame(raf)
       ro.disconnect()
       window.removeEventListener('resize', resize)
+      window.removeEventListener('scroll', markUserGesture, true)
+      window.removeEventListener('touchmove', markUserGesture, true)
+      window.removeEventListener('wheel', markUserGesture, true)
     }
   }, [videoRef, canvasRef, containerRef, enabled, objectPosition.x, objectPosition.y])
 }
