@@ -1,0 +1,92 @@
+@import "tailwindcss";
+
+:root {
+  /* Design tokens globali, allineati al tema Serenis-like in App.css */
+  --font-family-sans: "Manrope", "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.5rem;
+  --font-size-2xl: 2.125rem;
+
+  --color-bg: #f6f7fd;
+  --color-bg-elevated: #ffffff;
+  --color-bg-soft: #eef0ff;
+  --color-surface: #ffffff;
+  --color-border-soft: #dfdaf6;
+  --color-border-subtle: #ece9fb;
+
+  --color-text: #1c1c36;
+  --color-text-soft: #4a4a74;
+  --color-text-muted: #6a6a98;
+
+  --color-accent: #7a59f5;
+  --color-accent-soft: #8f73ff;
+  --color-accent-blue: #7a59f5;
+  --color-accent-blue-soft: #ece7ff;
+  --color-accent-green: #8ce6d0;
+  --color-accent-green-soft: #e8fcf6;
+  --color-danger: #b42318;
+
+  --radius-pill: 999px;
+  --radius-card: 1.125rem;
+  --radius-sm: 0.625rem;
+
+  --shadow-soft: 0 14px 44px rgba(28, 28, 54, 0.08);
+  --shadow-softer: 0 26px 70px rgba(28, 28, 54, 0.1);
+  --shadow-header: 0 8px 28px rgba(28, 28, 54, 0.08);
+
+  font-family: var(--font-family-sans);
+  line-height: 1.5;
+  font-weight: 400;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 120% 120% at top left, rgba(122, 89, 245, 0.18) 0%, rgba(122, 89, 245, 0.04) 45%, transparent 70%),
+    radial-gradient(ellipse 130% 120% at bottom right, rgba(140, 230, 208, 0.28) 0%, rgba(140, 230, 208, 0.08) 45%, transparent 72%),
+    var(--color-bg);
+  color: var(--color-text);
+}
+
+/* Landing `/`: niente gradient lilla sotto il video (sfondo video full-bleed) */
+body.tst-route-landing {
+  background: #050814;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

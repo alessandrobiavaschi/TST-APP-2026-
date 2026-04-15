@@ -1,0 +1,103 @@
+import React, { useState } from 'react'
+
+const SEZIONI_ORDER = ['Timbro', 'Intervalli', 'Ritmo', 'Melodia', 'Armonia']
+
+/** Colore bordo sinistro per ogni sezione (palette leggera) */
+const SEZIONE_ACCENT = {
+  Timbro: 'var(--report-accordion-timbro, #3b82f6)',
+  Intervalli: 'var(--report-accordion-intervalli, #8b5cf6)',
+  Ritmo: 'var(--report-accordion-ritmo, #ef4444)',
+  Melodia: 'var(--report-accordion-melodia, #22c55e)',
+  Armonia: 'var(--report-accordion-armonia, #eab308)',
+}
+
+export default function ReportAccordion({ sezioniTest }) {
+  const [openKey, setOpenKey] = useState(null)
+
+  if (!sezioniTest || typeof sezioniTest !== 'object') {
+    return null
+  }
+
+  return (
+    <section
+      className="report-sezioni-accordion"
+      aria-labelledby="accordion-sezioni-heading"
+    >
+      <div className="report-sezioni-header">
+        <h2
+          id="accordion-sezioni-heading"
+          className="report-sezioni-title"
+        >
+          Sezioni principali
+        </h2>
+        <p className="report-sezioni-intro">
+          Ogni sezione del test ha un rapporto specifico con la dimensione interiore e il sentire: cosa comprende, cosa rappresenta, cosa attiva e il rapporto con l&apos;anima.
+        </p>
+      </div>
+      <div className="report-sezioni-list">
+        {SEZIONI_ORDER.map((nomeSezione) => {
+          const sezione = sezioniTest[nomeSezione]
+          if (!sezione) return null
+          const isOpen = openKey === nomeSezione
+          const id = `accordion-${nomeSezione.toLowerCase()}`
+          const accent = SEZIONE_ACCENT[nomeSezione]
+          return (
+            <div
+              key={nomeSezione}
+              className={`report-sezione-item ${isOpen ? 'report-sezione-item--open' : ''}`}
+              style={{ '--sezione-accent': accent }}
+            >
+              <button
+                type="button"
+                className="report-sezione-trigger"
+                onClick={() => setOpenKey(isOpen ? null : nomeSezione)}
+                aria-expanded={isOpen}
+                aria-controls={id}
+                id={`${id}-button`}
+              >
+                <span className="report-sezione-name">{nomeSezione}+</span>
+                <span className="report-sezione-chevron" aria-hidden>
+                  {isOpen ? '−' : '+'}
+                </span>
+              </button>
+              <div
+                id={id}
+                role="region"
+                aria-labelledby={`${id}-button`}
+                className="report-sezione-panel"
+                hidden={!isOpen}
+              >
+                <dl className="report-sezione-dl">
+                  {sezione.cosa_comprende && (
+                    <>
+                      <dt className="report-sezione-dt">Cosa comprende</dt>
+                      <dd className="report-sezione-dd">{sezione.cosa_comprende}</dd>
+                    </>
+                  )}
+                  {sezione.cosa_rappresenta && (
+                    <>
+                      <dt className="report-sezione-dt">Cosa rappresenta</dt>
+                      <dd className="report-sezione-dd">{sezione.cosa_rappresenta}</dd>
+                    </>
+                  )}
+                  {sezione.cosa_attiva && (
+                    <>
+                      <dt className="report-sezione-dt">Cosa attiva</dt>
+                      <dd className="report-sezione-dd">{sezione.cosa_attiva}</dd>
+                    </>
+                  )}
+                  {sezione.rapporto_anima && (
+                    <>
+                      <dt className="report-sezione-dt">Rapporto con l&apos;anima</dt>
+                      <dd className="report-sezione-dd">{sezione.rapporto_anima}</dd>
+                    </>
+                  )}
+                </dl>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </section>
+  )
+}
