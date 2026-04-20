@@ -230,6 +230,15 @@ function App() {
     navigate({ pathname: '/', search: loginSearch, state: { openAccessBox: true } })
   }
 
+  const handleLandingStartClick = () => {
+    if (currentUser) {
+      setMobileNavOpen(false)
+      navigate('/nuovo-test')
+      return
+    }
+    handleLoginClick()
+  }
+
   const handleRegisterClick = () => {
     setMobileNavOpen(false)
     if (location.pathname === '/home' && typeof window !== 'undefined') {
@@ -353,6 +362,15 @@ function App() {
             </nav>
             <div className="app-header-account">
               <HeaderSoundToggleButton />
+              {location.pathname === '/' && (
+                <button
+                  type="button"
+                  className="header-landing-start-button"
+                  onClick={handleLandingStartClick}
+                >
+                  Inizia
+                </button>
+              )}
               {location.pathname !== '/' && (
                 <button
                   type="button"

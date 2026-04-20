@@ -145,6 +145,7 @@
 
 .header-register-button,
 .header-login-button,
+.header-landing-start-button,
 .header-weather-button,
 .header-avatar,
 .header-sound-toggle {
@@ -155,6 +156,10 @@
   padding: 0.42rem 0.8rem;
   font-size: 0.78rem;
   font-family: inherit;
+}
+
+.header-landing-start-button {
+  display: none;
 }
 
 /* =========================================================
@@ -14678,6 +14683,11 @@ body {
   .header-sound-toggle-text {
     display: none;
   }
+
+  .app-header--landing .header-landing-start-button {
+    padding: 0.32rem 0.58rem;
+    font-size: 0.68rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -20318,6 +20328,19 @@ a:focus-visible {
   .app-header--landing .header-login-button,
   .app-header--landing .header-register-button {
     display: none;
+  }
+
+  .app-header--landing .header-landing-start-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.36rem 0.72rem;
+    font-size: 0.74rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border-color: rgba(226, 232, 240, 0.42);
+    background: rgba(15, 23, 42, 0.55);
+    color: #f8fafc;
   }
 
   .app-main {
