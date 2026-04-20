@@ -25,6 +25,7 @@ function LandingPage() {
   const [resetMessage, setResetMessage] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [activeSectionIndex, setActiveSectionIndex] = useState(0)
+  const [discoverProgress, setDiscoverProgress] = useState(0)
   const accessBoxRef = useRef(null)
   const heroIntroSectionRef = useRef(null)
   const heroMessageSectionRef = useRef(null)
@@ -60,14 +61,34 @@ function LandingPage() {
   const navigateToLogin = () => {
     const loginParams = new URLSearchParams(location.search.replace(/^\?/, ''))
     loginParams.set('accesso', '1')
+    // #region agent log
+    fetch('http://127.0.0.1:7527/ingest/9a8c1779-de14-406d-8ed0-f0cfc6d332d5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a9db1d'},body:JSON.stringify({sessionId:'a9db1d',runId:'post-fix',hypothesisId:'L6',location:'src/pages/LandingPage.jsx:64',message:'navigateToLogin called',data:{pathname:location.pathname,currentSearch:location.search,nextSearch:`?${loginParams.toString()}`},timestamp:Date.now()})}).catch(()=>{})
+    // #endregion
+    if (location.pathname === '/') {
+      setShowAccessBox(true)
+      window.requestAnimationFrame(() => {
+        accessSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      })
+      // #region agent log
+      fetch('http://127.0.0.1:7527/ingest/9a8c1779-de14-406d-8ed0-f0cfc6d332d5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a9db1d'},body:JSON.stringify({sessionId:'a9db1d',runId:'post-fix',hypothesisId:'L7',location:'src/pages/LandingPage.jsx:72',message:'access panel opened and scrolled on landing',data:{pathname:location.pathname,hasAccessSectionRef:Boolean(accessSectionRef.current)},timestamp:Date.now()})}).catch(()=>{})
+      // #endregion
+      return
+    }
     navigate({ pathname: '/', search: `?${loginParams.toString()}` }, { state: { openAccessBox: true } })
   }
 
   const handleStartClick = () => {
     setAuthError('')
     setResetMessage('')
-    if (currentUser) {
-      if (!openAppPanel('/nuovo-test')) navigate('/nuovo-test')
+    const hasAuthenticatedSession = Boolean(currentUser || auth?.currentUser)
+    // #region agent log
+    fetch('http://127.0.0.1:7527/ingest/9a8c1779-de14-406d-8ed0-f0cfc6d332d5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a9db1d'},body:JSON.stringify({sessionId:'a9db1d',runId:'post-fix',hypothesisId:'L6',location:'src/pages/LandingPage.jsx:78',message:'handleStartClick fired',data:{contextUser:Boolean(currentUser),firebaseUser:Boolean(auth?.currentUser),hasAuthenticatedSession,pathname:location.pathname},timestamp:Date.now()})}).catch(()=>{})
+    // #endregion
+    if (hasAuthenticatedSession) {
+      // #region agent log
+      fetch('http://127.0.0.1:7527/ingest/9a8c1779-de14-406d-8ed0-f0cfc6d332d5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a9db1d'},body:JSON.stringify({sessionId:'a9db1d',runId:'post-fix',hypothesisId:'L6',location:'src/pages/LandingPage.jsx:84',message:'authenticated start route chosen',data:{target:'/nuovo-test'},timestamp:Date.now()})}).catch(()=>{})
+      // #endregion
+      navigate('/nuovo-test')
       return
     }
     navigateToLogin()
@@ -222,6 +243,9 @@ function LandingPage() {
       setAuthError('')
       setResetMessage('')
       setShowAccessBox(true)
+      // #region agent log
+      fetch('http://127.0.0.1:7527/ingest/9a8c1779-de14-406d-8ed0-f0cfc6d332d5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a9db1d'},body:JSON.stringify({sessionId:'a9db1d',runId:'landing-pre-fix',hypothesisId:'L4',location:'src/pages/LandingPage.jsx:234',message:'openAccessBox from location.state',data:{pathname:location.pathname,search:location.search},timestamp:Date.now()})}).catch(()=>{})
+      // #endregion
       navigate('.', { replace: true, state: {} })
     }
   }, [location, navigate])
@@ -235,6 +259,9 @@ function LandingPage() {
     setAuthError('')
     setResetMessage('')
     setShowAccessBox(true)
+    // #region agent log
+    fetch('http://127.0.0.1:7527/ingest/9a8c1779-de14-406d-8ed0-f0cfc6d332d5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a9db1d'},body:JSON.stringify({sessionId:'a9db1d',runId:'landing-pre-fix',hypothesisId:'L5',location:'src/pages/LandingPage.jsx:250',message:'openAccessBox from accesso query param',data:{pathname:location.pathname,searchBefore:location.search,searchAfter:rest ? `?${rest}` : ''},timestamp:Date.now()})}).catch(()=>{})
+    // #endregion
     navigate(
       { pathname: '/', search: rest ? `?${rest}` : '', hash: location.hash || '' },
       { replace: true, state: {} },
@@ -277,6 +304,32 @@ function LandingPage() {
       if (rafId !== null) window.cancelAnimationFrame(rafId)
       window.removeEventListener('scroll', handleViewportChange)
       window.removeEventListener('resize', handleViewportChange)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    let rafId = null
+
+    const updateDiscoverProgress = () => {
+      rafId = null
+      const targetSectionTop = heroMessageSectionRef.current?.offsetTop ?? window.innerHeight * 0.7
+      const nextProgress = Math.max(0, Math.min(1, window.scrollY / Math.max(1, targetSectionTop)))
+      setDiscoverProgress((prev) => (Math.abs(prev - nextProgress) < 0.01 ? prev : nextProgress))
+    }
+
+    const onScrollOrResize = () => {
+      if (rafId !== null) return
+      rafId = window.requestAnimationFrame(updateDiscoverProgress)
+    }
+
+    updateDiscoverProgress()
+    window.addEventListener('scroll', onScrollOrResize, { passive: true })
+    window.addEventListener('resize', onScrollOrResize)
+    return () => {
+      if (rafId !== null) window.cancelAnimationFrame(rafId)
+      window.removeEventListener('scroll', onScrollOrResize)
+      window.removeEventListener('resize', onScrollOrResize)
     }
   }, [])
 
@@ -338,20 +391,31 @@ function LandingPage() {
               </div>
             </section>
 
-            <div className="landing-apple-hero-fade-transition" aria-hidden="true" />
+            <button
+              type="button"
+              className={`landing-apple-discover-cue ${discoverProgress < 0.04 ? 'is-idle' : ''}`}
+              style={{ '--landing-discover-progress': discoverProgress }}
+              onClick={() => scrollToSection(1)}
+            >
+              <span className="landing-apple-discover-cue-text">Scopri come funziona il Test Sonoro Temperamentale</span>
+              <span className="landing-apple-discover-cue-arrow" aria-hidden="true">
+                <span className="landing-apple-discover-cue-stem" />
+                <span className="landing-apple-discover-cue-head" />
+              </span>
+            </button>
 
             <section ref={heroMessageSectionRef} className="landing-apple-hero landing-apple-hero--message">
               <p className="landing-apple-eyebrow">Esperienza sonora guidata</p>
               <div className="landing-apple-hero-copy">
                 <h1 id="landing-apple-title" className="landing-apple-display-title">
-                  Oltre quello che pensi, verso quello senti.
+                  Oltre quello che pensi, verso quello che senti.
                 </h1>
                 <p className="landing-apple-lead">
-                  La musica e il mezzo con cui studiamo il tuo temperamento emotivo. Per questo, quando le parole non
+                  La musica è il mezzo con cui studiamo il tuo temperamento emotivo. Per questo, quando le parole non
                   arrivano, i suoni possono diventare una risposta. Il TST usa la musica in forma precognitiva: uno
                   strumento scientificamente potente per comprendere quali aree si attivano all&apos;ascolto di alcuni
                   suoni, cosa questo dice di te, di come stai e di come funzioni. La restituzione traduce le tue
-                  indicazioni in immagini, grafici e parole semplici e utili per nominare la luminosita delle tue
+                  indicazioni in immagini, grafici e parole semplici e utili per nominare la luminosità delle tue
                   risorse e scoprire le tue ombre.
                 </p>
               </div>

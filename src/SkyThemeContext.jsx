@@ -20,9 +20,12 @@ const DEFAULT_CONFIG = {
   allowedTimesOfDay: ['morning', 'afternoon', 'sunset', 'twilight', 'night'],
   // se true, niente video animato (solo fallback statico)
   staticMode: false,
+  // preset colore fallback statico: "calmo" | "profondo"
+  skyFallbackPreset: 'calmo',
 }
 
 const STORAGE_KEY = 'tst_sky_config_v1'
+const SKY_FALLBACK_PRESETS = ['calmo', 'profondo']
 const PRIORITY_SKY_SEQUENCE = [
   { timeOfDay: 'sunset', weather: 'sereno' }, // 1) tardo pomeriggio, sereno
   { timeOfDay: 'afternoon', weather: 'nuvoloso' }, // 2) variazione netta per feedback immediato
@@ -58,6 +61,9 @@ function loadStoredConfig() {
         Array.isArray(parsed.allowedTimesOfDay) && parsed.allowedTimesOfDay.length > 0
           ? parsed.allowedTimesOfDay
           : DEFAULT_CONFIG.allowedTimesOfDay,
+      skyFallbackPreset: SKY_FALLBACK_PRESETS.includes(parsed.skyFallbackPreset)
+        ? parsed.skyFallbackPreset
+        : DEFAULT_CONFIG.skyFallbackPreset,
     }
   } catch {
     return DEFAULT_CONFIG
@@ -173,6 +179,13 @@ export function SkyThemeProvider({ children }) {
     updateConfig((prev) => ({ ...prev, staticMode: Boolean(value) }))
   }, [updateConfig])
 
+  const setSkyFallbackPreset = useCallback((preset) => {
+    const safePreset = SKY_FALLBACK_PRESETS.includes(preset)
+      ? preset
+      : DEFAULT_CONFIG.skyFallbackPreset
+    updateConfig((prev) => ({ ...prev, skyFallbackPreset: safePreset }))
+  }, [updateConfig])
+
   const setLandingSkyOverride = useCallback((override) => {
     landingOverrideRef.current = override
     if (override && override.timeOfDay) {
@@ -192,6 +205,9 @@ export function SkyThemeProvider({ children }) {
       if (sequenceItem) {
         setTimeOfDay(sequenceItem.timeOfDay)
         setWeather(sequenceItem.weather)
+        // #region agent log
+        fetch('http://127.0.0.1:7527/ingest/9a8c1779-de14-406d-8ed0-f0cfc6d332d5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a9db1d'},body:JSON.stringify({sessionId:'a9db1d',runId:'pre-fix',hypothesisId:'H1',location:'src/SkyThemeContext.jsx:196',message:'forceRandomWeatherChange sequence selection',data:{path:'priority-sequence',sequenceStep,timeOfDay:sequenceItem.timeOfDay,weather:sequenceItem.weather,scheduleAfterMs:scheduleAfterMs ?? null},timestamp:Date.now()})}).catch(()=>{})
+        // #endregion
         lastWeatherChangeRef.current = Date.now()
         manualSkySequenceStepRef.current = sequenceStep + 1
       } else {
@@ -223,6 +239,9 @@ export function SkyThemeProvider({ children }) {
         }
         setWeather(nextWeather)
         setTimeOfDay(nextTime)
+        // #region agent log
+        fetch('http://127.0.0.1:7527/ingest/9a8c1779-de14-406d-8ed0-f0cfc6d332d5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a9db1d'},body:JSON.stringify({sessionId:'a9db1d',runId:'pre-fix',hypothesisId:'H1',location:'src/SkyThemeContext.jsx:227',message:'forceRandomWeatherChange random selection',data:{path:'random',attempts,nextWeather,nextTime,currentWeather:weather,currentTimeOfDay:timeOfDay,scheduleAfterMs:scheduleAfterMs ?? null},timestamp:Date.now()})}).catch(()=>{})
+        // #endregion
         lastWeatherChangeRef.current = Date.now()
       }
 
@@ -265,6 +284,7 @@ export function SkyThemeProvider({ children }) {
         setWeatherChangeMinutes,
         setAllowedTimesOfDay,
         setStaticMode,
+        setSkyFallbackPreset,
         setLandingSkyOverride,
         forceRandomWeatherChange,
       }
@@ -279,6 +299,7 @@ export function SkyThemeProvider({ children }) {
       setWeatherChangeMinutes,
       setAllowedTimesOfDay,
       setStaticMode,
+      setSkyFallbackPreset,
       setLandingSkyOverride,
       forceRandomWeatherChange,
     ],

@@ -268,6 +268,42 @@ function ReportPage() {
     }
   }
 
+  const portatoTotals = {
+    simpatia: Number(record.raw.PE_Simpatia) || 0,
+    antipatia: Number(record.raw.PE_Antipatia) || 0,
+    indifferenza: Number(record.raw.PE_Indifferenza) || 0,
+  }
+  const portatoEntries = [
+    { key: 'Simpatia', value: portatoTotals.simpatia },
+    { key: 'Antipatia', value: portatoTotals.antipatia },
+    { key: 'Indifferenza', value: portatoTotals.indifferenza },
+  ]
+  const dominantPortato = portatoEntries.reduce((best, current) => {
+    if (!best) return current
+    return current.value > best.value ? current : best
+  }, null)
+  const portatoText = dominantPortato ? reportContent.portato_esperienziale?.[dominantPortato.key] : null
+  let vitalityInterpretation =
+    'profilo misto: coesistono slancio e momenti di chiusura; utile leggere con attenzione i quattro rapporti.'
+  if (dominantPortato?.key === 'Simpatia') {
+    vitalityInterpretation =
+      'prevale un orientamento alla vitalità relazionale: maggiore disponibilità al contatto, alla risonanza e al coinvolgimento.'
+  } else if (dominantPortato?.key === 'Antipatia') {
+    vitalityInterpretation =
+      'emerge una vitalità difensiva o in opposizione: energia presente ma spesso incanalata in rifiuto, irritazione o distanza.'
+  } else if (dominantPortato?.key === 'Indifferenza') {
+    vitalityInterpretation =
+      'prevale una tendenza depressiva/ipo-vitale: abbassamento del coinvolgimento emotivo, distacco e riduzione della risonanza affettiva.'
+  }
+  const portatoEsperienziale = dominantPortato
+    ? {
+        dominantKey: dominantPortato.key,
+        description: portatoText?.descrizione_breve || '',
+        vitalityInterpretation,
+        totals: portatoTotals,
+      }
+    : null
+
   const handleClose = () => navigate('/risultati')
   const nomeCompleto =
     [record.raw.Nome, record.raw.Cognome].filter(Boolean).join(' ') || 'Test anonimo'
@@ -371,7 +407,7 @@ function ReportPage() {
               Mostra la tua impronta emotiva di fondo, oltre il singolo momento. Ti aiuta a capire dove torni più spesso quando vivi, rifletti e reagisci.
             </p>
           </section>
-          <RelationalTabs rapportiLevels={rapportiLevels} />
+          <RelationalTabs rapportiLevels={rapportiLevels} portatoEsperienziale={portatoEsperienziale} />
         </div>
 
         {/* Sezione 4: Lessico */}

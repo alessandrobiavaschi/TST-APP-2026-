@@ -894,6 +894,25 @@
   border-color: var(--report-xp-border);
 }
 
+.report-xp .report-data-details > summary {
+  background: color-mix(in srgb, var(--report-group-accent) 24%, rgba(15, 23, 42, 0.9));
+  color: #f8fafc;
+}
+
+.report-xp .report-data-details > summary::after {
+  color: #f8fafc;
+}
+
+.report-xp .report-data-card,
+.report-xp .report-data-table-wrap {
+  background: rgba(2, 6, 23, 0.68);
+  border-color: var(--report-xp-border);
+}
+
+.report-xp .report-data-table tbody td {
+  color: var(--report-xp-text);
+}
+
 .report-xp .report-data-subtitle {
   color: var(--report-xp-text);
 }

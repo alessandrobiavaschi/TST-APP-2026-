@@ -51,9 +51,9 @@ const SECTION_COLORS = {
 }
 
 const TABLES_GROUPS = [
-  { key: 'risposte', label: 'Tabelle risposte per sezione', color: '#0ea5e9', bg: '#f0f9ff' },
-  { key: 'risultati', label: 'Tabelle risultati per sezione', color: '#8b5cf6', bg: '#f5f3ff' },
-  { key: 'rapporti', label: 'Tabelle rapporti e confronto backend', color: '#f59e0b', bg: '#fffbeb' },
+  { key: 'risposte', label: 'Tabelle risposte per sezione', tone: 'responses' },
+  { key: 'risultati', label: 'Tabelle risultati per sezione', tone: 'results' },
+  { key: 'rapporti', label: 'Tabelle rapporti e confronto backend', tone: 'reports' },
 ]
 
 const ADVANCED_OPERATOR_KEY_STORAGE = 'tst_operator_advanced_data_unlocked'
@@ -403,10 +403,7 @@ export default function ReportDataTablesSection({ rawRecord }) {
           </div>
         ) : (
         <div className="report-data-accordion">
-        <details
-          className="report-data-details"
-          style={{ '--report-group-accent': TABLES_GROUPS[0].color, '--report-group-bg': TABLES_GROUPS[0].bg }}
-        >
+        <details className={`report-data-details report-data-details--${TABLES_GROUPS[0].tone}`}>
           <summary>{TABLES_GROUPS[0].label}</summary>
           <div className="report-data-details-body">
             {SECTION_DEFS.map((section) => {
@@ -451,10 +448,7 @@ export default function ReportDataTablesSection({ rawRecord }) {
           </div>
         </details>
 
-        <details
-          className="report-data-details"
-          style={{ '--report-group-accent': TABLES_GROUPS[1].color, '--report-group-bg': TABLES_GROUPS[1].bg }}
-        >
+        <details className={`report-data-details report-data-details--${TABLES_GROUPS[1].tone}`}>
           <summary>{TABLES_GROUPS[1].label}</summary>
           <div className="report-data-details-body">
             {SECTION_DEFS.map((section) => {
@@ -532,10 +526,7 @@ export default function ReportDataTablesSection({ rawRecord }) {
           </div>
         </details>
 
-        <details
-          className="report-data-details"
-          style={{ '--report-group-accent': TABLES_GROUPS[2].color, '--report-group-bg': TABLES_GROUPS[2].bg }}
-        >
+        <details className={`report-data-details report-data-details--${TABLES_GROUPS[2].tone}`}>
           <summary>{TABLES_GROUPS[2].label}</summary>
           <div className="report-data-details-body">
             <article className="report-data-card">

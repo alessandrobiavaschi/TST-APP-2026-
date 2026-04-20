@@ -21,6 +21,7 @@ function SkyBackground() {
   const [isCrossfading, setIsCrossfading] = useState(false)
   const [isCurrentVideoPlaying, setIsCurrentVideoPlaying] = useState(false)
   const [isNextVideoPlaying, setIsNextVideoPlaying] = useState(false)
+  const [isLowPowerMode, setIsLowPowerMode] = useState(false)
   const containerRef = useRef(null)
   const currentVideoRef = useRef(null)
   const nextVideoRef = useRef(null)
@@ -29,6 +30,7 @@ function SkyBackground() {
 
   const currentConfig = getSkyVideo(...currentKey.split('__'))
   const nextConfig = nextKey ? getSkyVideo(...nextKey.split('__')) : null
+  const shouldUseStaticBackground = Boolean(config.staticMode || isLowPowerMode)
 
   const skyObjectPosition = { x: 50, y: 42 }
 
@@ -37,14 +39,14 @@ function SkyBackground() {
     canvasRef: currentCanvasRef,
     containerRef,
     objectPosition: skyObjectPosition,
-    enabled: !config.staticMode && Boolean(currentConfig),
+    enabled: !shouldUseStaticBackground && Boolean(currentConfig),
   })
   useSyncVideoToCanvas({
     videoRef: nextVideoRef,
     canvasRef: nextCanvasRef,
     containerRef,
     objectPosition: skyObjectPosition,
-    enabled: !config.staticMode && Boolean(nextConfig),
+    enabled: !shouldUseStaticBackground && Boolean(nextConfig),
   })
 
   const nextCompositeKey = getCompositeKey(timeOfDay, weather)
@@ -52,9 +54,34 @@ function SkyBackground() {
   const crossfadeDurationMs = isLandingRoute
     ? LANDING_CROSSFADE_DURATION_MS
     : DEFAULT_CROSSFADE_DURATION_MS
+  const shouldRevealNextLayer = Boolean(nextConfig && isCrossfading && isNextVideoPlaying)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const connection = navigator.connection
+    const evaluateLowPowerMode = () => {
+      setIsLowPowerMode(Boolean(motionQuery.matches || connection?.saveData))
+    }
+
+    evaluateLowPowerMode()
+
+    const onMotionChange = () => evaluateLowPowerMode()
+    const onConnectionChange = () => evaluateLowPowerMode()
+    motionQuery.addEventListener('change', onMotionChange)
+    connection?.addEventListener?.('change', onConnectionChange)
+
+    return () => {
+      motionQuery.removeEventListener('change', onMotionChange)
+      connection?.removeEventListener?.('change', onConnectionChange)
+    }
+  }, [])
 
   useEffect(() => {
     if (nextCompositeKey === currentKey) return
+    // #region agent log
+    fetch('http://127.0.0.1:7527/ingest/9a8c1779-de14-406d-8ed0-f0cfc6d332d5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a9db1d'},body:JSON.stringify({sessionId:'a9db1d',runId:'pre-fix',hypothesisId:'H2',location:'src/components/SkyBackground.jsx:60',message:'crossfade started',data:{currentKey,nextCompositeKey,crossfadeDurationMs,isLandingRoute},timestamp:Date.now()})}).catch(()=>{})
+    // #endregion
     setNextKey(nextCompositeKey)
     setIsCrossfading(true)
 
@@ -62,6 +89,9 @@ function SkyBackground() {
       setCurrentKey(nextCompositeKey)
       setNextKey(null)
       setIsCrossfading(false)
+      // #region agent log
+      fetch('http://127.0.0.1:7527/ingest/9a8c1779-de14-406d-8ed0-f0cfc6d332d5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a9db1d'},body:JSON.stringify({sessionId:'a9db1d',runId:'pre-fix',hypothesisId:'H2',location:'src/components/SkyBackground.jsx:70',message:'crossfade ended',data:{nextCompositeKey,crossfadeDurationMs},timestamp:Date.now()})}).catch(()=>{})
+      // #endregion
     }, crossfadeDurationMs)
 
     return () => clearTimeout(t)
@@ -109,6 +139,20 @@ function SkyBackground() {
   }, [nextKey, ensureVideoPlaying])
 
   useEffect(() => {
+    // #region agent log
+    fetch('http://127.0.0.1:7527/ingest/9a8c1779-de14-406d-8ed0-f0cfc6d332d5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a9db1d'},body:JSON.stringify({sessionId:'a9db1d',runId:'pre-fix',hypothesisId:'H3',location:'src/components/SkyBackground.jsx:117',message:'sky playback state changed',data:{currentKey,nextKey,isCrossfading,isCurrentVideoPlaying,isNextVideoPlaying,shouldRevealNextLayer,staticMode:Boolean(config?.staticMode)},timestamp:Date.now()})}).catch(()=>{})
+    // #endregion
+  }, [
+    currentKey,
+    nextKey,
+    isCrossfading,
+    isCurrentVideoPlaying,
+    isNextVideoPlaying,
+    shouldRevealNextLayer,
+    config?.staticMode,
+  ])
+
+  useEffect(() => {
     const tick = () => {
       ensureVideoPlaying(currentVideoRef, () => setIsCurrentVideoPlaying(true), () =>
         setIsCurrentVideoPlaying(false)
@@ -142,9 +186,9 @@ function SkyBackground() {
     }
   }, [nextKey, ensureVideoPlaying])
 
-  if (config.staticMode) {
+  if (shouldUseStaticBackground) {
     return (
-      <div className="app-sky-background app-sky-background--static" aria-hidden="true">
+      <div className="app-sky-background app-sky-background--static app-sky-background--solid" aria-hidden="true">
         <div className="app-sky-overlay-polaroid" />
       </div>
     )
@@ -178,11 +222,17 @@ function SkyBackground() {
         disablePictureInPicture
         disableRemotePlayback
         onLoadedData={() => {
+          // #region agent log
+          fetch('http://127.0.0.1:7527/ingest/9a8c1779-de14-406d-8ed0-f0cfc6d332d5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a9db1d'},body:JSON.stringify({sessionId:'a9db1d',runId:'pre-fix',hypothesisId:'H4',location:'src/components/SkyBackground.jsx:198',message:'current video loaded data',data:{currentKey,src:currentConfig?.src ?? null},timestamp:Date.now()})}).catch(()=>{})
+          // #endregion
           ensureVideoPlaying(currentVideoRef, () => setIsCurrentVideoPlaying(true), () =>
             setIsCurrentVideoPlaying(false)
           )
         }}
         onError={() => {
+          // #region agent log
+          fetch('http://127.0.0.1:7527/ingest/9a8c1779-de14-406d-8ed0-f0cfc6d332d5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a9db1d'},body:JSON.stringify({sessionId:'a9db1d',runId:'pre-fix',hypothesisId:'H4',location:'src/components/SkyBackground.jsx:205',message:'current video error',data:{currentKey,src:currentConfig?.src ?? null},timestamp:Date.now()})}).catch(()=>{})
+          // #endregion
           setIsCurrentVideoPlaying(false)
         }}
         onPlaying={() => setIsCurrentVideoPlaying(true)}
@@ -203,11 +253,17 @@ function SkyBackground() {
           disablePictureInPicture
           disableRemotePlayback
           onLoadedData={() => {
+            // #region agent log
+            fetch('http://127.0.0.1:7527/ingest/9a8c1779-de14-406d-8ed0-f0cfc6d332d5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a9db1d'},body:JSON.stringify({sessionId:'a9db1d',runId:'pre-fix',hypothesisId:'H4',location:'src/components/SkyBackground.jsx:225',message:'next video loaded data',data:{nextKey,src:nextConfig?.src ?? null},timestamp:Date.now()})}).catch(()=>{})
+            // #endregion
             ensureVideoPlaying(nextVideoRef, () => setIsNextVideoPlaying(true), () =>
               setIsNextVideoPlaying(false)
             )
           }}
           onError={() => {
+            // #region agent log
+            fetch('http://127.0.0.1:7527/ingest/9a8c1779-de14-406d-8ed0-f0cfc6d332d5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a9db1d'},body:JSON.stringify({sessionId:'a9db1d',runId:'pre-fix',hypothesisId:'H4',location:'src/components/SkyBackground.jsx:232',message:'next video error',data:{nextKey,src:nextConfig?.src ?? null},timestamp:Date.now()})}).catch(()=>{})
+            // #endregion
             setIsNextVideoPlaying(false)
           }}
           onPlaying={() => setIsNextVideoPlaying(true)}
@@ -219,7 +275,7 @@ function SkyBackground() {
         className="app-sky-canvas app-sky-video--current"
         aria-hidden="true"
         style={{
-          opacity: nextConfig && isCrossfading ? 0 : VIDEO_VISIBLE_OPACITY,
+          opacity: shouldRevealNextLayer ? 0 : VIDEO_VISIBLE_OPACITY,
           transition: `opacity ${crossfadeDurationMs}ms ease-in-out`,
           '--sky-blur': isCrossfading ? '10px' : '0px',
         }}
@@ -230,7 +286,7 @@ function SkyBackground() {
           className="app-sky-canvas app-sky-video--next"
           aria-hidden="true"
           style={{
-            opacity: isCrossfading ? VIDEO_VISIBLE_OPACITY : 0,
+            opacity: shouldRevealNextLayer ? VIDEO_VISIBLE_OPACITY : 0,
             transition: `opacity ${crossfadeDurationMs}ms ease-in-out`,
             '--sky-blur': isCrossfading ? '10px' : '0px',
           }}
@@ -239,7 +295,7 @@ function SkyBackground() {
       <div
         className="app-sky-crossfade-mask"
         style={{
-          opacity: isCrossfading ? (isLandingRoute ? 0.48 : 0.22) : 0,
+          opacity: shouldRevealNextLayer ? (isLandingRoute ? 0.48 : 0.22) : 0,
           transition: `opacity ${Math.max(120, Math.round(crossfadeDurationMs * 0.8))}ms ease-out`,
         }}
       />

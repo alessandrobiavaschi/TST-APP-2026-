@@ -90,10 +90,15 @@ function App() {
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [cookieConsent, setCookieConsent] = useState(null) // 'necessary' | 'all' | null
-  const { visualProfile } = useSkyTheme()
+  const {
+    visualProfile,
+    config,
+    setStaticMode,
+    setSkyFallbackPreset,
+    forceRandomWeatherChange,
+  } = useSkyTheme()
   const navigate = useNavigate()
   const location = useLocation()
-  const { forceRandomWeatherChange } = useSkyTheme()
   const mobileNavToggleRef = useRef(null)
   const mobileNavDrawerRef = useRef(null)
   const prevMobileNavOpenRef = useRef(false)
@@ -197,7 +202,19 @@ function App() {
 
   const handleChangeWeatherClick = () => {
     if (!forceRandomWeatherChange) return
+    // #region agent log
+    fetch('http://127.0.0.1:7527/ingest/9a8c1779-de14-406d-8ed0-f0cfc6d332d5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a9db1d'},body:JSON.stringify({sessionId:'a9db1d',runId:'pre-fix',hypothesisId:'H5',location:'src/App.jsx:201',message:'change weather button pressed',data:{pathname:location.pathname,hasForceRandomWeatherChange:Boolean(forceRandomWeatherChange)},timestamp:Date.now()})}).catch(()=>{})
+    // #endregion
     forceRandomWeatherChange()
+  }
+
+  const handleToggleSkyBackgroundMode = () => {
+    setStaticMode(!config?.staticMode)
+  }
+
+  const handleToggleSkyFallbackPreset = () => {
+    const nextPreset = config?.skyFallbackPreset === 'profondo' ? 'calmo' : 'profondo'
+    setSkyFallbackPreset(nextPreset)
   }
 
   const handleLoginClick = () => {
@@ -275,6 +292,7 @@ function App() {
         className={`app-shell app-with-sky${cookieConsent === null ? ' has-gdpr-banner' : ''}`}
         data-sky-tone={skyTone}
         data-sky-warmth={skyWarmth}
+        data-sky-fallback-preset={config?.skyFallbackPreset || 'calmo'}
       >
         {location.pathname !== '/' && <SkyBackground />}
         <header className={`app-header${location.pathname === '/' ? ' app-header--landing' : ''}`}>
@@ -327,9 +345,6 @@ function App() {
                 </>
               ) : (
                 <>
-                  <NavLink to="/tst" className="app-header-link">
-                    Scopri il TST
-                  </NavLink>
                   <NavLink to="/info" className="app-header-link">
                     Contatti
                   </NavLink>
@@ -338,6 +353,27 @@ function App() {
             </nav>
             <div className="app-header-account">
               <HeaderSoundToggleButton />
+              {location.pathname !== '/' && (
+                <button
+                  type="button"
+                  className={`header-background-toggle ${config?.staticMode ? 'is-on' : 'is-off'}`}
+                  onClick={handleToggleSkyBackgroundMode}
+                  aria-pressed={Boolean(config?.staticMode)}
+                  aria-label={config?.staticMode ? 'Attiva sfondo video' : 'Attiva sfondo statico'}
+                >
+                  {config?.staticMode ? 'Sfondo statico' : 'Sfondo video'}
+                </button>
+              )}
+              {location.pathname !== '/' && (
+                <button
+                  type="button"
+                  className={`header-background-preset-toggle header-background-preset-toggle--${config?.skyFallbackPreset || 'calmo'}`}
+                  onClick={handleToggleSkyFallbackPreset}
+                  aria-label="Cambia preset colore dello sfondo statico"
+                >
+                  Preset {config?.skyFallbackPreset === 'profondo' ? 'Profondo' : 'Calmo'}
+                </button>
+              )}
               {location.pathname !== '/' && currentUser && (
                 <button
                   type="button"
@@ -476,13 +512,6 @@ function App() {
                       Crea account
                     </button>
                   </div>
-                  <NavLink
-                    to="/tst"
-                    className="app-mobile-nav-link"
-                    onClick={() => setMobileNavOpen(false)}
-                  >
-                    Scopri il TST
-                  </NavLink>
                   <NavLink
                     to="/info"
                     className="app-mobile-nav-link"

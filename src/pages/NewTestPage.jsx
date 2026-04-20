@@ -167,6 +167,44 @@ const AREA_TEST_OPTIONS = [
   { value: 'E', label: 'E - Armonia (file 59-72)' },
 ]
 
+const AREA_HELP_ITEMS = [
+  {
+    value: 'A',
+    title: 'A · Timbro',
+    range: 'File 1-28',
+    description: 'Ascolti il colore del suono: brillante, caldo, secco, pieno.',
+    simpleCue: 'Sceglila se ti orienti bene quando cambia il carattere del suono.',
+  },
+  {
+    value: 'B',
+    title: 'B · Intervalli',
+    range: 'File 29-41',
+    description: 'Ascolti il rapporto tra due note: più vicino, più distante, più teso o rilassato.',
+    simpleCue: 'Sceglila se riconosci con facilità il “salto” tra due suoni.',
+  },
+  {
+    value: 'C',
+    title: 'C · Ritmo',
+    range: 'File 42-51',
+    description: 'Ascolti il movimento del tempo: groove, incastro, spinta del battito.',
+    simpleCue: 'Sceglila se ti viene naturale seguire pulsazione e andamento.',
+  },
+  {
+    value: 'D',
+    title: 'D · Melodia',
+    range: 'File 52-58',
+    description: 'Ascolti la direzione delle note: salita, discesa, curve melodiche.',
+    simpleCue: 'Sceglila se senti chiaramente “dove va” la linea musicale.',
+  },
+  {
+    value: 'E',
+    title: 'E · Armonia',
+    range: 'File 59-72',
+    description: 'Ascolti come i suoni stanno insieme: equilibrio, tensione, densità.',
+    simpleCue: 'Sceglila se percepisci subito quando l’insieme suona stabile o instabile.',
+  },
+]
+
 const QUALITA_SUONI_OPTIONS = [
   { value: 'QS_OTTIMI', label: 'Ottimi' },
   { value: 'QS_BUONI', label: 'Buoni' },
@@ -300,6 +338,7 @@ function NewTestPage() {
   const [demoChoice, setDemoChoice] = useState(null)
   const [showExitConfirm, setShowExitConfirm] = useState(false)
   const [showTutorialCard, setShowTutorialCard] = useState(false)
+  const [showAreasHelp, setShowAreasHelp] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isAudioBusy, setIsAudioBusy] = useState(false)
   const [navigationHint, setNavigationHint] = useState('')
@@ -359,6 +398,26 @@ function NewTestPage() {
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [showTutorialCard])
+
+  useEffect(() => {
+    if (!showAreasHelp) return undefined
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setShowAreasHelp(false)
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [showAreasHelp])
+
+  useEffect(() => {
+    if (!showAreasHelp) return undefined
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = prev
+    }
+  }, [showAreasHelp])
 
   useEffect(() => {
     if (!showTutorialCard) return undefined
@@ -984,6 +1043,9 @@ function NewTestPage() {
     return null
   }
 
+  const testCompleted = isTestComplete()
+  const isFinalSubmitDisabled = isSubmitting || (!isGuestMode && !isFeedbackComplete())
+
   return (
     <div className="page nuovo-test-page">
       {showIntro && (
@@ -1163,30 +1225,32 @@ function NewTestPage() {
 
       {profilingDone && (
         <section className="page-card page-card--test-session" id="nuovo-test-player">
-          <header className="stepper-header" aria-label="Avanzamento del test">
-            <div className="stepper-header-main">
-              <span className="stepper-step-label">
-                Passo {currentFile} di {TOTAL_STEPS}
-              </span>
-              <span className="stepper-section-label">
-                Sezione: {getMacroSectionLabel(currentFile) || 'Panoramica sonora'}
-              </span>
-              <button
-                type="button"
-                className="nav-button secondary stepper-exit-button"
-                onClick={handleRequestExit}
-              >
-                Esci
-              </button>
-            </div>
-            <div className="stepper-progress" aria-hidden="true">
-              <div
-                className="stepper-progress-bar"
-                style={{ width: `${Math.min(100, Math.max(0, (currentFile / TOTAL_STEPS) * 100))}%` }}
-              />
-            </div>
-          </header>
-          <section className="player-card">
+          {!testCompleted && (
+            <>
+              <header className="stepper-header" aria-label="Avanzamento del test">
+                <div className="stepper-header-main">
+                  <span className="stepper-step-label">
+                    Passo {currentFile} di {TOTAL_STEPS}
+                  </span>
+                  <span className="stepper-section-label">
+                    Sezione: {getMacroSectionLabel(currentFile) || 'Panoramica sonora'}
+                  </span>
+                  <button
+                    type="button"
+                    className="nav-button secondary stepper-exit-button"
+                    onClick={handleRequestExit}
+                  >
+                    Esci
+                  </button>
+                </div>
+                <div className="stepper-progress" aria-hidden="true">
+                  <div
+                    className="stepper-progress-bar"
+                    style={{ width: `${Math.min(100, Math.max(0, (currentFile / TOTAL_STEPS) * 100))}%` }}
+                  />
+                </div>
+              </header>
+              <section className="player-card">
           <div className="player-header">
             <div>
               <span className="player-label">Player audio</span>
@@ -1300,39 +1364,30 @@ function NewTestPage() {
             </p>
           )}
           <audio ref={preloadRef} style={{ display: 'none' }} preload="auto" />
-          </section>
-          <div className="answers-card">
-            <div className="step-header">
-              {getQuestionTitleForFile(currentFile) && (
-                <>
-                  <h2 className="answers-title answers-question-as-title">
-                    {getQuestionTitleForFile(currentFile)}
-                  </h2>
-                  <p className="answers-helper">
-                    Ascolta con calma e per intero tutto l&apos;audio.
-                    <br />
-                    Non esistono risposte giuste o sbagliate.
-                  </p>
-                </>
-              )}
-            </div>
-            {renderAnswerButtons()}
-            <div className="test-navigation-submit">
-              {isTestComplete() && !isFeedbackComplete() && !isGuestMode && (
-                <p className="test-submit-hint">
-                  Compila le domande finali qui sotto prima di poter consegnare.
-                </p>
-              )}
-              <button
-                type="button"
-                className="nav-button submit-test"
-                onClick={handleSubmitTest}
-                disabled={isSubmitting || (isTestComplete() && !isFeedbackComplete() && !isGuestMode)}
-              >
-                {isSubmitting ? 'Consegna in corso...' : 'Consegna e vai al report'}
-              </button>
-            </div>
-            {isTestComplete() && (
+              </section>
+            </>
+          )}
+          <div className={`answers-card ${testCompleted ? 'answers-card--completed' : ''}`}>
+            {!testCompleted && (
+              <>
+                <div className="step-header">
+                  {getQuestionTitleForFile(currentFile) && (
+                    <>
+                      <h2 className="answers-title answers-question-as-title">
+                        {getQuestionTitleForFile(currentFile)}
+                      </h2>
+                      <p className="answers-helper">
+                        Ascolta con calma e per intero tutto l&apos;audio.
+                        <br />
+                        Non esistono risposte giuste o sbagliate.
+                      </p>
+                    </>
+                  )}
+                </div>
+                {renderAnswerButtons()}
+              </>
+            )}
+            {testCompleted && (
               <section className="feedback-section">
                 <h3 className="feedback-title">Domande finali (dopo lo svolgimento del test)</h3>
                 <p className="feedback-subtitle">
@@ -1403,17 +1458,22 @@ function NewTestPage() {
                     </div>
                   </fieldset>
 
-                  <fieldset className="feedback-field feedback-field-full feedback-areas-guide">
-                    <legend>Guida rapida alle aree A-E</legend>
-                    <ul className="feedback-areas-list">
-                      {AREA_TEST_OPTIONS.map((opt) => (
-                        <li key={opt.value}>{opt.label}</li>
-                      ))}
-                    </ul>
-                    <p className="feedback-example">
-                      Esempio: se durante i groove ti sentivi più naturale nella risposta, puoi selezionare C (Ritmo) come area di maggior comfort.
+                  <div className="feedback-field feedback-field-full feedback-areas-guide">
+                    <p className="feedback-help-title">Non ricordi le aree A-E?</p>
+                    <button
+                      type="button"
+                      className="feedback-areas-help-button"
+                      onClick={() => {
+                        uiSounds?.playSecondaryTap?.()
+                        setShowAreasHelp(true)
+                      }}
+                    >
+                      Apri guida aree A-E
+                    </button>
+                    <p className="feedback-help-text">
+                      Clicca e trovi una spiegazione semplice area per area, con esempi pratici.
                     </p>
-                  </fieldset>
+                  </div>
 
                   <fieldset className="feedback-field">
                     <legend>In quali aree del test ti sei sentito più a tuo agio?</legend>
@@ -1469,8 +1529,24 @@ function NewTestPage() {
                     </div>
                   </fieldset>
                 </div>
+                <div className="test-navigation-submit">
+                  {!isFeedbackComplete() && !isGuestMode && (
+                    <p className="test-submit-hint">
+                      Compila tutte le domande finali per attivare il pulsante Consegna.
+                    </p>
+                  )}
+                  <button
+                    type="button"
+                    className="nav-button submit-test"
+                    onClick={handleSubmitTest}
+                    disabled={isFinalSubmitDisabled}
+                  >
+                    {isSubmitting ? 'Consegna in corso...' : 'Consegna'}
+                  </button>
+                </div>
               </section>
             )}
+            {!testCompleted && (
             <div className="test-navigation test-navigation-mobile-sticky">
               <button
                 type="button"
@@ -1492,6 +1568,7 @@ function NewTestPage() {
                 Avanti
               </button>
             </div>
+            )}
           </div>
           {showExitConfirm && (
             <div
@@ -1593,6 +1670,51 @@ function NewTestPage() {
                     Ho capito, iniziamo
                   </button>
                 </div>
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )}
+      {showAreasHelp &&
+        createPortal(
+          <div
+            className="feedback-help-layer"
+            role="presentation"
+            onClick={() => setShowAreasHelp(false)}
+          >
+            <div
+              className="feedback-help-modal"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="feedback-areas-help-title"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <button
+                type="button"
+                className="feedback-help-close"
+                aria-label="Chiudi guida aree"
+                onClick={() => setShowAreasHelp(false)}
+              >
+                <span aria-hidden="true">×</span>
+              </button>
+              <p className="feedback-help-kicker">Aiuto rapido</p>
+              <h4 id="feedback-areas-help-title" className="feedback-help-heading">
+                Come leggere le aree del test (A-E)
+              </h4>
+              <p className="feedback-help-lead">
+                Seleziona come area di maggior agio quella in cui ti sentivi più naturale. Seleziona come
+                area di minor agio quella in cui eri più incerto o in difficoltà.
+              </p>
+              <div className="feedback-help-grid">
+                {AREA_HELP_ITEMS.map((area) => (
+                  <article key={area.value} className="feedback-help-item">
+                    <h5>
+                      {area.title} <span>{area.range}</span>
+                    </h5>
+                    <p>{area.description}</p>
+                    <p className="feedback-help-item-cue">{area.simpleCue}</p>
+                  </article>
+                ))}
               </div>
             </div>
           </div>,
