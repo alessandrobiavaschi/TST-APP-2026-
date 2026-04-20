@@ -57,6 +57,12 @@ function LandingPage() {
     return false
   }
 
+  const navigateToLogin = () => {
+    const loginParams = new URLSearchParams(location.search.replace(/^\?/, ''))
+    loginParams.set('accesso', '1')
+    navigate({ pathname: '/', search: `?${loginParams.toString()}` }, { state: { openAccessBox: true } })
+  }
+
   const handleStartClick = () => {
     setAuthError('')
     setResetMessage('')
@@ -64,7 +70,7 @@ function LandingPage() {
       if (!openAppPanel('/nuovo-test')) navigate('/nuovo-test')
       return
     }
-    setShowAccessBox(true)
+    navigateToLogin()
   }
 
   const scrollToAccessSection = ({ revealPanel = true } = {}) => {
@@ -288,7 +294,7 @@ function LandingPage() {
             <button
               type="button"
               className="landing-apple-mini-cta"
-              onClick={() => scrollToAccessSection({ revealPanel: true })}
+              onClick={handleStartClick}
             >
               Inizia
             </button>
