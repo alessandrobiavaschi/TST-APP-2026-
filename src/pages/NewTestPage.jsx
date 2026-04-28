@@ -334,7 +334,7 @@ function NewTestPage() {
   const [isThresholdFocusActive, setIsThresholdFocusActive] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isAudioBusy, setIsAudioBusy] = useState(false)
-  const [isChoicesVisible, setIsChoicesVisible] = useState(false)
+  const [isChoicesVisible, setIsChoicesVisible] = useState(true)
   const [isProcessingNext, setIsProcessingNext] = useState(false)
   const [isAnalyzingResult, setIsAnalyzingResult] = useState(false)
   const [analysisProgress, setAnalysisProgress] = useState(0)
@@ -531,7 +531,7 @@ function NewTestPage() {
 
   useEffect(() => {
     setAudioError(null)
-    setIsChoicesVisible(false)
+    setIsChoicesVisible(true)
     setNavigationHint('')
     if (resetTimerRef.current) {
       window.clearTimeout(resetTimerRef.current)
@@ -1479,7 +1479,7 @@ function NewTestPage() {
                     playsInline
                     onPlay={() => {
                       setNeuroChoiceStage('passive')
-                      setIsChoicesVisible(false)
+                      setIsChoicesVisible(true)
                     }}
                     onError={() => {
                       const issue = getAudioSourceIssue(audioSrc)
