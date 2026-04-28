@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { signOut, deleteUser } from 'firebase/auth'
 import { auth } from '../firebaseConfig.js'
@@ -7,9 +7,9 @@ import {
   signInWithEmail as authSignInWithEmail,
   registerWithEmail as authRegisterWithEmail,
   requestPasswordReset as authRequestPasswordReset,
-  getGoogleLoginErrorMessage,
+  getGoogleAuthDiagnosticEventName,
 } from '../auth.js'
-import { AuthContext } from '../AuthContext.jsx'
+import { useAuth } from '../AuthContext.jsx'
 import AuthBox from '../components/AuthBox.jsx'
 import VideoBackground0311 from '../components/VideoBackground0311.jsx'
 import LandingPreviewShowcase from '../components/report/LandingPreviewShowcase.jsx'
@@ -17,18 +17,13 @@ import { TEST_STORY_SLIDES } from '../components/TestStorySlider.jsx'
 import { useSkyTheme } from '../SkyThemeContext.jsx'
 
 function HomePage() {
-  const currentUser = useContext(AuthContext)
+  const { user: currentUser, authReady } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const { setLandingSkyOverride } = useSkyTheme()
   const [showLoginSection, setShowLoginSection] = useState(
     Boolean(location.state && (location.state.openLogin || location.state.openAccessBox)),
   )
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [nome, setNome] = useState('')
-  const [cognome, setCognome] = useState('')
   const [isRegisterMode, setIsRegisterMode] = useState(
     Boolean(location.state && location.state.openRegister),
   )
@@ -42,12 +37,14 @@ function HomePage() {
   // Sincronizza stato con location quando si naviga a /home con state diverso (es. da Login a Crea account)
   useEffect(() => {
     const state = location.state || {}
-    setShowLoginSection(Boolean(state.openLogin || state.openAccessBox))
-    setIsRegisterMode(Boolean(state.openRegister))
+    queueMicrotask(() => {
+      setShowLoginSection(Boolean(state.openLogin || state.openAccessBox))
+      setIsRegisterMode(Boolean(state.openRegister))
+    })
   }, [location.pathname, location.state])
 
   useEffect(() => {
-    setLandingSkyOverride({ timeOfDay: 'sunset', weather: 'sereno' })
+    queueMicrotask(() => setLandingSkyOverride({ timeOfDay: 'sunset', weather: 'sereno' }))
   }, [setLandingSkyOverride])
 
   useEffect(() => {
@@ -60,6 +57,20 @@ function HomePage() {
     }
     window.addEventListener('tst:open-home-auth', onOpenHomeAuth)
     return () => window.removeEventListener('tst:open-home-auth', onOpenHomeAuth)
+  }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const eventName = getGoogleAuthDiagnosticEventName()
+    const onGoogleDiagnostic = (event) => {
+      const nextMessage =
+        event?.detail?.message ||
+        "Errore durante l'accesso con Google. Apri la console Firebase per i dettagli."
+      setAuthError(nextMessage)
+      setShowLoginSection(true)
+    }
+    window.addEventListener(eventName, onGoogleDiagnostic)
+    return () => window.removeEventListener(eventName, onGoogleDiagnostic)
   }, [])
 
   const trackLandingPreviewEvent = (eventName, payload = {}) => {
@@ -89,119 +100,50 @@ function HomePage() {
     })
   }
 
-  const handleEmailAuth = async (event) => {
-    event.preventDefault()
-    setAuthError('')
-    setResetMessage('')
-    if (!auth) {
-      setAuthError('Firebase non configurato. Aggiungi un file .env con le credenziali.')
-      return
-    }
-    setIsSubmitting(true)
-    try {
-      if (isRegisterMode) {
-        if (!nome.trim() || !cognome.trim()) {
-          setAuthError('Inserisci nome e cognome per creare un account operatore.')
-          return
-        }
-        if (password !== confirmPassword) {
-          setAuthError('Le password non coincidono.')
-          return
-        }
-        await authRegisterWithEmail(email, password, nome, cognome)
-        setResetMessage(
-          'Ti abbiamo inviato un\'email di conferma. Verifica il tuo indirizzo e poi accedi con le tue credenziali.',
-        )
-        setIsRegisterMode(false)
-        setShowLoginSection(true)
-      } else {
-        await authSignInWithEmail(email, password)
-        navigate('/dashboard-operatore')
-      }
-    } catch (err) {
-      setAuthError(err?.message || "Errore durante l'accesso.")
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
   const handleGoogleLogin = async () => {
     setAuthError('')
     setResetMessage('')
-    if (!auth) {
-      setAuthError('Firebase non configurato. Aggiungi un file .env con le credenziali.')
+    const result = await authSignInWithGoogle()
+    if (!result.success) {
+      setAuthError(result.message || "Errore durante l'accesso con Google.")
       return
     }
-    try {
-      const user = await authSignInWithGoogle()
-      if (user) navigate('/home')
-    } catch (err) {
-      setAuthError(getGoogleLoginErrorMessage(err))
-    }
-  }
-
-  const handlePasswordReset = async () => {
-    setAuthError('')
-    setResetMessage('')
-    if (!auth) {
-      setAuthError('Firebase non configurato. Aggiungi un file .env con le credenziali.')
-      return
-    }
-    if (!email) {
-      setAuthError('Inserisci la tua email per reimpostare la password.')
-      return
-    }
-    try {
-      await authRequestPasswordReset(email)
-      setResetMessage(
-        'Se esiste un account con questa email, è stata inviata una mail per reimpostare la password.',
-      )
-    } catch (err) {
-      setAuthError(err.message || 'Errore durante la richiesta di reset password.')
-    }
+    if (result.needsRedirect) return
+    navigate(result.nextRoute || '/home')
   }
 
   const handlePasswordResetRequest = async (emailAddress) => {
     setAuthError('')
     setResetMessage('')
-    if (!auth) {
-      setAuthError('Firebase non configurato. Aggiungi un file .env con le credenziali.')
-      return
-    }
     if (!emailAddress || !emailAddress.trim()) {
       setAuthError('Inserisci la tua email per reimpostare la password.')
       return
     }
     setIsSubmitting(true)
-    try {
-      await authRequestPasswordReset(emailAddress.trim())
-      setResetMessage(
-        'Se esiste un account con questa email, è stata inviata una mail per reimpostare la password.',
-      )
-    } catch (err) {
-      setAuthError(err?.message || 'Errore durante la richiesta di reset password.')
-    } finally {
-      setIsSubmitting(false)
+    const result = await authRequestPasswordReset(emailAddress.trim())
+    setIsSubmitting(false)
+    if (!result.success) {
+      setAuthError(result.message || 'Errore durante la richiesta di reset password.')
+      return
     }
+    setResetMessage(
+      result.message ||
+        'Se esiste un account con questa email, è stata inviata una mail per reimpostare la password.',
+    )
   }
 
   const handleAuthBoxEmailSubmit = async ({ email: em, password: pw }) => {
     setAuthError('')
     setResetMessage('')
-    if (!auth) {
-      setAuthError('Firebase non configurato. Aggiungi un file .env con le credenziali.')
-      return
-    }
     setIsSubmitting(true)
-    try {
-      await authSignInWithEmail(em, pw)
-      navigate('/dashboard-operatore')
-    } catch (err) {
-      setAuthError(err?.message || "Errore durante l'accesso.")
-      throw err
-    } finally {
-      setIsSubmitting(false)
+    const result = await authSignInWithEmail(em, pw)
+    setIsSubmitting(false)
+    if (!result.success) {
+      const errorMessage = result.message || "Errore durante l'accesso."
+      setAuthError(errorMessage)
+      throw new Error(errorMessage)
     }
+    navigate(result.nextRoute || '/home')
   }
 
   const handleAuthBoxRegisterSubmit = async ({
@@ -213,10 +155,6 @@ function HomePage() {
   }) => {
     setAuthError('')
     setResetMessage('')
-    if (!auth) {
-      setAuthError('Firebase non configurato. Aggiungi un file .env con le credenziali.')
-      throw new Error('Firebase non configurato.')
-    }
     if (!n?.trim() || !c?.trim()) {
       const msg = 'Inserisci nome e cognome per creare un account operatore.'
       setAuthError(msg)
@@ -228,17 +166,17 @@ function HomePage() {
       throw new Error(msg)
     }
     setIsSubmitting(true)
-    try {
-      await authRegisterWithEmail(em, pw, n, c)
-      setResetMessage(
-        'Ti abbiamo inviato un\'email di conferma. Verifica il tuo indirizzo e poi accedi con le tue credenziali.',
-      )
-    } catch (err) {
-      setAuthError(err?.message || "Errore durante la registrazione.")
-      throw err
-    } finally {
-      setIsSubmitting(false)
+    const result = await authRegisterWithEmail(em, pw, n, c)
+    setIsSubmitting(false)
+    if (!result.success) {
+      const errorMessage = result.message || 'Errore durante la registrazione.'
+      setAuthError(errorMessage)
+      throw new Error(errorMessage)
     }
+    setResetMessage(
+      result.message ||
+        'Ti abbiamo inviato un\'email di conferma. Verifica il tuo indirizzo e poi accedi con le tue credenziali.',
+    )
   }
 
   const handleLogout = async () => {
@@ -282,16 +220,18 @@ function HomePage() {
   const handleModificaPassword = async () => {
     setAccountError('')
     setAccountMessage('')
-    if (!auth || !currentUser?.email) {
+    if (!currentUser?.email) {
       setAccountError('Impossibile inviare l\'email di reset.')
       return
     }
-    try {
-      await authRequestPasswordReset(currentUser.email)
-      setAccountMessage('È stata inviata un\'email per reimpostare la password al tuo indirizzo.')
-    } catch (err) {
-      setAccountError(err.message || 'Errore durante l\'invio dell\'email di reset.')
+    const result = await authRequestPasswordReset(currentUser.email)
+    if (!result.success) {
+      setAccountError(result.message || 'Errore durante l\'invio dell\'email di reset.')
+      return
     }
+    setAccountMessage(
+      result.message || 'È stata inviata un\'email per reimpostare la password al tuo indirizzo.',
+    )
   }
 
   return (
@@ -353,6 +293,12 @@ function HomePage() {
             </div>
           </div>
         </>
+      ) : !authReady ? (
+        <div className="page">
+          <section className="page-card">
+            <p>Verifica sessione in corso…</p>
+          </section>
+        </div>
       ) : (
         <div className="landing-flow-root page-video-bg-root">
           <VideoBackground0311 />
@@ -489,7 +435,7 @@ function HomePage() {
                         <p>Apri il pannello di accesso per iniziare il test.</p>
                         <button
                           type="button"
-                          className="landing-primary-cta landing-primary-cta--compact"
+                          className="landing-secondary-cta landing-primary-cta--compact"
                           onClick={() => setShowLoginSection(true)}
                         >
                           Apri accesso

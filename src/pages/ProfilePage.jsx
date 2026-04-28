@@ -1,18 +1,19 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore'
-import { AuthContext } from '../AuthContext.jsx'
+import { useAuth } from '../AuthContext.jsx'
 import { db } from '../firebaseConfig.js'
 import { USERS_COLLECTION } from '../firestorePaths.js'
 import {
   changeAccountPassword,
+  setAccountPassword,
   updateUserDisplayName,
   userHasPasswordProvider,
 } from '../auth.js'
 import SkySettingsPanel from '../components/SkySettingsPanel.jsx'
 
 function ProfilePage() {
-  const currentUser = useContext(AuthContext)
+  const { user: currentUser, authReady } = useAuth()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -33,10 +34,15 @@ function ProfilePage() {
   const [pwdConfirm, setPwdConfirm] = useState('')
   const [pwdSaving, setPwdSaving] = useState(false)
   const [pwdMsg, setPwdMsg] = useState({ error: '', ok: '' })
+  const [newPwdA, setNewPwdA] = useState('')
+  const [newPwdB, setNewPwdB] = useState('')
+  const [settingPwd, setSettingPwd] = useState(false)
+  const [linkPwdMsg, setLinkPwdMsg] = useState({ error: '', ok: '' })
 
   const hasPassword = currentUser ? userHasPasswordProvider(currentUser) : false
 
   useEffect(() => {
+    if (!authReady) return
     if (!currentUser) {
       navigate('/home', { replace: true, state: { openLogin: true } })
       return
@@ -71,7 +77,7 @@ function ProfilePage() {
     }
 
     load()
-  }, [currentUser, navigate])
+  }, [authReady, currentUser, navigate])
 
   const handleChange = (field) => (event) => {
     const { value } = event.target
@@ -127,6 +133,34 @@ function ProfilePage() {
     }
   }
 
+  const handleSetPassword = async (e) => {
+    e.preventDefault()
+    if (!currentUser) return
+    setLinkPwdMsg({ error: '', ok: '' })
+    if (newPwdA.length < 6) {
+      setLinkPwdMsg({ error: 'La password deve avere almeno 6 caratteri.', ok: '' })
+      return
+    }
+    if (newPwdA !== newPwdB) {
+      setLinkPwdMsg({ error: 'Le password non coincidono.', ok: '' })
+      return
+    }
+    setSettingPwd(true)
+    try {
+      await setAccountPassword(currentUser, newPwdA)
+      setNewPwdA('')
+      setNewPwdB('')
+      setLinkPwdMsg({
+        error: '',
+        ok: 'Password impostata. Ora puoi accedere anche con email e password.',
+      })
+    } catch (err) {
+      setLinkPwdMsg({ error: err?.message || 'Operazione non riuscita.', ok: '' })
+    } finally {
+      setSettingPwd(false)
+    }
+  }
+
   const handleChangePassword = async (e) => {
     e.preventDefault()
     if (!currentUser) return
@@ -153,7 +187,7 @@ function ProfilePage() {
     }
   }
 
-  if (loading) {
+  if (!authReady || loading) {
     return (
       <div className="page">
         <header className="page-header">
@@ -305,7 +339,7 @@ function ProfilePage() {
             {pwdMsg.error && <p className="auth-error">{pwdMsg.error}</p>}
             {pwdMsg.ok && <p className="auth-success">{pwdMsg.ok}</p>}
             <div className="profilazione-actions">
-              <button type="submit" className="nav-button primary" disabled={pwdSaving}>
+              <button type="submit" className="nav-button secondary" disabled={pwdSaving}>
                 {pwdSaving ? 'Aggiornamento…' : 'Aggiorna password'}
               </button>
             </div>
@@ -314,11 +348,44 @@ function ProfilePage() {
       )}
       {!hasPassword && currentUser && (
         <section className="page-card">
-          <p className="page-card-subtitle">
-            Hai effettuato l&apos;accesso solo con Google: per impostare una password per questo
-            account usa il flusso di collegamento credenziali dalla console Firebase o crea un account
-            email/password dedicato.
-          </p>
+          <header className="page-card-header">
+            <h2 className="page-card-title">Imposta una password</h2>
+            <p className="page-card-subtitle">
+              Hai eseguito l&apos;accesso con Google. Puoi aggiungere una password a questo account
+              ({currentUser.email}) per poter accedere anche con email e password.
+            </p>
+          </header>
+          <form className="profile-form" onSubmit={handleSetPassword}>
+            <div className="profile-grid">
+              <label className="profilazione-field">
+                <span>Nuova password</span>
+                <input
+                  type="password"
+                  value={newPwdA}
+                  onChange={(ev) => setNewPwdA(ev.target.value)}
+                  autoComplete="new-password"
+                  minLength={6}
+                />
+              </label>
+              <label className="profilazione-field">
+                <span>Conferma nuova password</span>
+                <input
+                  type="password"
+                  value={newPwdB}
+                  onChange={(ev) => setNewPwdB(ev.target.value)}
+                  autoComplete="new-password"
+                  minLength={6}
+                />
+              </label>
+            </div>
+            {linkPwdMsg.error && <p className="auth-error">{linkPwdMsg.error}</p>}
+            {linkPwdMsg.ok && <p className="auth-success">{linkPwdMsg.ok}</p>}
+            <div className="profilazione-actions">
+              <button type="submit" className="nav-button secondary" disabled={settingPwd}>
+                {settingPwd ? 'Impostazione…' : 'Imposta password'}
+              </button>
+            </div>
+          </form>
         </section>
       )}
       <section className="page-card">

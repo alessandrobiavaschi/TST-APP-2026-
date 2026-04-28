@@ -5,6 +5,7 @@ const MAX_WAIT_BEFORE_EXIT_MS = 1200
 const MORPH_DURATION_MS = 260
 const LEAVE_AFTER_MORPH_MS = 220
 const MESSAGE_ROTATE_MS = 380
+const ARRIVO_STORAGE_KEY = 'tst_adaptive_arrivo_delay_multiplier_v1'
 
 const REPORT_LOADING_MESSAGES = [
   'Stiamo preparando il tuo report, in base alle tue risposte.',
@@ -27,6 +28,16 @@ export default function FinalFlowerTransition({ colorKey, onEnded, onSkipped }) 
 
   const videoSrc = getFlowerVideoByColor(colorKey)
   const stillSrc = getFlowerStillByColor(colorKey)
+  const [arrivoDelayMultiplier] = useState(() => {
+    if (typeof window === 'undefined') return 1
+    try {
+      const raw = Number(window.sessionStorage.getItem(ARRIVO_STORAGE_KEY))
+      if (!Number.isFinite(raw) || raw <= 0) return 1
+      return raw
+    } catch {
+      return 1
+    }
+  })
 
   useEffect(() => {
     if (!videoSrc) {
@@ -93,7 +104,7 @@ export default function FinalFlowerTransition({ colorKey, onEnded, onSkipped }) 
     autoExitTimeoutRef.current = window.setTimeout(() => {
       autoExitTimeoutRef.current = null
       startMorphThenLeave(onEnded)
-    }, MAX_WAIT_BEFORE_EXIT_MS)
+    }, Math.round(MAX_WAIT_BEFORE_EXIT_MS * arrivoDelayMultiplier))
 
     return () => {
       if (messageIntervalRef.current) {
@@ -105,7 +116,7 @@ export default function FinalFlowerTransition({ colorKey, onEnded, onSkipped }) 
         autoExitTimeoutRef.current = null
       }
     }
-  }, [videoSrc, onEnded])
+  }, [videoSrc, onEnded, arrivoDelayMultiplier])
 
   const handleVideoEnded = () => {
     startMorphThenLeave(onEnded)

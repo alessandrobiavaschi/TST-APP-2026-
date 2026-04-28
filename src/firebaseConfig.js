@@ -27,9 +27,16 @@ function normEnv(v) {
 function readFirebaseEnv() {
   const env = import.meta.env
   const b = TST_FB_BUILD && typeof TST_FB_BUILD === 'object' ? TST_FB_BUILD : {}
+  // authDomain deve essere sempre quello canonico di Firebase (<project>.firebaseapp.com),
+  // perché è l'unico redirect URI registrato automaticamente nel client OAuth di Google.
+  // Forzarlo all'hostname corrente (es. *.web.app) provoca redirect_uri_mismatch
+  // durante l'accesso con Google.
+  const configuredAuthDomain = normEnv(
+    env.VITE_FIREBASE_AUTH_DOMAIN || env.FIREBASE_AUTH_DOMAIN || b.authDomain,
+  )
   return {
     apiKey: normEnv(env.VITE_FIREBASE_API_KEY || env.FIREBASE_API_KEY || b.apiKey),
-    authDomain: normEnv(env.VITE_FIREBASE_AUTH_DOMAIN || env.FIREBASE_AUTH_DOMAIN || b.authDomain),
+    authDomain: configuredAuthDomain,
     projectId: normEnv(env.VITE_FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID || b.projectId),
     storageBucket: normEnv(
       env.VITE_FIREBASE_STORAGE_BUCKET || env.FIREBASE_STORAGE_BUCKET || b.storageBucket,

@@ -26,18 +26,36 @@ export function useSyncVideoToCanvas({
   objectPosition = { x: 50, y: 50 },
   enabled = true,
 }) {
+  const objectPositionX = objectPosition?.x ?? 50
+  const objectPositionY = objectPosition?.y ?? 50
+
   useEffect(() => {
     if (!enabled) return
 
     let raf = 0
-    let lastUserGestureMs = 0
-
-    const markUserGesture = () => {
-      lastUserGestureMs = typeof performance !== 'undefined' ? performance.now() : Date.now()
-    }
+    let lastCanvasWidth = 0
+    let lastCanvasHeight = 0
 
     const getContainer = () =>
       containerRef?.current ?? canvasRef.current?.parentElement ?? null
+
+    const drawFrame = () => {
+      const canvas = canvasRef.current
+      const video = videoRef.current
+      const container = getContainer()
+      if (!canvas || !video || !container || canvas.width <= 0 || canvas.height <= 0) return
+      const ctx = canvas.getContext('2d', { alpha: false })
+      const styleW = parseFloat(canvas.style.width)
+      const cw = container.clientWidth
+      const dpr = canvas.width / Math.max(1, styleW || cw)
+      const logicalW = canvas.width / dpr
+      const logicalH = canvas.height / dpr
+      ctx.setTransform(1, 0, 0, 1, 0, 0)
+      ctx.scale(dpr, dpr)
+      ctx.fillStyle = '#000'
+      ctx.fillRect(0, 0, logicalW, logicalH)
+      drawVideoCover(ctx, video, logicalW, logicalH, { x: objectPositionX, y: objectPositionY })
+    }
 
     const resize = () => {
       const canvas = canvasRef.current
@@ -49,31 +67,21 @@ export function useSyncVideoToCanvas({
       const w = container.clientWidth
       const h = container.clientHeight
       if (w < 1 || h < 1) return
-      canvas.width = Math.floor(w * dpr)
-      canvas.height = Math.floor(h * dpr)
+      const nextCanvasWidth = Math.floor(w * dpr)
+      const nextCanvasHeight = Math.floor(h * dpr)
+      if (nextCanvasWidth === lastCanvasWidth && nextCanvasHeight === lastCanvasHeight) return
+      canvas.width = nextCanvasWidth
+      canvas.height = nextCanvasHeight
       canvas.style.width = `${w}px`
       canvas.style.height = `${h}px`
+      lastCanvasWidth = nextCanvasWidth
+      lastCanvasHeight = nextCanvasHeight
+      // Ridisegna subito dopo un resize reale: evita il "vuoto" durante scroll mobile.
+      drawFrame()
     }
 
     const loop = () => {
-      const canvas = canvasRef.current
-      const video = videoRef.current
-      const container = getContainer()
-      const now = typeof performance !== 'undefined' ? performance.now() : Date.now()
-      const isScrolling = now - lastUserGestureMs < 140
-      if (canvas && video && container && canvas.width > 0 && !isScrolling) {
-        const ctx = canvas.getContext('2d', { alpha: false })
-        const styleW = parseFloat(canvas.style.width)
-        const cw = container.clientWidth
-        const dpr = canvas.width / Math.max(1, styleW || cw)
-        const logicalW = canvas.width / dpr
-        const logicalH = canvas.height / dpr
-        ctx.setTransform(1, 0, 0, 1, 0, 0)
-        ctx.scale(dpr, dpr)
-        ctx.fillStyle = '#000'
-        ctx.fillRect(0, 0, logicalW, logicalH)
-        drawVideoCover(ctx, video, logicalW, logicalH, objectPosition)
-      }
+      drawFrame()
       raf = requestAnimationFrame(loop)
     }
 
@@ -81,9 +89,6 @@ export function useSyncVideoToCanvas({
     const container = getContainer()
     if (container) ro.observe(container)
     window.addEventListener('resize', resize)
-    window.addEventListener('scroll', markUserGesture, { passive: true, capture: true })
-    window.addEventListener('touchmove', markUserGesture, { passive: true, capture: true })
-    window.addEventListener('wheel', markUserGesture, { passive: true, capture: true })
     resize()
     raf = requestAnimationFrame(loop)
 
@@ -91,9 +96,6 @@ export function useSyncVideoToCanvas({
       cancelAnimationFrame(raf)
       ro.disconnect()
       window.removeEventListener('resize', resize)
-      window.removeEventListener('scroll', markUserGesture, true)
-      window.removeEventListener('touchmove', markUserGesture, true)
-      window.removeEventListener('wheel', markUserGesture, true)
     }
-  }, [videoRef, canvasRef, containerRef, enabled, objectPosition.x, objectPosition.y])
+  }, [videoRef, canvasRef, containerRef, enabled, objectPositionX, objectPositionY])
 }

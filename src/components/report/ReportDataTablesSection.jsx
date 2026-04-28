@@ -163,11 +163,10 @@ function buildTablesData(rawRecord = {}) {
     const logicType = getLogicTypeForFile(fileNumber)
     const group = getQuestionGroupForFile(fileNumber)
     const isAffinita = String(logicType || '').startsWith('AFFINITA')
-    const isConfirmation = group === 'C_BIS'
 
     const params = {
       fileNumber,
-      isConfirmation,
+      isConfirmation: group === 'C_BIS',
     }
     if (isAffinita) {
       params.affinitaOptionId = rawAnswer
@@ -260,7 +259,7 @@ function DiffCell({ saved, replayed }) {
 }
 
 export default function ReportDataTablesSection({ rawRecord }) {
-  const currentUser = useAuth()
+  const { user: currentUser } = useAuth()
   const rootRef = useRef(null)
   const data = useMemo(() => buildTablesData(rawRecord || {}), [rawRecord])
   const [operatorKey, setOperatorKey] = useState('')

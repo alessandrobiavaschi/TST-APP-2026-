@@ -2,6 +2,8 @@ import React, { useMemo } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { FioreVisivo } from '../../pages/ResultsPage'
 
+void motion
+
 const SLIDE_HEADING_COPY = {
   Blu: {
     natura: 'NATURA LUNARE',
@@ -64,8 +66,10 @@ export default function HeroSummary({
   levels,
   totalsByKey,
   formatDateShort,
+  showAuthoritySeal = false,
   onDownload,
   onClose,
+  onEnterCommandCenter,
 }) {
   const isAnonymousProfile = !nomeCompleto || nomeCompleto === 'Test anonimo'
   const slideHeading = SLIDE_HEADING_COPY[dominantColorName] || null
@@ -134,8 +138,13 @@ export default function HeroSummary({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       >
-        <div className="report-xp-bento-main">
+        <div className={`report-xp-bento-main ${showAuthoritySeal ? 'report-xp-bento-main--authority' : ''}`}>
           <div className="report-xp-bento-main-inner">
+            {showAuthoritySeal && (
+              <p className="report-authority-seal-label" aria-label="Esito certificato TST">
+                Esito certificato TST
+              </p>
+            )}
             <p className="report-profilazione-stato">
               Forma singola
               <span className="report-profilazione-badge" style={{ color: accentColor }}>
@@ -143,7 +152,7 @@ export default function HeroSummary({
               </span>
             </p>
             <h1
-              className="report-profilazione-titolone report-profilazione-titolone--hero"
+              className={`report-profilazione-titolone report-profilazione-titolone--hero ${showAuthoritySeal ? 'report-profilazione-titolone--authority' : ''}`}
               style={{ color: accentColor }}
             >
               {profileTitle}
@@ -212,6 +221,15 @@ export default function HeroSummary({
                   <p className="report-hero-radar-comparative-subtitle">
                     Mappa estesa con dettagli e legenda completa delle disposizioni.
                   </p>
+                  <div className="report-hero-command-entry">
+                    <button
+                      type="button"
+                      className="report-hero-command-entry-btn"
+                      onClick={onEnterCommandCenter}
+                    >
+                      Entra nel Centro di Comando
+                    </button>
+                  </div>
                   <div className="report-hero-radar-card-content">
                     <FioreVisivo
                       levels={levels}

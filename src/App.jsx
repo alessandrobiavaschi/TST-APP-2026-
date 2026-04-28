@@ -1,9 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Routes, Route, NavLink, useNavigate, Navigate, useLocation } from 'react-router-dom'
-import { onAuthStateChanged, onIdTokenChanged, signOut } from 'firebase/auth'
+import { onAuthStateChanged, signOut } from 'firebase/auth'
 import './firebaseConfig.js'
 import { auth } from './firebaseConfig.js'
-import { consumeGoogleRedirectResult } from './auth.js'
+import {
+  consumeGoogleRedirectResult,
+  hasGoogleRedirectPending,
+  clearGoogleRedirectPending,
+} from './auth.js'
 import { AuthContext } from './AuthContext.jsx'
 import { useUiSounds } from './UiSoundProvider.jsx'
 import LandingPage from './pages/LandingPage.jsx'
@@ -87,14 +91,16 @@ const MOBILE_NAV_FOCUSABLE =
 
 function App() {
   const [currentUser, setCurrentUser] = useState(null)
+  const [authReady, setAuthReady] = useState(false)
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  const [ritualFocusActive, setRitualFocusActive] = useState(false)
+  const [testSessionActive, setTestSessionActive] = useState(false)
   const [cookieConsent, setCookieConsent] = useState(null) // 'necessary' | 'all' | null
   const {
     visualProfile,
     config,
     setStaticMode,
-    setSkyFallbackPreset,
     forceRandomWeatherChange,
   } = useSkyTheme()
   const navigate = useNavigate()
@@ -102,27 +108,50 @@ function App() {
   const mobileNavToggleRef = useRef(null)
   const mobileNavDrawerRef = useRef(null)
   const prevMobileNavOpenRef = useRef(false)
+  const effectiveUser = currentUser || auth?.currentUser || null
+  const isAuthenticated = Boolean(effectiveUser)
 
   useEffect(() => {
-    if (!auth) return
+    if (!auth) {
+      setAuthReady(true)
+      return
+    }
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user)
+      setAuthReady(true)
     })
     return () => unsubscribe()
   }, [])
 
   useEffect(() => {
     if (!auth) return
-    const unsubscribe = onIdTokenChanged(auth, (user) => {
-      setCurrentUser(user)
-    })
-    return () => unsubscribe()
-  }, [])
+    let cancelled = false
+
+    const bootstrapRedirectSession = async () => {
+      const result = await consumeGoogleRedirectResult()
+      if (cancelled) return
+
+      if (result?.user) {
+        setCurrentUser(result.user)
+        if (typeof window !== 'undefined' && window.location.pathname !== '/home') {
+          navigate('/home', { replace: true })
+        }
+      }
+    }
+
+    void bootstrapRedirectSession()
+    return () => {
+      cancelled = true
+    }
+  }, [navigate])
 
   useEffect(() => {
-    if (!auth) return
-    void consumeGoogleRedirectResult()
-  }, [])
+    if (!authReady || !isAuthenticated || !hasGoogleRedirectPending()) return
+    clearGoogleRedirectPending()
+    if (location.pathname !== '/home') {
+      navigate('/home', { replace: true })
+    }
+  }, [authReady, isAuthenticated, location.pathname, navigate])
 
   useEffect(() => {
     if (!mobileNavOpen) return
@@ -132,6 +161,27 @@ function App() {
       document.body.style.overflow = prev
     }
   }, [mobileNavOpen])
+
+  useEffect(() => {
+    const onRitualFocus = (event) => {
+      const isActive = Boolean(event?.detail?.active)
+      setRitualFocusActive(isActive)
+    }
+    window.addEventListener('tst:ritual-focus', onRitualFocus)
+    return () => window.removeEventListener('tst:ritual-focus', onRitualFocus)
+  }, [])
+
+  useEffect(() => {
+    const onTestSessionActive = (event) => {
+      const isActive = Boolean(event?.detail?.active)
+      setTestSessionActive(isActive)
+      if (isActive) {
+        setMobileNavOpen(false)
+      }
+    }
+    window.addEventListener('tst:test-session-active', onTestSessionActive)
+    return () => window.removeEventListener('tst:test-session-active', onTestSessionActive)
+  }, [])
 
   useEffect(() => {
     if (!mobileNavOpen) return
@@ -197,24 +247,18 @@ function App() {
   }, [])
 
   const handleLogoClick = () => {
-    navigate('/')
+    clearGoogleRedirectPending()
+    setIsAccountMenuOpen(false)
+    navigate('/', { replace: true })
   }
 
   const handleChangeWeatherClick = () => {
     if (!forceRandomWeatherChange) return
-    // #region agent log
-    fetch('http://127.0.0.1:7527/ingest/9a8c1779-de14-406d-8ed0-f0cfc6d332d5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a9db1d'},body:JSON.stringify({sessionId:'a9db1d',runId:'pre-fix',hypothesisId:'H5',location:'src/App.jsx:201',message:'change weather button pressed',data:{pathname:location.pathname,hasForceRandomWeatherChange:Boolean(forceRandomWeatherChange)},timestamp:Date.now()})}).catch(()=>{})
-    // #endregion
     forceRandomWeatherChange()
   }
 
   const handleToggleSkyBackgroundMode = () => {
     setStaticMode(!config?.staticMode)
-  }
-
-  const handleToggleSkyFallbackPreset = () => {
-    const nextPreset = config?.skyFallbackPreset === 'profondo' ? 'calmo' : 'profondo'
-    setSkyFallbackPreset(nextPreset)
   }
 
   const handleLoginClick = () => {
@@ -231,7 +275,7 @@ function App() {
   }
 
   const handleLandingStartClick = () => {
-    if (currentUser) {
+    if (isAuthenticated) {
       setMobileNavOpen(false)
       navigate('/nuovo-test')
       return
@@ -296,16 +340,18 @@ function App() {
   const skyWarmth = visualProfile?.warmth || 'neutral'
 
   return (
-    <AuthContext.Provider value={currentUser}>
+    <AuthContext.Provider value={{ user: effectiveUser, authReady }}>
       <div
-        className={`app-shell app-with-sky${cookieConsent === null ? ' has-gdpr-banner' : ''}`}
+        className={`app-shell app-with-sky${cookieConsent === null ? ' has-gdpr-banner' : ''}${
+          ritualFocusActive ? ' is-ritual-focus' : ''
+        }`}
         data-sky-tone={skyTone}
         data-sky-warmth={skyWarmth}
-        data-sky-fallback-preset={config?.skyFallbackPreset || 'calmo'}
       >
         {location.pathname !== '/' && <SkyBackground />}
-        <header className={`app-header${location.pathname === '/' ? ' app-header--landing' : ''}`}>
-          <div className="app-header-inner">
+        {!testSessionActive && (
+          <header className={`app-header${location.pathname === '/' ? ' app-header--landing' : ''}`}>
+            <div className="app-header-inner">
             <button
               ref={mobileNavToggleRef}
               type="button"
@@ -334,7 +380,7 @@ function App() {
               </div>
             </button>
             <nav className="app-header-nav app-header-nav--desktop" aria-label="Navigazione principale">
-              {currentUser ? (
+              {isAuthenticated ? (
                 <>
                   <NavLink to="/home" className="app-header-link">
                     La mia area
@@ -378,18 +424,40 @@ function App() {
                   onClick={handleToggleSkyBackgroundMode}
                   aria-pressed={Boolean(config?.staticMode)}
                   aria-label={config?.staticMode ? 'Attiva sfondo video' : 'Attiva sfondo statico'}
+                  title={config?.staticMode ? 'Sfondo statico' : 'Sfondo video'}
                 >
-                  {config?.staticMode ? 'Sfondo statico' : 'Sfondo video'}
-                </button>
-              )}
-              {location.pathname !== '/' && (
-                <button
-                  type="button"
-                  className={`header-background-preset-toggle header-background-preset-toggle--${config?.skyFallbackPreset || 'calmo'}`}
-                  onClick={handleToggleSkyFallbackPreset}
-                  aria-label="Cambia preset colore dello sfondo statico"
-                >
-                  Preset {config?.skyFallbackPreset === 'profondo' ? 'Profondo' : 'Calmo'}
+                  {config?.staticMode ? (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      width="16"
+                      height="16"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                    </svg>
+                  ) : (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      width="16"
+                      height="16"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z" />
+                      <path d="M19 14l.7 1.8L21.5 16.5l-1.8.7L19 19l-.7-1.8L16.5 16.5l1.8-.7z" />
+                    </svg>
+                  )}
                 </button>
               )}
               {location.pathname !== '/' && currentUser && (
@@ -401,7 +469,7 @@ function App() {
                   Cambia il meteo
                 </button>
               )}
-              {!currentUser && (
+              {!isAuthenticated && (
                 <>
                   <button
                     type="button"
@@ -419,7 +487,7 @@ function App() {
                   </button>
                 </>
               )}
-              {currentUser && (
+              {isAuthenticated && (
                 <div className="header-avatar-wrapper">
                   <button
                     type="button"
@@ -452,9 +520,13 @@ function App() {
                 </div>
               )}
             </div>
-          </div>
-        </header>
-        <div className={`app-mobile-nav-layer ${mobileNavOpen ? 'is-open' : ''}`} aria-hidden={!mobileNavOpen}>
+            </div>
+          </header>
+        )}
+        <div
+          className={`app-mobile-nav-layer ${!testSessionActive && mobileNavOpen ? 'is-open' : ''}`}
+          aria-hidden={testSessionActive || !mobileNavOpen}
+        >
           <button
             type="button"
             className="app-mobile-nav-backdrop"
@@ -474,7 +546,52 @@ function App() {
               Menu
             </p>
             <nav className="app-mobile-nav-links" aria-label="Collegamenti">
-              {currentUser ? (
+              {location.pathname !== '/' && (
+                <div className="app-mobile-sky-controls">
+                  <button
+                    type="button"
+                    className={`app-mobile-sky-control app-mobile-sky-control--mode ${config?.staticMode ? 'is-on' : 'is-off'}`}
+                    onClick={handleToggleSkyBackgroundMode}
+                    aria-pressed={Boolean(config?.staticMode)}
+                    aria-label={config?.staticMode ? 'Attiva sfondo video' : 'Attiva sfondo statico'}
+                    title={config?.staticMode ? 'Sfondo statico' : 'Sfondo video'}
+                  >
+                    {config?.staticMode ? (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        width="16"
+                        height="16"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                      </svg>
+                    ) : (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        width="16"
+                        height="16"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
+                        <path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z" />
+                        <path d="M19 14l.7 1.8L21.5 16.5l-1.8.7L19 19l-.7-1.8L16.5 16.5l1.8-.7z" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+              )}
+              {isAuthenticated ? (
                 <>
                   <NavLink
                     to="/home"
@@ -571,7 +688,7 @@ function App() {
             </AppErrorBoundary>
           </div>
         </main>
-        {cookieConsent === null && (
+        {cookieConsent === null && !testSessionActive && (
           <div className="gdpr-banner">
             <p className="gdpr-banner-text">
               Questo sito utilizza cookie tecnici necessari al funzionamento del servizio e, solo previo

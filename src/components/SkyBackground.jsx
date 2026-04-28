@@ -4,8 +4,8 @@ import { useSyncVideoToCanvas } from '../hooks/useSyncVideoToCanvas.js'
 import { useSkyTheme } from '../SkyThemeContext.jsx'
 import { getSkyVideo } from '../skyVideosConfig.js'
 
-const DEFAULT_CROSSFADE_DURATION_MS = 1800
-const LANDING_CROSSFADE_DURATION_MS = 150
+const DEFAULT_CROSSFADE_DURATION_MS = 1600
+const LANDING_CROSSFADE_DURATION_MS = 400
 const PLAYBACK_RATE = 0.25
 const VIDEO_VISIBLE_OPACITY = 0.9
 
@@ -13,237 +13,194 @@ function getCompositeKey(timeOfDay, weather) {
   return `${timeOfDay || 'unknown'}__${weather || 'unknown'}`
 }
 
+// Doppio-buffer A/B con swap differito.
+// - Entrambi i layer sono sempre montati: nessun unmount durante la transizione.
+// - Quando cambia il cielo richiesto, carichiamo il nuovo video nel layer INATTIVO.
+// - Il crossfade (CSS opacity) parte SOLO quando il nuovo video ha decodificato
+//   un primo frame (canplay + almeno un RAF disegnato sul canvas), così la
+//   transizione non mostra mai un canvas nero/bianco.
 function SkyBackground() {
   const { timeOfDay, weather, config } = useSkyTheme()
   const location = useLocation()
-  const [currentKey, setCurrentKey] = useState(() => getCompositeKey(timeOfDay, weather))
-  const [nextKey, setNextKey] = useState(null)
-  const [isCrossfading, setIsCrossfading] = useState(false)
-  const [isCurrentVideoPlaying, setIsCurrentVideoPlaying] = useState(false)
-  const [isNextVideoPlaying, setIsNextVideoPlaying] = useState(false)
-  const [isLowPowerMode, setIsLowPowerMode] = useState(false)
-  const containerRef = useRef(null)
-  const currentVideoRef = useRef(null)
-  const nextVideoRef = useRef(null)
-  const currentCanvasRef = useRef(null)
-  const nextCanvasRef = useRef(null)
-
-  const currentConfig = getSkyVideo(...currentKey.split('__'))
-  const nextConfig = nextKey ? getSkyVideo(...nextKey.split('__')) : null
-  const shouldUseStaticBackground = Boolean(config.staticMode || isLowPowerMode)
-
-  const skyObjectPosition = { x: 50, y: 42 }
-
-  useSyncVideoToCanvas({
-    videoRef: currentVideoRef,
-    canvasRef: currentCanvasRef,
-    containerRef,
-    objectPosition: skyObjectPosition,
-    enabled: !shouldUseStaticBackground && Boolean(currentConfig),
-  })
-  useSyncVideoToCanvas({
-    videoRef: nextVideoRef,
-    canvasRef: nextCanvasRef,
-    containerRef,
-    objectPosition: skyObjectPosition,
-    enabled: !shouldUseStaticBackground && Boolean(nextConfig),
-  })
-
-  const nextCompositeKey = getCompositeKey(timeOfDay, weather)
   const isLandingRoute = location.pathname === '/'
   const crossfadeDurationMs = isLandingRoute
     ? LANDING_CROSSFADE_DURATION_MS
     : DEFAULT_CROSSFADE_DURATION_MS
-  const shouldRevealNextLayer = Boolean(nextConfig && isCrossfading && isNextVideoPlaying)
+
+  const requestedKey = getCompositeKey(timeOfDay, weather)
+
+  const [slotA, setSlotA] = useState(() => ({ key: requestedKey }))
+  const [slotB, setSlotB] = useState({ key: null })
+  const [activeSlot, setActiveSlot] = useState('a')
+  const [pendingSlot, setPendingSlot] = useState(null)
+  const [slotAReady, setSlotAReady] = useState(false)
+  const [slotBReady, setSlotBReady] = useState(false)
+  const [prevRequestedKey, setPrevRequestedKey] = useState(requestedKey)
+  const [isLowPowerMode, setIsLowPowerMode] = useState(false)
+
+  // Derive-state-from-props: quando cambia il cielo richiesto, carichiamo
+  // il nuovo video nel layer INATTIVO. Il crossfade partirà solo quando
+  // quel video avrà decodificato un primo frame (vedi handleReady).
+  if (prevRequestedKey !== requestedKey) {
+    setPrevRequestedKey(requestedKey)
+    const activeKey = activeSlot === 'a' ? slotA.key : slotB.key
+    if (requestedKey !== activeKey) {
+      const inactiveSlot = activeSlot === 'a' ? 'b' : 'a'
+      const inactiveKey = inactiveSlot === 'a' ? slotA.key : slotB.key
+      if (inactiveKey !== requestedKey) {
+        if (inactiveSlot === 'a') {
+          setSlotAReady(false)
+          setSlotA({ key: requestedKey })
+        } else {
+          setSlotBReady(false)
+          setSlotB({ key: requestedKey })
+        }
+      }
+      setPendingSlot(inactiveSlot)
+    }
+  }
+
+  const containerRef = useRef(null)
+  const videoRefA = useRef(null)
+  const videoRefB = useRef(null)
+  const canvasRefA = useRef(null)
+  const canvasRefB = useRef(null)
+
+  const shouldUseStaticBackground = Boolean(config.staticMode || isLowPowerMode)
+  const skyObjectPosition = { x: 50, y: 42 }
+
+  const configA = slotA.key ? getSkyVideo(...slotA.key.split('__')) : null
+  const configB = slotB.key ? getSkyVideo(...slotB.key.split('__')) : null
+
+  useSyncVideoToCanvas({
+    videoRef: videoRefA,
+    canvasRef: canvasRefA,
+    containerRef,
+    objectPosition: skyObjectPosition,
+    enabled: !shouldUseStaticBackground && Boolean(configA),
+  })
+  useSyncVideoToCanvas({
+    videoRef: videoRefB,
+    canvasRef: canvasRefB,
+    containerRef,
+    objectPosition: skyObjectPosition,
+    enabled: !shouldUseStaticBackground && Boolean(configB),
+  })
 
   useEffect(() => {
     if (typeof window === 'undefined') return
     const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
     const connection = navigator.connection
-    const evaluateLowPowerMode = () => {
+    const evaluate = () => {
       setIsLowPowerMode(Boolean(motionQuery.matches || connection?.saveData))
     }
-
-    evaluateLowPowerMode()
-
-    const onMotionChange = () => evaluateLowPowerMode()
-    const onConnectionChange = () => evaluateLowPowerMode()
-    motionQuery.addEventListener('change', onMotionChange)
-    connection?.addEventListener?.('change', onConnectionChange)
-
+    evaluate()
+    motionQuery.addEventListener('change', evaluate)
+    connection?.addEventListener?.('change', evaluate)
     return () => {
-      motionQuery.removeEventListener('change', onMotionChange)
-      connection?.removeEventListener?.('change', onConnectionChange)
+      motionQuery.removeEventListener('change', evaluate)
+      connection?.removeEventListener?.('change', evaluate)
     }
   }, [])
 
-  useEffect(() => {
-    if (nextCompositeKey === currentKey) return
-    // #region agent log
-    fetch('http://127.0.0.1:7527/ingest/9a8c1779-de14-406d-8ed0-f0cfc6d332d5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a9db1d'},body:JSON.stringify({sessionId:'a9db1d',runId:'pre-fix',hypothesisId:'H2',location:'src/components/SkyBackground.jsx:60',message:'crossfade started',data:{currentKey,nextCompositeKey,crossfadeDurationMs,isLandingRoute},timestamp:Date.now()})}).catch(()=>{})
-    // #endregion
-    setNextKey(nextCompositeKey)
-    setIsCrossfading(true)
-
-    const t = setTimeout(() => {
-      setCurrentKey(nextCompositeKey)
-      setNextKey(null)
-      setIsCrossfading(false)
-      // #region agent log
-      fetch('http://127.0.0.1:7527/ingest/9a8c1779-de14-406d-8ed0-f0cfc6d332d5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a9db1d'},body:JSON.stringify({sessionId:'a9db1d',runId:'pre-fix',hypothesisId:'H2',location:'src/components/SkyBackground.jsx:70',message:'crossfade ended',data:{nextCompositeKey,crossfadeDurationMs},timestamp:Date.now()})}).catch(()=>{})
-      // #endregion
-    }, crossfadeDurationMs)
-
-    return () => clearTimeout(t)
-  }, [nextCompositeKey, currentKey, crossfadeDurationMs])
-
-  const ensureVideoPlaying = useCallback((videoRef, onPlaying, onPaused) => {
-    const el = videoRef.current
-    if (!el) return
-
+  // Play helper resiliente (tab in background, iOS, ecc.).
+  const ensureVideoPlaying = useCallback((videoEl) => {
+    if (!videoEl) return
     try {
-      el.muted = true
-      el.defaultMuted = true
-      el.playsInline = true
-      el.autoplay = true
-      el.loop = true
-      el.controls = false
-      el.playbackRate = PLAYBACK_RATE
-      const playPromise = el.play()
-      if (playPromise && typeof playPromise.then === 'function') {
-        playPromise.then(onPlaying).catch(onPaused)
-      } else {
-        onPlaying()
-      }
+      videoEl.muted = true
+      videoEl.defaultMuted = true
+      videoEl.playsInline = true
+      videoEl.autoplay = true
+      videoEl.loop = true
+      videoEl.controls = false
+      videoEl.playbackRate = PLAYBACK_RATE
+      const p = videoEl.play()
+      if (p && typeof p.catch === 'function') p.catch(() => {})
     } catch {
-      onPaused()
+      // no-op
     }
   }, [])
 
-  useEffect(() => {
-    setIsCurrentVideoPlaying(false)
-    ensureVideoPlaying(currentVideoRef, () => setIsCurrentVideoPlaying(true), () =>
-      setIsCurrentVideoPlaying(false)
-    )
-  }, [currentKey, ensureVideoPlaying])
-
-  useEffect(() => {
-    if (!nextKey) {
-      setIsNextVideoPlaying(false)
-      return
-    }
-    setIsNextVideoPlaying(false)
-    ensureVideoPlaying(nextVideoRef, () => setIsNextVideoPlaying(true), () =>
-      setIsNextVideoPlaying(false)
-    )
-  }, [nextKey, ensureVideoPlaying])
-
-  useEffect(() => {
-    // #region agent log
-    fetch('http://127.0.0.1:7527/ingest/9a8c1779-de14-406d-8ed0-f0cfc6d332d5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a9db1d'},body:JSON.stringify({sessionId:'a9db1d',runId:'pre-fix',hypothesisId:'H3',location:'src/components/SkyBackground.jsx:117',message:'sky playback state changed',data:{currentKey,nextKey,isCrossfading,isCurrentVideoPlaying,isNextVideoPlaying,shouldRevealNextLayer,staticMode:Boolean(config?.staticMode)},timestamp:Date.now()})}).catch(()=>{})
-    // #endregion
-  }, [
-    currentKey,
-    nextKey,
-    isCrossfading,
-    isCurrentVideoPlaying,
-    isNextVideoPlaying,
-    shouldRevealNextLayer,
-    config?.staticMode,
-  ])
-
+  // Keep-alive: se il tab torna visibile o il browser mette in pausa i video,
+  // ri-avvia la riproduzione.
   useEffect(() => {
     const tick = () => {
-      ensureVideoPlaying(currentVideoRef, () => setIsCurrentVideoPlaying(true), () =>
-        setIsCurrentVideoPlaying(false)
-      )
-      if (nextKey) {
-        ensureVideoPlaying(nextVideoRef, () => setIsNextVideoPlaying(true), () =>
-          setIsNextVideoPlaying(false)
-        )
-      }
+      ensureVideoPlaying(videoRefA.current)
+      ensureVideoPlaying(videoRefB.current)
     }
-
     tick()
-
-    const interval = window.setInterval(tick, 1400)
+    const interval = window.setInterval(tick, 2000)
     const onVisibility = () => {
-      if (document.visibilityState === 'visible') {
-        tick()
-      }
+      if (document.visibilityState === 'visible') tick()
     }
-    const onPageShow = () => {
-      tick()
-    }
-
     document.addEventListener('visibilitychange', onVisibility)
-    window.addEventListener('pageshow', onPageShow)
-
+    window.addEventListener('pageshow', tick)
     return () => {
       window.clearInterval(interval)
       document.removeEventListener('visibilitychange', onVisibility)
-      window.removeEventListener('pageshow', onPageShow)
+      window.removeEventListener('pageshow', tick)
     }
-  }, [nextKey, ensureVideoPlaying])
+  }, [ensureVideoPlaying])
+
+  const handleReady = useCallback(
+    (slotId) => {
+      if (slotId === 'a') setSlotAReady(true)
+      else setSlotBReady(true)
+      // Quando il layer pendente ha decodificato un primo frame → swap attivo.
+      // Questo fa partire il crossfade CSS senza mai mostrare un canvas nero.
+      if (pendingSlot === slotId) {
+        setActiveSlot(slotId)
+        setPendingSlot(null)
+      }
+    },
+    [pendingSlot],
+  )
+
+  const handleReset = useCallback((slotId) => {
+    if (slotId === 'a') setSlotAReady(false)
+    else setSlotBReady(false)
+  }, [])
 
   if (shouldUseStaticBackground) {
     return (
-      <div className="app-sky-background app-sky-background--static app-sky-background--solid" aria-hidden="true">
+      <div
+        className="app-sky-background app-sky-background--static app-sky-background--solid"
+        aria-hidden="true"
+      >
         <div className="app-sky-overlay-polaroid" />
       </div>
     )
   }
 
-  if (!currentConfig) {
+  if (!configA && !configB) {
     return null
   }
+
+  const isActiveA = activeSlot === 'a'
+  // Il layer attivo resta visibile finché il nuovo è pronto; in quel momento
+  // l'altro fade-in e questo fade-out contemporaneamente.
+  const opacityA = isActiveA ? VIDEO_VISIBLE_OPACITY : 0
+  const opacityB = isActiveA ? 0 : VIDEO_VISIBLE_OPACITY
+  const anyReady = slotAReady || slotBReady
+  const showFallback = !anyReady
 
   return (
     <div ref={containerRef} className="app-sky-background" aria-hidden="true">
       <div
         className={[
           'app-sky-fallback',
-          !isCurrentVideoPlaying && !isNextVideoPlaying ? 'app-sky-fallback--visible' : '',
+          showFallback ? 'app-sky-fallback--visible' : '',
         ]
           .filter(Boolean)
           .join(' ')}
       />
-      <video
-        ref={currentVideoRef}
-        key={currentKey}
-        className="app-sky-video-source app-sky-video--current"
-        src={currentConfig.src}
-        autoPlay
-        loop
-        muted
-        playsInline
-        controls={false}
-        preload="auto"
-        disablePictureInPicture
-        disableRemotePlayback
-        onLoadedData={() => {
-          // #region agent log
-          fetch('http://127.0.0.1:7527/ingest/9a8c1779-de14-406d-8ed0-f0cfc6d332d5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a9db1d'},body:JSON.stringify({sessionId:'a9db1d',runId:'pre-fix',hypothesisId:'H4',location:'src/components/SkyBackground.jsx:198',message:'current video loaded data',data:{currentKey,src:currentConfig?.src ?? null},timestamp:Date.now()})}).catch(()=>{})
-          // #endregion
-          ensureVideoPlaying(currentVideoRef, () => setIsCurrentVideoPlaying(true), () =>
-            setIsCurrentVideoPlaying(false)
-          )
-        }}
-        onError={() => {
-          // #region agent log
-          fetch('http://127.0.0.1:7527/ingest/9a8c1779-de14-406d-8ed0-f0cfc6d332d5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a9db1d'},body:JSON.stringify({sessionId:'a9db1d',runId:'pre-fix',hypothesisId:'H4',location:'src/components/SkyBackground.jsx:205',message:'current video error',data:{currentKey,src:currentConfig?.src ?? null},timestamp:Date.now()})}).catch(()=>{})
-          // #endregion
-          setIsCurrentVideoPlaying(false)
-        }}
-        onPlaying={() => setIsCurrentVideoPlaying(true)}
-        onPause={() => setIsCurrentVideoPlaying(false)}
-      />
-      {nextConfig && (
+
+      {configA && (
         <video
-          ref={nextVideoRef}
-          key={nextKey}
-          className="app-sky-video-source app-sky-video--next"
-          src={nextConfig.src}
+          ref={videoRefA}
+          key={`a:${slotA.key}`}
+          className="app-sky-video-source"
+          src={configA.src}
           autoPlay
           loop
           muted
@@ -253,53 +210,59 @@ function SkyBackground() {
           disablePictureInPicture
           disableRemotePlayback
           onLoadedData={() => {
-            // #region agent log
-            fetch('http://127.0.0.1:7527/ingest/9a8c1779-de14-406d-8ed0-f0cfc6d332d5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a9db1d'},body:JSON.stringify({sessionId:'a9db1d',runId:'pre-fix',hypothesisId:'H4',location:'src/components/SkyBackground.jsx:225',message:'next video loaded data',data:{nextKey,src:nextConfig?.src ?? null},timestamp:Date.now()})}).catch(()=>{})
-            // #endregion
-            ensureVideoPlaying(nextVideoRef, () => setIsNextVideoPlaying(true), () =>
-              setIsNextVideoPlaying(false)
-            )
+            ensureVideoPlaying(videoRefA.current)
+            handleReady('a')
           }}
-          onError={() => {
-            // #region agent log
-            fetch('http://127.0.0.1:7527/ingest/9a8c1779-de14-406d-8ed0-f0cfc6d332d5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a9db1d'},body:JSON.stringify({sessionId:'a9db1d',runId:'pre-fix',hypothesisId:'H4',location:'src/components/SkyBackground.jsx:232',message:'next video error',data:{nextKey,src:nextConfig?.src ?? null},timestamp:Date.now()})}).catch(()=>{})
-            // #endregion
-            setIsNextVideoPlaying(false)
-          }}
-          onPlaying={() => setIsNextVideoPlaying(true)}
-          onPause={() => setIsNextVideoPlaying(false)}
+          onCanPlay={() => handleReady('a')}
+          onPlaying={() => handleReady('a')}
+          onEmptied={() => handleReset('a')}
+          onError={() => handleReset('a')}
         />
       )}
+      {configB && (
+        <video
+          ref={videoRefB}
+          key={`b:${slotB.key}`}
+          className="app-sky-video-source"
+          src={configB.src}
+          autoPlay
+          loop
+          muted
+          playsInline
+          controls={false}
+          preload="auto"
+          disablePictureInPicture
+          disableRemotePlayback
+          onLoadedData={() => {
+            ensureVideoPlaying(videoRefB.current)
+            handleReady('b')
+          }}
+          onCanPlay={() => handleReady('b')}
+          onPlaying={() => handleReady('b')}
+          onEmptied={() => handleReset('b')}
+          onError={() => handleReset('b')}
+        />
+      )}
+
       <canvas
-        ref={currentCanvasRef}
-        className="app-sky-canvas app-sky-video--current"
+        ref={canvasRefA}
+        className="app-sky-canvas app-sky-canvas--a"
         aria-hidden="true"
         style={{
-          opacity: shouldRevealNextLayer ? 0 : VIDEO_VISIBLE_OPACITY,
+          opacity: configA ? opacityA : 0,
           transition: `opacity ${crossfadeDurationMs}ms ease-in-out`,
-          '--sky-blur': isCrossfading ? '10px' : '0px',
         }}
       />
-      {nextConfig && (
-        <canvas
-          ref={nextCanvasRef}
-          className="app-sky-canvas app-sky-video--next"
-          aria-hidden="true"
-          style={{
-            opacity: shouldRevealNextLayer ? VIDEO_VISIBLE_OPACITY : 0,
-            transition: `opacity ${crossfadeDurationMs}ms ease-in-out`,
-            '--sky-blur': isCrossfading ? '10px' : '0px',
-          }}
-        />
-      )}
-      <div
-        className="app-sky-crossfade-mask"
+      <canvas
+        ref={canvasRefB}
+        className="app-sky-canvas app-sky-canvas--b"
+        aria-hidden="true"
         style={{
-          opacity: shouldRevealNextLayer ? (isLandingRoute ? 0.48 : 0.22) : 0,
-          transition: `opacity ${Math.max(120, Math.round(crossfadeDurationMs * 0.8))}ms ease-out`,
+          opacity: configB ? opacityB : 0,
+          transition: `opacity ${crossfadeDurationMs}ms ease-in-out`,
         }}
       />
-      <div className="app-sky-overlay-watermark" aria-hidden="true" />
+
       <div className="app-sky-overlay-polaroid" />
       <div className="app-sky-grain" />
     </div>

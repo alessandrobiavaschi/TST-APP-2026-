@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { FioreVisivo } from '../../pages/ResultsPage'
 
+void motion
+
 const RAPPORTI_CONFIG = [
   {
     key: 'natura',

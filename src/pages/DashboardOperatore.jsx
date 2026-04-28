@@ -1,11 +1,11 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { signOut, deleteUser } from 'firebase/auth'
-import { AuthContext } from '../AuthContext.jsx'
+import { useAuth } from '../AuthContext.jsx'
 import { auth } from '../firebaseConfig.js'
 
 function DashboardOperatore() {
-  const currentUser = useContext(AuthContext)
+  const { user: currentUser, authReady } = useAuth()
   const navigate = useNavigate()
   const [accountMessage, setAccountMessage] = useState('')
   const [accountError, setAccountError] = useState('')
@@ -49,10 +49,11 @@ function DashboardOperatore() {
   }
 
   useEffect(() => {
+    if (!authReady) return
     if (!currentUser) {
       navigate('/home', { replace: true, state: { openLogin: true } })
     }
-  }, [currentUser, navigate])
+  }, [authReady, currentUser, navigate])
 
   return (
     <div className="page">

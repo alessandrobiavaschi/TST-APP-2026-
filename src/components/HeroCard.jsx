@@ -1,6 +1,8 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 
+void motion
+
 const cardVariants = {
   hidden: { opacity: 0, y: 24, scale: 0.98 },
   visible: {

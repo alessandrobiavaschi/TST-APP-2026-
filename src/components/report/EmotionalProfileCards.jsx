@@ -1,5 +1,7 @@
 import React from 'react'
-import { motion, useReducedMotion } from 'framer-motion'
+import { motion } from 'framer-motion'
+
+void motion
 
 const NATURE_SHORT_DESCRIPTION = {
   Blu: 'Profilo introspettivo, orientato alla riflessione del passato.',
@@ -83,6 +85,8 @@ export default function EmotionalProfileCards({
   restituzione,
   dominantColorName,
   accentColor,
+  activeChapterId = 'report-chapter-natura',
+  onActiveChapterChange,
 }) {
   const naturaTagline = restituzione
     ? [restituzione.natura, restituzione.caratteri].filter(Boolean).join(' · ')
@@ -100,12 +104,32 @@ export default function EmotionalProfileCards({
   const raccontoListItems = raccontoBlocks.filter((b) => b.type === 'ul').flatMap((b) => b.items)
   const risorseListItems = risorseBlocks.filter((b) => b.type === 'ul').flatMap((b) => b.items)
   const ombreListItems = ombreBlocks.filter((b) => b.type === 'ul').flatMap((b) => b.items)
-  const reduceMotion = useReducedMotion()
   const chapterMotion = {
-    initial: reduceMotion ? false : { opacity: 0, y: 32 },
-    whileInView: { opacity: 1, y: 0 },
-    viewport: { once: true, margin: '-10%' },
-    transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+    initial: false,
+    animate: { opacity: 1 },
+    exit: { opacity: 1 },
+  }
+  const chapterTransition = { duration: 0 }
+  const missionOrder = [
+    'report-chapter-natura',
+    'report-chapter-racconto',
+    'report-chapter-risorse',
+    'report-chapter-ombre',
+  ]
+  const chapterIndex = Math.max(missionOrder.indexOf(activeChapterId), 0)
+  const resolvedChapterId = missionOrder[chapterIndex]
+  const setChapter = (chapterId) => {
+    if (typeof onActiveChapterChange === 'function') {
+      onActiveChapterChange(chapterId)
+    }
+  }
+  const goToPrevious = () => {
+    if (chapterIndex <= 0) return
+    setChapter(missionOrder[chapterIndex - 1])
+  }
+  const goToNext = () => {
+    if (chapterIndex >= missionOrder.length - 1) return
+    setChapter(missionOrder[chapterIndex + 1])
   }
 
   return (
@@ -123,143 +147,242 @@ export default function EmotionalProfileCards({
           Il tuo profilo emotivo
         </h2>
 
-        <div className="report-profilo-longform">
-          <motion.article
-            className="report-report-chapter report-report-chapter--natura"
-            aria-labelledby="report-chapter-natura"
-            {...chapterMotion}
-          >
-            <header className="report-report-chapter-head">
-              <h3 id="report-chapter-natura" className="report-report-chapter-title">
+        <div className="report-profilo-command-shell">
+          <div className="report-profilo-command-center" role="tablist" aria-label="Missioni profilo emotivo">
+            <p className="report-profilo-command-center-kicker">Centro di comando</p>
+            <div className="report-profilo-command-center-tabs">
+              <button
+                type="button"
+                role="tab"
+                id="report-tab-natura"
+                aria-controls="report-chapter-natura-panel"
+                aria-selected={resolvedChapterId === 'report-chapter-natura'}
+                className={`report-profilo-command-tab ${resolvedChapterId === 'report-chapter-natura' ? 'report-profilo-command-tab--active' : ''}`}
+                onClick={() => setChapter('report-chapter-natura')}
+              >
                 La tua Natura
-              </h3>
-            </header>
-            <div className="report-report-prose">
-              <p className="report-profilo-natura-tagline">
-                {naturaTagline.replace(/\s+/g, ' ').trim()}
-              </p>
-              {naturaIntro && (
-                <p className="report-profilo-natura-intro">
-                  {boldImportantPhrases(naturaIntro)}
-                </p>
-              )}
-              <p className="report-profilo-natura-lead">
-                {boldImportantPhrases(naturaLead)}
-              </p>
-            </div>
-          </motion.article>
-
-          <motion.article
-            className="report-report-chapter report-report-chapter--racconto"
-            aria-labelledby="report-chapter-racconto"
-            {...chapterMotion}
-          >
-            <header className="report-report-chapter-head">
-              <h3 id="report-chapter-racconto" className="report-report-chapter-title">
+              </button>
+              <button
+                type="button"
+                role="tab"
+                id="report-tab-racconto"
+                aria-controls="report-chapter-racconto-panel"
+                aria-selected={resolvedChapterId === 'report-chapter-racconto'}
+                className={`report-profilo-command-tab ${resolvedChapterId === 'report-chapter-racconto' ? 'report-profilo-command-tab--active' : ''}`}
+                onClick={() => setChapter('report-chapter-racconto')}
+              >
                 Il tuo Racconto
-              </h3>
-            </header>
-            <div className="report-report-prose">
-              {raccontoParagraphs.map((block, i) => {
-                const isSectionTitle = /^FAMIGLIA\s+\d+/i.test(block.text)
-                if (isSectionTitle) return null
-                return (
-                  <p
-                    key={`racconto-p-${i}`}
-                    className="report-profilo-block-text"
-                  >
-                    {boldImportantPhrases(block.text)}
+              </button>
+              <button
+                type="button"
+                role="tab"
+                id="report-tab-risorse"
+                aria-controls="report-chapter-risorse-panel"
+                aria-selected={resolvedChapterId === 'report-chapter-risorse'}
+                className={`report-profilo-command-tab ${resolvedChapterId === 'report-chapter-risorse' ? 'report-profilo-command-tab--active' : ''}`}
+                onClick={() => setChapter('report-chapter-risorse')}
+              >
+                Le tue Risorse
+              </button>
+              <button
+                type="button"
+                role="tab"
+                id="report-tab-ombre"
+                aria-controls="report-chapter-ombre-panel"
+                aria-selected={resolvedChapterId === 'report-chapter-ombre'}
+                className={`report-profilo-command-tab ${resolvedChapterId === 'report-chapter-ombre' ? 'report-profilo-command-tab--active' : ''}`}
+                onClick={() => setChapter('report-chapter-ombre')}
+              >
+                Le tue Ombre
+              </button>
+            </div>
+          </div>
+
+          <div className="report-profilo-longform">
+          {resolvedChapterId === 'report-chapter-natura' && (
+            <motion.article
+              key="report-chapter-natura-panel"
+              id="report-chapter-natura-panel"
+              role="tabpanel"
+              aria-labelledby="report-tab-natura report-chapter-natura"
+              className="report-report-chapter report-report-chapter--natura"
+              {...chapterMotion}
+              transition={chapterTransition}
+            >
+              <header className="report-report-chapter-head">
+                <h3 id="report-chapter-natura" className="report-report-chapter-title">
+                  La tua Natura
+                </h3>
+              </header>
+              <div className="report-report-prose">
+                <p className="report-profilo-natura-tagline">
+                  {naturaTagline.replace(/\s+/g, ' ').trim()}
+                </p>
+                {naturaIntro && (
+                  <p className="report-profilo-natura-intro">
+                    {boldImportantPhrases(naturaIntro)}
                   </p>
-                )
-              })}
-              {raccontoListItems.length > 0 && (
-                <ul className="report-profilo-list report-profilo-list-racconto">
-                  {raccontoListItems.map((item, i) => (
-                    <li key={`racconto-li-${i}`} className="report-profilo-list-item">
+                )}
+                <p className="report-profilo-natura-lead">
+                  {boldImportantPhrases(naturaLead)}
+                </p>
+              </div>
+            </motion.article>
+          )}
+
+          {resolvedChapterId === 'report-chapter-racconto' && (
+            <motion.article
+              key="report-chapter-racconto-panel"
+              id="report-chapter-racconto-panel"
+              role="tabpanel"
+              aria-labelledby="report-tab-racconto report-chapter-racconto"
+              className="report-report-chapter report-report-chapter--racconto"
+              {...chapterMotion}
+              transition={chapterTransition}
+            >
+              <header className="report-report-chapter-head">
+                <h3 id="report-chapter-racconto" className="report-report-chapter-title">
+                  Il tuo Racconto
+                </h3>
+              </header>
+              <div className="report-report-prose">
+                {raccontoParagraphs.map((block, i) => {
+                  const isSectionTitle = /^FAMIGLIA\s+\d+/i.test(block.text)
+                  if (isSectionTitle) return null
+                  return (
+                    <p
+                      key={`racconto-p-${i}`}
+                      className="report-profilo-block-text"
+                    >
+                      {boldImportantPhrases(block.text)}
+                    </p>
+                  )
+                })}
+                {raccontoListItems.length > 0 && (
+                  <ul className="report-profilo-list report-profilo-list-racconto">
+                    {raccontoListItems.map((item, i) => (
+                      <li key={`racconto-li-${i}`} className="report-profilo-list-item">
+                        <span className="report-profilo-list-text">
+                          {boldImportantPhrases(item)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {raccontoBlocks.length === 0 && (
+                  <p className="report-profilo-empty">Nessun racconto disponibile.</p>
+                )}
+              </div>
+            </motion.article>
+          )}
+
+          {resolvedChapterId === 'report-chapter-risorse' && (
+            <motion.article
+              key="report-chapter-risorse-panel"
+              id="report-chapter-risorse-panel"
+              role="tabpanel"
+              aria-labelledby="report-tab-risorse report-chapter-risorse"
+              className="report-report-chapter report-report-chapter--risorse"
+              style={{ '--chapter-accent': accentColor }}
+              {...chapterMotion}
+              transition={chapterTransition}
+            >
+              <header className="report-report-chapter-head">
+                <h3 id="report-chapter-risorse" className="report-report-chapter-title">
+                  Le tue Risorse
+                </h3>
+              </header>
+              <div className="report-report-prose">
+                <p className="report-profilo-block-intro">
+                  Le risorse della famiglia {dominantColorName} comprendono:
+                </p>
+                <ul className="report-profilo-list report-profilo-list-risorse">
+                  {risorseListItems.map((item, i) => (
+                    <li key={i} className="report-profilo-list-item">
+                      <span
+                        className="report-profilo-list-icon report-profilo-list-icon-risorse"
+                        style={{ color: accentColor }}
+                        aria-hidden
+                      >
+                        <IconStar />
+                      </span>
                       <span className="report-profilo-list-text">
                         {boldImportantPhrases(item)}
                       </span>
                     </li>
                   ))}
                 </ul>
-              )}
-              {raccontoBlocks.length === 0 && (
-                <p className="report-profilo-empty">Nessun racconto disponibile.</p>
-              )}
-            </div>
-          </motion.article>
+                {risorseBlocks.length === 0 && (
+                  <p className="report-profilo-empty">Nessuna risorsa indicata.</p>
+                )}
+              </div>
+            </motion.article>
+          )}
 
-          <motion.article
-            className="report-report-chapter report-report-chapter--risorse"
-            aria-labelledby="report-chapter-risorse"
-            style={{ '--chapter-accent': accentColor }}
-            {...chapterMotion}
-          >
-            <header className="report-report-chapter-head">
-              <h3 id="report-chapter-risorse" className="report-report-chapter-title">
-                Le tue Risorse
-              </h3>
-            </header>
-            <div className="report-report-prose">
-              <p className="report-profilo-block-intro">
-                Le risorse della famiglia {dominantColorName} comprendono:
-              </p>
-              <ul className="report-profilo-list report-profilo-list-risorse">
-                {risorseListItems.map((item, i) => (
-                  <li key={i} className="report-profilo-list-item">
-                    <span
-                      className="report-profilo-list-icon report-profilo-list-icon-risorse"
-                      style={{ color: accentColor }}
-                      aria-hidden
-                    >
-                      <IconStar />
-                    </span>
-                    <span className="report-profilo-list-text">
-                      {boldImportantPhrases(item)}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-              {risorseBlocks.length === 0 && (
-                <p className="report-profilo-empty">Nessuna risorsa indicata.</p>
-              )}
+          {resolvedChapterId === 'report-chapter-ombre' && (
+            <motion.article
+              key="report-chapter-ombre-panel"
+              id="report-chapter-ombre-panel"
+              role="tabpanel"
+              aria-labelledby="report-tab-ombre report-chapter-ombre"
+              className="report-report-chapter report-report-chapter--ombre"
+              {...chapterMotion}
+              transition={chapterTransition}
+            >
+              <header className="report-report-chapter-head">
+                <h3 id="report-chapter-ombre" className="report-report-chapter-title">
+                  Le tue Ombre
+                </h3>
+              </header>
+              <div className="report-report-prose">
+                <p className="report-profilo-block-intro">
+                  Le ombre della famiglia {dominantColorName} comprendono:
+                </p>
+                <ul className="report-profilo-list report-profilo-list-ombre">
+                  {ombreListItems.map((item, i) => (
+                    <li key={i} className="report-profilo-list-item">
+                      <span
+                        className="report-profilo-list-icon report-profilo-list-icon-ombre"
+                        aria-hidden
+                      >
+                        <IconCircleInfo />
+                      </span>
+                      <span className="report-profilo-list-text">
+                        {boldImportantPhrases(item)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                {ombreBlocks.length === 0 && (
+                  <p className="report-profilo-empty">Nessuna ombra indicata.</p>
+                )}
+              </div>
+            </motion.article>
+          )}
+          </div>
+          <div className="report-profilo-command-center-footer">
+            <p className="report-profilo-command-center-progress" aria-live="polite">
+              Missione {chapterIndex + 1} / {missionOrder.length}
+            </p>
+            <div className="report-profilo-command-actions">
+              <button
+                type="button"
+                className="report-profilo-command-action report-profilo-command-action--ghost"
+                onClick={goToPrevious}
+                disabled={chapterIndex === 0}
+              >
+                Precedente
+              </button>
+              <button
+                type="button"
+                className="report-profilo-command-action"
+                onClick={goToNext}
+                disabled={chapterIndex === missionOrder.length - 1}
+              >
+                Successivo
+              </button>
             </div>
-          </motion.article>
-
-          <motion.article
-            className="report-report-chapter report-report-chapter--ombre"
-            aria-labelledby="report-chapter-ombre"
-            {...chapterMotion}
-          >
-            <header className="report-report-chapter-head">
-              <h3 id="report-chapter-ombre" className="report-report-chapter-title">
-                Le tue Ombre
-              </h3>
-            </header>
-            <div className="report-report-prose">
-              <p className="report-profilo-block-intro">
-                Le ombre della famiglia {dominantColorName} comprendono:
-              </p>
-              <ul className="report-profilo-list report-profilo-list-ombre">
-                {ombreListItems.map((item, i) => (
-                  <li key={i} className="report-profilo-list-item">
-                    <span
-                      className="report-profilo-list-icon report-profilo-list-icon-ombre"
-                      aria-hidden
-                    >
-                      <IconCircleInfo />
-                    </span>
-                    <span className="report-profilo-list-text">
-                      {boldImportantPhrases(item)}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-              {ombreBlocks.length === 0 && (
-                <p className="report-profilo-empty">Nessuna ombra indicata.</p>
-              )}
-            </div>
-          </motion.article>
+          </div>
         </div>
       </div>
     </section>

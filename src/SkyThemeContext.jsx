@@ -1,318 +1,172 @@
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
-import { getSkyVisualProfile } from './skyVideosConfig.js'
-
-const DEFAULT_CONFIG = {
-  // quali meteo sono abilitati
-  allowedWeathers: ['sereno', 'nuvoloso', 'caldissimo', 'neve'],
-  // moltiplicatore della velocità del ciclo giorno/notte
-  speedFactor: 1, // 1x di default
-  // ogni quanti minuti reali può cambiare il meteo
-  weatherChangeMinutes: 15,
-  // fasce orarie consentite per il cielo
-  allowedTimesOfDay: ['morning', 'afternoon', 'sunset', 'twilight', 'night'],
-  // se true, niente video animato (solo fallback statico)
-  staticMode: false,
-  // preset colore fallback statico: "calmo" | "profondo"
-  skyFallbackPreset: 'calmo',
-}
+/* eslint-disable react-refresh/only-export-components */
+import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 
 const STORAGE_KEY = 'tst_sky_config_v1'
-const SKY_FALLBACK_PRESETS = ['calmo', 'profondo']
-const PRIORITY_SKY_SEQUENCE = [
-  { timeOfDay: 'sunset', weather: 'sereno' }, // 1) tardo pomeriggio, sereno
-  { timeOfDay: 'afternoon', weather: 'nuvoloso' }, // 2) variazione netta per feedback immediato
-  { timeOfDay: 'night', weather: 'sereno' },  // 3) poi notte
-]
+
+const DEFAULT_CONFIG = {
+  speedFactor: 1,
+  weatherOptions: ['sereno', 'nuvoloso', 'caldissimo', 'neve'],
+  weatherChangeFrequencyMinutes: 15,
+  allowedTimes: ['morning', 'afternoon', 'sunset', 'twilight', 'night'],
+  staticMode: false,
+}
 
 const SkyThemeContext = createContext(null)
 
-function getTimeOfDayFromDate(date) {
-  const hours = date.getHours()
+const clampHour = (hour) => {
+  if (hour < 0) return 0
+  if (hour > 23) return 23
+  return hour
+}
 
-  if (hours >= 6 && hours < 11) return 'morning'
-  if (hours >= 11 && hours < 17) return 'afternoon'
-  if (hours >= 17 && hours < 20) return 'sunset'
-  if (hours >= 20 || hours < 23) return 'twilight'
+const computeTimeOfDay = (date) => {
+  const hour = clampHour(date.getHours())
+  if (hour >= 5 && hour < 11) return 'morning'
+  if (hour >= 11 && hour < 17) return 'afternoon'
+  if (hour >= 17 && hour < 20) return 'sunset'
+  if (hour >= 20 && hour < 22) return 'twilight'
   return 'night'
 }
 
-function loadStoredConfig() {
-  if (typeof window === 'undefined') return DEFAULT_CONFIG
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY)
-    if (!raw) return DEFAULT_CONFIG
-    const parsed = JSON.parse(raw)
-    return {
-      ...DEFAULT_CONFIG,
-      ...parsed,
-      allowedWeathers:
-        Array.isArray(parsed.allowedWeathers) && parsed.allowedWeathers.length > 0
-          ? parsed.allowedWeathers
-          : DEFAULT_CONFIG.allowedWeathers,
-      allowedTimesOfDay:
-        Array.isArray(parsed.allowedTimesOfDay) && parsed.allowedTimesOfDay.length > 0
-          ? parsed.allowedTimesOfDay
-          : DEFAULT_CONFIG.allowedTimesOfDay,
-      skyFallbackPreset: SKY_FALLBACK_PRESETS.includes(parsed.skyFallbackPreset)
-        ? parsed.skyFallbackPreset
-        : DEFAULT_CONFIG.skyFallbackPreset,
-    }
-  } catch {
-    return DEFAULT_CONFIG
-  }
-}
-
-function persistConfig(config) {
-  if (typeof window === 'undefined') return
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(config))
-  } catch {
-    // ignore
-  }
+const pickRandom = (array) => {
+  if (!array || array.length === 0) return null
+  const index = Math.floor(Math.random() * array.length)
+  return array[index]
 }
 
 export function SkyThemeProvider({ children }) {
-  const [config, setConfig] = useState(() => loadStoredConfig())
-  const [timeOfDay, setTimeOfDay] = useState(() => {
-    const initial = PRIORITY_SKY_SEQUENCE[0]?.timeOfDay || 'sunset'
-    return initial
+  const [config, setConfig] = useState(() => {
+    try {
+      const stored = window.localStorage.getItem(STORAGE_KEY)
+      if (!stored) return DEFAULT_CONFIG
+      const parsed = JSON.parse(stored)
+      return {
+        ...DEFAULT_CONFIG,
+        ...parsed,
+      }
+    } catch {
+      return DEFAULT_CONFIG
+    }
   })
-  const [weather, setWeather] = useState(() => PRIORITY_SKY_SEQUENCE[0]?.weather || 'sereno')
-  const landingOverrideRef = useRef(null)
-  const manualSkySequenceStepRef = useRef(0)
-
-  const lastWeatherChangeRef = useRef(Date.now())
-  const simulatedClockRef = useRef(Date.now())
-  const forceRandomWeatherTimeoutRef = useRef(null)
+  const [timeOfDay, setTimeOfDay] = useState('morning')
+  const [weather, setWeather] = useState('sereno')
 
   useEffect(() => {
-    persistConfig(config)
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(config))
+    } catch (error) {
+      console.error('Errore nel salvare la configurazione del cielo:', error)
+    }
   }, [config])
 
   useEffect(() => {
-    const intervalMs = 60_000 / (config.speedFactor || 1)
+    if (config.staticMode) return undefined
 
-    const tick = () => {
-      const baseIncrementMinutes = 10
-      simulatedClockRef.current += baseIncrementMinutes * 60_000 * (config.speedFactor || 1)
-
-      const simulatedDate = new Date(simulatedClockRef.current)
-      let nextTimeOfDay = getTimeOfDayFromDate(simulatedDate)
-      if (!config.allowedTimesOfDay.includes(nextTimeOfDay)) {
-        nextTimeOfDay = config.allowedTimesOfDay[0] || nextTimeOfDay
+    const updateTimeOfDay = () => {
+      const now = new Date()
+      let next = computeTimeOfDay(now)
+      if (!config.allowedTimes.includes(next)) {
+        next = config.allowedTimes[0] || 'morning'
       }
-      setTimeOfDay(nextTimeOfDay)
-
-      const now = Date.now()
-      const elapsedMinutes = (now - lastWeatherChangeRef.current) / 60_000
-      const minGap = Math.max(1, config.weatherChangeMinutes || DEFAULT_CONFIG.weatherChangeMinutes)
-
-      if (elapsedMinutes >= minGap) {
-        const candidates =
-          config.allowedWeathers && config.allowedWeathers.length > 0
-            ? config.allowedWeathers
-            : DEFAULT_CONFIG.allowedWeathers
-        const nextWeather = candidates[Math.floor(Math.random() * candidates.length)]
-        setWeather(nextWeather)
-        lastWeatherChangeRef.current = now
-      }
+      setTimeOfDay(next)
     }
 
-    const id = window.setInterval(tick, intervalMs)
-    return () => window.clearInterval(id)
-  }, [config.speedFactor, config.weatherChangeMinutes, config.allowedTimesOfDay, config.allowedWeathers])
+    updateTimeOfDay()
+
+    const baseIntervalMs = 60_000
+    const intervalMs = baseIntervalMs / (config.speedFactor || 1)
+
+    const id = window.setInterval(updateTimeOfDay, intervalMs)
+    return () => {
+      window.clearInterval(id)
+    }
+  }, [config.staticMode, config.speedFactor, config.allowedTimes])
 
   useEffect(() => {
-    simulatedClockRef.current = Date.now()
-    lastWeatherChangeRef.current = Date.now()
-  }, [])
+    if (config.staticMode) return undefined
 
-  useEffect(
-    () => () => {
-      if (forceRandomWeatherTimeoutRef.current) {
-        window.clearTimeout(forceRandomWeatherTimeoutRef.current)
-      }
-    },
-    [],
-  )
-
-  const updateConfig = useCallback((updater) => {
-    setConfig((prev) => {
-      const next = typeof updater === 'function' ? updater(prev) : updater
-      return { ...prev, ...next }
-    })
-  }, [])
-
-  const setAllowedWeathers = useCallback((weathers) => {
-    updateConfig((prev) => ({
-      ...prev,
-      allowedWeathers: weathers && weathers.length > 0 ? weathers : DEFAULT_CONFIG.allowedWeathers,
-    }))
-  }, [updateConfig])
-
-  const setSpeedFactor = useCallback((factor) => {
-    const safe = Number.isFinite(factor) && factor > 0 ? factor : 1
-    updateConfig((prev) => ({ ...prev, speedFactor: safe }))
-  }, [updateConfig])
-
-  const setWeatherChangeMinutes = useCallback((minutes) => {
-    const safe = Number.isFinite(minutes) && minutes > 0 ? minutes : DEFAULT_CONFIG.weatherChangeMinutes
-    updateConfig((prev) => ({ ...prev, weatherChangeMinutes: safe }))
-  }, [updateConfig])
-
-  const setAllowedTimesOfDay = useCallback((times) => {
-    updateConfig((prev) => ({
-      ...prev,
-      allowedTimesOfDay: times && times.length > 0 ? times : DEFAULT_CONFIG.allowedTimesOfDay,
-    }))
-  }, [updateConfig])
-
-  const setStaticMode = useCallback((value) => {
-    updateConfig((prev) => ({ ...prev, staticMode: Boolean(value) }))
-  }, [updateConfig])
-
-  const setSkyFallbackPreset = useCallback((preset) => {
-    const safePreset = SKY_FALLBACK_PRESETS.includes(preset)
-      ? preset
-      : DEFAULT_CONFIG.skyFallbackPreset
-    updateConfig((prev) => ({ ...prev, skyFallbackPreset: safePreset }))
-  }, [updateConfig])
-
-  const setLandingSkyOverride = useCallback((override) => {
-    landingOverrideRef.current = override
-    if (override && override.timeOfDay) {
-      setTimeOfDay(override.timeOfDay)
+    const updateWeather = () => {
+      const options =
+        config.weatherOptions && config.weatherOptions.length > 0
+          ? config.weatherOptions
+          : DEFAULT_CONFIG.weatherOptions
+      const next = pickRandom(options) || 'sereno'
+      setWeather(next)
     }
-    if (override && override.weather) {
-      setWeather(override.weather)
+
+    updateWeather()
+
+    const minutes =
+      typeof config.weatherChangeFrequencyMinutes === 'number' &&
+      config.weatherChangeFrequencyMinutes > 0
+        ? config.weatherChangeFrequencyMinutes
+        : DEFAULT_CONFIG.weatherChangeFrequencyMinutes
+
+    const intervalMs = (minutes * 60_000) / (config.speedFactor || 1)
+    const id = window.setInterval(updateWeather, intervalMs)
+    return () => {
+      window.clearInterval(id)
     }
-  }, [])
-
-  const forceRandomWeatherChange = useCallback(
-    (options = {}) => {
-      const { scheduleAfterMs } = options
-
-      const sequenceStep = manualSkySequenceStepRef.current
-      const sequenceItem = PRIORITY_SKY_SEQUENCE[sequenceStep]
-      if (sequenceItem) {
-        setTimeOfDay(sequenceItem.timeOfDay)
-        setWeather(sequenceItem.weather)
-        // #region agent log
-        fetch('http://127.0.0.1:7527/ingest/9a8c1779-de14-406d-8ed0-f0cfc6d332d5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a9db1d'},body:JSON.stringify({sessionId:'a9db1d',runId:'pre-fix',hypothesisId:'H1',location:'src/SkyThemeContext.jsx:196',message:'forceRandomWeatherChange sequence selection',data:{path:'priority-sequence',sequenceStep,timeOfDay:sequenceItem.timeOfDay,weather:sequenceItem.weather,scheduleAfterMs:scheduleAfterMs ?? null},timestamp:Date.now()})}).catch(()=>{})
-        // #endregion
-        lastWeatherChangeRef.current = Date.now()
-        manualSkySequenceStepRef.current = sequenceStep + 1
-      } else {
-        const weatherCandidates =
-          config.allowedWeathers && config.allowedWeathers.length > 0
-            ? config.allowedWeathers
-            : DEFAULT_CONFIG.allowedWeathers
-        const timeCandidates =
-          config.allowedTimesOfDay && config.allowedTimesOfDay.length > 0
-            ? config.allowedTimesOfDay
-            : DEFAULT_CONFIG.allowedTimesOfDay
-        if (!weatherCandidates || weatherCandidates.length === 0) return
-        if (!timeCandidates || timeCandidates.length === 0) return
-
-        const maxAttempts = 8
-        let nextWeather = weatherCandidates[Math.floor(Math.random() * weatherCandidates.length)]
-        let nextTime = timeCandidates[Math.floor(Math.random() * timeCandidates.length)]
-        let attempts = 0
-
-        while (
-          attempts < maxAttempts &&
-          nextWeather === weather &&
-          nextTime === timeOfDay &&
-          (weatherCandidates.length > 1 || timeCandidates.length > 1)
-        ) {
-          nextWeather = weatherCandidates[Math.floor(Math.random() * weatherCandidates.length)]
-          nextTime = timeCandidates[Math.floor(Math.random() * timeCandidates.length)]
-          attempts += 1
-        }
-        setWeather(nextWeather)
-        setTimeOfDay(nextTime)
-        // #region agent log
-        fetch('http://127.0.0.1:7527/ingest/9a8c1779-de14-406d-8ed0-f0cfc6d332d5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a9db1d'},body:JSON.stringify({sessionId:'a9db1d',runId:'pre-fix',hypothesisId:'H1',location:'src/SkyThemeContext.jsx:227',message:'forceRandomWeatherChange random selection',data:{path:'random',attempts,nextWeather,nextTime,currentWeather:weather,currentTimeOfDay:timeOfDay,scheduleAfterMs:scheduleAfterMs ?? null},timestamp:Date.now()})}).catch(()=>{})
-        // #endregion
-        lastWeatherChangeRef.current = Date.now()
-      }
-
-      if (forceRandomWeatherTimeoutRef.current) {
-        window.clearTimeout(forceRandomWeatherTimeoutRef.current)
-        forceRandomWeatherTimeoutRef.current = null
-      }
-
-      if (typeof scheduleAfterMs === 'number' && scheduleAfterMs > 0) {
-        forceRandomWeatherTimeoutRef.current = window.setTimeout(() => {
-          const followUpCandidates =
-            config.allowedWeathers && config.allowedWeathers.length > 0
-              ? config.allowedWeathers
-              : DEFAULT_CONFIG.allowedWeathers
-          if (!followUpCandidates || followUpCandidates.length === 0) {
-            forceRandomWeatherTimeoutRef.current = null
-            return
-          }
-          const followUpIndex = Math.floor(Math.random() * followUpCandidates.length)
-          setWeather(followUpCandidates[followUpIndex])
-          lastWeatherChangeRef.current = Date.now()
-          forceRandomWeatherTimeoutRef.current = null
-        }, scheduleAfterMs)
-      }
-    },
-    [config.allowedTimesOfDay, config.allowedWeathers, timeOfDay, weather],
-  )
+  }, [config.staticMode, config.weatherOptions, config.weatherChangeFrequencyMinutes, config.speedFactor])
 
   const value = useMemo(
-    () => {
-      const visualProfile = getSkyVisualProfile(timeOfDay, weather)
-      return {
-        timeOfDay,
-        weather,
-        config,
-        visualProfile,
-        setConfig: updateConfig,
-        setAllowedWeathers,
-        setSpeedFactor,
-        setWeatherChangeMinutes,
-        setAllowedTimesOfDay,
-        setStaticMode,
-        setSkyFallbackPreset,
-        setLandingSkyOverride,
-        forceRandomWeatherChange,
-      }
-    },
-    [
+    () => ({
       timeOfDay,
       weather,
       config,
-      updateConfig,
-      setAllowedWeathers,
-      setSpeedFactor,
-      setWeatherChangeMinutes,
-      setAllowedTimesOfDay,
-      setStaticMode,
-      setSkyFallbackPreset,
-      setLandingSkyOverride,
-      forceRandomWeatherChange,
-    ],
+      setConfig,
+      setSpeedFactor: (speedFactor) =>
+        setConfig((prev) => ({
+          ...prev,
+          speedFactor,
+        })),
+      setWeatherChangeFrequencyMinutes: (minutes) =>
+        setConfig((prev) => ({
+          ...prev,
+          weatherChangeFrequencyMinutes: minutes,
+        })),
+      toggleWeatherOption: (weatherKey) =>
+        setConfig((prev) => {
+          const exists = prev.weatherOptions.includes(weatherKey)
+          const nextOptions = exists
+            ? prev.weatherOptions.filter((w) => w !== weatherKey)
+            : [...prev.weatherOptions, weatherKey]
+          return {
+            ...prev,
+            weatherOptions: nextOptions,
+          }
+        }),
+      toggleTimeOfDay: (timeKey) =>
+        setConfig((prev) => {
+          const exists = prev.allowedTimes.includes(timeKey)
+          let nextAllowed = exists
+            ? prev.allowedTimes.filter((t) => t !== timeKey)
+            : [...prev.allowedTimes, timeKey]
+          if (nextAllowed.length === 0) {
+            nextAllowed = [timeKey]
+          }
+          return {
+            ...prev,
+            allowedTimes: nextAllowed,
+          }
+        }),
+      setStaticMode: (staticMode) =>
+        setConfig((prev) => ({
+          ...prev,
+          staticMode,
+        })),
+    }),
+    [timeOfDay, weather, config],
   )
 
   return <SkyThemeContext.Provider value={value}>{children}</SkyThemeContext.Provider>
 }
 
 export function useSkyTheme() {
-  const ctx = useContext(SkyThemeContext)
-  if (!ctx) {
-    throw new Error('useSkyTheme deve essere usato dentro SkyThemeProvider')
+  const context = useContext(SkyThemeContext)
+  if (!context) {
+    console.warn('useSkyTheme deve essere utilizzato all’interno di SkyThemeProvider.')
   }
-  return ctx
+  return context
 }
 

@@ -153,6 +153,16 @@ function ReportPage() {
   const record = routedRecord || persistedRecord
   const fromSubmit = Boolean(location.state?.fromSubmit)
   const [transitionPhase, setTransitionPhase] = useState(fromSubmit ? 'video' : 'none')
+  const [resultRevealPhase, setResultRevealPhase] = useState(fromSubmit ? 'hold' : 'visible')
+  const [activeProfileChapterId, setActiveProfileChapterId] = useState('report-chapter-natura')
+
+  useEffect(() => {
+    if (resultRevealPhase !== 'hold') return undefined
+    const timer = window.setTimeout(() => {
+      setResultRevealPhase('visible')
+    }, 500)
+    return () => window.clearTimeout(timer)
+  }, [resultRevealPhase])
 
   useEffect(() => {
     if (!routedRecord || !routedRecord.raw || typeof routedRecord.raw !== 'object') return
@@ -316,19 +326,29 @@ function ReportPage() {
         className="report-page report-xp report-page-frame min-h-screen"
         style={{ '--report-xp-accent': accentColor }}
       >
-        <ReportExperienceChrome>
+        <ReportExperienceChrome
+          activeProfileChapterId={activeProfileChapterId}
+          onActiveProfileChapterChange={setActiveProfileChapterId}
+        >
         <div className="report-page-inner report-page-flow">
         {fromSubmit && transitionPhase === 'video' && (
           <FinalFlowerTransition
             colorKey={dominantKey}
             onEnded={() => {
               setTransitionPhase('done')
+              setResultRevealPhase('hold')
             }}
             onSkipped={() => {
               setTransitionPhase('skipped')
+              setResultRevealPhase('hold')
             }}
           />
         )}
+        {fromSubmit && resultRevealPhase === 'hold' && (
+          <div className="report-final-reveal-blank" aria-hidden="true" />
+        )}
+        {resultRevealPhase === 'visible' && (
+          <>
         {fromSubmit && (
           <section className="report-final-actions report-card report-xp-section" aria-label="Azioni dopo la consegna del test">
             <p className="report-final-actions-text">
@@ -377,8 +397,16 @@ function ReportPage() {
             totalsByKey={totalsByKey}
             accentColor={accentColor}
             formatDateShort={formatDateShort}
+            showAuthoritySeal={fromSubmit}
             onDownload={() => downloadCsvSingleRecord(record)}
             onClose={handleClose}
+            onEnterCommandCenter={() => {
+              setActiveProfileChapterId('report-chapter-natura')
+              const profileSection = document.getElementById('report-profilo')
+              if (profileSection) {
+                profileSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+              }
+            }}
           />
         </div>
 
@@ -389,6 +417,8 @@ function ReportPage() {
           restituzione={restituzione}
           dominantColorName={dominantColorName}
           accentColor={accentColor}
+          activeChapterId={activeProfileChapterId}
+          onActiveChapterChange={setActiveProfileChapterId}
           />
         </div>
 
@@ -455,6 +485,8 @@ function ReportPage() {
             </ul>
           </section>
         </div>
+        </>
+        )}
         </div>
         </ReportExperienceChrome>
       </div>

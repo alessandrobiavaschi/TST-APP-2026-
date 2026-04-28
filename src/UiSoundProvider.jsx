@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
 
 const UiSoundContext = createContext({
@@ -100,9 +101,9 @@ export function UiSoundProvider({ children }) {
     try {
       const stored = window.localStorage.getItem('tst_ui_sounds_enabled')
       if (stored === '0') {
-        setEnabled(false)
+        queueMicrotask(() => setEnabled(false))
       } else if (stored === '1') {
-        setEnabled(true)
+        queueMicrotask(() => setEnabled(true))
       }
     } catch {
       // ignore

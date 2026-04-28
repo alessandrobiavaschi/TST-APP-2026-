@@ -144,25 +144,25 @@ function TstPage() {
                 onClick={() => toggleFaq('utilizzi')}
                 aria-expanded={openFaqId === 'utilizzi'}
               >
-                <span>In quali contesti si puo usare il TST?</span>
+                <span>In quali contesti si può usare il TST?</span>
                 <span className="nuovo-test-faq-icon" aria-hidden="true" />
               </button>
               <div className="nuovo-test-faq-panel">
                 <p>
-                  Il TST puo essere utilizzato in piu ambiti. In ambito <strong>educativo</strong>, puo
-                  supportare insegnanti e tutor nella composizione delle classi e nell&apos;orientamento ai
+                  Il TST può essere utilizzato in più contesti. In ambito <strong>educativo-scolastico</strong>, come supporto a
+                  insegnanti e tutor nella composizione delle classi e nell&apos;orientamento ai
                   percorsi di studio.
                 </p>
                 <p>
-                  In ambito <strong>sociologico</strong>, puo offrire una chiave di lettura delle dinamiche
-                  relazionali e delle tendenze emotive di gruppo. In <strong>risorse umane</strong>, puo
-                  affiancare la costruzione di gruppi di lavoro e team equilibrati in base alle funzioni
+                  In ambito <strong>sociologico</strong>, può offrire una chiave di lettura delle dinamiche
+                  relazionali e delle tendenze emotive di gruppo. Nell&apos;ambito delle <strong>risorse umane</strong>, può
+                  affiancare la costruzione di gruppi di lavoro e team equilibrati in base alle funzioni umanistiche e organizzative
                   aziendali.
                 </p>
                 <p>
-                  In ambito <strong>terapeutico</strong>, e un possibile strumento coadiuvante nei percorsi
-                  clinici o psicoterapici, a completamento di altri test clinici. In ogni caso, non sostituisce
-                  una diagnosi.
+                  In ambito <strong>terapeutico</strong>, è un possibile strumento coadiuvante nei percorsi
+                  trattamentali o psicoterapici, a completamento di altri test clinici. In ogni caso, non sostituisce
+                  una diagnosi clinica.
                 </p>
               </div>
             </article>

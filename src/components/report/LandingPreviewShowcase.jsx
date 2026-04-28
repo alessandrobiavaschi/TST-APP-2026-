@@ -271,7 +271,7 @@ export default function LandingPreviewShowcase({ onStart, onTrack, chartHeight =
       </div>
 
       <footer className="landing-preview-actions">
-        <button type="button" className="landing-preview-action landing-preview-action--primary" onClick={onStart}>
+        <button type="button" className="landing-preview-action landing-preview-action--secondary" onClick={onStart}>
           Avvia il test
         </button>
       </footer>

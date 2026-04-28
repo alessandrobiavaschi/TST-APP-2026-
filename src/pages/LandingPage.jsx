@@ -1,17 +1,16 @@
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useSkyTheme } from '../SkyThemeContext.jsx'
 import AuthBox from '../components/AuthBox.jsx'
 import VideoBackground0311 from '../components/VideoBackground0311.jsx'
-import { AuthContext } from '../AuthContext.jsx'
+import { useAuth } from '../AuthContext.jsx'
 import {
   signInWithGoogle as authSignInWithGoogle,
   signInWithEmail as authSignInWithEmail,
   registerWithEmail as authRegisterWithEmail,
   requestPasswordReset as authRequestPasswordReset,
-  getGoogleLoginErrorMessage,
+  getGoogleAuthDiagnosticEventName,
 } from '../auth.js'
-import { auth } from '../firebaseConfig.js'
 import LandingPreviewShowcase from '../components/report/LandingPreviewShowcase.jsx'
 import LandingNarrativeRail from '../components/LandingNarrativeRail.jsx'
 
@@ -19,13 +18,14 @@ function LandingPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const { setLandingSkyOverride } = useSkyTheme()
-  const currentUser = useContext(AuthContext)
+  const { user: currentUser, authReady } = useAuth()
   const [showAccessBox, setShowAccessBox] = useState(false)
   const [authError, setAuthError] = useState('')
-  const [resetMessage, setResetMessage] = useState(false)
+  const [resetMessage, setResetMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isMobileViewport, setIsMobileViewport] = useState(false)
   const [activeSectionIndex, setActiveSectionIndex] = useState(0)
-  const [discoverProgress, setDiscoverProgress] = useState(0)
+  const hasAuthenticatedSession = Boolean(currentUser)
   const accessBoxRef = useRef(null)
   const heroIntroSectionRef = useRef(null)
   const heroMessageSectionRef = useRef(null)
@@ -49,29 +49,14 @@ function LandingPage() {
     }
   }
 
-  const openAppPanel = (path) => {
-    if (typeof window !== 'undefined') {
-      const targetUrl = `${window.location.origin}${path}`
-      const newWindow = window.open(targetUrl, '_blank', 'noopener,noreferrer')
-      if (newWindow) return true
-    }
-    return false
-  }
-
   const navigateToLogin = () => {
     const loginParams = new URLSearchParams(location.search.replace(/^\?/, ''))
     loginParams.set('accesso', '1')
-    // #region agent log
-    fetch('http://127.0.0.1:7527/ingest/9a8c1779-de14-406d-8ed0-f0cfc6d332d5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a9db1d'},body:JSON.stringify({sessionId:'a9db1d',runId:'post-fix',hypothesisId:'L6',location:'src/pages/LandingPage.jsx:64',message:'navigateToLogin called',data:{pathname:location.pathname,currentSearch:location.search,nextSearch:`?${loginParams.toString()}`},timestamp:Date.now()})}).catch(()=>{})
-    // #endregion
     if (location.pathname === '/') {
       setShowAccessBox(true)
       window.requestAnimationFrame(() => {
         accessSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
       })
-      // #region agent log
-      fetch('http://127.0.0.1:7527/ingest/9a8c1779-de14-406d-8ed0-f0cfc6d332d5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a9db1d'},body:JSON.stringify({sessionId:'a9db1d',runId:'post-fix',hypothesisId:'L7',location:'src/pages/LandingPage.jsx:72',message:'access panel opened and scrolled on landing',data:{pathname:location.pathname,hasAccessSectionRef:Boolean(accessSectionRef.current)},timestamp:Date.now()})}).catch(()=>{})
-      // #endregion
       return
     }
     navigate({ pathname: '/', search: `?${loginParams.toString()}` }, { state: { openAccessBox: true } })
@@ -80,14 +65,7 @@ function LandingPage() {
   const handleStartClick = () => {
     setAuthError('')
     setResetMessage('')
-    const hasAuthenticatedSession = Boolean(currentUser || auth?.currentUser)
-    // #region agent log
-    fetch('http://127.0.0.1:7527/ingest/9a8c1779-de14-406d-8ed0-f0cfc6d332d5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a9db1d'},body:JSON.stringify({sessionId:'a9db1d',runId:'post-fix',hypothesisId:'L6',location:'src/pages/LandingPage.jsx:78',message:'handleStartClick fired',data:{contextUser:Boolean(currentUser),firebaseUser:Boolean(auth?.currentUser),hasAuthenticatedSession,pathname:location.pathname},timestamp:Date.now()})}).catch(()=>{})
-    // #endregion
     if (hasAuthenticatedSession) {
-      // #region agent log
-      fetch('http://127.0.0.1:7527/ingest/9a8c1779-de14-406d-8ed0-f0cfc6d332d5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a9db1d'},body:JSON.stringify({sessionId:'a9db1d',runId:'post-fix',hypothesisId:'L6',location:'src/pages/LandingPage.jsx:84',message:'authenticated start route chosen',data:{target:'/nuovo-test'},timestamp:Date.now()})}).catch(()=>{})
-      // #endregion
       navigate('/nuovo-test')
       return
     }
@@ -97,7 +75,7 @@ function LandingPage() {
   const scrollToAccessSection = ({ revealPanel = true } = {}) => {
     setAuthError('')
     setResetMessage('')
-    if (!currentUser && revealPanel) {
+    if (!hasAuthenticatedSession && revealPanel) {
       setShowAccessBox(true)
     }
     window.requestAnimationFrame(() => {
@@ -134,43 +112,31 @@ function LandingPage() {
   const handleGoogleLogin = async () => {
     setAuthError('')
     setResetMessage('')
-    if (!auth) {
-      setAuthError('Firebase non configurato. Aggiungi un file .env con le credenziali.')
+    const result = await authSignInWithGoogle()
+    if (!result.success) {
+      setAuthError(result.message || "Errore durante l'accesso con Google.")
       return
     }
-    try {
-      const user = await authSignInWithGoogle()
-      if (user && !openAppPanel('/home')) navigate('/home')
-    } catch (err) {
-      setAuthError(getGoogleLoginErrorMessage(err))
-    }
+    if (result.needsRedirect) return
+    navigate(result.nextRoute || '/home')
   }
 
   const handleAuthBoxEmailSubmit = async ({ email, password }) => {
     setAuthError('')
     setResetMessage('')
-    if (!auth) {
-      setAuthError('Firebase non configurato. Aggiungi un file .env con le credenziali.')
+    setIsSubmitting(true)
+    const result = await authSignInWithEmail(email, password)
+    setIsSubmitting(false)
+    if (!result.success) {
+      setAuthError(result.message || "Errore durante l'accesso.")
       return
     }
-    setIsSubmitting(true)
-    try {
-      await authSignInWithEmail(email, password)
-      if (!openAppPanel('/dashboard-operatore')) navigate('/dashboard-operatore')
-    } catch (err) {
-      setAuthError(err?.message || "Errore durante l'accesso.")
-    } finally {
-      setIsSubmitting(false)
-    }
+    navigate(result.nextRoute || '/home')
   }
 
   const handleAuthBoxRegisterSubmit = async ({ email, password, nome, cognome, confirmPassword }) => {
     setAuthError('')
     setResetMessage('')
-    if (!auth) {
-      setAuthError('Firebase non configurato. Aggiungi un file .env con le credenziali.')
-      throw new Error('Firebase non configurato.')
-    }
     if (!nome?.trim() || !cognome?.trim()) {
       const msg = 'Inserisci nome e cognome per creare un account operatore.'
       setAuthError(msg)
@@ -182,43 +148,41 @@ function LandingPage() {
       throw new Error(msg)
     }
     setIsSubmitting(true)
-    try {
-      await authRegisterWithEmail(email, password, nome, cognome)
-      setResetMessage(
-        "Ti abbiamo inviato un'email di conferma. Verifica il tuo indirizzo e poi accedi con le tue credenziali.",
-      )
-    } catch (err) {
-      setAuthError(err?.message || 'Errore durante la registrazione.')
-      throw err
-    } finally {
-      setIsSubmitting(false)
+    const result = await authRegisterWithEmail(email, password, nome, cognome)
+    setIsSubmitting(false)
+    if (!result.success) {
+      const errorMessage = result.message || 'Errore durante la registrazione.'
+      setAuthError(errorMessage)
+      throw new Error(errorMessage)
     }
+    setResetMessage(
+      result.message ||
+        "Ti abbiamo inviato un'email di conferma. Verifica il tuo indirizzo e poi accedi con le tue credenziali.",
+    )
   }
 
   const handlePasswordResetRequest = async (emailAddress) => {
     setAuthError('')
     setResetMessage('')
-    if (!auth) {
-      setAuthError('Firebase non configurato. Aggiungi un file .env con le credenziali.')
-      return
-    }
     if (!emailAddress || !emailAddress.trim()) {
       setAuthError('Inserisci la tua email per reimpostare la password.')
       return
     }
     setIsSubmitting(true)
-    try {
-      await authRequestPasswordReset(emailAddress.trim())
-      setResetMessage('Se esiste un account con questa email, e stata inviata una mail per reimpostare la password.')
-    } catch (err) {
-      setAuthError(err?.message || 'Errore durante la richiesta di reset password.')
-    } finally {
-      setIsSubmitting(false)
+    const result = await authRequestPasswordReset(emailAddress.trim())
+    setIsSubmitting(false)
+    if (!result.success) {
+      setAuthError(result.message || 'Errore durante la richiesta di reset password.')
+      return
     }
+    setResetMessage(
+      result.message || 'Se esiste un account con questa email, e stata inviata una mail per reimpostare la password.',
+    )
   }
 
   useEffect(() => {
-    setLandingSkyOverride({ timeOfDay: 'sunset', weather: 'sereno' })
+    // queueMicrotask evita il trigger sincrono di setState dentro useEffect
+    queueMicrotask(() => setLandingSkyOverride({ timeOfDay: 'sunset', weather: 'sereno' }))
   }, [setLandingSkyOverride])
 
   useEffect(() => {
@@ -239,14 +203,42 @@ function LandingPage() {
   }, [])
 
   useEffect(() => {
-    if (location?.state?.openAccessBox) {
-      setAuthError('')
-      setResetMessage('')
+    if (typeof window === 'undefined') return
+    const eventName = getGoogleAuthDiagnosticEventName()
+    const onGoogleDiagnostic = (event) => {
+      const nextMessage =
+        event?.detail?.message ||
+        "Errore durante l'accesso con Google. Apri la console Firebase per i dettagli."
+      setAuthError(nextMessage)
       setShowAccessBox(true)
-      // #region agent log
-      fetch('http://127.0.0.1:7527/ingest/9a8c1779-de14-406d-8ed0-f0cfc6d332d5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a9db1d'},body:JSON.stringify({sessionId:'a9db1d',runId:'landing-pre-fix',hypothesisId:'L4',location:'src/pages/LandingPage.jsx:234',message:'openAccessBox from location.state',data:{pathname:location.pathname,search:location.search},timestamp:Date.now()})}).catch(()=>{})
-      // #endregion
-      navigate('.', { replace: true, state: {} })
+    }
+    window.addEventListener(eventName, onGoogleDiagnostic)
+    return () => window.removeEventListener(eventName, onGoogleDiagnostic)
+  }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const mediaQuery = window.matchMedia('(max-width: 768px)')
+    const applyViewportState = (event) => {
+      setIsMobileViewport(Boolean(event.matches))
+    }
+    applyViewportState(mediaQuery)
+    if (typeof mediaQuery.addEventListener === 'function') {
+      mediaQuery.addEventListener('change', applyViewportState)
+      return () => mediaQuery.removeEventListener('change', applyViewportState)
+    }
+    mediaQuery.addListener(applyViewportState)
+    return () => mediaQuery.removeListener(applyViewportState)
+  }, [])
+
+  useEffect(() => {
+    if (location?.state?.openAccessBox) {
+      queueMicrotask(() => {
+        setAuthError('')
+        setResetMessage('')
+        setShowAccessBox(true)
+        navigate('.', { replace: true, state: {} })
+      })
     }
   }, [location, navigate])
 
@@ -256,16 +248,15 @@ function LandingPage() {
     if (params.get('accesso') !== '1') return
     params.delete('accesso')
     const rest = params.toString()
-    setAuthError('')
-    setResetMessage('')
-    setShowAccessBox(true)
-    // #region agent log
-    fetch('http://127.0.0.1:7527/ingest/9a8c1779-de14-406d-8ed0-f0cfc6d332d5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a9db1d'},body:JSON.stringify({sessionId:'a9db1d',runId:'landing-pre-fix',hypothesisId:'L5',location:'src/pages/LandingPage.jsx:250',message:'openAccessBox from accesso query param',data:{pathname:location.pathname,searchBefore:location.search,searchAfter:rest ? `?${rest}` : ''},timestamp:Date.now()})}).catch(()=>{})
-    // #endregion
-    navigate(
-      { pathname: '/', search: rest ? `?${rest}` : '', hash: location.hash || '' },
-      { replace: true, state: {} },
-    )
+    queueMicrotask(() => {
+      setAuthError('')
+      setResetMessage('')
+      setShowAccessBox(true)
+      navigate(
+        { pathname: '/', search: rest ? `?${rest}` : '', hash: location.hash || '' },
+        { replace: true, state: {} },
+      )
+    })
   }, [location.pathname, location.search, location.hash, navigate])
 
   useEffect(() => {
@@ -273,6 +264,15 @@ function LandingPage() {
       accessBoxRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
     }
   }, [showAccessBox])
+
+  useEffect(() => {
+    if (!authReady || !hasAuthenticatedSession) return
+    // Reindirizza solo se l'utente si è appena autenticato tramite il box di accesso
+    // (flow mobile Google login). Negli altri casi lasciamo la landing visibile anche ai loggati.
+    if (showAccessBox) {
+      navigate('/home', { replace: true })
+    }
+  }, [authReady, hasAuthenticatedSession, showAccessBox, navigate])
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -307,51 +307,31 @@ function LandingPage() {
     }
   }, [])
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-    let rafId = null
-
-    const updateDiscoverProgress = () => {
-      rafId = null
-      const targetSectionTop = heroMessageSectionRef.current?.offsetTop ?? window.innerHeight * 0.7
-      const nextProgress = Math.max(0, Math.min(1, window.scrollY / Math.max(1, targetSectionTop)))
-      setDiscoverProgress((prev) => (Math.abs(prev - nextProgress) < 0.01 ? prev : nextProgress))
-    }
-
-    const onScrollOrResize = () => {
-      if (rafId !== null) return
-      rafId = window.requestAnimationFrame(updateDiscoverProgress)
-    }
-
-    updateDiscoverProgress()
-    window.addEventListener('scroll', onScrollOrResize, { passive: true })
-    window.addEventListener('resize', onScrollOrResize)
-    return () => {
-      if (rafId !== null) window.cancelAnimationFrame(rafId)
-      window.removeEventListener('scroll', onScrollOrResize)
-      window.removeEventListener('resize', onScrollOrResize)
-    }
-  }, [])
-
   return (
-    <div className="landing-apple-root page-video-bg-root">
-      <VideoBackground0311 />
+    <div
+      className={`landing-apple-root page-video-bg-root${
+        isMobileViewport ? ' landing-apple-root--mobile-static' : ''
+      }`}
+    >
+      {!isMobileViewport && <VideoBackground0311 />}
       <div className="landing-apple-inner">
-        <div className="landing-vignette" aria-hidden="true" />
+        {!isMobileViewport && <div className="landing-vignette" aria-hidden="true" />}
         <div className="landing-apple-overlay">
-          <header className="landing-apple-header">
-            <div className="landing-apple-logo">
-              <span className="landing-apple-logo-mark">TST</span>
-              <span className="landing-apple-logo-sub">Test Temperamentale</span>
-            </div>
-            <button
-              type="button"
-              className="landing-apple-mini-cta"
-              onClick={handleStartClick}
-            >
-              Inizia
-            </button>
-          </header>
+          {!isMobileViewport && (
+            <header className="landing-apple-header">
+              <div className="landing-apple-logo">
+                <span className="landing-apple-logo-mark">TST</span>
+                <span className="landing-apple-logo-sub">Test Temperamentale</span>
+              </div>
+              <button
+                type="button"
+                className="landing-apple-mini-cta"
+                onClick={handleStartClick}
+              >
+                Inizia
+              </button>
+            </header>
+          )}
 
           <aside className="landing-apple-progress-rail" aria-label="Navigazione sezioni">
             {[
@@ -391,32 +371,16 @@ function LandingPage() {
               </div>
             </section>
 
-            <button
-              type="button"
-              className={`landing-apple-discover-cue ${discoverProgress < 0.04 ? 'is-idle' : ''}`}
-              style={{ '--landing-discover-progress': discoverProgress }}
-              onClick={() => scrollToSection(1)}
-            >
-              <span className="landing-apple-discover-cue-text">Scopri come funziona il Test Sonoro Temperamentale</span>
-              <span className="landing-apple-discover-cue-arrow" aria-hidden="true">
-                <span className="landing-apple-discover-cue-stem" />
-                <span className="landing-apple-discover-cue-head" />
-              </span>
-            </button>
-
             <section ref={heroMessageSectionRef} className="landing-apple-hero landing-apple-hero--message">
               <p className="landing-apple-eyebrow">Esperienza sonora guidata</p>
               <div className="landing-apple-hero-copy">
                 <h1 id="landing-apple-title" className="landing-apple-display-title">
-                  Oltre quello che pensi, verso quello che senti.
+                  TST NON È UN QUIZ. È UNO STRUMENTO ARTISTICO-SCIENTIFICO CHE RIVELA L’INTIMA NATURA EMOTIVA
+                  INDIVIDUALE.
                 </h1>
                 <p className="landing-apple-lead">
-                  La musica è il mezzo con cui studiamo il tuo temperamento emotivo. Per questo, quando le parole non
-                  arrivano, i suoni possono diventare una risposta. Il TST usa la musica in forma precognitiva: uno
-                  strumento scientificamente potente per comprendere quali aree si attivano all&apos;ascolto di alcuni
-                  suoni, cosa questo dice di te, di come stai e di come funzioni. La restituzione traduce le tue
-                  indicazioni in immagini, grafici e parole semplici e utili per nominare la luminosità delle tue
-                  risorse e scoprire le tue ombre.
+                  Il test usa la musica come stimolo emozionale. Un protocollo unico privo di algoritmi che illumina le
+                  nostre profonde qualità interiori
                 </p>
               </div>
               <div className="landing-apple-hero-actions">
@@ -432,31 +396,32 @@ function LandingPage() {
 
             <section ref={valuesSectionRef} className="landing-apple-values" aria-label="Valore del test">
               <div className="landing-apple-section-head">
-                <p className="landing-apple-section-kicker">Perché funziona</p>
-                <h2>Metodo, chiarezza, applicazione.</h2>
+                <p className="landing-apple-section-kicker">Tre passaggi</p>
+                <h2>TRE PASSAGGI PER STILARE UNA MAPPA DELLA PROPRIA NATURA EMOTIVA, PER CONOSCERSI INTIMAMENTE</h2>
               </div>
               <div className="landing-apple-values-grid">
                 <article>
-                  <h3>Ascolto guidato</h3>
+                  <h3>Perché un test sonoro?</h3>
                   <p>
-                    72 brevi frammenti sonori organizzati per timbro, ritmo, melodia e armonia: una sequenza
-                    costruita per osservare il tuo modo di reagire.
+                    La Musica è il mezzo più evoluto per la comunicazione emotiva. Il test non è un gioco è un primo
+                    concreto esempio di uso della musica a fini umanistici. I flussi sonori sono una lente per
+                    osservare l’area del sentire, oltre la sfera cognitiva.
                   </p>
                 </article>
                 <article>
-                  <h3>Lettura operativa</h3>
+                  <h3>Cosa si osserva: l&apos;area del sentire</h3>
                   <p>
-                    Il risultato non è una diagnosi e non è un'etichetta, ma una mappa utile per comprendere il
-                    tuo temperamento emotivo in modo innovativo. Il report si costruisce man mano che svolgi il test:
-                    ogni risposta comunica alla macchina qualcosa su di te, come ti senti in relazione a un suono,
-                    quali preferisci e quali ti suonano antipatici.
+                    Il protocollo TST rivela le istintive reazioni emotive e affettive a forme simboliche del Codice
+                    Musical Osserva l’area del sentire: come ci si muove tra simpatia, antipatia e indifferenza
+                    rispetto a singoli stimoli musicali.
                   </p>
                 </article>
                 <article>
-                  <h3>Uso concreto</h3>
+                  <h3>Un percorso di ascolto guidato</h3>
                   <p>
-                    La restituzione e leggibile sia in autonomia sia in contesti professionali di supporto, coaching
-                    e accompagnamento relazionale.
+                    È fatto da 72 brevi frammenti sonori da sentire, uno alla volta, organizzati per timbro,
+                    intervalli, ritmo, melodia e armonia Associa in modo istintivo i suoni alle tue sensazioni e barra
+                    le risposte che corrispondono alle tue percezioni
                   </p>
                 </article>
               </div>
@@ -484,7 +449,7 @@ function LandingPage() {
               className="landing-apple-access"
               aria-label="Accesso al Test Temperamentale"
             >
-              {!currentUser && (
+              {!hasAuthenticatedSession && (
                 <>
                   {!showAccessBox && (
                     <div className="landing-apple-access-intro">

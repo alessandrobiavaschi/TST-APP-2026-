@@ -1,6 +1,8 @@
 import React, { useId } from 'react'
 import { motion } from 'framer-motion'
 
+void motion
+
 const FAMIGLIE = [
   { subject: 'Malinconia', key: 'blu', color: '#3b82f6' },
   { subject: 'Volitività', key: 'rosso', color: '#ef4444' },

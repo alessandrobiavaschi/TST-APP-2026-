@@ -6,9 +6,9 @@ import React, { useEffect, useMemo, useState } from 'react'
 const NAV_TREE = [
   {
     id: 'report-sintesi',
-    label: 'SINTESI',
+    label: 'TEMPERAMENTO',
     num: '01',
-    mobileShort: 'Sintesi',
+    mobileShort: 'Temperamento',
   },
   {
     id: 'report-profilo',
@@ -69,7 +69,11 @@ function isParentActive(item, activeId) {
   return item.children.some((c) => c.id === activeId)
 }
 
-export default function ReportExperienceChrome({ children }) {
+export default function ReportExperienceChrome({
+  children,
+  activeProfileChapterId = 'report-chapter-natura',
+  onActiveProfileChapterChange,
+}) {
   const [progress, setProgress] = useState(0)
   const [activeId, setActiveId] = useState(NAV_TREE[0].id)
 
@@ -86,6 +90,17 @@ export default function ReportExperienceChrome({ children }) {
     }
     return pills
   }, [])
+
+  const goToSection = (id) => {
+    if (id.startsWith('report-chapter-')) {
+      if (typeof onActiveProfileChapterChange === 'function') {
+        onActiveProfileChapterChange(id)
+      }
+      scrollToId('report-profilo')
+      return
+    }
+    scrollToId(id)
+  }
 
   useEffect(() => {
     const onScroll = () => {
@@ -127,7 +142,9 @@ export default function ReportExperienceChrome({ children }) {
                 <button
                   type="button"
                   className={`report-xp-dock-link report-xp-dock-link--top ${activeId === item.id ? 'report-xp-dock-link--active' : ''} ${isParentActive(item, activeId) ? 'report-xp-dock-link--branch-open' : ''}`}
-                  onClick={() => scrollToId(item.id)}
+                  onClick={() => {
+                    goToSection(item.id)
+                  }}
                   aria-current={activeId === item.id ? 'location' : undefined}
                 >
                   <span className="report-xp-dock-num">{item.num}</span>
@@ -138,8 +155,11 @@ export default function ReportExperienceChrome({ children }) {
                     key={child.id}
                     type="button"
                     className={`report-xp-dock-link report-xp-dock-link--sub ${activeId === child.id ? 'report-xp-dock-link--active' : ''}`}
-                    onClick={() => scrollToId(child.id)}
+                    onClick={() => {
+                      goToSection(child.id)
+                    }}
                     aria-current={activeId === child.id ? 'location' : undefined}
+                    aria-selected={item.id === 'report-profilo' ? activeProfileChapterId === child.id : undefined}
                   >
                     <span className="report-xp-dock-sub-mark" aria-hidden="true">
                       ›
@@ -168,8 +188,10 @@ export default function ReportExperienceChrome({ children }) {
             <button
               key={id}
               type="button"
-              className={`report-xp-mobile-pill ${activeId === id ? 'report-xp-mobile-pill--active' : ''}`}
-              onClick={() => scrollToId(id)}
+              className={`report-xp-mobile-pill ${(activeId === id || (id === activeProfileChapterId && SPY_ORDER.includes('report-profilo'))) ? 'report-xp-mobile-pill--active' : ''}`}
+              onClick={() => {
+                goToSection(id)
+              }}
             >
               {short}
             </button>

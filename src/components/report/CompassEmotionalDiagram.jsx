@@ -1,6 +1,8 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 
+void motion
+
 /** 5 disposizioni (come il radar): settori radiali con poligoni irregolari. Ordine: Malinconia, Volitività, Entusiasmo, Calma, Anaffettività. */
 const DISPOSIZIONI = [
   { label: 'Malinconia', key: 'blu', color: '#3b82f6', sectorIndex: 0 },

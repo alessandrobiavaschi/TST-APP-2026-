@@ -1,6 +1,7 @@
-import React, { useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react'
+/* eslint-disable react-refresh/only-export-components */
+import React, { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate, Navigate } from 'react-router-dom'
-import { AuthContext } from '../AuthContext.jsx'
+import { useAuth } from '../AuthContext.jsx'
 import { db } from '../firebaseConfig.js'
 import {
   collection,
@@ -14,7 +15,6 @@ import {
   deleteDoc,
   writeBatch,
 } from 'firebase/firestore'
-import { motion } from 'framer-motion'
 import { testSchema } from '../dbSchema.js'
 import {
   TEST_RESULTS_COLLECTION,
@@ -634,7 +634,7 @@ function PlutchikLabels({ levels, size = 240 }) {
       style={{ position: 'absolute', left: 0, top: 0, pointerEvents: 'none' }}
       aria-hidden
     >
-      {RADAR_FAMIGLIE.map((f, i) => {
+      {RADAR_FAMIGLIE.map((f) => {
         const value = Math.max(1, Math.min(7, levels[f.key] ?? 1))
         const { dx, dy } = labelOffsets[f.key] || { dx: 0, dy: 0 }
         const x = cx + dx
@@ -845,7 +845,7 @@ export function FioreVisivo({ levels, totals, chartHeight = 280, dispositionAcce
 
 function ResultsPage() {
   const location = useLocation()
-  const currentUser = useContext(AuthContext)
+  const { user: currentUser, authReady } = useAuth()
   const guestRecord = location.state && location.state.mode === 'guest' ? location.state.record : null
   const [records, setRecords] = useState([])
   const [loading, setLoading] = useState(false)
@@ -863,6 +863,8 @@ function ResultsPage() {
   const [editingAreaName, setEditingAreaName] = useState('')
   const [draggedAreaIndex, setDraggedAreaIndex] = useState(null)
   const [assigningAreaId, setAssigningAreaId] = useState(null)
+  const [draggedRecordId, setDraggedRecordId] = useState(null)
+  const [dropTargetId, setDropTargetId] = useState(null)
   const navigate = useNavigate()
   const filtersRef = useRef(null)
 
@@ -878,7 +880,7 @@ function ResultsPage() {
 
   useEffect(() => {
     if (guestRecord) return
-    if (!currentUser) {
+    if (!authReady || !currentUser) {
       setLoading(false)
       return
     }
@@ -939,10 +941,10 @@ function ResultsPage() {
     }
 
     fetchData()
-  }, [guestRecord, currentUser])
+  }, [guestRecord, authReady, currentUser])
 
   useEffect(() => {
-    if (!currentUser || !db) return
+    if (!authReady || !currentUser || !db) return
     const fetchAree = async () => {
       try {
         const q = query(
@@ -966,7 +968,7 @@ function ResultsPage() {
       }
     }
     fetchAree()
-  }, [currentUser])
+  }, [authReady, currentUser])
 
   const filteredRecords = useMemo(() => {
     if (guestRecord) return []
@@ -1085,18 +1087,77 @@ function ResultsPage() {
     batch.commit().catch((err) => console.error('Errore riordino aree:', err))
   }
 
-  const handleAssignTestToArea = async (recordId, areaId) => {
+  const handleAssignTestToArea = async (recordId, areaId, extraPatch = null) => {
     if (!db) return
     setAssigningAreaId(recordId)
     try {
-      await updateDoc(doc(db, TEST_RESULTS_COLLECTION, recordId), { areaId: areaId || null })
+      const patch = { areaId: areaId || null, ...(extraPatch || {}) }
+      await updateDoc(doc(db, TEST_RESULTS_COLLECTION, recordId), patch)
       setRecords((prev) =>
-        prev.map((r) => (r.id === recordId ? { ...r, raw: { ...r.raw, areaId: areaId || null } } : r)),
+        prev.map((r) => (r.id === recordId ? { ...r, raw: { ...r.raw, ...patch } } : r)),
       )
     } catch (err) {
       console.error('Errore assegnazione area:', err)
     } finally {
       setAssigningAreaId(null)
+    }
+  }
+
+  const RECORD_DRAG_MIME = 'application/x-tst-record-id'
+
+  const onRecordDragStart = (e, recordId) => {
+    setDraggedRecordId(recordId)
+    try {
+      e.dataTransfer.setData(RECORD_DRAG_MIME, recordId)
+      e.dataTransfer.setData('text/plain', recordId)
+    } catch {
+      // some browsers disallow setData during certain phases; ignore
+    }
+    e.dataTransfer.effectAllowed = 'move'
+  }
+
+  const onRecordDragEnd = () => {
+    setDraggedRecordId(null)
+    setDropTargetId(null)
+  }
+
+  const readRecordIdFromDrop = (e) => {
+    const fromCustom = (() => {
+      try {
+        return e.dataTransfer.getData(RECORD_DRAG_MIME)
+      } catch {
+        return ''
+      }
+    })()
+    if (fromCustom) return fromCustom
+    return draggedRecordId || ''
+  }
+
+  const onArchiveDropTargetDragEnter = (targetId) => {
+    if (draggedRecordId) setDropTargetId(targetId)
+  }
+  const onArchiveDropTargetDragLeave = (targetId) => {
+    setDropTargetId((prev) => (prev === targetId ? null : prev))
+  }
+
+  const dropTestOnArea = async (areaId) => {
+    const recordId = draggedRecordId
+    if (!recordId) return
+    const current = records.find((r) => r.id === recordId)
+    const wasInTrash = !!current?.raw?.In_Cestino
+    await handleAssignTestToArea(recordId, areaId, wasInTrash ? { In_Cestino: false } : null)
+  }
+
+  const dropTestOnTrash = async () => {
+    const recordId = draggedRecordId
+    if (!recordId || !db) return
+    try {
+      await updateDoc(doc(db, TEST_RESULTS_COLLECTION, recordId), { In_Cestino: true })
+      setRecords((prev) =>
+        prev.map((r) => (r.id === recordId ? { ...r, raw: { ...r.raw, In_Cestino: true } } : r)),
+      )
+    } catch (err) {
+      console.error('Errore spostamento nel cestino:', err)
     }
   }
 
@@ -1145,6 +1206,16 @@ function ResultsPage() {
       totals: computeColorTotals(guestRecord),
     }
     return <Navigate to="/risultati/report" state={{ record: fakeWrapper }} replace />
+  }
+
+  if (!authReady) {
+    return (
+      <div className="page">
+        <section className="page-card">
+          <p>Verifica sessione in corso…</p>
+        </section>
+      </div>
+    )
   }
 
   if (!currentUser) {
@@ -1207,14 +1278,27 @@ function ResultsPage() {
         </div>
       </header>
 
-      <div className="results-archives-layout">
+      <div className={`results-archives-layout ${draggedRecordId ? 'results-archives-layout--dragging-record' : ''}`}>
         <aside className="results-archives-sidebar">
           <nav className="archives-nav" aria-label="Archivio e aree">
             <button
               type="button"
-              className={`archives-nav-item ${selectedAreaId === null ? 'archives-nav-item--active' : ''}`}
+              className={`archives-nav-item ${selectedAreaId === null && !showTrash ? 'archives-nav-item--active' : ''} ${dropTargetId === '__archive__' ? 'archives-nav-item--drop-target' : ''}`}
               onClick={() => {
                 setSelectedAreaId(null)
+                setShowTrash(false)
+              }}
+              onDragOver={(e) => {
+                if (draggedRecordId) { e.preventDefault(); e.dataTransfer.dropEffect = 'move' }
+              }}
+              onDragEnter={() => onArchiveDropTargetDragEnter('__archive__')}
+              onDragLeave={() => onArchiveDropTargetDragLeave('__archive__')}
+              onDrop={(e) => {
+                const rid = readRecordIdFromDrop(e)
+                if (!rid) return
+                e.preventDefault()
+                setDropTargetId(null)
+                dropTestOnArea(null)
               }}
             >
               <span className="archives-nav-icon" aria-hidden>📁</span>
@@ -1226,11 +1310,29 @@ function ResultsPage() {
             {aree.map((area, index) => (
               <div
                 key={area.id}
-                className={`archives-nav-item archives-nav-item--area ${selectedAreaId === area.id ? 'archives-nav-item--active' : ''} ${draggedAreaIndex === index ? 'archives-nav-item--dragging' : ''}`}
+                className={`archives-nav-item archives-nav-item--area ${selectedAreaId === area.id ? 'archives-nav-item--active' : ''} ${draggedAreaIndex === index ? 'archives-nav-item--dragging' : ''} ${dropTargetId === area.id ? 'archives-nav-item--drop-target' : ''}`}
                 draggable
                 onDragStart={(e) => onAreaDragStart(e, index)}
-                onDragOver={onAreaDragOver}
-                onDrop={(e) => onAreaDrop(e, index)}
+                onDragOver={(e) => {
+                  if (draggedRecordId) {
+                    e.preventDefault()
+                    e.dataTransfer.dropEffect = 'move'
+                    return
+                  }
+                  onAreaDragOver(e)
+                }}
+                onDragEnter={() => onArchiveDropTargetDragEnter(area.id)}
+                onDragLeave={() => onArchiveDropTargetDragLeave(area.id)}
+                onDrop={(e) => {
+                  const rid = readRecordIdFromDrop(e)
+                  if (rid) {
+                    e.preventDefault()
+                    setDropTargetId(null)
+                    dropTestOnArea(area.id)
+                    return
+                  }
+                  onAreaDrop(e, index)
+                }}
                 onDragEnd={onAreaDragEnd}
               >
                 <span className="archives-nav-drag-handle" title="Trascina per riordinare" aria-hidden>⋮⋮</span>
@@ -1292,10 +1394,22 @@ function ResultsPage() {
             </button>
             <button
               type="button"
-              className={`archives-nav-item archives-nav-item--trash ${showTrash ? 'archives-nav-item--active' : ''}`}
+              className={`archives-nav-item archives-nav-item--trash ${showTrash ? 'archives-nav-item--active' : ''} ${dropTargetId === '__trash__' ? 'archives-nav-item--drop-target' : ''}`}
               onClick={() => {
                 setSelectedAreaId(null)
                 setShowTrash(true)
+              }}
+              onDragOver={(e) => {
+                if (draggedRecordId) { e.preventDefault(); e.dataTransfer.dropEffect = 'move' }
+              }}
+              onDragEnter={() => onArchiveDropTargetDragEnter('__trash__')}
+              onDragLeave={() => onArchiveDropTargetDragLeave('__trash__')}
+              onDrop={(e) => {
+                const rid = readRecordIdFromDrop(e)
+                if (!rid) return
+                e.preventDefault()
+                setDropTargetId(null)
+                dropTestOnTrash()
               }}
             >
               <span className="archives-nav-icon" aria-hidden>🗑</span>
@@ -1309,78 +1423,83 @@ function ResultsPage() {
 
         <section className="page-card results-main-card">
           <div className="results-filters" ref={filtersRef}>
-            <div className="filter-field">
-              <label>Nome / Cognome</label>
-              <input
-                type="text"
-                value={nameFilter}
-                onChange={(e) => setNameFilter(e.target.value)}
-                placeholder="Cerca per nome o cognome"
-              />
-            </div>
-            <div className="filter-field filter-age">
-              <label>Età</label>
-              <div className="filter-age-range">
+            <div className="results-filters-grid">
+              <div className="filter-field">
+                <label>Nome / Cognome</label>
                 <input
-                  type="number"
-                  value={ageMin}
-                  onChange={(e) => setAgeMin(e.target.value)}
-                  placeholder="Min"
-                  min="0"
-                />
-                <span>–</span>
-                <input
-                  type="number"
-                  value={ageMax}
-                  onChange={(e) => setAgeMax(e.target.value)}
-                  placeholder="Max"
-                  min="0"
+                  type="text"
+                  value={nameFilter}
+                  onChange={(e) => setNameFilter(e.target.value)}
+                  placeholder="Cerca per nome o cognome"
                 />
               </div>
+              <div className="filter-field filter-age">
+                <label>Età</label>
+                <div className="filter-age-range">
+                  <input
+                    type="number"
+                    value={ageMin}
+                    onChange={(e) => setAgeMin(e.target.value)}
+                    placeholder="Min"
+                    min="0"
+                  />
+                  <span>–</span>
+                  <input
+                    type="number"
+                    value={ageMax}
+                    onChange={(e) => setAgeMax(e.target.value)}
+                    placeholder="Max"
+                    min="0"
+                  />
+                </div>
+              </div>
+              <div className="filter-field">
+                <label>Disposizione prevalente</label>
+                <select
+                  value={dispFilter}
+                  onChange={(e) => setDispFilter(e.target.value)}
+                >
+                  <option value="">Tutte</option>
+                  {filterOptions.disposizioni.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="filter-field">
+                <label>Sottodisposizione prevalente</label>
+                <select
+                  value={sottodispFilter}
+                  onChange={(e) => setSottodispFilter(e.target.value)}
+                >
+                  <option value="">Tutte</option>
+                  {filterOptions.sottodisposizioni.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="filter-field">
+                <label>Portato esperienziale prevalente</label>
+                <select
+                  value={portatoEspFilter}
+                  onChange={(e) => setPortatoEspFilter(e.target.value)}
+                >
+                  <option value="">Tutti</option>
+                  {filterOptions.portati.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
-            <div className="filter-field">
-              <label>Disposizione prevalente</label>
-              <select
-                value={dispFilter}
-                onChange={(e) => setDispFilter(e.target.value)}
-              >
-                <option value="">Tutte</option>
-                {filterOptions.disposizioni.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="filter-field">
-              <label>Sottodisposizione prevalente</label>
-              <select
-                value={sottodispFilter}
-                onChange={(e) => setSottodispFilter(e.target.value)}
-              >
-                <option value="">Tutte</option>
-                {filterOptions.sottodisposizioni.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="filter-field">
-              <label>Portato esperienziale prevalente</label>
-              <select
-                value={portatoEspFilter}
-                onChange={(e) => setPortatoEspFilter(e.target.value)}
-              >
-                <option value="">Tutti</option>
-                {filterOptions.portati.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="filter-actions">
+            <div className="results-filters-actions">
+              <p className="results-filters-hint" aria-live="polite">
+                Suggerimento: trascina una riga sulle voci a sinistra (archivio, aree, cestino) per spostarla.
+              </p>
               <button
                 type="button"
                 className="nav-button secondary"
@@ -1412,6 +1531,7 @@ function ResultsPage() {
                     <th>Età</th>
                     <th>Strumento</th>
                     <th>Data</th>
+                    <th>Stato</th>
                     <th>Disposizione prevalente</th>
                     <th>Sottodisposizione prevalente</th>
                     <th>Portato esp. prevalente</th>
@@ -1433,11 +1553,17 @@ function ResultsPage() {
                       <tr
                         key={r.id}
                         onClick={() => openReport(r)}
+                        draggable
+                        onDragStart={(e) => onRecordDragStart(e, r.id)}
+                        onDragEnd={onRecordDragEnd}
+                        className={draggedRecordId === r.id ? 'results-row--dragging' : ''}
+                        title="Trascina su archivio, area o cestino per spostare"
                       >
-                        <td><strong>{r.raw.Nome} {r.raw.Cognome}</strong></td>
+                        <td className="results-table-cell--name"><span className="results-row-drag-handle" aria-hidden>⋮⋮</span><strong>{r.raw.Nome} {r.raw.Cognome}</strong></td>
                         <td>{r.age != null ? r.age : '—'}</td>
                         <td>{r.raw.Strumento_Suonato || '—'}</td>
                         <td>{formatDateShort(r.raw.Data_Ora_Fine_Test)}</td>
+                        <td>{r.raw.Bozza_Test ? 'BOZZA' : 'CONSEGNATO'}</td>
                         <td>{r.raw.Disposizione_Prevalente || '—'}</td>
                         <td>{r.raw.Sottodisposizione_Prevalente || '—'}</td>
                         <td>{r.raw.Portato_Esperienziale_Prevalente || '—'}</td>

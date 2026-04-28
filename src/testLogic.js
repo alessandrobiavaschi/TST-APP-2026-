@@ -290,15 +290,12 @@ export function getScoreWeightForFile(fileNumber) {
   return 1
 }
 
-// Mappatura Gruppi di Domande per i 72 file (A, B, C, C-Bis, D, E, F).
+// Mappatura Gruppi di Domande per i 72 file (A, B, C, C_BIS, D, E, F).
 export function getQuestionGroupForFile(fileNumber) {
   if (fileNumber >= 1 && fileNumber <= 4) return 'A' // Affinità Base
-  if (fileNumber >= 5 && fileNumber <= 27) return 'B' // 15 sensazioni
-  // Step di conferma aggettivo (C_BIS) senza nuovo audio:
-  // - 30 conferma l'aggettivo scelto per il file 29
-  // - 42 conferma l'aggettivo scelto per il file 41
-  if (fileNumber === 30 || fileNumber === 42) return 'C_BIS'
-  if (fileNumber >= 28 && fileNumber <= 41) return 'C' // 14 aggettivi complessi (29 e 41 sono file principali)
+  if (fileNumber >= 5 && fileNumber <= 28) return 'B' // 15 sensazioni
+  if (fileNumber === 41 || fileNumber === 42) return 'C_BIS' // Doppia riconferma ravvicinata
+  if (fileNumber >= 29 && fileNumber <= 40) return 'C' // 14 aggettivi complessi (senza interrompere presto)
   if (fileNumber === 46) return 'D' // Eccezione velocità
   if (fileNumber === 51) return 'E' // Eccezione andamento ritmico
   if (fileNumber === 58) return 'F' // Eccezione andamento note
@@ -309,8 +306,8 @@ export function getQuestionGroupForFile(fileNumber) {
 // Quale logica di calcolo usare per ogni file (Dizionario 1, Dizionario 2, Affinità...).
 export function getLogicTypeForFile(fileNumber) {
   if (fileNumber >= 1 && fileNumber <= 4) return 'AFFINITA_BASE'
-  if (fileNumber >= 5 && fileNumber <= 27) return 'DIZIONARIO_1'
-  if (fileNumber >= 28 && fileNumber <= 42) return 'DIZIONARIO_2'
+  if (fileNumber >= 5 && fileNumber <= 28) return 'DIZIONARIO_1'
+  if (fileNumber >= 29 && fileNumber <= 42) return 'DIZIONARIO_2'
   if (fileNumber >= 43 && fileNumber <= 45) return 'DIZIONARIO_1'
   if (fileNumber === 46) return 'AFFINITA_ECCEZIONE'
   if (fileNumber >= 47 && fileNumber <= 50) return 'DIZIONARIO_1'
@@ -322,7 +319,6 @@ export function getLogicTypeForFile(fileNumber) {
 }
 
 // Calcola il delta di punteggio per una risposta, senza toccare direttamente lo stato Firestore.
-// isConfirmation viene usato per gli step di conferma (C_BIS), che aggiungono un punto extra.
 export function computeScoreDeltaForAnswer({
   fileNumber,
   answerLabel,
@@ -372,9 +368,7 @@ export function computeScoreDeltaForAnswer({
   if (correnteKey) delta[correnteKey] = value
   if (portatoKey) delta[portatoKey] = value
 
-  // Step di conferma (C_BIS): stessi 14 aggettivi, l’utente riseleziona un bottone.
-  // Quella scelta aggiunge +1 extra a Corrente e Portato, oltre al punteggio base già assegnato
-  // dal file principale (es. 29 e 41).
+  // Riconferma in-step: aggiunge +1 a disposizione (corrente) e sottodisposizione (portato).
   if (group === 'C_BIS' && isConfirmation && correnteKey && portatoKey) {
     delta[correnteKey] = (delta[correnteKey] || 0) + 1
     delta[portatoKey] = (delta[portatoKey] || 0) + 1

@@ -43,16 +43,24 @@ function AuthBox({
     setCognome('')
   }
 
-  const handleForgotPasswordSubmit = (e) => {
+  const handleForgotPasswordSubmit = async (e) => {
     e.preventDefault()
     if (email && email.trim()) {
-      onPasswordReset(email.trim())
+      try {
+        await Promise.resolve(onPasswordReset(email.trim()))
+      } catch {
+        /* parent sets authError */
+      }
     }
   }
 
-  const handleLoginSubmit = (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault()
-    onEmailSubmit({ email, password })
+    try {
+      await Promise.resolve(onEmailSubmit({ email, password }))
+    } catch {
+      /* parent sets authError */
+    }
   }
 
   const handleRegisterSubmit = async (e) => {
@@ -62,7 +70,7 @@ function AuthBox({
         onRegisterSubmit({ email, password, nome, cognome, confirmPassword }),
       )
       setMode(MODE_LOGIN_EMAIL)
-    } catch (_err) {
+    } catch {
       /* parent sets authError */
     }
   }
@@ -169,6 +177,7 @@ function AuthBox({
               type="button"
               className="landing-login-google landing-auth-google-inline"
               onClick={onGoogleSignIn}
+              disabled={isSubmitting}
             >
               <span className="landing-login-google-inner">
                 <span className="landing-login-google-icon" aria-hidden="true">
@@ -186,6 +195,7 @@ function AuthBox({
               type="button"
               className="auth-link-button landing-auth-link"
               onClick={handlePasswordResetClick}
+              disabled={isSubmitting}
             >
               Ho dimenticato la password
             </button>
@@ -193,6 +203,7 @@ function AuthBox({
               type="button"
               className="auth-link-button landing-auth-link"
               onClick={() => setMode(MODE_REGISTER)}
+              disabled={isSubmitting}
             >
               Non hai un account? Registrati
             </button>
@@ -290,6 +301,7 @@ function AuthBox({
             type="button"
             className="auth-link-button landing-auth-link"
             onClick={() => setMode(MODE_LOGIN_EMAIL)}
+            disabled={isSubmitting}
           >
             Hai già un account? Accedi
           </button>
@@ -327,6 +339,7 @@ function AuthBox({
           type="button"
           className="landing-login-google"
           onClick={onGoogleSignIn}
+          disabled={isSubmitting}
         >
           <span className="landing-login-badge">Consigliato</span>
           <span className="landing-login-google-inner">
@@ -363,6 +376,7 @@ function AuthBox({
           type="button"
           className="landing-login-secondary"
           onClick={() => setMode(MODE_LOGIN_EMAIL)}
+          disabled={isSubmitting}
         >
           Accedi con email e password
         </button>
@@ -371,6 +385,7 @@ function AuthBox({
           type="button"
           className="landing-login-ghost"
           onClick={() => setMode(MODE_REGISTER)}
+          disabled={isSubmitting}
         >
           Crea un nuovo account
         </button>
@@ -379,6 +394,7 @@ function AuthBox({
           type="button"
           className="landing-login-ghost landing-login-guest"
           onClick={onGuestEnter}
+          disabled={isSubmitting}
         >
           Entra come ospite
         </button>
@@ -387,6 +403,7 @@ function AuthBox({
           type="button"
           className="landing-login-ghost landing-auth-forgot-choice"
           onClick={() => setMode(MODE_FORGOT_PASSWORD)}
+          disabled={isSubmitting}
         >
           Ho dimenticato la password
         </button>

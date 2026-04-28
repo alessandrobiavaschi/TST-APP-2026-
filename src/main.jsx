@@ -5,15 +5,18 @@ import './index.css'
 import App from './App.jsx'
 import { UiSoundProvider, UiSoundGlobalListener } from './UiSoundProvider.jsx'
 import { SkyThemeProvider } from './SkyThemeContext.jsx'
+import { AdaptiveFlowProvider } from './AdaptiveFlowContext.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
       <SkyThemeProvider>
-        <UiSoundProvider>
-          <UiSoundGlobalListener />
-          <App />
-        </UiSoundProvider>
+        <AdaptiveFlowProvider>
+          <UiSoundProvider>
+            <UiSoundGlobalListener />
+            <App />
+          </UiSoundProvider>
+        </AdaptiveFlowProvider>
       </SkyThemeProvider>
     </BrowserRouter>
   </StrictMode>,

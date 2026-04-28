@@ -11,10 +11,12 @@ import {
   getQuestionGroupForFile,
   computeScoreDeltaForAnswer,
 } from '../testLogic.js'
-import { auth, db } from '../firebaseConfig.js'
+import { db } from '../firebaseConfig.js'
 import { saveTestResultForUser } from '../firestore/testResults.js'
 import { useUiSounds } from '../UiSoundProvider.jsx'
 import { buildTestAudioUrl, getAudioSourceIssue } from '../audioUrls.js'
+import { useAuth } from '../AuthContext.jsx'
+import { useAdaptiveFlow } from '../hooks/useAdaptiveFlow.js'
 
 function computeColorTotalsForRecord(record) {
   const blu =
@@ -217,41 +219,31 @@ const parseCodes = (value) =>
     .split(',')
     .map((c) => c.trim())
     .filter(Boolean)
+const MAX_MULTI_SELECTION = 3
 
 const TOTAL_STEPS = 72
+const RESULT_ANALYSIS_DURATION_MS = 5600
+const RESULT_ANALYSIS_MESSAGES = [
+  'Sigillatura del protocollo percettivo...',
+  'Stabilizzazione dei tracciati emotivi...',
+  'Integrazione della matrice di ascolto personale...',
+  'Validazione della coerenza neuro-affettiva...',
+  'Trasferimento controllato al report finale...',
+]
 
 const STORAGE_KEY_TEST_STARTED = 'tst_test_started_v1'
+const DEBUG_SESSION_RUN_ID = 'run-cbis-30'
 
-// Contratto dati per l'integrazione futura con Banana Pro
-// EmotionalProfile rappresenta la mappa emotiva aggregata restituita dal modello.
-const EMPTY_EMOTIONAL_PROFILE = {
-  intensita: 0,
-  protezione: 0,
-  apertura: 0,
-  stabilita: 0,
-  disposizionePrevalente: '',
-  sottodisposizionePrevalente: '',
-  portatoEsperienzialePrevalente: '',
-}
-
-function buildEmotionalProfileFromRecord(record) {
-  if (!record) return { ...EMPTY_EMOTIONAL_PROFILE }
-  const totals = computeColorTotalsForRecord(record)
-  return {
-    intensita: Number(totals.rosso || 0) + Number(totals.giallo || 0),
-    protezione: Number(totals.grigio || 0),
-    apertura: Number(totals.verde || 0) + Number(totals.giallo || 0),
-    stabilita: Number(totals.blu || 0),
-    disposizionePrevalente: getDisposizionePrevalente(record),
-    sottodisposizionePrevalente: getSottodisposizionePrevalente(record),
-    portatoEsperienzialePrevalente: getPortatoEsperienzialePrevalente(record),
-  }
+function sendDebugLog({ hypothesisId, location, message, data = {}, runId = DEBUG_SESSION_RUN_ID }) {
+  // #region agent log
+  fetch('http://127.0.0.1:7527/ingest/9a8c1779-de14-406d-8ed0-f0cfc6d332d5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'9ce234'},body:JSON.stringify({sessionId:'9ce234',runId,hypothesisId,location,message,data,timestamp:Date.now()})}).catch(()=>{})
+  // #endregion
 }
 
 function getMacroSectionLabel(fileNumber) {
   if (fileNumber >= 1 && fileNumber <= 28) return 'Timbro'
-  if (fileNumber >= 29 && fileNumber <= 41) return 'Intervalli'
-  if (fileNumber >= 42 && fileNumber <= 51) return 'Ritmo'
+  if (fileNumber >= 29 && fileNumber <= 42) return 'Intervalli'
+  if (fileNumber >= 43 && fileNumber <= 51) return 'Ritmo'
   if (fileNumber >= 52 && fileNumber <= 58) return 'Melodia'
   if (fileNumber >= 59 && fileNumber <= 72) return 'Armonia'
   return ''
@@ -261,20 +253,20 @@ function getQuestionTitleForFile(fileNumber) {
   if (fileNumber >= 1 && fileNumber <= 4) {
     return 'A1) Senti questi quattro suoni e scegli quello più affine alla tua sensibilità musicale.'
   }
-  if (fileNumber >= 5 && fileNumber <= 27) {
+  if (fileNumber >= 5 && fileNumber <= 28) {
     return 'A2) Ascolta i seguenti suoni e scegli la sensazione che meglio descrive la tua percezione sonora.'
   }
-  if (fileNumber >= 28 && fileNumber <= 41) {
+  if (fileNumber >= 29 && fileNumber <= 40) {
     return 'B) Ascolta le combinazioni di due suoni e scegli un solo aggettivo tra quelli proposti.'
   }
-  if (fileNumber === 30) {
-    return 'B-bis) Conferma l’aggettivo scelto per il file 29: quale tra questi descrive meglio la tua sensazione complessiva?'
-  }
-  if (fileNumber === 42 || fileNumber === 43 || fileNumber === 44 || fileNumber === 45) {
-    return 'C1a) Ascolta i groove e scegli la sensazione che meglio descrive la tua percezione musicale.'
+  if (fileNumber === 41) {
+    return 'B-bis) Prima riconferma: riascolta e conferma in modo istintivo.'
   }
   if (fileNumber === 42) {
-    return 'B-ter) Conferma l’aggettivo scelto per il file 41: quale tra questi descrive meglio la tua sensazione complessiva?'
+    return 'B-ter) Seconda riconferma: riascolta e conferma in modo istintivo.'
+  }
+  if (fileNumber === 43 || fileNumber === 44 || fileNumber === 45) {
+    return 'C1a) Ascolta i groove e scegli la sensazione che meglio descrive la tua percezione musicale.'
   }
   if (fileNumber === 46) {
     return 'C1b) Quale tra le velocità ascoltate hai sentito più affine alla tua sensibilità musicale?'
@@ -297,17 +289,33 @@ function getQuestionTitleForFile(fileNumber) {
   return ''
 }
 
+function formatAudioTime(seconds) {
+  const safeSeconds = Number.isFinite(seconds) ? Math.max(0, Math.floor(seconds)) : 0
+  const mins = Math.floor(safeSeconds / 60)
+  const secs = safeSeconds % 60
+  return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
+}
+
 function NewTestPage() {
   const navigate = useNavigate()
   const location = useLocation()
+  const { user, authReady } = useAuth()
   const uiSounds = useUiSounds()
   const [testRecord, setTestRecord] = useState(() => ({
     ...createEmptyTestRecord(),
     Data_Test: new Date().toISOString().slice(0, 10),
   }))
   const [currentFile, setCurrentFile] = useState(1)
+  const {
+    rhythm,
+    timings,
+    uiVars,
+    registerSelection: recordInteraction,
+    markAudioEnd: trackAudioEnd,
+  } =
+    useAdaptiveFlow({ stepIndex: currentFile, totalSteps: TOTAL_STEPS })
   const [answersByFile, setAnswersByFile] = useState({})
-  const [hasSeenIntro, setHasSeenIntro] = useState(() => {
+  const [, setHasSeenIntro] = useState(() => {
     if (typeof window === 'undefined') return false
     try {
       return window.localStorage.getItem('tst_seen_test_intro_v1') === '1'
@@ -315,42 +323,49 @@ function NewTestPage() {
       return false
     }
   })
-  const [showIntro, setShowIntro] = useState(() => {
-    if (typeof window === 'undefined') return true
-    try {
-      return window.sessionStorage.getItem(STORAGE_KEY_TEST_STARTED) !== '1'
-    } catch {
-      return true
-    }
-  })
-  const [profilingDone, setProfilingDone] = useState(() => {
-    if (typeof window === 'undefined') return false
-    try {
-      return window.sessionStorage.getItem(STORAGE_KEY_TEST_STARTED) === '1'
-    } catch {
-      return false
-    }
-  })
+  const [showIntro, setShowIntro] = useState(true)
+  const [profilingDone, setProfilingDone] = useState(false)
   const [audioError, setAudioError] = useState(null)
   const [audioProgress, setAudioProgress] = useState(0)
   const [audioDuration, setAudioDuration] = useState(0)
-  const [openFaqId, setOpenFaqId] = useState(null)
-  const [demoChoice, setDemoChoice] = useState(null)
   const [showExitConfirm, setShowExitConfirm] = useState(false)
   const [showTutorialCard, setShowTutorialCard] = useState(false)
   const [showAreasHelp, setShowAreasHelp] = useState(false)
+  const [isThresholdFocusActive, setIsThresholdFocusActive] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isAudioBusy, setIsAudioBusy] = useState(false)
+  const [isChoicesVisible, setIsChoicesVisible] = useState(false)
+  const [isProcessingNext, setIsProcessingNext] = useState(false)
+  const [isAnalyzingResult, setIsAnalyzingResult] = useState(false)
+  const [analysisProgress, setAnalysisProgress] = useState(0)
+  const [analysisMessageIndex, setAnalysisMessageIndex] = useState(0)
+  const [audioCurrentTime, setAudioCurrentTime] = useState(0)
+  const [, setNeuroChoiceStage] = useState('reset')
+  const [neuroStepTransition, setNeuroStepTransition] = useState('enter')
   const [navigationHint, setNavigationHint] = useState('')
   const audioRef = useRef(null)
   const preloadRef = useRef(null)
+  const previewAudioRef = useRef(null)
+  const analysisRafRef = useRef(null)
+  const nextStepTimerRef = useRef(null)
+  const resetTimerRef = useRef(null)
+  const recallTimerRef = useRef(null)
+  const stepEnterTimerRef = useRef(null)
 
   // Sample da /audio in locale, oppure da VITE_AUDIO_BASE_URL (streaming, senza MP3 nel deploy).
   const audioSrc = buildTestAudioUrl(currentFile)
   const audioSourceIssue = getAudioSourceIssue(audioSrc)
   const currentFileKey = `File_${String(currentFile).padStart(2, '0')}`
   const isCurrentStepAnswered = Boolean((testRecord[currentFileKey] || '').trim())
-  const canGoNext = currentFile < TOTAL_STEPS && isCurrentStepAnswered
+  const canGoNext = currentFile < TOTAL_STEPS
+  const adaptiveUiVars =
+    profilingDone && !showIntro
+      ? {
+          ...uiVars,
+          '--adaptive-extra-bottom': rhythm === 'slow' ? '10px' : '0px',
+        }
+      : undefined
+  const selectedAnswerValue = (testRecord[currentFileKey] || '').trim()
 
   const isGuestMode = location.state && location.state.mode === 'guest'
   const tutorialHighlights = [
@@ -360,33 +375,32 @@ function NewTestPage() {
     },
     {
       title: 'Cuffie + volume personale',
-      text: 'Indossa le cuffie e regola il volume su una soglia comoda. Puoi svolgere il test a occhi aperti o chiusi.',
+      text: 'Indossa le cuffie e regola il volume che senti più adeguato a te. Puoi svolgere il test ad occhi aperti o chiusi.',
     },
     {
-      title: 'Zero giudizio',
-      text: 'Non esistono risposte giuste o sbagliate: sensibilita musicale e formazione non alterano la validita del test.',
+      title: 'Zero giudizio (nessun giudizio)',
+      text: 'Non esistono risposte giuste o sbagliate: la tua sensibilità musicale e il tuo gusto personale non alterano la validità del test.',
     },
     {
       title: 'Sequenza completa',
       text: 'Segui i 72 step in ordine. Se hai dubbi, riascolta il file e scegli una sola risposta tra quelle proposte.',
     },
     {
-      title: 'Fidati del sentire',
-      text: 'Rispondi in modo intuitivo: il test osserva come reagisci ai flussi sonori, non quanto sei tecnico.',
+      title: 'Fidati del tuo sentire',
+      text: 'Rispondi in modo istintivo: il test osserva come reagisci emotivamente agli stimoli e flussi sonori.',
     },
     {
       title: 'Prima di iniziare',
-      text: 'Concediti 1 minuto di silenzio, riduci i pensieri e concentrati su come il tuo mondo emotivo risponde ai suoni.',
+      text: 'Concediti un momento di raccoglimento e silenzio, riduci i pensieri e concentrati sul tuo mondo emotivo interiore.',
     },
   ]
 
-  const user = auth?.currentUser ?? null
-
   useEffect(() => {
+    if (!authReady) return
     if (!user && !isGuestMode) {
       navigate('/', { replace: true, state: { fromTest: true } })
     }
-  }, [user, isGuestMode, navigate])
+  }, [authReady, user, isGuestMode, navigate])
 
   useEffect(() => {
     if (!showTutorialCard) return undefined
@@ -438,7 +452,17 @@ function NewTestPage() {
       audio.pause()
       audio.currentTime = 0
     }
+    setAudioCurrentTime(0)
+    setAudioProgress(0)
     setIsAudioBusy(false)
+  }
+
+  const stopPreviewAudio = () => {
+    const preview = previewAudioRef.current
+    if (!preview) return
+    preview.pause()
+    preview.currentTime = 0
+    previewAudioRef.current = null
   }
 
   const explainPlayError = (error) => {
@@ -475,6 +499,24 @@ function NewTestPage() {
     }
   }
 
+  const playReferenceAudio = async (fileNumber) => {
+    if (!fileNumber) return
+    stopAudio()
+    stopPreviewAudio()
+    setAudioError(null)
+    try {
+      const preview = new Audio(buildTestAudioUrl(fileNumber))
+      preview.preload = 'auto'
+      previewAudioRef.current = preview
+      const playPromise = preview.play()
+      if (playPromise && typeof playPromise.then === 'function') {
+        await playPromise
+      }
+    } catch (error) {
+      setAudioError(explainPlayError(error))
+    }
+  }
+
   const seekAudioFromEvent = (event) => {
     const audio = audioRef.current
     if (!audio || !audioDuration) return
@@ -483,12 +525,36 @@ function NewTestPage() {
     const ratio = (pointerX - rect.left) / rect.width
     const newTime = Math.max(0, Math.min(1, ratio)) * audioDuration
     audio.currentTime = newTime
+    setAudioCurrentTime(newTime)
     setAudioProgress((newTime / audioDuration) * 100)
   }
 
   useEffect(() => {
     setAudioError(null)
+    setIsChoicesVisible(false)
     setNavigationHint('')
+    if (resetTimerRef.current) {
+      window.clearTimeout(resetTimerRef.current)
+      resetTimerRef.current = null
+    }
+    if (recallTimerRef.current) {
+      window.clearTimeout(recallTimerRef.current)
+      recallTimerRef.current = null
+    }
+    if (stepEnterTimerRef.current) {
+      window.clearTimeout(stepEnterTimerRef.current)
+      stepEnterTimerRef.current = null
+    }
+    setNeuroChoiceStage('reset')
+    setNeuroStepTransition('enter')
+    stepEnterTimerRef.current = window.setTimeout(() => {
+      setNeuroStepTransition('idle')
+      stepEnterTimerRef.current = null
+    }, timings.transitionDelayMs)
+    resetTimerRef.current = window.setTimeout(() => {
+      setNeuroChoiceStage('passive')
+      resetTimerRef.current = null
+    }, timings.choiceResetMs)
     const audio = audioRef.current
     if (audio) {
       audio.pause()
@@ -500,6 +566,7 @@ function NewTestPage() {
     }
     setAudioProgress(0)
     setAudioDuration(0)
+    setAudioCurrentTime(0)
 
     const nextIndex = currentFile + 1
     if (nextIndex <= 72 && preloadRef.current) {
@@ -510,7 +577,115 @@ function NewTestPage() {
         preloadRef.current.load()
       }
     }
-  }, [audioSrc, currentFile])
+
+    if (currentFile >= 29 && currentFile <= 31) {
+      sendDebugLog({
+        hypothesisId: 'N4',
+        location: 'src/pages/NewTestPage.jsx:useEffect[currentFile/audio]',
+        message: 'Step media/context snapshot around sezione B',
+        data: {
+          currentFile,
+          audioSrc,
+          audioSourceIssue: getAudioSourceIssue(audioSrc) || null,
+          currentFileKey,
+        },
+      })
+    }
+  }, [
+    audioSrc,
+    currentFile,
+    currentFileKey,
+    timings.choiceResetMs,
+    timings.fadeInDurationMs,
+    timings.transitionDelayMs,
+  ])
+
+  useEffect(() => {
+    return () => {
+      stopPreviewAudio()
+      if (nextStepTimerRef.current) {
+        window.clearTimeout(nextStepTimerRef.current)
+      }
+      if (resetTimerRef.current) {
+        window.clearTimeout(resetTimerRef.current)
+      }
+      if (recallTimerRef.current) {
+        window.clearTimeout(recallTimerRef.current)
+      }
+      if (stepEnterTimerRef.current) {
+        window.clearTimeout(stepEnterTimerRef.current)
+      }
+      if (analysisRafRef.current) {
+        window.cancelAnimationFrame(analysisRafRef.current)
+      }
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('tst:ritual-focus', { detail: { active: false } }))
+      }
+    }
+  }, [])
+
+  const runResultAnalysisTransition = () =>
+    new Promise((resolve) => {
+      if (analysisRafRef.current) {
+        window.cancelAnimationFrame(analysisRafRef.current)
+        analysisRafRef.current = null
+      }
+
+      setIsAnalyzingResult(true)
+      setIsThresholdFocusActive(true)
+      setAnalysisProgress(0)
+      setAnalysisMessageIndex(0)
+
+      const easeOutCubic = (value) => 1 - (1 - value) ** 3
+      const startedAt = performance.now()
+      const tick = (now) => {
+        const elapsed = now - startedAt
+        const linear = Math.min(1, elapsed / RESULT_ANALYSIS_DURATION_MS)
+        const eased = easeOutCubic(linear)
+        const progressPct = Math.min(100, Math.max(0, eased * 100))
+        const nextMessageIndex = Math.min(
+          RESULT_ANALYSIS_MESSAGES.length - 1,
+          Math.floor(linear * RESULT_ANALYSIS_MESSAGES.length),
+        )
+
+        setAnalysisProgress(progressPct)
+        setAnalysisMessageIndex(nextMessageIndex)
+
+        if (linear >= 1) {
+          analysisRafRef.current = null
+          resolve()
+          return
+        }
+        analysisRafRef.current = window.requestAnimationFrame(tick)
+      }
+
+      analysisRafRef.current = window.requestAnimationFrame(tick)
+    })
+
+  useEffect(() => {
+    if (!isThresholdFocusActive || typeof window === 'undefined') return undefined
+    window.dispatchEvent(new CustomEvent('tst:ritual-focus', { detail: { active: true } }))
+    return () => {
+      window.dispatchEvent(new CustomEvent('tst:ritual-focus', { detail: { active: false } }))
+    }
+  }, [isThresholdFocusActive])
+
+  useEffect(() => {
+    if (currentFile < 29 || currentFile > 31) return
+    sendDebugLog({
+      hypothesisId: 'N5',
+      location: 'src/pages/NewTestPage.jsx:useEffect[navigation-state]',
+      message: 'Navigation state around C_BIS',
+      data: {
+        currentFile,
+        currentFileKey,
+        isCurrentStepAnswered,
+        canGoNext,
+        storedAnswerForCurrent: (testRecord[currentFileKey] || '').slice(0, 120),
+        questionTitle: getQuestionTitleForFile(currentFile),
+      },
+    })
+  }, [currentFile, currentFileKey, isCurrentStepAnswered, canGoNext, testRecord])
 
   const handleProfilazioneChange = (field) => (event) => {
     const value = event.target.value
@@ -562,9 +737,25 @@ function NewTestPage() {
   const handleAnswer = ({ answerLabel, affinitaOptionId, isConfirmation = false }) => {
     uiSounds?.playSecondaryTap?.()
     setNavigationHint('')
+    recordInteraction()
     stopAudio()
+    stopPreviewAudio()
     const fileNumber = currentFile
     const previousAnswerForFile = answersByFile[fileNumber]
+    if (fileNumber >= 29 && fileNumber <= 31) {
+      sendDebugLog({
+        hypothesisId: 'N2',
+        location: 'src/pages/NewTestPage.jsx:handleAnswer:start',
+        message: 'Answer click captured',
+        data: {
+          fileNumber,
+          answerLabel: answerLabel || null,
+          affinitaOptionId: affinitaOptionId || null,
+          isConfirmation,
+          previousDeltaKeys: Object.keys(previousAnswerForFile?.delta || {}),
+        },
+      })
+    }
 
     const delta = computeScoreDeltaForAnswer({
       fileNumber,
@@ -572,10 +763,26 @@ function NewTestPage() {
       affinitaOptionId,
       isConfirmation,
     })
-
-    if (!delta || Object.keys(delta).length === 0) {
-      console.warn('Nessun delta calcolato per la risposta', { fileNumber, answerLabel, affinitaOptionId })
-      return
+    const hasDelta = Boolean(delta && Object.keys(delta).length > 0)
+    if (fileNumber >= 29 && fileNumber <= 31) {
+      sendDebugLog({
+        hypothesisId: 'N3',
+        location: 'src/pages/NewTestPage.jsx:handleAnswer:delta',
+        message: 'Delta computation result',
+        data: {
+          fileNumber,
+          hasDelta,
+          deltaKeys: Object.keys(delta || {}),
+          deltaValues: delta || {},
+        },
+      })
+    }
+    if (!hasDelta) {
+      console.warn('Nessun delta calcolato per la risposta (fallback: avanzamento senza punteggio).', {
+        fileNumber,
+        answerLabel,
+        affinitaOptionId,
+      })
     }
 
     setTestRecord((prev) => {
@@ -588,9 +795,11 @@ function NewTestPage() {
       })
 
       // aggiorna contatori C e D
-      Object.entries(delta).forEach(([key, value]) => {
-        next[key] = (next[key] || 0) + value
-      })
+      if (hasDelta) {
+        Object.entries(delta).forEach(([key, value]) => {
+          next[key] = (next[key] || 0) + value
+        })
+      }
 
       // salva la risposta grezza nel Blocco B
       const fileKey = `File_${String(fileNumber).padStart(2, '0')}`
@@ -630,36 +839,23 @@ function NewTestPage() {
         answerLabel,
         affinitaOptionId,
         isConfirmation,
-        delta,
+        delta: hasDelta ? delta : {},
       },
     }))
 
-    // Logica rigida 29 e 42: avanzamento solo dopo conferma obbligatoria (griglia 14 aggettivi).
-    // Non si salta mai allo step 30 o 43 senza aver risposto allo step 29 o 42.
-    if (fileNumber < 72) {
-      setCurrentFile(fileNumber + 1)
+    if (fileNumber >= 29 && fileNumber <= 31) {
+      sendDebugLog({
+        hypothesisId: 'N3',
+        location: 'src/pages/NewTestPage.jsx:handleAnswer:ready',
+        message: 'Answer stored, waiting for Next trigger',
+        data: {
+          fileNumber,
+          canGoNextAfterAnswer: true,
+        },
+      })
     }
-  }
-
-  const goToPreviousAnswered = () => {
-    for (let n = currentFile - 1; n >= 1; n -= 1) {
-      const key = `File_${String(n).padStart(2, '0')}`
-      if (testRecord[key]) {
-        stopAudio()
-        setCurrentFile(n)
-        return
-      }
-    }
-  }
-
-  const goToNextAnswered = () => {
-    for (let n = currentFile + 1; n <= 72; n += 1) {
-      const key = `File_${String(n).padStart(2, '0')}`
-      if (testRecord[key]) {
-        stopAudio()
-        setCurrentFile(n)
-        return
-      }
+    if (fileNumber < TOTAL_STEPS) {
+      proceedToNextStep()
     }
   }
 
@@ -667,24 +863,56 @@ function NewTestPage() {
     uiSounds?.playSwipe?.()
     if (currentFile <= 1) return
     stopAudio()
+    stopPreviewAudio()
     setCurrentFile((prev) => prev - 1)
+  }
+
+  const proceedToNextStep = () => {
+    if (isProcessingNext) return
+    if (currentFile >= 29 && currentFile <= 31) {
+      sendDebugLog({
+        hypothesisId: 'N3',
+        location: 'src/pages/NewTestPage.jsx:handleNextStep:allowed',
+        message: 'Next allowed',
+        data: {
+          currentFile,
+          currentFileKey,
+          currentValue: (testRecord[currentFileKey] || '').slice(0, 120),
+          canGoNext,
+        },
+      })
+    }
+    if (currentFile >= 72) return
+    stopAudio()
+    stopPreviewAudio()
+    setIsProcessingNext(true)
+    setNeuroStepTransition('exit')
+    window.requestAnimationFrame(() => {
+      uiSounds?.playTransition?.()
+    })
+    if (nextStepTimerRef.current) {
+      window.clearTimeout(nextStepTimerRef.current)
+      nextStepTimerRef.current = null
+    }
+    nextStepTimerRef.current = window.setTimeout(() => {
+      setCurrentFile((prev) => prev + 1)
+      setIsProcessingNext(false)
+      nextStepTimerRef.current = null
+    }, timings.processingStateMs)
   }
 
   const handleNextStep = () => {
     if (!isCurrentStepAnswered) {
-      uiSounds?.playGhostTap?.()
-      setNavigationHint('Prima di andare avanti seleziona una risposta per questo step.')
+      setNavigationHint('Seleziona una risposta per continuare.')
       return
     }
-    uiSounds?.playSwipe?.()
-    if (currentFile >= 72) return
-    stopAudio()
-    setCurrentFile((prev) => prev + 1)
+    proceedToNextStep()
   }
 
   const handleRequestExit = () => {
     uiSounds?.playGhostTap?.()
     stopAudio()
+    stopPreviewAudio()
     setShowExitConfirm(true)
   }
 
@@ -717,6 +945,9 @@ function NewTestPage() {
   }
 
   const isFeedbackComplete = () => {
+    const statoAnimoCount = parseCodes(testRecord.Stato_Animo_Finale || '').length
+    const areaMaggiorCount = parseCodes(testRecord.Area_Maggior_Agio || '').length
+    const areaMinorCount = parseCodes(testRecord.Area_Minor_Agio || '').length
     const isBaseComplete = Boolean(
       (testRecord.Stato_Animo_Finale || '').trim() &&
         (testRecord.Difficolta_Test || '').trim() &&
@@ -725,6 +956,13 @@ function NewTestPage() {
         (testRecord.Qualita_Suoni || '').trim(),
     )
     if (!isBaseComplete) return false
+    if (
+      statoAnimoCount > MAX_MULTI_SELECTION ||
+      areaMaggiorCount > MAX_MULTI_SELECTION ||
+      areaMinorCount > MAX_MULTI_SELECTION
+    ) {
+      return false
+    }
     if ((testRecord.Difficolta_Test || '').trim() === 'DT_SI') {
       return Boolean((testRecord.Difficolta_Dettaglio || '').trim())
     }
@@ -754,21 +992,33 @@ function NewTestPage() {
   }
 
   const toggleStatoAnimo = (code) => {
+    toggleCsvMultiField('Stato_Animo_Finale', code)
+  }
+
+  const toggleCsvMultiField = (field, code, maxSelection = MAX_MULTI_SELECTION) => {
     setTestRecord((prev) => {
-      const current = parseCodes(prev.Stato_Animo_Finale || '')
+      const current = parseCodes(prev[field] || '')
       const has = current.includes(code)
       if (has) {
         return {
           ...prev,
-          Stato_Animo_Finale: current.filter((c) => c !== code).join(','),
+          [field]: current.filter((c) => c !== code).join(','),
         }
       }
-      if (current.length >= 3) return prev
+      if (current.length >= maxSelection) return prev
       return {
         ...prev,
-        Stato_Animo_Finale: [...current, code].join(','),
+        [field]: [...current, code].join(','),
       }
     })
+  }
+
+  const toggleAreaMaggiorAgio = (code) => {
+    toggleCsvMultiField('Area_Maggior_Agio', code)
+  }
+
+  const toggleAreaMinorAgio = (code) => {
+    toggleCsvMultiField('Area_Minor_Agio', code)
   }
 
   const handleDifficoltaTestChange = (event) => {
@@ -787,25 +1037,19 @@ function NewTestPage() {
 
   const handleSubmitTest = async () => {
     if (isSubmitting) return
-    if (!isTestComplete()) {
-      uiSounds?.playTransition?.()
-      const sure = window.confirm(
-        'Stai consegnando un test incompleto. Possiamo comunque generare un report parziale, ma alcuni aspetti potrebbero risultare meno accurati. Vuoi proseguire?'
-      )
-      if (!sure) return
-      setIsSubmitting(true)
-      try {
-      // Consegna parziale: vai al report con lo stato attuale
-      const user = auth?.currentUser ?? null
-      const autoFields = computeAutoFields(testRecord)
-      const payload = sanitizePayload({
-        ...testRecord,
-        ...autoFields,
-      })
-      if (isGuestMode || !user) {
-        try {
-          window.sessionStorage.removeItem(STORAGE_KEY_TEST_STARTED)
-        } catch {}
+    const activeUser = user
+    const isComplete = isTestComplete()
+    const autoFields = computeAutoFields(testRecord)
+    const payload = sanitizePayload({
+      ...testRecord,
+      ...autoFields,
+      Stato_Consegna: isComplete ? 'CONSEGNATO' : 'BOZZA',
+      Bozza_Test: !isComplete,
+    })
+
+    setIsSubmitting(true)
+    try {
+      if (isGuestMode || !activeUser) {
         const wrapper = {
           id: 'guest',
           raw: {
@@ -813,93 +1057,43 @@ function NewTestPage() {
             Data_Ora_Fine_Test: new Date(),
           },
         }
+        try {
+          window.sessionStorage.removeItem(STORAGE_KEY_TEST_STARTED)
+        } catch {
+          // ignore
+        }
+        await runResultAnalysisTransition()
         navigate('/risultati/report', { state: { record: wrapper, fromSubmit: true } })
         return
       }
-      if (user && db) {
-        try {
-          await saveTestResultForUser({ db, user, payload })
-          alert('Test salvato.')
-          try {
-            window.sessionStorage.removeItem(STORAGE_KEY_TEST_STARTED)
-          } catch {}
-          navigate('/risultati')
-        } catch (error) {
-          console.error('Errore durante il salvataggio del test:', error)
-          alert(`Errore durante il salvataggio: ${error?.message || 'Controlla la console.'}`)
-        }
+
+      if (!db) {
+        alert('Firebase non configurato. Impossibile salvare. Aggiungi un file .env con le credenziali.')
         return
       }
+
+      const docRef = await saveTestResultForUser({ db, user: activeUser, payload })
       try {
         window.sessionStorage.removeItem(STORAGE_KEY_TEST_STARTED)
-      } catch {}
-      const wrapper = { id: 'guest', raw: payload }
-      navigate('/risultati/report', { state: { record: wrapper, fromSubmit: true } })
-      return
-    } finally {
-      setIsSubmitting(false)
-    }
-    }
-
-    const user = auth?.currentUser ?? null
-
-    if (!isGuestMode && !isFeedbackComplete()) {
-      // eslint-disable-next-line no-alert
-      alert('Compila tutte le domande finali (stato d’animo, difficoltà, aree A-E e qualità suoni) prima di poter consegnare e vedere il report.')
-      return
-    }
-
-    setIsSubmitting(true)
-    try {
-    if (isGuestMode || !user) {
-      const autoFields = computeAutoFields(testRecord)
-      const guestRecord = sanitizePayload({
-        ...testRecord,
-        ...autoFields,
-      })
-      const wrapper = {
-        id: 'guest',
-        raw: {
-          ...guestRecord,
-          Data_Ora_Fine_Test: new Date(),
-        },
+      } catch {
+        // ignore
       }
-      try {
-        window.sessionStorage.removeItem(STORAGE_KEY_TEST_STARTED)
-      } catch {}
-      navigate('/risultati/report', { state: { record: wrapper, fromSubmit: true } })
-      return
-    }
 
-    const autoFields = computeAutoFields(testRecord)
-    const payload = sanitizePayload({
-      ...testRecord,
-      ...autoFields,
-    })
+      if (!isComplete) {
+        alert('Bozza salvata in archivio.')
+        navigate('/risultati')
+        return
+      }
 
-    if (!db) {
-      // eslint-disable-next-line no-alert
-      alert('Firebase non configurato. Impossibile salvare. Aggiungi un file .env con le credenziali.')
-      return
-    }
-
-    try {
-      const docRef = await saveTestResultForUser({ db, user, payload })
-      // eslint-disable-next-line no-alert
-      alert('Test salvato con successo.')
       const wrapper = {
         id: docRef.id,
         raw: payload,
       }
-      try {
-        window.sessionStorage.removeItem(STORAGE_KEY_TEST_STARTED)
-      } catch {}
+      await runResultAnalysisTransition()
       navigate('/risultati/report', { state: { record: wrapper, fromSubmit: true } })
     } catch (error) {
       console.error('Errore durante il salvataggio del test:', error)
-      // eslint-disable-next-line no-alert
       alert(`Errore durante il salvataggio: ${error?.message || 'Controlla la console e le regole Firestore.'}`)
-    }
     } finally {
       setIsSubmitting(false)
     }
@@ -907,6 +1101,19 @@ function NewTestPage() {
 
   const renderAnswerButtons = () => {
     const group = getQuestionGroupForFile(currentFile)
+    if (currentFile >= 29 && currentFile <= 31) {
+      sendDebugLog({
+        hypothesisId: 'N1',
+        location: 'src/pages/NewTestPage.jsx:renderAnswerButtons',
+        message: 'Rendering answer block',
+        data: {
+          currentFile,
+          group,
+          dizionario1Count: Object.keys(DIZIONARIO_1).length,
+          dizionario2Count: Object.keys(DIZIONARIO_2).length,
+        },
+      })
+    }
 
     if (group === 'B') {
       return (
@@ -915,7 +1122,7 @@ function NewTestPage() {
             <button
               key={label}
               type="button"
-              className="answer-button"
+              className={`answer-button ${selectedAnswerValue === label ? 'answer-button-selected' : ''}`}
               onClick={() => handleAnswer({ answerLabel: label })}
             >
               {label}
@@ -932,7 +1139,7 @@ function NewTestPage() {
             <button
               key={label}
               type="button"
-              className="answer-button"
+              className={`answer-button ${selectedAnswerValue === label ? 'answer-button-selected' : ''}`}
               onClick={() => handleAnswer({ answerLabel: label })}
             >
               {label}
@@ -943,40 +1150,30 @@ function NewTestPage() {
     }
 
     if (group === 'C_BIS') {
-      const referenceFile = currentFile === 30 ? 29 : 41
-      const referenceKey = `File_${String(referenceFile).padStart(2, '0')}`
-      const selectedAdjective = testRecord[referenceKey] || ''
-      const confirmationFieldKey =
-        currentFile === 30 ? 'File_29_Conferma_Scritta' : 'File_41_Conferma_Scritta'
-      const confirmationValue = testRecord[confirmationFieldKey] || ''
+      const referenceFile = currentFile === 41 ? 29 : 40
 
       return (
         <div className="answers-c-bis">
           <p className="answers-c-bis-hint">
-            {currentFile === 29
-              ? 'Specifica, scrivendo per esteso, tra quelli proposti, l’aggettivo scelto per il file 29.'
-              : 'Specifica, scrivendo per esteso, tra quelli proposti, l’aggettivo scelto per il file 41.'}
+            Riascolta con calma e scegli l’aggettivo che senti piu coerente per il file {referenceFile}.
+            Se vuoi, puoi riascoltare il file di riferimento prima di confermare.
           </p>
-          <div className="answers-c-bis-selected">
-            {selectedAdjective ? (
-              <span>
-                Aggettivo attualmente selezionato nello step {referenceFile}:{' '}
-                <strong>{selectedAdjective}</strong>
-              </span>
-            ) : (
-              <span>
-                Seleziona prima un aggettivo nello step {referenceFile} per poterlo confermare qui.
-              </span>
-            )}
-          </div>
+          <button
+            type="button"
+            className="nav-button secondary"
+            onClick={() => playReferenceAudio(referenceFile)}
+          >
+            Riascolta file {referenceFile}
+          </button>
+          <p className="answers-c-bis-note">
+            Questa riconferma rafforza il peso della scelta nel profilo finale.
+          </p>
           <div className="answers-grid answers-grid--dense">
             {Object.keys(DIZIONARIO_2).map((label) => (
               <button
                 key={label}
                 type="button"
-                className={`answer-button ${
-                  label === selectedAdjective ? 'answer-button-selected' : ''
-                }`}
+                className={`answer-button ${selectedAnswerValue === label ? 'answer-button-selected' : ''}`}
                 onClick={() =>
                   handleAnswer({
                     answerLabel: label,
@@ -987,26 +1184,6 @@ function NewTestPage() {
                 {label}
               </button>
             ))}
-          </div>
-          <div className="answers-c-bis-text">
-            <label htmlFor={`confirmation-${currentFile}`} className="answers-c-bis-label">
-              {currentFile === 30
-                ? "Se vuoi, puoi riscrivere l'aggettivo scelto per il file 29:"
-                : "Se vuoi, puoi riscrivere l'aggettivo scelto per il file 41:"}
-            </label>
-            <input
-              id={`confirmation-${currentFile}`}
-              type="text"
-              className="answers-c-bis-input"
-              value={confirmationValue}
-              onChange={(event) => {
-                const { value } = event.target
-                setTestRecord((prev) => ({
-                  ...prev,
-                  [confirmationFieldKey]: value,
-                }))
-              }}
-            />
           </div>
         </div>
       )
@@ -1028,7 +1205,7 @@ function NewTestPage() {
             <button
               key={opt.id}
               type="button"
-              className="answer-button"
+              className={`answer-button ${selectedAnswerValue === opt.id ? 'answer-button-selected' : ''}`}
               onClick={() => handleAnswer({ affinitaOptionId: opt.id })}
             >
               {opt.id === 'nessuna'
@@ -1044,10 +1221,52 @@ function NewTestPage() {
   }
 
   const testCompleted = isTestComplete()
-  const isFinalSubmitDisabled = isSubmitting || (!isGuestMode && !isFeedbackComplete())
+  const isFinalSubmitDisabled = isSubmitting
+  const transitionTransform =
+    neuroStepTransition === 'exit'
+      ? 'translateY(-12px)'
+      : neuroStepTransition === 'enter'
+        ? 'translateY(12px)'
+        : 'translateY(0)'
+  const transitionOpacity = neuroStepTransition === 'idle' ? 1 : 0
+  const adaptiveTransitionStyle = {
+    opacity: transitionOpacity,
+    transform: transitionTransform,
+    transition: `opacity ${timings.processingStateMs}ms var(--ui-ease), transform ${timings.processingStateMs}ms var(--ui-ease)`,
+  }
+
+  useEffect(() => {
+    const isSessionActive = profilingDone && !testCompleted
+    window.dispatchEvent(
+      new CustomEvent('tst:test-session-active', {
+        detail: { active: isSessionActive },
+      }),
+    )
+    return () => {
+      window.dispatchEvent(
+        new CustomEvent('tst:test-session-active', {
+          detail: { active: false },
+        }),
+      )
+    }
+  }, [profilingDone, testCompleted])
+
+  if (!isGuestMode && !authReady) {
+    return (
+      <div className="page">
+        <section className="page-card">
+          <p>Verifica sessione in corso…</p>
+        </section>
+      </div>
+    )
+  }
 
   return (
-    <div className="page nuovo-test-page">
+    <div
+      className={`page nuovo-test-page ${
+        profilingDone && !testCompleted ? 'nuovo-test-page--session-active' : ''
+      }`}
+    >
       {showIntro && (
         <div className="serenis-layout">
         <section className="nuovo-test-intro">
@@ -1224,170 +1443,210 @@ function NewTestPage() {
       )}
 
       {profilingDone && (
-        <section className="page-card page-card--test-session" id="nuovo-test-player">
+        <section
+          className="page-card page-card--test-session test-session-shell test-stage"
+          id="nuovo-test-player"
+          style={adaptiveUiVars}
+          data-adaptive-rhythm={rhythm}
+        >
           {!testCompleted && (
-            <>
-              <header className="stepper-header" aria-label="Avanzamento del test">
-                <div className="stepper-header-main">
-                  <span className="stepper-step-label">
-                    Passo {currentFile} di {TOTAL_STEPS}
-                  </span>
-                  <span className="stepper-section-label">
-                    Sezione: {getMacroSectionLabel(currentFile) || 'Panoramica sonora'}
-                  </span>
-                  <button
-                    type="button"
-                    className="nav-button secondary stepper-exit-button"
-                    onClick={handleRequestExit}
-                  >
-                    Esci
-                  </button>
-                </div>
-                <div className="stepper-progress" aria-hidden="true">
-                  <div
-                    className="stepper-progress-bar"
-                    style={{ width: `${Math.min(100, Math.max(0, (currentFile / TOTAL_STEPS) * 100))}%` }}
-                  />
-                </div>
-              </header>
-              <section className="player-card">
-          <div className="player-header">
-            <div>
-              <span className="player-label">Player audio</span>
-              <p className="player-subtitle">
-                Ascolta il file e poi rispondi alla domanda in basso.
-              </p>
-            </div>
-          </div>
-          <audio
-            ref={audioRef}
-            preload="metadata"
-            playsInline
-            onError={() => {
-              const issue = getAudioSourceIssue(audioSrc)
-              setAudioError(issue || 'File audio non disponibile o danneggiato.')
-            }}
-            onCanPlay={() => {
-              setAudioError(null)
-            }}
-            onLoadedMetadata={() => {
-              const audio = audioRef.current
-              if (audio && audio.duration) {
-                setAudioDuration(audio.duration)
-              }
-            }}
-            onTimeUpdate={() => {
-              const audio = audioRef.current
-              if (audio && audio.duration) {
-                setAudioProgress((audio.currentTime / audio.duration) * 100)
-              }
-            }}
-          >
-            <source src={audioSrc} type="audio/mpeg" />
-          </audio>
-          <div
-            className="player-progress"
-            role="slider"
-            aria-label="Posizione audio"
-            aria-valuemin={0}
-            aria-valuemax={Math.round(audioDuration || 0)}
-            aria-valuenow={Math.round((audioRef.current && audioRef.current.currentTime) || 0)}
-            onClick={seekAudioFromEvent}
-            onPointerDown={seekAudioFromEvent}
-          >
             <div
-              className="player-progress-bar"
-              style={{ width: `${audioProgress || 0}%` }}
-            />
-          </div>
-          <div className="player-controls">
-            <button
-              type="button"
-              className="player-button primary player-button-icon"
-              title="Play"
-              aria-label="Riproduci dall'inizio"
-              onClick={() => {
-                uiSounds?.playSecondaryTap?.()
-                playCurrentAudio({ restart: true })
-              }}
-              disabled={isAudioBusy}
+              key={`step-${currentFile}`}
+              className={`test-stage-live test-step-transition ${isProcessingNext ? 'is-processing' : ''}`}
+              style={adaptiveTransitionStyle}
+              data-adaptive-rhythm={rhythm}
             >
-              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M8 5v14l11-7z" />
-              </svg>
-            </button>
-            <button
-              type="button"
-              className="player-button secondary player-button-icon"
-              title="Stop"
-              aria-label="Ferma audio"
-              onClick={() => {
-                uiSounds?.playSecondaryTap?.()
-                stopAudio()
-              }}
-            >
-              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M6 6h12v12H6z" />
-              </svg>
-            </button>
-            <button
-              type="button"
-              className="player-button ghost player-button-icon"
-              title="Rewind (inizio)"
-              aria-label="Riporta audio all'inizio"
-              onClick={() => {
-                uiSounds?.playGhostTap?.()
-                const audio = audioRef.current
-                if (audio) {
-                  audio.currentTime = 0
-                }
-              }}
-            >
-              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z" />
-              </svg>
-            </button>
-          </div>
-          {audioError && (
-            <p className="audio-error">
-              {audioError}
-            </p>
-          )}
-          {!audioError && audioSourceIssue && (
-            <p className="audio-error">
-              {audioSourceIssue}
-            </p>
-          )}
-          {navigationHint && (
-            <p className="player-hint">
-              {navigationHint}
-            </p>
-          )}
-          <audio ref={preloadRef} style={{ display: 'none' }} preload="auto" />
-              </section>
-            </>
+              <div className="test-stage-main-card">
+                <section className="test-stage-question-zone" role="status" aria-live="polite">
+                  <h2 className="test-threshold-question-title">{getQuestionTitleForFile(currentFile)}</h2>
+                </section>
+                <section
+                  className="test-stage-audio-zone player-card player-card--bottom-dock"
+                  aria-label="Controlli audio del test"
+                >
+                  <div className="test-stage-audio-head">
+                    <button
+                      type="button"
+                      className="nav-button secondary stepper-exit-button"
+                      onClick={handleRequestExit}
+                    >
+                      Esci
+                    </button>
+                  </div>
+                  <audio
+                    ref={audioRef}
+                    preload="metadata"
+                    playsInline
+                    onPlay={() => {
+                      setNeuroChoiceStage('passive')
+                      setIsChoicesVisible(false)
+                    }}
+                    onError={() => {
+                      const issue = getAudioSourceIssue(audioSrc)
+                      setAudioError(issue || 'File audio non disponibile o danneggiato.')
+                    }}
+                    onCanPlay={() => {
+                      setAudioError(null)
+                    }}
+                    onLoadedMetadata={() => {
+                      const audio = audioRef.current
+                      if (audio && audio.duration) {
+                        setAudioCurrentTime(audio.currentTime || 0)
+                        setAudioDuration(audio.duration)
+                      }
+                    }}
+                    onTimeUpdate={() => {
+                      const audio = audioRef.current
+                      if (audio && audio.duration) {
+                        setAudioCurrentTime(audio.currentTime || 0)
+                        setAudioProgress((audio.currentTime / audio.duration) * 100)
+                      }
+                    }}
+                    onEnded={() => {
+                      trackAudioEnd()
+                      const audio = audioRef.current
+                      setAudioCurrentTime(audio?.duration || 0)
+                      setAudioProgress(100)
+                      setNeuroChoiceStage('recall')
+                      setIsChoicesVisible(true)
+                      if (recallTimerRef.current) {
+                        window.clearTimeout(recallTimerRef.current)
+                        recallTimerRef.current = null
+                      }
+                      recallTimerRef.current = window.setTimeout(() => {
+                        setNeuroChoiceStage('action')
+                        recallTimerRef.current = null
+                      }, timings.choiceRecallMs)
+                    }}
+                  >
+                    <source src={audioSrc} type="audio/mpeg" />
+                  </audio>
+                  <div
+                    className="player-progress"
+                    role="slider"
+                    aria-label="Posizione audio"
+                    aria-valuemin={0}
+                    aria-valuemax={Math.round(audioDuration || 0)}
+                    aria-valuenow={Math.round(audioCurrentTime || 0)}
+                    onClick={seekAudioFromEvent}
+                    onPointerDown={seekAudioFromEvent}
+                  >
+                    <div
+                      className="player-progress-bar"
+                      style={{ width: `${audioProgress || 0}%` }}
+                    />
+                  </div>
+                  <div className="player-progress-times" aria-hidden="true">
+                    <span>{formatAudioTime(audioCurrentTime)}</span>
+                    <span>{formatAudioTime(audioDuration)}</span>
+                  </div>
+                  <div className="player-controls">
+                    <button
+                      type="button"
+                      className="player-button secondary player-button-icon"
+                      title="Play"
+                      aria-label="Riproduci dall'inizio"
+                      onClick={() => {
+                        uiSounds?.playSecondaryTap?.()
+                        playCurrentAudio({ restart: true })
+                      }}
+                      disabled={isAudioBusy}
+                    >
+                      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      className="player-button secondary player-button-icon"
+                      title="Stop"
+                      aria-label="Ferma audio"
+                      onClick={() => {
+                        uiSounds?.playSecondaryTap?.()
+                        stopAudio()
+                      }}
+                    >
+                      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M6 6h12v12H6z" />
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      className="player-button ghost player-button-icon"
+                      title="Rewind (inizio)"
+                      aria-label="Riporta audio all'inizio"
+                      onClick={() => {
+                        uiSounds?.playGhostTap?.()
+                        const audio = audioRef.current
+                        if (audio) {
+                          audio.currentTime = 0
+                        }
+                        setAudioCurrentTime(0)
+                        setAudioProgress(0)
+                      }}
+                    >
+                      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div className="player-status-region" aria-live="polite">
+                    {(audioError || audioSourceIssue) && (
+                      <p className="audio-error">
+                        {audioError || audioSourceIssue}
+                      </p>
+                    )}
+                    {!audioError && !audioSourceIssue && navigationHint && (
+                      <p className="player-hint">
+                        {navigationHint}
+                      </p>
+                    )}
+                  </div>
+                  <audio ref={preloadRef} style={{ display: 'none' }} preload="auto" />
+                </section>
+                <section className="test-stage-answers-shell" aria-live="polite">
+                  <div className={`test-stage-answers-zone ${isChoicesVisible ? 'is-revealed' : 'is-hidden'}`}>
+                    {renderAnswerButtons()}
+                  </div>
+                </section>
+                <footer className="test-stage-footer" aria-label="Avanzamento e navigazione test">
+                  <div className="test-stage-footer-row">
+                    <button
+                      type="button"
+                      className="nav-button secondary"
+                      onClick={handleBack}
+                      disabled={currentFile === 1 || isProcessingNext}
+                    >
+                      Indietro
+                    </button>
+                    <p className="answers-step-number" aria-live="polite">
+                      Passo {currentFile}/72 · {getMacroSectionLabel(currentFile) || 'Panoramica sonora'}
+                    </p>
+                    <button
+                      type="button"
+                      className="nav-button primary"
+                      onClick={handleNextStep}
+                      disabled={!canGoNext || isProcessingNext || !isCurrentStepAnswered}
+                    >
+                      {isProcessingNext ? 'Preparazione...' : 'Avanti'}
+                    </button>
+                  </div>
+                  <div className="stepper-progress" aria-hidden="true">
+                    <div
+                      className={`stepper-progress-bar ${
+                        isProcessingNext && timings.breathingPulse ? 'is-processing-breathing' : ''
+                      }`}
+                      style={{
+                        width: `${Math.min(100, Math.max(0, (currentFile / TOTAL_STEPS) * 100)).toFixed(3)}%`,
+                      }}
+                    />
+                  </div>
+                </footer>
+              </div>
+            </div>
           )}
           <div className={`answers-card ${testCompleted ? 'answers-card--completed' : ''}`}>
-            {!testCompleted && (
-              <>
-                <div className="step-header">
-                  {getQuestionTitleForFile(currentFile) && (
-                    <>
-                      <h2 className="answers-title answers-question-as-title">
-                        {getQuestionTitleForFile(currentFile)}
-                      </h2>
-                      <p className="answers-helper">
-                        Ascolta con calma e per intero tutto l&apos;audio.
-                        <br />
-                        Non esistono risposte giuste o sbagliate.
-                      </p>
-                    </>
-                  )}
-                </div>
-                {renderAnswerButtons()}
-              </>
-            )}
-            {testCompleted && (
+            {testCompleted && !isAnalyzingResult && (
               <section className="feedback-section">
                 <h3 className="feedback-title">Domande finali (dopo lo svolgimento del test)</h3>
                 <p className="feedback-subtitle">
@@ -1477,37 +1736,49 @@ function NewTestPage() {
 
                   <fieldset className="feedback-field">
                     <legend>In quali aree del test ti sei sentito più a tuo agio?</legend>
+                    <p className="feedback-inline-helper">Seleziona fino a 3 opzioni.</p>
                     <div className="feedback-options-vertical">
-                      {AREA_TEST_OPTIONS.map((opt) => (
-                        <label key={`maggior-${opt.value}`} className="feedback-option">
-                          <input
-                            type="radio"
-                            name="area-maggior-agio"
-                            value={opt.value}
-                            checked={testRecord.Area_Maggior_Agio === opt.value}
-                            onChange={handleProfilazioneChange('Area_Maggior_Agio')}
-                          />
-                          <span>{opt.label}</span>
-                        </label>
-                      ))}
+                      {AREA_TEST_OPTIONS.map((opt) => {
+                        const selectedCodes = parseCodes(testRecord.Area_Maggior_Agio || '')
+                        const checked = selectedCodes.includes(opt.value)
+                        const disabled = !checked && selectedCodes.length >= MAX_MULTI_SELECTION
+                        return (
+                          <label key={`maggior-${opt.value}`} className="feedback-option">
+                            <input
+                              type="checkbox"
+                              value={opt.value}
+                              checked={checked}
+                              disabled={disabled}
+                              onChange={() => toggleAreaMaggiorAgio(opt.value)}
+                            />
+                            <span>{opt.label}</span>
+                          </label>
+                        )
+                      })}
                     </div>
                   </fieldset>
 
                   <fieldset className="feedback-field">
                     <legend>In quali aree del test ti sei sentito meno a tuo agio?</legend>
+                    <p className="feedback-inline-helper">Seleziona fino a 3 opzioni.</p>
                     <div className="feedback-options-vertical">
-                      {AREA_TEST_OPTIONS.map((opt) => (
-                        <label key={`minor-${opt.value}`} className="feedback-option">
-                          <input
-                            type="radio"
-                            name="area-minor-agio"
-                            value={opt.value}
-                            checked={testRecord.Area_Minor_Agio === opt.value}
-                            onChange={handleProfilazioneChange('Area_Minor_Agio')}
-                          />
-                          <span>{opt.label}</span>
-                        </label>
-                      ))}
+                      {AREA_TEST_OPTIONS.map((opt) => {
+                        const selectedCodes = parseCodes(testRecord.Area_Minor_Agio || '')
+                        const checked = selectedCodes.includes(opt.value)
+                        const disabled = !checked && selectedCodes.length >= MAX_MULTI_SELECTION
+                        return (
+                          <label key={`minor-${opt.value}`} className="feedback-option">
+                            <input
+                              type="checkbox"
+                              value={opt.value}
+                              checked={checked}
+                              disabled={disabled}
+                              onChange={() => toggleAreaMinorAgio(opt.value)}
+                            />
+                            <span>{opt.label}</span>
+                          </label>
+                        )
+                      })}
                     </div>
                   </fieldset>
 
@@ -1532,7 +1803,7 @@ function NewTestPage() {
                 <div className="test-navigation-submit">
                   {!isFeedbackComplete() && !isGuestMode && (
                     <p className="test-submit-hint">
-                      Compila tutte le domande finali per attivare il pulsante Consegna.
+                      Puoi consegnare anche adesso: se incompleto verrà salvato come bozza in archivio.
                     </p>
                   )}
                   <button
@@ -1546,30 +1817,30 @@ function NewTestPage() {
                 </div>
               </section>
             )}
-            {!testCompleted && (
-            <div className="test-navigation test-navigation-mobile-sticky">
-              <button
-                type="button"
-                className="nav-button secondary"
-                onClick={handleBack}
-                disabled={currentFile === 1}
-              >
-                Indietro
-              </button>
-              <p className="answers-step-number" aria-hidden="true">
-                {currentFile}/72
-              </p>
-              <button
-                type="button"
-                className="nav-button secondary"
-                onClick={handleNextStep}
-                disabled={!canGoNext}
-              >
-                Avanti
-              </button>
-            </div>
+            {testCompleted && isAnalyzingResult && (
+              <section className="result-analysis-transition" aria-live="polite">
+                <p className="result-analysis-kicker">Chiusura Rituale · Laboratorio TST</p>
+                <h3 className="result-analysis-title">Uscita guidata dal protocollo in corso</h3>
+                <p className="result-analysis-message">{RESULT_ANALYSIS_MESSAGES[analysisMessageIndex]}</p>
+                <div className="result-analysis-progress" aria-hidden="true">
+                  <div
+                    className="result-analysis-progress-bar"
+                    style={{ width: `${analysisProgress.toFixed(2)}%` }}
+                  />
+                </div>
+                <p className="result-analysis-percent">{Math.round(analysisProgress)}%</p>
+              </section>
             )}
           </div>
+          {!testCompleted && isProcessingNext && (
+            <p className="processing-state-note" aria-live="polite">
+              {rhythm === 'slow'
+                ? 'Il sistema sta preparando con cura lo step successivo...'
+                : rhythm === 'fast'
+                  ? 'Preparazione rapida dello step successivo...'
+                  : 'Preparazione dello step successivo...'}
+            </p>
+          )}
           {showExitConfirm && (
             <div
               className="test-exit-modal-backdrop"
@@ -1642,7 +1913,7 @@ function NewTestPage() {
                     Modalità ascolto
                   </h2>
                   <p className="nuovo-test-tutorial-lead">
-                    Tutto in una vignetta: sei passaggi, zero stress. Poi avvii e segui l&apos;audio.
+                    Sei passaggi, nessun giudizio, avvia il test e segui l&apos;audio.
                   </p>
                 </div>
                 <div className="nuovo-test-tutorial-steps">

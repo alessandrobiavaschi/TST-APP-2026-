@@ -111,8 +111,8 @@ export const testSchema = {
   Stato_Animo_Finale: 'string', // 94
   Difficolta_Test: 'string', // 95
   Difficolta_Dettaglio: 'string', // 96
-  Area_Maggior_Agio: 'string', // 97
-  Area_Minor_Agio: 'string', // 98
+  Area_Maggior_Agio: 'string', // 97 (multi-selezione CSV, max 3 codici A-E)
+  Area_Minor_Agio: 'string', // 98 (multi-selezione CSV, max 3 codici A-E)
   Disposizione_Prevalente: 'string', // 99 (campo calcolato)
   Sottodisposizione_Prevalente: 'string', // 100 (campo calcolato)
   Portato_Esperienziale_Prevalente: 'string', // 101 (campo calcolato)

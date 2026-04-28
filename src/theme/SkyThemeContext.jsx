@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 
 const STORAGE_KEY = 'tst_sky_config_v1'
@@ -34,24 +35,21 @@ const pickRandom = (array) => {
 }
 
 export function SkyThemeProvider({ children }) {
-  const [config, setConfig] = useState(DEFAULT_CONFIG)
-  const [timeOfDay, setTimeOfDay] = useState('morning')
-  const [weather, setWeather] = useState('sereno')
-
-  useEffect(() => {
+  const [config, setConfig] = useState(() => {
     try {
       const stored = window.localStorage.getItem(STORAGE_KEY)
-      if (stored) {
-        const parsed = JSON.parse(stored)
-        setConfig((prev) => ({
-          ...prev,
-          ...parsed,
-        }))
+      if (!stored) return DEFAULT_CONFIG
+      const parsed = JSON.parse(stored)
+      return {
+        ...DEFAULT_CONFIG,
+        ...parsed,
       }
-    } catch (error) {
-      console.error('Errore nel leggere la configurazione del cielo:', error)
+    } catch {
+      return DEFAULT_CONFIG
     }
-  }, [])
+  })
+  const [timeOfDay, setTimeOfDay] = useState('morning')
+  const [weather, setWeather] = useState('sereno')
 
   useEffect(() => {
     try {
