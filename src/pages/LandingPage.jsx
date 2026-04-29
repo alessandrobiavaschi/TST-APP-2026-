@@ -128,6 +128,11 @@ function LandingPage() {
     const result = await authSignInWithEmail(email, password)
     setIsSubmitting(false)
     if (!result.success) {
+      if (result.requiresEmailVerification || result.code === 'auth/email-not-verified') {
+        setAuthError('Email non ancora verificata.')
+        setResetMessage(result.message || '')
+        return
+      }
       setAuthError(result.message || "Errore durante l'accesso.")
       return
     }
@@ -155,6 +160,7 @@ function LandingPage() {
       setAuthError(errorMessage)
       throw new Error(errorMessage)
     }
+    setAuthError('')
     setResetMessage(
       result.message ||
         "Ti abbiamo inviato un'email di conferma. Verifica il tuo indirizzo e poi accedi con le tue credenziali.",
@@ -206,6 +212,12 @@ function LandingPage() {
     if (typeof window === 'undefined') return
     const eventName = getGoogleAuthDiagnosticEventName()
     const onGoogleDiagnostic = (event) => {
+      if (event?.detail?.stage === 'redirect-result-empty') {
+        setResetMessage('')
+        setAuthError(event?.detail?.message || '')
+        setShowAccessBox(true)
+        return
+      }
       const nextMessage =
         event?.detail?.message ||
         "Errore durante l'accesso con Google. Apri la console Firebase per i dettagli."
@@ -306,6 +318,77 @@ function LandingPage() {
       window.removeEventListener('resize', handleViewportChange)
     }
   }, [])
+
+  if (isMobileViewport) {
+    return (
+      <div className="landing-mobile-hero">
+        {/* Hero section */}
+        <div className="landing-mobile-section">
+          <p className="landing-mobile-eyebrow">Test Sonoro Temperamentale</p>
+          <h1 className="landing-mobile-headline">
+            La tua natura<br />in 72 ascolti.
+          </h1>
+          <p className="landing-mobile-sub">
+            Un protocollo artistico-scientifico che rivela la tua natura emotiva attraverso la musica.
+          </p>
+          <div className="landing-mobile-ctas">
+            <button type="button" className="landing-mobile-cta-primary" onClick={handleStartClick}>
+              Avvia il test
+            </button>
+            <button type="button" className="landing-mobile-cta-link" onClick={() => scrollToAccessSection({ revealPanel: false })}>
+              Scopri di più ›
+            </button>
+          </div>
+        </div>
+
+        {/* Feature tile 1 */}
+        <div className="landing-mobile-tile landing-mobile-tile--light">
+          <p className="landing-mobile-tile-eyebrow">72 frammenti sonori</p>
+          <h2 className="landing-mobile-tile-title">La musica come lente emotiva</h2>
+          <p className="landing-mobile-tile-body">
+            Il test usa la musica come stimolo emozionale. Associa in modo istintivo i suoni alle tue sensazioni e scopri le tue profonde qualità interiori.
+          </p>
+        </div>
+
+        {/* Feature tile 2 */}
+        <div className="landing-mobile-tile landing-mobile-tile--dark">
+          <p className="landing-mobile-tile-eyebrow">Risultati</p>
+          <h2 className="landing-mobile-tile-title">Un report clinico sulla tua natura</h2>
+          <p className="landing-mobile-tile-body">
+            Scopri la tua Disposizione Prevalente, il tuo Portato Esperienziale e la mappa delle tue correnti emotive.
+          </p>
+        </div>
+
+        {/* Access section */}
+        {!hasAuthenticatedSession && (
+          <div className="landing-mobile-auth" ref={accessSectionRef}>
+            <p className="landing-mobile-auth-title">Accedi per iniziare</p>
+            {!showAccessBox ? (
+              <div className="landing-mobile-ctas">
+                <button type="button" className="landing-mobile-cta-primary" onClick={() => setShowAccessBox(true)}>
+                  Login / Crea account
+                </button>
+              </div>
+            ) : (
+              <div ref={accessBoxRef}>
+                <AuthBox
+                  onGoogleSignIn={handleGoogleLogin}
+                  onEmailSubmit={handleAuthBoxEmailSubmit}
+                  onRegisterSubmit={handleAuthBoxRegisterSubmit}
+                  onPasswordReset={handlePasswordResetRequest}
+                  onGuestEnter={() => navigate('/nuovo-test', { state: { mode: 'guest' } })}
+                  onClose={() => setShowAccessBox(false)}
+                  authError={authError}
+                  resetMessage={resetMessage}
+                  isSubmitting={isSubmitting}
+                />
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    )
+  }
 
   return (
     <div

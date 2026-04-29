@@ -5,7 +5,6 @@ import './firebaseConfig.js'
 import { auth } from './firebaseConfig.js'
 import {
   consumeGoogleRedirectResult,
-  hasGoogleRedirectPending,
   clearGoogleRedirectPending,
 } from './auth.js'
 import { AuthContext } from './AuthContext.jsx'
@@ -21,6 +20,7 @@ import TstPage from './pages/TstPage.jsx'
 import { useSkyTheme } from './SkyThemeContext.jsx'
 import SkyBackground from './components/SkyBackground.jsx'
 import './App.css'
+import './styles/tst-mobile.css'
 
 class AppErrorBoundary extends React.Component {
   constructor(props) {
@@ -97,6 +97,7 @@ function App() {
   const [ritualFocusActive, setRitualFocusActive] = useState(false)
   const [testSessionActive, setTestSessionActive] = useState(false)
   const [cookieConsent, setCookieConsent] = useState(null) // 'necessary' | 'all' | null
+  const { enabled: soundEnabled, toggleEnabled: toggleSound } = useUiSounds()
   const {
     visualProfile,
     config,
@@ -146,9 +147,10 @@ function App() {
   }, [navigate])
 
   useEffect(() => {
-    if (!authReady || !isAuthenticated || !hasGoogleRedirectPending()) return
-    clearGoogleRedirectPending()
-    if (location.pathname !== '/home') {
+    if (!authReady || !isAuthenticated) return
+    // Se l'autenticazione è andata a buon fine ma l'app è rimasta sulla landing,
+    // portiamo l'utente alla home (caso tipico del login Google via redirect su mobile).
+    if (location.pathname === '/') {
       navigate('/home', { replace: true })
     }
   }, [authReady, isAuthenticated, location.pathname, navigate])
@@ -349,8 +351,7 @@ function App() {
         data-sky-warmth={skyWarmth}
       >
         {location.pathname !== '/' && <SkyBackground />}
-        {!testSessionActive && (
-          <header className={`app-header${location.pathname === '/' ? ' app-header--landing' : ''}`}>
+        <header className={`app-header${location.pathname === '/' ? ' app-header--landing' : ''}`}>
             <div className="app-header-inner">
             <button
               ref={mobileNavToggleRef}
@@ -460,7 +461,9 @@ function App() {
                   )}
                 </button>
               )}
-              {location.pathname !== '/' && currentUser && (
+              {location.pathname !== '/' &&
+                location.pathname !== '/risultati/report' &&
+                currentUser && (
                 <button
                   type="button"
                   className="header-weather-button"
@@ -522,7 +525,6 @@ function App() {
             </div>
             </div>
           </header>
-        )}
         <div
           className={`app-mobile-nav-layer ${!testSessionActive && mobileNavOpen ? 'is-open' : ''}`}
           aria-hidden={testSessionActive || !mobileNavOpen}
@@ -539,124 +541,152 @@ function App() {
             className="app-mobile-nav-drawer"
             role="dialog"
             aria-modal="true"
-            aria-labelledby="app-mobile-nav-sheet-title"
+            aria-label="Menu di navigazione"
           >
-            <div className="app-mobile-nav-sheet-handle" aria-hidden="true" />
-            <p id="app-mobile-nav-sheet-title" className="app-mobile-nav-sheet-title">
-              Menu
-            </p>
-            <nav className="app-mobile-nav-links" aria-label="Collegamenti">
+            {/* ── Drawer head: user info + close ── */}
+            <div className="app-mobile-drawer-head">
+              <div className="app-mobile-drawer-user-block">
+                {isAuthenticated ? (
+                  <>
+                    <div className="app-mobile-drawer-avatar">{getUserInitials()}</div>
+                    <div className="app-mobile-drawer-user-info">
+                      <div className="app-mobile-drawer-user-name">
+                        {currentUser?.displayName || currentUser?.email?.split('@')[0] || ''}
+                      </div>
+                      <div className="app-mobile-drawer-user-email">{currentUser?.email || ''}</div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="app-mobile-drawer-guest-label">Menu</div>
+                )}
+              </div>
+              <button
+                type="button"
+                className="app-mobile-drawer-close"
+                onClick={() => setMobileNavOpen(false)}
+                aria-label="Chiudi menu"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                  <path d="M6 6l12 12M18 6L6 18"/>
+                </svg>
+              </button>
+            </div>
+
+            {/* ── Scrollable body ── */}
+            <div className="app-mobile-drawer-scroll">
+              {/* Nav section */}
+              <div>
+                <div className="app-mobile-drawer-section-title">Navigazione</div>
+                <nav className="app-mobile-nav-links" aria-label="Collegamenti">
+                  {isAuthenticated ? (
+                    <>
+                      <NavLink
+                        to="/home"
+                        className="app-mobile-nav-link"
+                        onClick={() => setMobileNavOpen(false)}
+                      >
+                        La mia area
+                      </NavLink>
+                      <NavLink
+                        to="/nuovo-test"
+                        className="app-mobile-nav-link"
+                        onClick={() => setMobileNavOpen(false)}
+                      >
+                        Nuovo test
+                      </NavLink>
+                      <NavLink
+                        to="/risultati"
+                        className="app-mobile-nav-link"
+                        onClick={() => setMobileNavOpen(false)}
+                      >
+                        Risultati
+                      </NavLink>
+                      <NavLink
+                        to="/tst"
+                        className="app-mobile-nav-link"
+                        onClick={() => setMobileNavOpen(false)}
+                      >
+                        Scopri il TST
+                      </NavLink>
+                      <NavLink
+                        to="/info"
+                        className="app-mobile-nav-link"
+                        onClick={() => setMobileNavOpen(false)}
+                      >
+                        Contatti
+                      </NavLink>
+                    </>
+                  ) : (
+                    <>
+                      <div className="app-mobile-nav-actions">
+                        <button
+                          type="button"
+                          className="app-mobile-nav-action app-mobile-nav-action--primary"
+                          onClick={handleLoginClick}
+                        >
+                          Login
+                        </button>
+                        <button
+                          type="button"
+                          className="app-mobile-nav-action app-mobile-nav-action--secondary"
+                          onClick={handleRegisterClick}
+                        >
+                          Crea account
+                        </button>
+                      </div>
+                      <NavLink
+                        to="/info"
+                        className="app-mobile-nav-link"
+                        onClick={() => setMobileNavOpen(false)}
+                      >
+                        Contatti
+                      </NavLink>
+                    </>
+                  )}
+                </nav>
+              </div>
+
+              {/* Env section (not on landing) */}
               {location.pathname !== '/' && (
-                <div className="app-mobile-sky-controls">
-                  <button
-                    type="button"
-                    className={`app-mobile-sky-control app-mobile-sky-control--mode ${config?.staticMode ? 'is-on' : 'is-off'}`}
-                    onClick={handleToggleSkyBackgroundMode}
-                    aria-pressed={Boolean(config?.staticMode)}
-                    aria-label={config?.staticMode ? 'Attiva sfondo video' : 'Attiva sfondo statico'}
-                    title={config?.staticMode ? 'Sfondo statico' : 'Sfondo video'}
-                  >
-                    {config?.staticMode ? (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        width="16"
-                        height="16"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        aria-hidden="true"
-                      >
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-                      </svg>
-                    ) : (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        width="16"
-                        height="16"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.8"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        aria-hidden="true"
-                      >
-                        <path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z" />
-                        <path d="M19 14l.7 1.8L21.5 16.5l-1.8.7L19 19l-.7-1.8L16.5 16.5l1.8-.7z" />
-                      </svg>
-                    )}
-                  </button>
+                <div className="app-mobile-drawer-env">
+                  <div className="app-mobile-drawer-section-title">Ambiente</div>
+                  <div className="app-mobile-drawer-toggle-row">
+                    <span>Suoni interfaccia</span>
+                    <button
+                      type="button"
+                      className={`app-mobile-toggle-pill ${soundEnabled ? 'is-on' : ''}`}
+                      onClick={toggleSound}
+                      aria-pressed={soundEnabled}
+                      aria-label={soundEnabled ? 'Disattiva suoni interfaccia' : 'Attiva suoni interfaccia'}
+                    />
+                  </div>
+                  <div className="app-mobile-drawer-toggle-row" style={{ marginTop: 6 }}>
+                    <span>Sfondo statico</span>
+                    <button
+                      type="button"
+                      className={`app-mobile-toggle-pill ${config?.staticMode ? 'is-on' : ''}`}
+                      onClick={handleToggleSkyBackgroundMode}
+                      aria-pressed={Boolean(config?.staticMode)}
+                      aria-label={config?.staticMode ? 'Attiva sfondo video' : 'Attiva sfondo statico'}
+                    />
+                  </div>
                 </div>
               )}
-              {isAuthenticated ? (
-                <>
-                  <NavLink
-                    to="/home"
-                    className="app-mobile-nav-link"
-                    onClick={() => setMobileNavOpen(false)}
-                  >
-                    La mia area
-                  </NavLink>
-                  <NavLink
-                    to="/nuovo-test"
-                    className="app-mobile-nav-link"
-                    onClick={() => setMobileNavOpen(false)}
-                  >
-                    Nuovo test
-                  </NavLink>
-                  <NavLink
-                    to="/risultati"
-                    className="app-mobile-nav-link"
-                    onClick={() => setMobileNavOpen(false)}
-                  >
-                    Risultati
-                  </NavLink>
-                  <NavLink
-                    to="/tst"
-                    className="app-mobile-nav-link"
-                    onClick={() => setMobileNavOpen(false)}
-                  >
-                    Scopri il TST
-                  </NavLink>
-                  <NavLink
-                    to="/info"
-                    className="app-mobile-nav-link"
-                    onClick={() => setMobileNavOpen(false)}
-                  >
-                    Contatti
-                  </NavLink>
-                </>
-              ) : (
-                <>
-                  <div className="app-mobile-nav-actions">
-                    <button
-                      type="button"
-                      className="app-mobile-nav-action app-mobile-nav-action--primary"
-                      onClick={handleLoginClick}
-                    >
-                      Login
-                    </button>
-                    <button
-                      type="button"
-                      className="app-mobile-nav-action app-mobile-nav-action--secondary"
-                      onClick={handleRegisterClick}
-                    >
-                      Crea account
-                    </button>
-                  </div>
-                  <NavLink
-                    to="/info"
-                    className="app-mobile-nav-link"
-                    onClick={() => setMobileNavOpen(false)}
-                  >
-                    Contatti
-                  </NavLink>
-                </>
-              )}
-            </nav>
+            </div>
+
+            {/* ── Footer: logout ── */}
+            {isAuthenticated && (
+              <div className="app-mobile-drawer-footer">
+                <button
+                  type="button"
+                  className="app-mobile-drawer-logout"
+                  onClick={handleLogoutClick}
+                >
+                  Logout
+                </button>
+              </div>
+            )}
           </div>
         </div>
         <main

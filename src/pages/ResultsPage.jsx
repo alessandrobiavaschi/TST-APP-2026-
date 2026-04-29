@@ -21,6 +21,7 @@ import {
   TEST_RESULT_USER_ID_FIELD,
   AREE_COLLECTION,
 } from '../firestorePaths.js'
+import { getSharedTestResult, saveTestResultForUser } from '../firestore/testResults.js'
 import {
   computeColorTotals,
   normalizeLevels,
@@ -868,6 +869,61 @@ function ResultsPage() {
   const navigate = useNavigate()
   const filtersRef = useRef(null)
 
+  const [showImportModal, setShowImportModal] = useState(false)
+  const [importCode, setImportCode] = useState('')
+  const [importing, setImporting] = useState(false)
+  const [importError, setImportError] = useState(null)
+  const [importSuccess, setImportSuccess] = useState(null)
+
+  const handleImportJson = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    setImporting(true)
+    setImportError(null)
+    setImportSuccess(null)
+    try {
+      const text = await file.text()
+      const payload = JSON.parse(text)
+      if (!payload || typeof payload !== 'object') {
+        throw new Error('File JSON non valido.')
+      }
+      await saveTestResultForUser({ db, user: currentUser, payload })
+      setImportSuccess('Test importato con successo da JSON!')
+      setTimeout(() => { setShowImportModal(false); setImportSuccess(null) }, 2000)
+      // It will automatically refresh due to the real-time listener not being used here (wait, we use onSnapshot? No, it's a getDocs). We should probably call fetchData but let's just let the user refresh or navigate since getDocs is in useEffect. Actually, let's just trigger a reload or update local state if needed. But simple reload is safer.
+      window.location.reload()
+    } catch (err) {
+      console.error(err)
+      setImportError(err.message || "Errore durante l'importazione da file JSON.")
+    } finally {
+      setImporting(false)
+      e.target.value = ''
+    }
+  }
+
+  const handleImportCode = async () => {
+    if (!importCode || importCode.trim().length !== 6) {
+      setImportError('Il codice deve essere di 6 caratteri.')
+      return
+    }
+    setImporting(true)
+    setImportError(null)
+    setImportSuccess(null)
+    try {
+      const payload = await getSharedTestResult({ db, code: importCode.trim() })
+      await saveTestResultForUser({ db, user: currentUser, payload })
+      setImportSuccess('Test importato con successo dal codice!')
+      setImportCode('')
+      setTimeout(() => { setShowImportModal(false); setImportSuccess(null) }, 2000)
+      window.location.reload()
+    } catch (err) {
+      console.error(err)
+      setImportError(err.message || "Errore durante l'importazione dal codice.")
+    } finally {
+      setImporting(false)
+    }
+  }
+
   const openReport = (record) => {
     if (!record) return
     try {
@@ -1509,8 +1565,56 @@ function ResultsPage() {
               >
                 {selectedAreaId ? `Scarica matrice (${selectedAreaName})` : 'Scarica matrice (archivio totale)'}
               </button>
+              <button
+                type="button"
+                className="nav-button primary"
+                onClick={() => setShowImportModal(true)}
+              >
+                Importa
+              </button>
             </div>
           </div>
+
+          {showImportModal && (
+            <div className="modal-overlay">
+              <div className="modal-content">
+                <h2>Importa Risultati</h2>
+                
+                <div style={{ marginTop: '1rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '1.5rem' }}>
+                  <h3>Tramite Codice Condivisione</h3>
+                  <p style={{ fontSize: '0.9rem', marginBottom: '0.5rem' }}>Inserisci il codice di 6 caratteri generato dall'utente.</p>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <input 
+                      type="text" 
+                      value={importCode}
+                      onChange={(e) => setImportCode(e.target.value.toUpperCase())}
+                      placeholder="ES: A1B2C3"
+                      maxLength={6}
+                      style={{ textTransform: 'uppercase' }}
+                    />
+                    <button type="button" className="nav-button primary" onClick={handleImportCode} disabled={importing}>
+                      {importing ? 'Importazione...' : 'Importa'}
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <h3>Tramite File JSON</h3>
+                  <p style={{ fontSize: '0.9rem', marginBottom: '0.5rem' }}>Seleziona il file scaricato dal dispositivo dell'utente.</p>
+                  <input type="file" accept=".json" onChange={handleImportJson} disabled={importing} />
+                </div>
+
+                {importError && <p className="auth-error" style={{ marginTop: '1rem' }}>{importError}</p>}
+                {importSuccess && <p style={{ marginTop: '1rem', color: 'var(--primary-dark)', fontWeight: 'bold' }}>{importSuccess}</p>}
+
+                <div className="modal-actions" style={{ marginTop: '2rem' }}>
+                  <button type="button" className="nav-button secondary" onClick={() => setShowImportModal(false)}>
+                    Chiudi
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="results-table-wrapper">
             {loading ? (

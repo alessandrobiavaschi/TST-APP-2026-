@@ -140,6 +140,7 @@ function AuthBox({
           <h3 className="landing-auth-panel-title">Accesso operatore</h3>
           <p className="landing-auth-panel-description">
             Inserisci le tue credenziali per accedere all&apos;area operatore e salvare i risultati dei test.
+            La conferma email e obbligatoria prima del primo accesso.
           </p>
           <form className="auth-form landing-auth-form" onSubmit={handleLoginSubmit}>
             <label className="auth-field">
@@ -235,6 +236,7 @@ function AuthBox({
           <h3 className="landing-auth-panel-title">Crea un account operatore</h3>
           <p className="landing-auth-panel-description">
             Gli account sono riservati a operatori autorizzati. Compila i dati anagrafici e scegli una password sicura.
+            Dopo la registrazione dovrai confermare l&apos;email dal link ricevuto prima di poter entrare.
           </p>
           <form className="auth-form landing-auth-form" onSubmit={handleRegisterSubmit}>
             <label className="auth-field">

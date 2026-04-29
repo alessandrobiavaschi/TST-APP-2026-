@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "tst-2026-database"
-  }
+    "default": "tst-2026-database",
+    "Tst": "tst-2026-database"
+  },
+  "targets": {},
+  "etags": {}
 }

@@ -63,6 +63,12 @@ function HomePage() {
     if (typeof window === 'undefined') return
     const eventName = getGoogleAuthDiagnosticEventName()
     const onGoogleDiagnostic = (event) => {
+      if (event?.detail?.stage === 'redirect-result-empty') {
+        setResetMessage('')
+        setAuthError(event?.detail?.message || '')
+        setShowLoginSection(true)
+        return
+      }
       const nextMessage =
         event?.detail?.message ||
         "Errore durante l'accesso con Google. Apri la console Firebase per i dettagli."
@@ -139,6 +145,11 @@ function HomePage() {
     const result = await authSignInWithEmail(em, pw)
     setIsSubmitting(false)
     if (!result.success) {
+      if (result.requiresEmailVerification || result.code === 'auth/email-not-verified') {
+        setAuthError('Email non ancora verificata.')
+        setResetMessage(result.message || '')
+        throw new Error(result.message || 'Email non verificata.')
+      }
       const errorMessage = result.message || "Errore durante l'accesso."
       setAuthError(errorMessage)
       throw new Error(errorMessage)
@@ -173,6 +184,7 @@ function HomePage() {
       setAuthError(errorMessage)
       throw new Error(errorMessage)
     }
+    setAuthError('')
     setResetMessage(
       result.message ||
         'Ti abbiamo inviato un\'email di conferma. Verifica il tuo indirizzo e poi accedi con le tue credenziali.',

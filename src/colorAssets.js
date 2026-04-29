@@ -14,13 +14,23 @@ const STILL_BY_COLOR = {
   verde: '/ANIMAZIONE FIORI/FERMO IMMAGINE/FERMO IMMAIGNE VERDE..png',
 }
 
+function resolvePublicAssetPath(path) {
+  if (!path) return null
+  // Vite può essere servito anche sotto un sottopercorso (es. deployment/preview).
+  // Normalizziamo base+path e codifichiamo spazi/caratteri speciali.
+  const baseUrl = import.meta.env?.BASE_URL || '/'
+  const normalizedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`
+  const normalizedPath = path.startsWith('/') ? path.slice(1) : path
+  return encodeURI(`${normalizedBase}${normalizedPath}`)
+}
+
 export function getFlowerVideoByColor(colorKey) {
   if (!colorKey) return null
-  return VIDEO_BY_COLOR[colorKey] || null
+  return resolvePublicAssetPath(VIDEO_BY_COLOR[colorKey]) || null
 }
 
 export function getFlowerStillByColor(colorKey) {
   if (!colorKey) return null
-  return STILL_BY_COLOR[colorKey] || null
+  return resolvePublicAssetPath(STILL_BY_COLOR[colorKey]) || null
 }
 

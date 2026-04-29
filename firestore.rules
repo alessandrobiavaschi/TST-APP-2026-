@@ -40,5 +40,10 @@ service cloud.firestore {
       allow delete: if request.auth != null
         && resource.data.operatoreUid == request.auth.uid;
     }
+
+    match /shared_tests/{docId} {
+      allow create: if true;
+      allow read: if true;
+    }
   }
 }

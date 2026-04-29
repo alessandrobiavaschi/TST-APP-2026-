@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import { motion } from 'framer-motion'
 
 void motion
@@ -88,6 +88,7 @@ export default function EmotionalProfileCards({
   activeChapterId = 'report-chapter-natura',
   onActiveChapterChange,
 }) {
+  const profileSectionRef = useRef(null)
   const naturaTagline = restituzione
     ? [restituzione.natura, restituzione.caratteri].filter(Boolean).join(' · ')
     : `Famiglia dominante: ${dominantColorName}`
@@ -118,23 +119,34 @@ export default function EmotionalProfileCards({
   ]
   const chapterIndex = Math.max(missionOrder.indexOf(activeChapterId), 0)
   const resolvedChapterId = missionOrder[chapterIndex]
-  const setChapter = (chapterId) => {
+  const scrollProfileSectionIntoView = () => {
+    const section = profileSectionRef.current
+    if (!section) return
+    section.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+  const setChapter = (chapterId, { scrollToTop = false } = {}) => {
     if (typeof onActiveChapterChange === 'function') {
       onActiveChapterChange(chapterId)
+    }
+    if (scrollToTop) {
+      window.requestAnimationFrame(() => {
+        scrollProfileSectionIntoView()
+      })
     }
   }
   const goToPrevious = () => {
     if (chapterIndex <= 0) return
-    setChapter(missionOrder[chapterIndex - 1])
+    setChapter(missionOrder[chapterIndex - 1], { scrollToTop: true })
   }
   const goToNext = () => {
     if (chapterIndex >= missionOrder.length - 1) return
-    setChapter(missionOrder[chapterIndex + 1])
+    setChapter(missionOrder[chapterIndex + 1], { scrollToTop: true })
   }
 
   return (
     <section
       id="report-profilo"
+      ref={profileSectionRef}
       className="report-profilo-emotivo report-profilo-emotivo--longform report-xp-section"
       aria-labelledby="profile-cards-heading"
       style={{ '--accent': accentColor }}

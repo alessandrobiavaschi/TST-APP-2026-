@@ -17,6 +17,7 @@ import { useUiSounds } from '../UiSoundProvider.jsx'
 import { buildTestAudioUrl, getAudioSourceIssue } from '../audioUrls.js'
 import { useAuth } from '../AuthContext.jsx'
 import { useAdaptiveFlow } from '../hooks/useAdaptiveFlow.js'
+import { getFlowerStillByColor } from '../colorAssets.js'
 
 function computeColorTotalsForRecord(record) {
   const blu =
@@ -224,19 +225,26 @@ const MAX_MULTI_SELECTION = 3
 const TOTAL_STEPS = 72
 const RESULT_ANALYSIS_DURATION_MS = 5600
 const RESULT_ANALYSIS_MESSAGES = [
-  'Sigillatura del protocollo percettivo...',
-  'Stabilizzazione dei tracciati emotivi...',
-  'Integrazione della matrice di ascolto personale...',
-  'Validazione della coerenza neuro-affettiva...',
-  'Trasferimento controllato al report finale...',
+  'Ci vuole solo un secondo: stiamo elaborando le tue risposte.',
+  'Analisi in corso: stiamo calcolando gli indicatori principali.',
+  'Stiamo organizzando il tuo profilo per una lettura chiara.',
+  'Privacy attiva: i dati vengono trattati in forma riservata e protetta.',
+  'Quasi pronto: passaggio al report finale.',
 ]
 
 const STORAGE_KEY_TEST_STARTED = 'tst_test_started_v1'
+const STORAGE_KEY_TEST_DRAFT = 'tst_test_draft_v1'
 const DEBUG_SESSION_RUN_ID = 'run-cbis-30'
 
 function sendDebugLog({ hypothesisId, location, message, data = {}, runId = DEBUG_SESSION_RUN_ID }) {
   // #region agent log
   fetch('http://127.0.0.1:7527/ingest/9a8c1779-de14-406d-8ed0-f0cfc6d332d5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'9ce234'},body:JSON.stringify({sessionId:'9ce234',runId,hypothesisId,location,message,data,timestamp:Date.now()})}).catch(()=>{})
+  // #endregion
+}
+
+function sendLayoutDebugLog({ hypothesisId, location, message, data = {}, runId = 'layout-pre-fix-1' }) {
+  // #region agent log
+  fetch('http://127.0.0.1:7527/ingest/9a8c1779-de14-406d-8ed0-f0cfc6d332d5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'c3b471'},body:JSON.stringify({sessionId:'c3b471',runId,hypothesisId,location,message,data,timestamp:Date.now()})}).catch(()=>{})
   // #endregion
 }
 
@@ -329,20 +337,25 @@ function NewTestPage() {
   const [audioProgress, setAudioProgress] = useState(0)
   const [audioDuration, setAudioDuration] = useState(0)
   const [showExitConfirm, setShowExitConfirm] = useState(false)
+  const [showDraftSubmitConfirm, setShowDraftSubmitConfirm] = useState(false)
   const [showTutorialCard, setShowTutorialCard] = useState(false)
   const [showAreasHelp, setShowAreasHelp] = useState(false)
   const [isThresholdFocusActive, setIsThresholdFocusActive] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isAudioBusy, setIsAudioBusy] = useState(false)
   const [isChoicesVisible, setIsChoicesVisible] = useState(true)
-  const [isProcessingNext, setIsProcessingNext] = useState(false)
+  const [isProcessingNext] = useState(false)
   const [isAnalyzingResult, setIsAnalyzingResult] = useState(false)
   const [analysisProgress, setAnalysisProgress] = useState(0)
   const [analysisMessageIndex, setAnalysisMessageIndex] = useState(0)
+  const [loadingFlowerTick, setLoadingFlowerTick] = useState(0)
   const [audioCurrentTime, setAudioCurrentTime] = useState(0)
   const [, setNeuroChoiceStage] = useState('reset')
-  const [neuroStepTransition, setNeuroStepTransition] = useState('enter')
+  const [, setNeuroStepTransition] = useState('enter')
   const [navigationHint, setNavigationHint] = useState('')
+  const [hasRecoveredDraft, setHasRecoveredDraft] = useState(false)
+  const [showRecoverDraftPrompt, setShowRecoverDraftPrompt] = useState(false)
+  const [isReviewingTestSteps, setIsReviewingTestSteps] = useState(false)
   const audioRef = useRef(null)
   const preloadRef = useRef(null)
   const previewAudioRef = useRef(null)
@@ -366,6 +379,22 @@ function NewTestPage() {
         }
       : undefined
   const selectedAnswerValue = (testRecord[currentFileKey] || '').trim()
+  const FLOWER_SEQUENCE = ['blu', 'rosso', 'verde', 'giallo', 'grigio']
+  const loadingFlowerImages = FLOWER_SEQUENCE.map((key) => ({
+    key,
+    src: getFlowerStillByColor(key),
+  })).filter((item) => Boolean(item.src))
+  const activeFlowerIndex =
+    loadingFlowerImages.length > 0
+      ? Math.min(
+          loadingFlowerImages.length - 1,
+          Math.floor((analysisProgress / 100) * loadingFlowerImages.length),
+        )
+      : 0
+  const animatedFlowerIndex =
+    loadingFlowerImages.length > 0
+      ? (activeFlowerIndex + loadingFlowerTick) % loadingFlowerImages.length
+      : 0
 
   const isGuestMode = location.state && location.state.mode === 'guest'
   const tutorialHighlights = [
@@ -671,6 +700,14 @@ function NewTestPage() {
   }, [isThresholdFocusActive])
 
   useEffect(() => {
+    if (!isAnalyzingResult || loadingFlowerImages.length <= 1) return undefined
+    const timer = window.setInterval(() => {
+      setLoadingFlowerTick((prev) => prev + 1)
+    }, 860)
+    return () => window.clearInterval(timer)
+  }, [isAnalyzingResult, loadingFlowerImages.length])
+
+  useEffect(() => {
     if (currentFile < 29 || currentFile > 31) return
     sendDebugLog({
       hypothesisId: 'N5',
@@ -867,6 +904,19 @@ function NewTestPage() {
     setCurrentFile((prev) => prev - 1)
   }
 
+  const handleReviewLastQuestion = () => {
+    uiSounds?.playSecondaryTap?.()
+    setIsReviewingTestSteps(true)
+    setCurrentFile(TOTAL_STEPS)
+  }
+
+  const handleReturnToFinalQuestions = () => {
+    uiSounds?.playTransition?.()
+    stopAudio()
+    stopPreviewAudio()
+    setIsReviewingTestSteps(false)
+  }
+
   const proceedToNextStep = () => {
     if (isProcessingNext) return
     if (currentFile >= 29 && currentFile <= 31) {
@@ -885,20 +935,8 @@ function NewTestPage() {
     if (currentFile >= 72) return
     stopAudio()
     stopPreviewAudio()
-    setIsProcessingNext(true)
-    setNeuroStepTransition('exit')
-    window.requestAnimationFrame(() => {
-      uiSounds?.playTransition?.()
-    })
-    if (nextStepTimerRef.current) {
-      window.clearTimeout(nextStepTimerRef.current)
-      nextStepTimerRef.current = null
-    }
-    nextStepTimerRef.current = window.setTimeout(() => {
-      setCurrentFile((prev) => prev + 1)
-      setIsProcessingNext(false)
-      nextStepTimerRef.current = null
-    }, timings.processingStateMs)
+    uiSounds?.playTransition?.()
+    setCurrentFile((prev) => prev + 1)
   }
 
   const handleNextStep = () => {
@@ -921,6 +959,23 @@ function NewTestPage() {
     setShowExitConfirm(false)
   }
 
+  const handleRequestDraftSubmit = () => {
+    uiSounds?.playGhostTap?.()
+    stopAudio()
+    stopPreviewAudio()
+    setShowDraftSubmitConfirm(true)
+  }
+
+  const handleCloseDraftSubmitConfirm = () => {
+    uiSounds?.playGhostTap?.()
+    setShowDraftSubmitConfirm(false)
+  }
+
+  const handleConfirmDraftSubmit = async () => {
+    setShowDraftSubmitConfirm(false)
+    await handleSubmitTest()
+  }
+
   const handleConfirmExit = () => {
     uiSounds?.playTransition?.()
     try {
@@ -928,6 +983,7 @@ function NewTestPage() {
     } catch {
       // ignore
     }
+    clearLocalDraftSnapshot()
     setShowExitConfirm(false)
     if (isGuestMode) {
       navigate('/', { replace: true })
@@ -942,6 +998,11 @@ function NewTestPage() {
       if (!testRecord[key]) return false
     }
     return true
+  }
+
+  const handleSaveDraftAndExit = async () => {
+    setShowExitConfirm(false)
+    await handleSubmitTest({ forceDraft: true, shouldNavigateAfterDraft: true })
   }
 
   const isFeedbackComplete = () => {
@@ -977,6 +1038,35 @@ function NewTestPage() {
       }
     })
     return out
+  }
+
+  const buildLocalDraftSnapshot = () => ({
+    version: 1,
+    savedAt: Date.now(),
+    currentFile,
+    testRecord,
+    answersByFile,
+    profilingDone,
+    showIntro,
+  })
+
+  const saveLocalDraftSnapshot = () => {
+    if (typeof window === 'undefined') return
+    try {
+      const snapshot = buildLocalDraftSnapshot()
+      window.localStorage.setItem(STORAGE_KEY_TEST_DRAFT, JSON.stringify(snapshot))
+    } catch {
+      // ignore
+    }
+  }
+
+  const clearLocalDraftSnapshot = () => {
+    if (typeof window === 'undefined') return
+    try {
+      window.localStorage.removeItem(STORAGE_KEY_TEST_DRAFT)
+    } catch {
+      // ignore
+    }
   }
 
   const toggleDifficoltaDettaglio = (code) => {
@@ -1035,16 +1125,17 @@ function NewTestPage() {
     }))
   }
 
-  const handleSubmitTest = async () => {
+  const handleSubmitTest = async ({ forceDraft = false, shouldNavigateAfterDraft = false } = {}) => {
     if (isSubmitting) return
     const activeUser = user
     const isComplete = isTestComplete()
+    const shouldSaveAsDraft = forceDraft || !isComplete
     const autoFields = computeAutoFields(testRecord)
     const payload = sanitizePayload({
       ...testRecord,
       ...autoFields,
-      Stato_Consegna: isComplete ? 'CONSEGNATO' : 'BOZZA',
-      Bozza_Test: !isComplete,
+      Stato_Consegna: shouldSaveAsDraft ? 'BOZZA' : 'CONSEGNATO',
+      Bozza_Test: shouldSaveAsDraft,
     })
 
     setIsSubmitting(true)
@@ -1062,8 +1153,11 @@ function NewTestPage() {
         } catch {
           // ignore
         }
+        clearLocalDraftSnapshot()
         await runResultAnalysisTransition()
-        navigate('/risultati/report', { state: { record: wrapper, fromSubmit: true } })
+        navigate('/risultati/report', {
+          state: { record: wrapper, fromSubmit: true, skipReportTransition: true },
+        })
         return
       }
 
@@ -1078,10 +1172,15 @@ function NewTestPage() {
       } catch {
         // ignore
       }
+      clearLocalDraftSnapshot()
 
-      if (!isComplete) {
+      if (shouldSaveAsDraft) {
         alert('Bozza salvata in archivio.')
-        navigate('/risultati')
+        if (shouldNavigateAfterDraft) {
+          navigate(isGuestMode ? '/' : '/home', { replace: true })
+        } else {
+          navigate('/risultati')
+        }
         return
       }
 
@@ -1090,7 +1189,9 @@ function NewTestPage() {
         raw: payload,
       }
       await runResultAnalysisTransition()
-      navigate('/risultati/report', { state: { record: wrapper, fromSubmit: true } })
+      navigate('/risultati/report', {
+        state: { record: wrapper, fromSubmit: true, skipReportTransition: true },
+      })
     } catch (error) {
       console.error('Errore durante il salvataggio del test:', error)
       alert(`Errore durante il salvataggio: ${error?.message || 'Controlla la console e le regole Firestore.'}`)
@@ -1222,18 +1323,65 @@ function NewTestPage() {
 
   const testCompleted = isTestComplete()
   const isFinalSubmitDisabled = isSubmitting
-  const transitionTransform =
-    neuroStepTransition === 'exit'
-      ? 'translateY(-12px)'
-      : neuroStepTransition === 'enter'
-        ? 'translateY(12px)'
-        : 'translateY(0)'
-  const transitionOpacity = neuroStepTransition === 'idle' ? 1 : 0
   const adaptiveTransitionStyle = {
-    opacity: transitionOpacity,
-    transform: transitionTransform,
-    transition: `opacity ${timings.processingStateMs}ms var(--ui-ease), transform ${timings.processingStateMs}ms var(--ui-ease)`,
+    opacity: 1,
+    transform: 'none',
+    transition: 'none',
   }
+
+  useEffect(() => {
+    if (hasRecoveredDraft || typeof window === 'undefined') return
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEY_TEST_DRAFT)
+      if (!raw) {
+        setHasRecoveredDraft(true)
+        return
+      }
+      const snapshot = JSON.parse(raw)
+      const hasRecord = snapshot && typeof snapshot === 'object' && snapshot.testRecord
+      if (!hasRecord) {
+        clearLocalDraftSnapshot()
+        setHasRecoveredDraft(true)
+        return
+      }
+      const savedCurrentFile = Number(snapshot.currentFile) || 1
+      setTestRecord(snapshot.testRecord)
+      setAnswersByFile(snapshot.answersByFile || {})
+      setCurrentFile(Math.min(TOTAL_STEPS, Math.max(1, savedCurrentFile)))
+      setProfilingDone(Boolean(snapshot.profilingDone))
+      setShowIntro(Boolean(snapshot.showIntro))
+      setShowRecoverDraftPrompt(true)
+    } catch {
+      clearLocalDraftSnapshot()
+    } finally {
+      setHasRecoveredDraft(true)
+    }
+  }, [hasRecoveredDraft])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined
+    const shouldPersistDraft = profilingDone && !isTestComplete() && !isSubmitting
+    if (!shouldPersistDraft) {
+      return undefined
+    }
+    saveLocalDraftSnapshot()
+    return undefined
+  }, [profilingDone, currentFile, testRecord, answersByFile, isSubmitting, showIntro])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined
+    const handleBeforeUnload = (event) => {
+      const shouldPersistDraft = profilingDone && !isTestComplete()
+      if (!shouldPersistDraft) return
+      saveLocalDraftSnapshot()
+      event.preventDefault()
+      event.returnValue = ''
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+    }
+  }, [profilingDone, currentFile, testRecord, answersByFile])
 
   useEffect(() => {
     const isSessionActive = profilingDone && !testCompleted
@@ -1250,6 +1398,79 @@ function NewTestPage() {
       )
     }
   }, [profilingDone, testCompleted])
+
+  useEffect(() => {
+    if (!profilingDone || testCompleted || typeof window === 'undefined') return
+
+    sendLayoutDebugLog({
+      hypothesisId: 'H1',
+      location: 'src/pages/NewTestPage.jsx:useEffect[layout-debug]:entry',
+      message: 'Layout debug effect triggered',
+      data: {
+        currentFile,
+        isSessionActiveClassExpected: profilingDone && !testCompleted,
+        questionTitleLength: String(getQuestionTitleForFile(currentFile) || '').length,
+      },
+    })
+
+    const frameId = window.requestAnimationFrame(() => {
+      const root = document.querySelector('.nuovo-test-page--session-active')
+      const player = document.querySelector('.test-stage-audio-zone--menu-tab.player-card--bottom-dock')
+      const mainCard = document.querySelector('.test-stage-main-card')
+      const answersShell = document.querySelector('.test-stage-answers-shell')
+      const answersZone = document.querySelector('.test-stage-answers-zone')
+      const answersGrid = document.querySelector('.test-stage-answers-zone .answers-grid, .test-stage-answers-zone .answers-grid--dense')
+      const footer = document.querySelector('.test-stage-footer')
+
+      const css = (el) => (el ? window.getComputedStyle(el) : null)
+      const rect = (el) => (el ? el.getBoundingClientRect() : null)
+
+      sendLayoutDebugLog({
+        hypothesisId: 'H2',
+        location: 'src/pages/NewTestPage.jsx:useEffect[layout-debug]:snapshot',
+        message: 'Computed layout snapshot',
+        data: {
+          rootHeight: rect(root)?.height || null,
+          mainCardHeight: rect(mainCard)?.height || null,
+          answersShellHeight: rect(answersShell)?.height || null,
+          answersZoneHeight: rect(answersZone)?.height || null,
+          playerHeight: rect(player)?.height || null,
+          footerHeight: rect(footer)?.height || null,
+          mainCardGridRows: css(mainCard)?.gridTemplateRows || null,
+          answersShellOverflow: css(answersShell)?.overflow || null,
+          answersZoneOverflow: css(answersZone)?.overflow || null,
+        },
+      })
+
+      sendLayoutDebugLog({
+        hypothesisId: 'H3',
+        location: 'src/pages/NewTestPage.jsx:useEffect[layout-debug]:answers',
+        message: 'Answers visibility snapshot',
+        data: {
+          answersButtonsCount: answersGrid ? answersGrid.querySelectorAll('button.answer-button').length : 0,
+          answersGridDisplay: css(answersGrid)?.display || null,
+          answersGridHeight: rect(answersGrid)?.height || null,
+          answersZoneScrollHeight: answersZone ? answersZone.scrollHeight : null,
+          answersZoneClientHeight: answersZone ? answersZone.clientHeight : null,
+        },
+      })
+
+      sendLayoutDebugLog({
+        hypothesisId: 'H4',
+        location: 'src/pages/NewTestPage.jsx:useEffect[layout-debug]:player',
+        message: 'Player and top controls snapshot',
+        data: {
+          playerPosition: css(player)?.position || null,
+          playerDisplay: css(player)?.display || null,
+          playerGridColumns: css(player)?.gridTemplateColumns || null,
+          playerBottom: css(player)?.bottom || null,
+          playerPadding: css(player)?.padding || null,
+        },
+      })
+    })
+
+    return () => window.cancelAnimationFrame(frameId)
+  }, [profilingDone, testCompleted, currentFile, isProcessingNext, isChoicesVisible])
 
   if (!isGuestMode && !authReady) {
     return (
@@ -1449,160 +1670,29 @@ function NewTestPage() {
           style={adaptiveUiVars}
           data-adaptive-rhythm={rhythm}
         >
-          {!testCompleted && (
+          {(!testCompleted || isReviewingTestSteps) && (
             <div
-              key={`step-${currentFile}`}
               className={`test-stage-live test-step-transition ${isProcessingNext ? 'is-processing' : ''}`}
               style={adaptiveTransitionStyle}
               data-adaptive-rhythm={rhythm}
             >
               <div className="test-stage-main-card">
                 <section className="test-stage-question-zone" role="status" aria-live="polite">
-                  <h2 className="test-threshold-question-title">{getQuestionTitleForFile(currentFile)}</h2>
-                </section>
-                <section
-                  className="test-stage-audio-zone player-card player-card--bottom-dock"
-                  aria-label="Controlli audio del test"
-                >
-                  <div className="test-stage-audio-head">
+                  <div className="test-stage-topbar">
+                    <p className="test-stage-section-pill" aria-live="polite">
+                      Sezione: {getMacroSectionLabel(currentFile) || 'Panoramica sonora'}
+                    </p>
                     <button
                       type="button"
-                      className="nav-button secondary stepper-exit-button"
+                      className="nav-button secondary stepper-exit-button stepper-exit-button--side"
                       onClick={handleRequestExit}
                     >
                       Esci
                     </button>
                   </div>
-                  <audio
-                    ref={audioRef}
-                    preload="metadata"
-                    playsInline
-                    onPlay={() => {
-                      setNeuroChoiceStage('passive')
-                      setIsChoicesVisible(true)
-                    }}
-                    onError={() => {
-                      const issue = getAudioSourceIssue(audioSrc)
-                      setAudioError(issue || 'File audio non disponibile o danneggiato.')
-                    }}
-                    onCanPlay={() => {
-                      setAudioError(null)
-                    }}
-                    onLoadedMetadata={() => {
-                      const audio = audioRef.current
-                      if (audio && audio.duration) {
-                        setAudioCurrentTime(audio.currentTime || 0)
-                        setAudioDuration(audio.duration)
-                      }
-                    }}
-                    onTimeUpdate={() => {
-                      const audio = audioRef.current
-                      if (audio && audio.duration) {
-                        setAudioCurrentTime(audio.currentTime || 0)
-                        setAudioProgress((audio.currentTime / audio.duration) * 100)
-                      }
-                    }}
-                    onEnded={() => {
-                      trackAudioEnd()
-                      const audio = audioRef.current
-                      setAudioCurrentTime(audio?.duration || 0)
-                      setAudioProgress(100)
-                      setNeuroChoiceStage('recall')
-                      setIsChoicesVisible(true)
-                      if (recallTimerRef.current) {
-                        window.clearTimeout(recallTimerRef.current)
-                        recallTimerRef.current = null
-                      }
-                      recallTimerRef.current = window.setTimeout(() => {
-                        setNeuroChoiceStage('action')
-                        recallTimerRef.current = null
-                      }, timings.choiceRecallMs)
-                    }}
-                  >
-                    <source src={audioSrc} type="audio/mpeg" />
-                  </audio>
-                  <div
-                    className="player-progress"
-                    role="slider"
-                    aria-label="Posizione audio"
-                    aria-valuemin={0}
-                    aria-valuemax={Math.round(audioDuration || 0)}
-                    aria-valuenow={Math.round(audioCurrentTime || 0)}
-                    onClick={seekAudioFromEvent}
-                    onPointerDown={seekAudioFromEvent}
-                  >
-                    <div
-                      className="player-progress-bar"
-                      style={{ width: `${audioProgress || 0}%` }}
-                    />
-                  </div>
-                  <div className="player-progress-times" aria-hidden="true">
-                    <span>{formatAudioTime(audioCurrentTime)}</span>
-                    <span>{formatAudioTime(audioDuration)}</span>
-                  </div>
-                  <div className="player-controls">
-                    <button
-                      type="button"
-                      className="player-button secondary player-button-icon"
-                      title="Play"
-                      aria-label="Riproduci dall'inizio"
-                      onClick={() => {
-                        uiSounds?.playSecondaryTap?.()
-                        playCurrentAudio({ restart: true })
-                      }}
-                      disabled={isAudioBusy}
-                    >
-                      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                        <path d="M8 5v14l11-7z" />
-                      </svg>
-                    </button>
-                    <button
-                      type="button"
-                      className="player-button secondary player-button-icon"
-                      title="Stop"
-                      aria-label="Ferma audio"
-                      onClick={() => {
-                        uiSounds?.playSecondaryTap?.()
-                        stopAudio()
-                      }}
-                    >
-                      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                        <path d="M6 6h12v12H6z" />
-                      </svg>
-                    </button>
-                    <button
-                      type="button"
-                      className="player-button ghost player-button-icon"
-                      title="Rewind (inizio)"
-                      aria-label="Riporta audio all'inizio"
-                      onClick={() => {
-                        uiSounds?.playGhostTap?.()
-                        const audio = audioRef.current
-                        if (audio) {
-                          audio.currentTime = 0
-                        }
-                        setAudioCurrentTime(0)
-                        setAudioProgress(0)
-                      }}
-                    >
-                      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                        <path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z" />
-                      </svg>
-                    </button>
-                  </div>
-                  <div className="player-status-region" aria-live="polite">
-                    {(audioError || audioSourceIssue) && (
-                      <p className="audio-error">
-                        {audioError || audioSourceIssue}
-                      </p>
-                    )}
-                    {!audioError && !audioSourceIssue && navigationHint && (
-                      <p className="player-hint">
-                        {navigationHint}
-                      </p>
-                    )}
-                  </div>
-                  <audio ref={preloadRef} style={{ display: 'none' }} preload="auto" />
+                  <h2 className="test-threshold-question-title test-threshold-question-title--compact">
+                    {getQuestionTitleForFile(currentFile)}
+                  </h2>
                 </section>
                 <section className="test-stage-answers-shell" aria-live="polite">
                   <div className={`test-stage-answers-zone ${isChoicesVisible ? 'is-revealed' : 'is-hidden'}`}>
@@ -1619,36 +1709,206 @@ function NewTestPage() {
                     >
                       Indietro
                     </button>
-                    <p className="answers-step-number" aria-live="polite">
-                      Passo {currentFile}/72 · {getMacroSectionLabel(currentFile) || 'Panoramica sonora'}
-                    </p>
-                    <button
-                      type="button"
-                      className="nav-button primary"
-                      onClick={handleNextStep}
-                      disabled={!canGoNext || isProcessingNext || !isCurrentStepAnswered}
-                    >
-                      {isProcessingNext ? 'Preparazione...' : 'Avanti'}
-                    </button>
+                    {currentFile >= TOTAL_STEPS && isReviewingTestSteps ? (
+                      <button
+                        type="button"
+                        className="nav-button primary"
+                        onClick={handleReturnToFinalQuestions}
+                        disabled={isProcessingNext || !isCurrentStepAnswered}
+                      >
+                        Torna alle domande finali
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        className="nav-button primary"
+                        onClick={handleNextStep}
+                        disabled={!canGoNext || isProcessingNext || !isCurrentStepAnswered}
+                      >
+                        Avanti
+                      </button>
+                    )}
+                    {currentFile < TOTAL_STEPS && (
+                      <button
+                        type="button"
+                        className="nav-button ghost"
+                        onClick={handleRequestDraftSubmit}
+                        disabled={isSubmitting}
+                      >
+                        Consegna bozza
+                      </button>
+                    )}
                   </div>
-                  <div className="stepper-progress" aria-hidden="true">
-                    <div
-                      className={`stepper-progress-bar ${
-                        isProcessingNext && timings.breathingPulse ? 'is-processing-breathing' : ''
-                      }`}
-                      style={{
-                        width: `${Math.min(100, Math.max(0, (currentFile / TOTAL_STEPS) * 100)).toFixed(3)}%`,
-                      }}
-                    />
+                  <div className="test-stage-footer-meta">
+                    <p className="answers-step-number" aria-live="polite">
+                      Passo {currentFile}/72
+                    </p>
+                    <div className="stepper-progress" aria-hidden="true">
+                      <div
+                        className={`stepper-progress-bar ${
+                          isProcessingNext && timings.breathingPulse ? 'is-processing-breathing' : ''
+                        }`}
+                        style={{
+                          width: `${Math.min(100, Math.max(0, (currentFile / TOTAL_STEPS) * 100)).toFixed(3)}%`,
+                        }}
+                      />
+                    </div>
                   </div>
                 </footer>
               </div>
             </div>
           )}
+          {!testCompleted && (
+            <section
+              className="test-stage-audio-zone test-stage-audio-zone--menu-tab player-card player-card--bottom-dock"
+              aria-label="Controlli audio del test"
+            >
+                <audio
+                  ref={audioRef}
+                  preload="metadata"
+                  playsInline
+                  onPlay={() => {
+                    setNeuroChoiceStage('passive')
+                    setIsChoicesVisible(true)
+                  }}
+                  onError={() => {
+                    const issue = getAudioSourceIssue(audioSrc)
+                    setAudioError(issue || 'File audio non disponibile o danneggiato.')
+                  }}
+                  onCanPlay={() => {
+                    setAudioError(null)
+                  }}
+                  onLoadedMetadata={() => {
+                    const audio = audioRef.current
+                    if (audio && audio.duration) {
+                      setAudioCurrentTime(audio.currentTime || 0)
+                      setAudioDuration(audio.duration)
+                    }
+                  }}
+                  onTimeUpdate={() => {
+                    const audio = audioRef.current
+                    if (audio && audio.duration) {
+                      setAudioCurrentTime(audio.currentTime || 0)
+                      setAudioProgress((audio.currentTime / audio.duration) * 100)
+                    }
+                  }}
+                  onEnded={() => {
+                    trackAudioEnd()
+                    const audio = audioRef.current
+                    setAudioCurrentTime(audio?.duration || 0)
+                    setAudioProgress(100)
+                    setNeuroChoiceStage('recall')
+                    setIsChoicesVisible(true)
+                    if (recallTimerRef.current) {
+                      window.clearTimeout(recallTimerRef.current)
+                      recallTimerRef.current = null
+                    }
+                    recallTimerRef.current = window.setTimeout(() => {
+                      setNeuroChoiceStage('action')
+                      recallTimerRef.current = null
+                    }, timings.choiceRecallMs)
+                  }}
+                >
+                  <source src={audioSrc} type="audio/mpeg" />
+                </audio>
+                <div
+                  className="player-progress"
+                  role="slider"
+                  aria-label="Posizione audio"
+                  aria-valuemin={0}
+                  aria-valuemax={Math.round(audioDuration || 0)}
+                  aria-valuenow={Math.round(audioCurrentTime || 0)}
+                  onClick={seekAudioFromEvent}
+                  onPointerDown={seekAudioFromEvent}
+                >
+                  <div
+                    className="player-progress-bar"
+                    style={{ width: `${audioProgress || 0}%` }}
+                  />
+                </div>
+                <div className="player-progress-times" aria-hidden="true">
+                  <span>{formatAudioTime(audioCurrentTime)}</span>
+                  <span>{formatAudioTime(audioDuration)}</span>
+                </div>
+                <div className="player-controls">
+                  <button
+                    type="button"
+                    className="player-button secondary player-button-icon"
+                    title="Play"
+                    aria-label="Riproduci dall'inizio"
+                    onClick={() => {
+                      uiSounds?.playSecondaryTap?.()
+                      playCurrentAudio({ restart: true })
+                    }}
+                    disabled={isAudioBusy}
+                  >
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    className="player-button secondary player-button-icon"
+                    title="Stop"
+                    aria-label="Ferma audio"
+                    onClick={() => {
+                      uiSounds?.playSecondaryTap?.()
+                      stopAudio()
+                    }}
+                  >
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M6 6h12v12H6z" />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    className="player-button ghost player-button-icon"
+                    title="Rewind (inizio)"
+                    aria-label="Riporta audio all'inizio"
+                    onClick={() => {
+                      uiSounds?.playGhostTap?.()
+                      const audio = audioRef.current
+                      if (audio) {
+                        audio.currentTime = 0
+                      }
+                      setAudioCurrentTime(0)
+                      setAudioProgress(0)
+                    }}
+                  >
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z" />
+                    </svg>
+                  </button>
+                </div>
+                <div className="player-status-region" aria-live="polite">
+                  {(audioError || audioSourceIssue) && (
+                    <p className="audio-error">
+                      {audioError || audioSourceIssue}
+                    </p>
+                  )}
+                  {!audioError && !audioSourceIssue && navigationHint && (
+                    <p className="player-hint">
+                      {navigationHint}
+                    </p>
+                  )}
+                </div>
+                <audio ref={preloadRef} style={{ display: 'none' }} preload="auto" />
+            </section>
+          )}
           <div className={`answers-card ${testCompleted ? 'answers-card--completed' : ''}`}>
-            {testCompleted && !isAnalyzingResult && (
+            {testCompleted && !isAnalyzingResult && !isReviewingTestSteps && (
               <section className="feedback-section">
                 <h3 className="feedback-title">Domande finali (dopo lo svolgimento del test)</h3>
+                <div className="test-navigation-submit">
+                  <button
+                    type="button"
+                    className="nav-button secondary"
+                    onClick={handleReviewLastQuestion}
+                    disabled={isSubmitting}
+                  >
+                    Torna all'ultima domanda del test
+                  </button>
+                </div>
                 <p className="feedback-subtitle">
                   Le risposte aiutano a completare il quadro qualitativo del protocollo TST 2025.
                 </p>
@@ -1817,30 +2077,199 @@ function NewTestPage() {
                 </div>
               </section>
             )}
-            {testCompleted && isAnalyzingResult && (
-              <section className="result-analysis-transition" aria-live="polite">
-                <p className="result-analysis-kicker">Chiusura Rituale · Laboratorio TST</p>
-                <h3 className="result-analysis-title">Uscita guidata dal protocollo in corso</h3>
-                <p className="result-analysis-message">{RESULT_ANALYSIS_MESSAGES[analysisMessageIndex]}</p>
-                <div className="result-analysis-progress" aria-hidden="true">
+            {testCompleted &&
+              isAnalyzingResult &&
+              createPortal(
+                <section
+                  aria-live="polite"
+                  style={{
+                    position: 'fixed',
+                    inset: 0,
+                    zIndex: 9999,
+                    display: 'grid',
+                    placeItems: 'center',
+                    padding: '20px',
+                    background:
+                      'radial-gradient(circle at 22% 8%, rgba(74, 116, 244, 0.33), transparent 42%), radial-gradient(circle at 80% 90%, rgba(38, 160, 255, 0.2), transparent 45%), linear-gradient(150deg, #03123b 0%, #072266 52%, #04143f 100%)',
+                  }}
+                >
                   <div
-                    className="result-analysis-progress-bar"
-                    style={{ width: `${analysisProgress.toFixed(2)}%` }}
-                  />
-                </div>
-                <p className="result-analysis-percent">{Math.round(analysisProgress)}%</p>
-              </section>
-            )}
+                    style={{
+                      width: 'min(760px, calc(100vw - 36px))',
+                      maxHeight: 'calc(100vh - 40px)',
+                      overflowY: 'auto',
+                      borderRadius: '20px',
+                      border: '1px solid rgba(170, 196, 255, 0.5)',
+                      background:
+                        'linear-gradient(160deg, rgba(10, 30, 88, 0.98) 0%, rgba(6, 22, 64, 0.97) 100%)',
+                      boxShadow:
+                        '0 24px 58px rgba(0, 7, 25, 0.6), 0 0 0 1px rgba(140, 186, 255, 0.15), 0 0 26px rgba(61, 136, 255, 0.4)',
+                      padding: '20px',
+                      color: '#eaf2ff',
+                      fontFamily: 'Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif',
+                    }}
+                  >
+                    <p
+                      style={{
+                        margin: 0,
+                        fontSize: '12px',
+                        letterSpacing: '0.1em',
+                        textTransform: 'uppercase',
+                        fontWeight: 700,
+                        color: 'rgba(201, 220, 255, 0.95)',
+                        textShadow: '0 0 10px rgba(148, 195, 255, 0.45)',
+                      }}
+                    >
+                      Elaborazione risultati
+                    </p>
+                    <h3
+                      style={{
+                        margin: '8px 0 0',
+                        fontSize: '24px',
+                        lineHeight: 1.22,
+                        color: '#f8fbff',
+                        textShadow: '0 0 12px rgba(117, 174, 255, 0.3)',
+                      }}
+                    >
+                      Stiamo calcolando il tuo report
+                    </h3>
+
+                    {loadingFlowerImages.length > 0 && (
+                      <div
+                        aria-hidden="true"
+                        style={{
+                          width: '100%',
+                          maxWidth: '620px',
+                          height: '184px',
+                          margin: '16px auto 8px',
+                          borderRadius: '14px',
+                          border: '1px solid rgba(148, 180, 255, 0.35)',
+                          background:
+                            'linear-gradient(180deg, rgba(9, 26, 72, 0.68), rgba(7, 20, 56, 0.76))',
+                          boxShadow:
+                            'inset 0 1px 0 rgba(200, 220, 255, 0.12), inset 0 0 26px rgba(71, 138, 255, 0.18), 0 0 18px rgba(37, 119, 255, 0.28)',
+                          overflow: 'hidden',
+                          position: 'relative',
+                        }}
+                      >
+                        <div
+                          aria-hidden="true"
+                          style={{
+                            position: 'absolute',
+                            top: 0,
+                            bottom: 0,
+                            width: '28%',
+                            background:
+                              'linear-gradient(90deg, rgba(255,255,255,0), rgba(154,210,255,0.22), rgba(255,255,255,0))',
+                            transform: `translateX(${((loadingFlowerTick % 6) - 1) * 120}%)`,
+                            transition: 'transform 360ms ease-out',
+                            pointerEvents: 'none',
+                          }}
+                        />
+                        <div
+                          style={{
+                            width: `${loadingFlowerImages.length * 100}%`,
+                            height: '100%',
+                            display: 'flex',
+                            transform: `translateX(-${animatedFlowerIndex * (100 / loadingFlowerImages.length)}%)`,
+                            transition: 'transform 760ms cubic-bezier(0.22, 1, 0.36, 1)',
+                          }}
+                        >
+                          {loadingFlowerImages.map((item, index) => {
+                            const isActive = index === animatedFlowerIndex
+                            return (
+                              <div
+                                key={item.key}
+                                style={{
+                                  width: `${100 / loadingFlowerImages.length}%`,
+                                  height: '100%',
+                                  display: 'grid',
+                                  placeItems: 'center',
+                                  flexShrink: 0,
+                                }}
+                              >
+                                <img
+                                  src={item.src}
+                                  alt=""
+                                  style={{
+                                    width: '150px',
+                                    height: '150px',
+                                    objectFit: 'contain',
+                                    opacity: isActive ? 1 : 0.45,
+                                    transform: isActive ? 'scale(1.07) rotate(-2deg)' : 'scale(0.88)',
+                                    transition: 'opacity 520ms ease, transform 520ms ease',
+                                    filter: isActive
+                                      ? 'drop-shadow(0 8px 14px rgba(0, 0, 0, 0.38)) drop-shadow(0 0 14px rgba(96, 161, 255, 0.45))'
+                                      : 'none',
+                                  }}
+                                />
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    <p
+                      style={{
+                        margin: '10px 0 0',
+                        fontSize: '16px',
+                        lineHeight: 1.45,
+                        color: 'rgba(232, 241, 255, 0.95)',
+                      }}
+                    >
+                      {RESULT_ANALYSIS_MESSAGES[analysisMessageIndex]}
+                    </p>
+
+                    <div
+                      aria-hidden="true"
+                      style={{
+                        marginTop: '14px',
+                        width: '100%',
+                        height: '11px',
+                        borderRadius: '999px',
+                        overflow: 'hidden',
+                        background: 'rgba(94, 126, 201, 0.45)',
+                        boxShadow: 'inset 0 0 12px rgba(14, 44, 120, 0.72)',
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: `${analysisProgress.toFixed(2)}%`,
+                          height: '100%',
+                          borderRadius: '999px',
+                          background: 'linear-gradient(90deg, #4f8eff, #79abff 45%, #a7c2ff)',
+                          transition: 'width 140ms linear',
+                          boxShadow: '0 0 14px rgba(100, 160, 255, 0.8)',
+                        }}
+                      />
+                    </div>
+
+                    <p
+                      style={{
+                        margin: '10px 0 0',
+                        fontSize: '13px',
+                        lineHeight: 1.35,
+                        color: 'rgba(201, 220, 255, 0.9)',
+                      }}
+                    >
+                      Privacy attiva: i dati vengono trattati in forma riservata e protetta.
+                    </p>
+                    <p
+                      style={{
+                        margin: '8px 0 0',
+                        fontSize: '13px',
+                        color: 'rgba(190, 210, 255, 0.9)',
+                        textAlign: 'right',
+                      }}
+                    >
+                      {Math.round(analysisProgress)}%
+                    </p>
+                  </div>
+                </section>,
+                document.body,
+              )}
           </div>
-          {!testCompleted && isProcessingNext && (
-            <p className="processing-state-note" aria-live="polite">
-              {rhythm === 'slow'
-                ? 'Il sistema sta preparando con cura lo step successivo...'
-                : rhythm === 'fast'
-                  ? 'Preparazione rapida dello step successivo...'
-                  : 'Preparazione dello step successivo...'}
-            </p>
-          )}
           {showExitConfirm && (
             <div
               className="test-exit-modal-backdrop"
@@ -1858,7 +2287,7 @@ function NewTestPage() {
                   Uscire dal test?
                 </h3>
                 <p className="test-exit-modal-text">
-                  I risultati non sono stati consegnati e andranno persi.
+                  Puoi uscire subito, salvare una bozza o continuare il test.
                 </p>
                 <div className="test-exit-modal-actions">
                   <button
@@ -1871,9 +2300,107 @@ function NewTestPage() {
                   <button
                     type="button"
                     className="nav-button secondary"
+                    onClick={handleSaveDraftAndExit}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? 'Salvataggio...' : 'Salva bozza ed esci'}
+                  </button>
+                  <button
+                    type="button"
+                    className="nav-button secondary"
                     onClick={handleConfirmExit}
                   >
-                    Esci
+                    Esci senza salvare
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+          {showRecoverDraftPrompt && (
+            <div
+              className="test-exit-modal-backdrop"
+              role="presentation"
+            >
+              <div
+                className="test-exit-modal"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="test-recover-draft-title"
+              >
+                <h3 id="test-recover-draft-title" className="test-exit-modal-title">
+                  Bozza trovata
+                </h3>
+                <p className="test-exit-modal-text">
+                  Abbiamo recuperato una sessione incompleta. Vuoi riprendere da dove eri rimasto?
+                </p>
+                <div className="test-exit-modal-actions">
+                  <button
+                    type="button"
+                    className="nav-button exit-confirm-continue"
+                    onClick={() => {
+                      uiSounds?.playTransition?.()
+                      setShowRecoverDraftPrompt(false)
+                    }}
+                  >
+                    Riprendi bozza
+                  </button>
+                  <button
+                    type="button"
+                    className="nav-button secondary"
+                    onClick={() => {
+                      uiSounds?.playGhostTap?.()
+                      clearLocalDraftSnapshot()
+                      setShowRecoverDraftPrompt(false)
+                      setTestRecord({
+                        ...createEmptyTestRecord(),
+                        Data_Test: new Date().toISOString().slice(0, 10),
+                      })
+                      setAnswersByFile({})
+                      setCurrentFile(1)
+                      setProfilingDone(false)
+                      setShowIntro(true)
+                    }}
+                  >
+                    Non salvare bozza
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+          {showDraftSubmitConfirm && (
+            <div
+              className="test-exit-modal-backdrop"
+              role="presentation"
+              onClick={handleCloseDraftSubmitConfirm}
+            >
+              <div
+                className="test-exit-modal"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="test-draft-modal-title"
+                onClick={(event) => event.stopPropagation()}
+              >
+                <h3 id="test-draft-modal-title" className="test-exit-modal-title">
+                  Consegnare ora come bozza?
+                </h3>
+                <p className="test-exit-modal-text">
+                  Il test verrà salvato incompleto in archivio e potrai riprenderlo in seguito.
+                </p>
+                <div className="test-exit-modal-actions">
+                  <button
+                    type="button"
+                    className="nav-button exit-confirm-continue"
+                    onClick={handleCloseDraftSubmitConfirm}
+                  >
+                    Continua il test
+                  </button>
+                  <button
+                    type="button"
+                    className="nav-button secondary"
+                    onClick={handleConfirmDraftSubmit}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? 'Salvataggio...' : 'Consegna bozza'}
                   </button>
                 </div>
               </div>

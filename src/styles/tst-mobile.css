@@ -1,0 +1,600 @@
+/* TST Mobile UX — design system overrides for ≤768px
+   Implements the TST mobile redesign: dark theme, side drawer,
+   simplified header, Apple-style landing. */
+
+/* ── Design tokens (available globally) ── */
+:root {
+  --tst-bg: #0A0F1F;
+  --tst-bg-elev: #0F1730;
+  --tst-surface: #141C36;
+  --tst-surface-2: #1A2240;
+  --tst-surface-3: #232C4D;
+  --tst-border: rgba(255, 255, 255, 0.08);
+  --tst-border-strong: rgba(255, 255, 255, 0.16);
+  --tst-divider: rgba(255, 255, 255, 0.06);
+  --tst-text: #ECEFF8;
+  --tst-text-soft: #B5BCD0;
+  --tst-text-muted: #7A839E;
+  --tst-text-faint: #4E5675;
+  --tst-accent: #3FA7B4;
+  --tst-accent-soft: #7FD0D8;
+  --tst-accent-glow: rgba(63, 167, 180, 0.28);
+  --tst-accent-bg: rgba(63, 167, 180, 0.12);
+  --tst-link: #7FD0D8;
+  --tst-error: #D0777B;
+  --tst-font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
+  --tst-font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+  --tst-font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+}
+
+/* ════════════════════════════════════════
+   MOBILE ONLY (≤768px)
+   ════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* ── Header: dark glass, hamburger + logo only ── */
+  .app-header {
+    background: linear-gradient(180deg,
+      rgba(10, 15, 31, 0.97) 0%,
+      rgba(10, 15, 31, 0.84) 100%) !important;
+    border-bottom: 1px solid var(--tst-divider) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    box-shadow: none !important;
+  }
+
+  /* 3-column grid: [burger] [logo] [right placeholder] */
+  .app-header-inner {
+    display: grid !important;
+    grid-template-columns: 40px 1fr 40px !important;
+    align-items: center !important;
+    padding: 0 12px !important;
+    gap: 8px !important;
+    justify-content: unset !important;
+  }
+
+  /* Hamburger — dark pill style */
+  .app-header-menu-toggle {
+    grid-column: 1 !important;
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 10px !important;
+    background: var(--tst-surface) !important;
+    border: 1px solid var(--tst-border) !important;
+    display: inline-flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    padding: 0 !important;
+  }
+
+  .app-header-menu-toggle-bar {
+    width: 16px !important;
+    height: 1.5px !important;
+    background: var(--tst-text) !important;
+    border-radius: 2px !important;
+    display: block !important;
+    opacity: 1 !important;
+  }
+
+  /* Logo — centered in grid */
+  .app-header-logo {
+    grid-column: 2 !important;
+    justify-self: center !important;
+    order: unset !important;
+    margin: 0 !important;
+    flex: unset !important;
+    display: inline-flex !important;
+  }
+
+  .app-logo-mark {
+    font-size: 17px !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.18em !important;
+    color: var(--tst-text) !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+  }
+
+  .app-logo-copy { display: none !important; }
+
+  /* Account area — hide everything except keep grid slot */
+  .app-header-account {
+    grid-column: 3 !important;
+    order: unset !important;
+    margin: 0 !important;
+    overflow: visible !important;
+  }
+
+  .header-sound-toggle,
+  .header-weather-button,
+  .header-background-toggle,
+  .header-register-button,
+  .header-login-button,
+  .header-landing-start-button,
+  .header-avatar-wrapper {
+    display: none !important;
+  }
+
+  /* Landing header — keep transparent but still dark */
+  .app-header--landing {
+    background: transparent !important;
+    border-bottom: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* ── Backdrop: darken on mobile ── */
+  .app-mobile-nav-backdrop {
+    background: rgba(5, 8, 18, 0.72) !important;
+  }
+
+  /* ── Drawer: side panel, dark, slides from left ── */
+  .app-mobile-nav-drawer {
+    top: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: auto !important;
+    width: 84% !important;
+    max-width: 320px !important;
+    max-height: none !important;
+    height: 100% !important;
+    background: var(--tst-bg-elev) !important;
+    border: none !important;
+    border-right: 1px solid var(--tst-border) !important;
+    border-radius: 0 !important;
+    box-shadow: 4px 0 32px rgba(0, 0, 0, 0.5) !important;
+    transform: translateX(-100%) !important;
+    transition: transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+    padding: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0 !important;
+    overflow: hidden !important;
+    will-change: transform !important;
+  }
+
+  .app-mobile-nav-layer.is-open .app-mobile-nav-drawer {
+    transform: translateX(0) !important;
+  }
+
+  /* Scrollable content wrapper inside drawer */
+  .app-mobile-drawer-scroll {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding: 0 16px calc(16px + env(safe-area-inset-bottom, 0px));
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  /* ── Drawer inner components ── */
+
+  /* Hide legacy handle/title */
+  .app-mobile-nav-sheet-handle,
+  .app-mobile-nav-sheet-title {
+    display: none !important;
+  }
+
+  /* Drawer head: user info + close */
+  .app-mobile-drawer-head {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 16px 14px;
+    border-bottom: 1px solid var(--tst-divider);
+    color: var(--tst-text);
+  }
+
+  .app-mobile-drawer-user-block {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .app-mobile-drawer-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--tst-accent), var(--tst-accent-soft));
+    color: #0A0F1F;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+  }
+
+  .app-mobile-drawer-user-info {
+    min-width: 0;
+  }
+
+  .app-mobile-drawer-user-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--tst-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 160px;
+  }
+
+  .app-mobile-drawer-user-email {
+    font-size: 11px;
+    color: var(--tst-text-muted);
+    font-family: var(--tst-font-mono);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 160px;
+    margin-top: 1px;
+  }
+
+  .app-mobile-drawer-guest-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--tst-text);
+  }
+
+  .app-mobile-drawer-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--tst-surface);
+    border: 1px solid var(--tst-border);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--tst-text-soft);
+    font-size: 14px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  /* Section headers inside drawer */
+  .app-mobile-drawer-section-title {
+    font-family: var(--tst-font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--tst-text-muted);
+    padding: 12px 6px 4px;
+  }
+
+  /* Nav links restyled */
+  .app-mobile-nav-links {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 2px !important;
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+  }
+
+  .app-mobile-nav-link {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    padding: 11px 12px !important;
+    border-radius: 12px !important;
+    font-size: 15px !important;
+    font-weight: 500 !important;
+    color: var(--tst-text) !important;
+    text-decoration: none !important;
+    background: transparent !important;
+    border: none !important;
+    transition: background 0.15s !important;
+  }
+
+  .app-mobile-nav-link:hover,
+  .app-mobile-nav-link.active {
+    background: var(--tst-surface) !important;
+    color: var(--tst-accent-soft) !important;
+  }
+
+  /* Auth action buttons inside drawer (not authenticated) */
+  .app-mobile-nav-actions {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    padding: 4px 0 8px !important;
+  }
+
+  .app-mobile-nav-action--primary {
+    height: 44px !important;
+    border-radius: 999px !important;
+    background: var(--tst-accent) !important;
+    color: #0A0F1F !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    border: none !important;
+    cursor: pointer !important;
+  }
+
+  .app-mobile-nav-action--secondary {
+    height: 44px !important;
+    border-radius: 999px !important;
+    background: transparent !important;
+    color: var(--tst-text-soft) !important;
+    border: 1px solid var(--tst-border-strong) !important;
+    font-size: 15px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+  }
+
+  /* Env toggles section */
+  .app-mobile-drawer-env {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .app-mobile-drawer-toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: var(--tst-surface);
+    font-size: 14px;
+    color: var(--tst-text);
+  }
+
+  /* Toggle pill */
+  .app-mobile-toggle-pill {
+    width: 38px;
+    height: 22px;
+    border-radius: 999px;
+    background: var(--tst-surface-3);
+    border: none;
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.2s;
+    padding: 0;
+  }
+
+  .app-mobile-toggle-pill::after {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--tst-text);
+    top: 2px;
+    left: 2px;
+    transition: left 0.2s, background 0.2s;
+  }
+
+  .app-mobile-toggle-pill.is-on {
+    background: var(--tst-accent);
+  }
+
+  .app-mobile-toggle-pill.is-on::after {
+    left: 18px;
+    background: #0A0F1F;
+  }
+
+  /* Logout button */
+  .app-mobile-drawer-footer {
+    flex-shrink: 0;
+    padding: 12px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--tst-divider);
+  }
+
+  .app-mobile-drawer-logout {
+    width: 100%;
+    height: 40px;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--tst-error);
+    border: 1px solid rgba(208, 119, 123, 0.4);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: var(--tst-font);
+  }
+
+  /* Hide legacy sky controls in nav */
+  .app-mobile-sky-controls {
+    display: none !important;
+  }
+
+  /* ── Report: hide sidebar dock on mobile ── */
+  .report-xp-dock {
+    display: none !important;
+  }
+
+  /* Ensure report mobile bar is visible */
+  .report-xp-mobile-bar {
+    display: flex !important;
+  }
+
+  /* ── Landing: Apple-style mobile layout ── */
+  .landing-mobile-hero {
+    background: #fff;
+    color: #1d1d1f;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    padding: 0 0 env(safe-area-inset-bottom, 0px);
+    font-family: var(--tst-font-display);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .landing-mobile-hero * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  .landing-mobile-section {
+    padding: 48px 22px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .landing-mobile-eyebrow {
+    font-family: var(--tst-font-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--tst-accent);
+  }
+
+  .landing-mobile-headline {
+    font-size: 38px;
+    line-height: 1.08;
+    letter-spacing: -0.025em;
+    font-weight: 700;
+    color: #1d1d1f;
+  }
+
+  .landing-mobile-sub {
+    font-size: 17px;
+    line-height: 1.5;
+    color: #6e6e73;
+    font-family: var(--tst-font);
+  }
+
+  .landing-mobile-ctas {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .landing-mobile-cta-primary {
+    height: 50px;
+    border-radius: 999px;
+    background: #1d1d1f;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    font-family: var(--tst-font);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .landing-mobile-cta-secondary {
+    height: 50px;
+    border-radius: 999px;
+    background: transparent;
+    color: #0071e3;
+    font-size: 16px;
+    font-weight: 500;
+    border: 1px solid rgba(0, 113, 227, 0.35);
+    cursor: pointer;
+    font-family: var(--tst-font);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Feature tiles */
+  .landing-mobile-tile {
+    margin: 0 16px 12px;
+    border-radius: 18px;
+    overflow: hidden;
+  }
+
+  .landing-mobile-tile--light {
+    background: #f5f5f7;
+    padding: 32px 24px;
+  }
+
+  .landing-mobile-tile--dark {
+    background: #1d1d1f;
+    padding: 32px 24px;
+  }
+
+  .landing-mobile-tile-eyebrow {
+    font-family: var(--tst-font-mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .landing-mobile-tile--light .landing-mobile-tile-eyebrow {
+    color: var(--tst-accent);
+  }
+
+  .landing-mobile-tile--dark .landing-mobile-tile-eyebrow {
+    color: var(--tst-accent-soft);
+  }
+
+  .landing-mobile-tile-title {
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+    margin-bottom: 10px;
+  }
+
+  .landing-mobile-tile--light .landing-mobile-tile-title {
+    color: #1d1d1f;
+  }
+
+  .landing-mobile-tile--dark .landing-mobile-tile-title {
+    color: #f5f5f7;
+  }
+
+  .landing-mobile-tile-body {
+    font-size: 15px;
+    line-height: 1.55;
+  }
+
+  .landing-mobile-tile--light .landing-mobile-tile-body {
+    color: #6e6e73;
+  }
+
+  .landing-mobile-tile--dark .landing-mobile-tile-body {
+    color: rgba(245, 245, 247, 0.65);
+  }
+
+  .landing-mobile-flower-row {
+    display: flex;
+    justify-content: center;
+    padding: 16px 0 8px;
+  }
+
+  /* Landing mobile auth section */
+  .landing-mobile-auth {
+    padding: 24px 16px 32px;
+    background: #f5f5f7;
+    margin: 0 16px 24px;
+    border-radius: 18px;
+  }
+
+  .landing-mobile-auth-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1d1d1f;
+    letter-spacing: -0.01em;
+    margin-bottom: 16px;
+  }
+
+  /* Progress rail hidden on mobile (it's not useful on small screens) */
+  .landing-apple-progress-rail {
+    display: none !important;
+  }
+
+  /* Desktop-only landing sections hidden when mobile hero is shown */
+  .landing-apple-root--mobile-tst .landing-apple-inner {
+    display: none !important;
+  }
+
+} /* end @media (max-width: 768px) */

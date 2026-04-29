@@ -1,6 +1,7 @@
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { FioreVisivo } from '../../pages/ResultsPage'
+import { getFlowerStillByColor } from '../../colorAssets.js'
 
 void motion
 
@@ -34,6 +35,35 @@ const SLIDE_HEADING_COPY = {
 
 const SIDE_SUMMARY_BRIDGE =
   'Più sotto trovi natura e racconto del profilo, le cinque disposizioni musicali, i quattro rapporti e il lessico degli stati d’animo.'
+
+const FLOWER_STILL_FALLBACKS_BY_COLOR = {
+  blu: [
+    '/ANIMAZIONE FIORI/FERMO IMMAGINE/FERMO IMMAGINE BLU.png',
+  ],
+  giallo: [
+    '/ANIMAZIONE FIORI/FERMO IMMAGINE/FERMO IMMAGINE GIALLO.png',
+    '/ANIMAZIONE FIORI/FERMO IMMAGINE/FERMO IMMAGINE GIALLO..png',
+  ],
+  grigio: [
+    '/ANIMAZIONE FIORI/FERMO IMMAGINE/FERMO IMMAGINE GRIGIO.png',
+  ],
+  rosso: [
+    '/ANIMAZIONE FIORI/FERMO IMMAGINE/FERMO IMMAGINE ROSSO.png',
+    '/ANIMAZIONE FIORI/FERMO IMMAGINE/FERMO IMMAGINE ROSSO..png',
+  ],
+  verde: [
+    '/ANIMAZIONE FIORI/FERMO IMMAGINE/FERMO IMMAGINE VERDE.png',
+    '/ANIMAZIONE FIORI/FERMO IMMAGINE/FERMO IMMAGINE VERDE..png',
+  ],
+}
+
+function resolvePublicAssetPath(path) {
+  if (!path) return null
+  const baseUrl = import.meta.env?.BASE_URL || '/'
+  const normalizedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`
+  const normalizedPath = path.startsWith('/') ? path.slice(1) : path
+  return encodeURI(`${normalizedBase}${normalizedPath}`)
+}
 
 function sideSummaryFirstLine(descrizioneBreve, dominantColorName) {
   const d = typeof descrizioneBreve === 'string' ? descrizioneBreve.trim() : ''
@@ -89,6 +119,37 @@ export default function HeroSummary({
     : ''
   const profileIdentity = isAnonymousProfile ? 'Profilo personale' : nomeCompleto
   const reduceMotion = useReducedMotion()
+  const dominantColorKey = useMemo(() => {
+    if (!dominantColorName) return null
+    const normalized = String(dominantColorName).trim().toLowerCase()
+    const colorMap = {
+      blu: 'blu',
+      rosso: 'rosso',
+      verde: 'verde',
+      giallo: 'giallo',
+      grigio: 'grigio',
+    }
+    return colorMap[normalized] || null
+  }, [dominantColorName])
+  const dominantFlowerSrc = useMemo(
+    () => (dominantColorKey ? getFlowerStillByColor(dominantColorKey) : null),
+    [dominantColorKey],
+  )
+  const dominantFlowerCandidates = useMemo(() => {
+    if (!dominantColorKey) return []
+    const primary = dominantFlowerSrc ? [dominantFlowerSrc] : []
+    const fallbackList = (FLOWER_STILL_FALLBACKS_BY_COLOR[dominantColorKey] || [])
+      .map((path) => path.replace('FERMO IMMAGINE', 'FERMO IMMAIGNE'))
+      .map((path) => resolvePublicAssetPath(path))
+      .filter(Boolean)
+    return [...new Set([...primary, ...fallbackList])]
+  }, [dominantColorKey, dominantFlowerSrc])
+  const [dominantFlowerImageSrc, setDominantFlowerImageSrc] = useState(
+    dominantFlowerCandidates[0] || null,
+  )
+  useEffect(() => {
+    setDominantFlowerImageSrc(dominantFlowerCandidates[0] || null)
+  }, [dominantFlowerCandidates])
   const sideSummaryLine1 = useMemo(
     () => sideSummaryFirstLine(descrizioneBreve, dominantColorName),
     [descrizioneBreve, dominantColorName],
@@ -161,6 +222,36 @@ export default function HeroSummary({
               <p className="report-profilazione-specifica">{profileTraits}</p>
             )}
             <p className="report-profilazione-appartenenza">{appartenenza}</p>
+            {dominantFlowerImageSrc && (
+              <div
+                className="report-profilazione-fiore-dominante"
+                aria-label={`Fiore dominante ${dominantColorName}`}
+                style={{
+                  margin: '12px 0 6px',
+                  width: '100%',
+                  display: 'flex',
+                  justifyContent: 'center',
+                }}
+              >
+                <img
+                  src={dominantFlowerImageSrc}
+                  alt={`Fiore ${dominantColorName}`}
+                  onError={() => {
+                    setDominantFlowerImageSrc((current) => {
+                      const currentIndex = dominantFlowerCandidates.indexOf(current)
+                      if (currentIndex < 0) return null
+                      return dominantFlowerCandidates[currentIndex + 1] || null
+                    })
+                  }}
+                  style={{
+                    width: '220px',
+                    height: '220px',
+                    objectFit: 'contain',
+                    filter: 'drop-shadow(0 12px 20px rgba(0, 0, 0, 0.30))',
+                  }}
+                />
+              </div>
+            )}
             {descrizioneBreve && (
               <p className="report-profilazione-desc">
                 {descrizioneBreve}
