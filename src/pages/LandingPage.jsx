@@ -20,6 +20,7 @@ function LandingPage() {
   const { setLandingSkyOverride } = useSkyTheme()
   const { user: currentUser, authReady } = useAuth()
   const [showAccessBox, setShowAccessBox] = useState(false)
+  const [initialAuthMode, setInitialAuthMode] = useState('scelta')
   const [authError, setAuthError] = useState('')
   const [resetMessage, setResetMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -128,13 +129,11 @@ function LandingPage() {
     const result = await authSignInWithEmail(email, password)
     setIsSubmitting(false)
     if (!result.success) {
-      if (result.requiresEmailVerification || result.code === 'auth/email-not-verified') {
-        setAuthError('Email non ancora verificata.')
-        setResetMessage(result.message || '')
-        return
-      }
       setAuthError(result.message || "Errore durante l'accesso.")
       return
+    }
+    if (result.requiresEmailVerification && result.message) {
+      setResetMessage(result.message)
     }
     navigate(result.nextRoute || '/home')
   }
@@ -248,6 +247,7 @@ function LandingPage() {
       queueMicrotask(() => {
         setAuthError('')
         setResetMessage('')
+        setInitialAuthMode(location.state.openRegister ? 'register' : 'scelta')
         setShowAccessBox(true)
         navigate('.', { replace: true, state: {} })
       })
@@ -329,7 +329,8 @@ function LandingPage() {
             La tua natura<br />in 72 ascolti.
           </h1>
           <p className="landing-mobile-sub">
-            Un protocollo artistico-scientifico che rivela la tua natura emotiva attraverso la musica.
+            TST NON È UN QUIZ. È UNO STRUMENTO ARTISTICO-SCIENTIFICO CHE RIVELA L&apos;INTIMA NATURA EMOTIVA
+            INDIVIDUALE.
           </p>
           <div className="landing-mobile-ctas">
             <button type="button" className="landing-mobile-cta-primary" onClick={handleStartClick}>
@@ -346,7 +347,8 @@ function LandingPage() {
           <p className="landing-mobile-tile-eyebrow">72 frammenti sonori</p>
           <h2 className="landing-mobile-tile-title">La musica come lente emotiva</h2>
           <p className="landing-mobile-tile-body">
-            Il test usa la musica come stimolo emozionale. Associa in modo istintivo i suoni alle tue sensazioni e scopri le tue profonde qualità interiori.
+            Il test usa la musica come stimolo emozionale. Un protocollo unico privo di algoritmi che illumina le nostre
+            profonde qualità interiori.
           </p>
         </div>
 
@@ -495,16 +497,22 @@ function LandingPage() {
                   <h3>Cosa si osserva: l&apos;area del sentire</h3>
                   <p>
                     Il protocollo TST rivela le istintive reazioni emotive e affettive a forme simboliche del Codice
-                    Musical Osserva l’area del sentire: come ci si muove tra simpatia, antipatia e indifferenza
-                    rispetto a singoli stimoli musicali.
+                    Musical
+                  </p>
+                  <p>
+                    Osserva l’area del sentire: come ci si muove tra simpatia, antipatia e indifferenza rispetto a
+                    singoli stimoli musicali.
                   </p>
                 </article>
                 <article>
                   <h3>Un percorso di ascolto guidato</h3>
                   <p>
                     È fatto da 72 brevi frammenti sonori da sentire, uno alla volta, organizzati per timbro,
-                    intervalli, ritmo, melodia e armonia Associa in modo istintivo i suoni alle tue sensazioni e barra
-                    le risposte che corrispondono alle tue percezioni
+                    intervalli, ritmo, melodia e armonia.
+                  </p>
+                  <p>
+                    Associa in modo istintivo i suoni alle tue sensazioni e barra le risposte che corrispondono alle
+                    tue percezioni.
                   </p>
                 </article>
               </div>
@@ -548,6 +556,7 @@ function LandingPage() {
                   {showAccessBox && (
                     <div ref={accessBoxRef} className="landing-apple-auth-shell">
                       <AuthBox
+                        initialMode={initialAuthMode}
                         onGoogleSignIn={handleGoogleLogin}
                         onEmailSubmit={handleAuthBoxEmailSubmit}
                         onRegisterSubmit={handleAuthBoxRegisterSubmit}

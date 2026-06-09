@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { FioreVisivo } from '../../pages/ResultsPage'
 import { getFlowerStillByColor } from '../../colorAssets.js'
@@ -9,7 +9,7 @@ const SLIDE_HEADING_COPY = {
   Blu: {
     natura: 'NATURA LUNARE',
     caratteri: 'MALINCONICO NOSTALGICA',
-    caratteriEstesi: 'CARATTERI EMOTIVI CHE PREDILIGONO RIFLESSIVITA, DIALOGO INTIMO, INTIMA PERCEZIONE EMOTIVA.',
+    caratteriEstesi: 'CARATTERI EMOTIVI CHE PREDILIGONO RIFLESSIVITA E PERCEZIONE EMOTIVA PROFONDA.',
   },
   Rosso: {
     natura: 'NATURA MARZIALE',
@@ -57,6 +57,39 @@ const FLOWER_STILL_FALLBACKS_BY_COLOR = {
   ],
 }
 
+function HeroDominantFlower({ dominantColorName, candidates }) {
+  const [ix, setIx] = useState(0)
+  const safeIx = Math.min(ix, Math.max(0, candidates.length - 1))
+  const src = candidates.length ? candidates[safeIx] : null
+  if (!src) return null
+  return (
+    <div
+      className="report-profilazione-fiore-dominante"
+      aria-label={`Fiore dominante ${dominantColorName}`}
+      style={{
+        margin: '12px 0 6px',
+        width: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+      }}
+    >
+      <img
+        src={src}
+        alt={`Fiore ${dominantColorName}`}
+        onError={() => {
+          setIx((i) => (i + 1 < candidates.length ? i + 1 : i))
+        }}
+        style={{
+          width: '220px',
+          height: '220px',
+          objectFit: 'contain',
+          filter: 'drop-shadow(0 12px 20px rgba(0, 0, 0, 0.30))',
+        }}
+      />
+    </div>
+  )
+}
+
 function resolvePublicAssetPath(path) {
   if (!path) return null
   const baseUrl = import.meta.env?.BASE_URL || '/'
@@ -79,7 +112,7 @@ function sideSummaryFirstLine(descrizioneBreve, dominantColorName) {
 }
 
 const NATURE_FALLBACK_DESCRIPTION = {
-  Blu: 'CARATTERI EMOTIVI CHE PREDILIGONO RIFLESSIVITA, DIALOGO INTIMO, INTIMA PERCEZIONE EMOTIVA.',
+  Blu: 'CARATTERI EMOTIVI CHE PREDILIGONO RIFLESSIVITA E PERCEZIONE EMOTIVA PROFONDA.',
   Rosso: 'CARATTERI EMOTIVI IN CUI PREVALE L’ASSERTIVITA.',
   Verde: 'CARATTERI EMOTIVI CHE PREDILIGONO CALMA, RIPOSO E CONTEMPLAZIONE.',
   Giallo: 'CARATTERI EMOTIVI ORIENTATI AL MOVIMENTO E ALLA SCOPERTA.',
@@ -144,12 +177,8 @@ export default function HeroSummary({
       .filter(Boolean)
     return [...new Set([...primary, ...fallbackList])]
   }, [dominantColorKey, dominantFlowerSrc])
-  const [dominantFlowerImageSrc, setDominantFlowerImageSrc] = useState(
-    dominantFlowerCandidates[0] || null,
-  )
-  useEffect(() => {
-    setDominantFlowerImageSrc(dominantFlowerCandidates[0] || null)
-  }, [dominantFlowerCandidates])
+  const flowerMountKey = dominantFlowerCandidates.join('|')
+
   const sideSummaryLine1 = useMemo(
     () => sideSummaryFirstLine(descrizioneBreve, dominantColorName),
     [descrizioneBreve, dominantColorName],
@@ -222,36 +251,13 @@ export default function HeroSummary({
               <p className="report-profilazione-specifica">{profileTraits}</p>
             )}
             <p className="report-profilazione-appartenenza">{appartenenza}</p>
-            {dominantFlowerImageSrc && (
-              <div
-                className="report-profilazione-fiore-dominante"
-                aria-label={`Fiore dominante ${dominantColorName}`}
-                style={{
-                  margin: '12px 0 6px',
-                  width: '100%',
-                  display: 'flex',
-                  justifyContent: 'center',
-                }}
-              >
-                <img
-                  src={dominantFlowerImageSrc}
-                  alt={`Fiore ${dominantColorName}`}
-                  onError={() => {
-                    setDominantFlowerImageSrc((current) => {
-                      const currentIndex = dominantFlowerCandidates.indexOf(current)
-                      if (currentIndex < 0) return null
-                      return dominantFlowerCandidates[currentIndex + 1] || null
-                    })
-                  }}
-                  style={{
-                    width: '220px',
-                    height: '220px',
-                    objectFit: 'contain',
-                    filter: 'drop-shadow(0 12px 20px rgba(0, 0, 0, 0.30))',
-                  }}
-                />
-              </div>
-            )}
+            {dominantFlowerCandidates.length > 0 ? (
+              <HeroDominantFlower
+                key={flowerMountKey}
+                dominantColorName={dominantColorName}
+                candidates={dominantFlowerCandidates}
+              />
+            ) : null}
             {descrizioneBreve && (
               <p className="report-profilazione-desc">
                 {descrizioneBreve}

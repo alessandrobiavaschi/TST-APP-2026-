@@ -1,0 +1,217 @@
+/**
+ * Testi «Il tuo profilo» tracciati alle fonti CPM in docs/fonti-scientifiche/.
+ * Ogni campo sostituisce o si fonde col corrispondente in content_report.json.
+ */
+
+export const PROFILE_PDF_BLOCKS = {
+  Grigio: {
+    restituzione_caratteri_estesi:
+      'In questa famiglia emerge il piacere del calcolo, della dubbiosità di origine intellettuale e dell’oggettività fisica. È una corrente che agisce in modo trasversale sulle altre quattro aree del temperamento: può raffreddare l’affetto o, nel suo versante evoluto, orientare l’intelletto verso saggezza e dedizione.',
+    natura_paragrafi: [
+      'Da Nord verso Sud soffiano venti gelidi: sul piano emotivo diventano la corrente agnostico-anaffettiva — colore Grigio scuro, intervallo di ottava — che raffredda e raggela affettivamente.',
+      'Nella Rosa dei venti questa corrente è trasversale: getta la sua ombra sulle quattro macro-aree, sulla linea orizzontale del presente ma con distacco polare — osservazione, non passione. Accanto al polo anaffettivo esiste il versante agnostico-intellettuale evolutivo: saggezza, devozione, dedizione.',
+      'È una natura che può abitare il mondo guardandolo da una quota alta e separata: misura, analizza, scompone, ma rischia di non lasciarsi toccare. Nel profilo non va letta solo come freddezza: segnala anche la forza del pensiero quando cerca un ordine davanti alla complessità affettiva.',
+      'Quando il pensiero resta collegato al sentire, questa corrente diventa capacità di osservare senza essere travolti. Quando si separa troppo, invece, il dubbio si trasforma in distanza e il mondo emotivo appare banale, eccessivo o poco degno di coinvolgimento.',
+    ].join('\n'),
+    descrizione_estesa: [
+      'La corrente agnostico-anaffettiva si è sedimentata come area autonoma dagli anni Settanta, tra visione religiosa profonda e laicismo che evita di farsi toccare in profondità.',
+      'Gli stati d’animo collegati oscillano dall’anaffettivo, apatico, lucido, indifferente fino a saggio, dedito, devoto, beato e illuminato — distanza prudenziale da un lato e possibile saggezza etica dall’altro.',
+      'Nel rapporto con sé stesso questo temperamento può produrre una specie di cometa scura: energia dell’Io, ma non luminosa, capace di raggelare invece di alimentare le altre aree affettive. La persona può continuare ad agire, capire, organizzare, ma con minor piacere intimo.',
+      'La via evolutiva non è spegnere l’intelletto, bensì orientarlo eticamente: il pensiero diventa allora strumento di dedizione, compassione e cura del vivente. In questa prospettiva la Musica aiuta a ricucire sentire e pensare, riportando temperatura dove il calcolo aveva preso tutto lo spazio.',
+    ].join('\n'),
+    risorse: [
+      'In questa corrente la lucidità e il calcolo possono diventare risorse quando non congelano l’umanità.',
+      'Il suo valore più alto sta nella capacità di fare spazio, non solo distanza: sospendere la reazione immediata, guardare i fatti, scegliere con precisione e orientare l’intelletto verso un fine umano.',
+      '- Analisi e oggettivazione permettono di vedere fatti al di là delle reazioni emotive immediate.',
+      '- Nel versante evolutivo affiorano saggezza, devozione e dedizione costruite con pazienza interiore.',
+      '- La Musica può promuovere un’«ecologia dei sentimenti», insegnando alla ragione a custodire la varietà delle nature temperamentali.',
+      '- Il dubbio, se resta vivo e non cinico, diventa domanda etica prima dell’azione.',
+      '- La distanza può proteggere dall’impulsività e offrire una lettura più ampia dei conflitti.',
+    ].join('\n'),
+    ombre: [
+      'Quando questa corrente si irrigidisce, il distacco emotivo riduce ogni esperienza a calcolo o curiosità superficiale.',
+      'Il rischio principale è confondere il controllo con la libertà: si osserva tutto da fuori, ma si perde il contatto con la propria natura senziente e con le conseguenze affettive del proprio agire.',
+      '- Un velo di grigio può attenuare Entusiasmo, Flemma e Malinconia, lasciando distacco nichilista.',
+      '- Il piacere astratto e intellettuale può indurre ad operare in modo asettico, escludendo le conseguenze affettive dell’agire.',
+      '- Diffidenza e «tempo della distrazione» impediscono sedimentazioni affettive profonde.',
+      '- La neutralità può diventare svalutazione: nulla sembra abbastanza vivo da meritare presenza.',
+      '- La tecnologia o il ragionamento continuo possono alimentare una distrazione che evita l’incontro reale.',
+    ].join('\n'),
+    lessico: [
+      'Anaffettivo', 'Apatico', 'Matematico', 'Lucido', 'Freddo', 'Insensibile', 'Indifferente', 'Nullista',
+      'Impotente', 'Distaccato', 'Imperturbabile', 'Saggio', 'Dedito', 'Devoto', 'Beato', 'Illuminato',
+    ],
+  },
+  Rosso: {
+    restituzione_caratteri_estesi:
+      'In questa famiglia emerge il piacere del fare, di realizzare ciò che si desidera, di governarsi e mettersi alla prova. La natura marziale volitivo-collerica predilige assertività, costanza, sincerità e impegno nel qui e ora — con orientamento al presente.',
+    natura_paragrafi: [
+      'Da Est verso Ovest soffiano i venti che seguono l’azione vitale sul percorso del Sole. Sul piano emotivo diventano il flusso Volitivo — colore Rosso, intervallo di quarta —: il piacere del fare, impulso che agisce nel presente.',
+      'Nel rapporto con te stesso, chi ama agire sente l’Io come alleato: responsabilità, prove da superare, sicurezza nel qui e ora. Sport e Musica condividono la sincerità dell’emozione autentica; dopo l’adolescenza quel finalizzatore sei tu, governatore di te stesso.',
+      'Questa corrente ha una direzione orizzontale e concreta: vuole misurarsi con ostacoli, decisioni, risultati. Non cerca prima di tutto il riparo o l’introspezione, ma il punto in cui l’energia emotiva può diventare gesto efficace.',
+      'Nel carattere il Rosso non vive da solo: ha bisogno dei «gregari» interiori — calma, entusiasmo, riflessività — per non trasformare il governo di sé in dominio. Quando dialoga con le altre correnti, la volontà diventa forza organizzatrice e non semplice durezza.',
+    ].join('\n'),
+    descrizione_estesa: [
+      'L’energia dell’Io matura e si mostra pienamente intorno al ventesimo anno: governatore di sé e delle disposizioni diventate carattere. I «gregari» — le altre correnti — contano sulla saldezza e sulla volontà di realizzare il futuro desiderato.',
+      'Nel temperamento volitivo-collerico convivono due sotto-correnti: l’Assertività volitiva (Rosso, quarta) con stabilità, schiettezza, coraggio; il Dubbio e la Collera (Amaranto, quarta eccedente) con incertezza e rabbia quando il dialogo si inceppa.',
+      'Sul piano dell’ascolto questa natura cerca spesso timbri concreti, centrali, decisi: suoni che svegliano, incidono, dichiarano una presenza. Può amare la forza di percussioni, fiati, pianoforte, batteria e unisoni capaci di dare forma immediata all’energia.',
+      'La Musica viene vissuta come campo di prova: ritmo stabile, melodie memorabili, testi chiari, improvvisazione osservata con interesse ma anche bisogno di struttura. Quando l’energia è equilibrata, il Rosso trova nel suono una disciplina vitale; quando si irrigidisce, fatica a lasciarsi andare.',
+    ].join('\n'),
+    risorse: [
+      'In questa corrente l’Io maturo diventa finalizzatore: costanza e responsabilità possono nutrire i «gregari» affettivi senza schiacciarli.',
+      'La sua forza migliore non è l’imposizione, ma la capacità di dare direzione: mettere in fila energie diverse, assumersi la responsabilità del passo successivo e trasformare l’intenzione in presenza.',
+      '- Stabilità, saldezza, schiettezza e coraggio sostengono un agire chiaro nel presente.',
+      '- La saggezza nasce quando non si prende troppo sul serio il «gran governatore»: un po’ di ironia etica evita che la volontà irrigidisca il sentire.',
+      '- La Volontà come energia primaria si lega al Rosso e al coraggio di mettersi alla prova.',
+      '- Il rapporto con il ritmo può aiutare a ordinare l’impulso senza spegnerlo.',
+      '- La sincerità emotiva dello sport e della musica sostiene decisioni più autentiche.',
+    ].join('\n'),
+    ombre: [
+      'Quando questa corrente si irrigidisce, l’Io può «egoizzarsi» e smettere di nutrire i gregari interiori.',
+      'Il rischio non è avere forza, ma usarla senza ascolto: la volontà diventa martello, la prova diventa sfida continua e la relazione viene letta solo come ostacolo o conferma.',
+      '- La dubbiosità deformata diventa indecisione cronica e oscillazione, non più interrogativo fecondo.',
+      '- Rabbia e ira esplodono là dove il dialogo è impossibile e l’antipatia è stata a lungo covata.',
+      '- Nella fase del «deserto» emotivo si può sentire vuoto dentro pur mantenendo attività esterna intensa.',
+      '- La ripetitività o la lentezza possono essere vissute come intralcio invece che come maturazione.',
+      '- Il bisogno di governare può far perdere il contributo delle parti più delicate del profilo.',
+    ].join('\n'),
+    lessico: [
+      'Stabile', 'Saldo', 'Sicuro', 'Certo', 'Costante', 'Determinato', 'Decisionista', 'Fermo',
+      'Schietto', 'Sincero', 'Franco', 'Fiero', 'Risoluto', 'Fedele', 'Spavaldo', 'Altero',
+      'Ostinato', 'Orgoglioso', 'Coraggioso', 'Impavido',
+      'Incerto', 'Inquieto', 'Dubbioso', 'Esitante', 'Ambiguo', 'Misterioso', 'Indeciso', 'Oscillante',
+      'Precario', 'Perplesso', 'Irrisoluto', 'Smarrito', 'Elusivo', 'Equivoco', 'Criptico',
+      'Enigmatico', 'Infido', 'Subdolo',
+      'Rabbioso', 'Rancoroso', 'Irato', 'Furioso', 'Iracondo', 'Travagliato', 'Tribolato',
+      'Odioso', 'Diffidente', 'Sospettoso', 'Nevrotico',
+    ],
+  },
+  Verde: {
+    restituzione_caratteri_estesi:
+      'In questa famiglia emerge il piacere della lentezza, del silenzio, della calma, del riposo e della contemplazione. I caratteri flemmatici prediligono il certo, la ripetitività, l’assenza di eccitazione — con orientamento all’«oblio sospeso», il tempo della bonaccia interiore.',
+    natura_paragrafi: [
+      'Al centro della Rosa dei venti domina un vento calmo e contemplativo — come l’occhio del ciclone, bonaccia silenziosa. Sul piano emotivo è la corrente flemmatica, colore Verde, orientata all’«oblio sospeso».',
+      'La flemmaticità si forma nel periodo neonatale: riposo, nutrimento, sognare e assaporare sedimentano moderazione, prudenza e gentilezza gratuita. Chi ha propensioni flemmatiche orienta l’energia verso calma ed equilibrio affettivo.',
+      'Questa natura non corre verso un altrove: custodisce il tempo, lo rallenta, lo rende abitabile. Nel carattere può apparire come amore per il certo, per la ripetizione buona, per i climi in cui non serve difendersi.',
+      'La Flemma ha anche una funzione regolatrice: smussa l’eccesso di collera, raffredda l’agitazione dell’entusiasmo, protegge l’interiorità malinconica quando diventa troppo intensa. È una qualità di riposo, ma anche di cura dello spazio emotivo.',
+    ].join('\n'),
+    descrizione_estesa: [
+      'Il primo periodo d’esistenza lascia la traccia di un piacere impresso nel carattere: tranquillità e moderazione «come il pane» nella vita quotidiana.',
+      'La Calma flemmatica si lega agli intervalli di quinta. Gli stati d’animo vanno dal rilassato, calmo, contemplativo fino ad annoiato, pigro, oziante — due versanti della stessa qualità di riposo. La Flemma smussa eccessi di collera, entusiasmo o introspezione troppo intensa.',
+      'Nell’ascolto tende a preferire timbri scuri, quieti, non aggressivi: suoni medio-bassi, morbidi, puliti, capaci di modulare l’aria senza ferire. Armonie sospese, pochi movimenti di accordi e melodie rarefatte possono dare forma al suo bisogno di clima.',
+      'Il piacere musicale flemmatico passa spesso dall’armonia più che dalla prestazione: ascoltare o suonare insieme, stare dentro un insieme timbrico delicato, lasciarsi sostenere dal respiro e dal battito costante. L’improvvisazione esposta può invece creare imbarazzo perché chiede di uscire dalla discrezione.',
+    ].join('\n'),
+    risorse: [
+      'In questa corrente la calma regola il ritmo interno ed esterno e offre spazio per recuperare stabilità.',
+      'La sua ricchezza è rendere il mondo meno urgente: crea un campo protetto in cui il sentire può depositarsi, maturare e non essere costretto a reagire subito.',
+      '- Predisposizione a creare climi di protezione e silenzio in cui le cose maturano senza fretta.',
+      '- Moderazione, prudenza e gentilezza gratuita nella ricerca di armonia relazionale.',
+      '- Funzione equilibratrice che smussa gli eccessi delle altre correnti emotive.',
+      '- Sensibilità per armonie ampie, timbri morbidi e spazi sonori che favoriscono respiro.',
+      '- Capacità di stare nel gruppo con discrezione, continuità e cura dell’insieme.',
+    ].join('\n'),
+    ombre: [
+      'Quando questa corrente si irrigidisce, la calma può scivolare in pigrizia o inerzia.',
+      'L’ombra nasce quando il riposo smette di rigenerare e diventa difesa da ogni esposizione: il conflitto viene evitato, la scelta rimandata, il desiderio anestetizzato sotto un clima troppo ovattato.',
+      '- Il piacere del riposo può diventare ritiro cronico da impegno e confronto.',
+      '- L’evitamento eccessivo dei contrasti può portare a rinunciare alla propria volontà.',
+      '- Climi armonici troppo ovattati possono diventare anestesia rispetto a emozioni intense da elaborare.',
+      '- La discrezione può trasformarsi in difficoltà a esporsi o improvvisare quando serve presenza.',
+      '- La ricerca di quiete può diventare fastidio verso ogni suono, ritmo o relazione troppo viva.',
+    ].join('\n'),
+    lessico: [
+      'Rilassato', 'Calmo', 'Gentile', 'Disteso', 'Pacato', 'Placido', 'Pacifico', 'Tranquillo',
+      'Estatico', 'Serafico', 'Contemplativo', 'Sognante', 'Equilibrato', 'Quieto', 'Tollerante',
+      'Mistico', 'Prudente', 'Meditativo', 'Riflessivo', 'Ammirato', 'Visionario', 'Olimpico',
+      'Annoiato', 'Pigro', 'Oziante', 'Svampito', 'Indolente', 'Ignavo',
+    ],
+  },
+  Giallo: {
+    restituzione_caratteri_estesi:
+      'In questa famiglia emerge il piacere del movimento, della curiosità, della scoperta del nuovo e dell’estroversione. La natura solare sanguigno-entusiasta guarda al futuro: slancio vitale, partecipazione e ricerca di bagliori di bellezza.',
+    natura_paragrafi: [
+      'Da Sud verso Nord soffiano venti caldi: interiormente diventano il flusso dell’Entusiasmo — colore Giallo, continente dell’Entusiasmo — con orientamento al futuro.',
+      'Nel pre-infantile il bambino accumula energia da spendere; ritmo e ripetizione guidano un apprendimento rapidissimo. La soddisfazione per i successi, anche piccoli, accende l’Entusiasmo come area affettiva strutturata.',
+      'Questa corrente muove l’energia verso fuori: persone, natura, oggetti, attività, novità. Il suo piacere è uscire da sé, fiutare possibilità, provare, associare gesto ed effetto, sentire il mondo come campo aperto.',
+      'Nel profilo il Giallo segnala una forza centrifuga: non vuole restare troppo a lungo nel chiuso dell’interiorità, cerca bagliori, movimento e conferme vitali. Quando è ben regolato porta luce anche alle zone più fredde o spente del carattere.',
+    ].join('\n'),
+    descrizione_estesa: [
+      'Nel pre-infantile la curiosità è piacere da esercitare: registra gesti e li associa agli effetti, guidato dal ritmo. La soddisfazione per ciò che si è riusciti a fare accende l’Entusiasmo come continente interiore.',
+      'Convivono la Gioia e l’Entusiasmo (stati da Gioioso a Irrefrenabile) e l’Entusiasmo volitivo passionale (Innamorato, Appassionato, Ardente). I climi dell’Entusiasmo sono antidoto all’apatia e al gelo intellettuale.',
+      'Nell’ascolto questa natura tende verso timbri chiari, brillanti, medio-alti o alti: percussioni leggere, piatti, strumenti luminosi, trombe, violini, canto. Cerca melodie riconoscibili, ritmo, positività, possibilità di muoversi o partecipare.',
+      'La Musica è vissuta come energia in azione: il corpo risponde, il canto viene naturale, la danza non spaventa. Il rischio è annoiarsi quando la forma resta troppo ferma o quando il suono chiede una riflessione lenta e continuativa.',
+    ].join('\n'),
+    risorse: [
+      'In questa corrente la gioia del movimento spinge a esplorare il mondo con slancio diretto.',
+      'Il suo dono è riaccendere il desiderio di contatto: porta calore, curiosità e una fiducia pratica nel fatto che qualcosa di nuovo possa ancora accadere.',
+      '- Capacità di contagiare gli altri con entusiasmo, facilitando aggregazione e creatività condivisa.',
+      '- Predisposizione a percepire e valorizzare ciò che è nuovo, brillante e vitale.',
+      '- Antidoto contro apatia, gelo intellettuale e indifferenza, portando luce e calore.',
+      '- Rapporto naturale con ritmo, canto e movimento come canali di espressione immediata.',
+      '- Facilità a trasformare un piccolo successo in energia per continuare.',
+    ].join('\n'),
+    ombre: [
+      'Quando questa corrente si irrigidisce, il movimento può diventare dispersione continua di stimoli.',
+      'L’ombra compare quando la luce deve restare sempre accesa: il profilo cerca eccitazione continua, evita soste e fatica a dare valore ai tempi lenti in cui dolore, lutto o pensiero chiedono presenza.',
+      '- La ricerca di gioia permanente può evitare il contatto con malinconia, lutto o dolore.',
+      '- Entusiasmi brevi e intensi possono lasciare momenti di vuoto e disorientamento.',
+      '- Divertimento e movimento possono diventare anestetici rispetto a domande più profonde.',
+      '- La novità può diventare bisogno di cambiare stimolo prima che l’esperienza maturi.',
+      '- Il desiderio di partecipare può spingere a occupare troppo spazio nel gruppo o nel tempo musicale.',
+    ].join('\n'),
+    lessico: [
+      'Gioioso', 'Cinetico', 'Vivace', 'Veloce', 'Vitale', 'Fluido', 'Allegro', 'Felice', 'Festoso',
+      'Entusiasta', 'Esaltato', 'Ardente', 'Euforico', 'Caloroso', 'Reattivo', 'Curioso', 'Volitivo',
+      'Dinamico', 'Esuberante', 'Solare', 'Positivista', 'Irrefrenabile', 'Svampito',
+      'Innamorato', 'Amorevole', 'Ammirato', 'Appassionato', 'Infuocato', 'Impetuoso', 'Veemente',
+      'Deferente', 'Illuminato',
+    ],
+  },
+  Blu: {
+    restituzione_caratteri_estesi:
+      'In questa famiglia emerge il piacere di stare con sé stessi, di osservarsi interiormente e di riflettere su ciò che si è vissuto. La natura lunare malinconico-nostalgica predilige riflessività e percezione emotiva profonda — con orientamento al passato.',
+    natura_paragrafi: [
+      'Da Ovest verso Est si fa sentire l’azione riflessa della Luna: sul piano emotivo diventa il flusso Malinconia — continente della Malinconia — con orientamento al passato.',
+      'Chi ha propensioni malinconiche orienta l’energia dentro di sé: piacere di riflettere, stare in disparte, non temere la solitudine scelta. La tristezza è un volto della Malinconia, non l’intera corrente: forza riflessiva che illumina l’interno.',
+      'Questa natura è centripeta: riporta l’esperienza verso l’atollo interiore, dove ciò che è accaduto può essere rivisto, sentito, rispecchiato. La quantità e qualità di questa energia configurano il modo di abitare memoria, solitudine e profondità.',
+      'La Malinconia non va ridotta al dolore: è una luce riflessa che rende percepibile la vita interna. Può far riconoscere ipocrisie, sfumature, risonanze affettive e trasformare la solitudine in luogo di ascolto, non soltanto in chiusura.',
+    ].join('\n'),
+    descrizione_estesa: [
+      'Il sorgere della malinconia si avverte nell’adolescenza: attorno ai nove-dieci anni una «seconda nascita» affettiva, luce riflessa della Luna rispetto al Sole dell’età adulta.',
+      'Quattro sotto-correnti articolano la famiglia: Malinconia depressiva (Blu notte), lunare (Blu medio), Nostalgia (Blu reale) e Malinconia solare (Celeste) che apre verso fiducia e speranza.',
+      'Nell’ascolto questa natura è sensibile all’identità del timbro: archi, doppie ance, frequenze medie e medio-basse, suoni corposi e scuri, pianoforte pastoso o arpa possono favorire un contatto intimo con il mondo interno.',
+      'Il piacere musicale passa dalla melodia, dagli intervalli e dalle tonalità capaci di muovere memoria e sentimento. Cerca musica profonda, testi poetici o umanistici, ritmi non invasivi, cambi armonici che permettano di sostare e riflettere senza essere spinti fuori da sé.',
+    ].join('\n'),
+    risorse: [
+      'In questa corrente il piacere dell’introspezione orienta l’energia verso senso, profondità e autenticità.',
+      'La sua ricchezza è dare parola e forma al sentire: non accontentarsi della superficie, ma lasciare che memoria, nostalgia e delicatezza diventino strumenti di comprensione.',
+      '- La solitudine scelta può essere spazio di ascolto interiore, non punizione.',
+      '- La nostalgia, nella forma di saudade, può trasformare la perdita in ricordo e riconoscenza.',
+      '- La malinconia solare apre una breccia verso fiducia e compassione mantenendo la delicatezza lunare.',
+      '- La sensibilità timbrica aiuta a riconoscere identità, sincerità e qualità espressiva.',
+      '- La riflessione può restituire senso alle esperienze senza cancellarne la complessità emotiva.',
+    ].join('\n'),
+    ombre: [
+      'Quando questa corrente si irrigidisce, il chiuso dell’interiorità può generare paura dell’inconosciuto e blocco relazionale.',
+      'L’ombra nasce quando il rispecchiamento non torna più al mondo: la stanza interiore diventa troppo buia, il passato prende tutto il campo e la solitudine smette di nutrire.',
+      '- La tristezza può restare al rimpianto senza passare alla gratitudine.',
+      '- Il piacere dell’introspezione può trasformarsi in isolamento eccessivo.',
+      '- Si può confondere l’identità con il dolore, fino a sentire la malinconia come unica autenticità affettiva.',
+      '- L’eccesso di profondità può rendere faticoso il movimento, la danza o l’esposizione sociale.',
+      '- Il giudizio sulla sincerità altrui può diventare chiusura preventiva verso il contatto.',
+    ].join('\n'),
+    lessico: [
+      'Terrorizzato', 'Inorridito', 'Angosciato', 'Sgomento', 'Depresso', 'Tormentato', 'Inquieto', 'Chiuso',
+      'Apatico', 'Scosso', 'Afflitto', 'Angustiato', 'Disgustato', 'Schifato', 'Pauroso', 'Timoroso',
+      'Ansioso', 'Raccapricciato', 'Fibrillante', 'Impressionabile', 'Triste rimuginante', 'Indifferente', 'Nullista',
+      'Pensieroso', 'Triste', 'Triste rimembrante', 'Timido riflessivo', 'Solitudine pessimista', 'Preoccupato',
+      'Demotivato', 'Amareggiato', 'Mesto', 'Ombroso', 'Sconfortato', 'Scoraggiato', 'Scombussolato', 'Avvilito',
+      'Vergognoso', 'Cupo', 'Fosco', 'Scuro', 'Plumbeo', 'Turbato', 'Impotente', 'Disfattista', 'Lunatico', 'Lamentoso',
+      'Pessimista', 'Nostalgico', 'Doloroso evocativo', 'Doloroso', 'Rimembrante', 'Rimpiangente', 'Rammaricato',
+      'Desolato', 'Disperato', 'Sconsolato', 'Straziato', 'Mortificato', 'Distaccato', 'Abbandonato',
+      'Ottimista', 'Aperto', 'Sereno', 'Positivista', 'Allegro', 'Festoso', 'Buono', 'Simpatico', 'Meravigliato',
+      'Benevolente', 'Lieto', 'Leggero', 'Mite', 'Contento', 'Chiaro', 'Compassionevole', 'Fiducioso', 'Solidale',
+      'Speranzoso', 'Affettuoso', 'Pietoso', 'Accorato', 'Desiderante', 'Riconoscente', 'Grato',
+    ],
+  },
+}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
+import { isFirebaseAuthConfigured } from '../firebaseConfig.js'
 
 const MODE_CHOICE = 'scelta'
 const MODE_LOGIN_EMAIL = 'login-email'
@@ -337,6 +338,12 @@ function AuthBox({
         )}
         {authError && <p className="auth-error" role="alert" style={{ marginBottom: '1rem' }}>{authError}</p>}
         {resetMessage && <p className="auth-success" style={{ marginBottom: '1rem' }}>{resetMessage}</p>}
+        {!isFirebaseAuthConfigured && (
+          <p className="auth-error" role="alert" style={{ marginBottom: '1rem' }}>
+            Firebase Auth non è configurato in questo ambiente. Controlla le variabili VITE_FIREBASE_* nel file .env
+            (locale) o nelle variabili d&apos;ambiente del deploy, poi riavvia o rifai il build.
+          </p>
+        )}
         <button
           type="button"
           className="landing-login-google"

@@ -1,0 +1,285 @@
+/* DialogoCorrenti — relazioni interne al profilo */
+
+.dialogo-correnti {
+  --dc-panel: rgba(13, 21, 37, 0.92);
+  --dc-panel-soft: rgba(22, 31, 50, 0.66);
+  --dc-border: rgba(148, 163, 184, 0.2);
+  --dc-border-strong: rgba(148, 163, 184, 0.34);
+  --dc-text: #f8fafc;
+  --dc-muted: #aab5c6;
+  --dc-faint: #747f93;
+  width: 100%;
+  padding: 2rem 1.75rem 3.5rem;
+  color: var(--dc-text);
+  background:
+    linear-gradient(180deg, rgba(4, 8, 18, 0.04), rgba(4, 8, 18, 0.32)),
+    #101827;
+}
+
+/* ── Header ─────────────────────────────────────────────────────── */
+
+.dialogo-correnti__header {
+  width: min(100%, 760px);
+  margin: 0 auto 2rem;
+  padding: 0 0 1.5rem;
+  border-bottom: 1px solid var(--dc-border);
+}
+
+.dialogo-correnti__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 0.18rem 0.56rem;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.08);
+  font-size: 0.67rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dc-muted);
+  margin-bottom: 0.75rem;
+}
+
+.dialogo-correnti__title {
+  font-size: clamp(1.35rem, 3vw, 1.9rem);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--dc-text);
+  margin: 0 0 0.55rem;
+}
+
+.dialogo-correnti__subtitle {
+  font-size: 0.92rem;
+  color: var(--dc-muted);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── Cards wrapper ───────────────────────────────────────────────── */
+
+.dialogo-correnti__cards {
+  width: min(100%, 760px);
+  margin: 0 auto 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+/* ── Single card ─────────────────────────────────────────────────── */
+
+.dialogo-correnti__card {
+  border: 1px solid var(--dc-border);
+  border-radius: 8px;
+  background: var(--dc-panel);
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.dialogo-correnti__card--open {
+  border-color: rgba(var(--dc-accent-rgb, 148, 163, 184), 0.45);
+}
+
+.dialogo-correnti__card-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1.1rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--dc-text);
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.dialogo-correnti__card-trigger:hover,
+.dialogo-correnti__card-trigger:focus-visible {
+  background: rgba(148, 163, 184, 0.06);
+  outline: none;
+}
+
+.dialogo-correnti__card-trigger:focus-visible {
+  outline: 2px solid var(--dc-accent, #4ade80);
+  outline-offset: -2px;
+}
+
+.dialogo-correnti__card-pair {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.dialogo-correnti__card-family {
+  display: flex;
+  align-items: center;
+  gap: 0.38rem;
+}
+
+.dialogo-correnti__dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dialogo-correnti__family-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--dc-text);
+}
+
+.dialogo-correnti__family-pct {
+  font-size: 0.78rem;
+  color: var(--dc-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.dialogo-correnti__card-arrow {
+  font-size: 0.9rem;
+  color: var(--dc-faint);
+  flex-shrink: 0;
+}
+
+.dialogo-correnti__card-chevron {
+  font-size: 1rem;
+  color: var(--dc-muted);
+  flex-shrink: 0;
+  line-height: 1;
+  width: 1.25rem;
+  text-align: center;
+}
+
+/* ── Card body ───────────────────────────────────────────────────── */
+
+.dialogo-correnti__card-body {
+  padding: 0.25rem 1.1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  border-top: 1px solid var(--dc-border);
+}
+
+.dialogo-correnti__row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.dialogo-correnti__row-label {
+  font-size: 0.8rem;
+  color: var(--dc-muted);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.dialogo-correnti__row-label strong {
+  color: var(--dc-text);
+  font-weight: 600;
+}
+
+/* ── Keyword chips ────────────────────────────────────────────────── */
+
+.dialogo-correnti__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.dialogo-correnti__chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.22rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--chip-color, #6b7280) 40%, transparent);
+  background: color-mix(in srgb, var(--chip-color, #6b7280) 12%, transparent);
+  color: color-mix(in srgb, var(--chip-color, #6b7280) 85%, #f8fafc);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 1;
+}
+
+/* fallback per browser senza color-mix */
+@supports not (color: color-mix(in srgb, red 10%, transparent)) {
+  .dialogo-correnti__chip {
+    border-color: rgba(148, 163, 184, 0.3);
+    background: rgba(148, 163, 184, 0.1);
+    color: #aab5c6;
+  }
+}
+
+/* ── Nota metodologica ───────────────────────────────────────────── */
+
+.dialogo-correnti__nota {
+  width: min(100%, 760px);
+  margin: 0 auto;
+}
+
+.dialogo-correnti__nota-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--dc-faint);
+  cursor: pointer;
+  list-style: none;
+  padding: 0.4rem 0;
+  transition: color 0.15s;
+}
+
+.dialogo-correnti__nota-toggle::-webkit-details-marker {
+  display: none;
+}
+
+.dialogo-correnti__nota[open] .dialogo-correnti__nota-toggle,
+.dialogo-correnti__nota-toggle:hover {
+  color: var(--dc-muted);
+}
+
+.dialogo-correnti__nota-toggle::before {
+  content: '▸';
+  font-size: 0.65rem;
+  transition: transform 0.15s;
+}
+
+.dialogo-correnti__nota[open] .dialogo-correnti__nota-toggle::before {
+  transform: rotate(90deg);
+}
+
+.dialogo-correnti__nota-body {
+  font-size: 0.82rem;
+  color: var(--dc-faint);
+  line-height: 1.55;
+  margin: 0.35rem 0 0;
+  padding: 0.6rem 0.75rem;
+  border-left: 2px solid var(--dc-border);
+}
+
+/* ── Responsive ──────────────────────────────────────────────────── */
+
+@media (max-width: 480px) {
+  .dialogo-correnti {
+    padding: 1.5rem 1rem 2.5rem;
+  }
+
+  .dialogo-correnti__card-trigger {
+    padding: 0.8rem 0.85rem;
+  }
+
+  .dialogo-correnti__card-body {
+    padding: 0.25rem 0.85rem 0.85rem;
+  }
+
+  .dialogo-correnti__card-pair {
+    gap: 0.45rem;
+  }
+}

@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { APPROFONDIMENTO_UI } from './reportUiCopy.js'
 
 const SEZIONI_ORDER = ['Timbro', 'Intervalli', 'Ritmo', 'Melodia', 'Armonia']
 
@@ -28,10 +29,10 @@ export default function ReportAccordion({ sezioniTest }) {
           id="accordion-sezioni-heading"
           className="report-sezioni-title"
         >
-          Sezioni principali
+          {APPROFONDIMENTO_UI.accordionTitle}
         </h2>
         <p className="report-sezioni-intro">
-          Ogni sezione del test ha un rapporto specifico con la dimensione interiore e il sentire: cosa comprende, cosa rappresenta, cosa attiva e il rapporto con l&apos;anima.
+          {APPROFONDIMENTO_UI.accordionIntro}
         </p>
       </div>
       <div className="report-sezioni-list">
@@ -55,7 +56,7 @@ export default function ReportAccordion({ sezioniTest }) {
                 aria-controls={id}
                 id={`${id}-button`}
               >
-                <span className="report-sezione-name">{nomeSezione}+</span>
+                <span className="report-sezione-name">{nomeSezione}</span>
                 <span className="report-sezione-chevron" aria-hidden>
                   {isOpen ? '−' : '+'}
                 </span>

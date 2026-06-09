@@ -32,8 +32,8 @@ class AppErrorBoundary extends React.Component {
     return { hasError: true, errorMessage: error?.message || 'Errore inatteso' }
   }
 
-  componentDidCatch(_error, _errorInfo) {
-    /* error UI in render */
+  componentDidCatch(error, errorInfo) {
+    console.error('AppErrorBoundary:', error?.message, errorInfo?.componentStack)
   }
 
   render() {
@@ -45,6 +45,11 @@ class AppErrorBoundary extends React.Component {
             <p className="results-empty-message">
               La schermata si e interrotta. Usa uno dei pulsanti qui sotto per continuare.
             </p>
+            {import.meta.env.DEV && this.state.errorMessage ? (
+              <p className="results-empty-message" style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>
+                {this.state.errorMessage}
+              </p>
+            ) : null}
             <div className="report-final-actions-buttons">
               <button
                 type="button"
@@ -117,32 +122,35 @@ function App() {
       setAuthReady(true)
       return
     }
+
+    let cancelled = false
     const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (cancelled) return
       setCurrentUser(user)
       setAuthReady(true)
     })
-    return () => unsubscribe()
-  }, [])
 
-  useEffect(() => {
-    if (!auth) return
-    let cancelled = false
-
-    const bootstrapRedirectSession = async () => {
+    const completeRedirectLogin = async () => {
       const result = await consumeGoogleRedirectResult()
       if (cancelled) return
 
-      if (result?.user) {
-        setCurrentUser(result.user)
-        if (typeof window !== 'undefined' && window.location.pathname !== '/home') {
+      const redirectUser = result?.user || auth.currentUser || null
+
+      if (redirectUser) {
+        setCurrentUser(redirectUser)
+        if (
+          typeof window !== 'undefined' &&
+          (window.location.pathname === '/' || window.location.search.includes('tst_google_auth'))
+        ) {
           navigate('/home', { replace: true })
         }
       }
     }
 
-    void bootstrapRedirectSession()
+    void completeRedirectLogin()
     return () => {
       cancelled = true
+      unsubscribe()
     }
   }, [navigate])
 
@@ -265,6 +273,15 @@ function App() {
 
   const handleLoginClick = () => {
     setMobileNavOpen(false)
+    if (isAuthenticated) {
+      navigate('/home')
+      return
+    }
+    if (location.pathname === '/home' && typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('tst:open-home-auth'))
+      navigate('/home', { state: { openLogin: true } })
+      return
+    }
     if (location.pathname === '/' && typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('tst:open-access'))
     }
@@ -340,18 +357,28 @@ function App() {
 
   const skyTone = visualProfile?.tone || 'medium'
   const skyWarmth = visualProfile?.warmth || 'neutral'
+  const isReportPage = location.pathname === '/risultati/report'
+  const isTestFlowPage = location.pathname === '/nuovo-test'
 
   return (
     <AuthContext.Provider value={{ user: effectiveUser, authReady }}>
       <div
         className={`app-shell app-with-sky${cookieConsent === null ? ' has-gdpr-banner' : ''}${
           ritualFocusActive ? ' is-ritual-focus' : ''
+        }${isReportPage ? ' app-shell--report' : ''}${
+          isTestFlowPage ? ' app-shell--test-flow' : ''
         }`}
         data-sky-tone={skyTone}
         data-sky-warmth={skyWarmth}
       >
-        {location.pathname !== '/' && <SkyBackground />}
-        <header className={`app-header${location.pathname === '/' ? ' app-header--landing' : ''}`}>
+        {location.pathname !== '/' && location.pathname !== '/risultati/report' && (
+          <SkyBackground />
+        )}
+        <header
+          className={`app-header${location.pathname === '/' ? ' app-header--landing' : ''}${
+            isReportPage || isTestFlowPage ? ' app-header--report' : ''
+          }`}
+        >
             <div className="app-header-inner">
             <button
               ref={mobileNavToggleRef}

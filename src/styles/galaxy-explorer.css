@@ -1,0 +1,1712 @@
+.report-galaxy {
+  margin-bottom: var(--report-section-y, clamp(1.85rem, 4.2vw, 3rem));
+  /* Desktop: altezza slot galassia + computer guida (vedi media query ≥1100px) */
+  --report-galaxy-desktop-slot-h: calc(100dvh - 10rem);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+/* Titolo nella stessa card delle altre sezioni report-xp (report-section-title) */
+.report-xp .report-galaxy-shell > .report-section-title {
+  margin-bottom: var(--report-xp-section-title-gap);
+}
+
+.report-galaxy-layout {
+  display: grid;
+  gap: 0.8rem;
+  max-width: 100%;
+  min-width: 0;
+}
+
+@media (min-width: 1100px) {
+  .report-galaxy-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 400px);
+    align-items: stretch;
+    height: min(var(--report-galaxy-desktop-slot-h), 880px);
+    max-height: min(var(--report-galaxy-desktop-slot-h), 880px);
+    min-height: 280px;
+    min-width: 0;
+  }
+
+  .report-galaxy-map-wrap {
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    min-width: 0;
+    height: 100%;
+    max-height: 100%;
+  }
+
+  .report-galaxy-mini-legend {
+    flex-shrink: 0;
+  }
+
+  /* La mappa riempie lo slot rimanente sotto la legenda */
+  .report-galaxy-map {
+    flex: 1 1 auto;
+    min-height: 0;
+    margin-top: 0.45rem;
+  }
+}
+
+/* Riduce blur/animazioni quando l’utente chiede meno movimento (allineato a Galaxy3DExplorer `reducedMotion`). */
+.report-galaxy-layout.is-reduced-motion .report-galaxy-hud,
+.report-galaxy-layout.is-reduced-motion .report-galaxy-card {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.report-galaxy-layout.is-reduced-motion .report-galaxy-anchor-link,
+.report-galaxy-layout.is-reduced-motion .report-galaxy-reset,
+.report-galaxy-layout.is-reduced-motion .report-galaxy-legend-toggle {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .report-galaxy-hud,
+  .report-galaxy-card {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .report-galaxy-anchor-link,
+  .report-galaxy-reset,
+  .report-galaxy-legend-toggle {
+    transition: none;
+  }
+}
+
+.report-galaxy-map-wrap {
+  min-width: 0;
+  max-width: 100%;
+  border: 1px solid var(--report-xp-border, rgba(148, 163, 184, 0.24));
+  background: linear-gradient(155deg, rgba(15, 23, 42, 0.72), rgba(2, 6, 23, 0.9));
+  border-radius: var(--report-radius-md, 1rem);
+  box-shadow: var(--report-shadow-card, 0 18px 40px rgba(2, 6, 23, 0.32));
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.report-galaxy-mini-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.52rem 0.9rem;
+  padding: 0.95rem 1rem 0.1rem;
+}
+
+.report-galaxy-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.48rem;
+  font-size: 0.9rem;
+  font-weight: 620;
+  letter-spacing: 0.01em;
+  color: rgba(241, 245, 249, 0.98);
+  text-shadow: 0 1px 1px rgba(2, 6, 23, 0.45);
+  -webkit-font-smoothing: antialiased;
+}
+
+.report-galaxy-legend-item > span {
+  width: 11px;
+  height: 11px;
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.28);
+}
+
+.report-galaxy-map {
+  position: relative;
+  min-height: clamp(520px, 68vh, 780px);
+  margin-top: 0.6rem;
+  perspective: 960px;
+  overflow: hidden;
+  border-radius: 0.8rem;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.report-galaxy-map--canvasHit .report-galaxy-canvas {
+  z-index: 2;
+  touch-action: none;
+}
+
+.report-galaxy-canvas,
+.report-galaxy-hit-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.report-galaxy-hit-layer {
+  overflow: visible;
+}
+
+.report-galaxy-relation-label {
+  fill: #f8fafc;
+  font-size: 11px;
+  font-weight: 700;
+  text-anchor: middle;
+  paint-order: stroke;
+  stroke: rgba(2, 6, 23, 0.9);
+  stroke-width: 3;
+  opacity: 0;
+}
+
+.report-galaxy-hud {
+  position: absolute;
+  z-index: 4;
+  border: 1px solid rgba(148, 163, 184, 0.34);
+  background: rgba(2, 6, 23, 0.78);
+  border-radius: 0.75rem;
+  color: rgba(241, 245, 249, 0.96);
+  backdrop-filter: blur(1.5px);
+  -webkit-backdrop-filter: blur(1.5px);
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+}
+
+.report-galaxy-hud-em {
+  font-weight: 750;
+  color: rgba(224, 242, 254, 0.99);
+}
+
+.report-galaxy-hud--top {
+  left: clamp(0.65rem, 2vw, 0.95rem);
+  top: clamp(0.65rem, 2vw, 0.95rem);
+  padding: 0.45rem 0.58rem;
+  max-width: min(72vw, 320px);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.25rem;
+}
+
+.report-galaxy-hud-dismiss {
+  margin-left: 0.1rem;
+  flex-shrink: 0;
+  width: 1.35rem;
+  height: 1.35rem;
+  padding: 0;
+  border: none;
+  border-radius: 0.35rem;
+  background: rgba(30, 41, 59, 0.9);
+  color: rgba(248, 250, 252, 0.92);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.report-galaxy-hud-dismiss:hover {
+  background: rgba(51, 65, 85, 0.95);
+}
+
+.report-galaxy-hud--top p {
+  margin: 0;
+  font-size: 0.7rem;
+  color: rgba(226, 232, 240, 0.94);
+  line-height: 1.35;
+  text-wrap: balance;
+}
+
+.report-galaxy-step-meaning {
+  font-size: 0.66rem;
+  color: rgba(191, 219, 254, 0.92);
+  line-height: 1.42;
+  overflow-wrap: anywhere;
+}
+
+.report-galaxy-hud--status {
+  right: 0.6rem;
+  top: 0.6rem;
+  max-width: min(54vw, 280px);
+  padding: 0.45rem 0.58rem;
+  font-size: 0.68rem;
+  line-height: 1.35;
+}
+
+.report-galaxy-hud--status p {
+  margin: 0;
+}
+
+.report-galaxy-hud--status p + p {
+  margin-top: 0.28rem;
+}
+
+.report-galaxy-hud--interpreter {
+  max-width: min(66vw, 340px);
+  padding: 0.58rem 0.62rem;
+}
+
+.report-galaxy-interpreter {
+  display: grid;
+  gap: 0.38rem;
+}
+
+.report-galaxy-interpreter-kicker,
+.report-galaxy-interpreter-question,
+.report-galaxy-interpreter-action {
+  margin: 0;
+}
+
+.report-galaxy-interpreter-kicker {
+  font-size: 0.64rem;
+  line-height: 1.2;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(147, 197, 253, 0.94);
+  font-weight: 740;
+}
+
+.report-galaxy-interpreter-title {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.18;
+  color: rgba(248, 250, 252, 0.99);
+}
+
+.report-galaxy-interpreter-question {
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: rgba(226, 232, 240, 0.92);
+  font-weight: 650;
+}
+
+.report-galaxy-interpreter-meaning {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: rgba(241, 245, 249, 0.97);
+  text-wrap: pretty;
+}
+
+.report-galaxy-interpreter-action {
+  padding-left: 0.55rem;
+  border-left: 2px solid rgba(96, 165, 250, 0.68);
+  font-size: 0.7rem;
+  line-height: 1.42;
+  color: rgba(191, 219, 254, 0.95);
+}
+
+.report-galaxy-interpreter-corpus {
+  margin-top: 0.35rem;
+  padding-top: 0.62rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.22);
+}
+
+.report-galaxy-interpreter-corpus-title {
+  margin: 0 0 0.42rem;
+  font-size: 0.64rem;
+  line-height: 1.25;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(186, 230, 253, 0.78);
+  font-weight: 720;
+}
+
+.report-galaxy-interpreter-corpus-list {
+  margin: 0;
+  padding-left: 1rem;
+  font-size: 0.7rem;
+  line-height: 1.48;
+  color: rgba(226, 232, 240, 0.94);
+}
+
+.report-galaxy-interpreter-corpus-list li + li {
+  margin-top: 0.32rem;
+}
+
+.report-galaxy-evidence {
+  margin-top: 0.06rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.24);
+  padding-top: 0.34rem;
+}
+
+.report-galaxy-evidence summary {
+  cursor: pointer;
+  width: fit-content;
+  color: rgba(191, 219, 254, 0.94);
+  font-size: 0.68rem;
+  font-weight: 720;
+}
+
+.report-galaxy-evidence-list {
+  display: grid;
+  gap: 0.26rem;
+  margin: 0.38rem 0 0;
+}
+
+.report-galaxy-evidence-row {
+  display: grid;
+  grid-template-columns: minmax(6.2rem, 0.9fr) minmax(0, 1.1fr);
+  gap: 0.42rem;
+  align-items: baseline;
+  font-size: 0.68rem;
+}
+
+.report-galaxy-evidence-row dt,
+.report-galaxy-evidence-row dd {
+  margin: 0;
+}
+
+.report-galaxy-evidence-row dt {
+  color: rgba(148, 163, 184, 0.94);
+}
+
+.report-galaxy-evidence-row dd {
+  color: rgba(241, 245, 249, 0.96);
+  overflow-wrap: anywhere;
+}
+
+.report-galaxy-metric-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.28rem 0.4rem;
+}
+
+.report-galaxy-metric-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.42);
+  background: rgba(15, 23, 42, 0.72);
+}
+
+.report-galaxy-metric-help {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.62);
+  background: rgba(30, 41, 59, 0.9);
+  color: rgba(248, 250, 252, 0.95);
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: help;
+  outline: none;
+}
+
+.report-galaxy-metric-help:focus-visible {
+  box-shadow: 0 0 0 2px rgba(191, 219, 254, 0.65);
+}
+
+.report-galaxy-metric-tooltip {
+  position: absolute;
+  z-index: 6;
+  right: 0;
+  top: calc(100% + 0.35rem);
+  width: min(44vw, 230px);
+  padding: 0.4rem 0.46rem;
+  border-radius: 0.48rem;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  background: rgba(2, 6, 23, 0.96);
+  color: rgba(241, 245, 249, 0.95);
+  font-size: 0.62rem;
+  line-height: 1.35;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-3px);
+  pointer-events: none;
+  transition: opacity 180ms ease, transform 180ms ease, visibility 0s linear 180ms;
+}
+
+.report-galaxy-metric-help:hover .report-galaxy-metric-tooltip,
+.report-galaxy-metric-help:focus-visible .report-galaxy-metric-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition-delay: 180ms, 180ms, 0s;
+}
+
+.report-galaxy-hud--bottom {
+  left: 0.6rem;
+  bottom: 0.6rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.44rem 0.55rem;
+}
+
+.report-galaxy-process-chip {
+  font-size: 0.66rem;
+  color: rgba(226, 232, 240, 0.95);
+}
+
+.report-galaxy-relations {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.report-galaxy-relation-line {
+  stroke: rgba(148, 163, 184, 0.7);
+  stroke-width: 0.38;
+}
+
+.report-galaxy-relation-line.is-selected {
+  stroke: rgba(248, 250, 252, 0.98);
+  stroke-width: 0.52;
+}
+
+.report-galaxy-relation-hitbox {
+  stroke: transparent;
+  stroke-width: 18;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.report-galaxy-node-hit {
+  fill: transparent;
+  stroke: transparent;
+  stroke-width: 1;
+  cursor: pointer;
+  outline: none;
+  touch-action: manipulation;
+}
+
+.report-galaxy-node-hit:focus-visible {
+  stroke: rgba(248, 250, 252, 0.95);
+  stroke-width: 3;
+}
+
+.report-galaxy-details {
+  position: absolute;
+  left: 0.6rem;
+  right: 0.6rem;
+  bottom: 3.15rem;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.report-galaxy-card {
+  pointer-events: auto;
+  max-width: 100%;
+  min-width: 0;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(2, 6, 23, 0.82);
+  backdrop-filter: blur(1.5px);
+  -webkit-backdrop-filter: blur(1.5px);
+  padding: 0.58rem 0.68rem;
+  color: rgba(241, 245, 249, 0.96);
+  display: grid;
+  gap: 0.3rem;
+  max-height: none;
+  overflow-y: visible;
+  overflow-x: hidden;
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+@media (min-width: 960px) {
+  .report-galaxy-details .report-galaxy-card:not(.report-galaxy-card--hint) {
+    max-height: min(48vh, 390px);
+    overflow-y: auto;
+  }
+}
+
+.report-galaxy-card h3,
+.report-galaxy-card p {
+  margin: 0;
+}
+
+.report-galaxy-card--hint {
+  max-width: min(40vw, 420px);
+  padding: 0.38rem 0.5rem;
+  gap: 0.25rem;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  background: rgba(2, 6, 23, 0.66);
+  border-color: rgba(148, 163, 184, 0.28);
+}
+
+.report-galaxy-card--hint h3 {
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.report-galaxy-card--hint p {
+  font-size: 0.7rem;
+  color: rgba(226, 232, 240, 0.86);
+}
+
+.report-galaxy-card-actions {
+  display: flex;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  margin-top: 0.35rem;
+  margin-bottom: 0.1rem;
+}
+
+.report-galaxy-sublist {
+  display: grid;
+  gap: 0.72rem;
+  font-size: 0.8rem;
+  color: rgba(226, 232, 240, 0.92);
+}
+
+.report-galaxy-epigraph {
+  margin: 0 0 0.35rem;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: rgba(148, 163, 184, 0.95);
+}
+
+.report-galaxy-subrow {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.42rem 0.46rem 0.5rem;
+  border-radius: 0.55rem;
+  border-bottom: 1px solid rgba(51, 65, 85, 0.45);
+  cursor: pointer;
+  transition: background 140ms ease, border-color 140ms ease, transform 140ms ease;
+}
+
+.report-galaxy-subrow--active {
+  border: 1px solid rgba(96, 165, 250, 0.58);
+  background: rgba(30, 58, 138, 0.18);
+}
+
+.report-galaxy-subrow:hover {
+  background: rgba(30, 41, 59, 0.48);
+  border-color: rgba(148, 163, 184, 0.6);
+}
+
+.report-galaxy-subrow:focus-visible {
+  outline: 2px solid rgba(96, 165, 250, 0.85);
+  outline-offset: 2px;
+}
+
+.report-galaxy-subrow:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.report-galaxy-subrow-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.65rem;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.report-galaxy-subrow-head span {
+  font-size: 0.75rem;
+  color: rgba(203, 213, 225, 0.9);
+}
+
+.report-galaxy-subrow-interval {
+  margin: 0;
+  font-size: 0.72rem;
+  color: rgba(191, 219, 254, 0.92);
+  overflow-wrap: anywhere;
+}
+
+.report-galaxy-subrow-interval--hint {
+  color: rgba(226, 232, 240, 0.94);
+  font-size: 0.76rem;
+  overflow-wrap: anywhere;
+}
+
+.report-galaxy-theory-block {
+  display: grid;
+  gap: 0.42rem;
+  margin-bottom: 0.42rem;
+}
+
+.report-galaxy-theory-block p {
+  margin: 0;
+  font-size: 0.76rem;
+  line-height: 1.45;
+  color: rgba(226, 232, 240, 0.96);
+}
+
+.report-galaxy-theory-block--traits,
+.report-galaxy-theory-block--music {
+  padding: 0.55rem 0.7rem;
+  border-radius: 0.72rem;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(15, 23, 42, 0.4);
+}
+
+.report-galaxy-theory-block--traits {
+  border-left: 3px solid rgba(248, 113, 113, 0.7);
+}
+
+.report-galaxy-theory-block--music {
+  border-left: 3px solid rgba(125, 211, 252, 0.7);
+}
+
+.report-galaxy-theory-block--traits .report-galaxy-subheading,
+.report-galaxy-theory-block--music .report-galaxy-subheading {
+  margin-top: 0;
+  margin-bottom: 0.25rem;
+}
+
+.report-galaxy-theory-current {
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 0.72rem;
+  background: rgba(15, 23, 42, 0.5);
+  padding: 0.45rem 0.55rem;
+}
+
+.report-galaxy-theory-current summary {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.45rem;
+  cursor: pointer;
+  min-width: 0;
+}
+
+.report-galaxy-theory-current summary span {
+  font-size: 0.74rem;
+  color: rgba(191, 219, 254, 0.92);
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.report-galaxy-theory-description {
+  margin: 0.3rem 0 0;
+  font-size: 0.74rem;
+  line-height: 1.45;
+  color: rgba(226, 232, 240, 0.94);
+  overflow-wrap: anywhere;
+}
+
+.report-galaxy-theory-states-label {
+  margin-top: 0.45rem;
+  margin-bottom: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.68rem;
+  color: rgba(148, 163, 184, 0.85);
+}
+
+.report-galaxy-theory-state-list {
+  margin: 0.3rem 0 0;
+  padding-left: 1rem;
+  columns: 2;
+  column-gap: 1rem;
+}
+
+.report-galaxy-theory-state-list li {
+  break-inside: avoid;
+  margin-bottom: 0.2rem;
+  font-size: 0.73rem;
+  color: rgba(203, 213, 225, 0.95);
+  overflow-wrap: anywhere;
+}
+
+.report-galaxy-subrow-meter {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(30, 41, 59, 0.88);
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  overflow: hidden;
+}
+
+.report-galaxy-subrow-meter-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.9), rgba(45, 212, 191, 0.85));
+}
+
+.report-galaxy-lex-chips {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 5.5rem), 1fr));
+  gap: 0.32rem;
+  align-content: start;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.report-galaxy-lex-shell {
+  display: grid;
+  gap: 0.32rem;
+}
+
+.report-galaxy-lex-title {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 650;
+  color: rgba(191, 219, 254, 0.94);
+}
+
+.report-galaxy-lex-lede {
+  margin: 0;
+  font-size: 0.68rem;
+  line-height: 1.42;
+  color: rgba(203, 213, 225, 0.92);
+  text-wrap: pretty;
+}
+
+.report-galaxy-lex-more {
+  margin: 0.12rem 0 0;
+  font-size: 0.62rem;
+  line-height: 1.38;
+  color: rgba(148, 163, 184, 0.94);
+}
+
+.report-galaxy-lex-chip {
+  font-size: 0.68rem;
+  line-height: 1.2;
+  padding: 0.2rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  background: rgba(15, 23, 42, 0.62);
+  color: rgba(226, 232, 240, 0.9);
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+.report-galaxy-anchor-link,
+.report-galaxy-reset {
+  width: fit-content;
+  border-radius: 0.65rem;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  background: rgba(15, 23, 42, 0.6);
+  color: #f8fafc;
+  padding: 0.42rem 0.62rem;
+  font-size: 0.76rem;
+  font-weight: 620;
+  text-decoration: none;
+  transition: background 140ms ease, border-color 140ms ease, transform 140ms ease;
+}
+
+.report-galaxy-reset {
+  cursor: pointer;
+}
+
+.report-galaxy-anchor-link:hover,
+.report-galaxy-reset:hover {
+  background: rgba(30, 41, 59, 0.78);
+  border-color: rgba(226, 232, 240, 0.58);
+  transform: translateY(-1px);
+}
+
+.report-galaxy-reset-inline {
+  margin-top: 0.15rem;
+  align-self: flex-start;
+}
+
+.report-galaxy-reset--primary {
+  border-color: rgba(96, 165, 250, 0.55);
+  background: rgba(30, 58, 138, 0.45);
+}
+
+.report-galaxy-legend-toggle {
+  width: fit-content;
+  padding: 0.38rem 0.55rem;
+  font-size: 0.72rem;
+  border-radius: 0.65rem;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(15, 23, 42, 0.55);
+  color: rgba(226, 232, 240, 0.95);
+  cursor: pointer;
+}
+
+.report-galaxy-legend-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.report-galaxy-legend-head h3 {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.report-galaxy-legend-foot {
+  margin: 0.35rem 0 0;
+  font-size: 0.68rem;
+  color: rgba(203, 213, 225, 0.88);
+}
+
+.report-galaxy-compact-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem 0.65rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  background: rgba(2, 6, 23, 0.72);
+  font-size: 0.74rem;
+  color: rgba(226, 232, 240, 0.95);
+}
+
+.report-galaxy-compact-title {
+  font-weight: 700;
+}
+
+.report-galaxy-compact-meta {
+  flex: 1;
+  min-width: 140px;
+  color: rgba(203, 213, 225, 0.88);
+  font-size: 0.68rem;
+}
+
+.report-galaxy-detail-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.report-galaxy-detail-hint {
+  font-size: 0.66rem;
+  color: rgba(148, 163, 184, 0.92);
+}
+
+.report-galaxy-subheading {
+  margin: 0.72rem 0 0.3rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: rgba(191, 219, 254, 0.95);
+}
+
+.report-galaxy-narrative {
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.report-galaxy-ui {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.report-galaxy-ui--dock {
+  width: 100%;
+}
+
+.report-galaxy-ui--dock .report-galaxy-card {
+  max-height: none;
+  overflow-x: hidden;
+  overflow-y: visible;
+  background: rgba(2, 6, 23, 0.94);
+  padding: 0.82rem 0.88rem 0.9rem;
+  gap: 0.45rem;
+}
+
+.report-galaxy-mobile-steps {
+  display: none;
+}
+
+.report-galaxy-mobile-step {
+  border: 1px solid rgba(148, 163, 184, 0.34);
+  background: rgba(15, 23, 42, 0.52);
+  color: rgba(226, 232, 240, 0.94);
+  border-radius: 999px;
+  padding: 0.32rem 0.62rem;
+  font-size: 0.72rem;
+  font-weight: 620;
+  cursor: pointer;
+}
+
+.report-galaxy-mobile-step.is-active {
+  border-color: rgba(96, 165, 250, 0.65);
+  background: rgba(30, 58, 138, 0.42);
+  color: #ffffff;
+}
+
+.report-galaxy-mobile-step-indicator {
+  display: none;
+  margin: 0;
+  font-size: 0.68rem;
+  color: rgba(191, 219, 254, 0.9);
+}
+
+.report-galaxy-panel-section {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.report-galaxy-panel-disclosure {
+  border-top: 1px solid rgba(148, 163, 184, 0.22);
+  padding-top: 0.44rem;
+}
+
+.report-galaxy-panel-disclosure summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  cursor: pointer;
+  list-style: none;
+  color: rgba(226, 232, 240, 0.96);
+  font-size: 0.78rem;
+  font-weight: 760;
+}
+
+.report-galaxy-panel-disclosure summary::-webkit-details-marker {
+  display: none;
+}
+
+.report-galaxy-panel-disclosure summary::before {
+  content: "+";
+  display: inline-grid;
+  place-items: center;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(147, 197, 253, 0.42);
+  color: rgba(191, 219, 254, 0.95);
+  font-size: 0.78rem;
+  flex: 0 0 auto;
+}
+
+.report-galaxy-panel-disclosure[open] summary::before {
+  content: "-";
+}
+
+.report-galaxy-panel-disclosure summary span {
+  flex: 1 1 auto;
+}
+
+.report-galaxy-panel-disclosure summary small {
+  color: rgba(148, 163, 184, 0.92);
+  font-size: 0.66rem;
+  font-weight: 620;
+}
+
+.report-galaxy-panel-disclosure > .report-galaxy-panel-section {
+  padding-top: 0.48rem;
+}
+
+.report-galaxy-key-metric {
+  display: grid;
+  gap: 0.1rem;
+  margin-top: 0.05rem;
+}
+
+.report-galaxy-key-metric-value {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.35;
+  color: rgba(241, 245, 249, 0.96);
+}
+
+.report-galaxy-key-metric-value strong {
+  font-size: 1.14rem;
+  color: #ffffff;
+}
+
+.report-galaxy-key-metric-meta {
+  margin: 0;
+  font-size: 0.75rem;
+  color: rgba(191, 219, 254, 0.9);
+}
+
+.report-galaxy-panel-kicker {
+  margin: 0 0 0.05rem;
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: rgba(241, 245, 249, 0.98);
+}
+
+.report-galaxy-panel-kicker-parent {
+  font-weight: 500;
+  font-size: 0.74rem;
+  color: rgba(191, 219, 254, 0.86);
+  letter-spacing: 0.005em;
+}
+
+.report-galaxy-sub-card {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.5rem 0.6rem 0.55rem;
+  border-radius: 0.7rem;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  background: rgba(15, 23, 42, 0.55);
+  margin-top: 0.1rem;
+}
+
+.report-galaxy-sub-card-title {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(191, 219, 254, 0.94);
+}
+
+.report-galaxy-sub-card-text {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: rgba(226, 232, 240, 0.96);
+  text-wrap: pretty;
+}
+
+.report-galaxy-sub-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.32rem 0.4rem;
+}
+
+.report-galaxy-sub-meta-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.32rem;
+  padding: 0.18rem 0.46rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.42);
+  background: rgba(2, 6, 23, 0.55);
+  font-size: 0.74rem;
+  color: rgba(241, 245, 249, 0.96);
+}
+
+.report-galaxy-sub-meta-label {
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(191, 219, 254, 0.85);
+}
+
+.report-galaxy-sub-meta-value {
+  font-weight: 620;
+}
+
+.report-galaxy-matrix-grid {
+  display: grid;
+  gap: 0.35rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+}
+
+.report-galaxy-matrix-item {
+  display: grid;
+  gap: 0.1rem;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 0.55rem;
+  padding: 0.34rem 0.45rem;
+  background: rgba(15, 23, 42, 0.55);
+}
+
+.report-galaxy-matrix-item strong {
+  font-size: 0.68rem;
+  color: rgba(191, 219, 254, 0.94);
+}
+
+.report-galaxy-matrix-item span {
+  font-size: 0.76rem;
+  color: rgba(226, 232, 240, 0.96);
+  overflow-wrap: anywhere;
+}
+
+.report-galaxy-scoreline {
+  margin: 0.2rem 0 0.35rem;
+  font-size: 0.78rem;
+  color: rgba(203, 213, 225, 0.95);
+}
+
+.report-galaxy-meter {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(30, 41, 59, 0.85);
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  overflow: hidden;
+  margin-bottom: 0.45rem;
+}
+
+.report-galaxy-meter--compact {
+  flex: 1;
+  min-width: 72px;
+  height: 7px;
+  margin-bottom: 0;
+}
+
+.report-galaxy-meter-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(96, 165, 250, 0.85), rgba(52, 211, 153, 0.88));
+  transition: width 220ms ease;
+}
+
+.report-galaxy-pe-bars,
+.report-galaxy-family-bars {
+  display: grid;
+  gap: 0.45rem;
+  margin-bottom: 0.55rem;
+}
+
+.report-galaxy-pe-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+  font-size: 0.74rem;
+  color: rgba(226, 232, 240, 0.94);
+}
+
+.report-galaxy-pe-row > span:first-child {
+  flex: 1 1 7.25rem;
+  min-width: 0;
+  color: rgba(191, 219, 254, 0.92);
+}
+
+.report-galaxy-pe-val {
+  min-width: min(100%, 5.5rem);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: rgba(203, 213, 225, 0.9);
+  flex-shrink: 0;
+}
+
+.report-galaxy-card--legend {
+  margin-top: 0.2rem;
+}
+
+.report-galaxy-side-monitor {
+  display: none;
+}
+
+@media (min-width: 1100px) {
+  .report-galaxy-hud--status {
+    display: none;
+  }
+
+  /* Quando il pannello vive nel computer guida, nascondiamo la barra in basso. */
+  .report-galaxy-layout > .report-galaxy-ui--dock {
+    display: none;
+  }
+
+  .report-galaxy-side-monitor {
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    width: 100%;
+    max-width: 430px;
+    margin-inline: auto;
+    min-height: 0;
+    height: 100%;
+    max-height: 100%;
+    /* X contenuto, Y visibile: non tagliare i tooltip (?) della fascia metriche overview */
+    overflow-x: hidden;
+    overflow-y: visible;
+  }
+
+  .report-galaxy-side-monitor-screen {
+    width: 100%;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-x: hidden;
+    /* Visibile in verticale: evita clipping dei tooltip (? ) nella fascia metriche overview */
+    overflow-y: visible;
+    overscroll-behavior-x: contain;
+    border-radius: 1.05rem 1.05rem 0.85rem 0.85rem;
+    border: 1px solid rgba(148, 163, 184, 0.48);
+    border-top-color: rgba(226, 232, 240, 0.68);
+    background:
+      linear-gradient(180deg, rgba(34, 45, 66, 0.9), rgba(12, 18, 32, 0.96)),
+      radial-gradient(circle at top, rgba(71, 85, 105, 0.5), rgba(2, 6, 23, 0.98));
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+      inset 0 0 0 4px rgba(2, 6, 23, 0.46),
+      inset 0 0 34px rgba(15, 23, 42, 0.62),
+      0 22px 42px rgba(2, 6, 23, 0.5);
+    padding: 0.78rem 0.85rem 0.85rem;
+    color: rgba(241, 245, 249, 0.97);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    position: relative;
+  }
+
+  .report-galaxy-side-monitor--with-panel .report-galaxy-side-monitor-screen {
+    font-size: 0.86rem;
+    line-height: 1.45;
+  }
+
+  .report-galaxy-side-monitor-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    min-height: 0;
+    flex: 1 1 auto;
+    overflow-x: hidden;
+    overflow-y: visible;
+  }
+
+  .report-galaxy-side-monitor-status {
+    display: flex;
+    flex-direction: column;
+    gap: 0.32rem;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 3;
+    overflow: visible;
+    padding-bottom: 0.2rem;
+  }
+
+  .report-galaxy-side-monitor--with-panel .report-galaxy-side-monitor-status {
+    padding-bottom: 0.45rem;
+    border-bottom: 1px dashed rgba(148, 163, 184, 0.32);
+  }
+
+  .report-galaxy-side-monitor-panel {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    /* Padding sulla zona scrollabile per non far toccare le chip al bordo del monitor */
+    scrollbar-gutter: stable;
+    box-sizing: border-box;
+    padding-inline: 0.25rem 0.35rem;
+    padding-bottom: 1.1rem;
+  }
+
+  .report-galaxy-side-monitor-panel .report-galaxy-card--node {
+    background: transparent;
+    border: none;
+    padding: 0;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    /* Il panel scrolla — la card tiene il flusso naturale (liste lunghe parole / composizione). */
+    max-height: none;
+    overflow: visible;
+    gap: 0.5rem;
+    box-shadow: none;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  /* Evita che flex/grid figli “spingano” orizzontalmente e taglino le chip sul bordo sinistro */
+  .report-galaxy-side-monitor-panel .report-galaxy-panel-section {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .report-galaxy-side-monitor-panel .report-galaxy-panel-section--parole {
+    overflow-x: hidden;
+  }
+
+  .report-galaxy-side-monitor-panel .report-galaxy-lex-shell {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .report-galaxy-side-monitor-panel .report-galaxy-lex-chips {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+    /* Griglia invece di solo flex-wrap: le etichette restano nel padding del pannello */
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(6.25rem, 1fr));
+    gap: 0.32rem 0.28rem;
+    align-content: start;
+    justify-items: stretch;
+  }
+
+  .report-galaxy-side-monitor-panel .report-galaxy-lex-chip {
+    min-width: 0;
+    max-width: 100%;
+    justify-self: stretch;
+    text-align: center;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    overflow-wrap: anywhere;
+    hyphens: auto;
+  }
+
+  /* Tooltip metriche (?): sopra il pulsante per restare dentro al monitor quando la fascia sta in alto */
+  .report-galaxy-side-monitor .report-galaxy-metric-help .report-galaxy-metric-tooltip {
+    top: auto;
+    bottom: calc(100% + 0.38rem);
+    transform: translateY(4px);
+  }
+
+  .report-galaxy-side-monitor .report-galaxy-metric-help:hover .report-galaxy-metric-tooltip,
+  .report-galaxy-side-monitor .report-galaxy-metric-help:focus-visible .report-galaxy-metric-tooltip {
+    transform: translateY(0);
+  }
+
+  .report-galaxy-side-monitor-panel .report-galaxy-card--node h3 {
+    font-size: 0.92rem;
+    line-height: 1.3;
+  }
+
+  .report-galaxy-side-monitor-panel .report-galaxy-card-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.34rem;
+  }
+
+  .report-galaxy-side-monitor-panel .report-galaxy-anchor-link,
+  .report-galaxy-side-monitor-panel .report-galaxy-reset {
+    width: 100%;
+    text-align: center;
+    box-sizing: border-box;
+  }
+
+  .report-galaxy-side-monitor-headline {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.45rem;
+    flex-shrink: 0;
+    min-height: 1.25rem;
+  }
+
+  .report-galaxy-side-monitor-kicker {
+    margin: 0;
+    font-size: 0.67rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(191, 219, 254, 0.9);
+  }
+
+  .report-galaxy-side-monitor-dots {
+    display: inline-flex;
+    gap: 0.28rem;
+    align-items: center;
+  }
+
+  .report-galaxy-side-monitor-dots span {
+    width: 0.48rem;
+    height: 0.48rem;
+    border-radius: 999px;
+    background: rgba(148, 163, 184, 0.72);
+    box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.25);
+  }
+
+  .report-galaxy-side-monitor-dots span:nth-child(1) {
+    background: #fb7185;
+  }
+
+  .report-galaxy-side-monitor-dots span:nth-child(2) {
+    background: #fbbf24;
+  }
+
+  .report-galaxy-side-monitor-dots span:nth-child(3) {
+    background: #34d399;
+  }
+
+  .report-galaxy-side-monitor-scanline {
+    position: absolute;
+    pointer-events: none;
+    left: 0.5rem;
+    right: 0.5rem;
+    top: 2.15rem;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.6), transparent);
+    opacity: 0.65;
+  }
+
+  .report-galaxy-side-monitor .report-galaxy-metric-row {
+    gap: 0.34rem;
+  }
+
+  .report-galaxy-side-monitor .report-galaxy-metric-pill {
+    width: 100%;
+    justify-content: space-between;
+    padding: 0.2rem 0.44rem;
+    font-size: 0.68rem;
+  }
+
+  .report-galaxy-side-monitor .report-galaxy-step-meaning {
+    font-size: 0.69rem;
+  }
+
+  .report-galaxy-side-monitor .report-galaxy-interpreter-title {
+    font-size: 1.02rem;
+  }
+
+  .report-galaxy-side-monitor .report-galaxy-interpreter-meaning {
+    font-size: 0.8rem;
+  }
+
+  .report-galaxy-side-monitor .report-galaxy-evidence-row {
+    grid-template-columns: minmax(6.6rem, 0.86fr) minmax(0, 1.14fr);
+  }
+
+  .report-galaxy-side-monitor-hinge {
+    width: 74%;
+    height: 0.58rem;
+    border-radius: 0 0 999px 999px;
+    background: linear-gradient(180deg, rgba(100, 116, 139, 0.86), rgba(51, 65, 85, 0.96));
+    box-shadow: inset 0 1px 0 rgba(226, 232, 240, 0.16);
+    transform: translateY(-1px);
+  }
+
+  .report-galaxy-side-monitor-keyboard {
+    width: 92%;
+    height: 1.18rem;
+    border-radius: 0.18rem 0.18rem 1.1rem 1.1rem;
+    background:
+      radial-gradient(ellipse at center top, rgba(203, 213, 225, 0.55), transparent 42%),
+      linear-gradient(180deg, rgba(148, 163, 184, 0.72), rgba(71, 85, 105, 0.96));
+    box-shadow: inset 0 1px 0 rgba(248, 250, 252, 0.28), 0 14px 22px rgba(2, 6, 23, 0.36);
+    position: relative;
+  }
+
+  .report-galaxy-side-monitor-keyboard span {
+    position: absolute;
+    left: 50%;
+    top: 0.22rem;
+    width: 24%;
+    height: 0.24rem;
+    transform: translateX(-50%);
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.34);
+  }
+}
+
+@keyframes report-galaxy-monitor-led-pulse {
+  0%,
+  100% {
+    opacity: 0.65;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.report-galaxy-relation-legend {
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.76rem;
+  color: rgba(226, 232, 240, 0.95);
+}
+
+.report-galaxy-card--node {
+  max-width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+  touch-action: pan-y;
+}
+
+@media (max-width: 959px) {
+  .report-galaxy-map {
+    min-height: min(52vh, 440px);
+  }
+
+  .report-galaxy-hud--top {
+    max-width: calc(100% - 0.9rem);
+    left: 0.45rem;
+    top: 0.45rem;
+  }
+
+  .report-galaxy-hud--status {
+    right: 0.45rem;
+    top: 0.45rem;
+    max-width: 58%;
+  }
+
+  .report-galaxy-hud--bottom {
+    left: 0.45rem;
+    bottom: 0.45rem;
+    padding: 0.36rem 0.44rem;
+    gap: 0.4rem;
+  }
+
+  .report-galaxy-details {
+    left: 0.45rem;
+    right: 0.45rem;
+    bottom: 3rem;
+  }
+
+  .report-galaxy-card--hint {
+    padding: 0.34rem 0.44rem;
+    gap: 0.15rem;
+    max-width: min(68vw, 320px);
+    font-size: 0.72rem;
+    opacity: 0.88;
+  }
+
+  .report-galaxy-card--hint h3 {
+    font-size: 0.74rem;
+    margin: 0;
+  }
+
+  .report-galaxy-card--hint p {
+    margin: 0;
+    font-size: 0.68rem;
+  }
+
+  .report-galaxy-mobile-steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .report-galaxy-mobile-step-indicator {
+    display: block;
+    width: 100%;
+    margin-top: 0.05rem;
+  }
+
+  .report-galaxy-card--node[data-mobile-step='sintesi'] .report-galaxy-panel-section--parole,
+  .report-galaxy-card--node[data-mobile-step='sintesi'] .report-galaxy-panel-section--composizione,
+  .report-galaxy-card--node[data-mobile-step='parole'] .report-galaxy-panel-section--sintesi,
+  .report-galaxy-card--node[data-mobile-step='parole'] .report-galaxy-panel-section--composizione,
+  .report-galaxy-card--node[data-mobile-step='composizione'] .report-galaxy-panel-section--sintesi,
+  .report-galaxy-card--node[data-mobile-step='composizione'] .report-galaxy-panel-section--parole {
+    display: none;
+  }
+
+  .report-galaxy-theory-state-list {
+    columns: 1;
+  }
+}
+
+/* ── Focus panel (cgd-*) ───────────────────────────────────────────── */
+
+.cgd-focus-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.cgd-back {
+  all: unset;
+  cursor: pointer;
+  font-size: 0.72rem;
+  font-weight: 640;
+  color: rgba(147, 197, 253, 0.88);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.22rem;
+  padding: 0.1rem 0;
+  border-radius: 0.3rem;
+  transition: color 120ms ease;
+  line-height: 1;
+  margin-bottom: -0.15rem;
+}
+
+.cgd-back:hover,
+.cgd-back:focus-visible {
+  color: rgba(191, 219, 254, 1);
+  outline: none;
+}
+
+.cgd-focus-title {
+  margin: 0;
+  font-size: 1.12rem;
+  font-weight: 720;
+  line-height: 1.18;
+  color: #fff;
+}
+
+.cgd-focus-kicker {
+  margin: 0 0 -0.42rem;
+  color: rgba(147, 197, 253, 0.9);
+  font-size: 0.64rem;
+  font-weight: 780;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.cgd-meter-row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.cgd-meter {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+.cgd-intensity-badge {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 720;
+  letter-spacing: 0.03em;
+  color: rgba(147, 197, 253, 0.95);
+}
+
+.cgd-focus-desc {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.52;
+  color: rgba(226, 232, 240, 0.92);
+  text-wrap: pretty;
+}
+
+.cgd-focus-panel--standalone {
+  gap: 0.7rem;
+}
+
+.report-galaxy-side-monitor-status .cgd-focus-panel--standalone {
+  background: transparent;
+  border: none;
+  padding: 0;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.cgd-question {
+  margin: 0;
+  color: rgba(191, 219, 254, 0.96);
+  font-size: 0.78rem;
+  font-weight: 760;
+  line-height: 1.28;
+}
+
+.cgd-evidence {
+  border-top: 1px dashed rgba(148, 163, 184, 0.22);
+  padding-top: 0.5rem;
+}
+
+.cgd-evidence summary {
+  cursor: pointer;
+  color: rgba(191, 219, 254, 0.86);
+  font-size: 0.74rem;
+  font-weight: 760;
+  list-style-position: inside;
+}
+
+.cgd-evidence-body {
+  display: grid;
+  gap: 0.38rem;
+  margin-top: 0.48rem;
+}
+
+.cgd-source {
+  display: grid;
+  gap: 0.52rem;
+  color: rgba(226, 232, 240, 0.9);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.cgd-source p {
+  margin: 0;
+}
+
+@media (min-width: 1100px) {
+  .report-galaxy-side-monitor-panel .cgd-focus-panel {
+    gap: 0.8rem;
+  }
+
+  .report-galaxy-side-monitor-panel .cgd-focus-title {
+    font-size: 1.06rem;
+  }
+}

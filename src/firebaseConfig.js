@@ -55,7 +55,7 @@ const resolvedEnv = readFirebaseEnv()
 try {
   const { apiKey, projectId, authDomain, storageBucket, messagingSenderId, appId } = resolvedEnv
 
-  if (apiKey && projectId) {
+  if (apiKey && projectId && authDomain) {
     const firebaseConfig = {
       apiKey,
       authDomain,
@@ -66,7 +66,6 @@ try {
     }
     app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp()
 
-    // Auth must stay available even if Firestore/Storage have partial config issues.
     try {
       auth = getAuth(app)
       googleProvider = new GoogleAuthProvider()
@@ -86,10 +85,15 @@ try {
     } catch (storageErr) {
       console.warn('Errore inizializzazione Firebase Storage:', storageErr)
     }
+  } else if (apiKey && projectId && !authDomain) {
+    firebaseInitError =
+      'VITE_FIREBASE_AUTH_DOMAIN mancante o vuoto: deve essere tipo tuo-progetto.firebaseapp.com'
   }
 } catch (err) {
   firebaseInitError = err?.message || String(err)
   console.warn('Firebase non configurato o errore di inizializzazione:', err)
 }
 
-export { db, storage, auth, googleProvider, firebaseInitError }
+const isFirebaseAuthConfigured = Boolean(auth && googleProvider)
+
+export { db, storage, auth, googleProvider, firebaseInitError, isFirebaseAuthConfigured }

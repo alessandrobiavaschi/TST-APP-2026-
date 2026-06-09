@@ -1,5 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { getSkyVisualProfile } from './skyVideosConfig.js'
 
 const STORAGE_KEY = 'tst_sky_config_v1'
 
@@ -10,6 +11,8 @@ const DEFAULT_CONFIG = {
   allowedTimes: ['morning', 'afternoon', 'sunset', 'twilight', 'night'],
   staticMode: false,
 }
+
+const PRIORITY_SKY_SEQUENCE = ['sereno', 'nuvoloso', 'caldissimo', 'neve']
 
 const SkyThemeContext = createContext(null)
 
@@ -34,22 +37,39 @@ const pickRandom = (array) => {
   return array[index]
 }
 
+const normalizeConfig = (config) => {
+  const next = {
+    ...DEFAULT_CONFIG,
+    ...(config || {}),
+  }
+
+  if (Array.isArray(config?.allowedWeathers)) {
+    next.weatherOptions = config.allowedWeathers
+  }
+  if (Array.isArray(config?.allowedTimesOfDay)) {
+    next.allowedTimes = config.allowedTimesOfDay
+  }
+  if (typeof config?.weatherChangeMinutes === 'number') {
+    next.weatherChangeFrequencyMinutes = config.weatherChangeMinutes
+  }
+
+  return next
+}
+
 export function SkyThemeProvider({ children }) {
   const [config, setConfig] = useState(() => {
     try {
       const stored = window.localStorage.getItem(STORAGE_KEY)
       if (!stored) return DEFAULT_CONFIG
       const parsed = JSON.parse(stored)
-      return {
-        ...DEFAULT_CONFIG,
-        ...parsed,
-      }
+      return normalizeConfig(parsed)
     } catch {
       return DEFAULT_CONFIG
     }
   })
   const [timeOfDay, setTimeOfDay] = useState('morning')
   const [weather, setWeather] = useState('sereno')
+  const [landingSkyOverride, setLandingSkyOverride] = useState(null)
 
   useEffect(() => {
     try {
@@ -109,22 +129,83 @@ export function SkyThemeProvider({ children }) {
     }
   }, [config.staticMode, config.weatherOptions, config.weatherChangeFrequencyMinutes, config.speedFactor])
 
+  const setWeatherChangeFrequencyMinutes = useCallback((minutes) => {
+    setConfig((prev) => ({
+      ...prev,
+      weatherChangeFrequencyMinutes: minutes,
+    }))
+  }, [])
+
+  const setAllowedWeathers = useCallback((weatherKeys) => {
+    setConfig((prev) => ({
+      ...prev,
+      weatherOptions: weatherKeys && weatherKeys.length > 0 ? weatherKeys : DEFAULT_CONFIG.weatherOptions,
+    }))
+  }, [])
+
+  const setAllowedTimesOfDay = useCallback((timeKeys) => {
+    setConfig((prev) => ({
+      ...prev,
+      allowedTimes: timeKeys && timeKeys.length > 0 ? timeKeys : DEFAULT_CONFIG.allowedTimes,
+    }))
+  }, [])
+
+  const forceRandomWeatherChange = useCallback(
+    ({ scheduleAfterMs } = {}) => {
+      const changeWeather = () => {
+        setWeather((currentWeather) => {
+          const options =
+            config.weatherOptions && config.weatherOptions.length > 0
+              ? config.weatherOptions
+              : DEFAULT_CONFIG.weatherOptions
+          const priorityOptions = PRIORITY_SKY_SEQUENCE.filter((weatherKey) =>
+            options.includes(weatherKey),
+          )
+          const currentPriorityIndex = priorityOptions.indexOf(currentWeather)
+
+          if (currentPriorityIndex >= 0 && currentPriorityIndex < priorityOptions.length - 1) {
+            return priorityOptions[currentPriorityIndex + 1]
+          }
+
+          const alternatives = options.filter((weatherKey) => weatherKey !== currentWeather)
+          return pickRandom(alternatives) || pickRandom(options) || 'sereno'
+        })
+      }
+
+      changeWeather()
+
+      if (scheduleAfterMs && typeof window !== 'undefined') {
+        window.setTimeout(changeWeather, scheduleAfterMs)
+      }
+    },
+    [config.weatherOptions],
+  )
+
+  const effectiveTimeOfDay = landingSkyOverride?.timeOfDay || timeOfDay
+  const effectiveWeather = landingSkyOverride?.weather || weather
+  const visualProfile = getSkyVisualProfile(effectiveTimeOfDay, effectiveWeather)
+
   const value = useMemo(
     () => ({
-      timeOfDay,
-      weather,
-      config,
+      timeOfDay: effectiveTimeOfDay,
+      weather: effectiveWeather,
+      visualProfile,
+      config: {
+        ...config,
+        allowedWeathers: config.weatherOptions,
+        allowedTimesOfDay: config.allowedTimes,
+        weatherChangeMinutes: config.weatherChangeFrequencyMinutes,
+      },
       setConfig,
       setSpeedFactor: (speedFactor) =>
         setConfig((prev) => ({
           ...prev,
           speedFactor,
         })),
-      setWeatherChangeFrequencyMinutes: (minutes) =>
-        setConfig((prev) => ({
-          ...prev,
-          weatherChangeFrequencyMinutes: minutes,
-        })),
+      setWeatherChangeFrequencyMinutes,
+      setWeatherChangeMinutes: setWeatherChangeFrequencyMinutes,
+      setAllowedWeathers,
+      setAllowedTimesOfDay,
       toggleWeatherOption: (weatherKey) =>
         setConfig((prev) => {
           const exists = prev.weatherOptions.includes(weatherKey)
@@ -155,8 +236,19 @@ export function SkyThemeProvider({ children }) {
           ...prev,
           staticMode,
         })),
+      setLandingSkyOverride,
+      forceRandomWeatherChange,
     }),
-    [timeOfDay, weather, config],
+    [
+      effectiveTimeOfDay,
+      effectiveWeather,
+      visualProfile,
+      config,
+      setWeatherChangeFrequencyMinutes,
+      setAllowedWeathers,
+      setAllowedTimesOfDay,
+      forceRandomWeatherChange,
+    ],
   )
 
   return <SkyThemeContext.Provider value={value}>{children}</SkyThemeContext.Provider>
@@ -169,4 +261,3 @@ export function useSkyTheme() {
   }
   return context
 }
-

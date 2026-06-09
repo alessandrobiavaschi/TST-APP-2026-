@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { signOut, deleteUser } from 'firebase/auth'
 import { auth } from '../firebaseConfig.js'
 import {
@@ -145,14 +145,11 @@ function HomePage() {
     const result = await authSignInWithEmail(em, pw)
     setIsSubmitting(false)
     if (!result.success) {
-      if (result.requiresEmailVerification || result.code === 'auth/email-not-verified') {
-        setAuthError('Email non ancora verificata.')
-        setResetMessage(result.message || '')
-        throw new Error(result.message || 'Email non verificata.')
-      }
-      const errorMessage = result.message || "Errore durante l'accesso."
-      setAuthError(errorMessage)
-      throw new Error(errorMessage)
+      setAuthError(result.message || "Errore durante l'accesso.")
+      return
+    }
+    if (result.requiresEmailVerification && result.message) {
+      setResetMessage(result.message)
     }
     navigate(result.nextRoute || '/home')
   }
@@ -246,6 +243,19 @@ function HomePage() {
     )
   }
 
+  if (authReady && !currentUser) {
+    return (
+      <Navigate
+        to="/"
+        replace
+        state={{
+          openAccessBox: showLoginSection || isRegisterMode,
+          openRegister: isRegisterMode,
+        }}
+      />
+    )
+  }
+
   return (
     <div className={currentUser ? 'page my-area' : 'page'}>
       {currentUser ? (
@@ -257,6 +267,15 @@ function HomePage() {
               Da qui avvii i test, consulti i risultati e gestisci il tuo profilo operatore.
             </p>
           </header>
+
+          {!currentUser.emailVerified && (
+            <div className="page-card" style={{ marginBottom: '1rem' }} role="status">
+              <p className="auth-success" style={{ margin: 0 }}>
+                Accesso attivo. Conferma l&apos;email ({currentUser.email}) dal link ricevuto — controlla anche
+                Spam/Promozioni. Puoi usare l&apos;app anche prima della verifica.
+              </p>
+            </div>
+          )}
 
           <div className="my-area-shell">
             <div className="my-area-column my-area-column--main">
@@ -364,18 +383,19 @@ function HomePage() {
                   <div className="landing-flow-section">
                     <p className="landing-flow-kicker">Perché TST</p>
                     <h2 className="landing-flow-chapter-title">
-                      Non e un quiz veloce. E una lettura guidata del tuo ritmo emotivo.
+                      TST NON È UN QUIZ. È UNO STRUMENTO ARTISTICO-SCIENTIFICO CHE RIVELA L&apos;INTIMA NATURA
+                      EMOTIVA INDIVIDUALE.
                     </h2>
                     <p className="landing-flow-highlight">
-                      Il test usa la musica come stimolo emozionale con un protocollo strutturato e orientato
-                      all&apos;osservazione personale.
+                      Il test usa la musica come stimolo emozionale. Un protocollo unico privo di algoritmi che illumina
+                      le nostre profonde qualità interiori.
                     </p>
                   </div>
 
                   <div className="landing-flow-section">
                     <p className="landing-flow-kicker">Come funziona</p>
                     <h2 className="landing-flow-chapter-title">
-                      Tre passaggi, un solo obiettivo: trasformare sensazioni in chiarezza.
+                      TRE PASSAGGI PER STILARE UNA MAPPA DELLA PROPRIA NATURA EMOTIVA, PER CONOSCERSI INTIMAMENTE
                     </h2>
 
                     <div className="landing-flow-steps-grid" aria-label="Card informative">

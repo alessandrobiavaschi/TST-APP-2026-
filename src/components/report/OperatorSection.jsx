@@ -9,6 +9,7 @@ import {
   Legend as BarLegend,
 } from 'recharts'
 import ReportAccordion from './ReportAccordion'
+import { APPROFONDIMENTO_UI } from './reportUiCopy.js'
 
 const BAR_COLORS = {
   Blu: '#3b82f6',
@@ -42,16 +43,106 @@ function OperatorLegend() {
   )
 }
 
-export default function OperatorSection({ sezioniData, sezioniTest }) {
+function FieldList({ label, children }) {
+  if (!children) return null
+  return (
+    <div className="report-filtro-musicale__field">
+      <dt className="report-filtro-musicale__dt">{label}</dt>
+      <dd className="report-filtro-musicale__dd">{children}</dd>
+    </div>
+  )
+}
+
+function ChipList({ items = [], renderItem, empty = null }) {
+  if (!items.length) return empty
+  return (
+    <ul className="report-filtro-musicale__chips">
+      {items.map((item) => (
+        <li key={item.code || item.label || item.nome} className="report-filtro-musicale__chip">
+          {renderItem ? renderItem(item) : item.label}
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+function AreaChip({ area }) {
+  return (
+    <span className="report-filtro-musicale__area">
+      <span className="report-filtro-musicale__area-name">
+        {area.code} · {area.nome}
+      </span>
+      {area.range ? (
+        <span className="report-filtro-musicale__area-range">{area.range}</span>
+      ) : null}
+    </span>
+  )
+}
+
+function FiltroMusicalePanel({ filtroMusicale }) {
+  if (!filtroMusicale?.hasData) return null
+
+  return (
+    <section
+      id="report-tst-filtro-musicale"
+      className="report-filtro-musicale report-tst-section-anchor"
+      aria-labelledby="report-filtro-musicale-heading"
+    >
+      <header className="report-filtro-musicale__header">
+        <p className="report-filtro-musicale__eyebrow">Dati finali</p>
+        <h3 id="report-filtro-musicale-heading" className="report-filtro-musicale__title">
+          Filtro musicale
+        </h3>
+      </header>
+
+      <dl className="report-filtro-musicale__grid">
+        {filtroMusicale.areeMaggiorAgio?.length ? (
+          <FieldList label="Aree di maggiore agio">
+            <ChipList
+              items={filtroMusicale.areeMaggiorAgio}
+              renderItem={(area) => <AreaChip area={area} />}
+            />
+          </FieldList>
+        ) : null}
+        {filtroMusicale.areeMinorAgio?.length ? (
+          <FieldList label="Aree di minore agio">
+            <ChipList
+              items={filtroMusicale.areeMinorAgio}
+              renderItem={(area) => <AreaChip area={area} />}
+            />
+          </FieldList>
+        ) : null}
+        {filtroMusicale.statoAnimoFinale?.length ? (
+          <FieldList label="Stato d'animo finale">
+            <ChipList items={filtroMusicale.statoAnimoFinale} />
+          </FieldList>
+        ) : null}
+        {filtroMusicale.difficolta || filtroMusicale.difficoltaDettaglio?.length ? (
+          <FieldList label="Difficoltà">
+            {filtroMusicale.difficolta?.label || null}
+            <ChipList items={filtroMusicale.difficoltaDettaglio} />
+          </FieldList>
+        ) : null}
+        {filtroMusicale.qualitaSuoni ? (
+          <FieldList label="Qualità dei suoni">
+            {filtroMusicale.qualitaSuoni.label}
+          </FieldList>
+        ) : null}
+      </dl>
+    </section>
+  )
+}
+
+export default function OperatorSection({ sezioniData, sezioniTest, filtroMusicale }) {
   return (
     <section id="report-operatori" className="report-operator-section report-xp-section" aria-labelledby="operator-heading">
       <header className="report-operator-header">
         <h2 id="operator-heading" className="report-operator-title">
-          Approfondimento sulle singole sezioni
+          {APPROFONDIMENTO_UI.title}
         </h2>
         <div className="report-operator-title-line" aria-hidden />
         <p className="report-operator-intro">
-          Questa sezione mostra dove si concentra l&apos;energia emotiva nelle diverse aree del test. Ogni colonna rappresenta una sezione, con le cinque famiglie a confronto.
+          {APPROFONDIMENTO_UI.intro}
         </p>
       </header>
 
@@ -78,6 +169,8 @@ export default function OperatorSection({ sezioniData, sezioniTest }) {
           </ResponsiveContainer>
         </div>
       </div>
+
+      <FiltroMusicalePanel filtroMusicale={filtroMusicale} />
 
       <ReportAccordion sezioniTest={sezioniTest} />
     </section>

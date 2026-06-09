@@ -377,3 +377,83 @@ export function computeScoreDeltaForAnswer({
   return delta
 }
 
+/** Varianti di risposta considerate per il massimo teorico file-per-file (solo chiavi corrente). */
+function getPossibleAnswerParamsForFile(fileNumber) {
+  const logicType = getLogicTypeForFile(fileNumber)
+  const group = getQuestionGroupForFile(fileNumber)
+
+  const wrapConfirmation = (paramsList) => {
+    if (group !== 'C_BIS') return paramsList
+    const extended = []
+    for (const p of paramsList) {
+      extended.push({ ...p, isConfirmation: false })
+      extended.push({ ...p, isConfirmation: true })
+    }
+    return extended
+  }
+
+  const baseVariants = []
+  if (logicType === 'DIZIONARIO_1') {
+    for (const answerLabel of Object.keys(DIZIONARIO_1)) baseVariants.push({ answerLabel })
+    return wrapConfirmation(baseVariants)
+  }
+  if (logicType === 'DIZIONARIO_2') {
+    for (const answerLabel of Object.keys(DIZIONARIO_2)) baseVariants.push({ answerLabel })
+    return wrapConfirmation(baseVariants)
+  }
+  if (logicType === 'AFFINITA_BASE') {
+    for (const o of AFFINITA_BASE_OPZIONI) baseVariants.push({ affinitaOptionId: o.id })
+    return wrapConfirmation(baseVariants)
+  }
+  if (logicType === 'AFFINITA_ECCEZIONE') {
+    for (const o of AFFINITA_ECCEZIONE_OPZIONI) baseVariants.push({ affinitaOptionId: o.id })
+    return wrapConfirmation(baseVariants)
+  }
+  if (logicType === 'AFFINITA_STANDARD') {
+    for (const o of AFFINITA_STANDARD_OPZIONI) baseVariants.push({ affinitaOptionId: o.id })
+    return wrapConfirmation(baseVariants)
+  }
+  return []
+}
+
+/** Massimo sommabile per ogni corrente se ogni file contribuisse nel modo migliore possibile a quella corrente. */
+export const THEORETICAL_MAX_SCORE_BY_CORRENTE_KEY = (() => {
+  const sums = {}
+  const allCorrenteVals = Object.values(CORRENTE_KEYS)
+  for (let fileNumber = 1; fileNumber <= 72; fileNumber += 1) {
+    const paramsList = getPossibleAnswerParamsForFile(fileNumber)
+    const maxForFile = Object.fromEntries(allCorrenteVals.map((ck) => [ck, 0]))
+    for (const params of paramsList) {
+      const delta = computeScoreDeltaForAnswer({ fileNumber, ...params })
+      for (const ck of allCorrenteVals) {
+        maxForFile[ck] = Math.max(maxForFile[ck], delta[ck] || 0)
+      }
+    }
+    for (const ck of allCorrenteVals) {
+      sums[ck] = (sums[ck] || 0) + maxForFile[ck]
+    }
+  }
+  return sums
+})()
+
+const CK = CORRENTE_KEYS
+
+/** Totali teorici per famiglia colore (somma delle correnti della famiglia). */
+export const THEORETICAL_MAX_COLOR_TOTALS = {
+  blu:
+    (THEORETICAL_MAX_SCORE_BY_CORRENTE_KEY[CK.BLU_1] || 0) +
+    (THEORETICAL_MAX_SCORE_BY_CORRENTE_KEY[CK.BLU_2] || 0) +
+    (THEORETICAL_MAX_SCORE_BY_CORRENTE_KEY[CK.BLU_3] || 0) +
+    (THEORETICAL_MAX_SCORE_BY_CORRENTE_KEY[CK.BLU_4] || 0),
+  rosso:
+    (THEORETICAL_MAX_SCORE_BY_CORRENTE_KEY[CK.ROSSO_1] || 0) +
+    (THEORETICAL_MAX_SCORE_BY_CORRENTE_KEY[CK.ROSSO_2] || 0),
+  verde: THEORETICAL_MAX_SCORE_BY_CORRENTE_KEY[CK.VERDE_1] || 0,
+  giallo:
+    (THEORETICAL_MAX_SCORE_BY_CORRENTE_KEY[CK.GIALLO_1] || 0) +
+    (THEORETICAL_MAX_SCORE_BY_CORRENTE_KEY[CK.GIALLO_2] || 0),
+  grigio:
+    (THEORETICAL_MAX_SCORE_BY_CORRENTE_KEY[CK.GRIGIO_1] || 0) +
+    (THEORETICAL_MAX_SCORE_BY_CORRENTE_KEY[CK.GRIGIO_2] || 0),
+}
+

@@ -1,0 +1,2898 @@
+/* =====================================================================
+   GalassiaView — sfondo galattico + monitor CRT vintage (scope: .galassia-view)
+   ===================================================================== */
+
+.galassia-view {
+  --galassia-crt-green: #9ef01a;
+  --galassia-crt-amber: #ffb000;
+  --galassia-crt-text: rgba(210, 255, 170, 0.94);
+  --galassia-crt-muted: rgba(158, 240, 26, 0.62);
+  --galassia-crt-border: rgba(120, 180, 80, 0.45);
+  --galassia-crt-glow: rgba(158, 240, 26, 0.12);
+  position: relative;
+  isolation: isolate;
+  font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, monospace);
+}
+
+/* ── Sfondo a strati (fisso al viewport: non segue zoom/pan mappa) ─ */
+
+.galassia-view__bg-backdrop {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.galassia-view__bg-backdrop > * {
+  position: absolute;
+  inset: 0;
+}
+
+.galassia-view__bg {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.galassia-view__bg-deep {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 120% 80% at 50% 110%, rgba(15, 23, 42, 0.95) 0%, transparent 55%),
+    radial-gradient(ellipse 90% 60% at 10% 20%, rgba(30, 58, 138, 0.35) 0%, transparent 50%),
+    radial-gradient(ellipse 70% 50% at 88% 75%, rgba(127, 29, 29, 0.28) 0%, transparent 48%),
+    radial-gradient(ellipse 55% 45% at 72% 18%, rgba(113, 63, 18, 0.22) 0%, transparent 42%),
+    linear-gradient(180deg, #010409 0%, #020817 38%, #030712 100%);
+}
+
+.galassia-view__bg-nebula {
+  inset: -28%;
+  opacity: 0.55;
+  background:
+    radial-gradient(ellipse 42% 32% at 22% 38%, rgba(59, 130, 246, 0.22) 0%, transparent 70%),
+    radial-gradient(ellipse 38% 28% at 78% 62%, rgba(239, 68, 68, 0.16) 0%, transparent 68%),
+    radial-gradient(ellipse 34% 26% at 52% 22%, rgba(234, 179, 8, 0.14) 0%, transparent 65%),
+    radial-gradient(ellipse 30% 24% at 48% 78%, rgba(34, 197, 94, 0.12) 0%, transparent 62%);
+  filter: blur(2px);
+  animation: galassia-nebula-drift 56s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.galassia-view__bg-stars {
+  position: absolute;
+  inset: 0;
+  opacity: 0.85;
+  background-image:
+    radial-gradient(1px 1px at 12% 18%, rgba(255, 255, 255, 0.75) 0, transparent 100%),
+    radial-gradient(1px 1px at 28% 42%, rgba(255, 255, 255, 0.55) 0, transparent 100%),
+    radial-gradient(1.5px 1.5px at 44% 12%, rgba(255, 255, 255, 0.8) 0, transparent 100%),
+    radial-gradient(1px 1px at 61% 33%, rgba(255, 255, 255, 0.5) 0, transparent 100%),
+    radial-gradient(1px 1px at 73% 58%, rgba(255, 255, 255, 0.65) 0, transparent 100%),
+    radial-gradient(1.5px 1.5px at 86% 24%, rgba(255, 255, 255, 0.7) 0, transparent 100%),
+    radial-gradient(1px 1px at 91% 78%, rgba(255, 255, 255, 0.45) 0, transparent 100%),
+    radial-gradient(1px 1px at 8% 72%, rgba(255, 255, 255, 0.5) 0, transparent 100%),
+    radial-gradient(1px 1px at 35% 88%, rgba(255, 255, 255, 0.55) 0, transparent 100%),
+    radial-gradient(1px 1px at 52% 65%, rgba(255, 255, 255, 0.4) 0, transparent 100%),
+    radial-gradient(1px 1px at 18% 55%, rgba(255, 255, 255, 0.35) 0, transparent 100%),
+    radial-gradient(1px 1px at 67% 8%, rgba(255, 255, 255, 0.6) 0, transparent 100%);
+  background-size: 100% 100%;
+}
+
+.galassia-view__bg-stars--twinkle {
+  opacity: 0.45;
+  animation: galassia-star-twinkle 8s ease-in-out infinite alternate;
+}
+
+.galassia-view__bg-vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 85% 75% at 50% 45%, transparent 35%, rgba(2, 6, 23, 0.52) 100%),
+    linear-gradient(180deg, rgba(2, 6, 23, 0.35) 0%, rgba(2, 6, 23, 0.15) 40%, rgba(2, 6, 23, 0.55) 100%);
+}
+
+@keyframes galassia-star-twinkle {
+  0% { opacity: 0.35; }
+  100% { opacity: 0.65; }
+}
+
+@keyframes galassia-nebula-drift {
+  0% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(1.8%, -1.2%, 0); }
+  100% { transform: translate3d(-1.4%, 1.6%, 0); }
+}
+
+@keyframes galassia-star-field-drift {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-0.8%, 0.6%, 0); }
+}
+
+.galassia-view__bg-stars:not(.galassia-view__bg-stars--twinkle) {
+  animation: galassia-star-field-drift 120s linear infinite alternate;
+}
+
+.galassia-view.is-reduced-motion .galassia-view__bg-stars--twinkle,
+.galassia-view.is-reduced-motion .galassia-view__bg-stars:not(.galassia-view__bg-stars--twinkle),
+.galassia-view.is-reduced-motion .galassia-view__bg-nebula {
+  animation: none;
+  transform: none;
+}
+
+.galassia-view.is-reduced-motion .galassia-view__bg-stars--twinkle {
+  opacity: 0.5;
+}
+
+/* Nebulosa dinamica legata alla corrente selezionata / in hover */
+.galassia-view__bg-focus {
+  position: absolute;
+  inset: 0;
+  transition: opacity 0.7s ease, background 0.7s ease;
+  opacity: 0.7;
+}
+
+/* ── Intro compatta (desktop) ──────────────────────────────────── */
+
+.galassia-view__intro {
+  position: absolute;
+  top: 0.75rem;
+  left: 50%;
+  z-index: 15;
+  transform: translateX(-50%);
+  max-width: min(92vw, 680px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  pointer-events: none;
+}
+
+.galassia-view__legend {
+  margin: 0;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(2, 6, 23, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: rgba(226, 232, 240, 0.82);
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 0.68rem;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.galassia-view__glossary-link {
+  pointer-events: auto;
+  font-size: 0.72rem;
+  padding: 4px 10px;
+}
+
+@media (max-width: 768px) {
+  .galassia-view__intro {
+    top: 0.5rem;
+  }
+
+  .galassia-view__legend {
+    font-size: 0.62rem;
+    padding: 0.38rem 0.65rem;
+    border-radius: 0.65rem;
+  }
+}
+
+/* ── Monitor CRT vintage ─────────────────────────────────────────── */
+
+.galassia-view__crt {
+  position: absolute;
+  z-index: 40;
+  left: 0.85rem;
+  bottom: 0.85rem;
+  width: min(420px, calc(100vw - 1.7rem));
+  max-height: min(42vh, 360px);
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+}
+
+@media (max-width: 768px) {
+  .galassia-view__crt {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    max-height: min(46vh, 320px);
+    padding: 0 0.55rem 0.55rem;
+    box-sizing: border-box;
+  }
+}
+
+.galassia-view__crt-bezel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-radius: 0.65rem 0.65rem 0.5rem 0.5rem;
+  border: 2px solid rgba(100, 116, 139, 0.55);
+  border-top-color: rgba(203, 213, 225, 0.45);
+  background: linear-gradient(165deg, #1e293b 0%, #0f172a 55%, #020617 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 12px 28px rgba(0, 0, 0, 0.45);
+  padding: 0.42rem 0.48rem 0.5rem;
+}
+
+.galassia-view__crt-head {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-shrink: 0;
+  margin-bottom: 0.35rem;
+}
+
+.galassia-view__crt-dots {
+  display: inline-flex;
+  gap: 0.22rem;
+}
+
+.galassia-view__crt-dots span {
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.35);
+}
+
+.galassia-view__crt-dots span:nth-child(1) { background: #fb7185; }
+.galassia-view__crt-dots span:nth-child(2) { background: #fbbf24; }
+.galassia-view__crt-dots span:nth-child(3) { background: #34d399; }
+
+.galassia-view__crt-kicker {
+  margin: 0;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--galassia-crt-muted);
+}
+
+.galassia-view__crt-screen {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-radius: 0.35rem;
+  border: 1px solid var(--galassia-crt-border);
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.14) 0,
+      rgba(0, 0, 0, 0.14) 1px,
+      transparent 1px,
+      transparent 3px
+    ),
+    radial-gradient(ellipse 90% 70% at 50% 0%, rgba(158, 240, 26, 0.08) 0%, transparent 55%),
+    linear-gradient(180deg, rgba(4, 12, 6, 0.98) 0%, rgba(2, 8, 4, 0.99) 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(158, 240, 26, 0.08),
+    inset 0 0 24px rgba(158, 240, 26, 0.06);
+  padding: 0.65rem 0.72rem 0.75rem;
+  color: var(--galassia-crt-text);
+  font-size: 0.74rem;
+  line-height: 1.5;
+}
+
+.galassia-view__crt-scanline {
+  pointer-events: none;
+  position: absolute;
+  left: 0.35rem;
+  right: 0.35rem;
+  top: 0.4rem;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(158, 240, 26, 0.35), transparent);
+  opacity: 0.7;
+}
+
+.galassia-view__crt-breadcrumb {
+  margin: 0 0 0.35rem;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--galassia-crt-muted);
+  font: inherit;
+  font-size: 0.68rem;
+  cursor: pointer;
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.galassia-view__crt-breadcrumb:hover,
+.galassia-view__crt-breadcrumb:focus-visible {
+  color: var(--galassia-crt-text);
+  outline: none;
+}
+
+.galassia-view__crt-hierarchy {
+  margin: 0 0 0.28rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--galassia-crt-muted);
+}
+
+.galassia-view__crt-title {
+  margin: 0 0 0.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.5rem;
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--galassia-crt-green);
+  text-shadow: 0 0 12px var(--galassia-crt-glow);
+}
+
+.galassia-view__crt-title-dot {
+  display: inline-block;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  flex-shrink: 0;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.galassia-view__crt-pct {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--galassia-crt-amber);
+}
+
+.galassia-view__crt-meta {
+  margin: 0 0 0.45rem;
+  font-size: 0.66rem;
+  color: var(--galassia-crt-muted);
+}
+
+.galassia-view__crt-def,
+.galassia-view__crt-indica,
+.galassia-view__crt-hint,
+.galassia-view__crt-pratica {
+  margin: 0 0 0.4rem;
+}
+
+.galassia-view__crt-pratica {
+  padding: 0.35rem 0.45rem;
+  border-left: 2px solid rgba(74, 222, 128, 0.65);
+  background: rgba(74, 222, 128, 0.06);
+  color: rgba(220, 252, 231, 0.9);
+  font-size: 0.67rem;
+  line-height: 1.45;
+}
+
+.galassia-view__crt-pratica strong {
+  font-weight: 600;
+}
+
+.galassia-view__crt-indica {
+  color: rgba(210, 255, 170, 0.78);
+  font-size: 0.68rem;
+}
+
+.galassia-view__crt-hint {
+  padding: 0.35rem 0.45rem;
+  border-left: 2px solid var(--galassia-crt-amber);
+  background: rgba(255, 176, 0, 0.06);
+  color: rgba(255, 210, 120, 0.92);
+  font-size: 0.67rem;
+}
+
+.galassia-view__crt-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.28rem;
+  margin: 0.35rem 0 0.45rem;
+}
+
+.galassia-view__crt-tag {
+  padding: 0.14rem 0.42rem;
+  border-radius: 0.2rem;
+  border: 1px solid rgba(158, 240, 26, 0.28);
+  background: rgba(158, 240, 26, 0.07);
+  font-size: 0.6rem;
+  color: rgba(210, 255, 170, 0.88);
+}
+
+.galassia-view__crt-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.35rem;
+  padding-top: 0.35rem;
+  border-top: 1px dashed rgba(158, 240, 26, 0.2);
+}
+
+.galassia-view__crt-btn {
+  min-height: 2rem;
+  padding: 0.28rem 0.62rem;
+  border-radius: 0.25rem;
+  border: 1px solid rgba(158, 240, 26, 0.35);
+  background: rgba(158, 240, 26, 0.08);
+  color: var(--galassia-crt-text);
+  font: inherit;
+  font-size: 0.65rem;
+  cursor: pointer;
+}
+
+.galassia-view__crt-btn:hover,
+.galassia-view__crt-btn:focus-visible {
+  background: rgba(158, 240, 26, 0.16);
+  outline: none;
+}
+
+.galassia-view__crt-btn--ghost {
+  border-color: rgba(148, 163, 184, 0.35);
+  background: transparent;
+  color: rgba(203, 213, 225, 0.85);
+}
+
+/* Spazio per il monitor su mobile — evita sovrapposizione con griglia pianeti */
+@media (max-width: 768px) {
+  .galassia-view__map-layer {
+    padding-bottom: min(46vh, 320px);
+  }
+}
+
+/* =====================================================================
+   Product-science refinement: leggibilita', assi e pannello operativo
+   ===================================================================== */
+
+.galassia-view {
+  --galassia-panel-bg: rgba(7, 12, 24, 0.82);
+  --galassia-panel-line: rgba(148, 163, 184, 0.24);
+  --galassia-panel-text: rgba(248, 250, 252, 0.96);
+  --galassia-panel-muted: rgba(203, 213, 225, 0.72);
+  font-family: var(--font-body, Inter, ui-sans-serif, system-ui, sans-serif);
+}
+
+.galassia-view__legend {
+  top: 0.95rem;
+  left: auto;
+  right: clamp(1rem, 2vw, 1.5rem);
+  transform: none;
+  max-width: min(34vw, 520px);
+  border-radius: 0.75rem;
+  background: rgba(7, 12, 24, 0.64);
+  text-align: left;
+  font-size: 0.76rem;
+  color: rgba(226, 232, 240, 0.82);
+}
+
+.galassia-view__axis {
+  position: absolute;
+  inset: 8% 8% 12%;
+  z-index: 1;
+  width: 84%;
+  height: 80%;
+  overflow: visible;
+  opacity: 0.42;
+}
+
+.galassia-view__axis ellipse,
+.galassia-view__axis line {
+  fill: none;
+  stroke: rgba(148, 163, 184, 0.26);
+  stroke-width: 0.12;
+  vector-effect: non-scaling-stroke;
+}
+
+.galassia-view__axis ellipse {
+  stroke-dasharray: 2 4;
+}
+
+.galassia-view__axis-label {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  gap: 0.14rem;
+  pointer-events: none;
+  color: rgba(226, 232, 240, 0.62);
+  text-align: center;
+  transform: translate(-50%, -50%);
+}
+
+.galassia-view__axis-label strong {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(148, 163, 184, 0.74);
+}
+
+.galassia-view__axis-label small {
+  font-size: 0.76rem;
+  color: rgba(226, 232, 240, 0.62);
+}
+
+.galassia-view__axis-label--north { left: 50%; top: 16%; }
+.galassia-view__axis-label--west { left: 13%; top: 52%; }
+.galassia-view__axis-label--east { left: 87%; top: 52%; }
+.galassia-view__axis-label--center { left: 50%; top: 59%; }
+.galassia-view__axis-label--south { left: 50%; top: 88%; }
+
+.galassia-view__guide-star {
+  pointer-events: auto;
+  position: absolute;
+  z-index: 8;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(248, 250, 252, 0.92);
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+  outline: none;
+}
+
+.galassia-view__guide-star::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle, color-mix(in srgb, var(--guide-star-color) 48%, white 32%) 0 12%, transparent 54%);
+  opacity: 0.2;
+  transform: scale(0.9);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.galassia-view__guide-star-core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--guide-star-size);
+  height: var(--guide-star-size);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 36% 30%, rgba(255, 255, 255, 0.95) 0 18%, transparent 32%),
+    var(--guide-star-color);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--guide-star-color) 46%, white 18%),
+    0 0 12px color-mix(in srgb, var(--guide-star-color) 64%, transparent);
+  transform: translate(-50%, -50%);
+}
+
+.galassia-view__guide-star-label {
+  position: absolute;
+  left: 50%;
+  top: calc(50% + 17px);
+  max-width: 120px;
+  padding: 0.2rem 0.36rem;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 0.45rem;
+  background: rgba(2, 6, 23, 0.82);
+  color: rgba(248, 250, 252, 0.94);
+  font-family: var(--font-body, Inter, ui-sans-serif, system-ui, sans-serif);
+  font-size: 0.62rem;
+  font-weight: 650;
+  line-height: 1.08;
+  opacity: 0;
+  overflow-wrap: anywhere;
+  text-align: center;
+  transform: translate(-50%, -2px);
+  transition: opacity 0.16s ease, transform 0.16s ease;
+}
+
+.galassia-view__guide-star:hover::before,
+.galassia-view__guide-star:focus-visible::before {
+  opacity: 0.62;
+  transform: scale(1.2);
+}
+
+.galassia-view__guide-star:hover .galassia-view__guide-star-core,
+.galassia-view__guide-star:focus-visible .galassia-view__guide-star-core {
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.88),
+    0 0 22px color-mix(in srgb, var(--guide-star-color) 82%, transparent);
+}
+
+.galassia-view__guide-star:hover .galassia-view__guide-star-label,
+.galassia-view__guide-star:focus-visible .galassia-view__guide-star-label {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.galassia-view__planet-label {
+  pointer-events: none;
+  position: absolute;
+  left: 50%;
+  display: grid;
+  gap: 0.05rem;
+  min-width: max-content;
+  transform: translateX(-50%);
+  text-align: center;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.7);
+}
+
+.galassia-view__planet-label strong {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: rgba(248, 250, 252, 0.86);
+}
+
+.galassia-view__planet-label small {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.66rem;
+  color: rgba(203, 213, 225, 0.54);
+}
+
+.galassia-view__satellite {
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1rem;
+  border: 1px solid color-mix(in srgb, var(--satellite-color) 68%, white 12%);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 38% 28%, rgba(255, 255, 255, 0.32), transparent 30%),
+    color-mix(in srgb, var(--satellite-color) 82%, #020817 18%);
+  color: rgba(255, 255, 255, 0.94);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--satellite-color) 30%, transparent),
+    0 12px 28px rgba(0, 0, 0, 0.28),
+    0 0 22px color-mix(in srgb, var(--satellite-color) 34%, transparent);
+  text-align: center;
+  outline: none;
+}
+
+.galassia-view__satellite[aria-pressed='true'],
+.galassia-view__satellite:hover,
+.galassia-view__satellite:focus-visible {
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.92),
+    0 0 30px color-mix(in srgb, var(--satellite-color) 72%, transparent);
+}
+
+.galassia-view__satellite span {
+  max-width: 82%;
+  font-size: 0.62rem;
+  font-weight: 650;
+  line-height: 1.1;
+}
+
+.galassia-view__satellite small {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.58rem;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.galassia-view__crt {
+  left: auto;
+  right: clamp(1rem, 2.4vw, 1.6rem);
+  bottom: clamp(1rem, 2.4vw, 1.5rem);
+  width: min(430px, 31vw);
+  max-height: min(72vh, 680px);
+  font-family: var(--font-body, Inter, ui-sans-serif, system-ui, sans-serif);
+}
+
+.galassia-view__crt-bezel {
+  border: 1px solid var(--galassia-panel-line);
+  border-radius: 1rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.055), transparent 18%),
+    var(--galassia-panel-bg);
+  box-shadow:
+    0 24px 72px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  padding: 0;
+  overflow: hidden;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.galassia-view__crt-head {
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0;
+  padding: 1rem 1.05rem 0.75rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+.galassia-view__crt-dots,
+.galassia-view__crt-scanline {
+  display: none;
+}
+
+.galassia-view__crt-kicker {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  color: rgba(148, 163, 184, 0.82);
+}
+
+.galassia-view__crt-head-pct {
+  flex: 0 0 auto;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--panel-color) 56%, rgba(148, 163, 184, 0.3));
+  background: color-mix(in srgb, var(--panel-color) 16%, transparent);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.72rem;
+  color: rgba(248, 250, 252, 0.9);
+}
+
+.galassia-view__crt-screen {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 1rem 1.05rem 1.1rem;
+  color: var(--galassia-panel-text);
+  font-size: 0.88rem;
+  line-height: 1.62;
+}
+
+.galassia-view__crt-hierarchy {
+  color: color-mix(in srgb, var(--panel-color) 68%, rgba(203, 213, 225, 0.78));
+}
+
+.galassia-view__crt-title {
+  align-items: center;
+  margin-bottom: 0.45rem;
+  font-family: var(--font-display, ui-serif, Georgia, serif);
+  font-size: clamp(1.35rem, 2vw, 1.95rem);
+  font-weight: 400;
+  color: rgba(248, 250, 252, 0.98);
+  text-shadow: none;
+}
+
+.galassia-view__crt-title-dot {
+  width: 0.62rem;
+  height: 0.62rem;
+  box-shadow: 0 0 18px currentColor;
+}
+
+.galassia-view__crt-meta {
+  margin-bottom: 0.75rem;
+  color: var(--galassia-panel-muted);
+}
+
+.galassia-view__crt-def {
+  margin-bottom: 0.8rem;
+  color: rgba(226, 232, 240, 0.9);
+}
+
+.galassia-view__crt-indica {
+  margin-bottom: 0.75rem;
+  color: rgba(203, 213, 225, 0.82);
+}
+
+.galassia-view__crt-steps {
+  margin: 0.35rem 0 0;
+  padding-left: 1.05rem;
+  color: rgba(203, 213, 225, 0.78);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.galassia-view__crt-steps li + li {
+  margin-top: 0.35rem;
+}
+
+.galassia-view__crt-hint {
+  border-left-color: var(--panel-color);
+  border-radius: 0.45rem;
+  background: color-mix(in srgb, var(--panel-color) 9%, rgba(15, 23, 42, 0.35));
+  color: rgba(226, 232, 240, 0.86);
+}
+
+.galassia-view__crt-evidence {
+  margin: 0.85rem 0;
+  padding: 0.78rem 0.85rem;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 0.7rem;
+  background: rgba(15, 23, 42, 0.42);
+}
+
+.galassia-view__crt-evidence p {
+  margin: 0 0 0.45rem;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.64rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(148, 163, 184, 0.84);
+}
+
+.galassia-view__crt-evidence ol {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0;
+  padding-left: 1.05rem;
+  color: rgba(226, 232, 240, 0.82);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.galassia-view__crt-tags {
+  gap: 0.42rem;
+  margin-top: 0.5rem;
+}
+
+.galassia-view__crt-tag {
+  border-radius: 999px;
+  border-color: color-mix(in srgb, var(--panel-color) 34%, rgba(148, 163, 184, 0.25));
+  background: color-mix(in srgb, var(--panel-color) 12%, rgba(15, 23, 42, 0.4));
+  color: rgba(248, 250, 252, 0.88);
+  font-size: 0.7rem;
+}
+
+.galassia-view__crt-actions {
+  border-top: 1px solid rgba(148, 163, 184, 0.16);
+  padding-top: 0.75rem;
+  margin-top: 0.85rem;
+}
+
+.galassia-view__crt-btn,
+.galassia-view__crt-breadcrumb {
+  border-radius: 999px;
+  font-family: var(--font-body, Inter, ui-sans-serif, system-ui, sans-serif);
+}
+
+.galassia-view__crt-btn {
+  min-height: 2.45rem;
+  padding: 0.42rem 0.8rem;
+  border-color: color-mix(in srgb, var(--panel-color) 42%, rgba(148, 163, 184, 0.28));
+  background: color-mix(in srgb, var(--panel-color) 13%, rgba(15, 23, 42, 0.2));
+  color: rgba(248, 250, 252, 0.92);
+}
+
+.galassia-view__crt-btn:hover,
+.galassia-view__crt-btn:focus-visible {
+  background: color-mix(in srgb, var(--panel-color) 22%, rgba(15, 23, 42, 0.22));
+}
+
+.galassia-view__crt-breadcrumb {
+  display: inline-flex;
+  min-height: 2rem;
+  align-items: center;
+  margin-bottom: 0.55rem;
+  color: rgba(203, 213, 225, 0.78);
+  text-decoration: none;
+}
+
+@media (max-width: 1100px) {
+  .galassia-view__scene-head {
+    width: min(58vw, 520px);
+  }
+
+  .galassia-view__legend {
+    display: none;
+  }
+
+  .galassia-view__crt {
+    width: min(390px, 38vw);
+  }
+}
+
+@media (max-width: 768px) {
+  .galassia-view__scene-head {
+    top: 0.7rem;
+    width: calc(100vw - 1.4rem);
+  }
+
+  .galassia-view__scene-head h1 {
+    font-size: 1.45rem;
+  }
+
+  .galassia-view__scene-head-copy span,
+  .galassia-view__axis-label {
+    display: none;
+  }
+
+  .galassia-view__crt {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    max-height: min(48vh, 360px);
+    padding: 0 0.55rem 0.55rem;
+  }
+}
+
+/* Final fit pass: laptop-safe viewport, readable inspector, calmer colors */
+.galassia-view {
+  --galassia-crt-inset: clamp(360px, 30vw, 450px);
+  --galassia-head-offset: clamp(8.25rem, 15vh, 10.5rem);
+  height: 100% !important;
+  min-height: 0;
+  overflow: hidden;
+  background: #030712 !important;
+}
+
+.galassia-view__map-layer {
+  box-sizing: border-box;
+  padding-top: var(--galassia-head-offset);
+  overflow: hidden;
+  touch-action: none;
+  overscroll-behavior: none;
+  cursor: grab;
+}
+
+.galassia-view__map-layer * {
+  touch-action: none;
+}
+
+.galassia-view__map-layer:active {
+  cursor: grabbing;
+}
+
+.galassia-view__map-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: visible;
+  pointer-events: none;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+.galassia-view__map-canvas > * {
+  pointer-events: auto;
+}
+
+.galassia-view__map-stage {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.galassia-view__bg-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.galassia-view__scene-head {
+  position: absolute;
+  z-index: 36;
+  top: clamp(0.75rem, 1.6vw, 1.1rem);
+  left: clamp(0.85rem, 2vw, 1.35rem);
+  right: calc(var(--galassia-crt-inset) + 0.85rem);
+  width: auto;
+  max-width: min(52vw, 560px);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.55rem;
+  pointer-events: none;
+}
+
+.galassia-view__scene-head-copy {
+  pointer-events: none;
+}
+
+.galassia-view__scene-head-copy p {
+  margin: 0 0 0.3rem;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(148, 163, 184, 0.82);
+}
+
+.galassia-view__scene-head-copy h1 {
+  margin: 0;
+  font-family: var(--font-display, ui-serif, Georgia, serif);
+  font-size: clamp(1.35rem, 2.2vw, 2.1rem);
+  font-weight: 400;
+  line-height: 1.05;
+  color: rgba(248, 250, 252, 0.98);
+}
+
+.galassia-view__scene-head-copy span {
+  display: block;
+  margin-top: 0.45rem;
+  max-width: 42ch;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: rgba(203, 213, 225, 0.74);
+}
+
+.galassia-view__map-controls {
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.24rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(2, 6, 23, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  pointer-events: auto;
+}
+
+.galassia-view__map-control {
+  min-width: 2.1rem;
+  min-height: 2.1rem;
+  padding: 0 0.55rem;
+  border-radius: 999px;
+  border: 1px solid rgba(125, 211, 252, 0.35);
+  background: rgba(8, 47, 73, 0.75);
+  color: rgba(240, 249, 255, 0.96);
+  font-family: var(--font-body, Inter, ui-sans-serif, system-ui, sans-serif);
+  font-size: 1rem;
+  font-weight: 650;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.galassia-view__map-control--ghost {
+  min-width: auto;
+  padding: 0 0.72rem;
+  font-size: 0.76rem;
+  font-weight: 600;
+  border-color: rgba(148, 163, 184, 0.32);
+  background: rgba(2, 6, 23, 0.45);
+}
+
+.galassia-view__map-control:hover,
+.galassia-view__map-control:focus-visible {
+  border-color: rgba(125, 211, 252, 0.55);
+  background: rgba(14, 116, 144, 0.82);
+  outline: none;
+}
+
+/* In zoom: solo controlli compatti, titolo nascosto */
+.galassia-view--zoomed {
+  --galassia-head-offset: clamp(3.25rem, 7vh, 4rem);
+}
+
+.galassia-view--zoomed .galassia-view__scene-head {
+  top: clamp(0.45rem, 1vh, 0.65rem);
+  left: clamp(0.55rem, 1.2vw, 0.85rem);
+  right: auto;
+  max-width: none;
+}
+
+.galassia-view--zoomed .galassia-view__scene-head-copy:not(.galassia-view__scene-head-copy--zoomed) {
+  display: none;
+}
+
+.galassia-view--zoomed .galassia-view__scene-head-copy--zoomed {
+  display: block;
+}
+
+.galassia-view__map-canvas--animating {
+  transition: transform 0.88s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.galassia-view.is-reduced-motion .galassia-view__map-canvas--animating {
+  transition: none;
+}
+
+.galassia-view--zoomed .galassia-view__axis {
+  opacity: 0.08 !important;
+  transition: opacity 0.5s ease;
+}
+
+.galassia-view__back-chip {
+  position: absolute;
+  z-index: 24;
+  top: clamp(0.45rem, 1vh, 0.65rem);
+  right: clamp(0.55rem, 1.2vw, 0.85rem);
+  left: auto;
+  transform: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.35rem;
+  padding: 0.42rem 0.95rem;
+  border-radius: 999px;
+  border: 1px solid rgba(125, 211, 252, 0.45);
+  background: rgba(14, 116, 144, 0.82);
+  color: rgba(240, 249, 255, 0.98);
+  font-family: var(--font-body, Inter, ui-sans-serif, system-ui, sans-serif);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  box-shadow: 0 10px 28px rgba(2, 6, 23, 0.45);
+  cursor: pointer;
+}
+
+.galassia-view__back-chip:hover,
+.galassia-view__back-chip:focus-visible {
+  background: rgba(8, 145, 178, 0.92);
+  outline: none;
+}
+
+@media (min-width: 1181px) {
+  .galassia-view__map-canvas {
+    position: absolute;
+    inset: 0 var(--galassia-crt-inset) 0 0;
+    z-index: 1;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  .galassia-view--zoomed .galassia-view__map-canvas {
+    top: clamp(2.35rem, 5.5vh, 3rem);
+    bottom: clamp(0.75rem, 2.5vh, 1.15rem);
+    height: auto;
+  }
+
+  .galassia-view__map-canvas > * {
+    pointer-events: auto;
+  }
+
+  .galassia-view__axis-labels {
+    pointer-events: none;
+  }
+}
+
+.galassia-view__bg-deep {
+  background:
+    radial-gradient(ellipse 78% 58% at 42% 48%, rgba(30, 41, 59, 0.92) 0%, transparent 58%),
+    radial-gradient(ellipse 34% 26% at 50% 18%, rgba(234, 179, 8, 0.08) 0%, transparent 64%),
+    radial-gradient(ellipse 36% 28% at 20% 52%, rgba(59, 130, 246, 0.12) 0%, transparent 68%),
+    radial-gradient(ellipse 34% 28% at 80% 52%, rgba(239, 68, 68, 0.1) 0%, transparent 68%),
+    linear-gradient(180deg, #020617 0%, #030712 48%, #020617 100%);
+}
+
+.galassia-view__bg-nebula {
+  opacity: 0.24;
+  filter: blur(8px);
+}
+
+.galassia-view__bg-vignette {
+  background:
+    radial-gradient(ellipse 72% 64% at 42% 48%, transparent 36%, rgba(2, 6, 23, 0.68) 100%),
+    linear-gradient(180deg, rgba(2, 6, 23, 0.22) 0%, rgba(2, 6, 23, 0.08) 44%, rgba(2, 6, 23, 0.48) 100%);
+}
+
+/* scene-head layout: vedi blocco .galassia-view__scene-head-copy sopra */
+
+.galassia-view__legend {
+  top: 0.85rem;
+  max-width: min(31vw, 450px);
+  font-size: 0.72rem;
+}
+
+.galassia-view__crt {
+  top: clamp(4.75rem, 9vh, 6rem);
+  right: clamp(0.75rem, 1.6vw, 1.15rem);
+  bottom: clamp(0.75rem, 1.6vw, 1.15rem);
+  width: clamp(330px, 27vw, 410px);
+  max-height: calc(100% - 1.5rem);
+}
+
+.galassia-view__crt-bezel {
+  display: flex;
+  flex-direction: column;
+  max-height: 100%;
+  min-height: 0;
+  border-color: rgba(203, 213, 225, 0.2);
+  background:
+    linear-gradient(180deg, rgba(15, 23, 42, 0.92), rgba(2, 6, 23, 0.9)),
+    #020617;
+}
+
+.galassia-view__crt-screen {
+  max-height: min(52vh, calc(100dvh - 12rem));
+  overflow-y: visible;
+  padding: 0.9rem 0.95rem 1rem;
+}
+
+.galassia-view__crt-title {
+  font-family: var(--font-body, Inter, ui-sans-serif, system-ui, sans-serif);
+  font-size: clamp(1.12rem, 1.45vw, 1.42rem);
+  font-weight: 650;
+}
+
+.galassia-view__crt-def,
+.galassia-view__crt-indica,
+.galassia-view__crt-hint,
+.galassia-view__crt-evidence ol {
+  font-size: 0.8rem;
+}
+
+.galassia-view__crt-evidence {
+  padding: 0.68rem 0.72rem;
+}
+
+.galassia-view__crt-tag {
+  font-size: 0.66rem;
+  padding: 0.18rem 0.48rem;
+}
+
+.galassia-view__axis {
+  inset: 11% 12% 10% 5%;
+  width: 83%;
+  height: 79%;
+}
+
+.galassia-view__axis-label--east {
+  left: 72%;
+}
+
+.galassia-view__axis-label--west {
+  left: 10%;
+}
+
+.galassia-view__axis-label--south {
+  top: 84%;
+}
+
+.galassia-view__planet-label strong {
+  color: rgba(248, 250, 252, 0.95);
+  font-size: 0.8rem;
+}
+
+.galassia-view__planet-label small {
+  color: rgba(226, 232, 240, 0.7);
+}
+
+@media (max-width: 1180px) and (min-width: 769px) {
+  .galassia-view__scene-head {
+    width: 42vw;
+  }
+
+  .galassia-view__legend {
+    display: none;
+  }
+
+  .galassia-view__map-canvas {
+    position: absolute;
+    inset: 0 0 min(38vh, 320px) 0;
+    z-index: 1;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  .galassia-view__map-canvas > * {
+    pointer-events: auto;
+  }
+
+  .galassia-view__crt {
+    top: auto;
+    left: clamp(0.75rem, 1.6vw, 1.15rem);
+    right: clamp(0.75rem, 1.6vw, 1.15rem);
+    bottom: clamp(0.75rem, 1.6vw, 1.15rem);
+    width: auto;
+    max-height: 34vh;
+  }
+
+  .galassia-view__axis,
+  .galassia-view__axis-labels {
+    transform: translateY(-6vh);
+  }
+}
+
+@media (max-height: 760px) and (min-width: 769px) {
+  .galassia-view__scene-head-copy span,
+  .galassia-view__legend,
+  .galassia-view__axis-label small {
+    display: none;
+  }
+
+  .galassia-view__crt {
+    top: 4.25rem;
+    bottom: 0.65rem;
+    width: clamp(320px, 25vw, 380px);
+  }
+
+  .galassia-view__crt-screen {
+    padding: 0.72rem 0.82rem 0.82rem;
+  }
+}
+
+.galassia-view__intro,
+.galassia-view__legend,
+.galassia-view__glossary-link {
+  display: none !important;
+}
+
+.galassia-view__bg-stars {
+  opacity: 0.92;
+  background-image:
+    radial-gradient(1.2px 1.2px at 5% 8%, rgba(255, 255, 255, 0.9) 0, transparent 100%),
+    radial-gradient(1px 1px at 12% 18%, rgba(255, 255, 255, 0.75) 0, transparent 100%),
+    radial-gradient(1px 1px at 22% 6%, rgba(255, 255, 255, 0.55) 0, transparent 100%),
+    radial-gradient(1.5px 1.5px at 28% 42%, rgba(255, 255, 255, 0.85) 0, transparent 100%),
+    radial-gradient(1px 1px at 38% 28%, rgba(200, 220, 255, 0.6) 0, transparent 100%),
+    radial-gradient(1px 1px at 44% 12%, rgba(255, 255, 255, 0.8) 0, transparent 100%),
+    radial-gradient(1px 1px at 52% 65%, rgba(255, 255, 255, 0.5) 0, transparent 100%),
+    radial-gradient(1px 1px at 61% 33%, rgba(255, 255, 255, 0.65) 0, transparent 100%),
+    radial-gradient(1.5px 1.5px at 68% 78%, rgba(255, 255, 255, 0.7) 0, transparent 100%),
+    radial-gradient(1px 1px at 73% 58%, rgba(255, 255, 255, 0.55) 0, transparent 100%),
+    radial-gradient(1px 1px at 79% 14%, rgba(255, 255, 255, 0.75) 0, transparent 100%),
+    radial-gradient(1.5px 1.5px at 86% 24%, rgba(255, 255, 255, 0.8) 0, transparent 100%),
+    radial-gradient(1px 1px at 91% 78%, rgba(255, 255, 255, 0.5) 0, transparent 100%),
+    radial-gradient(1px 1px at 8% 72%, rgba(255, 255, 255, 0.55) 0, transparent 100%),
+    radial-gradient(1px 1px at 15% 88%, rgba(255, 255, 255, 0.45) 0, transparent 100%),
+    radial-gradient(1px 1px at 35% 88%, rgba(255, 255, 255, 0.6) 0, transparent 100%),
+    radial-gradient(1px 1px at 18% 55%, rgba(255, 255, 255, 0.4) 0, transparent 100%),
+    radial-gradient(1px 1px at 67% 8%, rgba(255, 255, 255, 0.65) 0, transparent 100%),
+    radial-gradient(1px 1px at 94% 42%, rgba(255, 255, 255, 0.5) 0, transparent 100%),
+    radial-gradient(1px 1px at 48% 38%, rgba(255, 255, 255, 0.35) 0, transparent 100%);
+}
+
+.galassia-view__bg-stars--twinkle {
+  opacity: 0.55;
+  background-image:
+    radial-gradient(1px 1px at 9% 32%, rgba(255, 255, 255, 0.7) 0, transparent 100%),
+    radial-gradient(1px 1px at 33% 58%, rgba(255, 255, 255, 0.5) 0, transparent 100%),
+    radial-gradient(1px 1px at 56% 22%, rgba(255, 255, 255, 0.65) 0, transparent 100%),
+    radial-gradient(1px 1px at 71% 44%, rgba(255, 255, 255, 0.45) 0, transparent 100%),
+    radial-gradient(1px 1px at 82% 68%, rgba(255, 255, 255, 0.55) 0, transparent 100%),
+    radial-gradient(1px 1px at 24% 74%, rgba(255, 255, 255, 0.4) 0, transparent 100%);
+}
+
+.galassia-view__bg-nebula {
+  display: block !important;
+  opacity: 0.32 !important;
+  filter: blur(22px);
+}
+
+.galassia-view__bg-focus {
+  opacity: 0.55 !important;
+}
+
+.galassia-view--zoomed .galassia-view__bg-focus {
+  opacity: 0.85 !important;
+}
+
+.galassia-view__bg-deep {
+  background:
+    radial-gradient(ellipse 120% 90% at 50% 108%, rgba(15, 23, 42, 0.92) 0%, transparent 58%),
+    radial-gradient(ellipse 70% 55% at 18% 28%, rgba(30, 58, 138, 0.22) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 48% at 82% 68%, rgba(88, 28, 135, 0.12) 0%, transparent 52%),
+    radial-gradient(ellipse 55% 40% at 50% 12%, rgba(56, 189, 248, 0.08) 0%, transparent 60%),
+    linear-gradient(180deg, #010409 0%, #020617 42%, #030712 100%) !important;
+}
+
+.galassia-view > .galassia-view__bg-vignette {
+  background:
+    radial-gradient(ellipse 74% 68% at 42% 52%, transparent 40%, rgba(2, 6, 23, 0.74) 100%),
+    linear-gradient(180deg, rgba(2, 6, 23, 0.16) 0%, rgba(2, 6, 23, 0.06) 46%, rgba(2, 6, 23, 0.38) 100%);
+}
+
+.galassia-view__scene-head {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  right: calc(var(--galassia-crt-inset) + 0.85rem);
+  width: auto;
+  max-width: min(52vw, 560px);
+}
+
+.galassia-view__axis {
+  opacity: 0.26 !important;
+}
+
+.galassia-view__axis-label {
+  display: none;
+}
+
+.galassia-view__constellation {
+  position: absolute;
+  z-index: 18;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.galassia-view__constellation-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.galassia-view__constellation-lines line {
+  stroke: color-mix(in srgb, var(--constellation-color) 54%, rgba(226, 232, 240, 0.2));
+  stroke-width: 1;
+  stroke-dasharray: 3 7;
+  opacity: 0.58;
+}
+
+.galassia-view__constellation-wrap {
+  position: absolute;
+  z-index: 14;
+  pointer-events: none;
+  transform-origin: center;
+}
+
+.galassia-view__constellation-hit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  pointer-events: auto;
+  text-align: center;
+}
+
+.galassia-view__constellation-node {
+  display: block;
+  width: var(--node-size, 72px);
+  height: var(--node-size, 72px);
+  flex-shrink: 0;
+  border: 1px solid color-mix(in srgb, var(--node-color) 70%, white 14%);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 35% 27%, rgba(255, 255, 255, 0.34), transparent 30%),
+    color-mix(in srgb, var(--node-color) 76%, #020617 24%);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--node-color) 22%, transparent),
+    0 12px 34px rgba(0, 0, 0, 0.38),
+    0 0 28px color-mix(in srgb, var(--node-color) 42%, transparent);
+}
+
+.galassia-view__constellation-hit:hover .galassia-view__constellation-node,
+.galassia-view__constellation-hit:focus-visible .galassia-view__constellation-node,
+.galassia-view__constellation-wrap--active .galassia-view__constellation-node {
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.92),
+    0 0 34px color-mix(in srgb, var(--node-color) 70%, transparent);
+}
+
+.galassia-view__constellation-hit:focus-visible {
+  outline: none;
+}
+
+.galassia-view__constellation-label {
+  display: grid;
+  gap: 0.12rem;
+  max-width: min(11rem, 28vw);
+  pointer-events: none;
+}
+
+.galassia-view__constellation-label strong {
+  font-size: 0.78rem;
+  font-weight: 650;
+  line-height: 1.2;
+  color: rgba(248, 250, 252, 0.96);
+  overflow-wrap: anywhere;
+}
+
+.galassia-view__constellation-label small {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.68rem;
+  color: rgba(226, 232, 240, 0.78);
+}
+
+.galassia-view__constellation-trait {
+  display: block;
+  margin-top: 0.08rem;
+  font-size: 0.62rem;
+  font-style: normal;
+  line-height: 1.25;
+  color: rgba(203, 213, 225, 0.68);
+  overflow-wrap: anywhere;
+}
+
+.galassia-view__simple-block {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0 0 0.85rem;
+  padding: 0;
+}
+
+.galassia-view__simple-block strong,
+.galassia-view__subnav > p {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--panel-color) 70%, rgba(203, 213, 225, 0.9));
+}
+
+.galassia-view__simple-block p {
+  margin: 0;
+  color: rgba(241, 245, 249, 0.9);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.galassia-view__simple-block--action {
+  padding: 0.75rem 0.85rem;
+  border-left: 3px solid var(--panel-color);
+  border-radius: 0.45rem;
+  background: color-mix(in srgb, var(--panel-color) 10%, rgba(15, 23, 42, 0.48));
+}
+
+.galassia-view__subnav {
+  margin: 0.85rem 0;
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+.galassia-view__subnav > p {
+  margin: 0 0 0.5rem;
+}
+
+.galassia-view__subnav > div {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.55rem;
+}
+
+.galassia-view__subnav-card {
+  display: grid;
+  gap: 0.28rem;
+  width: 100%;
+  min-height: 2.35rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 0.55rem;
+  border: 1px solid color-mix(in srgb, var(--sub-color) 42%, rgba(148, 163, 184, 0.24));
+  background: rgba(15, 23, 42, 0.46);
+  color: rgba(248, 250, 252, 0.9);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.galassia-view__subnav-card--active,
+.galassia-view__subnav-card:hover,
+.galassia-view__subnav-card:focus-visible {
+  background: color-mix(in srgb, var(--sub-color) 16%, rgba(15, 23, 42, 0.5));
+  border-color: color-mix(in srgb, var(--sub-color) 58%, rgba(148, 163, 184, 0.32));
+  outline: none;
+}
+
+.galassia-view__subnav-card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.galassia-view__subnav-card-head strong {
+  font-size: 0.8rem;
+  font-weight: 650;
+  line-height: 1.25;
+}
+
+.galassia-view__subnav-card-head em {
+  flex: 0 0 auto;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.68rem;
+  font-style: normal;
+  color: rgba(203, 213, 225, 0.78);
+}
+
+.galassia-view__subnav-card-meta,
+.galassia-view__subnav-card-words {
+  display: block;
+  font-size: 0.68rem;
+  line-height: 1.35;
+  color: rgba(203, 213, 225, 0.72);
+}
+
+.galassia-view__subnav-card-words {
+  color: rgba(148, 163, 184, 0.82);
+}
+
+.galassia-view__subnav button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-height: 2.35rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: 0.55rem;
+  border: 1px solid color-mix(in srgb, var(--sub-color) 42%, rgba(148, 163, 184, 0.24));
+  background: rgba(15, 23, 42, 0.46);
+  color: rgba(248, 250, 252, 0.9);
+  font: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.galassia-view__subnav button:hover,
+.galassia-view__subnav button:focus-visible {
+  background: color-mix(in srgb, var(--sub-color) 16%, rgba(15, 23, 42, 0.5));
+  outline: none;
+}
+
+.galassia-view__subnav button span {
+  flex: 0 0 auto;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.68rem;
+  color: rgba(203, 213, 225, 0.72);
+}
+
+/* =====================================================================
+   Galassia layout pass: viewport stabile, lettura guidata, meno rumore
+   ===================================================================== */
+
+.galassia-view {
+  --galassia-edge: clamp(18px, 2vw, 32px);
+  --galassia-panel-width: clamp(380px, 29vw, 500px);
+  --galassia-panel-top: clamp(76px, 8vh, 96px);
+  --galassia-map-top: clamp(124px, 14vh, 152px);
+  --galassia-map-bottom: clamp(20px, 3vh, 36px);
+  --galassia-panel-space: calc(
+    var(--galassia-panel-width) + var(--galassia-edge) + var(--galassia-edge)
+  );
+  font-family: var(--font-body, Inter, ui-sans-serif, system-ui, sans-serif);
+  background: #020617 !important;
+}
+
+.galassia-view__map-layer {
+  position: absolute !important;
+  inset: 0;
+  padding: 0 !important;
+  overflow: hidden;
+  cursor: grab;
+}
+
+.galassia-view__map-layer:active {
+  cursor: grabbing;
+}
+
+.galassia-view__map-viewport {
+  position: absolute;
+  z-index: 1;
+  inset:
+    var(--galassia-map-top)
+    var(--galassia-panel-space)
+    var(--galassia-map-bottom)
+    var(--galassia-edge);
+  overflow: visible;
+  pointer-events: none;
+}
+
+.galassia-view__map-canvas {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 1;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  pointer-events: none;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+.galassia-view__map-canvas > * {
+  pointer-events: auto;
+}
+
+.galassia-view__map-stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.galassia-view__scene-head {
+  top: var(--galassia-edge);
+  left: var(--galassia-edge);
+  right: var(--galassia-panel-space);
+  z-index: 42;
+  max-width: 620px;
+  gap: 0.7rem;
+}
+
+.galassia-view__scene-head-copy h1 {
+  font-family: var(--font-body, Inter, ui-sans-serif, system-ui, sans-serif);
+  font-size: 2rem;
+  font-weight: 720;
+  line-height: 1.08;
+  letter-spacing: 0;
+}
+
+.galassia-view__scene-head-copy p {
+  margin-bottom: 0.34rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  color: rgba(148, 163, 184, 0.9);
+}
+
+.galassia-view__scene-head-copy span {
+  max-width: 48ch;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: rgba(226, 232, 240, 0.76);
+}
+
+.galassia-view__map-controls {
+  gap: 0.35rem;
+  padding: 0.3rem;
+  border-color: rgba(148, 163, 184, 0.24);
+  background: rgba(5, 10, 22, 0.68);
+  box-shadow: 0 14px 36px rgba(2, 6, 23, 0.22);
+}
+
+.galassia-view__map-control {
+  min-width: 2.25rem;
+  min-height: 2.25rem;
+  border-color: rgba(125, 211, 252, 0.34);
+  background: rgba(12, 74, 110, 0.72);
+  font-size: 1rem;
+}
+
+.galassia-view__map-control--ghost {
+  padding: 0 0.85rem;
+  color: rgba(226, 232, 240, 0.94);
+  background: rgba(15, 23, 42, 0.62);
+}
+
+.galassia-view__axis {
+  inset: 6% 7% 8%;
+  width: 86%;
+  height: 86%;
+  opacity: 0.22 !important;
+}
+
+.galassia-view__back-chip {
+  top: 0;
+  right: 0;
+  min-height: 2.35rem;
+  border-color: rgba(125, 211, 252, 0.44);
+  background: rgba(8, 47, 73, 0.88);
+  box-shadow: 0 14px 36px rgba(2, 6, 23, 0.32);
+}
+
+.galassia-view__planet-wrap {
+  z-index: 12;
+}
+
+.galassia-view__planet-label {
+  width: max-content;
+  min-width: 7rem;
+  max-width: 14rem;
+  justify-items: center;
+  padding: 0.12rem 0.35rem;
+  white-space: normal;
+  text-wrap: balance;
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.galassia-view__planet-label strong {
+  font-size: 0.92rem;
+  font-weight: 690;
+  line-height: 1.16;
+}
+
+.galassia-view__planet-label small {
+  font-size: 0.72rem;
+}
+
+.galassia-view--zoomed .galassia-view__planet-label {
+  opacity: 0;
+  transform: translate(-50%, -4px);
+}
+
+.galassia-view--zoomed .galassia-view__planet-wrap--dimmed {
+  opacity: 0.1;
+  pointer-events: none;
+}
+
+.galassia-view__guide-star-label {
+  width: max-content;
+  min-width: 8rem;
+  max-width: 13rem;
+  padding: 0.32rem 0.5rem;
+  border-radius: 8px;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: normal;
+  text-wrap: balance;
+  line-height: 1.18;
+}
+
+.galassia-view__constellation {
+  z-index: 19;
+}
+
+.galassia-view__constellation-hit {
+  position: relative;
+  display: grid;
+  width: var(--node-size, 72px);
+  height: var(--node-size, 72px);
+  place-items: center;
+}
+
+.galassia-view__constellation-node {
+  width: 100%;
+  height: 100%;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+}
+
+.galassia-view__constellation-hit:hover .galassia-view__constellation-node,
+.galassia-view__constellation-hit:focus-visible .galassia-view__constellation-node,
+.galassia-view__constellation-wrap--active .galassia-view__constellation-node {
+  transform: scale(1.04);
+}
+
+.galassia-view__constellation-label {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 0.58rem);
+  display: grid;
+  width: max-content;
+  min-width: 7rem;
+  max-width: 11.5rem;
+  gap: 0.12rem;
+  padding: 0.36rem 0.48rem;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 8px;
+  background: rgba(5, 10, 22, 0.72);
+  box-shadow: 0 14px 36px rgba(2, 6, 23, 0.24);
+  transform: translateX(-50%);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  text-wrap: balance;
+}
+
+.galassia-view__constellation-wrap--label-above .galassia-view__constellation-label {
+  top: auto;
+  bottom: calc(100% + 0.58rem);
+}
+
+.galassia-view__constellation-label strong {
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.18;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+.galassia-view__constellation-label small {
+  font-size: 0.68rem;
+}
+
+.galassia-view__constellation-trait {
+  font-size: 0.66rem;
+  line-height: 1.25;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+.galassia-view--reading-sub .galassia-view__constellation-wrap:not(.galassia-view__constellation-wrap--active) {
+  opacity: 0.44 !important;
+}
+
+.galassia-view__crt {
+  top: var(--galassia-panel-top) !important;
+  right: var(--galassia-edge) !important;
+  bottom: var(--galassia-edge) !important;
+  left: auto !important;
+  width: var(--galassia-panel-width) !important;
+  max-height: none !important;
+  padding: 0 !important;
+}
+
+.galassia-view__crt-bezel {
+  height: 100%;
+  border-radius: 8px;
+  border-color: rgba(203, 213, 225, 0.22);
+  background:
+    linear-gradient(180deg, rgba(15, 23, 42, 0.91), rgba(2, 6, 23, 0.88)),
+    color-mix(in srgb, var(--panel-color) 5%, #020617);
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.galassia-view__crt-head {
+  padding: 1rem 1.1rem 0.78rem;
+}
+
+.galassia-view__crt-kicker {
+  font-size: 0.72rem;
+  letter-spacing: 0.15em;
+}
+
+.galassia-view__crt-screen {
+  flex: 1 1 auto;
+  max-height: none !important;
+  padding: 1rem 1.1rem 1.15rem;
+  overflow-y: visible;
+  scrollbar-gutter: stable;
+  color: rgba(248, 250, 252, 0.94);
+  font-size: 0.94rem;
+  line-height: 1.62;
+}
+
+.galassia-view__crt-title {
+  margin-bottom: 0.58rem;
+  font-size: 1.38rem;
+  font-weight: 690;
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+
+.galassia-view__crt-meta {
+  margin-bottom: 0.82rem;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.galassia-view__simple-block {
+  gap: 0.42rem;
+  margin-bottom: 1rem;
+}
+
+.galassia-view__simple-block strong,
+.galassia-view__subnav > p {
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+}
+
+.galassia-view__simple-block p {
+  font-size: 0.96rem;
+  line-height: 1.55;
+}
+
+.galassia-view__crt-indica,
+.galassia-view__crt-hint {
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.galassia-view__crt-tags {
+  gap: 0.46rem;
+}
+
+.galassia-view__crt-tag {
+  padding: 0.26rem 0.58rem;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  line-height: 1.15;
+}
+
+.galassia-view__subnav-card {
+  border-radius: 8px;
+  padding: 0.68rem 0.75rem;
+}
+
+.galassia-view__subnav button {
+  display: grid;
+  justify-content: stretch;
+  border-radius: 8px;
+}
+
+.galassia-view__subnav-card-head strong {
+  font-size: 0.88rem;
+}
+
+.galassia-view__subnav-card-meta,
+.galassia-view__subnav-card-words {
+  font-size: 0.76rem;
+}
+
+@media (max-width: 1180px) and (min-width: 901px) {
+  .galassia-view {
+    --galassia-panel-width: clamp(340px, 34vw, 410px);
+    --galassia-panel-top: 76px;
+    --galassia-map-top: 122px;
+  }
+
+  .galassia-view__scene-head {
+    right: var(--galassia-panel-space);
+    max-width: 500px;
+  }
+
+  .galassia-view__scene-head-copy h1 {
+    font-size: 1.7rem;
+  }
+
+  .galassia-view__scene-head-copy span {
+    font-size: 0.86rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .galassia-view {
+    --galassia-edge: 16px;
+    --galassia-panel-width: calc(100vw - 32px);
+    --galassia-map-top: 116px;
+    --galassia-panel-space: var(--galassia-edge);
+  }
+
+  .galassia-view--zoomed {
+    --galassia-panel-height: min(36svh, 330px);
+    --galassia-map-bottom: calc(var(--galassia-panel-height) + 24px);
+  }
+
+  .galassia-view__scene-head {
+    right: var(--galassia-edge);
+    max-width: none;
+  }
+
+  .galassia-view__scene-head-copy h1 {
+    font-size: 1.55rem;
+  }
+
+  .galassia-view__scene-head-copy span {
+    display: block;
+    max-width: 44ch;
+    font-size: 0.84rem;
+  }
+
+  .galassia-view__map-viewport {
+    inset:
+      var(--galassia-map-top)
+      var(--galassia-edge)
+      var(--galassia-map-bottom)
+      var(--galassia-edge);
+  }
+
+  .galassia-view__crt {
+    top: auto !important;
+    right: var(--galassia-edge) !important;
+    bottom: var(--galassia-edge) !important;
+    left: var(--galassia-edge) !important;
+    width: auto !important;
+    height: var(--galassia-panel-height);
+  }
+}
+
+@media (max-width: 768px) {
+  .galassia-view {
+    --galassia-edge: 12px;
+    --galassia-map-top: 132px;
+  }
+
+  .galassia-view--zoomed {
+    --galassia-panel-height: min(41svh, 340px);
+    --galassia-map-bottom: calc(var(--galassia-panel-height) + 18px);
+  }
+
+  .galassia-view__scene-head {
+    top: 12px;
+    gap: 0.52rem;
+  }
+
+  .galassia-view__scene-head-copy h1 {
+    font-size: 1.36rem;
+  }
+
+  .galassia-view__scene-head-copy p {
+    font-size: 0.64rem;
+  }
+
+  .galassia-view__scene-head-copy span {
+    display: none;
+  }
+
+  .galassia-view__map-controls {
+    padding: 0.24rem;
+  }
+
+  .galassia-view__map-control {
+    min-width: 2rem;
+    min-height: 2rem;
+  }
+
+  .galassia-view__planet-label {
+    min-width: 5.8rem;
+    max-width: 8.6rem;
+  }
+
+  .galassia-view__planet-label strong {
+    font-size: 0.78rem;
+  }
+
+  .galassia-view__planet-label small {
+    font-size: 0.64rem;
+  }
+
+  .galassia-view__guide-star-label {
+    display: none;
+  }
+
+  .galassia-view__constellation-label {
+    min-width: 5.8rem;
+    max-width: 8.8rem;
+    padding: 0.3rem 0.4rem;
+  }
+
+  .galassia-view__constellation-label strong {
+    font-size: 0.72rem;
+  }
+
+  .galassia-view__constellation-trait {
+    display: none;
+  }
+
+  .galassia-view__crt-screen {
+    padding: 0.82rem 0.88rem 0.95rem;
+    font-size: 0.86rem;
+  }
+
+  .galassia-view__crt-title {
+    font-size: 1.12rem;
+  }
+
+  .galassia-view__simple-block p {
+    font-size: 0.88rem;
+  }
+}
+
+@media (max-height: 760px) and (min-width: 769px) {
+  .galassia-view {
+    --galassia-panel-top: 64px;
+    --galassia-map-top: 100px;
+    --galassia-map-bottom: 18px;
+  }
+
+  .galassia-view__scene-head-copy span {
+    display: none;
+  }
+
+  .galassia-view__scene-head-copy h1 {
+    font-size: 1.55rem;
+  }
+
+  .galassia-view__crt-screen {
+    padding: 0.82rem 0.92rem 0.95rem;
+  }
+}
+
+/* UX pass: mappa centrata + scheda compatta, senza colonna laterale di testo */
+.galassia-view {
+  --galassia-edge: clamp(12px, 1.6vw, 24px);
+  --galassia-map-top: clamp(108px, 12vh, 132px);
+  --galassia-panel-height: clamp(148px, 20vh, 196px);
+  --galassia-map-bottom: calc(var(--galassia-panel-height) + var(--galassia-edge) + 8px);
+  --galassia-panel-space: var(--galassia-edge);
+  height: 100% !important;
+  max-height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.galassia-view__scene-head {
+  right: var(--galassia-edge);
+  max-width: min(620px, calc(100vw - var(--galassia-edge) * 2));
+}
+
+.galassia-view__map-viewport {
+  inset:
+    var(--galassia-map-top)
+    var(--galassia-edge)
+    var(--galassia-map-bottom)
+    var(--galassia-edge);
+}
+
+.galassia-view--zoomed .galassia-view__map-canvas {
+  inset: 0 !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  height: auto !important;
+}
+
+.galassia-view__guide-star-label {
+  display: none !important;
+}
+
+.galassia-view--zoomed .galassia-view__planet-wrap--selected {
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 22;
+}
+
+.galassia-view--zoomed .galassia-view__planet-wrap--dimmed {
+  opacity: 0.1 !important;
+  pointer-events: none;
+}
+
+.galassia-view__crt {
+  top: auto !important;
+  left: var(--galassia-edge) !important;
+  right: var(--galassia-edge) !important;
+  bottom: var(--galassia-edge) !important;
+  width: auto !important;
+  height: auto;
+  max-height: var(--galassia-panel-height) !important;
+}
+
+.galassia-view__crt-bezel {
+  max-height: var(--galassia-panel-height);
+  border-radius: 10px;
+}
+
+.galassia-view__crt-head {
+  padding: 0.78rem 1rem 0.58rem;
+}
+
+.galassia-view__crt-screen {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.75fr) minmax(280px, 1.25fr);
+  align-content: start;
+  gap: 0.38rem 0.85rem;
+  max-height: calc(var(--galassia-panel-height) - 54px) !important;
+  padding: 0.72rem 1rem 0.85rem;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.galassia-view--reading-sub .galassia-view__crt-screen {
+  grid-template-columns: 1fr;
+}
+
+.galassia-view__crt-title {
+  grid-column: 1;
+  margin: 0;
+  font-size: clamp(1.02rem, 1.45vw, 1.28rem);
+}
+
+.galassia-view__crt-meta--compact,
+.galassia-view__crt-indica--compact,
+.galassia-view__crt-hint--compact {
+  margin: 0;
+  font-size: 0.74rem;
+  line-height: 1.38;
+}
+
+.galassia-view__crt-hint--compact {
+  padding: 0.28rem 0.4rem;
+}
+
+.galassia-view__crt-title-dot {
+  width: 0.58rem;
+  height: 0.58rem;
+}
+
+.galassia-view__crt-meta {
+  margin: 0;
+  font-size: 0.76rem;
+  line-height: 1.38;
+}
+
+.galassia-view__crt-indica,
+.galassia-view__crt-hint,
+.galassia-view__simple-block {
+  margin: 0;
+}
+
+.galassia-view__simple-block {
+  gap: 0.28rem;
+}
+
+.galassia-view__simple-block strong,
+.galassia-view__subnav > p {
+  font-size: 0.66rem;
+}
+
+.galassia-view__simple-block p,
+.galassia-view__crt-indica,
+.galassia-view__crt-hint {
+  font-size: 0.86rem;
+  line-height: 1.42;
+}
+
+.galassia-view__crt-tags {
+  grid-column: 1 / -1;
+  margin: 0.08rem 0 0;
+  gap: 0.38rem;
+}
+
+.galassia-view__crt-tag {
+  font-size: 0.7rem;
+  padding: 0.22rem 0.52rem;
+}
+
+.galassia-view__subnav {
+  grid-column: 1 / -1;
+  margin: 0.15rem 0 0;
+  padding-top: 0.55rem;
+}
+
+.galassia-view__subnav > div {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.45rem;
+}
+
+.galassia-view__subnav-card {
+  min-height: 0;
+  padding: 0.52rem 0.6rem;
+}
+
+.galassia-view__subnav-card-meta,
+.galassia-view__subnav-card-words {
+  display: none;
+}
+
+.galassia-view__constellation-label {
+  background: rgba(5, 10, 22, 0.84);
+}
+
+.galassia-view__constellation-core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 18;
+  display: grid;
+  justify-items: center;
+  gap: 0.58rem;
+  width: clamp(7.4rem, 11vw, 9.5rem);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: rgba(248, 250, 252, 0.96);
+  cursor: pointer;
+  pointer-events: auto;
+  text-align: center;
+  transform: translate(-50%, -50%);
+}
+
+.galassia-view__constellation-core-node {
+  display: block;
+  width: clamp(74px, 7.4vw, 108px);
+  aspect-ratio: 1;
+  border: 1px solid color-mix(in srgb, var(--core-color) 72%, white 14%);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 34% 28%, rgba(255, 255, 255, 0.38), transparent 30%),
+    color-mix(in srgb, var(--core-color) 82%, #020617 18%);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--core-color) 24%, transparent),
+    0 20px 48px rgba(0, 0, 0, 0.34),
+    0 0 38px color-mix(in srgb, var(--core-color) 48%, transparent);
+}
+
+.galassia-view__constellation-core:hover .galassia-view__constellation-core-node,
+.galassia-view__constellation-core:focus-visible .galassia-view__constellation-core-node,
+.galassia-view__constellation-core[aria-pressed='true'] .galassia-view__constellation-core-node {
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.88),
+    0 0 42px color-mix(in srgb, var(--core-color) 70%, transparent);
+}
+
+.galassia-view__constellation-core:focus-visible {
+  outline: none;
+}
+
+.galassia-view__constellation-core-label {
+  display: grid;
+  gap: 0.12rem;
+  width: max-content;
+  max-width: 12rem;
+  padding: 0.34rem 0.52rem;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 8px;
+  background: rgba(5, 10, 22, 0.78);
+  box-shadow: 0 14px 36px rgba(2, 6, 23, 0.22);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.galassia-view__constellation-core-label strong {
+  font-size: 0.92rem;
+  font-weight: 720;
+  line-height: 1.18;
+}
+
+.galassia-view__constellation-core-label small {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.7rem;
+  color: rgba(226, 232, 240, 0.78);
+}
+
+.galassia-view--zoomed {
+  --galassia-map-top: clamp(64px, 9vh, 88px);
+  --galassia-map-bottom: calc(var(--galassia-panel-height) + var(--galassia-edge) + 8px);
+}
+
+.galassia-view--zoomed .galassia-view__scene-head {
+  top: var(--galassia-edge);
+}
+
+.galassia-view--zoomed .galassia-view__scene-head-copy--zoomed h1 {
+  font-size: clamp(1.05rem, 2.2vw, 1.35rem);
+  margin-bottom: 0.1rem;
+}
+
+.galassia-view--zoomed .galassia-view__scene-head-copy span {
+  display: none;
+}
+
+.galassia-view--zoomed .galassia-view__map-controls {
+  margin-top: 0.12rem;
+}
+
+/* Costellazione: etichette solo su nodo attivo / hover / focus */
+.galassia-view--zoomed .galassia-view__constellation-trait {
+  display: none;
+}
+
+.galassia-view--zoomed .galassia-view__constellation-wrap:not(.galassia-view__constellation-wrap--active):not(.galassia-view__constellation-wrap--hovered) .galassia-view__constellation-label {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-50%) translateY(4px);
+  pointer-events: none;
+}
+
+.galassia-view--zoomed .galassia-view__constellation-wrap--active .galassia-view__constellation-label,
+.galassia-view--zoomed .galassia-view__constellation-wrap--hovered .galassia-view__constellation-label,
+.galassia-view--zoomed .galassia-view__constellation-hit:hover .galassia-view__constellation-label,
+.galassia-view--zoomed .galassia-view__constellation-hit:focus-visible .galassia-view__constellation-label {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%);
+}
+
+.galassia-view--zoomed .galassia-view__constellation-wrap--label-above:not(.galassia-view__constellation-wrap--active):not(.galassia-view__constellation-wrap--hovered) .galassia-view__constellation-label {
+  transform: translateX(-50%) translateY(-4px);
+}
+
+.galassia-view--zoomed .galassia-view__constellation-wrap--label-above.galassia-view__constellation-wrap--active .galassia-view__constellation-label,
+.galassia-view--zoomed .galassia-view__constellation-wrap--label-above.galassia-view__constellation-wrap--hovered .galassia-view__constellation-label,
+.galassia-view--zoomed .galassia-view__constellation-wrap--label-above .galassia-view__constellation-hit:hover .galassia-view__constellation-label,
+.galassia-view--zoomed .galassia-view__constellation-wrap--label-above .galassia-view__constellation-hit:focus-visible .galassia-view__constellation-label {
+  transform: translateX(-50%);
+}
+
+.galassia-view__constellation-label {
+  transition: opacity 0.16s ease, visibility 0.16s ease, transform 0.16s ease;
+}
+
+@media (max-width: 900px) {
+  .galassia-view--overview {
+    --galassia-edge: 12px;
+    --galassia-map-top: 108px;
+    --galassia-panel-height: min(28svh, 180px);
+    --galassia-map-bottom: calc(var(--galassia-panel-height) + 12px);
+  }
+
+  .galassia-view--zoomed {
+    --galassia-edge: 12px;
+    --galassia-map-top: clamp(56px, 8.5vh, 76px);
+    --galassia-panel-height: min(36svh, 300px);
+    --galassia-map-bottom: calc(var(--galassia-panel-height) + 12px);
+  }
+
+  .galassia-view__crt-screen {
+    display: block;
+    max-height: calc(var(--galassia-panel-height) - 52px) !important;
+    overflow-y: visible;
+  }
+
+  .galassia-view__crt-screen > * + * {
+    margin-top: 0.65rem;
+  }
+
+  .galassia-view__scene-head-copy span {
+    display: none;
+  }
+}
+
+@media (max-width: 620px) {
+  .galassia-view--overview {
+    --galassia-map-top: 112px;
+    --galassia-panel-height: min(30svh, 180px);
+  }
+
+  .galassia-view--zoomed {
+    --galassia-map-top: clamp(52px, 8svh, 68px);
+    --galassia-panel-height: min(36svh, 280px);
+  }
+
+  .galassia-view__map-controls {
+    max-width: calc(100vw - var(--galassia-edge) * 2);
+    overflow-x: auto;
+  }
+
+  .galassia-view__map-control--ghost {
+    white-space: nowrap;
+  }
+}
+
+/* Overview: pannello basso compatto, colonna singola, niente scroll pagina */
+.galassia-view--overview {
+  --galassia-panel-height: clamp(148px, 18vh, 180px);
+  --galassia-map-top: clamp(100px, 11vh, 124px);
+  --galassia-map-bottom: calc(var(--galassia-panel-height) + var(--galassia-edge) + 6px);
+}
+
+.galassia-view--overview .galassia-view__scene-head-copy span {
+  display: none;
+}
+
+.galassia-view--overview .galassia-view__crt {
+  max-height: var(--galassia-panel-height) !important;
+}
+
+.galassia-view__crt--compact .galassia-view__crt-head {
+  padding: 0.5rem 0.85rem 0.38rem;
+}
+
+.galassia-view__crt--compact .galassia-view__crt-kicker {
+  font-size: 0.64rem;
+}
+
+.galassia-view__crt-screen--compact {
+  display: flex !important;
+  flex-direction: column;
+  gap: 0.28rem;
+  grid-template-columns: unset !important;
+  max-height: calc(var(--galassia-panel-height) - 44px) !important;
+  padding: 0.55rem 0.85rem 0.65rem;
+  overflow: hidden !important;
+}
+
+.galassia-view__crt-screen--compact .galassia-view__crt-title {
+  margin: 0;
+  font-size: clamp(0.92rem, 1.15vw, 1.08rem);
+  line-height: 1.2;
+}
+
+.galassia-view__crt-screen--compact .galassia-view__crt-meta,
+.galassia-view__crt-screen--compact .galassia-view__crt-indica,
+.galassia-view__crt-screen--compact .galassia-view__crt-hint {
+  margin: 0;
+  font-size: 0.76rem;
+  line-height: 1.35;
+}
+
+.galassia-view__crt-screen--compact .galassia-view__crt-hint--compact {
+  padding: 0;
+  color: rgba(148, 163, 184, 0.82);
+}
+
+.galassia-view__crt-preview-lead,
+.galassia-view__crt-indica--preview {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.galassia-view__crt-preview-lead {
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  font-size: 0.78rem;
+  line-height: 1.38;
+  color: rgba(226, 232, 240, 0.9);
+}
+
+.galassia-view__crt-indica--preview {
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.galassia-view__crt-preview-label {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(148, 163, 184, 0.88);
+}
+
+.galassia-view__crt-meta--traits {
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: rgba(203, 213, 225, 0.78);
+}
+
+.galassia-view--zoomed {
+  --galassia-panel-height: clamp(200px, 28vh, 280px);
+}
+
+/* In zoom: nascondi solo i pianeti non selezionati; il selezionato anima verso il centro. */
+.galassia-view--zoomed .galassia-view__planet-wrap--dimmed {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+.galassia-view--zoomed .galassia-view__planet-wrap--selected {
+  z-index: 12;
+  pointer-events: none;
+}
+
+.galassia-view--zoomed .galassia-view__constellation {
+  transform-origin: center center;
+}
+
+/* Galassia 2.0: rosa dei venti, relazioni e pannello data-first */
+.galassia-view__wind-field,
+.galassia-view__relation-lines {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.galassia-view__wind-line {
+  fill: none;
+  stroke-width: 0.42;
+  stroke-linecap: round;
+  stroke-dasharray: 4 8;
+  opacity: 0.26;
+  vector-effect: non-scaling-stroke;
+  animation: galassia-wind-flow 12s linear infinite;
+}
+
+.galassia-view__wind-line--blu { stroke: rgba(59, 130, 246, 0.8); }
+.galassia-view__wind-line--rosso { stroke: rgba(239, 68, 68, 0.78); }
+.galassia-view__wind-line--giallo { stroke: rgba(234, 179, 8, 0.72); }
+.galassia-view__wind-line--verde { stroke: rgba(34, 197, 94, 0.74); }
+.galassia-view__wind-line--grigio { stroke: rgba(156, 163, 175, 0.72); }
+
+.galassia-view__relation-lines {
+  z-index: 5;
+}
+
+.galassia-view__relation-lines line {
+  stroke: var(--relation-color, rgba(226, 232, 240, 0.8));
+  stroke-width: 0.58;
+  stroke-linecap: round;
+  stroke-dasharray: 2 4;
+  opacity: 0.62;
+  vector-effect: non-scaling-stroke;
+  animation: galassia-relation-flow 7s linear infinite;
+}
+
+@keyframes galassia-wind-flow {
+  to { stroke-dashoffset: -72; }
+}
+
+@keyframes galassia-relation-flow {
+  to { stroke-dashoffset: -42; }
+}
+
+.galassia-view.is-reduced-motion .galassia-view__wind-line,
+.galassia-view.is-reduced-motion .galassia-view__relation-lines line {
+  animation: none;
+}
+
+.galassia-view--zoomed .galassia-view__planet-wrap--dimmed {
+  opacity: 0.2 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+.galassia-view--zoomed .galassia-view__planet-wrap--dimmed .galassia-view__planet-label {
+  opacity: 0.45;
+  transform: translate(-50%, 2px);
+}
+
+.galassia-view {
+  --galassia-panel-height: clamp(330px, 38vh, 430px);
+  --galassia-map-bottom: calc(var(--galassia-panel-height) + var(--galassia-edge) + 8px);
+}
+
+.galassia-view--overview {
+  --galassia-panel-height: clamp(168px, 20vh, 210px);
+}
+
+.galassia-view--zoomed {
+  --galassia-panel-height: clamp(350px, 42vh, 430px);
+}
+
+.galassia-view__profile-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+  grid-column: 1 / -1;
+}
+
+.galassia-view__profile-metrics > div {
+  min-width: 0;
+  padding: 0.55rem 0.62rem;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--panel-color) 8%, rgba(15, 23, 42, 0.46));
+}
+
+.galassia-view__profile-metrics strong {
+  display: block;
+  color: rgba(248, 250, 252, 0.96);
+  font-size: 1rem;
+  font-weight: 780;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.galassia-view__profile-metrics span {
+  display: block;
+  margin-top: 0.18rem;
+  color: rgba(148, 163, 184, 0.86);
+  font-size: 0.66rem;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.galassia-view__profile-block {
+  display: grid;
+  align-content: start;
+  gap: 0.48rem;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.galassia-view__profile-block h3 {
+  margin: 0;
+  color: color-mix(in srgb, var(--panel-color) 70%, rgba(203, 213, 225, 0.92));
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.galassia-view__profile-sublist,
+.galassia-view__dialogue-list,
+.galassia-view__rapporti-list {
+  display: grid;
+  gap: 0.38rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.galassia-view__profile-sublist li {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.galassia-view__profile-sublist li > span:first-child,
+.galassia-view__dialogue-head,
+.galassia-view__rapporti-list li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.galassia-view__profile-sublist b,
+.galassia-view__dialogue-head b,
+.galassia-view__rapporti-list span {
+  min-width: 0;
+  color: rgba(248, 250, 252, 0.9);
+  font-size: 0.8rem;
+  font-weight: 760;
+  line-height: 1.18;
+  overflow-wrap: anywhere;
+}
+
+.galassia-view__profile-sublist em,
+.galassia-view__dialogue-head em,
+.galassia-view__rapporti-list b {
+  flex: 0 0 auto;
+  color: rgba(203, 213, 225, 0.78);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.68rem;
+  font-style: normal;
+  font-weight: 700;
+}
+
+.galassia-view__mini-bar {
+  display: block;
+  width: 100%;
+  height: 0.36rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.16);
+}
+
+.galassia-view__mini-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.galassia-view__dialogue-list li {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.galassia-view__dialogue-head {
+  justify-content: flex-start;
+}
+
+.galassia-view__dialogue-head i {
+  width: 0.55rem;
+  height: 0.55rem;
+  flex: 0 0 auto;
+  border-radius: 999px;
+}
+
+.galassia-view__dialogue-head em {
+  margin-left: auto;
+}
+
+.galassia-view__dialogue-keywords,
+.galassia-view__state-row p {
+  margin: 0;
+  color: rgba(203, 213, 225, 0.76);
+  font-size: 0.74rem;
+  line-height: 1.32;
+}
+
+.galassia-view__rapporti-list li {
+  min-height: 1.55rem;
+  padding-bottom: 0.28rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.galassia-view__rapporti-list li:last-child {
+  border-bottom: 0;
+}
+
+.galassia-view__state-row {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.galassia-view__state-row span {
+  color: rgba(148, 163, 184, 0.86);
+  font-size: 0.66rem;
+  font-weight: 800;
+}
+
+@media (min-width: 901px) {
+  .galassia-view__crt-screen {
+    grid-template-columns: minmax(230px, 0.8fr) minmax(260px, 1fr) minmax(220px, 0.78fr);
+  }
+
+  .galassia-view__profile-metrics {
+    grid-column: 1 / -1;
+  }
+
+  .galassia-view__profile-block--states {
+    grid-column: 2 / -1;
+  }
+}
+
+@media (max-width: 900px) {
+  .galassia-view--zoomed {
+    --galassia-panel-height: min(44svh, 420px);
+  }
+
+  .galassia-view__profile-metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .galassia-view--zoomed {
+    --galassia-panel-height: min(48svh, 420px);
+  }
+
+  .galassia-view__profile-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .galassia-view__profile-metrics > div {
+    padding: 0.46rem 0.55rem;
+  }
+}

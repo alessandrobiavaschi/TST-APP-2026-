@@ -14,7 +14,7 @@ import {
   browserSessionPersistence,
   sendPasswordResetEmail,
   sendEmailVerification,
-  signOut,
+  onAuthStateChanged,
   updatePassword,
   updateProfile,
   reauthenticateWithCredential,
@@ -31,27 +31,90 @@ const GOOGLE_AUTH_DIAGNOSTIC_EVENT = 'tst:google-auth-diagnostic'
 const GOOGLE_REDIRECT_HINT_PARAM = 'tst_google_auth'
 const DEFAULT_HOME_ROUTE = '/home'
 
-function isSafariBrowser() {
-  if (typeof navigator === 'undefined') return false
-  const ua = navigator.userAgent || ''
-  const isSafari = /Safari/i.test(ua)
-  const isOtherWebkitBrowser = /(Chrome|CriOS|Chromium|Edg|OPR|Firefox|FxiOS)/i.test(ua)
-  return isSafari && !isOtherWebkitBrowser
+/** Una sola chiamata per caricamento pagina: evita che React StrictMode consumi il risultato due volte. */
+let redirectResultPromise = null
+let redirectConsumePromise = null
+
+function getRedirectResultOnce() {
+  if (!auth) return Promise.resolve(null)
+  if (!redirectResultPromise) {
+    redirectResultPromise = getRedirectResult(auth)
+  }
+  return redirectResultPromise
 }
 
-function isLocalhostRuntime() {
-  if (typeof window === 'undefined') return false
-  const hostname = window.location?.hostname || ''
-  return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1'
+async function waitForCurrentAuthUser(maxWaitMs = 2500) {
+  if (!auth || typeof window === 'undefined') return null
+  if (auth.currentUser) return auth.currentUser
+
+  const deadline = Date.now() + maxWaitMs
+  while (Date.now() < deadline) {
+    await new Promise((resolve) => window.setTimeout(resolve, 120))
+    if (auth.currentUser) return auth.currentUser
+  }
+  return auth.currentUser || null
 }
 
-function isGoogleAuthHardFailure(code) {
-  return (
-    code === 'auth/operation-not-allowed' ||
-    code === 'auth/unauthorized-domain' ||
-    code === 'auth/configuration-not-found' ||
-    code === 'auth/invalid-api-key'
-  )
+/** In iframe il popup OAuth e poco affidabile: usiamo redirect. Nei browser esterni proviamo prima il popup. */
+function shouldUseGoogleRedirect() {
+  if (typeof window !== 'undefined') {
+    try {
+      if (window.self !== window.top) return true
+    } catch {
+      return true
+    }
+  }
+  return false
+}
+
+function clearStaleGoogleRedirectPending() {
+  if (typeof window === 'undefined') return
+  try {
+    const sessionPending = window.sessionStorage.getItem(GOOGLE_REDIRECT_PENDING_KEY) === '1'
+    const urlHint = hasGoogleRedirectHintInUrl()
+    if (!sessionPending) {
+      window.localStorage.removeItem(GOOGLE_REDIRECT_PENDING_KEY)
+      if (urlHint) clearGoogleRedirectHintInUrl()
+    }
+  } catch {
+    // Ignore storage errors.
+  }
+}
+
+function waitForAuthUserViaObserver(maxWaitMs = 8000) {
+  if (!auth) return Promise.resolve(null)
+  if (auth.currentUser) return Promise.resolve(auth.currentUser)
+
+  return new Promise((resolve) => {
+    let settled = false
+    const finish = (user) => {
+      if (settled) return
+      settled = true
+      clearTimeout(timer)
+      unsubscribe()
+      resolve(user || null)
+    }
+
+    const timer = window.setTimeout(() => finish(auth.currentUser || null), maxWaitMs)
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) finish(user)
+    })
+  })
+}
+
+function getCanonicalLocalGoogleAuthUrl() {
+  if (typeof window === 'undefined') return ''
+  try {
+    const url = new URL(window.location.href)
+    if (url.hostname !== '127.0.0.1' && url.hostname !== '::1') return ''
+    url.hostname = 'localhost'
+    if (url.pathname === '/') {
+      url.searchParams.set('accesso', '1')
+    }
+    return url.toString()
+  } catch {
+    return ''
+  }
 }
 
 function buildAuthResult({
@@ -145,15 +208,11 @@ export function hasGoogleRedirectPending() {
   if (hasGoogleRedirectHintInUrl()) return true
   if (typeof window === 'undefined') return false
   try {
-    if (window.localStorage.getItem(GOOGLE_REDIRECT_PENDING_KEY) === '1') return true
+    if (window.sessionStorage.getItem(GOOGLE_REDIRECT_PENDING_KEY) === '1') return true
   } catch {
-    // Ignore storage errors (private mode / blocked storage).
+    // Ignore storage errors.
   }
-  try {
-    return window.sessionStorage.getItem(GOOGLE_REDIRECT_PENDING_KEY) === '1'
-  } catch {
-    return false
-  }
+  return false
 }
 
 export function clearGoogleRedirectPending() {
@@ -192,41 +251,59 @@ function getEmailPasswordErrorMessage(err) {
 }
 
 async function setSafeAuthPersistence() {
+  if (!auth) return
   try {
     await setPersistence(auth, browserLocalPersistence)
-    return
   } catch (localErr) {
-    // On iOS/private mode local persistence may fail (storage restrictions).
+    const code = localErr?.code || ''
+    if (code === 'auth/argument-error') return
     console.warn('setPersistence(browserLocalPersistence) non disponibile:', localErr)
   }
 
   try {
     await setPersistence(auth, browserSessionPersistence)
   } catch (sessionErr) {
-    // Last resort is SDK default in-memory session.
+    const code = sessionErr?.code || ''
+    if (code === 'auth/argument-error') return
     console.warn('setPersistence(browserSessionPersistence) non disponibile:', sessionErr)
   }
 }
 
-/** Dopo signInWithRedirect: chiama all'avvio app per completare il profilo (onAuthStateChanged aggiorna già la sessione). */
+/** Dopo signInWithRedirect: chiama all'avvio app prima di onAuthStateChanged. */
 export async function consumeGoogleRedirectResult() {
   if (!auth) return null
+  if (!redirectConsumePromise) {
+    redirectConsumePromise = consumeGoogleRedirectResultImpl()
+  }
+  return redirectConsumePromise
+}
+
+async function consumeGoogleRedirectResultImpl() {
+  if (!auth) return null
   const hadPendingRedirect = hasGoogleRedirectPending()
+  if (!hadPendingRedirect) {
+    clearStaleGoogleRedirectPending()
+  }
   try {
-    const result = await getRedirectResult(auth)
+    const result = await getRedirectResultOnce()
     if (result?.user) {
       await ensureUserProfile(result.user)
       clearGoogleRedirectPending()
-    } else if (hadPendingRedirect) {
-      const currentUser = auth.currentUser || null
+      return result
+    }
+
+    if (hadPendingRedirect) {
+      const currentUser =
+        (await waitForAuthUserViaObserver()) ||
+        (await waitForCurrentAuthUser()) ||
+        auth.currentUser ||
+        null
       if (currentUser) {
         await ensureUserProfile(currentUser)
         clearGoogleRedirectPending()
         return { user: currentUser }
       }
-      // Safari ITP o restrizioni di storage hanno impedito a Firebase di recuperare
-      // le credenziali OAuth dopo il redirect — getRedirectResult torna null senza
-      // lanciare eccezioni. Puliamo il pending per consentire un nuovo tentativo.
+
       clearGoogleRedirectPending()
       if (typeof window !== 'undefined') {
         window.dispatchEvent(
@@ -235,7 +312,7 @@ export async function consumeGoogleRedirectResult() {
               stage: 'redirect-result-empty',
               code: 'auth/redirect-result-empty',
               message:
-                "Non siamo riusciti a confermare automaticamente l'accesso Google. Riprova una volta. Se sei in locale, verifica che localhost sia tra i domini autorizzati in Firebase Authentication.",
+                "Non siamo riusciti a confermare l'accesso Google dopo il reindirizzamento. Prova di nuovo con «Accedi con Google», oppure apri http://localhost:5173 in Chrome/Safari (non nel pannello interno dell'editor). In Firebase Console verifica che localhost sia tra i domini autorizzati.",
               rawMessage: '',
             },
           }),
@@ -281,6 +358,22 @@ export async function ensureUserProfile(user, extra = {}) {
   }
 }
 
+async function startGoogleRedirectSignIn() {
+  await setSafeAuthPersistence()
+  markGoogleRedirectPending()
+  try {
+    await signInWithRedirect(auth, googleProvider)
+  } catch (err) {
+    clearGoogleRedirectPending()
+    throw err
+  }
+  return buildAuthResult({
+    success: true,
+    needsRedirect: true,
+    message: 'Reindirizzamento al login Google in corso...',
+  })
+}
+
 export async function signInWithGoogle() {
   if (!auth || !googleProvider) {
     return buildAuthResult({
@@ -291,29 +384,25 @@ export async function signInWithGoogle() {
       code: 'auth/configuration-missing',
     })
   }
+  const canonicalLocalUrl = getCanonicalLocalGoogleAuthUrl()
+  if (canonicalLocalUrl) {
+    window.location.assign(canonicalLocalUrl)
+    return buildAuthResult({
+      success: true,
+      needsRedirect: true,
+      message: 'Apro la versione localhost autorizzata per completare l\'accesso Google...',
+    })
+  }
   try {
-    // Non awaiting setSafeAuthPersistence prima di signInWithPopup: su iOS Safari (e tutti
-    // i browser iOS basati su WebKit) qualsiasi await prima di window.open() invalida il
-    // "user gesture context", causando il blocco del popup. La persistence viene impostata
-    // in background; l'utente impiega almeno qualche secondo a completare il login nel popup,
-    // quindi la promise si risolve sempre prima che Firebase abbia bisogno di salvare la sessione.
-    setSafeAuthPersistence().catch(() => {})
-
-    // Safari (desktop + iOS WebKit) ha più probabilità di bloccare/invalidare il popup OAuth.
-    // In locale però il popup tende a essere più affidabile del redirect: forziamo redirect
-    // solo fuori da localhost.
-    if (isSafariBrowser() && !isLocalhostRuntime()) {
-      markGoogleRedirectPending()
-      await signInWithRedirect(auth, googleProvider)
-      return buildAuthResult({
-        success: true,
-        needsRedirect: true,
-        message: 'Reindirizzamento al login Google in corso...',
-      })
+    if (shouldUseGoogleRedirect()) {
+      return startGoogleRedirectSignIn()
     }
 
-    // Preferiamo popup: su mobile riduce i casi in cui il redirect fallisce per limitazioni
-    // di storage/cookie (es. iOS Safari). Se il popup non è disponibile, facciamo fallback a redirect.
+    // Non awaiting setSafeAuthPersistence prima di signInWithPopup: qualsiasi await prima di
+    // window.open() invalida il "user gesture context". La persistence parte in background.
+    setSafeAuthPersistence().catch(() => {})
+
+      // Browser esterni desktop: popup più affidabile; redirect solo come fallback.
     try {
       const cred = await signInWithPopup(auth, googleProvider)
       await ensureUserProfile(cred.user)
@@ -330,24 +419,7 @@ export async function signInWithGoogle() {
         code === 'auth/cancelled-popup-request' ||
         code === 'auth/operation-not-supported-in-this-environment'
       ) {
-        markGoogleRedirectPending()
-        await signInWithRedirect(auth, googleProvider)
-        return buildAuthResult({
-          success: true,
-          needsRedirect: true,
-          message: 'Reindirizzamento al login Google in corso...',
-        })
-      }
-      // In Safari capita che il popup fallisca con codici non standardizzati (es. internal-error).
-      // Se non è un errore di configurazione hard, tentiamo comunque il redirect.
-      if (isSafariBrowser() && !isGoogleAuthHardFailure(code)) {
-        markGoogleRedirectPending()
-        await signInWithRedirect(auth, googleProvider)
-        return buildAuthResult({
-          success: true,
-          needsRedirect: true,
-          message: 'Reindirizzamento al login Google in corso...',
-        })
+        return startGoogleRedirectSignIn()
       }
       return buildAuthResult({
         success: false,
@@ -383,26 +455,24 @@ export async function signInWithEmail(email, password) {
       code: err?.code || '',
     })
   }
+  let verificationMessage = ''
   if (!cred.user.emailVerified) {
     try {
       await sendEmailVerification(cred.user)
+      verificationMessage = buildEmailVerificationMessage(cred.user.email, { resent: true })
     } catch (verifyErr) {
       console.error('Errore nel reinvio email di verifica:', verifyErr)
+      verificationMessage = buildEmailVerificationMessage(cred.user.email)
     }
-    await signOut(auth)
-    return buildAuthResult({
-      success: false,
-      message: buildEmailVerificationMessage(cred.user.email, { resent: true }),
-      code: 'auth/email-not-verified',
-      requiresEmailVerification: true,
-      emailForVerification: cred.user.email || '',
-    })
   }
   await ensureUserProfile(cred.user)
   return buildAuthResult({
     success: true,
     user: cred.user,
     nextRoute: DEFAULT_HOME_ROUTE,
+    requiresEmailVerification: !cred.user.emailVerified,
+    emailForVerification: cred.user.email || '',
+    message: verificationMessage,
   })
 }
 
@@ -487,7 +557,7 @@ export function getGoogleLoginErrorMessage(err) {
   }
   if (code === 'auth/unauthorized-domain') {
     return withCode(
-      'Questo dominio non è autorizzato. In Firebase Console: Authentication -> Impostazioni -> Domini autorizzati -> aggiungi questo sito (es. localhost o il tuo dominio) e salva.',
+      'Questo dominio non è autorizzato. In Firebase Console: Authentication -> Impostazioni -> Domini autorizzati -> aggiungi questo sito (es. localhost, 127.0.0.1 o il tuo dominio) e salva.',
     )
   }
   if (code === 'auth/configuration-not-found' || code === 'auth/invalid-api-key') {
@@ -498,6 +568,21 @@ export function getGoogleLoginErrorMessage(err) {
   if (code === 'auth/web-storage-unsupported') {
     return withCode(
       "Il browser non consente l'accesso allo storage locale. Se sei in modalità privata, prova a uscirne e ripetere il login.",
+    )
+  }
+  if (code === 'auth/operation-not-supported-in-this-environment') {
+    return withCode(
+      'Questo browser non supporta il popup Google in modo affidabile. Apri il sito in Chrome/Safari esterno oppure abilita i popup per questo sito.',
+    )
+  }
+  if (code === 'auth/network-request-failed') {
+    return withCode(
+      'Firebase non riesce a contattare i servizi Google Auth. Controlla connessione, VPN/ad-blocker e le eventuali restrizioni della API key Google Cloud per localhost.',
+    )
+  }
+  if (code === 'auth/argument-error') {
+    return withCode(
+      'Configurazione Auth non valida. Riavvia il dev server dopo aver verificato .env (VITE_FIREBASE_AUTH_DOMAIN deve essere tipo tuo-progetto.firebaseapp.com). Se persiste, prova in Chrome/Safari esterno.',
     )
   }
   return withCode(err?.message || 'Errore durante l\'accesso con Google.')
@@ -639,4 +724,8 @@ export async function updateUserDisplayName(user, displayName) {
     throw new Error(err?.message || 'Impossibile aggiornare il nome visualizzato.')
   }
   await ensureUserProfile(user, { nome: trimmed })
+}
+
+if (typeof window !== 'undefined') {
+  clearStaleGoogleRedirectPending()
 }

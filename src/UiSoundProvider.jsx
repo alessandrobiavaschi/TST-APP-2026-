@@ -9,6 +9,11 @@ const UiSoundContext = createContext({
   playGhostTap: () => {},
   playSwipe: () => {},
   playTransition: () => {},
+  playTestTap: () => {},
+  playTestPrimaryTap: () => {},
+  playTestGhostTap: () => {},
+  playTestSwipe: () => {},
+  playTestTransition: () => {},
   playLightSwitchTap: () => {},
   toggleEnabled: () => {},
   resumeAudioContext: () => {},
@@ -26,7 +31,14 @@ function getAudioContext() {
   return audioContext
 }
 
-function playSoftEnvelope({ frequency = 420, duration = 0.13, volume = 0.06 } = {}) {
+function playSoftEnvelope({
+  frequency = 420,
+  duration = 0.13,
+  volume = 0.06,
+  attack = 0.015,
+  filterCutoff = 1600,
+  filterQ = 0.7,
+} = {}) {
   const ctx = getAudioContext()
   if (!ctx) return
 
@@ -39,11 +51,11 @@ function playSoftEnvelope({ frequency = 420, duration = 0.13, volume = 0.06 } = 
   oscillator.frequency.setValueAtTime(frequency, now)
 
   filter.type = 'lowpass'
-  filter.frequency.setValueAtTime(1600, now)
-  filter.Q.setValueAtTime(0.7, now)
+  filter.frequency.setValueAtTime(filterCutoff, now)
+  filter.Q.setValueAtTime(filterQ, now)
 
   gain.gain.setValueAtTime(0.0001, now)
-  gain.gain.linearRampToValueAtTime(volume, now + 0.015)
+  gain.gain.linearRampToValueAtTime(volume, now + attack)
   gain.gain.exponentialRampToValueAtTime(0.0001, now + duration)
 
   oscillator.connect(filter)
@@ -59,6 +71,9 @@ function playDualSoftEnvelope({
   detune = 28,
   duration = 0.14,
   volume = 0.055,
+  attack = 0.02,
+  filterCutoff = 1500,
+  filterQ = 0.9,
 } = {}) {
   const ctx = getAudioContext()
   if (!ctx) return
@@ -75,11 +90,11 @@ function playDualSoftEnvelope({
   oscB.frequency.setValueAtTime(baseFrequency + detune, now)
 
   filter.type = 'lowpass'
-  filter.frequency.setValueAtTime(1500, now)
-  filter.Q.setValueAtTime(0.9, now)
+  filter.frequency.setValueAtTime(filterCutoff, now)
+  filter.Q.setValueAtTime(filterQ, now)
 
   gain.gain.setValueAtTime(0.0001, now)
-  gain.gain.linearRampToValueAtTime(volume, now + 0.02)
+  gain.gain.linearRampToValueAtTime(volume, now + attack)
   gain.gain.exponentialRampToValueAtTime(0.0001, now + duration)
 
   oscA.connect(filter)
@@ -91,6 +106,20 @@ function playDualSoftEnvelope({
   oscB.start(now)
   oscA.stop(now + duration + 0.05)
   oscB.stop(now + duration + 0.05)
+}
+
+async function withAudioContext(enabled, callback) {
+  if (!enabled) return
+  const ctx = getAudioContext()
+  if (!ctx) return
+  if (ctx.state === 'suspended') {
+    try {
+      await ctx.resume()
+    } catch {
+      return
+    }
+  }
+  callback()
 }
 
 export function UiSoundProvider({ children }) {
@@ -124,107 +153,104 @@ export function UiSoundProvider({ children }) {
       enabled,
       toggleEnabled: () => setEnabled((prev) => !prev),
       resumeAudioContext: async () => {
-        if (!enabled) return
-        const ctx = getAudioContext()
-        if (!ctx) return
-        if (ctx.state === 'suspended') {
-          try {
-            await ctx.resume()
-          } catch {
-            // ignore
-          }
-        }
+        await withAudioContext(enabled, () => {})
       },
       playSoftTap: async () => {
-        if (!enabled) return
-        const ctx = getAudioContext()
-        if (!ctx) return
-        if (ctx.state === 'suspended') {
-          try {
-            await ctx.resume()
-          } catch {
-            return
-          }
-        }
-        playSoftEnvelope({ frequency: 520, duration: 0.11, volume: 0.05 })
+        await withAudioContext(enabled, () => {
+          playSoftEnvelope({ frequency: 520, duration: 0.11, volume: 0.05 })
+        })
       },
       playPrimaryTap: async () => {
-        if (!enabled) return
-        const ctx = getAudioContext()
-        if (!ctx) return
-        if (ctx.state === 'suspended') {
-          try {
-            await ctx.resume()
-          } catch {
-            return
-          }
-        }
-        playSoftEnvelope({ frequency: 580, duration: 0.16, volume: 0.07 })
+        await withAudioContext(enabled, () => {
+          playSoftEnvelope({ frequency: 580, duration: 0.16, volume: 0.07 })
+        })
       },
       playSecondaryTap: async () => {
-        if (!enabled) return
-        const ctx = getAudioContext()
-        if (!ctx) return
-        if (ctx.state === 'suspended') {
-          try {
-            await ctx.resume()
-          } catch {
-            return
-          }
-        }
-        playSoftEnvelope({ frequency: 500, duration: 0.1, volume: 0.045 })
+        await withAudioContext(enabled, () => {
+          playSoftEnvelope({ frequency: 500, duration: 0.1, volume: 0.045 })
+        })
       },
       playGhostTap: async () => {
-        if (!enabled) return
-        const ctx = getAudioContext()
-        if (!ctx) return
-        if (ctx.state === 'suspended') {
-          try {
-            await ctx.resume()
-          } catch {
-            return
-          }
-        }
-        playSoftEnvelope({ frequency: 440, duration: 0.09, volume: 0.038 })
+        await withAudioContext(enabled, () => {
+          playSoftEnvelope({ frequency: 440, duration: 0.09, volume: 0.038 })
+        })
+      },
+      playTestTap: async () => {
+        await withAudioContext(enabled, () => {
+          playSoftEnvelope({
+            frequency: 295,
+            duration: 0.17,
+            volume: 0.009,
+            attack: 0.07,
+            filterCutoff: 620,
+            filterQ: 0.32,
+          })
+        })
+      },
+      playTestPrimaryTap: async () => {
+        await withAudioContext(enabled, () => {
+          playSoftEnvelope({
+            frequency: 315,
+            duration: 0.24,
+            volume: 0.012,
+            attack: 0.075,
+            filterCutoff: 660,
+            filterQ: 0.32,
+          })
+        })
+      },
+      playTestGhostTap: async () => {
+        await withAudioContext(enabled, () => {
+          playSoftEnvelope({
+            frequency: 275,
+            duration: 0.16,
+            volume: 0.006,
+            attack: 0.08,
+            filterCutoff: 580,
+            filterQ: 0.3,
+          })
+        })
+      },
+      playTestSwipe: async () => {
+        await withAudioContext(enabled, () => {
+          playDualSoftEnvelope({
+            baseFrequency: 305,
+            detune: -10,
+            duration: 0.28,
+            volume: 0.01,
+            attack: 0.075,
+            filterCutoff: 640,
+            filterQ: 0.35,
+          })
+        })
+      },
+      playTestTransition: async () => {
+        await withAudioContext(enabled, () => {
+          playDualSoftEnvelope({
+            baseFrequency: 330,
+            detune: 8,
+            duration: 0.34,
+            volume: 0.011,
+            attack: 0.08,
+            filterCutoff: 660,
+            filterQ: 0.35,
+          })
+        })
       },
       playLightSwitchTap: async () => {
-        if (!enabled) return
-        const ctx = getAudioContext()
-        if (!ctx) return
-        if (ctx.state === 'suspended') {
-          try {
-            await ctx.resume()
-          } catch {
-            return
-          }
-        }
-        playDualSoftEnvelope({ baseFrequency: 620, detune: 42, duration: 0.09, volume: 0.065 })
+        await withAudioContext(enabled, () => {
+          playDualSoftEnvelope({ baseFrequency: 620, detune: 42, duration: 0.09, volume: 0.065 })
+        })
       },
       playSwipe: async () => {
-        if (!enabled) return
-        const ctx = getAudioContext()
-        if (!ctx) return
-        if (ctx.state === 'suspended') {
-          try {
-            await ctx.resume()
-          } catch {
-            return
-          }
-        }
-        playDualSoftEnvelope({ baseFrequency: 480, detune: -36, duration: 0.18, volume: 0.05 })
+        await withAudioContext(enabled, () => {
+          playDualSoftEnvelope({ baseFrequency: 480, detune: -36, duration: 0.18, volume: 0.05 })
+        })
       },
       playTransition: async () => {
-        if (!enabled) return
-        const ctx = getAudioContext()
-        if (!ctx) return
-        if (ctx.state === 'suspended') {
-          try {
-            await ctx.resume()
-          } catch {
-            return
-          }
-        }
-        playDualSoftEnvelope({ baseFrequency: 560, detune: 22, duration: 0.22, volume: 0.06 })
+        await withAudioContext(enabled, () => {
+          playDualSoftEnvelope({ baseFrequency: 560, detune: 22, duration: 0.22, volume: 0.06 })
+        })
       },
     }),
     [enabled],
@@ -273,6 +299,15 @@ export function UiSoundGlobalListener() {
 
       // Accordion Info TST: suono gestito in TstPage (playTransition/playGhostTap) per open/close
       if (className.includes('nuovo-test-accordion-header')) {
+        return
+      }
+
+      // Nel flusso test i suoni sono gestiti esplicitamente in NewTestPage (varianti più morbide)
+      if (
+        control.closest('.nuovo-test-page') ||
+        control.closest('.nuovo-test-tutorial-layer') ||
+        control.closest('.feedback-help-layer')
+      ) {
         return
       }
 

@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react'
+import { SHOW_TRACCE_SECTION } from './reportFeatureFlags.js'
 
 /**
  * Menu allineato ai titoli reali del report. Sottosezioni = id degli h3 in EmotionalProfileCards.
  */
-const NAV_TREE = [
+const NAV_TREE_ALL = [
   {
     id: 'report-sintesi',
     label: 'TEMPERAMENTO',
@@ -35,12 +36,28 @@ const NAV_TREE = [
     mobileShort: 'Rapporti',
   },
   {
+    id: 'report-tracce',
+    label: 'Tracce nel report',
+    num: '05',
+    mobileShort: 'Tracce',
+  },
+  {
+    id: 'report-galassia',
+    label: 'Galassia degli affetti',
+    num: '06',
+    mobileShort: 'Galassia',
+  },
+  {
     id: 'report-lessico',
     label: 'Parole',
-    num: '05',
+    num: '07',
     mobileShort: 'Parole',
   },
 ]
+
+const NAV_TREE = SHOW_TRACCE_SECTION
+  ? NAV_TREE_ALL
+  : NAV_TREE_ALL.filter((item) => item.id !== 'report-tracce')
 
 /** Ordine nel documento per scroll-spy (include sezioni non in menu) */
 const SPY_ORDER = [
@@ -53,8 +70,11 @@ const SPY_ORDER = [
   'report-operatori',
   'report-natura-base',
   'report-rapporti',
+  ...(SHOW_TRACCE_SECTION ? ['report-tracce'] : []),
+  'report-galassia',
   'report-lessico',
   'report-dati',
+  'report-closing-epilogue',
   'report-guida',
 ]
 

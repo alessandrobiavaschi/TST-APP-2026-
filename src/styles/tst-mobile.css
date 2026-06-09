@@ -421,8 +421,11 @@
 
   /* ── Landing: Apple-style mobile layout ── */
   .landing-mobile-hero {
-    background: #fff;
-    color: #1d1d1f;
+    background:
+      radial-gradient(circle at 50% -8%, rgba(124, 58, 237, 0.32), transparent 52%),
+      radial-gradient(circle at 50% 108%, rgba(37, 99, 235, 0.22), transparent 50%),
+      linear-gradient(180deg, #050816 0%, #080d1e 52%, #030712 100%);
+    color: #f8fafc;
     min-height: 100svh;
     display: flex;
     flex-direction: column;
@@ -457,13 +460,13 @@
     line-height: 1.08;
     letter-spacing: -0.025em;
     font-weight: 700;
-    color: #1d1d1f;
+    color: #f8fafc;
   }
 
   .landing-mobile-sub {
     font-size: 17px;
     line-height: 1.5;
-    color: #6e6e73;
+    color: rgba(226, 232, 240, 0.82);
     font-family: var(--tst-font);
   }
 
@@ -476,7 +479,7 @@
   .landing-mobile-cta-primary {
     height: 50px;
     border-radius: 999px;
-    background: #1d1d1f;
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
     color: #fff;
     font-size: 16px;
     font-weight: 600;
@@ -492,10 +495,10 @@
     height: 50px;
     border-radius: 999px;
     background: transparent;
-    color: #0071e3;
+    color: rgba(191, 219, 254, 0.94);
     font-size: 16px;
     font-weight: 500;
-    border: 1px solid rgba(0, 113, 227, 0.35);
+    border: 1px solid rgba(191, 219, 254, 0.35);
     cursor: pointer;
     font-family: var(--tst-font);
     display: flex;

@@ -1,4 +1,130 @@
 import { testSchema } from '../dbSchema.js'
+import {
+  computeScoreDeltaForAnswer,
+  getQuestionGroupForFile,
+  getLogicTypeForFile,
+} from '../testLogic.js'
+
+const REPORT_SECTION_DEFS = [
+  { key: 'A_TIMBRO', label: 'Timbro', from: 1, to: 28 },
+  { key: 'B_INTERVALLI', label: 'Intervalli', from: 29, to: 41 },
+  { key: 'C_RITMO', label: 'Ritmo', from: 42, to: 51 },
+  { key: 'D_MELODIA', label: 'Melodia', from: 52, to: 58 },
+  { key: 'E_ARMONIA', label: 'Armonia', from: 59, to: 72 },
+]
+
+function emptyColorTotals() {
+  return { blu: 0, rosso: 0, verde: 0, giallo: 0, grigio: 0 }
+}
+
+function correnteKeyToColorKey(key) {
+  if (!key) return null
+  if (key.startsWith('BLU_')) return 'blu'
+  if (key.startsWith('ROSSO_')) return 'rosso'
+  if (key.startsWith('VERDE_')) return 'verde'
+  if (key.startsWith('GIALLO_')) return 'giallo'
+  if (key.startsWith('GRIGIO_')) return 'grigio'
+  return null
+}
+
+/** File → macro sezione (Timbro … Armonia), come da manuale TST. */
+export function getReportSectionForFile(fileNumber) {
+  for (const section of REPORT_SECTION_DEFS) {
+    if (fileNumber >= section.from && fileNumber <= section.to) return section.key
+  }
+  return null
+}
+
+function sumSectionTotals(sezioniTotals, sectionKeys) {
+  const out = emptyColorTotals()
+  sectionKeys.forEach((key) => {
+    const totals = sezioniTotals[key]
+    if (!totals) return
+    out.blu += totals.blu
+    out.rosso += totals.rosso
+    out.verde += totals.verde
+    out.giallo += totals.giallo
+    out.grigio += totals.grigio
+  })
+  return out
+}
+
+function colorTotalsToChartRow(label, totals) {
+  return {
+    nome: label,
+    Blu: totals.blu,
+    Rosso: totals.rosso,
+    Verde: totals.verde,
+    Giallo: totals.giallo,
+    Grigio: totals.grigio,
+  }
+}
+
+/**
+ * Ricostruisce i totali per famiglia colore in ciascuna delle 5 sezioni del test
+ * (replay di computeScoreDeltaForAnswer sui File_01…File_72).
+ */
+export function computeSezioniTotalsFromRaw(rawRecord = {}) {
+  const sezioniTotals = REPORT_SECTION_DEFS.reduce((acc, section) => {
+    acc[section.key] = emptyColorTotals()
+    return acc
+  }, {})
+
+  for (let fileNumber = 1; fileNumber <= 72; fileNumber += 1) {
+    const fileKey = `File_${String(fileNumber).padStart(2, '0')}`
+    const rawAnswer = rawRecord[fileKey]
+    if (!rawAnswer) continue
+
+    const reportSection = getReportSectionForFile(fileNumber)
+    if (!reportSection) continue
+
+    const group = getQuestionGroupForFile(fileNumber)
+    const logicType = getLogicTypeForFile(fileNumber)
+    if (!logicType) continue
+
+    const params = {
+      fileNumber,
+      isConfirmation: group === 'C_BIS',
+    }
+
+    if (
+      logicType === 'AFFINITA_BASE' ||
+      logicType === 'AFFINITA_ECCEZIONE' ||
+      logicType === 'AFFINITA_STANDARD'
+    ) {
+      params.affinitaOptionId = rawAnswer
+    } else {
+      params.answerLabel = rawAnswer
+    }
+
+    const delta = computeScoreDeltaForAnswer(params)
+    if (!delta || Object.keys(delta).length === 0) continue
+
+    Object.entries(delta).forEach(([key, value]) => {
+      const colorKey = correnteKeyToColorKey(key)
+      if (!colorKey) return
+      sezioniTotals[reportSection][colorKey] += value
+    })
+  }
+
+  const sezioniData = REPORT_SECTION_DEFS.map((section) =>
+    colorTotalsToChartRow(section.label, sezioniTotals[section.key]),
+  )
+
+  const rapporti = {
+    natura: sumSectionTotals(sezioniTotals, ['A_TIMBRO', 'B_INTERVALLI', 'E_ARMONIA']),
+    se: sumSectionTotals(sezioniTotals, ['B_INTERVALLI', 'D_MELODIA']),
+    altro: sumSectionTotals(sezioniTotals, ['A_TIMBRO', 'D_MELODIA']),
+    agire: sumSectionTotals(sezioniTotals, ['C_RITMO', 'D_MELODIA']),
+  }
+
+  return { sezioniTotals, sezioniData, rapporti }
+}
+
+/** Totali aggregati per i 4 rapporti (natura, se, altro, agire). */
+export function computeRapportiTotalsFromRaw(rawRecord = {}) {
+  return computeSezioniTotalsFromRaw(rawRecord).rapporti
+}
 
 export function formatDateShort(value) {
   if (!value) return ''

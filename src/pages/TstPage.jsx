@@ -137,6 +137,47 @@ function TstPage() {
                 </p>
               </div>
             </article>
+            <article className={`nuovo-test-faq-item ${openFaqId === 'perche-funziona' ? 'is-open' : ''}`}>
+              <button
+                type="button"
+                className="nuovo-test-faq-trigger"
+                onClick={() => toggleFaq('perche-funziona')}
+                aria-expanded={openFaqId === 'perche-funziona'}
+              >
+                <span>Perché funziona</span>
+                <span className="nuovo-test-faq-icon" aria-hidden="true" />
+              </button>
+              <div className="nuovo-test-faq-panel">
+                <div className="tst-info-how-slide">
+                  <p className="nuovo-test-section-subtitle">Ascolto guidato</p>
+                  <p>
+                    È fatto da 72 brevi frammenti sonori da sentire, uno alla volta, organizzati per timbro,
+                    intervalli, ritmo, melodia e armonia.
+                  </p>
+                  <p>
+                    Associa in modo istintivo i suoni alle tue sensazioni e barra le risposte che corrispondono alle
+                    tue percezioni.
+                  </p>
+                </div>
+                <div className="tst-info-how-slide">
+                  <p className="nuovo-test-section-subtitle">Lettura operativa</p>
+                  <p>
+                    Il risultato non è una diagnosi e non è un&apos;etichetta, ma una mappa utile per comprendere il tuo
+                    temperamento emotivo in modo innovativo. Il report si costruisce man mano che svolgi il test: ogni
+                    risposta racconta qualcosa su di te, come ti senti in relazione a un suono, quali preferisci e
+                    quali ti suonano antipatici.
+                  </p>
+                </div>
+                <div className="tst-info-how-slide">
+                  <p className="nuovo-test-section-subtitle">Uso concreto</p>
+                  <p>
+                    La restituzione è leggibile sia in autonomia, per approfondire la conoscenza di sé, sia in contesti
+                    educativi, professionali e di supporto relazionale.
+                  </p>
+                </div>
+              </div>
+            </article>
+
             <article className={`nuovo-test-faq-item ${openFaqId === 'utilizzi' ? 'is-open' : ''}`}>
               <button
                 type="button"
