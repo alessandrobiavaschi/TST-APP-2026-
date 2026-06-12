@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useId } from 'react'
 import { NavLink } from 'react-router-dom'
 import { isFirebaseAuthConfigured } from '../firebaseConfig.js'
 
@@ -25,6 +25,12 @@ function AuthBox({
   isSubmitting = false,
 }) {
   const [mode, setMode] = useState(initialMode)
+  const fieldId = useId()
+  const emailFieldId = `${fieldId}-email`
+  const passwordFieldId = `${fieldId}-password`
+  const confirmPasswordFieldId = `${fieldId}-confirm-password`
+  const nomeFieldId = `${fieldId}-nome`
+  const cognomeFieldId = `${fieldId}-cognome`
 
   useEffect(() => {
     setMode(initialMode)
@@ -99,14 +105,16 @@ function AuthBox({
             Inserisci l&apos;email dell&apos;account: ti invieremo un link per reimpostare la password.
           </p>
           <form className="auth-form landing-auth-form" onSubmit={handleForgotPasswordSubmit}>
-            <label className="auth-field">
+            <label className="auth-field" htmlFor={emailFieldId}>
               <span>Email</span>
               <input
+                id={emailFieldId}
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="nome@esempio.it"
                 required
+                autoComplete="email"
               />
             </label>
             {authError && <p className="auth-error" role="alert">{authError}</p>}
@@ -144,24 +152,28 @@ function AuthBox({
             La conferma email e obbligatoria prima del primo accesso.
           </p>
           <form className="auth-form landing-auth-form" onSubmit={handleLoginSubmit}>
-            <label className="auth-field">
+            <label className="auth-field" htmlFor={emailFieldId}>
               <span>Email</span>
               <input
+                id={emailFieldId}
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="nome@esempio.it"
                 required
+                autoComplete="email"
               />
             </label>
-            <label className="auth-field">
+            <label className="auth-field" htmlFor={passwordFieldId}>
               <span>Password</span>
               <input
+                id={passwordFieldId}
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Minimo 6 caratteri"
                 required
+                autoComplete="current-password"
               />
             </label>
             {authError && <p className="auth-error" role="alert">{authError}</p>}
@@ -240,54 +252,64 @@ function AuthBox({
             Dopo la registrazione dovrai confermare l&apos;email dal link ricevuto prima di poter entrare.
           </p>
           <form className="auth-form landing-auth-form" onSubmit={handleRegisterSubmit}>
-            <label className="auth-field">
+            <label className="auth-field" htmlFor={nomeFieldId}>
               <span>Nome</span>
               <input
+                id={nomeFieldId}
                 type="text"
                 value={nome}
                 onChange={(e) => setNome(e.target.value)}
                 placeholder="Il tuo nome"
                 required
+                autoComplete="given-name"
               />
             </label>
-            <label className="auth-field">
+            <label className="auth-field" htmlFor={cognomeFieldId}>
               <span>Cognome</span>
               <input
+                id={cognomeFieldId}
                 type="text"
                 value={cognome}
                 onChange={(e) => setCognome(e.target.value)}
                 placeholder="Il tuo cognome"
                 required
+                autoComplete="family-name"
               />
             </label>
-            <label className="auth-field">
+            <label className="auth-field" htmlFor={emailFieldId}>
               <span>Email</span>
               <input
+                id={emailFieldId}
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="nome@esempio.it"
                 required
+                autoComplete="email"
               />
             </label>
-            <label className="auth-field">
+            <label className="auth-field" htmlFor={passwordFieldId}>
               <span>Password</span>
               <input
+                id={passwordFieldId}
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Minimo 6 caratteri"
                 required
+                autoComplete="new-password"
               />
             </label>
-            <label className="auth-field">
+            <label className="auth-field" htmlFor={confirmPasswordFieldId}>
               <span>Conferma password</span>
               <input
+                id={confirmPasswordFieldId}
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Ripeti la password"
                 required
+                autoComplete="new-password"
               />
             </label>
             {authError && <p className="auth-error" role="alert">{authError}</p>}

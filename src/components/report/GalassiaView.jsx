@@ -2,15 +2,28 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 // AnimatePresence + motion usati per zoom costellazione e pannello CRT
 import { EXAMPLE_CORRENT_DATA } from '../../utils/galassiaData.js'
-import { resolveGalassiaPanelContent } from '../../utils/galassiaPanelContent.js'
-import { getGalaxyTheoryForRawKey } from '../../config/galaxyTheoryContent'
+import { resolveGalassiaPanelContent, getGalaxyTheoryForRawKey } from '../../utils/galassiaPanelContent.js'
 import { GALASSIA_CRT } from '../../content/reportRestitution.js'
 import {
   getDialogoKeywords,
   getFamigliaDot,
   getFamigliaLabel,
 } from '../../content/dialogoCorrenti.js'
-import { GALASSIA_UI } from './reportUiCopy.js'
+import { FAMIGLIE_LESSICO } from '../../content/statiAnimoLessico.js'
+import reportContent from '../../content_report.json'
+import {
+  GALASSIA_UI,
+  GALASSIA_MAP_MODES,
+  GALASSIA_PORTATO_UI,
+  GALASSIA_READING_STEPS,
+  GALASSIA_READING_STEPS_BY_MODE,
+  GALASSIA_RAPPORTI_UI,
+} from './reportUiCopy.js'
+import GalassiaTutorialOverlay from './GalassiaTutorialOverlay.jsx'
+import {
+  markGalassiaOpeningGuideSeen,
+  shouldShowGalassiaTutorial,
+} from './galassiaTutorialStorage.js'
 import '../../styles/galassia-view.css'
 
 // `motion` è usato solo come componente JSX (motion.div/button/section): questo
@@ -36,6 +49,8 @@ const CAMERA_MIN_SCALE = 0.78
 const CAMERA_MAX_SCALE = 3.2
 const CAMERA_ZOOM_STEP = 1.14
 const CAMERA_ANIM_MS = 880
+const GALASSIA_STABLE_TRANSITION = { duration: 0.2, ease: 'easeOut' }
+const GALASSIA_STABLE_ENTER_TRANSITION = { duration: 0.24, ease: 'easeOut' }
 
 /** Elementi mappa che devono ricevere click/tap senza pointer capture sul layer. */
 const INTERACTIVE_MAP_SELECTOR =
@@ -57,6 +72,11 @@ const MAP_LABEL_PAD_PX = 104
 const CONSTELLATION_CORE_DIAM = 96
 const CONSTELLATION_NODE_GAP = 30
 const CONSTELLATION_LABEL_CLEAR = 58
+/** Min center-to-center horizontal gap between two satellites (px). */
+const CONSTELLATION_MIN_X_GAP = 20
+/** n=2: orbit radius must be at least nodeSize + this for readable horizontal spread. */
+const CONSTELLATION_PAIR_ORBIT_MIN_EXTRA = 80
+const CONSTELLATION_MAP_EDGE_PAD = 16
 /** Bias upward so orbit + labels sit in the visual center of the map viewport. */
 const MAP_ZOOM_FOCUS_Y = 46
 
@@ -149,16 +169,55 @@ const GUIDE_STAR_SPIRAL = [
   { angle: -2.36, distance: 0.96 },
 ]
 
-/** Angoli orbita: 2–3 satellite sparsi (evita ammassamento orizzontale). */
+/** Vertical ellipse compression; n≤2 uses horizontal spread (yFlatten = 1). */
+function constellationYFlatten(count) {
+  if (count <= 2) return 1
+  if (count === 3) return 0.88
+  return 0.82
+}
+
+/** Angoli orbita: n=2 orizzontale; n≥3 anello uniforme con offset (evita x=0 condiviso). */
 function constellationAngle(count, index) {
   if (count <= 1) return -Math.PI / 2
   if (count === 2) {
-    return index === 0 ? -Math.PI * 0.58 : Math.PI * 0.42
+    return index === 0 ? Math.PI : 0
   }
-  if (count === 3) {
-    return -Math.PI / 2 + (index * (Math.PI * 2)) / 3
+  const start = -Math.PI / 2 + Math.PI / count
+  return start + (index * (Math.PI * 2)) / count
+}
+
+function constellationOffset(angle, radius, yFlatten) {
+  return {
+    x: Math.cos(angle) * radius,
+    y: Math.sin(angle) * radius * yFlatten,
   }
-  return (index / count) * Math.PI * 2 - Math.PI / 2
+}
+
+/** n=2: strict left/right pair; never share x within CONSTELLATION_MIN_X_GAP. */
+function resolveConstellationPosition(count, index, orbit, yFlatten) {
+  if (count === 2) {
+    const xSign = index === 0 ? -1 : 1
+    return { x: xSign * orbit, y: 0 }
+  }
+  const angle = constellationAngle(count, index)
+  return constellationOffset(angle, orbit, yFlatten)
+}
+
+function minPairOrbitRadius(nodeDiameter) {
+  const peerFloor = minOrbitRadius(2, nodeDiameter)
+  const spreadFloor = nodeDiameter + CONSTELLATION_PAIR_ORBIT_MIN_EXTRA
+  const xGapFloor = (nodeDiameter + CONSTELLATION_MIN_X_GAP) / 2
+  return Math.ceil(Math.max(peerFloor, spreadFloor, xGapFloor))
+}
+
+/** Chord length between adjacent satellites at radius 1 on the flattened ellipse. */
+function peerSpacingFactor(count, index, yFlatten) {
+  if (count <= 1) return 1
+  const a1 = constellationAngle(count, index)
+  const a2 = constellationAngle(count, (index + 1) % count)
+  const dx = Math.cos(a1) - Math.cos(a2)
+  const dy = yFlatten * (Math.sin(a1) - Math.sin(a2))
+  return Math.hypot(dx, dy)
 }
 
 /** Raggio minimo: nodi non si sovrappongono al core né tra loro. */
@@ -171,24 +230,128 @@ function minOrbitRadius(count, nodeDiameter, coreDiameter = CONSTELLATION_CORE_D
     return Math.ceil(orbitForCore + CONSTELLATION_LABEL_CLEAR * 0.3)
   }
   const minCenterDistance = nodeDiameter + CONSTELLATION_NODE_GAP
-  const sinHalf = Math.sin(Math.PI / count)
-  const orbitForPeers =
-    sinHalf > 0.01 ? minCenterDistance / (2 * sinHalf) : orbitForCore
-  const yFlatten = count === 2 ? 0.76 : 0.74
-  return Math.ceil(Math.max(orbitForCore, orbitForPeers / yFlatten))
+  const yFlatten = constellationYFlatten(count)
+  let orbitForPeers = orbitForCore
+  for (let i = 0; i < count; i += 1) {
+    const factor = peerSpacingFactor(count, i, yFlatten)
+    if (factor > 0.01) {
+      orbitForPeers = Math.max(orbitForPeers, minCenterDistance / factor)
+    }
+  }
+  const multiBonus = 12 + count * 6
+  return Math.ceil(orbitForPeers + multiBonus)
 }
 
-function maxViewportOrbit(mapW, mapH, focusCenter, nodeDiameter) {
+function maxViewportOrbit(
+  mapW,
+  mapH,
+  focusCenter,
+  nodeDiameter,
+  yFlatten = 0.82,
+  { n = 3, compactLabels = false } = {},
+) {
   if (mapW < 1 || mapH < 1) return Infinity
-  const labelPad = MAP_LABEL_PAD_PX
-  const nodeR = nodeDiameter / 2 + CONSTELLATION_LABEL_CLEAR
+  const labelPad = compactLabels ? 40 : MAP_LABEL_PAD_PX
+  const labelClear = compactLabels ? 22 : CONSTELLATION_LABEL_CLEAR
+  const coreR = CONSTELLATION_CORE_DIAM / 2
+  const nodeR = nodeDiameter / 2 + labelClear
   const focusYpx = (focusCenter.y / 100) * mapH
   const focusXpx = (focusCenter.x / 100) * mapW
-  const vertRoom = Math.min(focusYpx - labelPad * 0.3, mapH - focusYpx - labelPad)
-  const horizRoom = Math.min(focusXpx - labelPad * 0.3, mapW - focusXpx - labelPad)
-  const vertCap = (vertRoom - nodeR) / 0.74
+  const edgePad = CONSTELLATION_MAP_EDGE_PAD
+  const vertRoom = Math.min(
+    focusYpx - labelPad * 0.25,
+    mapH - focusYpx - labelPad,
+  )
+  const horizRoom = Math.min(
+    focusXpx - edgePad,
+    mapW - focusXpx - edgePad,
+  )
+  const yf = Math.max(yFlatten, 0.5)
+
+  if (n === 2 && yFlatten >= 0.95) {
+    const halfOrbitCap = horizRoom - coreR - nodeR
+    const vertCap = (vertRoom - nodeR) / yf
+    const cap = Math.min(halfOrbitCap, vertCap)
+    if (cap > 0) return cap
+    const fallbackHalf = mapW * 0.5 - coreR - nodeR - edgePad
+    return Math.max(0, fallbackHalf)
+  }
+
+  const vertCap = (vertRoom - nodeR) / yf
   const horizCap = horizRoom - nodeR
-  return Math.max(0, Math.min(vertCap, horizCap))
+  const cap = Math.max(0, Math.min(vertCap, horizCap))
+  if (cap > 0) return cap
+  const fallback = Math.min(
+    mapW * 0.5 - coreR - nodeR - edgePad,
+    (mapH - labelPad * 2) * 0.5 - coreR - nodeR,
+  )
+  return Math.max(0, fallback)
+}
+
+/** Fit orbit to viewport: shrink node sizes before dropping below peer-spacing floor. */
+function fitConstellationOrbit({
+  n,
+  sizes,
+  orbitHint,
+  mapW,
+  mapH,
+  focusCenter,
+  isMobile,
+}) {
+  const yFlatten = constellationYFlatten(n)
+  const compactLabels = isMobile
+  const minNodeSize = isMobile ? 34 : 46
+  const labelClear = compactLabels ? 22 : CONSTELLATION_LABEL_CLEAR
+  let fittedSizes = sizes.map((size) => Math.round(Math.max(minNodeSize, size)))
+  let maxNode = Math.max(...fittedSizes, minNodeSize)
+
+  const orbitFloorFor = (nodeSize) =>
+    n === 2 ? minPairOrbitRadius(nodeSize) : minOrbitRadius(n, nodeSize)
+
+  const maxFitFor = (nodeSize) =>
+    maxViewportOrbit(mapW, mapH, focusCenter, nodeSize + labelClear, yFlatten, {
+      n,
+      compactLabels,
+    })
+
+  let orbitFloor = orbitFloorFor(maxNode)
+  let maxFit = maxFitFor(maxNode)
+
+  while (orbitFloor > maxFit && maxNode > minNodeSize) {
+    fittedSizes = fittedSizes.map((size) => Math.round(Math.max(minNodeSize, size * 0.88)))
+    maxNode = Math.max(...fittedSizes, minNodeSize)
+    orbitFloor = orbitFloorFor(maxNode)
+    maxFit = maxFitFor(maxNode)
+  }
+
+  let orbitForCount = Math.max(orbitHint, orbitFloor)
+  if (maxFit > 0) {
+    orbitForCount = Math.min(orbitForCount, maxFit)
+  }
+
+  if (n === 2) {
+    const minHalfSep = Math.ceil((maxNode + CONSTELLATION_MIN_X_GAP) / 2)
+    const idealOrbit = Math.max(minPairOrbitRadius(maxNode), maxNode + CONSTELLATION_PAIR_ORBIT_MIN_EXTRA)
+    if (maxFit <= 0 || idealOrbit <= maxFit) {
+      orbitForCount = Math.max(orbitForCount, idealOrbit)
+      if (maxFit > 0) {
+        orbitForCount = Math.min(orbitForCount, maxFit)
+      }
+    }
+    orbitForCount = Math.max(orbitForCount, minHalfSep)
+    if (maxFit > 0) {
+      orbitForCount = Math.min(orbitForCount, maxFit)
+    }
+  } else {
+    orbitForCount = Math.max(orbitFloor, orbitForCount)
+  }
+
+  return {
+    sizes: fittedSizes,
+    orbitForCount: Math.round(orbitForCount),
+    maxNode,
+    yFlatten,
+  }
 }
 
 function computeGalassiaZoomLayout({
@@ -217,6 +380,7 @@ function computeGalassiaZoomLayout({
   }
 
   const n = Math.max(1, subCount)
+  const yFlatten = constellationYFlatten(n)
   const estNode = isMobile ? 68 : 80
   const orbitFloor = minOrbitRadius(n, estNode)
   let orbitRadius = Math.round(
@@ -235,7 +399,14 @@ function computeGalassiaZoomLayout({
   }
 
   if (mapH > 0 && mapW > 0) {
-    const maxOrbit = maxViewportOrbit(mapW, mapH, focusCenter, estNode + CONSTELLATION_LABEL_CLEAR)
+    const maxOrbit = maxViewportOrbit(
+      mapW,
+      mapH,
+      focusCenter,
+      estNode + (isMobile ? 22 : CONSTELLATION_LABEL_CLEAR),
+      yFlatten,
+      { n, compactLabels: isMobile },
+    )
     if (maxOrbit > 0) {
       orbitRadius = Math.round(Math.max(orbitFloor, Math.min(orbitWant, maxOrbit)))
     } else {
@@ -281,6 +452,688 @@ const CORRENTE_NAME_BY_FAMILY = {
   grigio: 'Anaffettività',
 }
 
+const RELATION_TONE_COPY = {
+  calma: {
+    label: 'stabilizza',
+    text: 'porta contenimento, pazienza e continuità.',
+  },
+  spinta: {
+    label: 'direziona',
+    text: 'porta decisione, azione e orientamento pratico.',
+  },
+  profondita: {
+    label: 'approfondisce',
+    text: 'porta sensibilità, memoria e risonanza interiore.',
+  },
+  energia: {
+    label: 'accende',
+    text: 'porta movimento, creatività e slancio.',
+  },
+  distanza: {
+    label: 'distanzia',
+    text: 'porta osservazione, separazione e controllo razionale.',
+  },
+  misto: {
+    label: 'modula',
+    text: 'aggiunge una sfumatura specifica alla disposizione prevalente.',
+  },
+}
+
+const RAPPORTI_ANCHORS = {
+  natura: { x: 50, y: 24 },
+  se: { x: 24, y: 52 },
+  altro: { x: 76, y: 52 },
+  agire: { x: 50, y: 78 },
+}
+
+const PORTATO_ANCHORS = {
+  Simpatia: { x: 28, y: 36 },
+  Antipatia: { x: 72, y: 36 },
+  Indifferenza: { x: 50, y: 74 },
+}
+
+const PORTATO_COLORS = {
+  Simpatia: '#4ade80',
+  Antipatia: '#f87171',
+  Indifferenza: '#94a3b8',
+}
+
+const PORTATO_CARD_BY_KEY = Object.fromEntries(
+  GALASSIA_PORTATO_UI.cards.map((card) => [card.id, card]),
+)
+
+const CORRENTE_COLOR_BY_NAME = {
+  Malinconia: '#3b82f6',
+  Volitività: '#ef4444',
+  Calma: '#22c55e',
+  Entusiasmo: '#eab308',
+  Anaffettività: '#94a3b8',
+}
+
+const FAMILY_NAME_BY_KEY = {
+  blu: 'Blu',
+  rosso: 'Rosso',
+  verde: 'Verde',
+  giallo: 'Giallo',
+  grigio: 'Grigio',
+}
+
+const DISPOSITION_ID_BY_FAMILY_KEY = {
+  blu: 'malinconica_nostalgica',
+  rosso: 'collerico_volitiva',
+  verde: 'flemmatica',
+  giallo: 'entusiasmo',
+  grigio: 'agnostica_anaffettiva',
+}
+
+const FAMILY_KEY_BY_COLOR = {
+  '#3b82f6': 'blu',
+  '#ef4444': 'rosso',
+  '#22c55e': 'verde',
+  '#eab308': 'giallo',
+  '#6b7280': 'grigio',
+  '#9ca3af': 'grigio',
+}
+
+const FAMILY_KEY_ALIASES = {
+  blu: 'blu',
+  malinconia: 'blu',
+  lunare: 'blu',
+  malinconica: 'blu',
+  nostalgia: 'blu',
+  nostalgica: 'blu',
+  rosso: 'rosso',
+  volitivita: 'rosso',
+  volitiva: 'rosso',
+  marziale: 'rosso',
+  collerica: 'rosso',
+  verde: 'verde',
+  calma: 'verde',
+  flemmatica: 'verde',
+  giallo: 'giallo',
+  entusiasmo: 'giallo',
+  solare: 'giallo',
+  grigio: 'grigio',
+  anaffettivita: 'grigio',
+  anaffettiva: 'grigio',
+  agnostica: 'grigio',
+}
+
+const LESSICO_RELATIONS_BY_FAMILY = {
+  blu: {
+    pairs: [
+      { familyKey: 'verde', label: 'profondità + calma' },
+      { familyKey: 'giallo', label: 'memoria + apertura' },
+    ],
+    contrasts: [
+      { familyKey: 'rosso', label: 'riflessione / azione' },
+      { familyKey: 'grigio', label: 'risonanza / distacco' },
+    ],
+  },
+  rosso: {
+    pairs: [
+      { familyKey: 'giallo', label: 'azione + slancio' },
+      { familyKey: 'grigio', label: 'decisione + lucidità' },
+    ],
+    contrasts: [
+      { familyKey: 'verde', label: 'spinta / pausa' },
+      { familyKey: 'blu', label: 'fare / rimandare dentro' },
+    ],
+  },
+  verde: {
+    pairs: [
+      { familyKey: 'blu', label: 'calma + ascolto' },
+      { familyKey: 'grigio', label: 'pausa + osservazione' },
+    ],
+    contrasts: [
+      { familyKey: 'rosso', label: 'riposo / attivazione' },
+      { familyKey: 'giallo', label: 'lentezza / movimento' },
+    ],
+  },
+  giallo: {
+    pairs: [
+      { familyKey: 'rosso', label: 'slancio + direzione' },
+      { familyKey: 'blu', label: 'apertura + memoria' },
+    ],
+    contrasts: [
+      { familyKey: 'grigio', label: 'calore / raffreddamento' },
+      { familyKey: 'verde', label: 'moto / quiete' },
+    ],
+  },
+  grigio: {
+    pairs: [
+      { familyKey: 'rosso', label: 'lucidità + scelta' },
+      { familyKey: 'verde', label: 'distanza + regolazione' },
+    ],
+    contrasts: [
+      { familyKey: 'giallo', label: 'distacco / entusiasmo' },
+      { familyKey: 'blu', label: 'calcolo / risonanza' },
+    ],
+  },
+}
+
+function mapModeSupportsZoom(mode, node) {
+  if (mode === 'disposizioni' || mode === 'rapporti') return true
+  if (mode === 'parole') return Boolean(node?.sottoCorrenti?.length)
+  return false
+}
+
+function rapportoLivello(peso) {
+  return Math.max(0, Math.min(7, Math.round(Number(peso) || 0)))
+}
+
+function formatNodeWeight(mode, node) {
+  if (mode === 'rapporti') {
+    const level = rapportoLivello(node?.peso)
+    const family = node?.raw?.correntePrincipale?.nome || ''
+    const levelLabel = `${level}/7`
+    const familyLevel = family ? `${family} ${levelLabel}` : levelLabel
+    return {
+      short: familyLevel,
+      display: familyLevel,
+      sizeRatio: level / 7,
+      headBadge: levelLabel,
+      isRapportiLevel: true,
+    }
+  }
+  if (mode === 'parole') {
+    const activationPct = pesoToPct(node?.raw?.activationPct ?? node?.peso)
+    const totalWords = Number(node?.raw?.totalWords) || 0
+    const emergedCount = Number(node?.raw?.emerseCount) || 0
+    const wordLabel =
+      totalWords === 1 ? '1 parola' : `${totalWords} parole`
+    return {
+      short: totalWords ? wordLabel : `${activationPct}%`,
+      display: totalWords ? wordLabel : `${activationPct}%`,
+      sizeRatio: Math.max(0.18, activationPct / 100),
+      headBadge: emergedCount > 0 ? `${emergedCount} emerse` : wordLabel,
+      isRapportiLevel: false,
+    }
+  }
+  const pct = pesoToPct(node?.peso)
+  return {
+    short: `${pct}%`,
+    display: `${pct}%`,
+    sizeRatio: pct / 100,
+    headBadge: `${pct}%`,
+    isRapportiLevel: false,
+  }
+}
+
+function normalizeLessicoKey(value) {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+}
+
+function familyKeyFromLabel(value) {
+  const normalized = normalizeLessicoKey(value)
+  if (!normalized) return ''
+  const parts = normalized.split(' ').filter(Boolean)
+  for (const part of parts) {
+    if (FAMILY_KEY_ALIASES[part]) return FAMILY_KEY_ALIASES[part]
+  }
+  return FAMILY_KEY_ALIASES[normalized] || ''
+}
+
+function familyKeyFromWordEntry(entry) {
+  if (!entry) return ''
+  if (entry.familyKey && FAMILY_NAME_BY_KEY[entry.familyKey]) return entry.familyKey
+  const fromFamilyName = familyKeyFromLabel(entry.familyName)
+  if (fromFamilyName) return fromFamilyName
+  const fromCorrente = familyKeyFromLabel(entry.corrente)
+  if (fromCorrente) return fromCorrente
+  const fromColor = FAMILY_KEY_BY_COLOR[String(entry.colore || '').trim().toLowerCase()]
+  return fromColor || ''
+}
+
+function getFamilyNameForKey(familyKey) {
+  return FAMILY_NAME_BY_KEY[familyKey] || ''
+}
+
+function getLessicoDetailForFamily(famiglieLessico = {}, familyKey = '') {
+  const familyName = getFamilyNameForKey(familyKey)
+  if (!familyName) return null
+  return famiglieLessico?.[familyName] || FAMIGLIE_LESSICO[familyName] || null
+}
+
+function getLessicoCorrenteForFamily(lessicoCorrenti = [], familyKey = '') {
+  return (Array.isArray(lessicoCorrenti) ? lessicoCorrenti : []).find((item) => {
+    if (!item) return false
+    return (
+      item.familyKey === familyKey ||
+      familyKeyFromLabel(item.familyName) === familyKey ||
+      familyKeyFromLabel(item.label) === familyKey ||
+      familyKeyFromLabel(item.nome) === familyKey
+    )
+  }) || null
+}
+
+function buildWordEntries(labels = [], emergedSet = new Set(), source = 'dizionario') {
+  const byKey = new Map()
+  for (const label of labels) {
+    const nome = String(label || '').trim()
+    if (!nome) continue
+    const key = normalizeLessicoKey(nome)
+    if (!key || byKey.has(key)) continue
+    byKey.set(key, {
+      id: `${source}-${key}`,
+      nome,
+      source,
+      isEmerged: emergedSet.has(key),
+    })
+  }
+  return [...byKey.values()].sort((a, b) => {
+    if (a.isEmerged !== b.isEmerged) return a.isEmerged ? -1 : 1
+    return a.nome.localeCompare(b.nome, 'it')
+  })
+}
+
+function buildLessicoRelations(familyKey = '') {
+  const config = LESSICO_RELATIONS_BY_FAMILY[familyKey] || { pairs: [], contrasts: [] }
+  const toRelation = (item, kind) => ({
+    ...item,
+    kind,
+    nome: getFamigliaLabel(item.familyKey) || CORRENTE_NAME_BY_FAMILY[item.familyKey] || item.familyKey,
+    colore: getFamigliaDot(item.familyKey) || '#94a3b8',
+  })
+  return [
+    ...config.pairs.map((item) => toRelation(item, 'pair')),
+    ...config.contrasts.map((item) => toRelation(item, 'contrast')),
+  ]
+}
+
+function buildLessicoSubcurrents({
+  corrente,
+  detail,
+  emergedItems,
+  emergedSet,
+}) {
+  const dataSubs = Array.isArray(corrente?.sottoCorrenti) ? corrente.sottoCorrenti : []
+  const detailSubs = Array.isArray(detail?.sottoCorrenti) ? detail.sottoCorrenti : []
+  const sourceSubs = detailSubs.length ? detailSubs : dataSubs
+
+  return sourceSubs.map((sub, index) => {
+    const rawKey = sub.id || sub.rawKey || dataSubs[index]?.id || ''
+    const dataSub = dataSubs.find((candidate) => candidate.id === rawKey) || dataSubs[index] || null
+    const theory = rawKey ? getGalaxyTheoryForRawKey(rawKey) : null
+    const states = Array.isArray(sub.stati)
+      ? sub.stati
+      : Array.isArray(dataSub?.statiDanimo)
+        ? dataSub.statiDanimo
+        : []
+    const statesSet = new Set(states.map(normalizeLessicoKey))
+    const emergedForSub = emergedItems.filter((item) => {
+      const wordKey = normalizeLessicoKey(item?.parola)
+      return item?.correnteKey === rawKey || statesSet.has(wordKey)
+    })
+    const words = buildWordEntries(
+      [
+        ...emergedForSub.map((item) => item.parola),
+        ...states,
+      ],
+      emergedSet,
+      rawKey || `sottodisposizione-${index}`,
+    )
+    const pct = pesoToPct(dataSub?.peso)
+
+    return {
+      id: rawKey || `lessico-sub-${index}`,
+      rawKey,
+      nome: sub.titolo || dataSub?.nome || theory?.title || rawKeyToReadable(rawKey),
+      colore: dataSub?.colore || corrente?.colore || '#94a3b8',
+      peso: Math.max(18, pct),
+      activationPct: pct,
+      descrizione: sub.descrizione || dataSub?.descrizione || theory?.description || '',
+      intervallo: sub.intervallo || theory?.interval || '',
+      coloreTST: theory?.color || sub.colore || '',
+      wordCount: words.length,
+      emergedCount: words.filter((word) => word.isEmerged).length,
+      words,
+      statiDanimo: words.map((word) => word.nome),
+    }
+  })
+}
+
+function rawKeyToReadable(rawKey) {
+  return String(rawKey || '')
+    .split('_')
+    .slice(2)
+    .join(' ')
+    .replaceAll('_', ' ')
+    .trim()
+    .replace(/\b\w/g, (char) => char.toUpperCase())
+}
+
+function buildLessicoGalaxyNodes({
+  data,
+  paroleEmerse,
+  lessicoCorrenti,
+  famiglieLessico,
+}) {
+  return (Array.isArray(data) ? data : []).map((corrente, index) => {
+    const familyKey =
+      familyKeyForCorrente(corrente) ||
+      familyKeyFromLabel(corrente?.nome) ||
+      Object.keys(DISPOSITION_ID_BY_FAMILY_KEY)[index] ||
+      ''
+    const familyName = getFamilyNameForKey(familyKey)
+    const detail = getLessicoDetailForFamily(famiglieLessico, familyKey)
+    const lessicoCorrente = getLessicoCorrenteForFamily(lessicoCorrenti, familyKey)
+    const emergedItems = (Array.isArray(paroleEmerse) ? paroleEmerse : []).filter(
+      (item) => familyKeyFromWordEntry(item) === familyKey,
+    )
+    const emergedSet = new Set(emergedItems.map((item) => normalizeLessicoKey(item?.parola)))
+    const subcurrents = buildLessicoSubcurrents({
+      corrente,
+      detail,
+      emergedItems,
+      emergedSet,
+    })
+    const familyWordLabels = [
+      ...emergedItems.map((item) => item.parola),
+      ...(Array.isArray(lessicoCorrente?.lessico) ? lessicoCorrente.lessico : []),
+      ...(Array.isArray(detail?.vocabolarioForme) ? detail.vocabolarioForme : []),
+      ...subcurrents.flatMap((sub) => sub.words.map((word) => word.nome)),
+    ]
+    const words = buildWordEntries(familyWordLabels, emergedSet, familyKey || corrente.id || 'famiglia')
+    const dispositionId = DISPOSITION_ID_BY_FAMILY_KEY[familyKey] || corrente.id
+    const relations = buildLessicoRelations(familyKey)
+
+    return {
+      id: `parole-${dispositionId}`,
+      nome: getFamigliaLabel(familyKey) || CORRENTE_NAME_BY_FAMILY[familyKey] || corrente.nome,
+      colore: corrente.colore || getFamigliaDot(familyKey) || '#94a3b8',
+      peso: pesoToPct(corrente.peso),
+      anchor: WIND_ANCHORS[dispositionId] || DEFAULT_ANCHORS[index % DEFAULT_ANCHORS.length],
+      mode: 'parole',
+      raw: {
+        sourceId: corrente.id,
+        familyKey,
+        familyName,
+        dispositionName: corrente.nome,
+        activationPct: pesoToPct(corrente.peso),
+        totalWords: words.length,
+        emerseCount: emergedItems.length,
+        subCount: subcurrents.length,
+        nominalCount: Array.isArray(detail?.vocabolarioForme) ? detail.vocabolarioForme.length : 0,
+        relationMethod: 'vicinanza e opposizione',
+        lettura: detail?.lettura || corrente.descrizione || '',
+        relations,
+      },
+      parole: emergedItems,
+      words,
+      sottoCorrenti: subcurrents,
+    }
+  })
+}
+
+function buildModeIdlePanel(mode, { dominant, portato } = {}) {
+  const modeMeta = GALASSIA_MAP_MODES.find((item) => item.id === mode)
+  const base = {
+    kind: 'idle',
+    id: `idle-${mode}`,
+    nome: modeMeta?.hint || GALASSIA_UI.chromeTitle,
+    hint: GALASSIA_UI.modeIdle[mode] || GALASSIA_CRT.idleTapHint,
+    tapHint:
+      mode === 'rapporti'
+        ? GALASSIA_RAPPORTI_UI.tapHint
+        : mode === 'portato'
+          ? GALASSIA_PORTATO_UI.tapHint
+          : GALASSIA_UI.clickPlanetHint,
+    dominantChip:
+      dominant && (mode === 'disposizioni' || mode === 'parole')
+        ? {
+            id: dominant.id,
+            nome: dominant.nome,
+            pct: pesoToPct(dominant.peso),
+            colore: dominant.colore,
+          }
+        : null,
+  }
+  if (mode === 'rapporti') {
+    return {
+      ...base,
+      intro: GALASSIA_RAPPORTI_UI.idleHintLead,
+    }
+  }
+  if (mode === 'parole') {
+    return {
+      ...base,
+      idleKicker: 'Lessico emotivo',
+      dominantChipLabel: 'Disposizione più attiva',
+      intro:
+        'Le parole sono organizzate per disposizione, sottodisposizione e colore. Le relazioni distinguono accoppiamenti e contrasti tra famiglie.',
+      introPoints: [
+        {
+          id: 'settori',
+          label: 'Disposizione',
+          areas: 'Famiglia colore',
+          meaning: 'Raccoglie le parole del dizionario TST e quelle emerse nel test.',
+        },
+        {
+          id: 'orbite',
+          label: 'Sottodisposizione',
+          areas: 'Satelliti',
+          meaning: 'Mostra le sfumature interne e le parole specifiche di ciascuna.',
+        },
+        {
+          id: 'relazioni',
+          label: 'Relazioni',
+          areas: 'Accoppiamenti / contrasti',
+          meaning: 'Aiuta a leggere quali famiglie si sostengono o si mettono in tensione.',
+        },
+      ],
+    }
+  }
+  if (mode === 'portato' && portato?.hasData) {
+    const prevalenteDim = (portato.dimensioni || []).find((dim) => dim.key === portato.prevalente)
+    return {
+      ...base,
+      idleKicker: 'Portato esperienziale',
+      dominantChipLabel: GALASSIA_PORTATO_UI.prevalenteLabel,
+      intro: GALASSIA_PORTATO_UI.intro,
+      introPoints: GALASSIA_PORTATO_UI.cards,
+      scaleNote: GALASSIA_PORTATO_UI.scaleNote,
+      dimensioni: portato.dimensioni,
+      prevalenteLabel: portato.prevalenteLabel || portato.prevalente,
+      descrizione: portato.descrizione,
+      vitalita: portato.vitalita,
+      dominantChip: prevalenteDim
+        ? {
+            id: `portato-${String(prevalenteDim.key || '').toLowerCase()}`,
+            nome: prevalenteDim.label || prevalenteDim.key,
+            pct: prevalenteDim.percentuale ?? 0,
+            colore: PORTATO_COLORS[prevalenteDim.key] || '#94a3b8',
+          }
+        : null,
+    }
+  }
+  return base
+}
+
+function buildModePanelContent(mode, node, activeSub = null) {
+  if (!node) return buildModeIdlePanel(mode)
+  const raw = node.raw || {}
+
+  if (mode === 'rapporti') {
+    if (activeSub) {
+      const livello = rapportoLivello(activeSub.livello ?? activeSub.peso)
+      return {
+        kind: 'rapporto-radar',
+        id: activeSub.id,
+        nome: activeSub.nome,
+        livello,
+        headBadge: `${livello}/7`,
+        colore: activeSub.colore,
+        definizione:
+          activeSub.descrizione ||
+          `Livello ${livello}/7 per la famiglia ${activeSub.nome} in «${raw.nome}».`,
+        cosaIndica: `Confronto interno al radar di «${raw.nome}» (scala 1–7).`,
+      }
+    }
+    const livello = rapportoLivello(node.peso)
+    return {
+      kind: 'rapporto',
+      id: node.id,
+      nome: raw.nome,
+      livello,
+      headBadge: `${livello}/7`,
+      colore: node.colore,
+      definizione: raw.definizione,
+      cosaIndica: raw.cosaIndica,
+      composizione: raw.composizione,
+      correntePrincipale: raw.correntePrincipale,
+      datiRadar: raw.datiRadar,
+    }
+  }
+
+  if (mode === 'portato') {
+    const card = PORTATO_CARD_BY_KEY[raw.key]
+    return {
+      kind: 'portato',
+      id: node.id,
+      nome: raw.label || node.nome,
+      pct: raw.percentuale ?? pesoToPct(node.peso),
+      colore: node.colore,
+      definizione: raw.definizioneBreve || '',
+      descrizioneCompleta: raw.descrizioneCompleta || '',
+      cosaIndica: raw.cosaIndica || card?.meaning || '',
+      cardAreas: card?.areas || '',
+      cardMetaphor: card?.metaphor || '',
+      valore: raw.valore,
+      isPrevalente: Boolean(raw.isPrevalente),
+    }
+  }
+
+  if (mode === 'parole') {
+    if (activeSub) {
+      const words = Array.isArray(activeSub.words)
+        ? activeSub.words
+        : buildWordEntries(activeSub.statiDanimo || [])
+      const emergedWords = words.filter((word) => word.isEmerged)
+      return {
+        kind: 'lessico-sottocorrente',
+        id: activeSub.id,
+        nome: activeSub.nome,
+        parentNome: node.nome,
+        headBadge: activeSub.wordCount === 1 ? '1 parola' : `${activeSub.wordCount || words.length} parole`,
+        pct: activeSub.activationPct ?? pesoToPct(activeSub.peso),
+        colore: activeSub.colore,
+        definizione:
+          activeSub.descrizione ||
+          `Sottodisposizione lessicale della famiglia ${node.nome}.`,
+        intervallo: activeSub.intervallo,
+        coloreTST: activeSub.coloreTST,
+        words,
+        emergedWords,
+      }
+    }
+    const words = Array.isArray(node.words) ? node.words : []
+    const emergedWords = words.filter((word) => word.isEmerged)
+    const relations = Array.isArray(raw.relations) ? raw.relations : []
+    return {
+      kind: 'parole-famiglia',
+      id: node.id,
+      nome: node.nome,
+      headBadge: formatNodeWeight(mode, node).headBadge,
+      pct: raw.activationPct ?? pesoToPct(node.peso),
+      colore: node.colore,
+      definizione:
+        raw.lettura ||
+        `${raw.totalWords || words.length} parole di riferimento nella famiglia ${node.nome}.`,
+      words,
+      emergedWords,
+      relations,
+      sottoCorrenti: Array.isArray(node.sottoCorrenti) ? node.sottoCorrenti : [],
+      stats: [
+        { label: 'Parole', value: raw.totalWords || words.length },
+        { label: 'Emersi', value: raw.emerseCount || 0 },
+        { label: 'Sfumature', value: raw.subCount || 0 },
+      ],
+      statiDanimo: words.slice(0, 12).map((word) => word.nome),
+    }
+  }
+
+  return null
+}
+
+function buildMapNodes({ mode, data, rapporti, portato, paroleEmerse, lessicoCorrenti, famiglieLessico }) {
+  if (mode === 'rapporti') {
+    return (Array.isArray(rapporti) ? rapporti : []).map((rapporto) => {
+      const radar = Array.isArray(rapporto.datiRadar) ? rapporto.datiRadar : []
+      const maxVal = Math.max(...radar.map((item) => Number(item.valore) || 0), 0)
+      return {
+        id: `rapporto-${rapporto.id}`,
+        nome: rapporto.nome,
+        colore: rapporto.correntePrincipale?.colore || '#94a3b8',
+        peso: maxVal,
+        anchor: RAPPORTI_ANCHORS[rapporto.id] || { x: 50, y: 50 },
+        mode: 'rapporti',
+        raw: rapporto,
+        sottoCorrenti: radar.map((item) => {
+          const livello = rapportoLivello(item.valore)
+          return {
+            id: `radar-${rapporto.id}-${item.corrente}`,
+            nome: item.corrente,
+            colore: CORRENTE_COLOR_BY_NAME[item.corrente] || '#94a3b8',
+            livello,
+            peso: livello,
+            descrizione: `Livello ${livello}/7`,
+          }
+        }),
+      }
+    })
+  }
+
+  if (mode === 'portato') {
+    const prevalente = portato?.prevalente || ''
+    const portatoContent = reportContent?.portato_esperienziale || {}
+    return (Array.isArray(portato?.dimensioni) ? portato.dimensioni : []).map((dim) => {
+      const card = PORTATO_CARD_BY_KEY[dim.key]
+      return {
+        id: `portato-${String(dim.key || '').toLowerCase()}`,
+        nome: dim.label || dim.key,
+        colore: PORTATO_COLORS[dim.key] || '#94a3b8',
+        peso: dim.percentuale ?? 0,
+        anchor: PORTATO_ANCHORS[dim.key] || { x: 50, y: 50 },
+        mode: 'portato',
+        raw: {
+          ...dim,
+          isPrevalente: dim.key === prevalente,
+          cosaIndica: portatoContent[dim.key]?.cosa_indica || card?.meaning || '',
+          descrizioneCompleta: portatoContent[dim.key]?.descrizione_breve || '',
+        },
+        sottoCorrenti: [],
+      }
+    })
+  }
+
+  if (mode === 'parole') {
+    return buildLessicoGalaxyNodes({
+      data,
+      paroleEmerse,
+      lessicoCorrenti,
+      famiglieLessico,
+    })
+  }
+
+  return (Array.isArray(data) ? data : []).map((corrente, index) => ({
+    id: corrente.id,
+    nome: corrente.nome,
+    colore: corrente.colore,
+    peso: corrente.peso,
+    anchor: WIND_ANCHORS[corrente.id] || DEFAULT_ANCHORS[index % DEFAULT_ANCHORS.length],
+    mode: 'disposizioni',
+    raw: corrente,
+    sottoCorrenti: Array.isArray(corrente.sottoCorrenti) ? corrente.sottoCorrenti : [],
+  }))
+}
+
 function familyKeyForCorrente(corrente) {
   return corrente?.familyKey || FAMILY_KEY_BY_DISPOSITION[corrente?.id] || ''
 }
@@ -316,11 +1169,51 @@ function getRapportiForFamily(rapporti = [], familyKey = '') {
     .filter((item) => item.valore > 0)
 }
 
+function relationToneFromKeywords(keywords = []) {
+  const joined = keywords.join(' ').toLowerCase()
+  if (/calma|pazienza|stabil|rifless/.test(joined)) return 'calma'
+  if (/decisa|diretta|pratica|definita|indirizzata|direzionata/.test(joined)) return 'spinta'
+  if (/profonda|sensibile|ideale|meditativa/.test(joined)) return 'profondita'
+  if (/energia|creativ|impulsiv|dinamismo|inventiva|efficienza/.test(joined)) return 'energia'
+  if (/distante|razionale|chiusa|separata/.test(joined)) return 'distanza'
+  return 'misto'
+}
+
+function buildDispositionRelations(rankedData = [], limit = 4) {
+  const dominant = rankedData[0]
+  if (!dominant) return []
+  const dominantFamilyKey = familyKeyForCorrente(dominant)
+  return rankedData
+    .slice(1)
+    .filter((partner) => pesoToPct(partner.peso) > 0)
+    .slice(0, limit)
+    .map((partner) => {
+      const partnerFamilyKey = familyKeyForCorrente(partner)
+      const keywords = getDialogoKeywords(dominantFamilyKey, partnerFamilyKey)
+      const reciprocalKeywords = getDialogoKeywords(partnerFamilyKey, dominantFamilyKey)
+      const tone = relationToneFromKeywords(keywords)
+      return {
+        id: `${dominant.id}-${partner.id}`,
+        baseId: dominant.id,
+        partnerId: partner.id,
+        baseNome: getFamigliaLabel(dominantFamilyKey) || dominant.nome,
+        partnerNome: getFamigliaLabel(partnerFamilyKey) || partner.nome,
+        basePct: pesoToPct(dominant.peso),
+        partnerPct: pesoToPct(partner.peso),
+        colore: partner.colore || getFamigliaDot(partnerFamilyKey),
+        baseColore: dominant.colore || getFamigliaDot(dominantFamilyKey),
+        keywords,
+        reciprocalKeywords,
+        tone,
+        toneCopy: RELATION_TONE_COPY[tone] || RELATION_TONE_COPY.misto,
+      }
+    })
+    .filter((relation) => relation.keywords.length || relation.reciprocalKeywords.length)
+}
+
 function getParoleForFamily(paroleEmerse = [], familyKey = '') {
-  const correnteName = CORRENTE_NAME_BY_FAMILY[familyKey]
-  if (!correnteName) return []
   return paroleEmerse
-    .filter((item) => item?.corrente === correnteName)
+    .filter((item) => familyKeyFromWordEntry(item) === familyKey)
     .slice(0, 8)
 }
 
@@ -340,6 +1233,8 @@ function buildProfileInfo({ corrente, rankedData, paroleEmerse, rapporti }) {
         pct: pesoToPct(partner.peso),
         colore: partner.colore || getFamigliaDot(partnerFamilyKey),
         keywords: getDialogoKeywords(familyKey, partnerFamilyKey).slice(0, 4),
+        reciprocalKeywords: getDialogoKeywords(partnerFamilyKey, familyKey).slice(0, 4),
+        tone: relationToneFromKeywords(getDialogoKeywords(familyKey, partnerFamilyKey)),
       }
     })
     .filter((item) => item.keywords.length > 0)
@@ -384,6 +1279,69 @@ function buildProfileInfo({ corrente, rankedData, paroleEmerse, rapporti }) {
   }
 }
 
+function GalassiaOperatorGuide({ mapMode = 'disposizioni', onDismiss }) {
+  const modeMeta = GALASSIA_MAP_MODES.find((item) => item.id === mapMode)
+  const steps = GALASSIA_READING_STEPS_BY_MODE[mapMode] || GALASSIA_READING_STEPS
+
+  return (
+    <aside
+      className="galassia-view__insight-deck galassia-view__insight-deck--guide-only"
+      aria-label={GALASSIA_UI.guidePanelTitle}
+    >
+      <section className="galassia-view__guide-panel galassia-view__guide-panel--solo">
+        <div className="galassia-view__guide-copy">
+          <p>{modeMeta?.hint || 'Galassia'}</p>
+          <h2>{GALASSIA_UI.guidePanelTitle}</h2>
+        </div>
+        <ol className="galassia-view__guide-steps">
+          {steps.map((step) => (
+            <li key={step.id}>
+              <span aria-hidden="true">{step.label}</span>
+              <b>{step.title}</b>
+              <em>{step.text}</em>
+            </li>
+          ))}
+        </ol>
+        <button
+          type="button"
+          className="galassia-view__guide-dismiss"
+          onClick={(event) => {
+            event.stopPropagation()
+            onDismiss?.()
+          }}
+        >
+          {GALASSIA_UI.guidePanelDismiss}
+        </button>
+      </section>
+    </aside>
+  )
+}
+
+function GalassiaMapHint({ mode, dominant, onSelectDominant }) {
+  const kicker = GALASSIA_UI.idleHintKicker[mode] || GALASSIA_UI.chromeTitle
+  let lead = GALASSIA_UI.mapHintByMode[mode] || GALASSIA_CRT.idleTapHint
+
+  if (mode === 'disposizioni' && dominant) {
+    lead = `Prevalente: ${dominant.nome} (${pesoToPct(dominant.peso)}%). ${GALASSIA_UI.clickPlanetHintShort}`
+  }
+
+  return (
+    <div className="galassia-view__map-hint" role="status" aria-live="polite">
+      <p className="galassia-view__map-hint-kicker">{kicker}</p>
+      <p className="galassia-view__map-hint-lead">{lead}</p>
+      {mode === 'disposizioni' && dominant ? (
+        <button
+          type="button"
+          className="galassia-view__map-hint-cta"
+          onClick={() => onSelectDominant?.(dominant.id)}
+        >
+          Vai a {dominant.nome}
+        </button>
+      ) : null}
+    </div>
+  )
+}
+
 function usePrefersReducedMotion() {
   const [reduced, setReduced] = useState(false)
   useEffect(() => {
@@ -415,7 +1373,13 @@ function useElementSize(ref) {
   useEffect(() => {
     const el = ref.current
     if (!el) return undefined
-    const update = () => setSize({ w: el.clientWidth, h: el.clientHeight })
+    const update = () => {
+      const next = {
+        w: Math.round(el.clientWidth || 0),
+        h: Math.round(el.clientHeight || 0),
+      }
+      setSize((prev) => (prev.w === next.w && prev.h === next.h ? prev : next))
+    }
     update()
     let observer
     if (typeof ResizeObserver !== 'undefined') {
@@ -455,6 +1419,57 @@ function MiniBar({ value = 0, color = '#94a3b8' }) {
   )
 }
 
+function PortatoTriadSpectrum({ dimensioni = [], compact = false, showLegend = true }) {
+  const dims = (Array.isArray(dimensioni) ? dimensioni : []).filter(
+    (dim) => Number(dim.percentuale) > 0 || Number(dim.valore) > 0,
+  )
+  if (!dims.length) return null
+
+  return (
+    <div
+      className={`galassia-view__portato-triad${compact ? ' galassia-view__portato-triad--compact' : ''}`}
+      role="img"
+      aria-label={GALASSIA_PORTATO_UI.triadAria}
+    >
+      <div className="galassia-view__portato-triad-bar">
+        {dims.map((dim) => (
+          <span
+            key={dim.key}
+            className="galassia-view__portato-triad-segment"
+            style={{
+              flexGrow: Math.max(1, Number(dim.percentuale) || 0),
+              backgroundColor: PORTATO_COLORS[dim.key] || '#94a3b8',
+            }}
+            title={`${dim.label || dim.key}: ${dim.percentuale ?? 0}%`}
+          />
+        ))}
+      </div>
+      {showLegend ? (
+        <ul className="galassia-view__portato-triad-legend">
+          {dims.map((dim) => (
+            <li key={dim.key}>
+              <span
+                className="galassia-view__portato-triad-swatch"
+                style={{ backgroundColor: PORTATO_COLORS[dim.key] || '#94a3b8' }}
+                aria-hidden
+              />
+              <strong>{dim.label || dim.key}</strong>
+              <em>{dim.percentuale ?? 0}%</em>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      {!compact ? (
+        <div className="galassia-view__portato-triad-axis" aria-hidden="true">
+          <span>{GALASSIA_PORTATO_UI.axisAttrazione}</span>
+          <span>{GALASSIA_PORTATO_UI.axisRifiuto}</span>
+          <span>{GALASSIA_PORTATO_UI.axisDistacco}</span>
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
 function GalassiaCrtPanel({
   panel,
   selected,
@@ -462,6 +1477,7 @@ function GalassiaCrtPanel({
   profileInfo,
   onBackToParent,
   onSelectSub,
+  onSelectDominant,
 }) {
   if (!panel) return null
 
@@ -471,7 +1487,6 @@ function GalassiaCrtPanel({
   const isCostellazione = selected && panel.kind === 'corrente' && !isPreview
   const isCompact = isIdle || isPreview
   const meaning = shortText(panel.definizione || panel.cosaIndica || '', isSub ? 150 : 120)
-  const interval = isSub ? shortText(panel.cosaIndica || '', 72) : ''
   const parole = Array.isArray(panel.statiDanimo) ? panel.statiDanimo : []
   const paroleLimit = isSub ? 5 : 4
   const showSubnav = isCostellazione && !activeSubId
@@ -486,15 +1501,17 @@ function GalassiaCrtPanel({
         <div className="galassia-view__crt-head">
           <p className="galassia-view__crt-kicker">
             {isIdle
-              ? GALASSIA_CRT.kickerIdle
+              ? panel.idleKicker || GALASSIA_CRT.kickerIdle
               : isCostellazione
                 ? GALASSIA_CRT.kickerCostellazione
                 : isPreview
                   ? GALASSIA_CRT.kickerPreview
                   : GALASSIA_CRT.kickerViewing}
           </p>
-          {panel.pct != null && (
-            <span className="galassia-view__crt-head-pct">{panel.pct}%</span>
+          {(panel.headBadge || panel.pct != null) && (
+            <span className="galassia-view__crt-head-pct">
+              {panel.headBadge || `${panel.pct}%`}
+            </span>
           )}
         </div>
         <AnimatePresence mode="wait">
@@ -510,11 +1527,66 @@ function GalassiaCrtPanel({
           >
             {isIdle ? (
               <>
-                <h2 className="galassia-view__crt-title">
-                  <span className="galassia-view__crt-title-dot" aria-hidden />
-                  <span>{panel.nome}</span>
-                </h2>
-                <p className="galassia-view__crt-indica">{panel.hint}</p>
+                {panel.dominantChip ? (
+                  <button
+                    type="button"
+                    className="galassia-view__dominant-chip"
+                    style={{ '--chip-color': panel.dominantChip.colore }}
+                    onClick={() => onSelectDominant?.(panel.dominantChip.id)}
+                  >
+                    <span className="galassia-view__dominant-chip-dot" aria-hidden />
+                    <span className="galassia-view__dominant-chip-copy">
+                      <span className="galassia-view__dominant-chip-label">
+                        {panel.dominantChipLabel || GALASSIA_UI.idleDominantLabel}
+                      </span>
+                      <strong>{panel.dominantChip.nome}</strong>
+                    </span>
+                    <span className="galassia-view__dominant-chip-pct">{panel.dominantChip.pct}%</span>
+                  </button>
+                ) : (
+                  <h2 className="galassia-view__crt-title">
+                    <span className="galassia-view__crt-title-dot" aria-hidden />
+                    <span>{panel.nome}</span>
+                  </h2>
+                )}
+                {Array.isArray(panel.dimensioni) && panel.dimensioni.length > 0 ? (
+                  <PortatoTriadSpectrum dimensioni={panel.dimensioni} compact />
+                ) : null}
+                {panel.hint && !panel.intro && (
+                  <p className="galassia-view__crt-mode-desc">{panel.hint}</p>
+                )}
+                {panel.intro && (
+                  <p className="galassia-view__crt-intro">{panel.intro}</p>
+                )}
+                {panel.descrizione ? (
+                  <p className="galassia-view__crt-indica galassia-view__crt-indica--portato">
+                    {shortText(panel.descrizione, 320)}
+                  </p>
+                ) : null}
+                {panel.vitalita ? (
+                  <p className="galassia-view__crt-meta galassia-view__crt-meta--vitalita">
+                    <span className="galassia-view__crt-preview-label">
+                      {GALASSIA_PORTATO_UI.vitalitaLabel}:
+                    </span>{' '}
+                    {panel.vitalita}
+                  </p>
+                ) : null}
+                {Array.isArray(panel.introPoints) && panel.introPoints.length > 0 ? (
+                  <ul className="galassia-view__rapporti-orientation galassia-view__rapporti-orientation--portato">
+                    {panel.introPoints.map((card) => (
+                      <li key={card.id}>
+                        <strong>{card.label}</strong>
+                        <span>
+                          {[card.areas, card.metaphor].filter(Boolean).join(' · ')}
+                        </span>
+                        <em>{card.meaning}</em>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+                {panel.scaleNote && (
+                  <p className="galassia-view__crt-scale-note">{panel.scaleNote}</p>
+                )}
                 {panel.tapHint && (
                   <p className="galassia-view__crt-hint galassia-view__crt-hint--compact">{panel.tapHint}</p>
                 )}
@@ -553,6 +1625,255 @@ function GalassiaCrtPanel({
                 <p className="galassia-view__crt-hint galassia-view__crt-hint--compact">
                   {GALASSIA_CRT.previewHint}
                 </p>
+              </>
+            ) : panel.kind === 'rapporto' ? (
+              <>
+                <h2 className="galassia-view__crt-title">
+                  <span
+                    className="galassia-view__crt-title-dot"
+                    style={{ backgroundColor: panel.colore, color: panel.colore }}
+                    aria-hidden
+                  />
+                  <span>{panel.nome}</span>
+                </h2>
+                {panel.composizione && (
+                  <p className="galassia-view__crt-meta">{panel.composizione}</p>
+                )}
+                {panel.definizione && (
+                  <p className="galassia-view__crt-indica">{panel.definizione}</p>
+                )}
+                {panel.cosaIndica && (
+                  <p className="galassia-view__crt-indica galassia-view__crt-indica--preview">
+                    <span className="galassia-view__crt-preview-label">
+                      {GALASSIA_CRT.cosaIndicaLabel}:
+                    </span>{' '}
+                    {panel.cosaIndica}
+                  </p>
+                )}
+                {panel.correntePrincipale?.nome && (
+                  <p className="galassia-view__crt-meta">
+                    {GALASSIA_RAPPORTI_UI.dominantLabel}: {panel.correntePrincipale.nome}
+                    {panel.livello != null ? ` · ${panel.livello}/7` : ''}
+                  </p>
+                )}
+                <p className="galassia-view__crt-hint galassia-view__crt-hint--compact">
+                  {GALASSIA_RAPPORTI_UI.constellationHint}
+                </p>
+              </>
+            ) : panel.kind === 'rapporto-radar' ? (
+              <>
+                <h2 className="galassia-view__crt-title">
+                  <span
+                    className="galassia-view__crt-title-dot"
+                    style={{ backgroundColor: panel.colore, color: panel.colore }}
+                    aria-hidden
+                  />
+                  <span>{panel.nome}</span>
+                </h2>
+                <p className="galassia-view__crt-meta">
+                  Livello nel radar · {panel.livello != null ? `${panel.livello}/7` : panel.headBadge || '—'}
+                </p>
+                {panel.definizione && (
+                  <p className="galassia-view__crt-indica">{panel.definizione}</p>
+                )}
+              </>
+            ) : panel.kind === 'portato' ? (
+              <>
+                <h2 className="galassia-view__crt-title">
+                  <span
+                    className="galassia-view__crt-title-dot"
+                    style={{ backgroundColor: panel.colore, color: panel.colore }}
+                    aria-hidden
+                  />
+                  <span>{panel.nome}</span>
+                </h2>
+                {panel.isPrevalente ? (
+                  <p className="galassia-view__crt-meta">{GALASSIA_PORTATO_UI.prevalenteLabel}</p>
+                ) : null}
+                <p className="galassia-view__crt-meta">
+                  Quota {panel.pct}% · Punteggio {panel.valore ?? '—'}
+                </p>
+                <MiniBar value={panel.pct} color={panel.colore} />
+                {panel.cardAreas ? (
+                  <p className="galassia-view__crt-meta galassia-view__crt-meta--traits">
+                    {panel.cardAreas}
+                    {panel.cardMetaphor ? ` · ${panel.cardMetaphor}` : ''}
+                  </p>
+                ) : null}
+                {panel.definizione ? (
+                  <p className="galassia-view__crt-indica">{panel.definizione}</p>
+                ) : null}
+                {panel.cosaIndica ? (
+                  <p className="galassia-view__crt-indica galassia-view__crt-indica--preview">
+                    <span className="galassia-view__crt-preview-label">
+                      {GALASSIA_PORTATO_UI.cosaIndicaLabel}:
+                    </span>{' '}
+                    {panel.cosaIndica}
+                  </p>
+                ) : null}
+                {panel.isPrevalente && panel.descrizioneCompleta ? (
+                  <p className="galassia-view__crt-indica galassia-view__crt-indica--portato">
+                    {shortText(panel.descrizioneCompleta, 360)}
+                  </p>
+                ) : null}
+              </>
+            ) : panel.kind === 'parole-famiglia' ? (
+              <>
+                <h2 className="galassia-view__crt-title">
+                  <span
+                    className="galassia-view__crt-title-dot"
+                    style={{ backgroundColor: panel.colore, color: panel.colore }}
+                    aria-hidden
+                  />
+                  <span>{panel.nome}</span>
+                </h2>
+                {Array.isArray(panel.stats) && panel.stats.length > 0 ? (
+                  <dl className="galassia-view__lexicon-stats">
+                    {panel.stats.map((stat) => (
+                      <div key={stat.label}>
+                        <dt>{stat.label}</dt>
+                        <dd>{stat.value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                ) : null}
+                {panel.definizione && (
+                  <p className="galassia-view__crt-indica">
+                    {shortText(panel.definizione, 220)}
+                  </p>
+                )}
+                {Array.isArray(panel.emergedWords) && panel.emergedWords.length > 0 ? (
+                  <section className="galassia-view__lexicon-block galassia-view__lexicon-block--emerged">
+                    <h3>Parole emerse nel test</h3>
+                    <div className="galassia-view__lexicon-cloud">
+                      {panel.emergedWords.slice(0, 10).map((word) => (
+                        <span key={word.id} className="galassia-view__lexicon-chip galassia-view__lexicon-chip--emerged">
+                          {word.nome}
+                        </span>
+                      ))}
+                    </div>
+                  </section>
+                ) : null}
+                {Array.isArray(panel.words) && panel.words.length > 0 ? (
+                  <section className="galassia-view__lexicon-block">
+                    <h3>Parole della disposizione</h3>
+                    <div className="galassia-view__lexicon-cloud">
+                      {panel.words.slice(0, 24).map((word) => (
+                        <span
+                          key={word.id}
+                          className={`galassia-view__lexicon-chip${word.isEmerged ? ' galassia-view__lexicon-chip--emerged' : ''}`}
+                        >
+                          {word.nome}
+                        </span>
+                      ))}
+                    </div>
+                  </section>
+                ) : null}
+                {Array.isArray(panel.sottoCorrenti) && panel.sottoCorrenti.length > 0 ? (
+                  <section className="galassia-view__lexicon-block galassia-view__lexicon-block--subs">
+                    <h3>Sottodisposizioni</h3>
+                    <div className="galassia-view__lexicon-subgrid">
+                      {panel.sottoCorrenti.map((sub) => (
+                        <button
+                          key={sub.id}
+                          type="button"
+                          className="galassia-view__lexicon-subcard"
+                          style={{ '--sub-color': sub.colore || panel.colore }}
+                          onClick={() => onSelectSub?.(sub.id)}
+                        >
+                          <span>
+                            <strong>{sub.nome}</strong>
+                            <em>{sub.wordCount || sub.words?.length || 0} parole</em>
+                          </span>
+                          <small>
+                            {(sub.words || [])
+                              .slice(0, 4)
+                              .map((word) => word.nome)
+                              .join(' · ')}
+                          </small>
+                        </button>
+                      ))}
+                    </div>
+                  </section>
+                ) : null}
+                {Array.isArray(panel.relations) && panel.relations.length > 0 ? (
+                  <section className="galassia-view__lexicon-block galassia-view__lexicon-block--relations">
+                    <h3>Accoppiamenti e contrasti</h3>
+                    <div className="galassia-view__lexicon-relations">
+                      {panel.relations.map((relation) => (
+                        <span
+                          key={`${relation.kind}-${relation.familyKey}`}
+                          className={`galassia-view__lexicon-relation galassia-view__lexicon-relation--${relation.kind}`}
+                          style={{ '--relation-chip-color': relation.colore }}
+                        >
+                          <b>{relation.kind === 'pair' ? 'Si accoppia' : 'Contrasta'}</b>
+                          {relation.nome}
+                          <em>{relation.label}</em>
+                        </span>
+                      ))}
+                    </div>
+                  </section>
+                ) : null}
+              </>
+            ) : panel.kind === 'lessico-sottocorrente' ? (
+              <>
+                <h2 className="galassia-view__crt-title">
+                  <span
+                    className="galassia-view__crt-title-dot"
+                    style={{ backgroundColor: panel.colore, color: panel.colore }}
+                    aria-hidden
+                  />
+                  <span>{panel.nome}</span>
+                </h2>
+                <p className="galassia-view__crt-meta">
+                  {[panel.parentNome, panel.intervallo, panel.coloreTST].filter(Boolean).join(' · ')}
+                </p>
+                {panel.definizione && (
+                  <p className="galassia-view__crt-indica">
+                    {shortText(panel.definizione, 240)}
+                  </p>
+                )}
+                {Array.isArray(panel.emergedWords) && panel.emergedWords.length > 0 ? (
+                  <section className="galassia-view__lexicon-block galassia-view__lexicon-block--emerged">
+                    <h3>In questo test</h3>
+                    <div className="galassia-view__lexicon-cloud">
+                      {panel.emergedWords.map((word) => (
+                        <span key={word.id} className="galassia-view__lexicon-chip galassia-view__lexicon-chip--emerged">
+                          {word.nome}
+                        </span>
+                      ))}
+                    </div>
+                  </section>
+                ) : null}
+                {Array.isArray(panel.words) && panel.words.length > 0 ? (
+                  <section className="galassia-view__lexicon-block">
+                    <h3>Parole della sottodisposizione</h3>
+                    <div className="galassia-view__lexicon-cloud">
+                      {panel.words.slice(0, 32).map((word) => (
+                        <span
+                          key={word.id}
+                          className={`galassia-view__lexicon-chip${word.isEmerged ? ' galassia-view__lexicon-chip--emerged' : ''}`}
+                        >
+                          {word.nome}
+                        </span>
+                      ))}
+                    </div>
+                  </section>
+                ) : null}
+              </>
+            ) : panel.kind === 'parola' ? (
+              <>
+                <h2 className="galassia-view__crt-title">
+                  <span
+                    className="galassia-view__crt-title-dot"
+                    style={{ backgroundColor: panel.colore, color: panel.colore }}
+                    aria-hidden
+                  />
+                  <span>{panel.nome}</span>
+                </h2>
+                {panel.definizione && (
+                  <p className="galassia-view__crt-indica">{panel.definizione}</p>
+                )}
               </>
             ) : showProfileReading ? (
               <>
@@ -599,7 +1920,7 @@ function GalassiaCrtPanel({
 
                 {profileInfo.activePartners.length > 0 && (
                   <section className="galassia-view__profile-block galassia-view__profile-block--dialogue">
-                    <h3>Dialogo</h3>
+                    <h3>Rapporti tra disposizioni</h3>
                     <ul className="galassia-view__dialogue-list">
                       {profileInfo.activePartners.map((partner) => (
                         <li key={partner.id}>
@@ -609,8 +1930,14 @@ function GalassiaCrtPanel({
                             <em>{partner.pct}%</em>
                           </span>
                           <span className="galassia-view__dialogue-keywords">
+                            <b>{RELATION_TONE_COPY[partner.tone]?.label || 'modula'}</b>
                             {partner.keywords.join(' · ')}
                           </span>
+                          {partner.reciprocalKeywords.length > 0 ? (
+                            <span className="galassia-view__dialogue-keywords galassia-view__dialogue-keywords--reverse">
+                              Di ritorno: {partner.reciprocalKeywords.join(' · ')}
+                            </span>
+                          ) : null}
                         </li>
                       ))}
                     </ul>
@@ -674,17 +2001,6 @@ function GalassiaCrtPanel({
                   <p className="galassia-view__crt-meta">{panel.hierarchy}</p>
                 )}
 
-                {isSub && (panel.intervallo || panel.coloreTST) && (
-                  <p className="galassia-view__crt-meta galassia-view__crt-meta--compact">
-                    {[
-                      panel.intervallo ? `${GALASSIA_CRT.intervalloLabel}: ${panel.intervallo}` : '',
-                      panel.coloreTST ? `${GALASSIA_CRT.coloreLabel}: ${panel.coloreTST}` : '',
-                    ]
-                      .filter(Boolean)
-                      .join(' · ')}
-                  </p>
-                )}
-
                 {!isSub && (panel.famiglia || panel.polarita) && (
                   <p className="galassia-view__crt-meta">
                     {[
@@ -710,10 +2026,6 @@ function GalassiaCrtPanel({
                   </div>
                 )}
 
-                {interval && isSub && (
-                  <p className="galassia-view__crt-hint galassia-view__crt-hint--compact">{interval}</p>
-                )}
-
                 {showSubnav && selected && !isSub && panel.sottoCount > 0 && (
                   <p className="galassia-view__crt-indica galassia-view__crt-indica--compact">
                     {GALASSIA_CRT.costellazioneHint(panel.sottoCount)}
@@ -737,11 +2049,6 @@ function GalassiaCrtPanel({
                             <strong>{sub.nome}</strong>
                             <em>{sub.pct}%</em>
                           </span>
-                          {(sub.intervallo || sub.coloreTST) && (
-                            <span className="galassia-view__subnav-card-meta">
-                              {[sub.intervallo, sub.coloreTST].filter(Boolean).join(' · ')}
-                            </span>
-                          )}
                           {sub.statiDanimo.length > 0 && (
                             <span className="galassia-view__subnav-card-words">
                               {sub.statiDanimo.slice(0, 4).join(' · ')}
@@ -765,6 +2072,12 @@ function GalassiaCrtPanel({
                     </div>
                   </>
                 )}
+
+                {isSub && !meaning && parole.length === 0 && !panel.hierarchy && (panel.pct === 0 || !panel.pct) && (
+                  <p className="galassia-view__crt-absent">
+                    Questa sfumatura non è emersa nel profilo di questo test.
+                  </p>
+                )}
               </>
             )}
           </motion.div>
@@ -774,7 +2087,14 @@ function GalassiaCrtPanel({
   )
 }
 
-export default function GalassiaView({ correntData, paroleEmerse = [], rapporti = [] }) {
+export default function GalassiaView({
+  correntData,
+  paroleEmerse = [],
+  lessicoCorrenti = [],
+  famiglieLessico = {},
+  rapporti = [],
+  portato = {},
+}) {
   const data = useMemo(
     () => (Array.isArray(correntData) && correntData.length ? correntData : EXAMPLE_CORRENT_DATA),
     [correntData],
@@ -797,25 +2117,82 @@ export default function GalassiaView({ correntData, paroleEmerse = [], rapporti 
   const { w, h } = useElementSize(containerRef)
   const { w: mapW, h: mapH } = useElementSize(mapCanvasRef)
 
+  const [mapMode, setMapMode] = useState('disposizioni')
   const [selectedId, setSelectedId] = useState(null)
   const [activeSubId, setActiveSubId] = useState(null)
   const [hoveredId, setHoveredId] = useState(null)
   const [hoveredSubId, setHoveredSubId] = useState(null)
+  const [hoveredCore, setHoveredCore] = useState(false)
   const [camera, setCamera] = useState(CAMERA_RESET)
   const [cameraAnimating, setCameraAnimating] = useState(false)
+  const [showGuideDeck, setShowGuideDeck] = useState(false)
+  const [showTutorial, setShowTutorial] = useState(() => shouldShowGalassiaTutorial())
   const cameraAnimTimerRef = useRef(null)
 
-  const selected = useMemo(
-    () => data.find((c) => c.id === selectedId) || null,
-    [data, selectedId],
+  const dismissOpeningGuide = useCallback(() => {
+    setShowGuideDeck(false)
+  }, [])
+
+  const closeGuidePermanently = useCallback(() => {
+    setShowGuideDeck(false)
+    markGalassiaOpeningGuideSeen()
+  }, [])
+
+  const mapNodes = useMemo(
+    () => buildMapNodes({
+      mode: mapMode,
+      data,
+      rapporti,
+      portato,
+      paroleEmerse,
+      lessicoCorrenti,
+      famiglieLessico,
+    }),
+    [mapMode, data, rapporti, portato, paroleEmerse, lessicoCorrenti, famiglieLessico],
   )
-  const activeSub = useMemo(
-    () => selected?.sottoCorrenti?.find((s) => s.id === activeSubId) || null,
-    [selected, activeSubId],
+
+  const effectiveSelectedId = useMemo(() => {
+    if (!selectedId) return null
+    return mapNodes.some((node) => node.id === selectedId) ? selectedId : null
+  }, [selectedId, mapNodes])
+
+  const selectedNode = useMemo(
+    () => mapNodes.find((node) => node.id === effectiveSelectedId) || null,
+    [mapNodes, effectiveSelectedId],
   )
+
+  const selected = useMemo(() => {
+    if (mapMode === 'disposizioni') {
+      return data.find((c) => c.id === effectiveSelectedId) || null
+    }
+    return selectedNode
+  }, [mapMode, data, effectiveSelectedId, selectedNode])
+
+  const isZoomedView = Boolean(
+    effectiveSelectedId && selectedNode && mapModeSupportsZoom(mapMode, selectedNode),
+  )
+  const guideDeckOpen = showGuideDeck && !isZoomedView && !showTutorial
+
+  const handleTutorialComplete = useCallback(() => {
+    setShowTutorial(false)
+  }, [])
+
+  useEffect(() => {
+    if (!showGuideDeck || showTutorial) return undefined
+    const timer = window.setTimeout(() => {
+      dismissOpeningGuide()
+    }, 12000)
+    return () => window.clearTimeout(timer)
+  }, [showGuideDeck, showTutorial, dismissOpeningGuide])
+
+  const activeSub = useMemo(() => {
+    if (!selectedNode) return null
+    const subs = Array.isArray(selectedNode.sottoCorrenti) ? selectedNode.sottoCorrenti : []
+    return subs.find((sub) => sub.id === activeSubId) || null
+  }, [selectedNode, activeSubId])
   const selectedProfileInfo = useMemo(
     () =>
-      selected
+      mapMode === 'disposizioni' && selected
         ? buildProfileInfo({
             corrente: selected,
             rankedData,
@@ -823,14 +2200,18 @@ export default function GalassiaView({ correntData, paroleEmerse = [], rapporti 
             rapporti,
           })
         : null,
-    [selected, rankedData, paroleEmerse, rapporti],
+    [mapMode, selected, rankedData, paroleEmerse, rapporti],
+  )
+  const overviewRelations = useMemo(
+    () => buildDispositionRelations(rankedData, 4),
+    [rankedData],
   )
 
   const viewportBase = Math.max(1, Math.min(w || 0, h || 0))
   const zoomSubCount = useMemo(() => {
-    const match = data.find((item) => item.id === selectedId)
-    return Math.max(1, match?.sottoCorrenti?.length ?? 1)
-  }, [data, selectedId])
+    if (!selectedNode) return 1
+    return Math.max(1, selectedNode.sottoCorrenti?.length ?? 1)
+  }, [selectedNode])
   const zoomLayout = useMemo(
     () =>
       computeGalassiaZoomLayout({
@@ -838,10 +2219,10 @@ export default function GalassiaView({ correntData, paroleEmerse = [], rapporti 
         mapH,
         viewportBase,
         isMobile,
-        isZoomed: Boolean(selectedId),
+        isZoomed: isZoomedView,
         subCount: zoomSubCount,
       }),
-    [mapW, mapH, viewportBase, isMobile, selectedId, zoomSubCount],
+    [mapW, mapH, viewportBase, isMobile, isZoomedView, zoomSubCount],
   )
   const {
     base,
@@ -854,17 +2235,49 @@ export default function GalassiaView({ correntData, paroleEmerse = [], rapporti 
     safeBounds,
   } = zoomLayout
 
-  const panelContent = useMemo(
-    () =>
-      resolveGalassiaPanelContent({
-        correntData: data,
-        selected,
-        activeSub,
-        hoveredPlanetId: selected ? null : hoveredId,
-        hoveredSubId: selected ? hoveredSubId : null,
-      }),
-    [data, selected, activeSub, hoveredId, hoveredSubId],
+  const activePanelNode = useMemo(
+    () => selectedNode || mapNodes.find((node) => node.id === effectiveSelectedId) || null,
+    [selectedNode, mapNodes, effectiveSelectedId],
   )
+
+  const panelContent = useMemo(() => {
+    if (mapMode !== 'disposizioni') {
+      if (!activePanelNode && hoveredId) {
+        const hoveredNode = mapNodes.find((node) => node.id === hoveredId)
+        if (hoveredNode) {
+          return buildModePanelContent(mapMode, hoveredNode)
+        }
+      }
+      if (activeSub && activePanelNode) {
+        return buildModePanelContent(mapMode, activePanelNode, activeSub)
+      }
+      if (activePanelNode) {
+        return buildModePanelContent(mapMode, activePanelNode)
+      }
+      return buildModeIdlePanel(mapMode, { dominant: rankedData[0], portato })
+    }
+
+    return resolveGalassiaPanelContent({
+      correntData: data,
+      selected: selected && mapMode === 'disposizioni' ? selected : null,
+      activeSub: mapMode === 'disposizioni' ? activeSub : null,
+      hoveredPlanetId: selected ? null : hoveredId,
+      hoveredSubId: selected ? hoveredSubId : null,
+    })
+  }, [
+    mapMode,
+    mapNodes,
+    data,
+    selected,
+    activePanelNode,
+    activeSub,
+    hoveredId,
+    hoveredSubId,
+    rankedData,
+    portato,
+  ])
+
+  const isPanelIdle = panelContent?.kind === 'idle' && !isZoomedView
 
   const focusColor = useMemo(() => {
     if (hoveredSubId && selected) {
@@ -915,18 +2328,44 @@ export default function GalassiaView({ correntData, paroleEmerse = [], rapporti 
   }
 
   const selectPlanet = (id) => {
+    const node = mapNodes.find((item) => item.id === id)
+    const shouldZoom = node && mapModeSupportsZoom(mapMode, node)
     pointersRef.current.clear()
     pinchGestureRef.current = null
     mouseDragRef.current = null
     webkitGestureRef.current = null
-    beginCameraAnimation()
-    cameraRef.current = CAMERA_RESET
-    setCamera(CAMERA_RESET)
+    if (shouldZoom) {
+      beginCameraAnimation()
+      cameraRef.current = CAMERA_RESET
+      setCamera(CAMERA_RESET)
+    }
     setSelectedId(id)
     setActiveSubId(null)
     setHoveredId(null)
     setHoveredSubId(null)
+    setHoveredCore(false)
+    dismissOpeningGuide()
   }
+
+  const switchMapMode = useCallback(
+    (nextMode) => {
+      if (nextMode === mapMode) return
+      pointersRef.current.clear()
+      pinchGestureRef.current = null
+      mouseDragRef.current = null
+      webkitGestureRef.current = null
+      cameraRef.current = CAMERA_RESET
+      setCamera(CAMERA_RESET)
+      setMapMode(nextMode)
+      setSelectedId(null)
+      setActiveSubId(null)
+      setHoveredId(null)
+      setHoveredSubId(null)
+      setHoveredCore(false)
+      dismissOpeningGuide()
+    },
+    [mapMode, dismissOpeningGuide],
+  )
 
   const selectGuideStar = (parentId, subId) => {
     pointersRef.current.clear()
@@ -940,6 +2379,8 @@ export default function GalassiaView({ correntData, paroleEmerse = [], rapporti 
     setActiveSubId(subId)
     setHoveredId(null)
     setHoveredSubId(null)
+    setHoveredCore(false)
+    dismissOpeningGuide()
   }
 
   const backToMap = useCallback(() => {
@@ -947,17 +2388,20 @@ export default function GalassiaView({ correntData, paroleEmerse = [], rapporti 
     pinchGestureRef.current = null
     mouseDragRef.current = null
     webkitGestureRef.current = null
-    beginCameraAnimation()
-    cameraRef.current = CAMERA_RESET
-    setCamera(CAMERA_RESET)
-    const delay = reducedMotion ? 0 : 340
+    if (isZoomedView) {
+      beginCameraAnimation()
+      cameraRef.current = CAMERA_RESET
+      setCamera(CAMERA_RESET)
+    }
+    const delay = isZoomedView && !reducedMotion ? 340 : 0
     window.setTimeout(() => {
       setSelectedId(null)
       setActiveSubId(null)
       setHoveredId(null)
       setHoveredSubId(null)
+      setHoveredCore(false)
     }, delay)
-  }, [beginCameraAnimation, reducedMotion])
+  }, [beginCameraAnimation, reducedMotion, isZoomedView])
 
   const beginPinchGesture = () => {
     const layer = mapLayerRef.current
@@ -1016,7 +2460,7 @@ export default function GalassiaView({ correntData, paroleEmerse = [], rapporti 
       clientY: event.clientY,
     })
 
-    if (!selectedId && event.pointerType === 'mouse' && event.button === 0) {
+    if (!effectiveSelectedId && event.pointerType === 'mouse' && event.button === 0) {
       if (!isInteractive) {
         mouseDragRef.current = {
           x: event.clientX,
@@ -1156,7 +2600,7 @@ export default function GalassiaView({ correntData, paroleEmerse = [], rapporti 
 
       if (event.key === 'Escape') {
         if (activeSubId) setActiveSubId(null)
-        else if (selectedId) backToMap()
+        else if (effectiveSelectedId) backToMap()
         return
       }
 
@@ -1195,39 +2639,50 @@ export default function GalassiaView({ correntData, paroleEmerse = [], rapporti 
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [selectedId, activeSubId, mapW, mapH, backToMap])
+  }, [effectiveSelectedId, activeSubId, mapW, mapH, backToMap])
 
   const planetLayout = useMemo(() => {
-    return data.map((c, index) => {
-      const isSelected = c.id === selectedId
+    return mapNodes.map((node, index) => {
+      const isSelected = node.id === effectiveSelectedId
       let pos
       const scaleCap =
         mapH > 0 && mapH < 700 ? Math.min(selectedScale, 1.15) : selectedScale
-      let scale = selectedId ? (isSelected ? scaleCap : 0.58) : 1
-      let opacity = selectedId ? (isSelected ? 1 : 0.16) : 1
+      let scale = isZoomedView ? (isSelected ? scaleCap : 0.58) : effectiveSelectedId === node.id ? 1.08 : 1
+      let opacity = isZoomedView ? (isSelected ? 1 : 0.16) : effectiveSelectedId && effectiveSelectedId !== node.id ? 0.72 : 1
 
-      if (selectedId && isSelected) {
+      if (isZoomedView && isSelected) {
         pos = focusCenter
-      } else if (isMobile) {
-        pos = MOBILE_GRID[index] || DEFAULT_ANCHORS[index % DEFAULT_ANCHORS.length]
+      } else if (isMobile && mapMode === 'disposizioni') {
+        pos = MOBILE_GRID[index] || node.anchor || DEFAULT_ANCHORS[index % DEFAULT_ANCHORS.length]
       } else {
-        pos = WIND_ANCHORS[c.id] || DEFAULT_ANCHORS[index % DEFAULT_ANCHORS.length]
+        pos = node.anchor || DEFAULT_ANCHORS[index % DEFAULT_ANCHORS.length]
       }
       pos = clampMapPosition(pos, safeBounds)
 
-      const pct = pesoToPct(c.peso)
+      const weight = formatNodeWeight(mapMode, node)
       const circle = Math.round(
         Math.max(
           20,
-          Math.min(base * planetSizeFactor, 22 + (pct / 100) * base * planetSizeK),
+          Math.min(base * planetSizeFactor, 22 + weight.sizeRatio * base * planetSizeK),
         ),
       )
-      return { id: c.id, pos, scale, opacity, circle, pct, isSelected }
+      return {
+        id: node.id,
+        node,
+        pos,
+        scale,
+        opacity,
+        circle,
+        weight,
+        isSelected,
+      }
     })
   }, [
-    data,
-    selectedId,
+    mapNodes,
+    effectiveSelectedId,
+    isZoomedView,
     isMobile,
+    mapMode,
     focusCenter,
     base,
     selectedScale,
@@ -1243,23 +2698,61 @@ export default function GalassiaView({ correntData, paroleEmerse = [], rapporti 
   )
 
   const relationLines = useMemo(() => {
-    if (!selected || !selectedProfileInfo) return []
-    const from = layoutById[selected.id]?.pos || focusCenter
-    return selectedProfileInfo.activePartners
-      .map((partner) => {
-        const to = layoutById[partner.id]?.pos
-        if (!to) return null
+    if (mapMode === 'parole') {
+      const baseNode =
+        selectedNode ||
+        [...mapNodes].sort((a, b) => pesoToPct(b.raw?.activationPct ?? b.peso) - pesoToPct(a.raw?.activationPct ?? a.peso))[0]
+      const from = baseNode ? layoutById[baseNode.id]?.pos : null
+      if (!baseNode || !from) return []
+      return (Array.isArray(baseNode.raw?.relations) ? baseNode.raw.relations : [])
+        .map((relation) => {
+          const toNode = mapNodes.find((node) => node.raw?.familyKey === relation.familyKey)
+          const to = toNode ? layoutById[toNode.id]?.pos : null
+          if (!to || toNode.id === baseNode.id) return null
+          return {
+            id: `lessico-${baseNode.raw?.familyKey}-${relation.kind}-${relation.familyKey}`,
+            from,
+            to,
+            colore: relation.colore,
+            kind: relation.kind,
+          }
+        })
+        .filter(Boolean)
+    }
+
+    if (mapMode !== 'disposizioni') return []
+
+    if (selected && selectedProfileInfo && mapMode === 'disposizioni') {
+      const from = layoutById[selected.id]?.pos || focusCenter
+      return selectedProfileInfo.activePartners
+        .map((partner) => {
+          const to = layoutById[partner.id]?.pos
+          if (!to) return null
+          return {
+            ...partner,
+            from,
+            to,
+          }
+        })
+        .filter(Boolean)
+    }
+
+    return overviewRelations
+      .map((relation) => {
+        const from = layoutById[relation.baseId]?.pos
+        const to = layoutById[relation.partnerId]?.pos
+        if (!from || !to) return null
         return {
-          ...partner,
+          ...relation,
           from,
           to,
         }
       })
       .filter(Boolean)
-  }, [selected, selectedProfileInfo, layoutById, focusCenter])
+  }, [mapMode, selected, selectedNode, selectedProfileInfo, overviewRelations, layoutById, focusCenter, mapNodes])
 
   const guideStars = useMemo(() => {
-    if (selectedId) return []
+    if (effectiveSelectedId || mapMode !== 'disposizioni') return []
     return data.flatMap((corrente, correnteIndex) => {
       const parentLayout = layoutById[corrente.id]
       const subsList = Array.isArray(corrente.sottoCorrenti) ? corrente.sottoCorrenti : []
@@ -1294,64 +2787,81 @@ export default function GalassiaView({ correntData, paroleEmerse = [], rapporti 
         }
       })
     })
-  }, [data, isMobile, layoutById, safeBounds, selectedId])
+  }, [data, isMobile, layoutById, safeBounds, effectiveSelectedId, mapMode])
 
   const positionTransition = reducedMotion
     ? { duration: 0 }
-    : { type: 'spring', stiffness: 88, damping: 17, mass: 0.85 }
+    : GALASSIA_STABLE_TRANSITION
 
   const subs = useMemo(
-    () => (Array.isArray(selected?.sottoCorrenti) ? selected.sottoCorrenti : []),
-    [selected],
+    () => (Array.isArray(selectedNode?.sottoCorrenti) ? selectedNode.sottoCorrenti : []),
+    [selectedNode],
   )
   const constellationLayout = useMemo(() => {
     const n = Math.max(1, subs.length)
     const nodeMax = Math.round(Math.max(56, Math.min(84, base * 0.13)))
-    const yFlatten = n === 2 ? 0.76 : 0.74
 
-    let sizes = subs.map((sub) => {
-      const pct = pesoToPct(sub.peso)
-      return Math.round(Math.max(50, Math.min(nodeMax, 48 + pct * 0.36)))
+    const sizes = subs.map((sub) => {
+      const ratio =
+        mapMode === 'rapporti'
+          ? rapportoLivello(sub.livello ?? sub.peso) / 7
+          : pesoToPct(sub.peso) / 100
+      return Math.round(Math.max(50, Math.min(nodeMax, 48 + ratio * 100 * 0.36)))
     })
-    let maxNode = Math.max(...sizes, 50)
-    let orbitForCount = Math.max(orbitRadius, minOrbitRadius(n, maxNode))
 
-    const maxFit = maxViewportOrbit(mapW, mapH, focusCenter, maxNode + CONSTELLATION_LABEL_CLEAR)
-    if (maxFit > 0 && orbitForCount > maxFit) {
-      const floor = minOrbitRadius(n, maxNode)
-      if (maxFit >= floor) {
-        orbitForCount = Math.round(maxFit)
-      } else {
-        const shrink = clamp(maxFit / Math.max(floor, 1), 0.72, 1)
-        sizes = sizes.map((size) => Math.round(Math.max(46, size * shrink)))
-        maxNode = Math.max(...sizes, 46)
-        orbitForCount = Math.round(Math.max(minOrbitRadius(n, maxNode), maxFit))
-      }
-    }
+    const {
+      sizes: fittedSizes,
+      orbitForCount,
+      maxNode,
+      yFlatten,
+    } = fitConstellationOrbit({
+      n,
+      sizes,
+      orbitHint: orbitRadius,
+      mapW,
+      mapH,
+      focusCenter,
+      isMobile,
+    })
 
     const nodes = subs.map((sub, index) => {
-      const angle = constellationAngle(n, index)
-      const x = Math.cos(angle) * orbitForCount
-      const y = Math.sin(angle) * orbitForCount * yFlatten
-      const pct = pesoToPct(sub.peso)
-      const size = sizes[index]
-      const theory = getGalaxyTheoryForRawKey(sub.id)
-      const trait = theory?.interval || theory?.color || ''
-      return { sub, x, y, pct, size, orbitForCount, trait }
+      const { x, y } = resolveConstellationPosition(n, index, orbitForCount, yFlatten)
+      const weightLabel =
+        mapMode === 'rapporti'
+          ? `${rapportoLivello(sub.livello ?? sub.peso)}/7`
+          : mapMode === 'parole'
+            ? `${sub.wordCount || sub.words?.length || 0} parole`
+            : `${pesoToPct(sub.peso)}%`
+      const size = fittedSizes[index]
+      const trait =
+        mapMode === 'parole'
+          ? [sub.intervallo, sub.coloreTST].filter(Boolean).join(' · ')
+          : Array.isArray(sub.statiDanimo) && sub.statiDanimo[0]
+            ? sub.statiDanimo[0]
+            : ''
+      return { sub, x, y, weightLabel, size, orbitForCount, trait }
     })
 
-    const labelPad = CONSTELLATION_LABEL_CLEAR + 12
-    const span = orbitForCount * 2 + maxNode + labelPad
-    const fitW = mapW > 0 ? mapW * 0.94 : span
-    const fitH = mapH > 0 ? mapH * 0.9 : span
-    const constellationSize = Math.min(
-      Math.max(span, orbitForCount * 2 + constellationPadding),
-      fitW,
-      fitH,
+    const labelPad = (isMobile ? 28 : CONSTELLATION_LABEL_CLEAR) + 12
+    const maxExtent = nodes.reduce(
+      (acc, node) => {
+        const half = node.size / 2 + labelPad
+        return {
+          x: Math.max(acc.x, Math.abs(node.x) + half),
+          y: Math.max(acc.y, Math.abs(node.y) + half),
+        }
+      },
+      { x: CONSTELLATION_CORE_DIAM / 2 + labelPad, y: CONSTELLATION_CORE_DIAM / 2 + labelPad },
+    )
+    const requiredSpan = Math.max(maxExtent.x, maxExtent.y) * 2
+    const constellationSize = Math.max(
+      requiredSpan,
+      orbitForCount * 2 + constellationPadding,
+      CONSTELLATION_CORE_DIAM + maxNode * 2 + labelPad,
     )
 
-    return { nodes, constellationSize, orbitForCount }
-  }, [subs, orbitRadius, base, mapW, mapH, focusCenter, constellationPadding])
+    return { nodes, constellationSize, orbitForCount, n }
+  }, [subs, orbitRadius, base, mapW, mapH, focusCenter, constellationPadding, isMobile, mapMode])
 
   const constellationNodes = constellationLayout.nodes
   const constellationSize = constellationLayout.constellationSize
@@ -1359,7 +2869,7 @@ export default function GalassiaView({ correntData, paroleEmerse = [], rapporti 
   return (
     <div
       ref={containerRef}
-      className={`galassia-view relative h-full w-full text-slate-100 select-none${selectedId ? ' galassia-view--zoomed' : ' galassia-view--overview'}${activeSubId ? ' galassia-view--reading-sub' : ''}${reducedMotion ? ' is-reduced-motion' : ''}`}
+      className={`galassia-view relative h-full w-full text-slate-100 select-none${isZoomedView ? ' galassia-view--zoomed' : ' galassia-view--overview'}${isPanelIdle ? ' galassia-view--idle' : ''}${guideDeckOpen ? ' galassia-view--guide-open' : ''}${effectiveSelectedId && !isZoomedView ? ' galassia-view--selected' : ''}${activeSubId ? ' galassia-view--reading-sub' : ''}${reducedMotion ? ' is-reduced-motion' : ''} galassia-view--mode-${mapMode}`}
       style={{ backgroundColor: SPACE_BG }}
       aria-label="Galassia degli affetti"
     >
@@ -1373,69 +2883,118 @@ export default function GalassiaView({ correntData, paroleEmerse = [], rapporti 
         <div
           className="galassia-view__bg-focus"
           style={{
-            background: `radial-gradient(55% 45% at ${selectedId ? focusCenter.x : 50}% ${selectedId ? focusCenter.y : 45}%, ${focusColor}33 0%, transparent 72%)`,
+            background: `radial-gradient(55% 45% at ${effectiveSelectedId ? focusCenter.x : 50}% ${effectiveSelectedId ? focusCenter.y : 45}%, ${focusColor}33 0%, transparent 72%)`,
           }}
         />
       </div>
       <div className="galassia-view__bg-vignette" aria-hidden />
 
-      <header className="galassia-view__scene-head">
-        {selected ? (
-          <div className="galassia-view__scene-head-copy galassia-view__scene-head-copy--zoomed">
-            <p>{GALASSIA_CRT.costellazioneKicker}</p>
-            <h1>{selected.nome}</h1>
-            <span>
-              {GALASSIA_CRT.costellazioneSubtitle(selected.sottoCorrenti?.length || 0)}
-            </span>
+      {showTutorial ? (
+        <GalassiaTutorialOverlay
+          accentColor={rankedData[0]?.colore || '#4ade80'}
+          onComplete={handleTutorialComplete}
+        />
+      ) : null}
+
+      <div className="galassia-view__chrome">
+        <header className="galassia-view__scene-head">
+          {isZoomedView && selectedNode ? (
+            <div className="galassia-view__scene-head-copy galassia-view__scene-head-copy--zoomed">
+              <h1>{selectedNode.nome}</h1>
+            </div>
+          ) : (
+            <div className="galassia-view__scene-head-copy">
+              <h1>{GALASSIA_UI.chromeTitle}</h1>
+            </div>
+          )}
+          <div className="galassia-view__head-actions">
+            {!isZoomedView ? (
+              <button
+                type="button"
+                className={`galassia-view__guide-toggle${showGuideDeck ? ' galassia-view__guide-toggle--active' : ''}`}
+                aria-label={GALASSIA_UI.guideToggleAria}
+                aria-expanded={showGuideDeck ? 'true' : 'false'}
+                onClick={(event) => {
+                  event.stopPropagation()
+                  setShowGuideDeck((open) => !open)
+                }}
+              >
+                {showGuideDeck ? GALASSIA_UI.guideToggleClose : GALASSIA_UI.guideToggleOpen}
+              </button>
+            ) : null}
+            <div
+              className="galassia-view__map-controls"
+              role="toolbar"
+              aria-label="Navigazione mappa: più e meno per zoomare, Centra per ripristinare la vista"
+            >
+            <button
+              type="button"
+              className="galassia-view__map-control"
+              aria-label="Zoom avanti"
+              onClick={(event) => {
+                event.stopPropagation()
+                zoomCameraByStep(1)
+              }}
+            >
+              +
+            </button>
+            <button
+              type="button"
+              className="galassia-view__map-control"
+              aria-label="Zoom indietro"
+              onClick={(event) => {
+                event.stopPropagation()
+                zoomCameraByStep(-1)
+              }}
+            >
+              −
+            </button>
+            <button
+              type="button"
+              className="galassia-view__map-control galassia-view__map-control--ghost"
+              aria-label={isZoomedView ? GALASSIA_UI.backToMap : GALASSIA_UI.resetCamera}
+              onClick={(event) => {
+                event.stopPropagation()
+                if (isZoomedView || effectiveSelectedId) backToMap()
+                else resetCamera()
+              }}
+            >
+              {isZoomedView || effectiveSelectedId ? GALASSIA_UI.backToMap : GALASSIA_UI.resetCamera}
+            </button>
+            </div>
           </div>
-        ) : (
-          <div className="galassia-view__scene-head-copy">
-            <p>{GALASSIA_UI.sceneKicker}</p>
-            <h1>{GALASSIA_UI.sceneTitle}</h1>
-            <span>{GALASSIA_UI.sceneSubtitle}</span>
-          </div>
-        )}
-        <div
-          className="galassia-view__map-controls"
-          role="toolbar"
-          aria-label="Navigazione mappa: più e meno per zoomare, Centra per ripristinare la vista"
+        </header>
+
+        <nav
+          className="galassia-view__mode-switch"
+          role="tablist"
+          aria-label={GALASSIA_UI.modeSwitchAria}
         >
-          <button
-            type="button"
-            className="galassia-view__map-control"
-            aria-label="Zoom avanti"
-            onClick={(event) => {
-              event.stopPropagation()
-              zoomCameraByStep(1)
-            }}
-          >
-            +
-          </button>
-          <button
-            type="button"
-            className="galassia-view__map-control"
-            aria-label="Zoom indietro"
-            onClick={(event) => {
-              event.stopPropagation()
-              zoomCameraByStep(-1)
-            }}
-          >
-            −
-          </button>
-          <button
-            type="button"
-            className="galassia-view__map-control galassia-view__map-control--ghost"
-            aria-label={selectedId ? GALASSIA_UI.backToMap : GALASSIA_UI.resetCamera}
-            onClick={(event) => {
-              event.stopPropagation()
-              if (selectedId) backToMap()
-              else resetCamera()
-            }}
-          >
-            {selectedId ? GALASSIA_UI.backToMap : GALASSIA_UI.resetCamera}
-          </button>
-        </div>
-      </header>
+          {GALASSIA_MAP_MODES.map((mode) => (
+            <button
+              key={mode.id}
+              type="button"
+              role="tab"
+              className="galassia-view__mode-tab"
+              aria-selected={mapMode === mode.id ? 'true' : 'false'}
+              data-active={mapMode === mode.id ? 'true' : 'false'}
+              aria-label={mode.label}
+              onClick={() => switchMapMode(mode.id)}
+            >
+              <span className="galassia-view__mode-tab-label galassia-view__mode-tab-label--full">
+                {mode.label}
+              </span>
+              <span className="galassia-view__mode-tab-label galassia-view__mode-tab-label--short">
+                {mode.shortLabel || mode.label}
+              </span>
+            </button>
+          ))}
+        </nav>
+      </div>
+
+      {guideDeckOpen ? (
+        <GalassiaOperatorGuide mapMode={mapMode} onDismiss={closeGuidePermanently} />
+      ) : null}
 
       <div
         ref={mapLayerRef}
@@ -1447,7 +3006,7 @@ export default function GalassiaView({ correntData, paroleEmerse = [], rapporti 
         onPointerCancel={endPointerGesture}
         onLostPointerCapture={endPointerGesture}
         onClick={(event) => {
-          if (!selectedId) return
+          if (!isZoomedView) return
           const target = event.target
           if (!(target instanceof Element)) return
           if (target.closest(INTERACTIVE_MAP_SELECTOR)) {
@@ -1456,6 +3015,11 @@ export default function GalassiaView({ correntData, paroleEmerse = [], rapporti 
           backToMap()
         }}
       >
+        {isPanelIdle && !guideDeckOpen && !showTutorial && (
+          <div className="galassia-view__idle-hint" aria-hidden="true">
+            <span>Tocca un pianeta per leggere il profilo</span>
+          </div>
+        )}
         <div ref={mapCanvasRef} className="galassia-view__map-viewport">
           <div
             className={`galassia-view__map-canvas${cameraAnimating ? ' galassia-view__map-canvas--animating' : ''}`}
@@ -1464,12 +3028,14 @@ export default function GalassiaView({ correntData, paroleEmerse = [], rapporti 
             }}
           >
         <div className="galassia-view__map-stage">
-        {selectedId ? (
+        {isZoomedView ? (
           <button type="button" className="galassia-view__back-chip" onClick={backToMap}>
             <span aria-hidden="true">←</span>
             {GALASSIA_UI.backToMap}
           </button>
         ) : null}
+        {mapMode === 'disposizioni' ? (
+          <>
         <svg
           className="galassia-view__axis"
           viewBox="0 0 100 100"
@@ -1493,6 +3059,47 @@ export default function GalassiaView({ correntData, paroleEmerse = [], rapporti 
           <path className="galassia-view__wind-line galassia-view__wind-line--grigio" d="M50 84 C44 70, 44 60, 50 51" />
           <path className="galassia-view__wind-line galassia-view__wind-line--verde" d="M38 50 C44 45, 56 45, 62 50 C56 57, 44 57, 38 50" />
         </svg>
+          </>
+        ) : null}
+        {mapMode === 'portato' && portato?.hasData ? (
+          <>
+            <svg
+              className="galassia-view__portato-triangle"
+              viewBox="0 0 100 100"
+              preserveAspectRatio="none"
+              aria-hidden="true"
+            >
+              <polygon
+                points={`${PORTATO_ANCHORS.Simpatia.x},${PORTATO_ANCHORS.Simpatia.y} ${PORTATO_ANCHORS.Antipatia.x},${PORTATO_ANCHORS.Antipatia.y} ${PORTATO_ANCHORS.Indifferenza.x},${PORTATO_ANCHORS.Indifferenza.y}`}
+              />
+            </svg>
+            <div className="galassia-view__portato-axis-labels" aria-hidden="true">
+              <span
+                className="galassia-view__portato-axis-label galassia-view__portato-axis-label--simpatia"
+                style={{ left: `${PORTATO_ANCHORS.Simpatia.x}%`, top: `${PORTATO_ANCHORS.Simpatia.y - 14}%` }}
+              >
+                {GALASSIA_PORTATO_UI.axisAttrazione}
+              </span>
+              <span
+                className="galassia-view__portato-axis-label galassia-view__portato-axis-label--antipatia"
+                style={{ left: `${PORTATO_ANCHORS.Antipatia.x}%`, top: `${PORTATO_ANCHORS.Antipatia.y - 14}%` }}
+              >
+                {GALASSIA_PORTATO_UI.axisRifiuto}
+              </span>
+              <span
+                className="galassia-view__portato-axis-label galassia-view__portato-axis-label--indifferenza"
+                style={{ left: `${PORTATO_ANCHORS.Indifferenza.x}%`, top: `${PORTATO_ANCHORS.Indifferenza.y + 10}%` }}
+              >
+                {GALASSIA_PORTATO_UI.axisDistacco}
+              </span>
+            </div>
+            {!effectiveSelectedId ? (
+              <div className="galassia-view__portato-map-triad">
+                <PortatoTriadSpectrum dimensioni={portato.dimensioni} showLegend={false} />
+              </div>
+            ) : null}
+          </>
+        ) : null}
         {relationLines.length > 0 ? (
           <svg
             className="galassia-view__relation-lines"
@@ -1507,22 +3114,25 @@ export default function GalassiaView({ correntData, paroleEmerse = [], rapporti 
                 y1={line.from.y}
                 x2={line.to.x}
                 y2={line.to.y}
+                data-kind={line.kind || 'dialogue'}
                 style={{ '--relation-color': line.colore }}
               />
             ))}
           </svg>
         ) : null}
-        <div className="galassia-view__axis-labels" aria-hidden="true">
-          {GALASSIA_AXIS.map((item) => (
-            <span key={item.className} className={`galassia-view__axis-label ${item.className}`}>
-              <strong>{item.title}</strong>
-              <small>{item.text}</small>
-            </span>
-          ))}
+        <div className="galassia-view__axis-labels" aria-hidden={mapMode !== 'disposizioni'}>
+          {mapMode === 'disposizioni'
+            ? GALASSIA_AXIS.map((item) => (
+                <span key={item.className} className={`galassia-view__axis-label ${item.className}`}>
+                  <strong>{item.title}</strong>
+                  <small>{item.text}</small>
+                </span>
+              ))
+            : null}
         </div>
 
         <AnimatePresence>
-          {!selectedId && guideStars.map((star) => (
+          {!effectiveSelectedId && mapMode === 'disposizioni' && guideStars.map((star) => (
             <motion.button
               key={star.id}
               type="button"
@@ -1557,16 +3167,16 @@ export default function GalassiaView({ correntData, paroleEmerse = [], rapporti 
         </AnimatePresence>
 
         <AnimatePresence>
-          {selected && constellationNodes.length > 0 && (
+          {isZoomedView && selectedNode && selectedNode.mode === mapMode && constellationNodes.length > 0 && (
             <motion.div
-              key={`constellation-${selected.id}`}
+              key={`constellation-${mapMode}-${selectedNode.id}`}
               className="galassia-view__constellation"
               style={{
                 left: `calc(${focusCenter.x}% - ${constellationSize / 2}px)`,
                 top: `calc(${focusCenter.y}% - ${constellationSize / 2}px)`,
                 width: constellationSize,
                 height: constellationSize,
-                '--constellation-color': selected.colore,
+                '--constellation-color': selectedNode.colore,
               }}
               initial={{ opacity: 0, scale: 0.28 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -1574,7 +3184,7 @@ export default function GalassiaView({ correntData, paroleEmerse = [], rapporti 
               transition={
                 reducedMotion
                   ? { duration: 0 }
-                  : { type: 'spring', stiffness: 78, damping: 15, mass: 1.1 }
+                  : GALASSIA_STABLE_ENTER_TRANSITION
               }
             >
               <svg
@@ -1588,29 +3198,40 @@ export default function GalassiaView({ correntData, paroleEmerse = [], rapporti 
               </svg>
               <button
                 type="button"
-                className="galassia-view__constellation-core"
-                style={{ '--core-color': selected.colore }}
+                className={`galassia-view__constellation-core${hoveredCore ? ' galassia-view__constellation-core--show-label' : ''}`}
+                style={{ '--core-color': selectedNode.colore }}
                 onClick={(event) => {
                   event.stopPropagation()
                   setActiveSubId(null)
                 }}
+                onMouseEnter={() => {
+                  setHoveredCore(true)
+                  setHoveredSubId(null)
+                }}
+                onMouseLeave={() => setHoveredCore(false)}
+                onFocus={() => setHoveredCore(true)}
+                onBlur={() => setHoveredCore(false)}
                 aria-pressed={!activeSubId}
-                aria-label={`${selected.nome}, ${pesoToPct(selected.peso)}%`}
+                aria-label={`${selectedNode.nome}, ${formatNodeWeight(mapMode, selectedNode).display}`}
               >
                 <span className="galassia-view__constellation-core-node" aria-hidden="true" />
                 <span className="galassia-view__constellation-core-label">
-                  <strong>{selected.nome}</strong>
-                  <small>{pesoToPct(selected.peso)}%</small>
+                  <strong>{selectedNode.nome}</strong>
+                  <small>{formatNodeWeight(mapMode, selectedNode).short}</small>
                 </span>
               </button>
-              {constellationNodes.map(({ sub, x, y, pct, size, trait }, index) => {
+              {constellationNodes.map(({ sub, x, y, weightLabel, size, trait }, index) => {
                 const isActive = sub.id === activeSubId
                 const isHovered = sub.id === hoveredSubId
-                const labelSide = y >= 0 ? 'above' : 'below'
+                const showLabel = !isMobile || isActive || isHovered
+                const labelSide =
+                  constellationLayout.n === 2
+                    ? (x < 0 ? 'below' : 'above')
+                    : (y >= 0 ? 'below' : 'above')
                 return (
                   <motion.div
                     key={sub.id}
-                    className={`galassia-view__constellation-wrap galassia-view__constellation-wrap--label-${labelSide}${isActive ? ' galassia-view__constellation-wrap--active' : ''}${isHovered ? ' galassia-view__constellation-wrap--hovered' : ''}`}
+                    className={`galassia-view__constellation-wrap galassia-view__constellation-wrap--label-${labelSide}${isActive ? ' galassia-view__constellation-wrap--active' : ''}${isHovered ? ' galassia-view__constellation-wrap--hovered' : ''}${showLabel ? ' galassia-view__constellation-wrap--show-label' : ''}`}
                     style={{
                       left: `calc(50% + ${x - size / 2}px)`,
                       top: `calc(50% + ${y - size / 2}px)`,
@@ -1623,9 +3244,7 @@ export default function GalassiaView({ correntData, paroleEmerse = [], rapporti 
                         ? { duration: 0 }
                         : {
                             delay: 0.12 + index * 0.06,
-                            type: 'spring',
-                            stiffness: 120,
-                            damping: 16,
+                            ...GALASSIA_STABLE_ENTER_TRANSITION,
                           }
                     }
                   >
@@ -1633,24 +3252,46 @@ export default function GalassiaView({ correntData, paroleEmerse = [], rapporti 
                       type="button"
                       className="galassia-view__constellation-hit"
                       style={{
-                        '--node-color': sub.colore || selected.colore,
+                        '--node-color': sub.colore || selectedNode.colore,
                         '--node-size': `${size}px`,
                       }}
                       onClick={(event) => {
                         event.stopPropagation()
                         setActiveSubId(sub.id)
                       }}
-                      onMouseEnter={() => setHoveredSubId(sub.id)}
+                      onMouseEnter={() => {
+                        setHoveredSubId(sub.id)
+                        setHoveredCore(false)
+                      }}
                       onMouseLeave={() => setHoveredSubId((prev) => (prev === sub.id ? null : prev))}
                       onFocus={() => setHoveredSubId(sub.id)}
                       onBlur={() => setHoveredSubId((prev) => (prev === sub.id ? null : prev))}
-                      aria-label={`${sub.nome}, ${pct}%`}
+                      aria-label={`${sub.nome}, ${weightLabel}`}
                       aria-pressed={isActive}
                     >
                       <span className="galassia-view__constellation-node" aria-hidden="true" />
+                      {mapMode === 'parole' && isActive && Array.isArray(sub.words) && sub.words.length > 0 ? (
+                        <span className="galassia-view__word-orbit" aria-hidden="true">
+                          {sub.words.slice(0, 8).map((word, wordIndex) => {
+                            const angle = -Math.PI / 2 + (wordIndex * Math.PI * 2) / Math.min(8, sub.words.length)
+                            const radius = size / 2 + 44 + (wordIndex % 2) * 12
+                            return (
+                              <span
+                                key={word.id}
+                                className={`galassia-view__word-star${word.isEmerged ? ' galassia-view__word-star--emerged' : ''}`}
+                                style={{
+                                  transform: `translate(-50%, -50%) translate(${Math.cos(angle) * radius}px, ${Math.sin(angle) * radius}px)`,
+                                }}
+                              >
+                                {word.nome}
+                              </span>
+                            )
+                          })}
+                        </span>
+                      ) : null}
                       <span className="galassia-view__constellation-label" aria-hidden={!isActive && !isHovered}>
                         <strong>{sub.nome}</strong>
-                        <small>{pct}%</small>
+                        <small>{weightLabel}</small>
                         {trait ? (
                           <em className="galassia-view__constellation-trait">{trait}</em>
                         ) : null}
@@ -1663,15 +3304,15 @@ export default function GalassiaView({ correntData, paroleEmerse = [], rapporti 
           )}
         </AnimatePresence>
 
-        {/* Pianeti (correnti) */}
-        {data.map((c) => {
-          const layout = layoutById[c.id]
-          if (!layout) return null
+        {/* Pianeti (correnti / rapporti / portato / famiglie parole) */}
+        {planetLayout.map((layout) => {
+          const c = layout.node
+          if (!c) return null
           const isHovered = hoveredId === c.id
           return (
             <motion.div
               key={c.id}
-              className={`galassia-view__planet-wrap absolute -translate-x-1/2 -translate-y-1/2${layout.isSelected ? ' galassia-view__planet-wrap--selected' : ' galassia-view__planet-wrap--dimmed'}`}
+              className={`galassia-view__planet-wrap absolute -translate-x-1/2 -translate-y-1/2${layout.isSelected ? ' galassia-view__planet-wrap--selected' : ''}${isZoomedView && !layout.isSelected ? ' galassia-view__planet-wrap--dimmed' : ''}${effectiveSelectedId === c.id && !isZoomedView ? ' galassia-view__planet-wrap--highlight' : ''}`}
               initial={false}
               animate={{ left: `${layout.pos.x}%`, top: `${layout.pos.y}%`, opacity: layout.opacity }}
               transition={positionTransition}
@@ -1687,8 +3328,6 @@ export default function GalassiaView({ correntData, paroleEmerse = [], rapporti 
                 transition={{
                   scale: positionTransition,
                 }}
-                whileHover={reducedMotion ? undefined : { scale: layout.scale * 1.05 }}
-                whileTap={{ scale: layout.scale * 0.97 }}
                 onClick={(event) => {
                   event.stopPropagation()
                   selectPlanet(c.id)
@@ -1697,7 +3336,7 @@ export default function GalassiaView({ correntData, paroleEmerse = [], rapporti 
                 onMouseLeave={() => setHoveredId((prev) => (prev === c.id ? null : prev))}
                 onFocus={() => setHoveredId(c.id)}
                 onBlur={() => setHoveredId((prev) => (prev === c.id ? null : prev))}
-                aria-label={`Corrente ${c.nome}, peso ${layout.pct}%`}
+                aria-label={`${c.nome}, ${layout.weight.display}`}
                 aria-pressed={layout.isSelected}
               >
                 <span className="relative flex items-center justify-center">
@@ -1730,10 +3369,10 @@ export default function GalassiaView({ correntData, paroleEmerse = [], rapporti 
               <span
                 className="galassia-view__planet-label"
                 style={{ top: `calc(50% + ${layout.circle / 2 + 8}px)` }}
-                title={`${c.nome} · ${layout.pct}%`}
+                title={`${c.nome} · ${layout.weight.display}`}
               >
                 <strong>{c.nome}</strong>
-                <small>{layout.pct}%</small>
+                <small>{layout.weight.short}</small>
               </span>
             </motion.div>
           )
@@ -1743,14 +3382,25 @@ export default function GalassiaView({ correntData, paroleEmerse = [], rapporti 
         </div>
       </div>
 
-      <GalassiaCrtPanel
-        panel={panelContent}
-        selected={selected}
-        activeSubId={activeSubId}
-        profileInfo={selectedProfileInfo}
-        onBackToParent={() => setActiveSubId(null)}
-        onSelectSub={setActiveSubId}
-      />
+      {isPanelIdle && !guideDeckOpen ? (
+        <GalassiaMapHint
+          mode={mapMode}
+          dominant={mapMode === 'disposizioni' ? rankedData[0] : null}
+          onSelectDominant={selectPlanet}
+        />
+      ) : null}
+
+      {!isPanelIdle ? (
+        <GalassiaCrtPanel
+          panel={panelContent}
+          selected={mapMode === 'disposizioni' ? selected : selectedNode}
+          activeSubId={activeSubId}
+          profileInfo={selectedProfileInfo}
+          onBackToParent={() => setActiveSubId(null)}
+          onSelectSub={setActiveSubId}
+          onSelectDominant={selectPlanet}
+        />
+      ) : null}
     </div>
   )
 }

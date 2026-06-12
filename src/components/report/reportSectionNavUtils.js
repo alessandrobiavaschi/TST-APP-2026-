@@ -23,7 +23,9 @@ export function scrollToReportSection(id, { reduceMotion = false, onLockChange }
 
   onLockChange?.(true)
   const behavior = reduceMotion ? 'auto' : 'smooth'
-  el.scrollIntoView({ behavior, block: 'start' })
+  const offset = getStickyOffsetPx()
+  const top = el.getBoundingClientRect().top + window.scrollY - offset - 8
+  window.scrollTo({ top: Math.max(0, top), behavior })
 
   window.setTimeout(() => {
     onLockChange?.(false)

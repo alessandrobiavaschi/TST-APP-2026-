@@ -70,9 +70,12 @@ export default function NavbarTST({
       data-visible={visible ? 'true' : 'false'}
       aria-hidden={!visible}
       style={{
-        position: 'sticky',
+        position: 'fixed',
         top: 'var(--app-header-offset, 0px)',
+        left: 0,
+        right: 0,
         zIndex: 50,
+        minHeight: 'var(--navbar-tst-height, 56px)',
         borderBottom: '1px solid #1e293b',
         backgroundColor: 'rgba(10, 15, 26, 0.92)',
         backdropFilter: 'blur(12px)',

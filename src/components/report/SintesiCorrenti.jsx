@@ -1,20 +1,16 @@
 import React, { useMemo, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
+import ReportPassageHeader from './ReportPassageHeader.jsx'
 import ReportRadarChart from './ReportRadarChart.jsx'
-import { SINTESI_UI } from './reportUiCopy.js'
+import { REPORT_CRITERION, SINTESI_UI, formatAttivazione } from './reportUiCopy.js'
+import ReportCriterionLegend from './ReportCriterionLegend.jsx'
+import InfoTip from './InfoTip.jsx'
 import { normalizeFamigliaName } from '../../content/reportRestitution.js'
 import { FAMILY_THEME } from '../../config/reportFamilyTheme.js'
 import { GlossaryLink } from './ReportGlossaryDrawer.jsx'
 import './SintesiCorrenti.css'
 
 void motion
-
-function famigliaLabelFor(famiglia) {
-  const fam = normalizeFamigliaName(famiglia)
-  const theme = FAMILY_THEME[fam]
-  if (!theme) return ''
-  return `${theme.macro} (${theme.label})`
-}
 
 function famigliaMacroFor(famiglia) {
   const fam = normalizeFamigliaName(famiglia)
@@ -32,6 +28,12 @@ function splitSentences(text) {
 
 function joinSentences(sentences) {
   return sentences.join(' ')
+}
+
+function compactParagraph(text, maxSentences = 2) {
+  const sentences = splitSentences(text)
+  if (sentences.length) return joinSentences(sentences.slice(0, maxSentences))
+  return String(text || '').trim()
 }
 
 /**
@@ -120,19 +122,24 @@ function blobPath(cx, cy, rx, ry, seed = 1) {
   return d + ' Z'
 }
 
-function pct(peso) {
-  return `${Math.round(Number(peso) || 0)}%`
+function pctAttivazione(peso) {
+  return formatAttivazione(peso)
 }
 
-function MetricChip({ label, value, accentColor }) {
-  if (!value) return null
+function KeyFactRow({ facts = [] }) {
+  if (!facts.length) return null
   return (
-    <span className="sintesi-correnti__chip">
-      <span className="sintesi-correnti__chip-label">{label}</span>
-      <span className="sintesi-correnti__chip-value" style={{ color: accentColor }}>
-        {value}
-      </span>
-    </span>
+    <dl className="sintesi-correnti__key-facts" aria-label="Esiti principali del profilo">
+      {facts.map((fact) => (
+        <div key={fact.id} className="sintesi-correnti__key-fact">
+          <dt className="sintesi-correnti__key-fact-label">{fact.label}</dt>
+          <dd className="sintesi-correnti__key-fact-value">{fact.value}</dd>
+          {fact.method ? (
+            <dd className="sintesi-correnti__key-fact-method">{fact.method}</dd>
+          ) : null}
+        </div>
+      ))}
+    </dl>
   )
 }
 
@@ -179,6 +186,8 @@ export default function SintesiCorrenti({
   correnteColore = '',
   famiglia = '',
   sintesiLead = '',
+  sintesiKeyFacts = [],
+  sintesiLeadExtended = [],
   sintesiParagrafi = [],
   datiRadar = null,
   sottocorrenti = [],
@@ -239,32 +248,91 @@ export default function SintesiCorrenti({
     correnteColore || ordered[0]?.color || correnti[0]?.colore || FAMILY_REF.Verde.color
 
   const famigliaMacro = famigliaMacroFor(famiglia)
-  const famigliaCompleta = famigliaLabelFor(famiglia)
+  const famigliaPrevalenteLabel = famigliaMacro || correnteDominante || ''
 
   const leadSentences = useMemo(() => splitSentences(sintesiLead), [sintesiLead])
-  const leadShort = useMemo(() => joinSentences(leadSentences.slice(0, 2)), [leadSentences])
-  const leadExtended = useMemo(() => joinSentences(leadSentences.slice(2)), [leadSentences])
+  const leadShort = useMemo(() => joinSentences(leadSentences.slice(0, 1)), [leadSentences])
 
-  const metricChips = useMemo(() => {
-    const chips = []
-    if (focus) {
-      chips.push({ label: SINTESI_UI.chipOrientamento, value: focus })
+  const keyFacts = useMemo(() => {
+    if (Array.isArray(sintesiKeyFacts) && sintesiKeyFacts.length) {
+      return sintesiKeyFacts
+    }
+    const fallback = []
+    if (famigliaPrevalenteLabel) {
+      fallback.push({
+        id: 'famiglia',
+        label: SINTESI_UI.cardFamiglia,
+        value: famigliaPrevalenteLabel,
+        method: SINTESI_UI.prevalenzaMethod,
+      })
     }
     if (sottodisposizione) {
-      chips.push({ label: SINTESI_UI.chipSottodisposizione, value: sottodisposizione })
+      fallback.push({
+        id: 'sfumatura',
+        label: SINTESI_UI.chipSottodisposizione,
+        value: sottodisposizione,
+        method: SINTESI_UI.sottodisposizioneMethod,
+      })
     }
-    if (portato?.prevalenteLabel && chips.length < 3) {
-      chips.push({ label: SINTESI_UI.chipPortato, value: portato.prevalenteLabel })
+    if (focus) {
+      fallback.push({
+        id: 'orientamento',
+        label: SINTESI_UI.chipOrientamento,
+        value: focus,
+        method: 'Descrittivo',
+      })
     }
-    return chips.slice(0, 3)
-  }, [focus, sottodisposizione, portato])
+    if (portato?.prevalenteLabel) {
+      fallback.push({
+        id: 'portato',
+        label: SINTESI_UI.chipPortato,
+        value: portato.prevalenteLabel,
+        method: 'Voce con più punti',
+      })
+    }
+    return fallback
+  }, [
+    sintesiKeyFacts,
+    famigliaPrevalenteLabel,
+    sottodisposizione,
+    focus,
+    portato,
+  ])
 
-  const heroTemperament = useMemo(() => {
-    if (famigliaMacro && correnteDominante) {
-      return `${famigliaMacro} · ${correnteDominante}`
+  const extendedBlocks = useMemo(() => {
+    const blocks = []
+    if (leadSentences.length > 1) {
+      blocks.push(joinSentences(leadSentences.slice(1)))
     }
-    return correnteDominante || famigliaCompleta || famigliaMacro
-  }, [famigliaMacro, correnteDominante, famigliaCompleta])
+    if (Array.isArray(sintesiLeadExtended)) {
+      sintesiLeadExtended.forEach((p) => {
+        if (p) blocks.push(p)
+      })
+    }
+    return blocks.filter(Boolean)
+  }, [leadSentences, sintesiLeadExtended])
+
+  const summaryParagraphs = useMemo(() => {
+    const paragraphs = []
+    const add = (value, maxSentences = 2) => {
+      const paragraph = compactParagraph(value, maxSentences)
+      if (!paragraph || paragraphs.includes(paragraph)) return
+      paragraphs.push(paragraph)
+    }
+
+    add(leadShort, 1)
+    add(extendedBlocks[0] || (Array.isArray(sintesiParagrafi) ? sintesiParagrafi[0] : ''), 2)
+
+    return paragraphs.slice(0, 2)
+  }, [leadShort, extendedBlocks, sintesiParagrafi])
+
+  const summaryTitle = famigliaPrevalenteLabel
+    ? `Prevale ${famigliaPrevalenteLabel}`
+    : 'Sintesi del profilo'
+  const summarySubtitle = sottodisposizione
+    ? `Sfumatura principale: ${sottodisposizione}`
+    : correnteDominante || ''
+  const summarySottocorrenti = topSottocorrenti.slice(0, 3)
 
   const viewport = { once: true, amount: 0.15 }
   const sectionFade = prefersReducedMotion
@@ -285,45 +353,95 @@ export default function SintesiCorrenti({
         transition: { duration: 0.35 },
       }
 
-  const srTitle = SINTESI_UI.srOnlyTitle(userName)
+  const visibleTitle = userName
+    ? `${SINTESI_UI.title} — ${userName}`
+    : SINTESI_UI.title
 
   return (
     <section
-      className="sintesi-correnti report-section"
+      className="sintesi-correnti"
       aria-labelledby="sintesi-correnti-heading"
       style={{ '--sc-accent': accentColor }}
     >
-      <h2 id="sintesi-correnti-heading" className="sintesi-correnti__sr-only">
-        {srTitle}
-      </h2>
+      <ReportPassageHeader
+        step="1"
+        eyebrow={SINTESI_UI.eyebrow}
+        title={visibleTitle}
+        lead={SINTESI_UI.subtitle}
+        accentColor={accentColor}
+        titleId="sintesi-correnti-heading"
+      />
 
       <div className="sintesi-correnti__summary">
-        <header className="sintesi-correnti__hero">
-          <span className="sintesi-correnti__kicker">{SINTESI_UI.leadTitle}</span>
-          {userName ? (
-            <p className="sintesi-correnti__hero-name">{userName}</p>
-          ) : null}
-          <p className="sintesi-correnti__hero-temperament">{heroTemperament}</p>
-          {leadShort ? (
-            <p className="sintesi-correnti__hero-lead">{leadShort}</p>
-          ) : null}
+        <div className="sintesi-correnti__answer-card">
+          <div className="sintesi-correnti__answer-main">
+            <p className="sintesi-correnti__answer-eyebrow">Sintesi chiara</p>
+            <h3 className="sintesi-correnti__answer-title">
+              {summaryTitle}
+              {summarySubtitle ? (
+                <span className="sintesi-correnti__answer-subtitle">{summarySubtitle}</span>
+              ) : null}
+            </h3>
+            {summaryParagraphs.map((paragraph, index) => (
+              <p key={`${index}-${paragraph.slice(0, 52)}`} className="sintesi-correnti__answer-copy">
+                {paragraph}
+              </p>
+            ))}
+            {summarySottocorrenti.length > 0 ? (
+              <div className="sintesi-correnti__answer-subcurrents">
+                <span className="sintesi-correnti__answer-subcurrents-label">
+                  Sottocorrenti più attive
+                </span>
+                <ul className="sintesi-correnti__answer-subcurrents-list">
+                  {summarySottocorrenti.map((sub) => (
+                    <li key={sub.rawKey} className="sintesi-correnti__answer-subcurrent">
+                      <span
+                        className="sintesi-correnti__answer-subcurrent-dot"
+                        style={{ backgroundColor: sub.colore }}
+                        aria-hidden="true"
+                      />
+                      <span className="sintesi-correnti__answer-subcurrent-name">{sub.nome}</span>
+                      <span className="sintesi-correnti__answer-subcurrent-value">
+                        {pctAttivazione(sub.percentuale)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+          </div>
+          <div className="sintesi-correnti__answer-side">
+            <KeyFactRow facts={keyFacts} />
+          </div>
+        </div>
+
+        <header className="sintesi-correnti__hero sintesi-correnti__hero--secondary">
+          <p className="sintesi-correnti__prevalenza-nota">{SINTESI_UI.prevalenzaNota}</p>
+          <p className="sintesi-correnti__disclaimer">{SINTESI_UI.disclaimerShort}</p>
+          <div className="sintesi-correnti__criterion-legend-wrap">
+            <ReportCriterionLegend
+              variant="full"
+              className="sintesi-correnti__criterion-legend"
+            />
+            <InfoTip
+              glossaryId="configurazione-prevalente"
+              term="Prevalenza"
+              variant="button"
+              className="sintesi-correnti__info-tip"
+            />
+            <InfoTip
+              tip={REPORT_CRITERION.attivazioneTooltip}
+              term="Presenza"
+              variant="button"
+              className="sintesi-correnti__info-tip"
+            />
+          </div>
         </header>
 
-        {metricChips.length > 0 ? (
-          <div className="sintesi-correnti__chips sintesi-correnti__order-chips" aria-label={SINTESI_UI.chipsAria}>
-            {metricChips.map((chip) => (
-              <MetricChip
-                key={chip.label}
-                label={chip.label}
-                value={chip.value}
-                accentColor={accentColor}
-              />
-            ))}
-          </div>
-        ) : null}
-
         <div className="sintesi-correnti__container sintesi-correnti__order-visuals">
-          <div className="sintesi-correnti__visual">
+          <h3 className="sintesi-correnti__section-title">{SINTESI_UI.distribuzioneTitle}</h3>
+          <p className="sintesi-correnti__section-caption">{SINTESI_UI.distribuzioneCaption}</p>
+          <div className="sintesi-correnti__visual sintesi-correnti__visual--desktop">
             <motion.div
               className="sintesi-correnti__flower sintesi-correnti__order-flower"
               {...sectionFade}
@@ -355,7 +473,7 @@ export default function SintesiCorrenti({
                         onBlur={() => setHovered((h) => (h === i ? null : h))}
                         tabIndex={0}
                         role="img"
-                        aria-label={`${b.nome}, ${pct(b.peso)}`}
+                        aria-label={`${b.nome}, ${REPORT_CRITERION.attivazione} ${pctAttivazione(b.peso)}`}
                       >
                         <motion.path
                           d={b.path}
@@ -398,7 +516,7 @@ export default function SintesiCorrenti({
                       fontSize={13}
                       fontFamily="var(--font-display)"
                     >
-                      {blobs[hovered].nome} · {pct(blobs[hovered].peso)}
+                      {blobs[hovered].nome} · Attivazione {pctAttivazione(blobs[hovered].peso)}
                     </text>
                   </g>
                 )}
@@ -418,6 +536,8 @@ export default function SintesiCorrenti({
                 data={radarData}
                 color={accentColor}
                 height={220}
+                domain={[0, 100]}
+                scaleLabel="Presenza %"
                 className="sintesi-correnti__radar-chart"
                 ariaLabel={SINTESI_UI.radarAriaLabel}
               />
@@ -426,10 +546,17 @@ export default function SintesiCorrenti({
 
           <div className="sintesi-correnti__data">
             <div className="sintesi-correnti__data-head">
-              <span className="sintesi-correnti__kicker">Distribuzione</span>
-              <span className="sintesi-correnti__dominant-pill">
-                {ordered[0]?.label || ordered[0]?.nome || correnteDominante}
-              </span>
+              <div className="sintesi-correnti__data-head-copy">
+                <span className="sintesi-correnti__kicker">{SINTESI_UI.distribuzioneTitle}</span>
+                {SINTESI_UI.distribuzioneOrderLabel ? (
+                  <p className="sintesi-correnti__data-order">
+                    {SINTESI_UI.distribuzioneOrderLabel}
+                  </p>
+                ) : null}
+                {SINTESI_UI.distribuzioneCaption ? (
+                  <p className="sintesi-correnti__data-caption">{SINTESI_UI.distribuzioneCaption}</p>
+                ) : null}
+              </div>
             </div>
             <ul className="sintesi-correnti__list sintesi-correnti__order-bars">
               {ordered.map((c, i) => {
@@ -469,7 +596,16 @@ export default function SintesiCorrenti({
                         transition={fillTransition}
                       />
                     </span>
-                    <span className="sintesi-correnti__row-pct">{pct(peso)}</span>
+                    <span
+                      className="sintesi-correnti__row-pct"
+                      title={REPORT_CRITERION.attivazione}
+                    >
+                      <span className="sintesi-correnti__row-pct-label" aria-hidden="true">
+                        {REPORT_CRITERION.attivazioneShort}
+                      </span>
+                      <span className="sr-only">{REPORT_CRITERION.attivazione}: </span>
+                      {pctAttivazione(peso)}
+                    </span>
                   </li>
                 )
               })}
@@ -478,7 +614,9 @@ export default function SintesiCorrenti({
             {topSottocorrenti.length > 0 ? (
               <div className="sintesi-correnti__subcurrents">
                 <div className="sintesi-correnti__subcurrents-head">
-                  <span className="sintesi-correnti__subcurrents-title">Sottocorrenti</span>
+                  <span className="sintesi-correnti__subcurrents-title">
+                    {SINTESI_UI.subcurrentsTitle}
+                  </span>
                   <span className="sintesi-correnti__subcurrents-count">
                     {topSottocorrenti.length}
                   </span>
@@ -498,8 +636,11 @@ export default function SintesiCorrenti({
                           {sub.shadeLabel ? ` · ${sub.shadeLabel}` : ''}
                         </span>
                       </span>
-                      <span className="sintesi-correnti__subcurrent-value">
-                        {pct(sub.percentuale)}
+                      <span
+                        className="sintesi-correnti__subcurrent-value"
+                        title={REPORT_CRITERION.attivazione}
+                      >
+                        {pctAttivazione(sub.percentuale)}
                       </span>
                     </li>
                   ))}
@@ -510,57 +651,65 @@ export default function SintesiCorrenti({
             <p className="sintesi-correnti__editorial sintesi-correnti__order-note">
               {SINTESI_UI.editorialNote}
             </p>
-
-            {onOpenGlossary ? (
-              <div className="sintesi-correnti__glossary-link sintesi-correnti__order-glossary">
-                <GlossaryLink onOpen={() => onOpenGlossary()}>
-                  {SINTESI_UI.glossaryLink}
-                </GlossaryLink>
-              </div>
-            ) : null}
           </div>
         </div>
       </div>
 
       <div className="sintesi-correnti__narrative sintesi-correnti__order-narrative">
-        {leadExtended ? (
-          <SintesiDisclosure
-            id="sintesi-lead-extended"
-            title={SINTESI_UI.leadExpandToggle}
-            className="sintesi-correnti__disclosure--lead"
-          >
-            <p className="sintesi-correnti__narrative-p">{leadExtended}</p>
-          </SintesiDisclosure>
-        ) : null}
-
-        {Array.isArray(sintesiParagrafi) && sintesiParagrafi.length > 0 ? (
-          <SintesiDisclosure
-            id="sintesi-integrative"
-            title={SINTESI_UI.integrativeTitle}
-            className="sintesi-correnti__disclosure--integrative"
-          >
-            {sintesiParagrafi.map((paragraph) => (
-              <p key={paragraph.slice(0, 48)} className="sintesi-correnti__narrative-p">
-                {paragraph}
-              </p>
-            ))}
-          </SintesiDisclosure>
-        ) : null}
-
         <SintesiDisclosure
-          id="sintesi-how-to-read"
-          title={SINTESI_UI.howToReadToggle}
-          className="sintesi-correnti__disclosure--howto"
+          id="sintesi-visual-mobile"
+          title={SINTESI_UI.visualToggle}
+          className="sintesi-correnti__disclosure--visual-mobile"
         >
-          <p className="sintesi-correnti__narrative-p">{SINTESI_UI.orientationBody}</p>
-          {SINTESI_UI.orientationPoints?.length > 0 ? (
-            <ul className="sintesi-correnti__howto-list">
-              {SINTESI_UI.orientationPoints.map((point) => (
-                <li key={point}>{point}</li>
-              ))}
-            </ul>
-          ) : null}
+          <div className="sintesi-correnti__visual sintesi-correnti__visual--mobile-inline">
+            <div className="sintesi-correnti__flower sintesi-correnti__order-flower">
+              <svg
+                className="sintesi-correnti__svg"
+                viewBox="0 0 400 400"
+                role="group"
+                aria-label={SINTESI_UI.flowerAriaLabel}
+                preserveAspectRatio="xMidYMid meet"
+              >
+                <g className="sintesi-correnti__petals">
+                  {blobs.map((b) => (
+                    <path
+                      key={b.key}
+                      d={b.path}
+                      fill={b.color}
+                      fillOpacity={0.72}
+                      stroke={b.color}
+                      strokeOpacity={0.35}
+                      strokeWidth={1.25}
+                    />
+                  ))}
+                </g>
+              </svg>
+            </div>
+            <div className="sintesi-correnti__radar sintesi-correnti__order-radar">
+              <p className="sintesi-correnti__radar-label">{SINTESI_UI.radarTitle}</p>
+              {SINTESI_UI.radarCaption ? (
+                <p className="sintesi-correnti__radar-caption">{SINTESI_UI.radarCaption}</p>
+              ) : null}
+              <ReportRadarChart
+                data={radarData}
+                color={accentColor}
+                height={180}
+                domain={[0, 100]}
+                scaleLabel="Presenza %"
+                className="sintesi-correnti__radar-chart"
+                ariaLabel={SINTESI_UI.radarAriaLabel}
+              />
+            </div>
+          </div>
         </SintesiDisclosure>
+
+        {onOpenGlossary ? (
+          <div className="sintesi-correnti__glossary-link sintesi-correnti__order-glossary">
+            <GlossaryLink onOpen={() => onOpenGlossary()}>
+              {SINTESI_UI.glossaryLink}
+            </GlossaryLink>
+          </div>
+        ) : null}
       </div>
     </section>
   )

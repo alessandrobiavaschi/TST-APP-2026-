@@ -4,6 +4,7 @@ import { getProfiloPanelDisplay } from '../../utils/profiloDisplayCopy.js'
 import { buildProfiloThreadLine } from '../../content/reportRestitution.js'
 import { FAMILY_THEME } from '../../config/reportFamilyTheme.js'
 import { PROFILO_UI } from './reportUiCopy.js'
+import ReportPassageHeader from './ReportPassageHeader.jsx'
 import { PROFILO_CHAPTER_EVENT, chapterAnchorId } from './profiloChapterNav.js'
 
 void motion
@@ -16,28 +17,6 @@ const CHAPTER_NAV_LABELS = {
   ombre: 'Ombre',
 }
 const HEADER_COLOR_FALLBACK = '#4ade80'
-const TEXT_MAX_WIDTH = '720px'
-
-function ChevronIcon({ open }) {
-  return (
-    <svg
-      className={`profilo-chapter-card__chevron${open ? ' profilo-chapter-card__chevron--open' : ''}`}
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-    >
-      <path
-        d="M6 9l6 6 6-6"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
 
 function PanelBody({ display }) {
   const skipHeader = /^FAMIGLIA\s+\d+/i
@@ -71,15 +50,7 @@ function PanelBody({ display }) {
   )
 }
 
-function ChapterCard({
-  sezione,
-  index,
-  isOpen,
-  onToggle,
-  famiglia,
-  profilo,
-  reduceMotion,
-}) {
+function ChapterBlock({ sezione, index, famiglia, profilo, reduceMotion }) {
   const accent = sezione.correnteColore || '#4ade80'
   const display = getProfiloPanelDisplay({
     panelId: sezione.id,
@@ -92,64 +63,44 @@ function ChapterCard({
       ? (profilo?.natura || sezione.label).replace(/\s*·\s*/g, ' · ')
       : null
 
-  const textVariants = {
-    hidden: { opacity: 0, y: reduceMotion ? 0 : 12 },
-    visible: { opacity: 1, y: 0 },
-  }
-
   return (
-    <section
+    <article
       id={chapterAnchorId(sezione.id)}
-      className={`profilo-chapter-card${isOpen ? ' profilo-chapter-card--open' : ''}`}
+      className="profilo-chapter-block report-tst-section-anchor"
       data-panel={sezione.id}
       style={{ '--profilo-accent': accent }}
     >
-      <button
-        type="button"
-        className="profilo-chapter-card__trigger"
-        aria-expanded={isOpen}
-        aria-controls={`${chapterAnchorId(sezione.id)}-panel`}
-        onClick={onToggle}
-      >
-        <span className="profilo-chapter-card__index" aria-hidden="true">
-          {index + 1}
+      <header className="profilo-chapter-block__head">
+        <span className="profilo-chapter-block__index" aria-hidden="true">
+          {String(index + 1).padStart(2, '0')}
         </span>
-        <div className="profilo-chapter-card__head">
+        <div>
           <p className="profilo-panel__capitolo">{sezione.capitolo}</p>
           <h3 className="profilo-panel__title">{sezione.titolo}</h3>
-          {sezione.sottotitolo && !isOpen ? (
-            <p className="profilo-chapter-card__preview">{sezione.sottotitolo}</p>
+          {sezione.sottotitolo ? (
+            <p className="profilo-chapter-block__preview">{sezione.sottotitolo}</p>
           ) : null}
         </div>
-        <span className="profilo-chapter-card__state">
-          <span className="profilo-chapter-card__state-label">
-            {isOpen ? 'Chiudi' : 'Apri'}
-          </span>
-          <ChevronIcon open={isOpen} />
-        </span>
-      </button>
+      </header>
 
-      {isOpen ? (
-        <motion.article
-          id={`${chapterAnchorId(sezione.id)}-panel`}
-          className="profilo-chapter-card__panel"
-          variants={textVariants}
-          initial="hidden"
-          animate="visible"
-          transition={{ duration: reduceMotion ? 0 : 0.35, ease: 'easeOut' }}
-        >
-          {subtitle ? (
-            <p className="profilo-panel__subtitle" style={{ color: accent }}>
-              {subtitle}
-            </p>
-          ) : null}
-          {display.panelIntro ? (
-            <p className="profilo-panel__connector">{display.panelIntro}</p>
-          ) : null}
-          <PanelBody display={display} />
-        </motion.article>
-      ) : null}
-    </section>
+      <motion.div
+        className="profilo-chapter-block__panel"
+        initial={reduceMotion ? false : { opacity: 0, y: 10 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-40px' }}
+        transition={{ duration: reduceMotion ? 0 : 0.35, ease: 'easeOut' }}
+      >
+        {subtitle ? (
+          <p className="profilo-panel__subtitle" style={{ color: accent }}>
+            {subtitle}
+          </p>
+        ) : null}
+        {display.panelIntro ? (
+          <p className="profilo-panel__connector">{display.panelIntro}</p>
+        ) : null}
+        <PanelBody display={display} />
+      </motion.div>
+    </article>
   )
 }
 
@@ -158,9 +109,10 @@ export default function ProfiloEmotivo({
   famiglia = '',
   accentColor = '',
   profilo = {},
+  integrationsSlot = null,
 }) {
   const reduceMotion = useReducedMotion()
-  const [openPanel, setOpenPanel] = useState('natura')
+  const [activeChapter, setActiveChapter] = useState('natura')
 
   const ordered = PANEL_ORDER.map((id) => sezioni.find((s) => s && s.id === id)).filter(Boolean)
   const list = ordered.length > 0 ? ordered : sezioni.filter(Boolean)
@@ -172,11 +124,10 @@ export default function ProfiloEmotivo({
     famiglia,
   })
 
-  const openChapter = useCallback(
-    (panelId, { scroll = false } = {}) => {
+  const scrollToChapter = useCallback(
+    (panelId) => {
       if (!PANEL_ORDER.includes(panelId)) return
-      setOpenPanel(panelId)
-      if (!scroll) return
+      setActiveChapter(panelId)
       const el = document.getElementById(chapterAnchorId(panelId))
       if (!el) return
       el.scrollIntoView({
@@ -184,61 +135,65 @@ export default function ProfiloEmotivo({
         block: 'start',
       })
     },
-    [reduceMotion],
+    [reduceMotion, setActiveChapter],
   )
 
   useEffect(() => {
     const onChapterNav = (event) => {
-      const panelId = event.detail
-      openChapter(panelId, { scroll: false })
+      scrollToChapter(event.detail)
     }
     window.addEventListener(PROFILO_CHAPTER_EVENT, onChapterNav)
     return () => window.removeEventListener(PROFILO_CHAPTER_EVENT, onChapterNav)
-  }, [openChapter])
+  }, [scrollToChapter])
+
+  useEffect(() => {
+    const ids = list.map((s) => chapterAnchorId(s.id))
+    const elements = ids.map((id) => document.getElementById(id)).filter(Boolean)
+    if (elements.length === 0) return undefined
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)
+        if (visible[0]?.target?.id) {
+          const panelId = visible[0].target.id.replace('report-chapter-', '')
+          setActiveChapter(panelId)
+        }
+      },
+      { rootMargin: '-35% 0px -45% 0px', threshold: [0, 0.2, 0.5] },
+    )
+
+    elements.forEach((el) => observer.observe(el))
+    return () => observer.disconnect()
+  }, [list])
 
   return (
-    <section
-      aria-labelledby="pe-section-title"
-      className="report-tst-profilo"
-      style={{
-        backgroundColor: '#0f172a',
-        paddingTop: '120px',
-        paddingBottom: '120px',
-        width: '100%',
-      }}
-    >
-      <style>{`
-        .pe-container { max-width: 1200px; margin: 0 auto; padding-left: 24px; padding-right: 24px; }
-      `}</style>
-
+    <section aria-labelledby="pe-section-title" className="report-tst-profilo">
       <div className="pe-container">
-        <header className="profilo-section-header">
-          <p className="profilo-section-header__eyebrow" style={{ color: headerColor }}>
-            {PROFILO_UI.eyebrow}
-          </p>
-          <h2 id="pe-section-title" className="report-tst-display profilo-section-header__title">
-            {PROFILO_UI.title}
-          </h2>
-          <p className="profilo-section-header__subtitle">{PROFILO_UI.subtitle}</p>
-          {threadLine ? (
-            <p className="profilo-section-header__thread">{threadLine}</p>
-          ) : null}
-        </header>
+        <ReportPassageHeader
+          step="2"
+          eyebrow={PROFILO_UI.eyebrow}
+          title={PROFILO_UI.title}
+          lead={PROFILO_UI.subtitle}
+          accentColor={headerColor}
+          titleId="pe-section-title"
+        />
+        {threadLine ? (
+          <p className="profilo-section-header__thread">{threadLine}</p>
+        ) : null}
+        <p className="profilo-section-header__nav-hint">{PROFILO_UI.chapterNavHint}</p>
 
-        <nav
-          className="profilo-chapter-nav"
-          aria-label="Capitoli del profilo emotivo"
-          style={{ maxWidth: TEXT_MAX_WIDTH, width: '100%', margin: '0 auto 24px' }}
-        >
+        <nav className="profilo-chapter-nav" aria-label="Capitoli del profilo emotivo">
           {list.map((sezione, index) => {
-            const isActive = openPanel === sezione.id
+            const isActive = activeChapter === sezione.id
             return (
               <button
                 key={`nav-${sezione.id}`}
                 type="button"
                 className={`profilo-chapter-nav__btn${isActive ? ' profilo-chapter-nav__btn--active' : ''}`}
                 aria-current={isActive ? 'true' : undefined}
-                onClick={() => openChapter(sezione.id, { scroll: true })}
+                onClick={() => scrollToChapter(sezione.id)}
               >
                 <span className="profilo-chapter-nav__num">{index + 1}</span>
                 <span className="profilo-chapter-nav__label">
@@ -249,23 +204,22 @@ export default function ProfiloEmotivo({
           })}
         </nav>
 
-        <div
-          className="profilo-chapter-list"
-          style={{ maxWidth: TEXT_MAX_WIDTH, width: '100%', margin: '0 auto' }}
-        >
+        <div className="profilo-chapter-list">
           {list.map((sezione, index) => (
-            <ChapterCard
-              key={sezione.id || index}
-              sezione={sezione}
-              index={index}
-              isOpen={openPanel === sezione.id}
-              onToggle={() =>
-                setOpenPanel((current) => (current === sezione.id ? '' : sezione.id))
-              }
-              famiglia={famiglia}
-              profilo={profilo}
-              reduceMotion={reduceMotion}
-            />
+            <React.Fragment key={sezione.id || index}>
+              <ChapterBlock
+                sezione={sezione}
+                index={index}
+                famiglia={famiglia}
+                profilo={profilo}
+                reduceMotion={reduceMotion}
+              />
+              {sezione.id === 'ombre' && integrationsSlot ? (
+                <div id="report-tst-mappa" className="report-tst-section-anchor profilo-integrations-slot">
+                  {integrationsSlot}
+                </div>
+              ) : null}
+            </React.Fragment>
           ))}
         </div>
       </div>

@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { PORTATO_UI } from './reportUiCopy.js'
+import ReportPassageHeader from './ReportPassageHeader.jsx'
 
 void motion
 
@@ -55,24 +56,14 @@ export default function SezionePortatoEsperienziale({
       aria-labelledby="report-tst-portato-heading"
     >
       <div className="report-tst-portato__inner">
-        <motion.header
-          className="report-tst-portato__header"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-80px' }}
-          variants={sectionVariants}
-          transition={{ duration: 0.45, ease: 'easeOut' }}
-        >
-          <p className="report-tst-portato__eyebrow" style={{ color: accent }}>
-            {PORTATO_UI.eyebrow}
-          </p>
-          <h2 id="report-tst-portato-heading" className="report-tst-portato__title">
-            {PORTATO_UI.title}
-          </h2>
-          <p className="report-tst-portato__lead">
-            {PORTATO_UI.lead}
-          </p>
-        </motion.header>
+        <ReportPassageHeader
+          step="3"
+          eyebrow={PORTATO_UI.eyebrow}
+          title={PORTATO_UI.title}
+          lead={PORTATO_UI.lead}
+          accentColor={accent}
+          titleId="report-tst-portato-heading"
+        />
 
         {prevalente && hasData ? (
           <motion.p
@@ -123,7 +114,9 @@ export default function SezionePortatoEsperienziale({
                 <div className="report-tst-portato__card-top">
                   <p className="report-tst-portato__dim-label">{dim.label}</p>
                   {isPrevalente ? (
-                    <span className="report-tst-portato__badge">Prevalente</span>
+                    <span className="report-tst-portato__badge" title={PORTATO_UI.prevalenteLabel}>
+                      {PORTATO_UI.badgePrevalente}
+                    </span>
                   ) : null}
                 </div>
                 <p
@@ -133,8 +126,12 @@ export default function SezionePortatoEsperienziale({
                   {formatValore(valore)}
                 </p>
                 {hasData && valore > 0 ? (
-                  <p className="report-tst-portato__percent" aria-hidden="true">
-                    {dim.percentuale}%
+                  <p className="report-tst-portato__percent">
+                    <span className="report-tst-portato__percent-label">{PORTATO_UI.quotaLabel}</span>
+                    <span aria-hidden="true">{dim.percentuale}%</span>
+                    <span className="sr-only">
+                      {PORTATO_UI.quotaLabel}: {dim.percentuale} per cento
+                    </span>
                   </p>
                 ) : (
                   <p className="report-tst-portato__percent report-tst-portato__percent--ghost" aria-hidden="true">

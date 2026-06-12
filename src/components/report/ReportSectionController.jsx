@@ -1,25 +1,37 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useReducedMotion } from 'framer-motion'
-import { REPORT_GROUPS, REPORT_SECTIONS, SECTION_TO_GROUP } from './reportSectionsConfig'
+import { REPORT_GROUPS, SECTION_TO_GROUP, getVisibleReportSections } from './reportSectionsConfig'
 import { REPORT_NAV_UI } from './reportUiCopy.js'
 import { getStickyOffsetPx, scrollToReportSection } from './reportSectionNavUtils'
 
 /**
- * Controller sezioni report: sidebar desktop con sottogruppi accordion +
- * pannello mobile/tablet sempre visibile. Scroll-spy con IntersectionObserver.
+ * Menu laterale del report: cinque passi sempre visibili + sotto-voci per sezione.
+ * Scroll-spy con IntersectionObserver; il click apre il blocco contenuto e scrolla.
  */
 export default function ReportSectionController({
   accentColor = '#4ade80',
-  sections = REPORT_SECTIONS,
+  profilo = {},
+  filtroMusicale = {},
+  sections: sectionsProp,
   groups = REPORT_GROUPS,
-  groupOpen = {},
-  onToggleGroup,
   onEnsureGroupOpen,
   onNavigate,
 }) {
   const reduceMotion = useReducedMotion()
+  const sections = useMemo(
+    () =>
+      sectionsProp ||
+      getVisibleReportSections(profilo, {
+        filtroMusicaleHasData: Boolean(filtroMusicale?.hasData),
+      }),
+    [sectionsProp, profilo, filtroMusicale],
+  )
   const [activeId, setActiveId] = useState(sections[0]?.id ?? '')
+  const resolvedActiveId = sections.some((s) => s.id === activeId)
+    ? activeId
+    : sections[0]?.id ?? ''
   const scrollLockRef = useRef(false)
+  const userNavigatedRef = useRef(false)
   const mobileListRef = useRef(null)
   const activeMobileBtnRef = useRef(null)
   const activeRailBtnRef = useRef(null)
@@ -34,20 +46,21 @@ export default function ReportSectionController({
   }, [groups, sections])
 
   useEffect(() => {
-    const groupId = SECTION_TO_GROUP[activeId]
+    const groupId = SECTION_TO_GROUP[resolvedActiveId]
     if (groupId) onEnsureGroupOpen?.(groupId)
-  }, [activeId, onEnsureGroupOpen])
+  }, [resolvedActiveId, onEnsureGroupOpen])
 
   useEffect(() => {
     const ids = sections.map((s) => s.id)
     const elements = ids.map((id) => document.getElementById(id)).filter(Boolean)
     if (elements.length === 0) return undefined
 
-    const offset = getStickyOffsetPx()
     const ratios = new Map(ids.map((id) => [id, 0]))
+    let observer = null
 
     const pickActive = () => {
       if (scrollLockRef.current) return
+      const offset = getStickyOffsetPx()
       let bestId = ids[0]
       let bestRatio = -1
       for (const [id, ratio] of ratios) {
@@ -69,43 +82,55 @@ export default function ReportSectionController({
       setActiveId((prev) => (prev === bestId ? prev : bestId))
     }
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          ratios.set(entry.target.id, entry.isIntersecting ? entry.intersectionRatio : 0)
-        })
-        pickActive()
-      },
-      {
-        rootMargin: `-${offset}px 0px -45% 0px`,
-        threshold: [0, 0.05, 0.15, 0.35, 0.55, 0.75, 1],
-      },
-    )
+    const bindObserver = () => {
+      if (observer) observer.disconnect()
+      const offset = getStickyOffsetPx()
+      observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            ratios.set(entry.target.id, entry.isIntersecting ? entry.intersectionRatio : 0)
+          })
+          pickActive()
+        },
+        {
+          rootMargin: `-${offset}px 0px -45% 0px`,
+          threshold: [0, 0.05, 0.15, 0.35, 0.55, 0.75, 1],
+        },
+      )
+      elements.forEach((el) => observer.observe(el))
+    }
 
-    elements.forEach((el) => observer.observe(el))
+    bindObserver()
     const onScroll = () => pickActive()
+    const onResize = () => bindObserver()
     window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onResize, { passive: true })
     pickActive()
 
     return () => {
-      observer.disconnect()
+      observer?.disconnect()
       window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onResize)
     }
   }, [sections])
 
   useEffect(() => {
+    if (!userNavigatedRef.current) return undefined
+    userNavigatedRef.current = false
     const btn = activeMobileBtnRef.current
-    if (!btn || !mobileListRef.current) return
+    if (!btn || !mobileListRef.current) return undefined
     btn.scrollIntoView({
       behavior: reduceMotion ? 'auto' : 'smooth',
       block: 'nearest',
       inline: 'nearest',
     })
-  }, [activeId, reduceMotion])
+    return undefined
+  }, [resolvedActiveId, reduceMotion])
 
   const handleSectionClick = useCallback(
     (id) => {
       scrollLockRef.current = true
+      userNavigatedRef.current = true
       setActiveId(id)
       if (onNavigate) {
         onNavigate(id, {
@@ -127,59 +152,60 @@ export default function ReportSectionController({
   )
 
   const navProps = {
-    'aria-label': 'Indice del report',
+    'aria-label': REPORT_NAV_UI.ariaLabel,
     style: { '--section-nav-accent': accentColor },
   }
 
   const renderSectionLink = (section, variant) => {
-    const isActive = activeId === section.id
+    const isActive = resolvedActiveId === section.id
     const activeRef = variant === 'rail' ? activeRailBtnRef : activeMobileBtnRef
     return (
       <li
         key={`${variant}-${section.id}`}
-        className={`report-section-controller__section-li report-section-controller__section-li--${variant}`}
+        className={`report-section-controller__section-li report-section-controller__section-li--${variant}${section.isSub ? ' report-section-controller__section-li--sub' : ''}`}
       >
         <button
           type="button"
           ref={isActive ? activeRef : null}
-          className={`report-section-controller__section report-section-controller__section--${variant}`}
+          className={`report-section-controller__section report-section-controller__section--${variant}${section.isSub ? ' report-section-controller__section--sub' : ''}`}
           data-active={isActive ? 'true' : 'false'}
-          aria-current={isActive ? 'true' : undefined}
+          aria-current={isActive ? 'location' : undefined}
           onClick={() => handleSectionClick(section.id)}
         >
-          {section.label}
+          <span className="report-section-controller__section-copy">
+            <span className="report-section-controller__section-label">{section.label}</span>
+            {section.navHint ? (
+              <span className="report-section-controller__section-hint">{section.navHint}</span>
+            ) : null}
+          </span>
         </button>
       </li>
     )
   }
 
-  const renderGroup = (group, variant) => {
+  const renderStep = (group, variant) => {
     const childSections = sectionsByGroup.get(group.id) || []
     if (childSections.length === 0) return null
-    const isExpanded = Boolean(groupOpen[group.id])
-    const groupActive = childSections.some((s) => s.id === activeId)
-    const panelId = `report-nav-group-${variant}-${group.id}`
+    const stepActive = childSections.some((s) => s.id === resolvedActiveId)
+    const sectionsClass = `report-section-controller__step-sections report-section-controller__step-sections--${variant}`
 
     return (
       <li
-        key={`${variant}-group-${group.id}`}
-        className={`report-section-controller__group report-section-controller__group--${variant}${isExpanded ? ' report-section-controller__group--open' : ''}${groupActive ? ' report-section-controller__group--active' : ''}`}
+        key={`${variant}-step-${group.id}`}
+        className={`report-section-controller__step report-section-controller__step--${variant}${stepActive ? ' report-section-controller__step--active' : ''}`}
       >
-        <button
-          type="button"
-          className={`report-section-controller__group-trigger report-section-controller__group-trigger--${variant}`}
-          aria-expanded={isExpanded}
-          aria-controls={panelId}
-          onClick={() => onToggleGroup?.(group.id)}
-        >
-          <span className="report-section-controller__group-title">{group.title}</span>
-          <span className="report-section-controller__group-chevron" aria-hidden="true" />
-        </button>
-        <ul
-          id={panelId}
-          className={`report-section-controller__group-sections report-section-controller__group-sections--${variant}`}
-          hidden={!isExpanded}
-        >
+        <div className="report-section-controller__step-head">
+          <span className="report-section-controller__step-num" aria-hidden="true">
+            {group.stepLabel}
+          </span>
+          <div className="report-section-controller__step-copy">
+            <p className="report-section-controller__step-title">{group.title}</p>
+            {group.subtitle ? (
+              <span className="report-section-controller__step-subtitle">{group.subtitle}</span>
+            ) : null}
+          </div>
+        </div>
+        <ul className={sectionsClass}>
           {childSections.map((section) => renderSectionLink(section, variant))}
         </ul>
       </li>
@@ -198,7 +224,7 @@ export default function ReportSectionController({
           <p className="report-section-controller__index-hint">{REPORT_NAV_UI.indexHint}</p>
         </div>
         <ul ref={mobileListRef} className="report-section-controller__mobile-list">
-          {groups.map((group) => renderGroup(group, 'mobile'))}
+          {groups.map((group) => renderStep(group, 'mobile'))}
         </ul>
       </nav>
 
@@ -212,7 +238,7 @@ export default function ReportSectionController({
           <p className="report-section-controller__index-hint">{REPORT_NAV_UI.indexHint}</p>
         </div>
         <ul className="report-section-controller__rail-list">
-          {groups.map((group) => renderGroup(group, 'rail'))}
+          {groups.map((group) => renderStep(group, 'rail'))}
         </ul>
       </nav>
     </>

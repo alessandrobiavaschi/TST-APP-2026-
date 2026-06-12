@@ -10,6 +10,8 @@ export default function ReportSectionGroup({
   title,
   subtitle,
   intro,
+  stepLabel,
+  readingFocus,
   isOpen,
   onToggle,
   children,
@@ -30,10 +32,18 @@ export default function ReportSectionGroup({
         aria-controls={panelId}
         onClick={onToggle}
       >
+        {stepLabel ? (
+          <span className="report-section-group__step" aria-hidden="true">
+            {stepLabel}
+          </span>
+        ) : null}
         <span className="report-section-group__heading">
           <span className="report-section-group__title">{title}</span>
           {subtitle ? (
             <span className="report-section-group__subtitle">{subtitle}</span>
+          ) : null}
+          {readingFocus ? (
+            <span className="report-section-group__focus">{readingFocus}</span>
           ) : null}
         </span>
         <span className="report-section-group__chevron" aria-hidden="true" />

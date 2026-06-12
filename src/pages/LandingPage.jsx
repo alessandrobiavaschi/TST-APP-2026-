@@ -361,6 +361,14 @@ function LandingPage() {
           </p>
         </div>
 
+        <div className="landing-mobile-narrative">
+          <LandingNarrativeRail />
+        </div>
+
+        <div className="landing-mobile-preview">
+          <LandingPreviewShowcase />
+        </div>
+
         {/* Access section */}
         {!hasAuthenticatedSession && (
           <div className="landing-mobile-auth" ref={accessSectionRef}>
@@ -374,6 +382,7 @@ function LandingPage() {
             ) : (
               <div ref={accessBoxRef}>
                 <AuthBox
+                  initialMode={initialAuthMode}
                   onGoogleSignIn={handleGoogleLogin}
                   onEmailSubmit={handleAuthBoxEmailSubmit}
                   onRegisterSubmit={handleAuthBoxRegisterSubmit}
@@ -442,13 +451,13 @@ function LandingPage() {
           <main className="landing-apple-main" aria-labelledby="landing-apple-title">
             <section ref={heroIntroSectionRef} className="landing-apple-hero landing-apple-hero--intro">
               <div className="landing-apple-hero-intro">
-                <h1 className="landing-wind-title landing-apple-intro-title" aria-label="TST">
+                <p className="landing-wind-title landing-apple-intro-title" aria-hidden="true">
                   <span className="wind-title-wrapper">
                     <span className="wind-title-layer wind-title-layer--base">TST</span>
                     <span className="wind-title-layer wind-title-layer--shift1">TST</span>
                     <span className="wind-title-layer wind-title-layer--shift2">TST</span>
                   </span>
-                </h1>
+                </p>
                 <p className="landing-apple-intro-subtitle">TEST SONORO TEMPERAMENTALE</p>
                 <button type="button" className="landing-apple-start-cta" onClick={handleStartClick}>
                   Avvia

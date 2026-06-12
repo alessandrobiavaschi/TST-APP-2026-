@@ -7,11 +7,11 @@ const VIDEO_BY_COLOR = {
 }
 
 const STILL_BY_COLOR = {
-  blu: '/ANIMAZIONE FIORI/FERMO IMMAGINE/FERMO IMMAIGNE BLU.png',
-  giallo: '/ANIMAZIONE FIORI/FERMO IMMAGINE/FERMO IMMAIGNE GIALLO..png',
-  grigio: '/ANIMAZIONE FIORI/FERMO IMMAGINE/FERMO IMMAIGNE GRIGIO.png',
-  rosso: '/ANIMAZIONE FIORI/FERMO IMMAGINE/FERMO IMMAIGNE ROSSO..png',
-  verde: '/ANIMAZIONE FIORI/FERMO IMMAGINE/FERMO IMMAIGNE VERDE..png',
+  blu: '/images/bg_banana_blu.png',
+  giallo: '/images/bg_banana_giallo.png',
+  grigio: '/images/bg_banana_grigio.png',
+  rosso: '/images/bg_banana_rosso.png',
+  verde: '/images/bg_banana_verde.png',
 }
 
 function resolvePublicAssetPath(path) {

@@ -16,6 +16,12 @@
     #101827;
 }
 
+.dialogo-correnti__passage {
+  width: min(100%, 760px);
+  margin: 0 auto 1.5rem;
+  padding: 0;
+}
+
 /* ── Header ─────────────────────────────────────────────────────── */
 
 .dialogo-correnti__header {
@@ -260,8 +266,10 @@
   color: var(--dc-faint);
   line-height: 1.55;
   margin: 0.35rem 0 0;
-  padding: 0.6rem 0.75rem;
-  border-left: 2px solid var(--dc-border);
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--dc-border);
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.45);
 }
 
 /* ── Responsive ──────────────────────────────────────────────────── */

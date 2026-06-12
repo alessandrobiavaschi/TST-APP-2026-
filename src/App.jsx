@@ -17,8 +17,10 @@ import ReportPage from './pages/ReportPage.jsx'
 import InfoPage from './pages/InfoPage.jsx'
 import ProfilePage from './pages/ProfilePage.jsx'
 import TstPage from './pages/TstPage.jsx'
+import TutorialPage from './pages/TutorialPage.jsx'
 import { useSkyTheme } from './SkyThemeContext.jsx'
 import SkyBackground from './components/SkyBackground.jsx'
+import './styles/app-shell.css'
 import './App.css'
 import './styles/tst-mobile.css'
 
@@ -114,6 +116,8 @@ function App() {
   const mobileNavToggleRef = useRef(null)
   const mobileNavDrawerRef = useRef(null)
   const prevMobileNavOpenRef = useRef(false)
+  const accountMenuRef = useRef(null)
+  const accountButtonRef = useRef(null)
   const effectiveUser = currentUser || auth?.currentUser || null
   const isAuthenticated = Boolean(effectiveUser)
 
@@ -171,6 +175,32 @@ function App() {
       document.body.style.overflow = prev
     }
   }, [mobileNavOpen])
+
+  useEffect(() => {
+    if (!isAccountMenuOpen) return undefined
+
+    const handlePointerDown = (event) => {
+      const menu = accountMenuRef.current
+      const button = accountButtonRef.current
+      if (!menu || !button) return
+      if (menu.contains(event.target) || button.contains(event.target)) return
+      setIsAccountMenuOpen(false)
+    }
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setIsAccountMenuOpen(false)
+        accountButtonRef.current?.focus()
+      }
+    }
+
+    document.addEventListener('mousedown', handlePointerDown)
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown)
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isAccountMenuOpen])
 
   useEffect(() => {
     const onRitualFocus = (event) => {
@@ -363,8 +393,10 @@ function App() {
   return (
     <AuthContext.Provider value={{ user: effectiveUser, authReady }}>
       <div
-        className={`app-shell app-with-sky${cookieConsent === null ? ' has-gdpr-banner' : ''}${
-          ritualFocusActive ? ' is-ritual-focus' : ''
+        className={`app-shell app-with-sky${
+          cookieConsent === null && !testSessionActive ? ' has-gdpr-banner' : ''
+        }${ritualFocusActive ? ' is-ritual-focus' : ''}${
+          isReportPage || isTestFlowPage ? ' app-shell--immersive' : ''
         }${isReportPage ? ' app-shell--report' : ''}${
           isTestFlowPage ? ' app-shell--test-flow' : ''
         }`}
@@ -520,16 +552,26 @@ function App() {
               {isAuthenticated && (
                 <div className="header-avatar-wrapper">
                   <button
+                    ref={accountButtonRef}
                     type="button"
                     className="header-avatar"
+                    aria-expanded={isAccountMenuOpen}
+                    aria-haspopup="menu"
+                    aria-controls="header-account-menu"
                     onClick={() => setIsAccountMenuOpen((prev) => !prev)}
                   >
                     <span className="header-avatar-initials">{getUserInitials()}</span>
                   </button>
                   {isAccountMenuOpen && (
-                    <div className="header-account-menu">
+                    <div
+                      ref={accountMenuRef}
+                      id="header-account-menu"
+                      className="header-account-menu"
+                      role="menu"
+                    >
                       <button
                         type="button"
+                        role="menuitem"
                         className="header-account-menu-item"
                         onClick={() => {
                           setIsAccountMenuOpen(false)
@@ -540,6 +582,7 @@ function App() {
                       </button>
                       <button
                         type="button"
+                        role="menuitem"
                         className="header-account-menu-item"
                         onClick={handleLogoutClick}
                       >
@@ -735,6 +778,7 @@ function App() {
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/home" element={<HomePage />} />
                 <Route path="/nuovo-test" element={<NewTestPage />} />
+                <Route path="/tutorial" element={<TutorialPage />} />
                 <Route path="/tst" element={<TstPage />} />
                 <Route path="/risultati" element={<ResultsPage />} />
                 <Route path="/risultati/report" element={<ReportPage />} />
@@ -746,7 +790,7 @@ function App() {
           </div>
         </main>
         {cookieConsent === null && !testSessionActive && (
-          <div className="gdpr-banner">
+          <div className="gdpr-banner" role="region" aria-label="Consenso cookie">
             <p className="gdpr-banner-text">
               Questo sito utilizza cookie tecnici necessari al funzionamento del servizio e, solo previo
               tuo consenso esplicito, strumenti di analisi per migliorare l&apos;esperienza d&apos;uso.

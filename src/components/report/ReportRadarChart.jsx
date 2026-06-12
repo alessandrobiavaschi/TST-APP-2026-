@@ -5,6 +5,7 @@ import {
   RadarChart,
   PolarGrid,
   PolarAngleAxis,
+  PolarRadiusAxis,
   Radar,
 } from 'recharts'
 
@@ -55,6 +56,8 @@ export function ReportRadarAxisTick({ x, y, payload, textAnchor }) {
  * @param {string} [outerRadius='72%']
  * @param {string} [className]
  * @param {string} [ariaLabel]
+ * @param {string} [scaleLabel] — didascalia unità (es. "Attivazione %")
+ * @param {[number, number]} [domain] — dominio assi radiali
  */
 export default function ReportRadarChart({
   data = [],
@@ -63,6 +66,8 @@ export default function ReportRadarChart({
   outerRadius = '72%',
   className = '',
   ariaLabel = 'Grafico radar delle cinque correnti emotive',
+  scaleLabel = '',
+  domain = null,
 }) {
   const reduceMotion = useReducedMotion()
   const strokeColor = color || FALLBACK_COLOR
@@ -80,10 +85,23 @@ export default function ReportRadarChart({
       aria-label={ariaLabel}
       style={{ width: '100%', minHeight: height }}
     >
-      <ResponsiveContainer width="100%" height={height}>
+      {scaleLabel ? (
+        <p className="report-radar-chart__scale" aria-hidden="true">
+          {scaleLabel}
+        </p>
+      ) : null}
+      <ResponsiveContainer width="100%" height={height} debounce={100}>
         <RadarChart data={radarData} outerRadius={outerRadius}>
           <PolarGrid stroke="#334155" strokeOpacity={0.5} />
           <PolarAngleAxis dataKey="corrente" tick={<ReportRadarAxisTick />} />
+          {domain ? (
+            <PolarRadiusAxis
+              angle={90}
+              domain={domain}
+              tick={{ fill: '#64748b', fontSize: 10 }}
+              axisLine={false}
+            />
+          ) : null}
           <Radar
             dataKey="valore"
             stroke={hexToRgba(strokeColor, 0.8)}

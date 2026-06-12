@@ -506,6 +506,40 @@
     justify-content: center;
   }
 
+  .landing-mobile-cta-link {
+    min-height: 44px;
+    padding: 0.5rem 0.25rem;
+    border: 0;
+    background: transparent;
+    color: var(--tst-accent-soft);
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: var(--tst-font);
+    text-align: center;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .landing-mobile-cta-link:hover {
+    color: #a5f3fc;
+  }
+
+  .landing-mobile-cta-link:focus-visible {
+    outline: 2px solid var(--tst-accent);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  .app-mobile-nav-link:focus-visible,
+  .app-mobile-nav-action:focus-visible,
+  .app-mobile-drawer-close:focus-visible,
+  .app-mobile-drawer-logout:focus-visible,
+  .app-mobile-toggle-pill:focus-visible {
+    outline: 2px solid var(--tst-accent);
+    outline-offset: 2px;
+  }
+
   /* Feature tiles */
   .landing-mobile-tile {
     margin: 0 16px 12px;
@@ -575,6 +609,20 @@
   }
 
   /* Landing mobile auth section */
+  .landing-mobile-narrative,
+  .landing-mobile-preview {
+    margin: 0 16px 16px;
+  }
+
+  .landing-mobile-narrative .landing-apple-narrative-rail {
+    border-radius: 18px;
+    overflow: hidden;
+  }
+
+  .landing-mobile-preview .landing-preview-shell {
+    border-radius: 18px;
+  }
+
   .landing-mobile-auth {
     padding: 24px 16px 32px;
     background: #f5f5f7;

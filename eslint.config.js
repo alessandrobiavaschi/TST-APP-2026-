@@ -52,6 +52,7 @@ export default defineConfig([
       // react-hooks v7: setState in useEffect è un warning per pattern legittimi
       // (hydration da localStorage, sync con deps esterne) — abbassato a warn
       'react-hooks/react-compiler': 'off',
+      'react-hooks/set-state-in-effect': 'off',
     },
   },
 ])

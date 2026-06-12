@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import { getDialogoCoppie, getFamigliaLabel, getFamigliaDot } from '../../content/dialogoCorrenti.js'
-import { DIALOGO_UI } from './reportUiCopy.js'
+import { DIALOGO_UI, REPORT_CRITERION } from './reportUiCopy.js'
+import ReportPassageHeader from './ReportPassageHeader.jsx'
 import '../../styles/dialogo-correnti.css'
 
 function KeywordChips({ keywords = [], color }) {
@@ -46,7 +47,12 @@ function CoppiaCard({ coppia, isOpen, onToggle }) {
               aria-hidden="true"
             />
             <span className="dialogo-correnti__family-name">{baseLabel}</span>
-            <span className="dialogo-correnti__family-pct">{coppia.baseWeight}%</span>
+            <span
+              className="dialogo-correnti__family-pct"
+              title={DIALOGO_UI.quotaPctTitle || REPORT_CRITERION.quotaGrezza}
+            >
+              {coppia.baseWeight}%
+            </span>
           </span>
           <span className="dialogo-correnti__card-arrow" aria-hidden="true">↔</span>
           <span className="dialogo-correnti__card-family">
@@ -56,7 +62,12 @@ function CoppiaCard({ coppia, isOpen, onToggle }) {
               aria-hidden="true"
             />
             <span className="dialogo-correnti__family-name">{partnerLabel}</span>
-            <span className="dialogo-correnti__family-pct">{coppia.partnerWeight}%</span>
+            <span
+              className="dialogo-correnti__family-pct"
+              title={DIALOGO_UI.quotaPctTitle || REPORT_CRITERION.quotaGrezza}
+            >
+              {coppia.partnerWeight}%
+            </span>
           </span>
         </span>
         <span className="dialogo-correnti__card-chevron" aria-hidden="true">
@@ -104,20 +115,19 @@ export default function DialogoCorrenti({ colorTotals = {}, accentColor = '' }) 
 
   return (
     <section
-      id="report-tst-dialogo"
-      className="dialogo-correnti report-tst-section-anchor report-section"
+      className="dialogo-correnti"
       aria-labelledby="dialogo-correnti-heading"
       style={{ '--dc-accent': resolvedAccent }}
     >
-      <header className="dialogo-correnti__header">
-        <p className="dialogo-correnti__eyebrow">{DIALOGO_UI.eyebrow}</p>
-        <h2 id="dialogo-correnti-heading" className="dialogo-correnti__title">
-          {DIALOGO_UI.title}
-        </h2>
-        <p className="dialogo-correnti__subtitle">
-          {DIALOGO_UI.subtitle(dominantLabel, coppie.length)}
-        </p>
-      </header>
+      <ReportPassageHeader
+        step="3"
+        eyebrow={DIALOGO_UI.eyebrow}
+        title={DIALOGO_UI.title}
+        lead={DIALOGO_UI.lead(dominantLabel, coppie.length)}
+        accentColor={resolvedAccent}
+        titleId="dialogo-correnti-heading"
+        className="dialogo-correnti__passage"
+      />
 
       <div className="dialogo-correnti__cards">
         {coppie.map((coppia, i) => (

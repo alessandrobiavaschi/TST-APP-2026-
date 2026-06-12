@@ -9,7 +9,10 @@ import {
   Legend as BarLegend,
 } from 'recharts'
 import ReportAccordion from './ReportAccordion'
-import { APPROFONDIMENTO_UI } from './reportUiCopy.js'
+import ReportPassageHeader from './ReportPassageHeader.jsx'
+import PlainLanguageBox from './PlainLanguageBox.jsx'
+import InfoTip from './InfoTip.jsx'
+import { APPROFONDIMENTO_AREAS, APPROFONDIMENTO_UI } from './reportUiCopy.js'
 
 const BAR_COLORS = {
   Blu: '#3b82f6',
@@ -40,6 +43,18 @@ function OperatorLegend() {
         </span>
       ))}
     </div>
+  )
+}
+
+function AreaGlossaryRow() {
+  return (
+    <ul className="report-operator-areas" aria-label="Le cinque aree del test sonoro">
+      {APPROFONDIMENTO_AREAS.map((nome) => (
+        <li key={nome} className="report-operator-areas__item">
+          <InfoTip term={nome} tip={APPROFONDIMENTO_UI.areaTips[nome]} />
+        </li>
+      ))}
+    </ul>
   )
 }
 
@@ -79,7 +94,7 @@ function AreaChip({ area }) {
   )
 }
 
-function FiltroMusicalePanel({ filtroMusicale }) {
+function FiltroMusicalePanel({ filtroMusicale, accentColor }) {
   if (!filtroMusicale?.hasData) return null
 
   return (
@@ -89,11 +104,17 @@ function FiltroMusicalePanel({ filtroMusicale }) {
       aria-labelledby="report-filtro-musicale-heading"
     >
       <header className="report-filtro-musicale__header">
-        <p className="report-filtro-musicale__eyebrow">Dati finali</p>
-        <h3 id="report-filtro-musicale-heading" className="report-filtro-musicale__title">
-          Filtro musicale
-        </h3>
+        <div className="report-filtro-musicale__header-text">
+          <p className="report-filtro-musicale__eyebrow">{APPROFONDIMENTO_UI.filtroEyebrow}</p>
+          <h3 id="report-filtro-musicale-heading" className="report-filtro-musicale__title">
+            {APPROFONDIMENTO_UI.filtroTitle}
+          </h3>
+        </div>
       </header>
+
+      <PlainLanguageBox accentColor={accentColor} className="report-filtro-musicale__plain">
+        {APPROFONDIMENTO_UI.filtroLead}
+      </PlainLanguageBox>
 
       <dl className="report-filtro-musicale__grid">
         {filtroMusicale.areeMaggiorAgio?.length ? (
@@ -133,29 +154,53 @@ function FiltroMusicalePanel({ filtroMusicale }) {
   )
 }
 
-export default function OperatorSection({ sezioniData, sezioniTest, filtroMusicale }) {
-  return (
-    <section id="report-operatori" className="report-operator-section report-xp-section" aria-labelledby="operator-heading">
-      <header className="report-operator-header">
-        <h2 id="operator-heading" className="report-operator-title">
-          {APPROFONDIMENTO_UI.title}
-        </h2>
-        <div className="report-operator-title-line" aria-hidden />
-        <p className="report-operator-intro">
-          {APPROFONDIMENTO_UI.intro}
-        </p>
-      </header>
+export default function OperatorSection({
+  sezioniData,
+  sezioniTest,
+  filtroMusicale,
+  correnteColore = '#4ade80',
+}) {
+  const accent = correnteColore || '#4ade80'
 
-      {/* Bar chart sezioni */}
+  return (
+    <section
+      id="report-operatori"
+      className="report-operator-section report-xp-section"
+      aria-labelledby="operator-heading"
+    >
+      <ReportPassageHeader
+        step="5"
+        eyebrow={APPROFONDIMENTO_UI.eyebrow}
+        title={APPROFONDIMENTO_UI.title}
+        lead={APPROFONDIMENTO_UI.lead}
+        accentColor={accent}
+        titleId="operator-heading"
+      />
+
+      <PlainLanguageBox
+        title={APPROFONDIMENTO_UI.chartPlainTitle}
+        accentColor={accent}
+        className="report-operator-chart-plain"
+      >
+        {APPROFONDIMENTO_UI.chartPlainSummary}
+      </PlainLanguageBox>
+
+      <AreaGlossaryRow />
+
       <div className="report-operator-chart-block">
-        <div className="h-[260px] w-full">
+        <p className="report-operator-chart-caption">{APPROFONDIMENTO_UI.chartCaption}</p>
+        <div className="report-operator-chart-canvas">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={sezioniData || []} margin={{ top: 16, right: 16, bottom: 16, left: 8 }}>
               <XAxis dataKey="nome" stroke="#64748b" tick={{ fontSize: 12 }} />
               <YAxis stroke="#64748b" tick={{ fontSize: 12 }} />
               <Tooltip
                 formatter={(value) => [value?.toFixed?.(0) ?? value, '']}
-                contentStyle={{ borderRadius: 12, border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                contentStyle={{
+                  borderRadius: 12,
+                  border: '1px solid #e2e8f0',
+                  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                }}
                 labelStyle={{ fontWeight: 600 }}
                 cursor={{ fill: 'rgba(148, 163, 184, 0.15)' }}
               />
@@ -170,7 +215,7 @@ export default function OperatorSection({ sezioniData, sezioniTest, filtroMusica
         </div>
       </div>
 
-      <FiltroMusicalePanel filtroMusicale={filtroMusicale} />
+      <FiltroMusicalePanel filtroMusicale={filtroMusicale} accentColor={accent} />
 
       <ReportAccordion sezioniTest={sezioniTest} />
     </section>

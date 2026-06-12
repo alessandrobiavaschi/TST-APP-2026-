@@ -278,6 +278,60 @@ function HomePage() {
           )}
 
           <div className="my-area-shell">
+            <section className="my-area-actions" aria-labelledby="my-area-actions-title">
+              <div className="my-area-actions-head">
+                <h2 id="my-area-actions-title" className="my-area-actions-title">
+                  Cosa vuoi fare ora?
+                </h2>
+                <p className="my-area-actions-hint">
+                  Avvia un nuovo test o riprendi dalla lettura dei risultati.
+                </p>
+              </div>
+              <div className="my-area-actions-grid">
+                <button
+                  type="button"
+                  className="my-area-card my-area-card--primary"
+                  onClick={() => navigate('/nuovo-test')}
+                >
+                  <span className="my-area-card-icon my-area-card-icon--play" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 24 24" focusable="false">
+                      <path fill="currentColor" d="M8 5.5v13l10-6.5z" />
+                    </svg>
+                  </span>
+                  <h3>Nuovo test</h3>
+                  <p>Avvia subito il percorso sonoro da 72 passi.</p>
+                </button>
+
+                <button
+                  type="button"
+                  className="my-area-card"
+                  onClick={() => navigate('/risultati')}
+                >
+                  <span className="my-area-card-icon my-area-card-icon--chart" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 24 24" focusable="false">
+                      <path fill="currentColor" d="M5 19h14v2H3V5h2v14Zm3-2V9h3v8H8Zm5 0V4h3v13h-3Zm5 0v-6h3v6h-3Z" />
+                    </svg>
+                  </span>
+                  <h3>Risultati</h3>
+                  <p>Consulta report, archivio e sessioni precedenti.</p>
+                </button>
+
+                <button
+                  type="button"
+                  className="my-area-card"
+                  onClick={() => navigate('/tst')}
+                >
+                  <span className="my-area-card-icon my-area-card-icon--book" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 24 24" focusable="false">
+                      <path fill="currentColor" d="M5 4.5A2.5 2.5 0 0 1 7.5 2H20v17H7.5A2.5 2.5 0 0 0 5 21.5v-17Zm2.5-.5a.5.5 0 0 0-.5.5v13.05A4.48 4.48 0 0 1 7.5 17H18V4H7.5Z" />
+                    </svg>
+                  </span>
+                  <h3>Scopri il TST</h3>
+                  <p>Rivedi struttura e finalità del test temperamentale.</p>
+                </button>
+              </div>
+            </section>
+
             <div className="my-area-column my-area-column--main">
               <div className="my-area-account account-management">
                 <h2>Gestione account operatore</h2>
@@ -480,13 +534,22 @@ function HomePage() {
                     <p className="landing-flow-inline-cta-text">
                       Vuoi prima esplorare il metodo in dettaglio?
                     </p>
-                    <button
-                      type="button"
-                      className="landing-secondary-cta"
-                      onClick={() => navigate('/tst')}
-                    >
-                      Vedi come funziona
-                    </button>
+                    <div className="landing-flow-inline-cta-actions">
+                      <button
+                        type="button"
+                        className="landing-secondary-cta"
+                        onClick={() => navigate('/tst')}
+                      >
+                        Vedi come funziona
+                      </button>
+                      <button
+                        type="button"
+                        className="landing-secondary-cta"
+                        onClick={() => navigate('/tutorial', { state: { fromPath: '/home' } })}
+                      >
+                        Tutorial ascolto
+                      </button>
+                    </div>
                   </div>
                 </section>
 

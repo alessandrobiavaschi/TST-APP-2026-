@@ -2,7 +2,9 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { getRelationalCorpusForDominant } from '../../content/relationalDeductions.js'
 import { FAMILY_NAME_BY_KEY, FAMILY_THEME } from '../../config/reportFamilyTheme.js'
 import { getSolarPlanetScore } from '../../utils/solarPlanetScores.js'
-import { MAPPA_UI } from './reportUiCopy.js'
+import ReportPassageHeader from './ReportPassageHeader.jsx'
+import { MAPPA_UI, REPORT_CRITERION } from './reportUiCopy.js'
+import PlainLanguageBox from './PlainLanguageBox.jsx'
 
 const PLANETS = [
   {
@@ -90,25 +92,6 @@ function buildPlanetState({ correnti, rawRecord, activePlanetId }) {
   }))
 }
 
-function OperatorReadingFrame() {
-  return (
-    <div className="emotional-integrations__method" aria-labelledby="emotional-method-title">
-      <div>
-        <p className="emotional-integrations__metric-label">Guida</p>
-        <h3 id="emotional-method-title">{MAPPA_UI.methodTitle}</h3>
-        {MAPPA_UI.methodParagraphs.map((paragraph) => (
-          <p key={paragraph}>{paragraph}</p>
-        ))}
-      </div>
-      <ul className="emotional-integrations__method-list">
-        {MAPPA_UI.methodPoints.map((point) => (
-          <li key={point}>{point}</li>
-        ))}
-      </ul>
-    </div>
-  )
-}
-
 function SolarEmotionSystem({
   correnti,
   rawRecord,
@@ -170,7 +153,7 @@ function SolarEmotionSystem({
                 key={planet.id}
                 role="button"
                 tabIndex={0}
-                aria-label={`Seleziona ${planet.label}, peso ${Math.round(planet.score)} per cento`}
+                aria-label={`Seleziona ${planet.label}, ${REPORT_CRITERION.attivazioneShort} ${Math.round(planet.score)} per cento`}
                 aria-pressed={planet.isActive}
                 onClick={selectPlanet}
                 onKeyDown={(event) => {
@@ -235,7 +218,7 @@ function SolarEmotionSystem({
           <p className="emotional-integrations__metric-label">Pianeta attivo</p>
           <h4>{activePlanet.label}</h4>
           <p>
-            Peso nel profilo: <strong>{Math.round(activePlanet.score)}%</strong>
+            {REPORT_CRITERION.attivazione}: <strong>{Math.round(activePlanet.score)}%</strong>
           </p>
           {activePlanet.descrizione ? (
             <p className="emotional-integrations__copy">{activePlanet.descrizione}</p>
@@ -265,7 +248,7 @@ function SolarEmotionSystem({
                 >
                   <span aria-hidden="true" />
                   {p.label}
-                  <small>{Math.round(p.score)}%</small>
+                  <small title={REPORT_CRITERION.attivazione}>{Math.round(p.score)}%</small>
                 </button>
               ))}
           </div>
@@ -420,32 +403,66 @@ export default function EmotionalIntegrations({
   profilo = {},
   onOpenGalassia,
 }) {
+  const accentColor = profilo?.colore || '#4ade80'
+
   return (
     <section
       id="report-tst-mappa"
       className="emotional-integrations report-tst-section-anchor"
       aria-labelledby="emotional-integrations-title"
     >
+      <ReportPassageHeader
+        step="3"
+        eyebrow={MAPPA_UI.eyebrow}
+        title={MAPPA_UI.title}
+        lead={MAPPA_UI.simpleLead}
+        accentColor={accentColor}
+        titleId="emotional-integrations-title"
+      />
       <div className="emotional-integrations__intro">
-        <p className="emotional-integrations__eyebrow">{MAPPA_UI.eyebrow}</p>
-        <h2 id="emotional-integrations-title" className="emotional-integrations__heading">
-          {MAPPA_UI.title}
-        </h2>
-        <p>{MAPPA_UI.intro}</p>
+        <PlainLanguageBox
+          title={MAPPA_UI.summaryBoxTitle}
+          accentColor={accentColor}
+          className="emotional-integrations__summary-box"
+        >
+          {MAPPA_UI.summaryZero}
+        </PlainLanguageBox>
+        {MAPPA_UI.methodPoints?.length > 0 ? (
+          <ul className="emotional-integrations__summary-points">
+            {MAPPA_UI.methodPoints.map((point) => (
+              <li key={point}>{point}</li>
+            ))}
+          </ul>
+        ) : null}
+        {onOpenGalassia ? (
+          <button
+            type="button"
+            className="nav-button secondary emotional-integrations__galassia-link emotional-integrations__galassia-link--intro"
+            onClick={onOpenGalassia}
+          >
+            Apri in Galassia
+          </button>
+        ) : null}
       </div>
 
-      <OperatorReadingFrame />
-      <SolarEmotionSystem
-        correnti={correnti}
-        rawRecord={rawRecord}
-        dominantFamilyKey={String(profilo?.famiglia || '').toLowerCase()}
-        onOpenGalassia={onOpenGalassia}
-      />
-      <RelationalDeductionsSection
-        key={`${profilo?.correnteDominante || ''}-${profilo?.famiglia || ''}`}
-        correnteDominante={profilo?.correnteDominante}
-        famiglia={profilo?.famiglia}
-      />
+      <details className="emotional-integrations__advanced">
+        <summary className="emotional-integrations__advanced-toggle">
+          {MAPPA_UI.advancedToggle}
+        </summary>
+        <div className="emotional-integrations__advanced-body">
+          <SolarEmotionSystem
+            correnti={correnti}
+            rawRecord={rawRecord}
+            dominantFamilyKey={String(profilo?.famiglia || '').toLowerCase()}
+            onOpenGalassia={onOpenGalassia}
+          />
+          <RelationalDeductionsSection
+            key={`${profilo?.correnteDominante || ''}-${profilo?.famiglia || ''}`}
+            correnteDominante={profilo?.correnteDominante}
+            famiglia={profilo?.famiglia}
+          />
+        </div>
+      </details>
     </section>
   )
 }

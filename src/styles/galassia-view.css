@@ -1395,7 +1395,6 @@
 .galassia-view__constellation {
   position: absolute;
   z-index: 18;
-  transform: translate(-50%, -50%);
   pointer-events: none;
   background: transparent;
   border: none;
@@ -1636,7 +1635,6 @@
   --galassia-edge: clamp(18px, 2vw, 32px);
   --galassia-panel-width: clamp(380px, 29vw, 500px);
   --galassia-panel-top: clamp(76px, 8vh, 96px);
-  --galassia-map-top: clamp(124px, 14vh, 152px);
   --galassia-map-bottom: clamp(20px, 3vh, 36px);
   --galassia-panel-space: calc(
     var(--galassia-panel-width) + var(--galassia-edge) + var(--galassia-edge)
@@ -2020,7 +2018,7 @@
   }
 
   .galassia-view--zoomed {
-    --galassia-panel-height: min(36svh, 330px);
+    --galassia-panel-height: min(42svh, 400px);
     --galassia-map-bottom: calc(var(--galassia-panel-height) + 24px);
   }
 
@@ -2064,7 +2062,7 @@
   }
 
   .galassia-view--zoomed {
-    --galassia-panel-height: min(41svh, 340px);
+    --galassia-panel-height: min(46svh, 390px);
     --galassia-map-bottom: calc(var(--galassia-panel-height) + 18px);
   }
 
@@ -2163,7 +2161,7 @@
 .galassia-view {
   --galassia-edge: clamp(12px, 1.6vw, 24px);
   --galassia-map-top: clamp(108px, 12vh, 132px);
-  --galassia-panel-height: clamp(148px, 20vh, 196px);
+  --galassia-panel-height: clamp(220px, 28vh, 320px);
   --galassia-map-bottom: calc(var(--galassia-panel-height) + var(--galassia-edge) + 8px);
   --galassia-panel-space: var(--galassia-edge);
   height: 100% !important;
@@ -2183,6 +2181,12 @@
     var(--galassia-edge)
     var(--galassia-map-bottom)
     var(--galassia-edge);
+}
+
+/* On desktop, zoomed view gets a much taller panel */
+.galassia-view--zoomed {
+  --galassia-panel-height: min(44vh, 440px);
+  --galassia-map-bottom: calc(var(--galassia-panel-height) + var(--galassia-edge) + 8px);
 }
 
 .galassia-view--zoomed .galassia-view__map-canvas {
@@ -2217,6 +2221,8 @@
   width: auto !important;
   height: auto;
   max-height: var(--galassia-panel-height) !important;
+  will-change: transform;
+  contain: layout;
 }
 
 .galassia-view__crt-bezel {
@@ -2260,6 +2266,206 @@
 
 .galassia-view__crt-hint--compact {
   padding: 0.28rem 0.4rem;
+}
+
+.galassia-view__crt-intro {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--galassia-crt-text);
+}
+
+.galassia-view__crt-scale-note {
+  margin: 0;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: var(--galassia-crt-muted);
+}
+
+.galassia-view__rapporti-orientation {
+  margin: 0.35rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.42rem;
+}
+
+.galassia-view__rapporti-orientation li {
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.35rem 0.45rem;
+  border: 1px solid rgba(120, 180, 80, 0.22);
+  border-radius: 0.35rem;
+  background: rgba(2, 8, 23, 0.35);
+}
+
+.galassia-view__rapporti-orientation strong {
+  font-size: 0.74rem;
+  color: var(--galassia-crt-text);
+}
+
+.galassia-view__rapporti-orientation span {
+  font-size: 0.68rem;
+  color: var(--galassia-crt-muted);
+}
+
+.galassia-view__rapporti-orientation em {
+  font-size: 0.72rem;
+  font-style: normal;
+  line-height: 1.35;
+  color: rgba(210, 255, 170, 0.82);
+}
+
+.galassia-view__portato-triad {
+  display: grid;
+  gap: 0.42rem;
+  margin: 0.2rem 0 0.35rem;
+}
+
+.galassia-view__portato-triad--compact {
+  gap: 0.32rem;
+}
+
+.galassia-view__portato-triad-bar {
+  display: flex;
+  width: 100%;
+  min-height: 0.42rem;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  background: rgba(2, 8, 23, 0.55);
+}
+
+.galassia-view__portato-triad-segment {
+  min-width: 2px;
+  transition: flex-grow 0.35s ease;
+}
+
+.galassia-view__portato-triad-legend {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.22rem;
+}
+
+.galassia-view__portato-triad-legend li {
+  display: grid;
+  grid-template-columns: 0.55rem 1fr auto;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.7rem;
+  color: var(--galassia-crt-muted);
+}
+
+.galassia-view__portato-triad-swatch {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 999px;
+}
+
+.galassia-view__portato-triad-legend strong {
+  color: var(--galassia-crt-text);
+  font-weight: 600;
+}
+
+.galassia-view__portato-triad-legend em {
+  font-style: normal;
+  color: rgba(210, 255, 170, 0.82);
+}
+
+.galassia-view__portato-triad-axis {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.2rem 0.5rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(148, 163, 184, 0.78);
+}
+
+.galassia-view__portato-triad-axis span:first-child {
+  justify-self: start;
+}
+
+.galassia-view__portato-triad-axis span:nth-child(2) {
+  justify-self: end;
+}
+
+.galassia-view__portato-triad-axis span:last-child {
+  grid-column: 1 / -1;
+  justify-self: center;
+}
+
+.galassia-view__portato-triangle {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.galassia-view__portato-triangle polygon {
+  fill: rgba(74, 222, 128, 0.04);
+  stroke: rgba(148, 163, 184, 0.22);
+  stroke-width: 0.35;
+  stroke-dasharray: 1.2 0.8;
+}
+
+.galassia-view__portato-axis-labels {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.galassia-view__portato-axis-label {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(203, 213, 225, 0.72);
+  white-space: nowrap;
+}
+
+.galassia-view__portato-axis-label--simpatia {
+  color: rgba(134, 239, 172, 0.82);
+}
+
+.galassia-view__portato-axis-label--antipatia {
+  color: rgba(252, 165, 165, 0.82);
+}
+
+.galassia-view__portato-map-triad {
+  position: absolute;
+  left: 50%;
+  bottom: 8%;
+  transform: translateX(-50%);
+  width: min(72%, 22rem);
+  z-index: 3;
+  pointer-events: none;
+}
+
+.galassia-view__portato-map-triad .galassia-view__portato-triad-bar {
+  min-height: 0.5rem;
+  box-shadow: 0 0 18px rgba(2, 8, 23, 0.65);
+}
+
+.galassia-view__crt-indica--portato {
+  line-height: 1.48;
+}
+
+.galassia-view__crt-meta--vitalita {
+  padding: 0.28rem 0.38rem;
+  border-radius: 0.35rem;
+  background: rgba(2, 8, 23, 0.42);
+  border: 1px solid rgba(120, 180, 80, 0.18);
+}
+
+.galassia-view--mode-portato .galassia-view__planet-label strong {
+  max-width: 9.5rem;
 }
 
 .galassia-view__crt-title-dot {
@@ -2403,6 +2609,23 @@
   color: rgba(226, 232, 240, 0.78);
 }
 
+/* Nucleo costellazione: vignetta solo su hover / focus (come i satellite) */
+.galassia-view--zoomed .galassia-view__constellation-core-label {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(4px);
+  transition: opacity 0.16s ease, visibility 0.16s ease, transform 0.16s ease;
+}
+
+.galassia-view--zoomed .galassia-view__constellation-core--show-label .galassia-view__constellation-core-label,
+.galassia-view--zoomed .galassia-view__constellation-core:hover .galassia-view__constellation-core-label,
+.galassia-view--zoomed .galassia-view__constellation-core:focus-visible .galassia-view__constellation-core-label {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
 .galassia-view--zoomed {
   --galassia-map-top: clamp(64px, 9vh, 88px);
   --galassia-map-bottom: calc(var(--galassia-panel-height) + var(--galassia-edge) + 8px);
@@ -2515,7 +2738,6 @@
 /* Overview: pannello basso compatto, colonna singola, niente scroll pagina */
 .galassia-view--overview {
   --galassia-panel-height: clamp(148px, 18vh, 180px);
-  --galassia-map-top: clamp(100px, 11vh, 124px);
   --galassia-map-bottom: calc(var(--galassia-panel-height) + var(--galassia-edge) + 6px);
 }
 
@@ -2616,6 +2838,28 @@
 
 .galassia-view--zoomed .galassia-view__constellation {
   transform-origin: center center;
+}
+
+/* Costellazione sostituisce il pianeta selezionato: evita doppio cerchio al centro */
+.galassia-view--zoomed .galassia-view__planet-wrap--selected .galassia-view__planet-label,
+.galassia-view--zoomed .galassia-view__planet-wrap--selected button > span {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Mobile: etichette satellite solo su attivo / hover (classe da JSX) */
+@media (max-width: 768px) {
+  .galassia-view--zoomed .galassia-view__constellation-wrap:not(.galassia-view__constellation-wrap--show-label) .galassia-view__constellation-label {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  .galassia-view--zoomed .galassia-view__constellation-wrap--show-label .galassia-view__constellation-label {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
 }
 
 /* Galassia 2.0: rosa dei venti, relazioni e pannello data-first */
@@ -2894,5 +3138,1488 @@
 
   .galassia-view__profile-metrics > div {
     padding: 0.46rem 0.55rem;
+  }
+}
+
+/* Galassia leggibile: chrome compatto, mappa ampia, guida opzionale */
+.galassia-view {
+  --galassia-chrome-height: clamp(84px, 9.5vh, 102px);
+  --galassia-deck-top: calc(var(--galassia-edge) + var(--galassia-chrome-height) + 6px);
+  --galassia-deck-height: 0px;
+  --galassia-map-top: calc(var(--galassia-edge) + var(--galassia-chrome-height) + 8px);
+  --galassia-panel-height: clamp(220px, 28vh, 320px);
+  --galassia-map-bottom: calc(var(--galassia-panel-height) + var(--galassia-edge) + 8px);
+}
+
+.galassia-view--overview {
+  --galassia-panel-height: clamp(132px, 18vh, 164px);
+}
+
+.galassia-view--overview.galassia-view--guide-open {
+  --galassia-deck-height: clamp(96px, 12vh, 118px);
+  --galassia-map-top: calc(var(--galassia-deck-top) + var(--galassia-deck-height) + 8px);
+}
+
+.galassia-view--zoomed {
+  --galassia-map-top: clamp(64px, 9vh, 88px);
+}
+
+.galassia-view__chrome {
+  position: absolute;
+  z-index: 42;
+  top: var(--galassia-edge);
+  left: var(--galassia-edge);
+  right: var(--galassia-panel-space);
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  pointer-events: none;
+}
+
+.galassia-view__scene-head {
+  position: static !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  width: 100% !important;
+  max-width: none !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 0.65rem !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  pointer-events: none;
+}
+
+.galassia-view__scene-head-copy {
+  flex: 1 1 auto;
+  min-width: 0;
+  pointer-events: none;
+}
+
+.galassia-view__scene-head-copy p,
+.galassia-view__scene-head-copy span {
+  display: none;
+}
+
+.galassia-view__scene-head-copy h1 {
+  margin: 0 !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.galassia-view__head-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+  pointer-events: auto;
+}
+
+.galassia-view__guide-toggle {
+  min-height: 2.1rem;
+  padding: 0 0.72rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  background: rgba(15, 23, 42, 0.62);
+  color: rgba(226, 232, 240, 0.9);
+  font-family: var(--font-body, Inter, ui-sans-serif, system-ui, sans-serif);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.galassia-view__guide-toggle--active {
+  border-color: rgba(125, 211, 252, 0.42);
+  background: rgba(12, 74, 110, 0.52);
+  color: rgba(248, 250, 252, 0.98);
+}
+
+.galassia-view__guide-toggle:focus-visible {
+  outline: 2px solid rgba(125, 211, 252, 0.8);
+  outline-offset: 2px;
+}
+
+.galassia-view__mode-switch {
+  position: static !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 0.35rem !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  pointer-events: auto;
+}
+
+.galassia-view__insight-deck {
+  position: absolute;
+  z-index: 38;
+  top: var(--galassia-deck-top);
+  left: var(--galassia-edge);
+  right: var(--galassia-panel-space);
+  height: var(--galassia-deck-height);
+  display: none;
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+.galassia-view--guide-open .galassia-view__insight-deck {
+  display: block;
+}
+
+.galassia-view__insight-deck--guide-only {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.galassia-view--overview.galassia-view--idle {
+  --galassia-panel-height: 0px;
+  --galassia-map-bottom: calc(var(--galassia-edge) + 88px);
+}
+
+.galassia-view--overview.galassia-view--selected {
+  --galassia-panel-height: clamp(220px, 28vh, 300px);
+  --galassia-map-bottom: calc(var(--galassia-panel-height) + var(--galassia-edge) + 8px);
+}
+
+.galassia-view--overview.galassia-view--idle .galassia-view__crt {
+  display: none;
+}
+
+.galassia-view--overview .galassia-view__crt-screen:not(.galassia-view__crt-screen--compact) {
+  display: flex !important;
+  flex-direction: column;
+  gap: 0.38rem;
+  grid-template-columns: unset !important;
+}
+
+.galassia-view__map-hint {
+  position: absolute;
+  z-index: 36;
+  left: 50%;
+  bottom: calc(var(--galassia-edge) + 0.35rem);
+  transform: translateX(-50%);
+  width: min(26rem, calc(100% - var(--galassia-edge) * 2));
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.75rem 1rem 0.85rem;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.85rem;
+  background: rgba(2, 8, 23, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.38);
+  pointer-events: auto;
+  text-align: center;
+}
+
+.galassia-view__map-hint-kicker {
+  margin: 0;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(148, 163, 184, 0.88);
+}
+
+.galassia-view__map-hint-lead {
+  margin: 0;
+  font-family: var(--font-body, Inter, ui-sans-serif, system-ui, sans-serif);
+  font-size: 0.86rem;
+  line-height: 1.48;
+  color: rgba(241, 245, 249, 0.94);
+  max-width: 36ch;
+  justify-self: center;
+}
+
+.galassia-view__map-hint-action {
+  margin: 0;
+  font-family: var(--font-body, Inter, ui-sans-serif, system-ui, sans-serif);
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: rgba(148, 163, 184, 0.92);
+}
+
+.galassia-view__map-hint-cta {
+  justify-self: center;
+  min-height: 2rem;
+  padding: 0 0.85rem;
+  border: 1px solid rgba(125, 211, 252, 0.35);
+  border-radius: 999px;
+  background: rgba(12, 74, 110, 0.45);
+  color: rgba(248, 250, 252, 0.96);
+  font-family: var(--font-body, Inter, ui-sans-serif, system-ui, sans-serif);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.galassia-view__map-hint-cta:hover,
+.galassia-view__map-hint-cta:focus-visible {
+  background: rgba(12, 74, 110, 0.62);
+  outline: none;
+}
+
+.galassia-view__guide-dismiss {
+  align-self: end;
+  justify-self: end;
+  min-height: 2rem;
+  padding: 0 0.75rem;
+  border: 1px solid rgba(125, 211, 252, 0.32);
+  border-radius: 999px;
+  background: rgba(12, 74, 110, 0.42);
+  color: rgba(248, 250, 252, 0.96);
+  font-family: var(--font-body, Inter, ui-sans-serif, system-ui, sans-serif);
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.galassia-view__guide-dismiss:hover,
+.galassia-view__guide-dismiss:focus-visible {
+  background: rgba(12, 74, 110, 0.58);
+  outline: none;
+}
+
+.galassia-view__guide-panel--solo {
+  display: grid;
+  grid-template-columns: minmax(140px, 0.42fr) minmax(0, 1fr) auto;
+  gap: 0.65rem;
+  height: 100%;
+  max-height: var(--galassia-deck-height);
+  align-items: start;
+}
+
+.galassia-view__dominant-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  margin: 0 0 0.35rem;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid color-mix(in srgb, var(--chip-color, #94a3b8) 42%, rgba(148, 163, 184, 0.24));
+  border-radius: 0.65rem;
+  background: color-mix(in srgb, var(--chip-color, #94a3b8) 12%, rgba(15, 23, 42, 0.72));
+  color: rgba(248, 250, 252, 0.96);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.galassia-view__dominant-chip-dot {
+  flex: 0 0 auto;
+  width: 0.72rem;
+  height: 0.72rem;
+  border-radius: 999px;
+  background: var(--chip-color, #94a3b8);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--chip-color, #94a3b8) 70%, transparent);
+}
+
+.galassia-view__dominant-chip-copy {
+  display: grid;
+  gap: 0.12rem;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.galassia-view__dominant-chip-label {
+  color: rgba(203, 213, 225, 0.72);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.galassia-view__dominant-chip-copy strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+
+.galassia-view__dominant-chip-pct {
+  flex: 0 0 auto;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: rgba(226, 232, 240, 0.88);
+}
+
+.galassia-view__dominant-chip:hover,
+.galassia-view__dominant-chip:focus-visible {
+  background: color-mix(in srgb, var(--chip-color, #94a3b8) 18%, rgba(15, 23, 42, 0.76));
+  outline: none;
+}
+
+.galassia-view__guide-panel,
+.galassia-view__rank-panel,
+.galassia-view__relations-panel {
+  min-width: 0;
+  min-height: 0;
+  max-height: var(--galassia-deck-height);
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 10px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.055), transparent 62%),
+    rgba(5, 10, 22, 0.68);
+  box-shadow: 0 18px 46px rgba(2, 6, 23, 0.22);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.galassia-view__guide-panel {
+  display: grid;
+  grid-template-columns: minmax(160px, 0.68fr) minmax(220px, 1.32fr);
+  gap: 0.65rem;
+  padding: 0.68rem;
+}
+
+.galassia-view__guide-copy {
+  display: grid;
+  align-content: start;
+  gap: 0.28rem;
+}
+
+.galassia-view__guide-copy p,
+.galassia-view__panel-head p {
+  margin: 0;
+  color: color-mix(in srgb, var(--panel-color, #60a5fa) 62%, rgba(203, 213, 225, 0.88));
+  font-family: var(--font-body, Inter, ui-sans-serif, system-ui, sans-serif);
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.galassia-view__guide-copy h2 {
+  margin: 0;
+  color: rgba(248, 250, 252, 0.98);
+  font-family: var(--font-body, Inter, ui-sans-serif, system-ui, sans-serif);
+  font-size: clamp(1.05rem, 1.7vw, 1.42rem);
+  font-weight: 800;
+  line-height: 1.14;
+  letter-spacing: 0;
+}
+
+.galassia-view__guide-steps {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.galassia-view__guide-steps li {
+  display: grid;
+  grid-template-columns: 1.8rem minmax(0, 1fr);
+  gap: 0.45rem;
+  align-items: start;
+  min-width: 0;
+  padding: 0.42rem;
+  border: 1px solid rgba(148, 163, 184, 0.13);
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.42);
+}
+
+.galassia-view__guide-steps li > span {
+  display: inline-grid;
+  place-items: center;
+  width: 1.8rem;
+  height: 1.8rem;
+  border: 1px solid rgba(125, 211, 252, 0.34);
+  border-radius: 999px;
+  background: rgba(12, 74, 110, 0.42);
+  color: rgba(248, 250, 252, 0.96);
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.galassia-view__guide-steps b,
+.galassia-view__rank-row b,
+.galassia-view__relation-topline b {
+  min-width: 0;
+  color: rgba(248, 250, 252, 0.96);
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.16;
+  overflow-wrap: anywhere;
+}
+
+.galassia-view__guide-steps em {
+  grid-column: 2;
+  color: rgba(203, 213, 225, 0.72);
+  font-size: 0.74rem;
+  font-style: normal;
+  line-height: 1.32;
+}
+
+.galassia-view__rank-panel,
+.galassia-view__relations-panel {
+  display: grid;
+  align-content: start;
+  gap: 0.48rem;
+  padding: 0.68rem;
+}
+
+.galassia-view__panel-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.galassia-view__panel-head strong {
+  color: rgba(248, 250, 252, 0.92);
+  font-size: 0.86rem;
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: right;
+}
+
+.galassia-view__rank-list,
+.galassia-view__relations-list {
+  display: grid;
+  gap: 0.42rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: calc(var(--galassia-deck-height) - 3.15rem);
+  overflow: auto;
+  scrollbar-gutter: stable;
+}
+
+.galassia-view__rank-row {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr) 3rem;
+  gap: 0.5rem;
+  align-items: center;
+  width: 100%;
+  min-height: 2.4rem;
+  padding: 0.32rem 0.45rem;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.38);
+  color: inherit;
+  text-align: left;
+}
+
+.galassia-view__rank-row:hover,
+.galassia-view__rank-row:focus-visible,
+.galassia-view__relations-list button:hover,
+.galassia-view__relations-list button:focus-visible {
+  border-color: color-mix(in srgb, var(--row-color, var(--relation-card-color, #60a5fa)) 46%, rgba(148, 163, 184, 0.18));
+  background: color-mix(in srgb, var(--row-color, var(--relation-card-color, #60a5fa)) 12%, rgba(15, 23, 42, 0.5));
+  outline: none;
+}
+
+.galassia-view__rank-row > span,
+.galassia-view__rank-row em {
+  color: rgba(203, 213, 225, 0.78);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.72rem;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.galassia-view__rank-row i {
+  grid-column: 2 / -1;
+  display: block;
+  height: 0.32rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.15);
+}
+
+.galassia-view__rank-row i span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--row-color, #60a5fa);
+}
+
+.galassia-view__relations-list {
+  max-height: calc(var(--galassia-deck-height) - 4.2rem);
+  overflow: auto;
+  scrollbar-gutter: stable;
+}
+
+.galassia-view__relations-list button {
+  display: grid;
+  gap: 0.32rem;
+  width: 100%;
+  padding: 0.44rem 0.52rem;
+  border: 1px solid rgba(148, 163, 184, 0.13);
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.38);
+  color: inherit;
+  text-align: left;
+}
+
+.galassia-view__relation-topline {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.galassia-view__relation-topline i {
+  flex: 0 0 auto;
+  width: 1.6rem;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(148, 163, 184, 0.28), var(--relation-card-color, #60a5fa));
+}
+
+.galassia-view__relation-tone,
+.galassia-view__relation-keywords,
+.galassia-view__relations-empty {
+  color: rgba(203, 213, 225, 0.74);
+  font-size: 0.74rem;
+  line-height: 1.35;
+}
+
+.galassia-view__relation-keywords {
+  color: color-mix(in srgb, var(--relation-card-color, #60a5fa) 54%, rgba(226, 232, 240, 0.86));
+  font-weight: 700;
+}
+
+.galassia-view__dialogue-keywords b {
+  display: inline-block;
+  margin-right: 0.36rem;
+  color: rgba(248, 250, 252, 0.9);
+  font-weight: 800;
+}
+
+.galassia-view__dialogue-keywords--reverse {
+  color: rgba(148, 163, 184, 0.86);
+}
+
+@media (max-width: 1180px) {
+  .galassia-view--guide-open {
+    --galassia-deck-height: 108px;
+  }
+
+  .galassia-view__guide-panel--solo {
+    grid-template-columns: minmax(120px, 0.38fr) minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .galassia-view--guide-open {
+    --galassia-deck-height: 104px;
+  }
+
+  .galassia-view__guide-panel--solo {
+    grid-template-columns: 1fr;
+    gap: 0.45rem;
+  }
+
+  .galassia-view__guide-steps em {
+    display: none;
+  }
+}
+
+@media (max-width: 620px) {
+  .galassia-view--guide-open {
+    --galassia-deck-height: 96px;
+  }
+
+  .galassia-view__guide-panel--solo {
+    padding: 0.55rem;
+  }
+
+  .galassia-view__guide-copy h2 {
+    font-size: 0.95rem;
+  }
+}
+
+.galassia-view__mode-switch {
+  /* Layout in-flow dentro .galassia-view__chrome — vedi blocco chrome compatto sopra */
+  z-index: 40;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  pointer-events: auto;
+}
+
+.galassia-view__mode-tab {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0.42rem 0.62rem;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.62);
+  color: rgba(203, 213, 225, 0.82);
+  font-family: var(--font-body, Inter, ui-sans-serif, system-ui, sans-serif);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+.galassia-view__mode-tab[data-active='true'] {
+  border-color: rgba(125, 211, 252, 0.42);
+  background: rgba(12, 74, 110, 0.52);
+  color: rgba(248, 250, 252, 0.98);
+}
+
+.galassia-view__mode-tab:focus-visible {
+  outline: 2px solid rgba(125, 211, 252, 0.8);
+  outline-offset: 2px;
+}
+
+.galassia-view__planet-wrap--highlight .galassia-view__planet-label strong,
+.galassia-view__planet-wrap--highlight button {
+  filter: brightness(1.08);
+}
+
+.galassia-view__relations-panel--mode-copy .galassia-view__relations-empty {
+  margin: 0;
+  line-height: 1.45;
+}
+
+.galassia-view__mode-tab-label--short {
+  display: none;
+}
+
+/* ── Mobile / tablet stretto: colonna fissa, mappa al centro, niente overlap ─ */
+@media (max-width: 900px) {
+  .galassia-view {
+    display: flex;
+    flex-direction: column;
+    height: 100% !important;
+    min-height: 0;
+    overflow: hidden;
+    --galassia-head-offset: 0;
+    --galassia-chrome-height: auto;
+    --galassia-deck-top: 0;
+    --galassia-deck-height: 0px;
+    --galassia-map-top: 0;
+    --galassia-panel-height: min(32svh, 210px);
+    --galassia-map-bottom: 0;
+  }
+
+  .galassia-view--guide-open {
+    --galassia-deck-height: 0px;
+  }
+
+  .galassia-view__chrome {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    flex: 0 0 auto;
+    padding: 0.45rem var(--galassia-edge, 12px) 0.35rem;
+    background: linear-gradient(
+      180deg,
+      rgba(3, 7, 18, 0.96) 0%,
+      rgba(3, 7, 18, 0.88) 72%,
+      rgba(3, 7, 18, 0) 100%
+    );
+    pointer-events: auto;
+  }
+
+  .galassia-view__scene-head {
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    width: 100% !important;
+    max-width: none !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 0.45rem !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .galassia-view__scene-head-copy {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .galassia-view__scene-head-copy p,
+  .galassia-view__scene-head-copy span,
+  .galassia-view__scene-head-copy--zoomed p,
+  .galassia-view__scene-head-copy--zoomed span {
+    display: none !important;
+  }
+
+  .galassia-view__scene-head-copy h1,
+  .galassia-view__scene-head-copy--zoomed h1 {
+    font-size: 1.02rem !important;
+    line-height: 1.15 !important;
+    margin: 0 !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .galassia-view__map-controls {
+    margin: 0 !important;
+    flex-shrink: 0;
+  }
+
+  .galassia-view__map-control--ghost {
+    max-width: 5.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.62rem;
+    padding: 0 0.45rem;
+  }
+
+  .galassia-view__mode-switch {
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.28rem !important;
+    margin-top: 0.35rem;
+    padding: 0 !important;
+  }
+
+  .galassia-view__mode-tab {
+    flex: none !important;
+    min-width: 0;
+    font-size: 0.64rem !important;
+    padding: 0.38rem 0.2rem !important;
+    text-align: center;
+    line-height: 1.15;
+  }
+
+  .galassia-view__mode-tab-label--full {
+    display: none;
+  }
+
+  .galassia-view__mode-tab-label--short {
+    display: inline;
+  }
+
+  .galassia-view__map-hint {
+    width: calc(100% - var(--galassia-edge) * 2);
+    padding: 0.75rem 0.85rem 0.85rem;
+  }
+
+  .galassia-view__map-hint-lead {
+    font-size: 0.82rem;
+  }
+
+  .galassia-view__guide-panel--solo {
+    grid-template-columns: 1fr;
+  }
+
+  .galassia-view__guide-dismiss {
+    justify-self: stretch;
+  }
+
+  .galassia-view__insight-deck,
+  .galassia-view--guide-open .galassia-view__insight-deck {
+    display: none !important;
+  }
+
+  .galassia-view__guide-toggle {
+    font-size: 0.64rem;
+    padding: 0 0.55rem;
+  }
+
+  .galassia-view__map-layer {
+    position: relative !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    height: auto !important;
+    padding-top: 0 !important;
+    inset: auto !important;
+    overflow: hidden;
+  }
+
+  .galassia-view__map-viewport {
+    height: 100%;
+    min-height: 0;
+  }
+
+  .galassia-view__crt {
+    position: relative !important;
+    flex: 0 0 auto !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: auto !important;
+    top: auto !important;
+    width: 100% !important;
+    max-height: var(--galassia-panel-height) !important;
+    padding: 0 var(--galassia-edge, 12px) 0.45rem !important;
+  }
+
+  .galassia-view__crt--compact {
+    max-height: min(28svh, 180px) !important;
+  }
+
+  .galassia-view__planet-label {
+    min-width: 0;
+    max-width: 11rem;
+  }
+
+  .galassia-view__planet-label strong {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .galassia-view--zoomed {
+    --galassia-map-top: 0;
+  }
+}
+
+/* =====================================================================
+   GALASSIA — tutorial primo accesso
+   ===================================================================== */
+.galassia-tutorial {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: clamp(0.75rem, 3vw, 1.5rem);
+}
+
+.galassia-tutorial__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(2, 8, 23, 0.78);
+  backdrop-filter: blur(6px);
+}
+
+.galassia-tutorial__card {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 1rem;
+  width: min(100%, 42rem);
+  max-height: min(92svh, 720px);
+  overflow: auto;
+  padding: clamp(1rem, 3vw, 1.35rem);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 14px;
+  background: rgba(8, 15, 30, 0.94);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+}
+
+.galassia-tutorial__header {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.galassia-tutorial__eyebrow {
+  margin: 0;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--galassia-tutorial-accent, #4ade80) 72%, #ffffff);
+}
+
+.galassia-tutorial__title {
+  margin: 0;
+  font-family: var(--font-display, Georgia, serif);
+  font-size: clamp(1.2rem, 2.4vw, 1.65rem);
+  font-weight: 400;
+  line-height: 1.15;
+  color: #f8fafc;
+}
+
+.galassia-tutorial__lead {
+  margin: 0;
+  max-width: 52ch;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: rgba(203, 213, 225, 0.86);
+}
+
+.galassia-tutorial__steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.galassia-tutorial__step {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  gap: 0.6rem;
+  align-items: start;
+  min-height: 0;
+  padding: 0.72rem;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.58);
+}
+
+.galassia-tutorial__step-num {
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--galassia-tutorial-accent, #4ade80) 45%, rgba(148, 163, 184, 0.25));
+  background: color-mix(in srgb, var(--galassia-tutorial-accent, #4ade80) 16%, rgba(15, 23, 42, 0.86));
+  color: #f8fafc;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.galassia-tutorial__step-copy {
+  display: grid;
+  gap: 0.22rem;
+  min-width: 0;
+}
+
+.galassia-tutorial__step-title {
+  color: #f8fafc;
+  font-size: 0.86rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.galassia-tutorial__step-text {
+  color: rgba(203, 213, 225, 0.76);
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.galassia-tutorial__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem 0.75rem;
+  align-items: center;
+}
+
+.galassia-tutorial__cta {
+  min-height: 2.5rem;
+  padding: 0.55rem 1rem;
+  border: 0;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--galassia-tutorial-accent, #4ade80) 82%, #ffffff 8%);
+  color: #041016;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.galassia-tutorial__cta:hover,
+.galassia-tutorial__cta:focus-visible {
+  filter: brightness(1.05);
+  outline: 2px solid rgba(248, 250, 252, 0.35);
+  outline-offset: 2px;
+}
+
+.galassia-tutorial__skip {
+  min-height: 2.5rem;
+  padding: 0.55rem 0.35rem;
+  border: 0;
+  background: transparent;
+  color: rgba(203, 213, 225, 0.82);
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 650;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+  cursor: pointer;
+}
+
+.galassia-tutorial__skip:hover,
+.galassia-tutorial__skip:focus-visible {
+  color: #f8fafc;
+  outline: none;
+}
+
+.galassia-tutorial__remember {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  margin: 0;
+  color: rgba(203, 213, 225, 0.78);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.galassia-tutorial__remember input {
+  margin-top: 0.12rem;
+  accent-color: var(--galassia-tutorial-accent, #4ade80);
+}
+
+@media (max-width: 640px) {
+  .galassia-tutorial__steps {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Lessico nella Galassia ───────────────────────────────────────── */
+
+.galassia-view__lexicon-stats {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.45rem;
+  margin: 0;
+}
+
+.galassia-view__lexicon-stats div {
+  min-width: 0;
+  padding: 0.48rem 0.55rem;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--panel-color) 8%, rgba(15, 23, 42, 0.5));
+}
+
+.galassia-view__lexicon-stats dt {
+  color: rgba(148, 163, 184, 0.82);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.galassia-view__lexicon-stats dd {
+  margin: 0.14rem 0 0;
+  color: rgba(248, 250, 252, 0.96);
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.galassia-view__lexicon-block {
+  display: grid;
+  gap: 0.42rem;
+  min-width: 0;
+  margin: 0;
+}
+
+.galassia-view__lexicon-block--relations,
+.galassia-view__lexicon-block--subs {
+  grid-column: 1 / -1;
+}
+
+.galassia-view__lexicon-block h3 {
+  margin: 0;
+  color: color-mix(in srgb, var(--panel-color) 70%, rgba(203, 213, 225, 0.92));
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.galassia-view__lexicon-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.32rem;
+  min-width: 0;
+}
+
+.galassia-view__lexicon-chip {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  min-height: 1.55rem;
+  padding: 0.24rem 0.52rem;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.58);
+  color: rgba(226, 232, 240, 0.86);
+  font-size: 0.72rem;
+  font-weight: 650;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.galassia-view__lexicon-chip--emerged {
+  border-color: color-mix(in srgb, var(--panel-color) 56%, rgba(248, 250, 252, 0.22));
+  background: color-mix(in srgb, var(--panel-color) 18%, rgba(15, 23, 42, 0.64));
+  color: rgba(248, 250, 252, 0.96);
+}
+
+.galassia-view__lexicon-subgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.45rem;
+}
+
+.galassia-view__lexicon-subcard {
+  display: grid;
+  gap: 0.28rem;
+  min-width: 0;
+  min-height: 3rem;
+  padding: 0.58rem 0.65rem;
+  border: 1px solid color-mix(in srgb, var(--sub-color) 42%, rgba(148, 163, 184, 0.22));
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.48);
+  color: rgba(248, 250, 252, 0.92);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.galassia-view__lexicon-subcard:hover,
+.galassia-view__lexicon-subcard:focus-visible {
+  border-color: color-mix(in srgb, var(--sub-color) 68%, rgba(248, 250, 252, 0.26));
+  background: color-mix(in srgb, var(--sub-color) 14%, rgba(15, 23, 42, 0.56));
+  outline: none;
+}
+
+.galassia-view__lexicon-subcard span {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.galassia-view__lexicon-subcard strong {
+  min-width: 0;
+  font-size: 0.78rem;
+  font-weight: 780;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.galassia-view__lexicon-subcard em {
+  flex: 0 0 auto;
+  color: rgba(203, 213, 225, 0.78);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.66rem;
+  font-style: normal;
+  font-weight: 700;
+}
+
+.galassia-view__lexicon-subcard small {
+  color: rgba(203, 213, 225, 0.72);
+  font-size: 0.7rem;
+  line-height: 1.3;
+}
+
+.galassia-view__lexicon-relations {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 0.42rem;
+}
+
+.galassia-view__lexicon-relation {
+  display: grid;
+  gap: 0.12rem;
+  min-width: 0;
+  padding: 0.5rem 0.58rem;
+  border: 1px solid color-mix(in srgb, var(--relation-chip-color) 40%, rgba(148, 163, 184, 0.2));
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.42);
+  color: rgba(248, 250, 252, 0.9);
+  font-size: 0.76rem;
+  font-weight: 740;
+  line-height: 1.18;
+}
+
+.galassia-view__lexicon-relation b,
+.galassia-view__lexicon-relation em {
+  color: rgba(148, 163, 184, 0.86);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6rem;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.galassia-view__lexicon-relation em {
+  color: color-mix(in srgb, var(--relation-chip-color) 70%, rgba(203, 213, 225, 0.82));
+  letter-spacing: 0.03em;
+  text-transform: none;
+}
+
+.galassia-view__lexicon-relation--pair {
+  background: color-mix(in srgb, var(--relation-chip-color) 10%, rgba(15, 23, 42, 0.5));
+}
+
+.galassia-view__lexicon-relation--contrast {
+  border-style: dashed;
+}
+
+.galassia-view__word-orbit {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.galassia-view__word-star {
+  position: absolute;
+  left: 0;
+  top: 0;
+  max-width: 7.8rem;
+  padding: 0.16rem 0.42rem;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 999px;
+  background: rgba(2, 8, 23, 0.78);
+  color: rgba(226, 232, 240, 0.88);
+  font-size: 0.62rem;
+  font-weight: 720;
+  line-height: 1.1;
+  white-space: nowrap;
+  box-shadow: 0 10px 24px rgba(2, 6, 23, 0.3);
+}
+
+.galassia-view__word-star--emerged {
+  border-color: rgba(248, 250, 252, 0.62);
+  background: color-mix(in srgb, var(--node-color) 34%, rgba(2, 8, 23, 0.86));
+  color: #ffffff;
+}
+
+.galassia-view__relation-lines line[data-kind='contrast'] {
+  stroke-dasharray: 1 3;
+  opacity: 0.46;
+}
+
+.galassia-view__relation-lines line[data-kind='pair'] {
+  stroke-dasharray: 4 5;
+  opacity: 0.72;
+}
+
+@media (max-width: 900px) {
+  .galassia-view__lexicon-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .galassia-view__lexicon-subgrid,
+  .galassia-view__lexicon-relations {
+    grid-template-columns: 1fr;
+  }
+
+  .galassia-view__word-star {
+    max-width: 5.8rem;
+    font-size: 0.56rem;
+  }
+}
+
+/* ── UX improvements ─────────────────────────────────────────────── */
+
+/* Floating idle hint — visible only when no planet selected */
+.galassia-view__idle-hint {
+  position: absolute;
+  z-index: 8;
+  bottom: 3rem;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  animation: galassia-hint-float 3.2s ease-in-out infinite;
+}
+
+.galassia-view__idle-hint span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.48rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(125, 211, 252, 0.3);
+  background: rgba(2, 8, 23, 0.76);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: rgba(203, 213, 225, 0.9);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.galassia-view__idle-hint span::before {
+  content: '';
+  display: inline-block;
+  width: 0.44rem;
+  height: 0.44rem;
+  border-radius: 999px;
+  background: rgba(125, 211, 252, 0.9);
+  box-shadow: 0 0 8px rgba(125, 211, 252, 0.6);
+  animation: galassia-hint-dot 1.6s ease-in-out infinite alternate;
+  flex-shrink: 0;
+}
+
+@keyframes galassia-hint-float {
+  0%,  100% { opacity: 0.6; transform: translateX(-50%) translateY(0);    }
+  50%       { opacity: 1;   transform: translateX(-50%) translateY(-5px); }
+}
+
+@keyframes galassia-hint-dot {
+  from { opacity: 0.4; box-shadow: 0 0 4px  rgba(125, 211, 252, 0.3); }
+  to   { opacity: 1;   box-shadow: 0 0 10px rgba(125, 211, 252, 0.7); }
+}
+
+@media (max-width: 900px) {
+  .galassia-view__idle-hint {
+    bottom: calc(var(--galassia-crt-panel-height, 220px) + 0.75rem);
+  }
+}
+
+/* Stabilita' plastica: la mappa deve restare ferma mentre la si legge. */
+.galassia-view__bg-nebula,
+.galassia-view__bg-stars,
+.galassia-view__bg-stars--twinkle,
+.galassia-view__wind-line,
+.galassia-view__relation-lines line,
+.galassia-view__idle-hint,
+.galassia-view__idle-hint span::before {
+  animation: none !important;
+}
+
+.galassia-view__bg-nebula,
+.galassia-view__bg-stars {
+  transform: none !important;
+}
+
+.galassia-view__bg-stars--twinkle {
+  opacity: 0.52;
+}
+
+.galassia-view__wind-line,
+.galassia-view__relation-lines line {
+  stroke-dashoffset: 0;
+}
+
+.galassia-view__idle-hint {
+  opacity: 0.94;
+  transform: translateX(-50%);
+}
+
+.galassia-view__idle-hint span::before {
+  opacity: 0.78;
+  box-shadow: 0 0 7px rgba(125, 211, 252, 0.5);
+}
+
+.galassia-view__map-canvas {
+  will-change: auto;
+}
+
+.galassia-view__map-canvas--animating {
+  will-change: transform;
+}
+
+/* Empty state for 0% satellite panels */
+.galassia-view__crt-absent {
+  margin-top: 0.35rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 0.45rem;
+  border: 1px dashed rgba(148, 163, 184, 0.22);
+  background: rgba(15, 23, 42, 0.35);
+  color: rgba(148, 163, 184, 0.7);
+  font-size: 0.8rem;
+  line-height: 1.45;
+  font-style: italic;
+}
+
+/* Mode description shown in idle CRT panel */
+.galassia-view__crt-mode-desc {
+  margin: 0.15rem 0 0.5rem;
+  color: rgba(186, 200, 218, 0.72);
+  font-size: 0.82rem;
+  line-height: 1.48;
+}
+
+/* Mode tab active state — stronger contrast */
+.galassia-view__mode-tab[data-active='true'] {
+  border-color: rgba(125, 211, 252, 0.6) !important;
+  background: linear-gradient(135deg,
+    rgba(8, 100, 130, 0.88) 0%,
+    rgba(7, 52, 82, 0.84) 100%) !important;
+  color: rgba(240, 249, 255, 1) !important;
+  box-shadow: 0 0 0 1px rgba(125, 211, 252, 0.18) inset,
+              0 2px 12px rgba(5, 60, 90, 0.55) !important;
+}
+
+/* Planet label sub-text — more legible */
+.galassia-view__planet-label small {
+  color: rgba(203, 213, 225, 0.78) !important;
+}
+
+/* ── Desktop ≥ 901 px: pannello a destra full-height ("schermone") ───────
+   Sovrascrive il layout UX-pass che metteva il pannello in basso.
+   Il pannello cresce fino a fondo schermo; lo scroll avviene al suo
+   interno — nessuna scrollbar di pagina.
+   ────────────────────────────────────────────────────────────────────────── */
+@media (min-width: 901px) {
+
+  /* Variabili base: pannello più largo, spazio riservato a destra */
+  .galassia-view {
+    --galassia-panel-width: clamp(380px, 36vw, 560px);
+    --galassia-panel-top: var(--galassia-edge);
+    --galassia-panel-space: calc(
+      var(--galassia-panel-width) + var(--galassia-edge) + var(--galassia-edge)
+    );
+  }
+
+  /* Tutti gli stati con pannello visibile: nessun margine inferiore per il pannello */
+  .galassia-view,
+  .galassia-view--overview.galassia-view--selected,
+  .galassia-view--zoomed {
+    --galassia-map-bottom: clamp(16px, 2vh, 26px);
+  }
+
+  /* Stato idle: mappa a piena larghezza (pannello nascosto) */
+  .galassia-view--overview.galassia-view--idle {
+    --galassia-panel-space: var(--galassia-edge);
+    --galassia-map-bottom: var(--galassia-edge);
+  }
+
+  /* Viewport mappa: si ferma prima del pannello a destra */
+  .galassia-view__map-viewport {
+    inset:
+      var(--galassia-map-top)
+      var(--galassia-panel-space)
+      var(--galassia-map-bottom)
+      var(--galassia-edge);
+  }
+
+  /* Pannello CRT: colonna destra, aderisce da edge-top a edge-bottom */
+  .galassia-view__crt {
+    top: var(--galassia-panel-top) !important;
+    right: var(--galassia-edge) !important;
+    bottom: var(--galassia-edge) !important;
+    left: auto !important;
+    width: var(--galassia-panel-width) !important;
+    max-height: none !important;
+    height: auto;
+    contain: unset;
+  }
+
+  .galassia-view__crt-bezel {
+    height: 100%;
+    max-height: none;
+  }
+
+  /* Schermo interno: scroll verticale nel pannello, layout a colonna singola */
+  .galassia-view__crt-screen {
+    display: flex !important;
+    flex-direction: column;
+    grid-template-columns: unset !important;
+    max-height: none !important;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    padding: 1rem 1.1rem 1.15rem;
+    font-size: 0.9rem;
+    line-height: 1.58;
   }
 }

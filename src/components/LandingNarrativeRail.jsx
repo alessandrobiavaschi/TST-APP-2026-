@@ -34,7 +34,7 @@ export default function LandingNarrativeRail() {
   const progressPct = slideCount > 0 ? ((activeIndex + 1) / slideCount) * 100 : 0
 
   return (
-    <section className="landing-apple-narrative-rail" aria-labelledby="landing-narrative-rail-heading">
+    <div className="landing-apple-narrative-rail" aria-labelledby="landing-narrative-rail-heading">
       <div className="landing-apple-section-head landing-apple-narrative-rail-intro">
         <p className="landing-apple-section-kicker">Perché il test sonoro</p>
         <h2 id="landing-narrative-rail-heading">
@@ -81,6 +81,6 @@ export default function LandingNarrativeRail() {
           />
         </div>
       </div>
-    </section>
+    </div>
   )
 }

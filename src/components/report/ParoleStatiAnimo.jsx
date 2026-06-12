@@ -2,6 +2,7 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import FioreCorrenti from './FioreCorrenti'
 import { PAROLE_UI } from './reportUiCopy.js'
+import ReportPassageHeader from './ReportPassageHeader.jsx'
 
 // ESLint qui non rileva l'uso di `motion` via JSX member (<motion.div>) perché
 // non è abilitato react/jsx-uses-vars: marchiamo l'uso come fanno gli altri report component.
@@ -189,7 +190,6 @@ export default function ParoleStatiAnimo({
 
   return (
     <section
-      id="report-lessico"
       aria-labelledby="parole-stati-animo-title"
       className="parole-stati-animo-section"
       style={{
@@ -203,50 +203,29 @@ export default function ParoleStatiAnimo({
         boxSizing: 'border-box',
       }}
     >
-      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-        {/* HEADER */}
-        <header style={{ marginBottom: 48 }}>
-          <p
-            style={{
-              fontFamily: MONO_STACK,
-              textTransform: 'uppercase',
-              letterSpacing: '0.3em',
-              color: coloreDominante,
-              opacity: 0.6,
-              fontSize: 11,
-              margin: 0,
-            }}
-          >
-            {PAROLE_UI.eyebrow}
-          </p>
-          <h2
-            id="parole-stati-animo-title"
-            className="report-tst-display"
-            style={{
-              fontSize: 'clamp(2rem, 5vw, 3.5rem)',
-              lineHeight: 1.1,
-              margin: '16px 0 0',
-            }}
-          >
-            {PAROLE_UI.title}
-          </h2>
-          <p
-            className="report-tst-body"
-            style={{
-              opacity: 0.85,
-              fontSize: '1rem',
-              maxWidth: 480,
-              margin: '20px 0 0',
-            }}
-          >
-            {PAROLE_UI.intro}
-          </p>
-          <div className="parole-stati-animo-guide">
-            {LESSICO_GUIDE.map((paragraph) => (
-              <p key={paragraph.slice(0, 48)}>{paragraph}</p>
-            ))}
-          </div>
-        </header>
+      <div className="parole-stati-animo-section__inner">
+        <ReportPassageHeader
+          step="4"
+          eyebrow={PAROLE_UI.eyebrow}
+          title={PAROLE_UI.title}
+          lead={PAROLE_UI.intro}
+          accentColor={coloreDominante}
+          titleId="parole-stati-animo-title"
+        />
+
+        <div className="parole-stati-animo-guide">
+          {LESSICO_GUIDE.map((paragraph) => (
+            <p key={paragraph.slice(0, 48)}>{paragraph}</p>
+          ))}
+        </div>
+
+        <section className="parole-stati-animo-zone parole-stati-animo-zone--emerge" aria-labelledby="parole-zone-emerse">
+          <header className="parole-stati-animo-zone__head">
+            <h3 id="parole-zone-emerse" className="parole-stati-animo-zone__title">
+              {PAROLE_UI.zoneEmerseTitle}
+            </h3>
+            <p className="parole-stati-animo-zone__lead">{PAROLE_UI.zoneEmerseLead}</p>
+          </header>
 
         {/* FILTRO CORRENTI */}
         <div
@@ -281,9 +260,90 @@ export default function ParoleStatiAnimo({
           <p className="parole-stati-animo-corrente-desc">{descrizioneCorrenteFiltrata}</p>
         )}
 
-        <div className="parole-stati-animo-emerse-header">
-          <h3 className="parole-stati-animo-famiglia-heading">{PAROLE_UI.paroleEmerseTitle}</h3>
-          <p className="parole-stati-animo-emerse-hint">{PAROLE_UI.paroleEmerseHint}</p>
+        <div style={{ position: 'relative', marginBottom: 12, minHeight: 18 }}>
+          <p className="parole-stati-animo-copy-hint">{PAROLE_UI.copyHint}</p>
+          <p
+            aria-live="polite"
+            style={{
+              fontFamily: MONO_STACK,
+              opacity: 0.3,
+              fontSize: 12,
+              textAlign: 'right',
+              margin: 0,
+            }}
+          >
+            {paroleFiltrate.length} stati d&apos;animo · {correntiAttive}{' '}
+            {correntiAttive === 1 ? 'corrente' : 'correnti'}
+          </p>
+        </div>
+
+        <motion.div
+          variants={cloudVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.15 }}
+          layout
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            gap: 0,
+          }}
+        >
+          <AnimatePresence>
+            {paroleFiltrate.map((s) => {
+              const attenuata = filtro !== FILTRO_TUTTE && s.corrente !== filtro
+              return (
+                <ParolaPill
+                  key={`${s.parola}-${s.corrente}`}
+                  stato={s}
+                  attenuata={attenuata}
+                  enterVariants={pillEnterVariants}
+                  prefersReducedMotion={prefersReducedMotion}
+                  tooltipAttivo={tooltipKey === `${s.parola}-${s.corrente}`}
+                  onShowTooltip={() => setTooltipKey(`${s.parola}-${s.corrente}`)}
+                  onHideTooltip={() => setTooltipKey((k) => (k === `${s.parola}-${s.corrente}` ? null : k))}
+                  onCopy={() => handleCopy(s.parola)}
+                />
+              )
+            })}
+          </AnimatePresence>
+        </motion.div>
+
+        {paroleFiltrate.length === 0 && (
+          <p
+            style={{
+              fontFamily: MONO_STACK,
+              opacity: 0.4,
+              fontSize: 13,
+              marginTop: 24,
+            }}
+          >
+            Nessuno stato d&apos;animo per questa corrente.
+          </p>
+        )}
+        </section>
+
+        <section
+          className="parole-stati-animo-zone parole-stati-animo-zone--dizionario"
+          aria-labelledby="parole-zone-dizionario"
+        >
+          <header className="parole-stati-animo-zone__head">
+            <h3 id="parole-zone-dizionario" className="parole-stati-animo-zone__title">
+              {PAROLE_UI.zoneDizionarioTitle}
+            </h3>
+            <p className="parole-stati-animo-zone__lead">{PAROLE_UI.zoneDizionarioLead}</p>
+          </header>
+
+        <div className="parole-stati-animo-expand-row">
+          <button
+            type="button"
+            className="parole-stati-animo-expand-btn"
+            aria-expanded={elencoCompletoAperto}
+            onClick={() => setElencoCompletoAperto((open) => !open)}
+          >
+            {elencoCompletoAperto ? PAROLE_UI.chiudiElencoCompleto : PAROLE_UI.apriElencoCompleto}
+          </button>
         </div>
 
         {famiglieDaMostrare.length > 0 && (
@@ -359,82 +419,7 @@ export default function ParoleStatiAnimo({
             })}
           </div>
         )}
-
-        <div className="parole-stati-animo-expand-row">
-          <button
-            type="button"
-            className="parole-stati-animo-expand-btn"
-            aria-expanded={elencoCompletoAperto}
-            onClick={() => setElencoCompletoAperto((open) => !open)}
-          >
-            {elencoCompletoAperto ? PAROLE_UI.chiudiElencoCompleto : PAROLE_UI.apriElencoCompleto}
-          </button>
-        </div>
-
-        {/* CONTATORE */}
-        <div style={{ position: 'relative', marginBottom: 12, minHeight: 18 }}>
-          <p className="parole-stati-animo-copy-hint">{PAROLE_UI.copyHint}</p>
-          <p
-            aria-live="polite"
-            style={{
-              fontFamily: MONO_STACK,
-              opacity: 0.3,
-              fontSize: 12,
-              textAlign: 'right',
-              margin: 0,
-            }}
-          >
-            {paroleFiltrate.length} stati d&apos;animo · {correntiAttive}{' '}
-            {correntiAttive === 1 ? 'corrente' : 'correnti'}
-          </p>
-        </div>
-
-        {/* NUVOLA DI PAROLE */}
-        <motion.div
-          variants={cloudVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.15 }}
-          layout
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'center',
-            gap: 0,
-          }}
-        >
-          <AnimatePresence>
-            {paroleFiltrate.map((s) => {
-              const attenuata = filtro !== FILTRO_TUTTE && s.corrente !== filtro
-              return (
-                <ParolaPill
-                  key={`${s.parola}-${s.corrente}`}
-                  stato={s}
-                  attenuata={attenuata}
-                  enterVariants={pillEnterVariants}
-                  prefersReducedMotion={prefersReducedMotion}
-                  tooltipAttivo={tooltipKey === `${s.parola}-${s.corrente}`}
-                  onShowTooltip={() => setTooltipKey(`${s.parola}-${s.corrente}`)}
-                  onHideTooltip={() => setTooltipKey((k) => (k === `${s.parola}-${s.corrente}` ? null : k))}
-                  onCopy={() => handleCopy(s.parola)}
-                />
-              )
-            })}
-          </AnimatePresence>
-        </motion.div>
-
-        {paroleFiltrate.length === 0 && (
-          <p
-            style={{
-              fontFamily: MONO_STACK,
-              opacity: 0.4,
-              fontSize: 13,
-              marginTop: 24,
-            }}
-          >
-            Nessuno stato d&apos;animo per questa corrente.
-          </p>
-        )}
+        </section>
 
         {/* SEZIONE FINALE — CHIUSURA */}
         <footer style={{ paddingTop: 80 }}>

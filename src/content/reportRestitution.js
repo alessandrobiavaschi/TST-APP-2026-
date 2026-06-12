@@ -13,15 +13,15 @@ export const CONTEXT = {
   eyebrow: 'Esito disponibile',
   title: 'Come leggere questo profilo',
   body: [
-    'Il Test Temperamentale Sonoro (TST) registra le reazioni agli stimoli musicali del protocollo. Non valuta competenze musicali: misura l’organizzazione affettiva emersa in ascolto (avvicinamento, rifiuto o distacco).',
-    'I punteggi sono raggruppati in cinque famiglie emotive — malinconia, volitività, calma, entusiasmo, anaffettività — ciascuna con uno o più temperamenti (ad es. lunare, marziale, flemmatico). Tutte le famiglie compaiono nel profilo; le percentuali indicano il peso relativo in questa somministrazione.',
-    'Il report descrive una configurazione ottenuta in un momento specifico, non un tratto permanente della persona. Le sezioni seguenti presentano sintesi numerica, profilo descrittivo, aree sonore, rapporti, portato esperienziale e lessico delle risposte.',
+    'Il TST non misura competenze musicali. Legge come hai reagito agli stimoli sonori: avvicinamento, rifiuto, distacco e famiglie emotive più presenti.',
+    'La prima cosa da guardare è la famiglia prevalente. Subito dopo vengono la sfumatura principale, il portato esperienziale e le parole emerse dalle risposte.',
+    'Leggi il report come una fotografia del test, non come una definizione fissa della persona. Ogni sezione aggiunge un livello: sintesi, profilo, rapporti, portato, lessico e approfondimenti.',
   ],
   pills: [],
   dontShowAgainLabel: 'Non visualizzare più questo messaggio',
   whyToggle: 'Perché gli stimoli sonori?',
   whyExpanded:
-    'La musica agisce sul sistema uditivo e sul respiro e può evocare stati d’animo senza richiedere un contenuto narrativo esterno. Il TST usa questa proprietà per rendere osservabili reazioni che altrimenti resterebbero implicite. Le percentuali indicano dove si concentrano i punteggi; i testi descrittivi li collocano nel lessico del modello.',
+    'La musica può evocare stati d’animo senza passare da una storia o da una spiegazione razionale. Il TST usa questa via per osservare reazioni che spesso restano implicite. I grafici mostrano dove si concentrano i punteggi; i testi aiutano a dare parole a quei risultati.',
   pillsAria: 'Concetti chiave del profilo',
   cta: 'Apri il report',
 }
@@ -29,10 +29,23 @@ export const CONTEXT = {
 export const HERO = {
   label: 'Prima lettura',
   ariaSection: 'Prima lettura del profilo',
-  correntiAriaLabel: 'Peso delle cinque correnti emotive',
+  naturaLegend:
+    'La tua Natura: il nucleo emotivo profondo — strutturale e stabile nel tempo.',
+  disposizioneLegend:
+    'La tua Disposizione: come questa natura si esprime e si orienta nel quotidiano.',
   ctaReport: 'Inizia la lettura',
   ctaGalassia: 'Esplora la galassia degli affetti',
-  scrollHint: 'Scorri al report',
+  scrollHint: 'Vai alla sintesi',
+  readingDurationHint:
+    'Circa 15 minuti di lettura, a strati — puoi fermarti dopo la sintesi.',
+  journeyLabel: 'Il percorso in 5 passi',
+  journeySteps: [
+    { n: '1', q: 'Che profilo emerge?' },
+    { n: '2', q: 'Cosa significa?' },
+    { n: '3', q: 'Dove cambia?' },
+    { n: '4', q: 'Quali parole restano?' },
+    { n: '5', q: 'In quali stimoli si accende?' },
+  ],
 }
 
 export const PANEL_READING = {
@@ -53,19 +66,21 @@ export const PROFILO_UI = {
 
 export const SINTESI_UI = {
   title: 'Il tuo profilo, in sintesi',
-  subtitle: '',
+  subtitle: 'Famiglia prevalente, presenza e distribuzione in breve.',
   orientationTitle: 'Come leggere questa pagina',
   orientationBody:
-    'Le cinque famiglie emotive compaiono tutte nel profilo; le percentuali indicano il peso relativo in questa somministrazione.',
+    'Questo report descrive come hai risposto agli stimoli sonori in questa somministrazione. Non è una diagnosi né un’etichetta fissa.',
   orientationPoints: [
-    'Petali e radar: confronto visivo immediato tra le cinque disposizioni.',
-    'Barre percentuali: peso di ciascuna famiglia rispetto al proprio massimo teorico.',
-    'Testi sotto i grafici: sintesi descrittiva, distribuzione e portato esperienziale.',
+    'Famiglia prevalente: somma dei punteggi — quale famiglia pesa di più.',
+    'Presenza (%): quanto quella famiglia ha risuonato nelle tue risposte durante l’ascolto.',
+    'Livello 1–7: solo nella sezione «Quattro rapporti», non confrontarlo con le percentuali.',
+    'I colori sono convenzioni grafiche, non giudizi sulla persona.',
   ],
-  leadTitle: 'Sintesi del profilo',
+  leadTitle: 'Esito principale',
   integrativeTitle: 'Distribuzione e integrazione',
+  visualToggle: 'Grafici petalo e radar',
   editorialNote:
-    'I colori Blu, Rosso, Verde, Giallo e Grigio sono convenzioni grafiche della corrente prevalente, non giudizi sulla persona.',
+    'I colori Blu, Rosso, Verde, Giallo e Grigio sono convenzioni grafiche, non giudizi sulla persona.',
 }
 
 export const PROFILO_SECTION_INTRO = {
@@ -203,8 +218,8 @@ export const GALASSIA_INTRO = [
 
 export const GALASSIA_CRT = {
   idleTitle: 'Mappa delle correnti',
-  idleLead: 'Cinque famiglie disposte come la Rosa dei venti del modello TST.',
-  idleTapHint: 'Passa su un mondo per l’anteprima, poi tocca per entrare.',
+  idleLead: 'Cinque famiglie sulla Rosa dei venti del modello TST.',
+  idleTapHint: 'Tocca un mondo per aprire costellazione e lettura.',
   idleSteps: [],
   hierarchyPlanet: 'Corrente in questa direzione',
   hierarchySub: (parent) => `Sfumatura dentro ${parent}`,
@@ -238,20 +253,22 @@ export const GALASSIA_CRT = {
 
 /** Testo introduttivo sotto l’accordion di ogni macro-blocco. */
 export const GROUP_INTROS = {
-  'report-group-identita': '',
-  'report-group-profilo': '',
+  'report-group-identita':
+    'Parti da qui: identifica famiglia prevalente, sfumatura principale e distribuzione generale.',
+  'report-group-profilo':
+    'Qui i numeri diventano racconto: natura di fondo, modo di dispiegarsi, risorse e zone da osservare.',
   'report-group-rapporti':
-    'Quattro lenti sullo stesso profilo: natura di fondo, rapporto con sé, con l’altro e con l’agire. Il portato esperienziale completa il quadro con simpatia, antipatia o indifferenza verso gli stimoli.',
+    'Quattro lenti sullo stesso profilo, poi portato e schema interno (come le correnti convivono in te). In fondo: mappa visiva e relazioni con altri temperamenti.',
   'report-group-lessico':
-    'Parole emerse dal test in evidenza; su richiesta, forme nominali e aggettivi per sotto-corrente (entrambe le fonti del vocabolario).',
+    'Qui trovi le parole utili per nominare meglio ciò che il test ha fatto emergere.',
   'report-group-approfondimento':
-    'Confronto immediato tra le cinque famiglie emotive in ciascuna area sonora del test — Timbro, Intervalli, Ritmo, Melodia, Armonia.',
+    'Una lettura più tecnica: confronta le cinque famiglie nelle aree sonore del test — Timbro, Intervalli, Ritmo, Melodia, Armonia.',
 }
 
 export const SECTION_INTROS = {
   rapporti: {
     intro:
-      'Il modello distingue quattro rapporti: Natura (suolo emotivo), Sé (interiorità), Altro (verso le persone), Agire (verso fare e muoversi). Ogni scheda mostra come le cinque famiglie si distribuiscono in quella direzione — gli scarti tra schede sono parte della lettura.',
+      'Quattro lenti sullo stesso profilo, dal modello del Pianeta della Musica: Natura (Timbro + Intervalli + Armonia, il suolo emotivo), Sé (Intervalli + Melodia, interiorità), Altro (Timbro + Melodia, relazione), Agire (Ritmo + Melodia, movimento). Ogni scheda usa una scala 1–7 — gli scarti tra lenti sono parte della lettura.',
   },
   portato: {
     lead:
@@ -268,7 +285,7 @@ export const SECTION_INTROS = {
   },
   mappa: {
     intro:
-      'Qui emergono le dinamiche tra famiglie emotive: come la corrente prevalente dialoga, contrasta o si affianca alle altre nel campo affettivo di questo test.',
+      'La mappa solare mostra come si accendono le cinque famiglie nel profilo. Le relazioni in fondo descrivono invece l’incontro con altri temperamenti — materiale diverso dallo schema interno letto poco sopra.',
     points: [
       'Parti dalla famiglia con peso maggiore nella sintesi.',
       'Confronta coerenze e scarti tra le sezioni del report.',
@@ -387,7 +404,7 @@ function findCorrenteByFamiglia(correntiByPeso, famiglia) {
 function buildDistribuzioneParagraph(correntiByPeso, famigliaPrevalente) {
   if (!correntiByPeso.length) return ''
   const parts = [
-    'Le percentuali nel grafico indicano il peso di ciascuna famiglia rispetto al proprio massimo teorico in questo test.',
+    'Le percentuali nel grafico indicano quanto si accende ciascuna famiglia in questo test.',
   ]
   const domEntry = findCorrenteByFamiglia(correntiByPeso, famigliaPrevalente)
   const topPeso = Math.round(Number(correntiByPeso[0]?.peso) || 0)
@@ -395,7 +412,7 @@ function buildDistribuzioneParagraph(correntiByPeso, famigliaPrevalente) {
 
   if (domEntry && typeof domEntry.peso === 'number') {
     parts.push(
-      `La disposizione prevalente (${domEntry.label || domEntry.nome}, temperamento ${domEntry.nome}) si colloca al ${Math.round(domEntry.peso)}%.`,
+      `Attivazione della famiglia prevalente (${domEntry.label || domEntry.nome}): ${Math.round(domEntry.peso)}% sul massimo possibile.`,
     )
   }
 
@@ -445,7 +462,68 @@ export function buildProfiloThreadLine({ profilo = {}, domTheme = {}, famiglia =
 }
 
 /**
- * Sintesi del profilo — disposizione prevalente, caratteri e orientamento (stile report scientifico).
+ * Fatti chiave compatti per la griglia sintesi (prevalenza, sfumatura, orientamento, portato).
+ * @returns {Array<{ id: string, label: string, value: string, method: string }>}
+ */
+export function buildSintesiKeyFacts({
+  profilo = {},
+  domTheme = {},
+  textBlock = {},
+  sottodisposizione = '',
+  portato = null,
+}) {
+  const macro = domTheme?.macro || ''
+  const temperamento = (profilo.correnteDominante || domTheme?.corrente || '').trim()
+  const dimensione = textBlock?.restituzione_dimensione || profilo.focus || ''
+  const facts = []
+
+  if (macro || temperamento) {
+    let value = macro || temperamento
+    if (macro && temperamento && macro !== temperamento) {
+      value = `${macro} · ${temperamento}`
+    }
+    facts.push({
+      id: 'famiglia',
+      label: 'Famiglia prevalente',
+      value,
+      method: 'Più punti in questo test',
+    })
+  }
+
+  const sotto = String(sottodisposizione || '').trim()
+  const famValue = facts.find((f) => f.id === 'famiglia')?.value || ''
+  if (sotto && sotto !== famValue && !famValue.includes(sotto)) {
+    facts.push({
+      id: 'sfumatura',
+      label: 'Sfumatura prevalente',
+      value: sotto,
+      method: 'Corrente più forte',
+    })
+  }
+
+  if (dimensione) {
+    facts.push({
+      id: 'orientamento',
+      label: 'Orientamento',
+      value: capitalizeLabel(dimensione),
+      method: 'Descrittivo',
+    })
+  }
+
+  if (portato?.prevalenteLabel) {
+    facts.push({
+      id: 'portato',
+      label: 'Portato',
+      value: portato.prevalenteLabel,
+      method: 'Voce con più punti',
+    })
+  }
+
+  return facts
+}
+
+/**
+ * Sintesi del profilo — max 2 frasi per above-the-fold (senza codice colore né orientamento).
  */
 export function buildSintesiLead({
   profilo = {},
@@ -453,10 +531,8 @@ export function buildSintesiLead({
   domTheme = {},
   textBlock = {},
 }) {
-  const famigliaPrevalente = profilo.famiglia || domTheme?.label || ''
   const macro = domTheme?.macro || ''
   const temperamento = (profilo.correnteDominante || domTheme?.corrente || '').trim()
-  const codiceColore = (domTheme?.label || famigliaPrevalente || '').trim()
 
   const estesi = (textBlock?.restituzione_caratteri_estesi || '').trim()
   const hook =
@@ -465,21 +541,12 @@ export function buildSintesiLead({
     firstSentence(domTheme?.tagline) ||
     ''
 
-  const dimensione = textBlock?.restituzione_dimensione || profilo.focus || ''
   const parts = []
 
   if (macro && temperamento) {
-    parts.push(
-      `La disposizione prevalente rilevata dal test è ${macro} (temperamento ${temperamento}).`,
-    )
+    parts.push(`Prevalente la famiglia ${macro} (temperamento ${temperamento}).`)
   } else if (macro) {
-    parts.push(`La disposizione prevalente rilevata dal test è ${macro}.`)
-  }
-
-  if (codiceColore) {
-    parts.push(
-      `Il codice cromatico ${codiceColore.toUpperCase()} è una convenzione di rappresentazione grafica della corrente prevalente, non la disposizione in sé.`,
-    )
+    parts.push(`Prevalente la famiglia ${macro}.`)
   }
 
   if (hook) {
@@ -487,11 +554,21 @@ export function buildSintesiLead({
     parts.push(`${plain.charAt(0).toUpperCase()}${plain.slice(1)}.`)
   }
 
-  const orient = orientamentoNarrativo(dimensione)
-  if (orient) parts.push(orient)
-
   void correntiByPeso
-  return parts.join(' ')
+  return parts.slice(0, 2).join(' ')
+}
+
+/**
+ * Testo esteso per disclosure (orientamento e note integrative dal lead legacy).
+ */
+export function buildSintesiLeadExtended({
+  profilo = {},
+  domTheme: _domTheme = {},
+  textBlock = {},
+}) {
+  const dimensione = textBlock?.restituzione_dimensione || profilo.focus || ''
+  const orient = orientamentoNarrativo(dimensione)
+  return orient ? [orient] : []
 }
 
 /**

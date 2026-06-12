@@ -44,7 +44,7 @@ import {
   getFamilyTheme,
 } from '../config/reportFamilyTheme'
 import { PROFILE_PDF_BLOCKS } from '../reportProfiloPdf.js'
-import { buildIntegrativeParagraphs, buildSintesiLead } from '../content/reportRestitution.js'
+import { buildIntegrativeParagraphs, buildSintesiLead, buildSintesiKeyFacts, buildSintesiLeadExtended } from '../content/reportRestitution.js'
 import {
   FAMIGLIE_LESSICO,
   getFamigliaLessico,
@@ -168,6 +168,7 @@ function buildSottocorrenti(rawRecord = {}) {
       intervalNote: doc.intervalNote || '',
       valore,
       percentuale,
+      criterioPercentuale: 'attivazione',
     }
   }).sort((a, b) => {
     if (b.percentuale !== a.percentuale) return b.percentuale - a.percentuale
@@ -255,6 +256,9 @@ export function extractParoleDalTest(rawRecord = {}) {
           parola,
           corrente: theme.corrente,
           colore: theme.dot,
+          familyKey,
+          familyName,
+          correnteKey,
           count: (prev?.count || 0) + 1,
           peso: 'emersa',
         })
@@ -315,6 +319,7 @@ export function buildReportData({
       label: theme.macro,
       colore: theme.dot,
       peso,
+      criterioPeso: 'attivazione',
       descrizioneBreve,
       lessico,
       statiAnimo: lessico,
@@ -342,6 +347,9 @@ export function buildReportData({
     colore: domTheme.dot,
     coloreChiara: undefined,
     coloreMedia: undefined,
+    criterioNatura: 'prevalenza',
+    criterioFamiglia: 'prevalenza',
+    criterioTemperamento: 'prevalenza',
   }
 
   /* ── Profilo emotivo: 4 pannelli (natura/racconto/risorse/ombre) ──── */
@@ -416,36 +424,36 @@ export function buildReportData({
       nome: 'Natura di base',
       composizione: 'Timbro + Intervalli + Armonia',
       definizione:
-        'Mostra la tua impronta emotiva di fondo, al di là delle situazioni. Evidenzia il registro che tendi ad abitare più spesso.',
+        'Il suolo emotivo di fondo: Terra sonora (Timbro), Luce sonora (Intervalli) e Calore sonoro (Armonia). Mostra l’impronta che tendi ad abitare al di là delle situazioni.',
       cosaIndica:
-        'È la sintesi strutturale della disposizione prevalente: come risuoni nel profondo, prima della pressione delle circostanze.',
+        'Sintesi strutturale della disposizione prevalente: come risuoni nel profondo, prima della pressione delle circostanze.',
     },
     {
       id: 'se',
       nome: 'Rapporto con te stesso',
       composizione: 'Intervalli + Melodia',
       definizione:
-        'Indica come vivi il tuo mondo interno: riflessione, dialogo con te stesso e qualità del sentire personale.',
+        'Il dialogo con l’interiorità: Luce sonora (Intervalli) e Aria sonora (Melodia). Indica riflessione, qualità del sentire e racconto personale.',
       cosaIndica:
-        'Mostra quanto spazio dai all’interiorità e al racconto di ciò che vivi dentro di te.',
+        'Quanto spazio dai all’interiorità e a nominare ciò che vivi dentro di te.',
     },
     {
       id: 'altro',
       nome: 'Rapporto con l’Altro',
       composizione: 'Timbro + Melodia',
       definizione:
-        'Rappresenta come ti disponi emotivamente verso persone e ambiente. Evidenzia quali famiglie entrano più facilmente in relazione.',
+        'La disponibilità relazionale: Terra sonora (Timbro) e Aria sonora (Melodia). Mostra come ti apri verso persone e ambiente.',
       cosaIndica:
-        'Indica il modo in cui entri in contatto, ti lasci toccare e rispondi al mondo relazionale.',
+        'Il modo in cui entri in contatto, ti lasci toccare e rispondi al mondo relazionale.',
     },
     {
       id: 'agire',
       nome: 'Rapporto con l’Agire',
       composizione: 'Ritmo + Melodia',
       definizione:
-        'Mostra come trasformi le emozioni in azione: iniziativa, ritmo decisionale e tendenza a muoverti, fermarti o osservare.',
+        'L’energia del fare: Acqua sonora (Ritmo) e Aria sonora (Melodia). Mostra come trasformi emozioni in movimento, iniziativa o sosta.',
       cosaIndica:
-        'Indica la tua energia volitiva: quanto sei spinto ad agire o a sostare e lasciar scorrere.',
+        'La spinta volitiva: quanto sei portato ad agire, muoverti o lasciare scorrere.',
     },
   ]
 
@@ -475,6 +483,7 @@ export function buildReportData({
       cosaIndica: meta.cosaIndica,
       correntePrincipale: { nome: principale.nome, colore: principale.colore },
       datiRadar,
+      criterioRadar: 'livello_relativo',
     }
   })
 
@@ -525,6 +534,8 @@ export function buildReportData({
       label: portatoContent[key]?.label || key,
       valore,
       percentuale,
+      criterioValore: 'prevalenza',
+      criterioPercentuale: 'quota',
       definizioneBreve: definizioneBreveByKey[key] || '',
     }
   })
@@ -538,6 +549,7 @@ export function buildReportData({
     vitalita,
     dimensioni,
     hasData: portatoSum > 0,
+    criterioPrevalente: 'prevalenza',
   }
   if (!portato.hasData) fallbacks.push('portato: punteggi PE assenti o tutti a zero.')
 
@@ -575,8 +587,22 @@ export function buildReportData({
     domTheme,
     textBlock,
   })
+  const sintesiKeyFacts = buildSintesiKeyFacts({
+    profilo,
+    domTheme,
+    textBlock,
+    sottodisposizione: rawRecord.Sottodisposizione_Prevalente || '',
+    portato,
+  })
+  const sintesiLeadExtended = buildSintesiLeadExtended({
+    profilo,
+    domTheme,
+    textBlock,
+  })
   const sintesi = {
     lead: sintesiLead,
+    keyFacts: sintesiKeyFacts,
+    leadExtended: sintesiLeadExtended,
     paragrafi: sintesiParagrafi,
     testo: sintesiParagrafi.join('\n\n'),
     datiRadar,

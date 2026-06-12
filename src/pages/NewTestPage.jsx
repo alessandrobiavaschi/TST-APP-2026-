@@ -19,7 +19,6 @@ import { useAuth } from '../AuthContext.jsx'
 import { useAdaptiveFlow } from '../hooks/useAdaptiveFlow.js'
 import { getFlowerStillByColor } from '../colorAssets.js'
 import '../styles/nuovo-test-flow.css'
-import { TUTORIAL_LISTENING_LEAD, TUTORIAL_LISTENING_SLIDES } from '../tutorialListeningSlides.js'
 
 function computeColorTotalsForRecord(record) {
   const blu =
@@ -236,19 +235,6 @@ const RESULT_ANALYSIS_MESSAGES = [
 
 const STORAGE_KEY_TEST_STARTED = 'tst_test_started_v1'
 const STORAGE_KEY_TEST_DRAFT = 'tst_test_draft_v1'
-const DEBUG_SESSION_RUN_ID = 'run-cbis-30'
-
-function sendDebugLog({ hypothesisId, location, message, data = {}, runId = DEBUG_SESSION_RUN_ID }) {
-  // #region agent log
-  fetch('http://127.0.0.1:7527/ingest/9a8c1779-de14-406d-8ed0-f0cfc6d332d5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'9ce234'},body:JSON.stringify({sessionId:'9ce234',runId,hypothesisId,location,message,data,timestamp:Date.now()})}).catch(()=>{})
-  // #endregion
-}
-
-function sendLayoutDebugLog({ hypothesisId, location, message, data = {}, runId = 'layout-pre-fix-1' }) {
-  // #region agent log
-  fetch('http://127.0.0.1:7527/ingest/9a8c1779-de14-406d-8ed0-f0cfc6d332d5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'c3b471'},body:JSON.stringify({sessionId:'c3b471',runId,hypothesisId,location,message,data,timestamp:Date.now()})}).catch(()=>{})
-  // #endregion
-}
 
 function getMacroSectionLabel(fileNumber) {
   if (fileNumber >= 1 && fileNumber <= 28) return 'Timbro'
@@ -340,7 +326,6 @@ function NewTestPage() {
   const [audioDuration, setAudioDuration] = useState(0)
   const [showExitConfirm, setShowExitConfirm] = useState(false)
   const [showDraftSubmitConfirm, setShowDraftSubmitConfirm] = useState(false)
-  const [showTutorialCard, setShowTutorialCard] = useState(false)
   const [showAreasHelp, setShowAreasHelp] = useState(false)
   const [isThresholdFocusActive, setIsThresholdFocusActive] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -399,7 +384,6 @@ function NewTestPage() {
       : 0
 
   const isGuestMode = location.state && location.state.mode === 'guest'
-  const tutorialHighlights = TUTORIAL_LISTENING_SLIDES
 
   useEffect(() => {
     if (!authReady) return
@@ -407,17 +391,6 @@ function NewTestPage() {
       navigate('/', { replace: true, state: { fromTest: true } })
     }
   }, [authReady, user, isGuestMode, navigate])
-
-  useEffect(() => {
-    if (!showTutorialCard) return undefined
-    const onKeyDown = (event) => {
-      if (event.key === 'Escape') {
-        setShowTutorialCard(false)
-      }
-    }
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [showTutorialCard])
 
   useEffect(() => {
     if (!showAreasHelp) return undefined
@@ -438,19 +411,6 @@ function NewTestPage() {
       document.body.style.overflow = prev
     }
   }, [showAreasHelp])
-
-  useEffect(() => {
-    if (!showTutorialCard) return undefined
-    const prev = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.body.style.overflow = prev
-    }
-  }, [showTutorialCard])
-
-  useEffect(() => {
-    if (!showIntro) setShowTutorialCard(false)
-  }, [showIntro])
 
   const stopAudio = () => {
     const audio = audioRef.current
@@ -500,6 +460,10 @@ function NewTestPage() {
       }
     } catch (error) {
       setAudioError(explainPlayError(error))
+      setIsChoicesVisible(true)
+      setNavigationHint(
+        'Puoi comunque scegliere una risposta. Per l’ascolto: verifica VITE_AUDIO_BASE_URL o i file in public/audio/.',
+      )
     } finally {
       setIsAudioBusy(false)
     }
@@ -538,7 +502,7 @@ function NewTestPage() {
 
   useEffect(() => {
     setAudioError(null)
-    setIsChoicesVisible(true)
+    setIsChoicesVisible(false)
     setNavigationHint('')
     if (resetTimerRef.current) {
       window.clearTimeout(resetTimerRef.current)
@@ -560,6 +524,7 @@ function NewTestPage() {
     }, timings.transitionDelayMs)
     resetTimerRef.current = window.setTimeout(() => {
       setNeuroChoiceStage('passive')
+      setIsChoicesVisible(true)
       resetTimerRef.current = null
     }, timings.choiceResetMs)
     const audio = audioRef.current
@@ -585,19 +550,6 @@ function NewTestPage() {
       }
     }
 
-    if (currentFile >= 29 && currentFile <= 31) {
-      sendDebugLog({
-        hypothesisId: 'N4',
-        location: 'src/pages/NewTestPage.jsx:useEffect[currentFile/audio]',
-        message: 'Step media/context snapshot around sezione B',
-        data: {
-          currentFile,
-          audioSrc,
-          audioSourceIssue: getAudioSourceIssue(audioSrc) || null,
-          currentFileKey,
-        },
-      })
-    }
   }, [
     audioSrc,
     currentFile,
@@ -687,23 +639,6 @@ function NewTestPage() {
     return () => window.clearInterval(timer)
   }, [isAnalyzingResult, loadingFlowerImages.length])
 
-  useEffect(() => {
-    if (currentFile < 29 || currentFile > 31) return
-    sendDebugLog({
-      hypothesisId: 'N5',
-      location: 'src/pages/NewTestPage.jsx:useEffect[navigation-state]',
-      message: 'Navigation state around C_BIS',
-      data: {
-        currentFile,
-        currentFileKey,
-        isCurrentStepAnswered,
-        canGoNext,
-        storedAnswerForCurrent: (testRecord[currentFileKey] || '').slice(0, 120),
-        questionTitle: getQuestionTitleForFile(currentFile),
-      },
-    })
-  }, [currentFile, currentFileKey, isCurrentStepAnswered, canGoNext, testRecord])
-
   const handleProfilazioneChange = (field) => (event) => {
     const value = event.target.value
     setTestRecord((prev) => {
@@ -759,20 +694,6 @@ function NewTestPage() {
     stopPreviewAudio()
     const fileNumber = currentFile
     const previousAnswerForFile = answersByFile[fileNumber]
-    if (fileNumber >= 29 && fileNumber <= 31) {
-      sendDebugLog({
-        hypothesisId: 'N2',
-        location: 'src/pages/NewTestPage.jsx:handleAnswer:start',
-        message: 'Answer click captured',
-        data: {
-          fileNumber,
-          answerLabel: answerLabel || null,
-          affinitaOptionId: affinitaOptionId || null,
-          isConfirmation,
-          previousDeltaKeys: Object.keys(previousAnswerForFile?.delta || {}),
-        },
-      })
-    }
 
     const delta = computeScoreDeltaForAnswer({
       fileNumber,
@@ -781,19 +702,6 @@ function NewTestPage() {
       isConfirmation,
     })
     const hasDelta = Boolean(delta && Object.keys(delta).length > 0)
-    if (fileNumber >= 29 && fileNumber <= 31) {
-      sendDebugLog({
-        hypothesisId: 'N3',
-        location: 'src/pages/NewTestPage.jsx:handleAnswer:delta',
-        message: 'Delta computation result',
-        data: {
-          fileNumber,
-          hasDelta,
-          deltaKeys: Object.keys(delta || {}),
-          deltaValues: delta || {},
-        },
-      })
-    }
     if (!hasDelta) {
       console.warn('Nessun delta calcolato per la risposta (fallback: avanzamento senza punteggio).', {
         fileNumber,
@@ -860,17 +768,6 @@ function NewTestPage() {
       },
     }))
 
-    if (fileNumber >= 29 && fileNumber <= 31) {
-      sendDebugLog({
-        hypothesisId: 'N3',
-        location: 'src/pages/NewTestPage.jsx:handleAnswer:ready',
-        message: 'Answer stored, waiting for Next trigger',
-        data: {
-          fileNumber,
-          canGoNextAfterAnswer: true,
-        },
-      })
-    }
     if (fileNumber < TOTAL_STEPS) {
       proceedToNextStep()
     }
@@ -899,19 +796,6 @@ function NewTestPage() {
 
   const proceedToNextStep = () => {
     if (isProcessingNext) return
-    if (currentFile >= 29 && currentFile <= 31) {
-      sendDebugLog({
-        hypothesisId: 'N3',
-        location: 'src/pages/NewTestPage.jsx:handleNextStep:allowed',
-        message: 'Next allowed',
-        data: {
-          currentFile,
-          currentFileKey,
-          currentValue: (testRecord[currentFileKey] || '').slice(0, 120),
-          canGoNext,
-        },
-      })
-    }
     if (currentFile >= 72) return
     stopAudio()
     stopPreviewAudio()
@@ -1195,19 +1079,6 @@ function NewTestPage() {
 
   const renderAnswerButtons = () => {
     const group = getQuestionGroupForFile(currentFile)
-    if (currentFile >= 29 && currentFile <= 31) {
-      sendDebugLog({
-        hypothesisId: 'N1',
-        location: 'src/pages/NewTestPage.jsx:renderAnswerButtons',
-        message: 'Rendering answer block',
-        data: {
-          currentFile,
-          group,
-          dizionario1Count: Object.keys(DIZIONARIO_1).length,
-          dizionario2Count: Object.keys(DIZIONARIO_2).length,
-        },
-      })
-    }
 
     if (group === 'B') {
       return (
@@ -1396,79 +1267,6 @@ function NewTestPage() {
     }
   }, [profilingDone, testCompleted])
 
-  useEffect(() => {
-    if (!profilingDone || testCompleted || typeof window === 'undefined') return
-
-    sendLayoutDebugLog({
-      hypothesisId: 'H1',
-      location: 'src/pages/NewTestPage.jsx:useEffect[layout-debug]:entry',
-      message: 'Layout debug effect triggered',
-      data: {
-        currentFile,
-        isSessionActiveClassExpected: profilingDone && !testCompleted,
-        questionTitleLength: String(getQuestionTitleForFile(currentFile) || '').length,
-      },
-    })
-
-    const frameId = window.requestAnimationFrame(() => {
-      const root = document.querySelector('.nuovo-test-page--session-active')
-      const player = document.querySelector('.test-stage-audio-zone--menu-tab.player-card--bottom-dock')
-      const mainCard = document.querySelector('.test-stage-main-card')
-      const answersShell = document.querySelector('.test-stage-answers-shell')
-      const answersZone = document.querySelector('.test-stage-answers-zone')
-      const answersGrid = document.querySelector('.test-stage-answers-zone .answers-grid, .test-stage-answers-zone .answers-grid--dense')
-      const footer = document.querySelector('.test-stage-footer')
-
-      const css = (el) => (el ? window.getComputedStyle(el) : null)
-      const rect = (el) => (el ? el.getBoundingClientRect() : null)
-
-      sendLayoutDebugLog({
-        hypothesisId: 'H2',
-        location: 'src/pages/NewTestPage.jsx:useEffect[layout-debug]:snapshot',
-        message: 'Computed layout snapshot',
-        data: {
-          rootHeight: rect(root)?.height || null,
-          mainCardHeight: rect(mainCard)?.height || null,
-          answersShellHeight: rect(answersShell)?.height || null,
-          answersZoneHeight: rect(answersZone)?.height || null,
-          playerHeight: rect(player)?.height || null,
-          footerHeight: rect(footer)?.height || null,
-          mainCardGridRows: css(mainCard)?.gridTemplateRows || null,
-          answersShellOverflow: css(answersShell)?.overflow || null,
-          answersZoneOverflow: css(answersZone)?.overflow || null,
-        },
-      })
-
-      sendLayoutDebugLog({
-        hypothesisId: 'H3',
-        location: 'src/pages/NewTestPage.jsx:useEffect[layout-debug]:answers',
-        message: 'Answers visibility snapshot',
-        data: {
-          answersButtonsCount: answersGrid ? answersGrid.querySelectorAll('button.answer-button').length : 0,
-          answersGridDisplay: css(answersGrid)?.display || null,
-          answersGridHeight: rect(answersGrid)?.height || null,
-          answersZoneScrollHeight: answersZone ? answersZone.scrollHeight : null,
-          answersZoneClientHeight: answersZone ? answersZone.clientHeight : null,
-        },
-      })
-
-      sendLayoutDebugLog({
-        hypothesisId: 'H4',
-        location: 'src/pages/NewTestPage.jsx:useEffect[layout-debug]:player',
-        message: 'Player and top controls snapshot',
-        data: {
-          playerPosition: css(player)?.position || null,
-          playerDisplay: css(player)?.display || null,
-          playerGridColumns: css(player)?.gridTemplateColumns || null,
-          playerBottom: css(player)?.bottom || null,
-          playerPadding: css(player)?.padding || null,
-        },
-      })
-    })
-
-    return () => window.cancelAnimationFrame(frameId)
-  }, [profilingDone, testCompleted, currentFile, isProcessingNext, isChoicesVisible])
-
   if (!isGuestMode && !authReady) {
     return (
       <div className="page">
@@ -1505,7 +1303,7 @@ function NewTestPage() {
                 <div className="nuovo-test-hero-ctas">
                   <button
                     type="button"
-                    className="btn btn-primary"
+                    className="nav-button primary"
                     onClick={() => {
                       uiSounds?.resumeAudioContext?.()
                       uiSounds?.playTestPrimaryTap?.()
@@ -1534,10 +1332,10 @@ function NewTestPage() {
                   </button>
                   <button
                     type="button"
-                    className="btn btn-secondary nuovo-test-tutorial-trigger"
+                    className="nav-button secondary nuovo-test-tutorial-trigger"
                     onClick={() => {
                       uiSounds?.playTestTap?.()
-                      setShowTutorialCard(true)
+                      navigate('/tutorial', { state: { fromPath: '/nuovo-test' } })
                     }}
                   >
                     Tutorial
@@ -1717,11 +1515,18 @@ function NewTestPage() {
                       playsInline
                       onPlay={() => {
                         setNeuroChoiceStage('passive')
-                        setIsChoicesVisible(true)
+                        setIsChoicesVisible(false)
                       }}
                       onError={() => {
                         const issue = getAudioSourceIssue(audioSrc)
-                        setAudioError(issue || 'File audio non disponibile o danneggiato.')
+                        setAudioError(
+                          issue ||
+                            'File audio non disponibile. In dev: imposta VITE_AUDIO_BASE_URL nel .env oppure copia 1.mp3…72.mp3 in public/audio/, poi riavvia npm run dev.',
+                        )
+                        setIsChoicesVisible(true)
+                        setNavigationHint(
+                          'Puoi comunque scegliere una risposta. Per l’ascolto: verifica VITE_AUDIO_BASE_URL o i file in public/audio/.',
+                        )
                       }}
                       onCanPlay={() => {
                         setAudioError(null)
@@ -2091,98 +1896,25 @@ function NewTestPage() {
               isAnalyzingResult &&
               createPortal(
                 <section
+                  className="nuovo-test-page result-analysis-transition"
                   aria-live="polite"
-                  style={{
-                    position: 'fixed',
-                    inset: 0,
-                    zIndex: 9999,
-                    display: 'grid',
-                    placeItems: 'center',
-                    padding: '20px',
-                    background:
-                      'radial-gradient(circle at 22% 8%, rgba(74, 116, 244, 0.33), transparent 42%), radial-gradient(circle at 80% 90%, rgba(38, 160, 255, 0.2), transparent 45%), linear-gradient(150deg, #03123b 0%, #072266 52%, #04143f 100%)',
-                  }}
+                  aria-label="Elaborazione risultati"
                 >
-                  <div
-                    style={{
-                      width: 'min(760px, calc(100vw - 36px))',
-                      maxHeight: 'calc(100vh - 40px)',
-                      overflowY: 'auto',
-                      borderRadius: '20px',
-                      border: '1px solid rgba(170, 196, 255, 0.5)',
-                      background:
-                        'linear-gradient(160deg, rgba(10, 30, 88, 0.98) 0%, rgba(6, 22, 64, 0.97) 100%)',
-                      boxShadow:
-                        '0 24px 58px rgba(0, 7, 25, 0.6), 0 0 0 1px rgba(140, 186, 255, 0.15), 0 0 26px rgba(61, 136, 255, 0.4)',
-                      padding: '20px',
-                      color: '#eaf2ff',
-                      fontFamily: 'Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif',
-                    }}
-                  >
-                    <p
-                      style={{
-                        margin: 0,
-                        fontSize: '12px',
-                        letterSpacing: '0.1em',
-                        textTransform: 'uppercase',
-                        fontWeight: 700,
-                        color: 'rgba(201, 220, 255, 0.95)',
-                        textShadow: '0 0 10px rgba(148, 195, 255, 0.45)',
-                      }}
-                    >
-                      Elaborazione risultati
-                    </p>
-                    <h3
-                      style={{
-                        margin: '8px 0 0',
-                        fontSize: '24px',
-                        lineHeight: 1.22,
-                        color: '#f8fbff',
-                        textShadow: '0 0 12px rgba(117, 174, 255, 0.3)',
-                      }}
-                    >
-                      Stiamo calcolando il tuo report
-                    </h3>
+                  <div className="result-analysis-card">
+                    <p className="result-analysis-kicker">Elaborazione risultati</p>
+                    <h3 className="result-analysis-title">Stiamo calcolando il tuo report</h3>
 
                     {loadingFlowerImages.length > 0 && (
-                      <div
-                        aria-hidden="true"
-                        style={{
-                          width: '100%',
-                          maxWidth: '620px',
-                          height: '184px',
-                          margin: '16px auto 8px',
-                          borderRadius: '14px',
-                          border: '1px solid rgba(148, 180, 255, 0.35)',
-                          background:
-                            'linear-gradient(180deg, rgba(9, 26, 72, 0.68), rgba(7, 20, 56, 0.76))',
-                          boxShadow:
-                            'inset 0 1px 0 rgba(200, 220, 255, 0.12), inset 0 0 26px rgba(71, 138, 255, 0.18), 0 0 18px rgba(37, 119, 255, 0.28)',
-                          overflow: 'hidden',
-                          position: 'relative',
-                        }}
-                      >
+                      <div className="result-analysis-flower-shell result-analysis-flower-carousel" aria-hidden="true">
                         <div
-                          aria-hidden="true"
-                          style={{
-                            position: 'absolute',
-                            top: 0,
-                            bottom: 0,
-                            width: '28%',
-                            background:
-                              'linear-gradient(90deg, rgba(255,255,255,0), rgba(154,210,255,0.22), rgba(255,255,255,0))',
-                            transform: `translateX(${((loadingFlowerTick % 6) - 1) * 120}%)`,
-                            transition: 'transform 360ms ease-out',
-                            pointerEvents: 'none',
-                          }}
+                          className="result-analysis-flower-shimmer"
+                          style={{ transform: `translateX(${((loadingFlowerTick % 6) - 1) * 120}%)` }}
                         />
                         <div
+                          className="result-analysis-flower-track"
                           style={{
                             width: `${loadingFlowerImages.length * 100}%`,
-                            height: '100%',
-                            display: 'flex',
                             transform: `translateX(-${animatedFlowerIndex * (100 / loadingFlowerImages.length)}%)`,
-                            transition: 'transform 760ms cubic-bezier(0.22, 1, 0.36, 1)',
                           }}
                         >
                           {loadingFlowerImages.map((item, index) => {
@@ -2190,28 +1922,13 @@ function NewTestPage() {
                             return (
                               <div
                                 key={item.key}
-                                style={{
-                                  width: `${100 / loadingFlowerImages.length}%`,
-                                  height: '100%',
-                                  display: 'grid',
-                                  placeItems: 'center',
-                                  flexShrink: 0,
-                                }}
+                                className="result-analysis-flower-slide"
+                                style={{ width: `${100 / loadingFlowerImages.length}%` }}
                               >
                                 <img
                                   src={item.src}
                                   alt=""
-                                  style={{
-                                    width: '150px',
-                                    height: '150px',
-                                    objectFit: 'contain',
-                                    opacity: isActive ? 1 : 0.45,
-                                    transform: isActive ? 'scale(1.07) rotate(-2deg)' : 'scale(0.88)',
-                                    transition: 'opacity 520ms ease, transform 520ms ease',
-                                    filter: isActive
-                                      ? 'drop-shadow(0 8px 14px rgba(0, 0, 0, 0.38)) drop-shadow(0 0 14px rgba(96, 161, 255, 0.45))'
-                                      : 'none',
-                                  }}
+                                  className={`result-analysis-flower-image${isActive ? ' is-active' : ''}`}
                                 />
                               </div>
                             )
@@ -2220,61 +1937,21 @@ function NewTestPage() {
                       </div>
                     )}
 
-                    <p
-                      style={{
-                        margin: '10px 0 0',
-                        fontSize: '16px',
-                        lineHeight: 1.45,
-                        color: 'rgba(232, 241, 255, 0.95)',
-                      }}
-                    >
+                    <p className="result-analysis-message">
                       {RESULT_ANALYSIS_MESSAGES[analysisMessageIndex]}
                     </p>
 
-                    <div
-                      aria-hidden="true"
-                      style={{
-                        marginTop: '14px',
-                        width: '100%',
-                        height: '11px',
-                        borderRadius: '999px',
-                        overflow: 'hidden',
-                        background: 'rgba(94, 126, 201, 0.45)',
-                        boxShadow: 'inset 0 0 12px rgba(14, 44, 120, 0.72)',
-                      }}
-                    >
+                    <div className="result-analysis-progress" aria-hidden="true">
                       <div
-                        style={{
-                          width: `${analysisProgress.toFixed(2)}%`,
-                          height: '100%',
-                          borderRadius: '999px',
-                          background: 'linear-gradient(90deg, #4f8eff, #79abff 45%, #a7c2ff)',
-                          transition: 'width 140ms linear',
-                          boxShadow: '0 0 14px rgba(100, 160, 255, 0.8)',
-                        }}
+                        className="result-analysis-progress-bar"
+                        style={{ width: `${analysisProgress.toFixed(2)}%` }}
                       />
                     </div>
 
-                    <p
-                      style={{
-                        margin: '10px 0 0',
-                        fontSize: '13px',
-                        lineHeight: 1.35,
-                        color: 'rgba(201, 220, 255, 0.9)',
-                      }}
-                    >
+                    <p className="result-analysis-note">
                       Privacy attiva: i dati vengono trattati in forma riservata e protetta.
                     </p>
-                    <p
-                      style={{
-                        margin: '8px 0 0',
-                        fontSize: '13px',
-                        color: 'rgba(190, 210, 255, 0.9)',
-                        textAlign: 'right',
-                      }}
-                    >
-                      {Math.round(analysisProgress)}%
-                    </p>
+                    <p className="result-analysis-percent">{Math.round(analysisProgress)}%</p>
                   </div>
                 </section>,
                 document.body,
@@ -2417,72 +2094,6 @@ function NewTestPage() {
           )}
         </section>
       )}
-      {showTutorialCard &&
-        createPortal(
-          <div
-            className="nuovo-test-tutorial-layer"
-            role="presentation"
-            onClick={() => {
-              uiSounds?.playTestGhostTap?.()
-              setShowTutorialCard(false)
-            }}
-          >
-            <div
-              className="nuovo-test-tutorial-vignetta"
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="nuovo-test-tutorial-heading"
-              onClick={(event) => event.stopPropagation()}
-            >
-              <button
-                type="button"
-                className="nuovo-test-tutorial-close"
-                aria-label="Chiudi il tutorial"
-                onClick={() => {
-                  uiSounds?.playTestTap?.()
-                  setShowTutorialCard(false)
-                }}
-              >
-                <span aria-hidden="true">×</span>
-              </button>
-              <div className="nuovo-test-tutorial-vignetta-frame">
-                <div className="nuovo-test-tutorial-vignetta-header">
-                  <p className="nuovo-test-tutorial-eyebrow">Tutorial</p>
-                  <h2 id="nuovo-test-tutorial-heading" className="nuovo-test-tutorial-heading">
-                    Modalità ascolto
-                  </h2>
-                  <p className="nuovo-test-tutorial-lead">{TUTORIAL_LISTENING_LEAD}</p>
-                </div>
-                <div className="nuovo-test-tutorial-steps">
-                  {tutorialHighlights.map((item, index) => (
-                    <div key={item.title} className="nuovo-test-tutorial-step">
-                      <span className="nuovo-test-tutorial-step-num" aria-hidden="true">
-                        {index + 1}
-                      </span>
-                      <div className="nuovo-test-tutorial-step-body">
-                        <h3>{item.title}</h3>
-                        <p>{item.text}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="nuovo-test-tutorial-actions">
-                  <button
-                    type="button"
-                    className="btn btn-primary nuovo-test-tutorial-cta"
-                    onClick={() => {
-                      uiSounds?.playTestTransition?.()
-                      setShowTutorialCard(false)
-                    }}
-                  >
-                    Ho capito, iniziamo
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>,
-          document.body,
-        )}
       {showAreasHelp &&
         createPortal(
           <div

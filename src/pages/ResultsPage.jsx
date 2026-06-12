@@ -149,6 +149,68 @@ const DISPOSIZIONI_SIGNIFICATO = {
 const NORMALIZZAZIONE_SPIEGAZIONE =
   'I livelli 1–7 sono ottenuti normalizzando i valori grezzi: la famiglia con punteggio massimo prende 7, le altre in proporzione (valore ÷ massimo × 7), con minimo 1.'
 
+function getDispColor(val) {
+  if (!val) return '#94a3b8'
+  const v = val.toLowerCase()
+  if (v.includes('malinconia')) return '#3b82f6'
+  if (v.includes('volitiv')) return '#ef4444'
+  if (v.includes('calma')) return '#22c55e'
+  if (v.includes('entusiasmo')) return '#eab308'
+  if (v.includes('anaffettiv')) return '#6b7280'
+  return '#94a3b8'
+}
+
+function DisposizioneBadge({ value }) {
+  if (!value) return <span className="results-cell-empty">—</span>
+  const color = getDispColor(value)
+  return (
+    <span className="disp-badge" style={{ '--badge-color': color }}>
+      <span className="disp-badge-dot" aria-hidden="true" />
+      {value}
+    </span>
+  )
+}
+
+function StatoBadge({ bozza }) {
+  return bozza ? (
+    <span className="stato-badge stato-badge--bozza">Bozza</span>
+  ) : (
+    <span className="stato-badge stato-badge--consegnato">Consegnato</span>
+  )
+}
+
+function PortatoBadge({ value }) {
+  if (!value || value === '—') return <span className="results-cell-empty">—</span>
+  const key = value.toLowerCase()
+  return <span className={`portato-badge portato-badge--${key}`}>{value}</span>
+}
+
+function IconFolderAll() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M3 7a2 2 0 0 1 2-2h3.17a2 2 0 0 1 1.42.59L10.83 7H19a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" />
+      <line x1="3" y1="12" x2="21" y2="12" />
+    </svg>
+  )
+}
+
+function IconFolderArea() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2z" />
+    </svg>
+  )
+}
+
+function IconTrashCan() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <polyline points="3 6 5 6 21 6" />
+      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+    </svg>
+  )
+}
+
 /** Portato esperienziale prevalente dal record (PE_Simpatia, PE_Antipatia, PE_Indifferenza). */
 export function getPortatoDominant(raw) {
   if (!raw) return null
@@ -1357,7 +1419,7 @@ function ResultsPage() {
                 dropTestOnArea(null)
               }}
             >
-              <span className="archives-nav-icon" aria-hidden>📁</span>
+              <span className="archives-nav-icon"><IconFolderAll /></span>
               <span>Archivio totale</span>
               <span className="archives-nav-count">
                 {records.filter((r) => !r.raw.In_Cestino).length}
@@ -1427,7 +1489,7 @@ function ResultsPage() {
                     }}
                     title="Clicca per selezionare, doppio clic per rinominare"
                   >
-                    <span className="archives-nav-icon" aria-hidden>📂</span>
+                    <span className="archives-nav-icon"><IconFolderArea /></span>
                     <span className="archives-nav-label">{area.name}</span>
                     <span className="archives-nav-count">
                       {records.filter((r) => (r.raw.areaId || null) === area.id && !r.raw.In_Cestino).length}
@@ -1468,7 +1530,7 @@ function ResultsPage() {
                 dropTestOnTrash()
               }}
             >
-              <span className="archives-nav-icon" aria-hidden>🗑</span>
+              <span className="archives-nav-icon"><IconTrashCan /></span>
               <span>Cestino</span>
               <span className="archives-nav-count">
                 {records.filter((r) => r.raw.In_Cestino).length}
@@ -1667,10 +1729,10 @@ function ResultsPage() {
                         <td>{r.age != null ? r.age : '—'}</td>
                         <td>{r.raw.Strumento_Suonato || '—'}</td>
                         <td>{formatDateShort(r.raw.Data_Ora_Fine_Test)}</td>
-                        <td>{r.raw.Bozza_Test ? 'BOZZA' : 'CONSEGNATO'}</td>
-                        <td>{r.raw.Disposizione_Prevalente || '—'}</td>
-                        <td>{r.raw.Sottodisposizione_Prevalente || '—'}</td>
-                        <td>{r.raw.Portato_Esperienziale_Prevalente || '—'}</td>
+                        <td><StatoBadge bozza={r.raw.Bozza_Test} /></td>
+                        <td><DisposizioneBadge value={r.raw.Disposizione_Prevalente} /></td>
+                        <td>{r.raw.Sottodisposizione_Prevalente || <span className="results-cell-empty">—</span>}</td>
+                        <td><PortatoBadge value={r.raw.Portato_Esperienziale_Prevalente} /></td>
                         <td onClick={(e) => e.stopPropagation()}>
                           <select
                             className="results-area-select"
@@ -1689,7 +1751,7 @@ function ResultsPage() {
                         {MATRICE_HEADERS.map((h) => (
                           <td key={h.key}>{r.totals[h.key]}</td>
                         ))}
-                        <td>{portatoLabel}</td>
+                        <td><PortatoBadge value={portatoLabel} /></td>
                         <td onClick={(e) => e.stopPropagation()}>
                           <button
                             type="button"

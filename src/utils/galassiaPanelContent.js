@@ -4,7 +4,7 @@
  */
 
 import { DISPOSITIONS, POLARITY_LABEL } from '../config/dispositions'
-import { CORRENTE_DESCRIPTIONS, getSottocorrenteMeta } from '../config/galaxyContent'
+import { CORRENTE_DESCRIPTIONS } from '../config/galaxyContent'
 import {
   getGalaxyTheoryForDisposition,
   getGalaxyTheoryForRawKey,
@@ -47,15 +47,12 @@ export function getDominantCorrente(correntData = []) {
 
 function buildSubOverviewEntry(sub) {
   const theory = getGalaxyTheoryForRawKey(sub.id)
-  const meta = getSottocorrenteMeta(sub.id)
   return {
     id: sub.id,
     nome: sub.nome,
     pct: pesoToPct(sub.peso),
     colore: sub.colore,
-    intervallo: theory?.interval || '',
-    coloreTST: theory?.color || '',
-    descrizione: theory?.description || sub.descrizione || meta?.intervalNote || '',
+    descrizione: theory?.description || sub.descrizione || '',
     statiDanimo: Array.isArray(sub.statiDanimo) ? sub.statiDanimo : [],
   }
 }
@@ -98,7 +95,6 @@ export function buildPlanetPanelContent(corrente, { inCostellazione = false } = 
 export function buildSubPanelContent(sub, parentCorrente) {
   if (!sub || !parentCorrente) return null
   const theory = getGalaxyTheoryForRawKey(sub.id)
-  const meta = getSottocorrenteMeta(sub.id)
   const parentDisp = dispositionForId(parentCorrente.id)
   const colorKey = parentDisp?.colorKey || ''
   return {
@@ -111,27 +107,32 @@ export function buildSubPanelContent(sub, parentCorrente) {
     colore: sub.colore || parentCorrente.colore,
     famiglia: FAMIGLIA_LABEL[colorKey] || '',
     famigliaColore: colorKey,
-    definizione: theory?.description || sub.descrizione || meta?.intervalNote || '',
-    cosaIndica: theory
-      ? `${theory.interval} · ${theory.color}`
-      : meta?.intervalNote || '',
-    intervallo: theory?.interval || '',
-    coloreTST: theory?.color || '',
+    definizione: theory?.description || sub.descrizione || '',
+    cosaIndica: '',
     hierarchy: GALASSIA_CRT.hierarchySub(parentCorrente.nome),
     statiDanimo: Array.isArray(sub.statiDanimo) ? sub.statiDanimo : [],
   }
 }
 
-/** Pannello vuoto: orientamento (niente dump del profilo intero). */
-export function buildMinimalIdlePanel() {
+/** Pannello vuoto: chip prevalente + invito a toccare la mappa. */
+export function buildMinimalIdlePanel(correntData = []) {
+  const dominant = getDominantCorrente(correntData)
   return {
     kind: 'idle',
     id: 'idle',
     nome: GALASSIA_CRT.idleTitle,
-    colore: '#94a3b8',
+    colore: dominant?.colore || '#94a3b8',
     pct: null,
     hint: GALASSIA_CRT.idleLead,
     tapHint: GALASSIA_CRT.idleTapHint,
+    dominantChip: dominant
+      ? {
+          id: dominant.id,
+          nome: dominant.nome,
+          pct: pesoToPct(dominant.peso),
+          colore: dominant.colore,
+        }
+      : null,
     definizione: '',
     cosaIndica: '',
     statiDanimo: [],
@@ -164,5 +165,7 @@ export function resolveGalassiaPanelContent({
     if (hovered) return buildPlanetPanelContent(hovered)
   }
 
-  return buildMinimalIdlePanel()
+  return buildMinimalIdlePanel(correntData)
 }
+
+export { getGalaxyTheoryForRawKey }

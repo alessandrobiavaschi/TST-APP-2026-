@@ -10,7 +10,12 @@ import OperatorSection from './OperatorSection'
  *   - sezioniTest: oggetto narrativo per ReportAccordion
  *   - filtroMusicale: risposte finali su aree A-E / qualità / difficoltà
  */
-export default function ApprofondimentoSezioni({ sezioniData, sezioniTest, filtroMusicale }) {
+export default function ApprofondimentoSezioni({
+  sezioniData,
+  sezioniTest,
+  filtroMusicale,
+  correnteColore = '#4ade80',
+}) {
   if (!sezioniData?.length && !sezioniTest && !filtroMusicale?.hasData) {
     return null
   }
@@ -21,6 +26,7 @@ export default function ApprofondimentoSezioni({ sezioniData, sezioniTest, filtr
         sezioniData={sezioniData}
         sezioniTest={sezioniTest}
         filtroMusicale={filtroMusicale}
+        correnteColore={correnteColore}
       />
     </div>
   )

@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
-import { APPROFONDIMENTO_UI } from './reportUiCopy.js'
-
-const SEZIONI_ORDER = ['Timbro', 'Intervalli', 'Ritmo', 'Melodia', 'Armonia']
+import { APPROFONDIMENTO_AREAS, APPROFONDIMENTO_UI } from './reportUiCopy.js'
+import InfoTip from './InfoTip.jsx'
 
 /** Colore bordo sinistro per ogni sezione (palette leggera) */
 const SEZIONE_ACCENT = {
@@ -25,18 +24,13 @@ export default function ReportAccordion({ sezioniTest }) {
       aria-labelledby="accordion-sezioni-heading"
     >
       <div className="report-sezioni-header">
-        <h2
-          id="accordion-sezioni-heading"
-          className="report-sezioni-title"
-        >
+        <h3 id="accordion-sezioni-heading" className="report-sezioni-title">
           {APPROFONDIMENTO_UI.accordionTitle}
-        </h2>
-        <p className="report-sezioni-intro">
-          {APPROFONDIMENTO_UI.accordionIntro}
-        </p>
+        </h3>
+        <p className="report-sezioni-intro">{APPROFONDIMENTO_UI.accordionIntro}</p>
       </div>
       <div className="report-sezioni-list">
-        {SEZIONI_ORDER.map((nomeSezione) => {
+        {APPROFONDIMENTO_AREAS.map((nomeSezione) => {
           const sezione = sezioniTest[nomeSezione]
           if (!sezione) return null
           const isOpen = openKey === nomeSezione
@@ -56,7 +50,15 @@ export default function ReportAccordion({ sezioniTest }) {
                 aria-controls={id}
                 id={`${id}-button`}
               >
-                <span className="report-sezione-name">{nomeSezione}</span>
+                <span className="report-sezione-name">
+                  {nomeSezione}
+                  <InfoTip
+                    variant="button"
+                    term={nomeSezione}
+                    tip={APPROFONDIMENTO_UI.areaTips[nomeSezione]}
+                    className="report-sezione-tip"
+                  />
+                </span>
                 <span className="report-sezione-chevron" aria-hidden>
                   {isOpen ? '−' : '+'}
                 </span>

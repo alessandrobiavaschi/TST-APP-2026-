@@ -16,7 +16,6 @@ import { buildReportData } from '../utils/buildReportData.js'
 import { getMergedReportBlock } from '../reportContentMerged.js'
 import '../styles/report-experience.css'
 import '../styles/report-tst.css'
-import '../styles/galaxy-explorer.css'
 
 const accentColors = {
   Blu: '#3b82f6',
@@ -73,6 +72,10 @@ function ReportPage() {
       }
     }
     setContextPhase('skip')
+  }
+
+  const handleRilleggiIntroduzione = () => {
+    setContextPhase('show')
   }
 
   useEffect(() => {
@@ -279,6 +282,7 @@ function ReportPage() {
           onDownload={() => downloadCsvSingleRecord(record)}
           onNavigateHome={() => navigate('/home')}
           onNavigateArchive={handleClose}
+          onRilleggiIntroduzione={handleRilleggiIntroduzione}
         />
       )}
     </div>

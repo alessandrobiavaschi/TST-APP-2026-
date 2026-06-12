@@ -45,6 +45,7 @@ BrowserRouter
 | `/` | LandingPage — marketing, video background, auth entry point |
 | `/home` | HomePage — personal area after login |
 | `/nuovo-test` | NewTestPage — 72-step audio test |
+| `/tutorial` | TutorialPage — listening tutorial slides |
 | `/risultati` | ResultsPage — test archive |
 | `/risultati/report` | ReportPage — single test report |
 | `/tst` | TstPage — test description |
@@ -100,17 +101,23 @@ Animated video background across all pages except `/`. State: `timeOfDay` (morni
 - `forceRandomWeatherChange()` cycles through `PRIORITY_SKY_SEQUENCE` before going random.
 - Config persisted in `localStorage` key `tst_sky_config_v1`.
 - Toggle static mode (no video, CSS fallback) via header button.
-- **`src/theme/SkyThemeContext.jsx` is a stale duplicate — always import from `src/SkyThemeContext.jsx`.**
 
 ### Report components (`src/components/report/`)
 
-Narrative structure rendered in `ReportPage`:
-1. `HeroSummary` — emotional identity card (name, dominant colour, restituzione phrase)
-2. `EmotionalProfileCards` — profile by dimension (Natura, Sé, Altro, Agire)
-3. `OperatorSection` + `RelationalTabs` — deeper operator view
-4. `LessicoChips` — emotional vocabulary by colour family
+Active flow: `ReportPage` → `ReportShell` (see `reportSectionsConfig.js`):
 
-Narrative texts live in `src/content_report.json`. Score utilities (`computeColorTotals`, `normalizeLevels`, `getDominantColorInfo`, `downloadCsvSingleRecord`) are in `src/utils/reportRecordUtils.js`.
+1. `HeroScreen` — opening hero (Natura / Disposizione legend, no duplicate activation circles)
+2. `SintesiCorrenti` — key facts + presence charts
+3. `ProfiloEmotivo` — chapters Natura, Racconto, Risorse, Ombre (+ `EmotionalIntegrations` after Ombre when enabled)
+4. `QuattroRapporti`, `SezionePortatoEsperienziale`, `DialogoCorrenti`
+5. `ParoleStatiAnimo`, `ApprofondimentoSezioni` (+ `OperatorSection`)
+6. `GalassiaView` — alternate view via navbar toggle
+
+User-facing score copy: **Prevalenza** (sum of points) vs **Presenza** (% resonance in profile) — see `reportUiCopy.js` `REPORT_CRITERION`.
+
+Narrative texts live in `src/content_report.json` and `src/content/reportRestitution.js`. Score utilities in `src/utils/reportRecordUtils.js` and `src/utils/buildReportData.js`.
+
+Landing/home/report video: `public/Video Background/SFONDO LANDING.mp4` via `VideoBackground0311.jsx`. Audio files: optional `VITE_AUDIO_BASE_URL` (no MP3 in repo by default).
 
 ### UI conventions (see `GUIDA_UI_UX.md` for full detail)
 
@@ -123,7 +130,5 @@ Every page needs a single primary CTA. Long flows (like the 72-step test) must a
 
 ### Known caveats
 
-- `SkyThemeContext.jsx` and `App.jsx` contain `fetch` debug calls to `http://127.0.0.1:7527` wrapped in `// #region agent log` comments — these are leftover Cursor debug hooks and do nothing in production (`.catch(()=>{})` silences failures).
 - No test runner is configured.
 - `src/plugins/BANANA/` is an experimental plugin (animated flowers) — not part of the main flow.
-- `src/gamification.js` exists but its active usage in the UI is unverified.

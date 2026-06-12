@@ -1,0 +1,41 @@
+/* =====================================================================
+   app-shell.css — chrome globale (header, main, GDPR, ritual focus)
+   Caricato da App.jsx prima di App.css
+   ===================================================================== */
+
+.app-shell {
+  min-height: 100vh;
+}
+
+.app-main {
+  min-height: 100vh;
+}
+
+.app-main-inner {
+  min-height: inherit;
+}
+
+.app-shell.has-gdpr-banner .app-main {
+  padding-bottom: clamp(8rem, 16vh, 10.5rem);
+}
+
+/* Ritual focus: analysis overlay — dim chrome */
+.app-shell.is-ritual-focus .app-header {
+  opacity: 0.2;
+  pointer-events: none;
+  transition: opacity 280ms ease;
+}
+
+.app-shell.is-ritual-focus .app-sky-background {
+  filter: blur(6px) saturate(0.85);
+  transition: filter 280ms ease;
+}
+
+.app-shell.is-ritual-focus .gdpr-banner {
+  display: none;
+}
+
+/* Immersive routes (report + test): unified shell modifier */
+.app-shell--immersive .app-header {
+  z-index: 110;
+}

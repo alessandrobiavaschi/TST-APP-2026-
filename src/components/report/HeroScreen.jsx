@@ -6,6 +6,7 @@ import {
   useMotionValueEvent,
 } from 'framer-motion'
 import { getFlowerStillByColor } from '../../colorAssets.js'
+import FioreCorrenti from './FioreCorrenti.jsx'
 import { HERO_UI } from './reportUiCopy.js'
 
 // Il setup ESLint del progetto non riconosce l'uso di `motion.X` nel JSX come
@@ -105,38 +106,6 @@ function resolveColorKeyFromFamiglia(famigliaColore) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Cerchio singolo della mini-sintesi correnti.                       */
-/* ------------------------------------------------------------------ */
-
-function CorrenteCircle({ corrente, size, index, reduceMotion }) {
-  return (
-    <motion.span
-      role="img"
-      aria-label={corrente.nome}
-      title={corrente.nome}
-      initial={reduceMotion ? false : { scale: 0, opacity: 0 }}
-      animate={{ scale: 1, opacity: 0.9 }}
-      transition={
-        reduceMotion
-          ? { duration: 0 }
-          : { delay: 1.5 + index * 0.12, duration: 0.45, ease: [0.22, 1, 0.36, 1] }
-      }
-      style={{
-        display: 'inline-block',
-        width: `${size}px`,
-        height: `${size}px`,
-        borderRadius: '9999px',
-        backgroundColor: corrente.colore,
-        marginLeft: index === 0 ? 0 : '-5px',
-        border: '2px solid rgba(255, 255, 255, 0.55)',
-        boxShadow: '0 2px 10px rgba(0, 0, 0, 0.45)',
-        cursor: 'default',
-      }}
-    />
-  )
-}
-
-/* ------------------------------------------------------------------ */
 /* Componente principale.                                             */
 /* ------------------------------------------------------------------ */
 
@@ -171,21 +140,7 @@ export default function HeroScreen({
     return { media, chiara, mid }
   }, [correnteColore, correnteColoreChiara, correnteColoreMedia])
 
-  /* Dimensione cerchi ∝ peso (range 18px → 48px, relativo al peso massimo).
-     Il minimo è abbastanza grande da rendere visibili anche le 5 correnti
-     marginali (prima alcune sparivano a ~10px sovrapposte). */
-  const circles = useMemo(() => {
-    const list = Array.isArray(correnti) ? correnti.filter(Boolean) : []
-    const maxPeso = list.reduce((m, c) => Math.max(m, Number(c?.peso) || 0), 0) || 1
-    const MIN = 18
-    const MAX = 48
-    return list.map((c) => ({
-      ...c,
-      size: Math.round(MIN + ((Number(c?.peso) || 0) / maxPeso) * (MAX - MIN)),
-    }))
-  }, [correnti])
-
-  /* Still fiore TST (stesso asset di FinalFlowerTransition / HeroSummary). */
+  /* Still fiore TST (stesso asset di FinalFlowerTransition). */
   const flowerStillUrl = useMemo(() => {
     const key = resolveColorKeyFromFamiglia(famigliaColore)
     return key ? getFlowerStillByColor(key) : null
@@ -235,6 +190,10 @@ export default function HeroScreen({
             className="hero-screen__flower"
             style={{ backgroundImage: `url("${flowerStillUrl}")` }}
           />
+        ) : correnti.length > 0 ? (
+          <div className="hero-screen__flower-fallback" aria-hidden="true">
+            <FioreCorrenti correnti={correnti} size={320} ariaLabel="" />
+          </div>
         ) : null}
         {/* Layer 1 — gradiente radiale: centro opaco per il titolo, bordi più trasparenti. */}
         <div
@@ -253,7 +212,7 @@ export default function HeroScreen({
 
       {/* Layer 3 — contenuto (titolo, disposizione, cerchi, CTA). */}
       <div
-        className="report-tst-hero__content hero-screen__content flex w-full flex-col items-center justify-center px-6 py-6 text-center sm:py-8"
+        className="report-tst-hero__content hero-screen__content flex w-full flex-col items-center justify-center px-6 py-6 sm:py-8"
       >
         <div className="report-tst-hero__inner flex w-full max-w-3xl flex-col items-center gap-5 sm:gap-6">
           {/* 1. Label monospace */}
@@ -269,6 +228,13 @@ export default function HeroScreen({
             }}
           >
             {HERO_UI.label}
+          </motion.p>
+
+          <motion.p
+            {...fade(0.35)}
+            className="report-tst-hero__measure-label"
+          >
+            {HERO_UI.prevalenzaLabel}
           </motion.p>
 
           {/* 2. Nome natura — unico h1, dominante */}
@@ -300,6 +266,14 @@ export default function HeroScreen({
             {disposizione}
           </motion.p>
 
+          <motion.div
+            {...fade(1.0)}
+            className="hero-screen__legend report-tst-hero__legend"
+          >
+            <p>{HERO_UI.naturaLegend}</p>
+            <p>{HERO_UI.disposizioneLegend}</p>
+          </motion.div>
+
           {/* 4. Linea divisoria animata (width 0 → 60px) */}
           <motion.span
             aria-hidden="true"
@@ -323,27 +297,7 @@ export default function HeroScreen({
             </motion.p>
           ) : null}
 
-          {/* 6. Cerchi correnti (mini sintesi) */}
-          {circles.length > 0 ? (
-            <div
-              className="flex items-center justify-center"
-              role="list"
-              aria-label={HERO_UI.correntiAriaLabel}
-              style={{ marginTop: '0.25rem' }}
-            >
-              {circles.map((c, i) => (
-                <CorrenteCircle
-                  key={`${c.nome}-${i}`}
-                  corrente={c}
-                  size={c.size}
-                  index={i}
-                  reduceMotion={reduceMotion}
-                />
-              ))}
-            </div>
-          ) : null}
-
-          {/* 7. Bottoni */}
+          {/* 6. Bottoni */}
           <motion.div
             {...fade(1.8)}
             className="flex flex-col items-center justify-center gap-4 sm:flex-row"
@@ -390,6 +344,37 @@ export default function HeroScreen({
               {HERO_UI.ctaGalassia}
             </button>
           </motion.div>
+
+          {HERO_UI.readingDurationHint ? (
+            <motion.p
+              {...fade(2)}
+              className="report-tst-hero__duration-hint"
+              style={{
+                margin: 0,
+                maxWidth: '28rem',
+                fontFamily: 'var(--font-body)',
+                fontSize: '0.875rem',
+                lineHeight: 1.5,
+                color: 'rgba(255, 255, 255, 0.55)',
+              }}
+            >
+              {HERO_UI.readingDurationHint}
+            </motion.p>
+          ) : null}
+
+          {Array.isArray(HERO_UI.journeySteps) && HERO_UI.journeySteps.length > 0 ? (
+            <motion.div {...fade(2.1)} className="hero-screen__journey">
+              <p className="hero-screen__journey-label">{HERO_UI.journeyLabel}</p>
+              <ol className="hero-screen__journey-steps">
+                {HERO_UI.journeySteps.map((item) => (
+                  <li key={item.n} className="hero-screen__journey-step">
+                    <span className="hero-screen__journey-num">{item.n}</span>
+                    <span className="hero-screen__journey-q">{item.q}</span>
+                  </li>
+                ))}
+              </ol>
+            </motion.div>
+          ) : null}
         </div>
       </div>
 

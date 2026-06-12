@@ -76,5 +76,21 @@ export default defineConfig(({ mode }) => {
     define: {
       __TST_FIREBASE_BUILD__: JSON.stringify(firebaseBuild),
     },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes('node_modules/firebase')) return 'firebase'
+            if (id.includes('node_modules/recharts') || id.includes('node_modules/d3-')) return 'charts'
+            if (id.includes('node_modules/framer-motion')) return 'motion'
+            if (id.includes('node_modules/react-router')) return 'router'
+            if (id.includes('node_modules/react-dom') || id.includes('node_modules/react/')) {
+              return 'react-vendor'
+            }
+            return undefined
+          },
+        },
+      },
+    },
   }
 })

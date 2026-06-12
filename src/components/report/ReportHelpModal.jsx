@@ -13,7 +13,7 @@ const FOCUSABLE =
 /**
  * Modal guida alla lettura del report.
  */
-export default function ReportHelpModal({ open, onClose, accentColor = '#4ade80', onOpenGlossary }) {
+export default function ReportHelpModal({ open, onClose, accentColor = '#4ade80', onOpenGlossary, onRilleggiIntroduzione }) {
   const dialogRef = useRef(null)
   const previouslyFocusedRef = useRef(null)
   const reduceMotion = useReducedMotion()
@@ -122,15 +122,26 @@ export default function ReportHelpModal({ open, onClose, accentColor = '#4ade80'
                 </li>
               ))}
             </ul>
-            {onOpenGlossary ? (
+            {(onOpenGlossary || onRilleggiIntroduzione) ? (
               <p className="help-modal__glossary-cta">
-                <button
-                  type="button"
-                  className="nav-button ghost"
-                  onClick={onOpenGlossary}
-                >
-                  {GLOSSARY_UI.openGlossary}
-                </button>
+                {onRilleggiIntroduzione ? (
+                  <button
+                    type="button"
+                    className="nav-button ghost"
+                    onClick={onRilleggiIntroduzione}
+                  >
+                    {HELP_MODAL_UI.rileggLabel}
+                  </button>
+                ) : null}
+                {onOpenGlossary ? (
+                  <button
+                    type="button"
+                    className="nav-button ghost"
+                    onClick={onOpenGlossary}
+                  >
+                    {GLOSSARY_UI.openGlossary}
+                  </button>
+                ) : null}
               </p>
             ) : null}
           </motion.div>
