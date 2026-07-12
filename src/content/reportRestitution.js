@@ -29,30 +29,19 @@ export const CONTEXT = {
 export const HERO = {
   label: 'Prima lettura',
   ariaSection: 'Prima lettura del profilo',
-  naturaLegend:
-    'La tua Natura: il nucleo emotivo profondo — strutturale e stabile nel tempo.',
-  disposizioneLegend:
-    'La tua Disposizione: come questa natura si esprime e si orienta nel quotidiano.',
   ctaReport: 'Inizia la lettura',
   ctaGalassia: 'Esplora la galassia degli affetti',
   scrollHint: 'Vai alla sintesi',
-  readingDurationHint:
-    'Circa 15 minuti di lettura, a strati — puoi fermarti dopo la sintesi.',
-  journeyLabel: 'Il percorso in 5 passi',
-  journeySteps: [
-    { n: '1', q: 'Che profilo emerge?' },
-    { n: '2', q: 'Cosa significa?' },
-    { n: '3', q: 'Dove cambia?' },
-    { n: '4', q: 'Quali parole restano?' },
-    { n: '5', q: 'In quali stimoli si accende?' },
-  ],
+  readingDurationHint: '',
+  journeyLabel: '',
+  journeySteps: [],
 }
 
 export const PANEL_READING = {
   natura: '',
-  racconto: 'Come questa natura si dispiega nel tempo e nelle sotto-correnti.',
-  risorse: 'Qualità che possono sostenere l’equilibrio quando restano vitali.',
-  ombre: 'Dove la stessa energia, se irrigidita, conviene osservare con attenzione.',
+  racconto: '',
+  risorse: '',
+  ombre: '',
 }
 
 export const PROFILO_UI = {
@@ -66,7 +55,7 @@ export const PROFILO_UI = {
 
 export const SINTESI_UI = {
   title: 'Il tuo profilo, in sintesi',
-  subtitle: 'Famiglia prevalente, presenza e distribuzione in breve.',
+  subtitle: '',
   orientationTitle: 'Come leggere questa pagina',
   orientationBody:
     'Questo report descrive come hai risposto agli stimoli sonori in questa somministrazione. Non è una diagnosi né un’etichetta fissa.',
@@ -117,11 +106,11 @@ export const GLOSSARY = [
   {
     id: 'corrente-emotiva',
     term: 'Corrente emotiva',
-    oneLine: 'Denominazione del temperamento (es. lunare, flemmatico) all’interno di una famiglia.',
+    oneLine: 'Denominazione della qualità (es. lunare, flemmatica) all’interno di una famiglia.',
     explain:
-      'La famiglia è il raggruppamento (malinconia, calma, ecc.); il temperamento è l’etichetta sul grafico. Tutte le famiglie sono presenti; la prevalente indica il peso maggiore in questa somministrazione.',
+      'La famiglia è il raggruppamento (malinconia, calma, ecc.); la qualità è l’etichetta sul grafico. Tutte le famiglie sono presenti; la prevalente indica il peso maggiore in questa somministrazione.',
     usefulFor:
-      'Leggi famiglia e temperamento insieme: ad esempio malinconia e lunare si riferiscono allo stesso polo con due livelli di descrizione.',
+      'Leggi famiglia e qualità insieme: ad esempio malinconia e lunare si riferiscono allo stesso polo con due livelli di descrizione.',
     tags: ['sintesi'],
   },
   {
@@ -166,7 +155,7 @@ export const GLOSSARY = [
     term: 'Galassia',
     oneLine: 'Vista interattiva della Rosa dei venti con pesi delle correnti.',
     explain:
-      'Mostra le cinque famiglie e, per ciascuna, temperamenti e sotto-correnti con peso proporzionale alle risposte del test.',
+      'Mostra le cinque famiglie e, per ciascuna, qualità e sotto-correnti con peso proporzionale alle risposte del test.',
     usefulFor:
       'Usala per passare dal numero al significato: toccando un mondo vedi corrente, sfumature e parole del test collegate.',
     tags: ['galassia'],
@@ -211,8 +200,8 @@ export const GLOSSARY = [
 ]
 
 export const GALASSIA_INTRO = [
-  'La mappa riproduce la Rosa dei venti del modello TST: cinque famiglie emotive (malinconia, volitività, calma, entusiasmo, anaffettività), ciascuna con uno o più temperamenti.',
-  'Il cerchio principale indica il temperamento dominante in quella famiglia; i cerchi secondari sono sotto-correnti. La dimensione è proporzionale al peso nelle risposte di questo test.',
+  'La mappa riproduce la Rosa dei venti del modello TST: cinque famiglie emotive (malinconia, volitività, calma, entusiasmo, anaffettività), ciascuna con una o più qualità.',
+  'Il cerchio principale indica la qualità dominante in quella famiglia; i cerchi secondari sono sotto-correnti. La dimensione è proporzionale al peso nelle risposte di questo test.',
   'Il colore distingue la famiglia ed è un codice di lettura, non un giudizio. Selezionando un elemento si apre il dettaglio testuale corrispondente.',
 ]
 
@@ -253,16 +242,19 @@ export const GALASSIA_CRT = {
 
 /** Testo introduttivo sotto l’accordion di ogni macro-blocco. */
 export const GROUP_INTROS = {
-  'report-group-identita':
-    'Parti da qui: identifica famiglia prevalente, sfumatura principale e distribuzione generale.',
-  'report-group-profilo':
-    'Qui i numeri diventano racconto: natura di fondo, modo di dispiegarsi, risorse e zone da osservare.',
-  'report-group-rapporti':
-    'Quattro lenti sullo stesso profilo, poi portato e schema interno (come le correnti convivono in te). In fondo: mappa visiva e relazioni con altri temperamenti.',
+  'report-group-identita': '',
+  'report-group-profilo': '',
+  'report-group-relazioni': '',
+  'report-group-rapporti': '',
   'report-group-lessico':
     'Qui trovi le parole utili per nominare meglio ciò che il test ha fatto emergere.',
-  'report-group-approfondimento':
-    'Una lettura più tecnica: confronta le cinque famiglie nelle aree sonore del test — Timbro, Intervalli, Ritmo, Melodia, Armonia.',
+  'report-group-musica':
+    'Scheda riservata a chi suona uno strumento: strumenti, timbri, ritmo, armonia, modi e modalità di suonare, comporre e interpretare secondo la disposizione prevalente.',
+  'report-group-approfondimento': '',
+  'report-group-profilo-generale': '',
+  'report-group-quattro-rapporti': '',
+  'report-group-forza-correnti': '',
+  'report-group-educazione': '',
 }
 
 export const SECTION_INTROS = {
@@ -285,7 +277,7 @@ export const SECTION_INTROS = {
   },
   mappa: {
     intro:
-      'La mappa solare mostra come si accendono le cinque famiglie nel profilo. Le relazioni in fondo descrivono invece l’incontro con altri temperamenti — materiale diverso dallo schema interno letto poco sopra.',
+      'Questa sezione descrive come il temperamento prevalente può incontrare gli altri temperamenti — materiale diverso dallo schema interno letto poco sopra.',
     points: [
       'Parti dalla famiglia con peso maggiore nella sintesi.',
       'Confronta coerenze e scarti tra le sezioni del report.',
@@ -337,7 +329,7 @@ export function getIntegrativeClosing(famiglia, correnteDominante = '') {
   const theme = FAMILY_THEME[fam]
   const macro = theme?.macro || fam
   const corrente = String(correnteDominante || theme?.corrente || '').trim()
-  const temperamentoLine = corrente ? ` (temperamento ${corrente})` : ''
+  const temperamentoLine = corrente ? ` (qualità ${corrente})` : ''
   return {
     paragraph: `La disposizione prevalente è ${macro}${temperamentoLine}; le altre famiglie restano presenti con pesi diversi. È una composizione mista, non un’etichetta chiusa.`,
   }
@@ -381,7 +373,7 @@ function describeFamigliaLeggibile(c) {
   if (!c) return ''
   const famiglia = c.label || c.nome || ''
   const temperamento =
-    c.nome && c.label && c.nome !== c.label ? `, temperamento ${c.nome}` : ''
+    c.nome && c.label && c.nome !== c.label ? `, qualità ${c.nome}` : ''
   const peso = typeof c.peso === 'number' ? Math.round(c.peso) : null
   return peso != null ? `${famiglia}${temperamento} (circa ${peso}%)` : `${famiglia}${temperamento}`
 }
@@ -404,7 +396,7 @@ function findCorrenteByFamiglia(correntiByPeso, famiglia) {
 function buildDistribuzioneParagraph(correntiByPeso, famigliaPrevalente) {
   if (!correntiByPeso.length) return ''
   const parts = [
-    'Le percentuali nel grafico indicano quanto si accende ciascuna famiglia in questo test.',
+    'Le percentuali nel grafico indicano la quota percentuale di ciascuna famiglia emotiva rispetto al totale del profilo (come fette di una torta).',
   ]
   const domEntry = findCorrenteByFamiglia(correntiByPeso, famigliaPrevalente)
   const topPeso = Math.round(Number(correntiByPeso[0]?.peso) || 0)
@@ -412,7 +404,7 @@ function buildDistribuzioneParagraph(correntiByPeso, famigliaPrevalente) {
 
   if (domEntry && typeof domEntry.peso === 'number') {
     parts.push(
-      `Attivazione della famiglia prevalente (${domEntry.label || domEntry.nome}): ${Math.round(domEntry.peso)}% sul massimo possibile.`,
+      `Presenza della famiglia prevalente (${domEntry.label || domEntry.nome}): ${Math.round(domEntry.peso)}% del totale del profilo.`,
     )
   }
 
@@ -451,7 +443,7 @@ export function buildProfiloThreadLine({ profilo = {}, domTheme = {}, famiglia =
 
   const parti = []
   if (macro && temperamento) {
-    parti.push(`Disposizione prevalente: ${macro} (temperamento ${temperamento}).`)
+    parti.push(`Disposizione prevalente: ${macro} (qualità ${temperamento}).`)
   }
   if (natura && caratteri) {
     parti.push(`${natura} · ${caratteri}.`)
@@ -544,7 +536,7 @@ export function buildSintesiLead({
   const parts = []
 
   if (macro && temperamento) {
-    parts.push(`Prevalente la famiglia ${macro} (temperamento ${temperamento}).`)
+    parts.push(`Prevalente la famiglia ${macro} (qualità ${temperamento}).`)
   } else if (macro) {
     parts.push(`Prevalente la famiglia ${macro}.`)
   }

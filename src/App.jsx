@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react'
 import { Routes, Route, NavLink, useNavigate, Navigate, useLocation } from 'react-router-dom'
 import { onAuthStateChanged, signOut } from 'firebase/auth'
 import './firebaseConfig.js'
@@ -95,6 +95,33 @@ function HeaderSoundToggleButton() {
 
 const MOBILE_NAV_FOCUSABLE =
   'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+
+function RouteScrollReset() {
+  const { pathname, search, hash } = useLocation()
+
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined') return undefined
+    if (hash) return undefined
+
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual'
+    }
+
+    const resetScroll = () => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+      document.documentElement.scrollTop = 0
+      document.documentElement.scrollLeft = 0
+      document.body.scrollTop = 0
+      document.body.scrollLeft = 0
+    }
+
+    resetScroll()
+    const frameId = window.requestAnimationFrame(resetScroll)
+    return () => window.cancelAnimationFrame(frameId)
+  }, [pathname, search, hash])
+
+  return null
+}
 
 function App() {
   const [currentUser, setCurrentUser] = useState(null)
@@ -289,7 +316,7 @@ function App() {
   const handleLogoClick = () => {
     clearGoogleRedirectPending()
     setIsAccountMenuOpen(false)
-    navigate('/', { replace: true })
+    navigate(isAuthenticated ? '/home' : '/', { replace: true })
   }
 
   const handleChangeWeatherClick = () => {
@@ -334,10 +361,24 @@ function App() {
 
   const handleRegisterClick = () => {
     setMobileNavOpen(false)
+    if (isAuthenticated) {
+      navigate('/home')
+      return
+    }
     if (location.pathname === '/home' && typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('tst:open-home-auth'))
+      navigate('/home', { state: { openLogin: true, openRegister: true } })
+      return
     }
-    navigate('/home', { state: { openLogin: true, openRegister: true } })
+    if (location.pathname === '/' && typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('tst:open-access-register'))
+    }
+    const loginParams = new URLSearchParams(
+      location.pathname === '/' ? location.search.replace(/^\?/, '') : '',
+    )
+    loginParams.set('accesso', '1')
+    const loginSearch = `?${loginParams.toString()}`
+    navigate({ pathname: '/', search: loginSearch, state: { openAccessBox: true, openRegister: true } })
   }
 
   const handleLogoutClick = async () => {
@@ -774,6 +815,7 @@ function App() {
             }`}
           >
             <AppErrorBoundary>
+              <RouteScrollReset />
               <Routes>
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/home" element={<HomePage />} />

@@ -15,6 +15,7 @@ export default function ApprofondimentoSezioni({
   sezioniTest,
   filtroMusicale,
   correnteColore = '#4ade80',
+  step = '6',
 }) {
   if (!sezioniData?.length && !sezioniTest && !filtroMusicale?.hasData) {
     return null
@@ -27,6 +28,7 @@ export default function ApprofondimentoSezioni({
         sezioniTest={sezioniTest}
         filtroMusicale={filtroMusicale}
         correnteColore={correnteColore}
+        step={step}
       />
     </div>
   )

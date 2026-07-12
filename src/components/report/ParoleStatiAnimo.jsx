@@ -1,51 +1,44 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
-import FioreCorrenti from './FioreCorrenti'
 import { PAROLE_UI } from './reportUiCopy.js'
 import ReportPassageHeader from './ReportPassageHeader.jsx'
 
-// ESLint qui non rileva l'uso di `motion` via JSX member (<motion.div>) perché
-// non è abilitato react/jsx-uses-vars: marchiamo l'uso come fanno gli altri report component.
 void motion
 
-/**
- * ParoleStatiAnimo — ULTIMA sezione del Report TST (chiusura del percorso).
- *
- * Componente puro presentazionale, guidato esclusivamente dalle props:
- * nessuna chiamata a scoring/DB.
- *
- * Props:
- *   statiAnimo: Array<{
- *     parola: string,
- *     corrente: string,
- *     colore: string,          // colore esadecimale della corrente
- *     peso: "dominante" | "secondaria" | "minore" | "marginale"
- *   }>
- *   correnti: Array<{ nome: string, colore: string, descrizioneBreve?: string }>
- *   correnteDominante: string   // nome della corrente dominante (per accenti UI)
- */
-
-const FILTRO_TUTTE = '__TUTTE__'
-
-const LESSICO_GUIDE = PAROLE_UI.guide
-
-// Gerarchia visiva per "peso"
-const PESO_STYLE = {
-  emersa: { fontSize: '1.15rem', opacity: 1, fontWeight: 700, useBody: true },
-  dominante: { fontSize: '1.1rem', opacity: 1, fontWeight: 600, useBody: true },
-  secondaria: { fontSize: '0.95rem', opacity: 0.85, fontWeight: 500, useBody: true },
-  minore: { fontSize: '0.8rem', opacity: 0.6, fontWeight: 400, useBody: false },
-  marginale: { fontSize: '0.72rem', opacity: 0.4, fontWeight: 400, useBody: false },
+const FAMILY_DISPLAY_NAMES = {
+  Blu: 'Malinconia',
+  Rosso: 'Volitività',
+  Verde: 'Calma',
+  Giallo: 'Entusiasmo',
+  Grigio: 'Anaffettività',
 }
 
-const BODY_STACK = 'var(--font-body)'
-const MONO_STACK = 'var(--font-mono)'
+const FAMILY_COLORS = {
+  Blu: '#3b82f6',
+  Rosso: '#ef4444',
+  Verde: '#22c55e',
+  Giallo: '#eab308',
+  Grigio: '#94a3b8',
+}
 
-/**
- * Schiarisce un colore esadecimale verso il bianco di una certa quantità (0..1),
- * per garantire leggibilità del testo su sfondo molto scuro.
- */
-function lightenForDark(hex, amount = 0.45) {
+const FAMILY_ORDER = ['Blu', 'Rosso', 'Verde', 'Giallo', 'Grigio']
+
+const MONO_STACK = 'var(--font-mono)'
+const BODY_STACK = 'var(--font-body)'
+
+function withAlpha(hex, alpha) {
+  if (typeof hex !== 'string') return `rgba(148,163,184,${alpha})`
+  let c = hex.trim().replace('#', '')
+  if (c.length === 3) c = c.split('').map((ch) => ch + ch).join('')
+  if (c.length !== 6 || /[^0-9a-fA-F]/.test(c)) return `rgba(148,163,184,${alpha})`
+  const num = parseInt(c, 16)
+  const r = (num >> 16) & 0xff
+  const g = (num >> 8) & 0xff
+  const b = num & 0xff
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`
+}
+
+function lightenForDark(hex, amount = 0.4) {
   if (typeof hex !== 'string') return '#e2e8f0'
   let c = hex.trim().replace('#', '')
   if (c.length === 3) c = c.split('').map((ch) => ch + ch).join('')
@@ -60,142 +53,87 @@ function lightenForDark(hex, amount = 0.45) {
   return `#${[r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('')}`
 }
 
-/**
- * Converte un colore esadecimale in rgba con alpha esplicito.
- */
-function withAlpha(hex, alpha) {
-  if (typeof hex !== 'string') return `rgba(148,163,184,${alpha})`
-  let c = hex.trim().replace('#', '')
-  if (c.length === 3) c = c.split('').map((ch) => ch + ch).join('')
-  if (c.length !== 6 || /[^0-9a-fA-F]/.test(c)) return `rgba(148,163,184,${alpha})`
-  const num = parseInt(c, 16)
-  const r = (num >> 16) & 0xff
-  const g = (num >> 8) & 0xff
-  const b = num & 0xff
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`
-}
-
 export default function ParoleStatiAnimo({
-  statiAnimo = [],
-  paroleEmerse = [],
-  correnti = [],
   famiglieLessico = {},
+  famiglia = '',
+  correnti = [],
   correnteDominante = '',
+  step = '4',
 }) {
   const prefersReducedMotion = useReducedMotion()
-  const [filtro, setFiltro] = useState(FILTRO_TUTTE)
-  const [elencoCompletoAperto, setElencoCompletoAperto] = useState(false)
-  const [copiata, setCopiata] = useState(null) // { parola } | null
-  const [tooltipKey, setTooltipKey] = useState(null) // chiave pill con tooltip attivo (focus/tap)
 
-  // Colore accento della corrente dominante (header label)
+  const initialFamily =
+    famiglia && famiglieLessico[famiglia]
+      ? famiglia
+      : FAMILY_ORDER.find((k) => famiglieLessico[k]) || ''
+
+  const [selectedFamily, setSelectedFamily] = useState(initialFamily)
+  const [selectedWord, setSelectedWord] = useState(null)
+
   const coloreDominante = useMemo(() => {
     const trovata = correnti.find((c) => c?.nome === correnteDominante)
-    return trovata?.colore || correnti[0]?.colore || '#94a3b8'
-  }, [correnti, correnteDominante])
+    return trovata?.colore || FAMILY_COLORS[selectedFamily] || '#94a3b8'
+  }, [correnti, correnteDominante, selectedFamily])
 
-  const nuvolaEmerse = useMemo(() => {
-    const base = paroleEmerse.length > 0 ? paroleEmerse : statiAnimo.filter((s) => s.peso === 'dominante' || s.peso === 'secondaria')
-    if (filtro === FILTRO_TUTTE) return base
-    return base.filter((s) => s.corrente === filtro)
-  }, [paroleEmerse, statiAnimo, filtro])
+  const famData = useMemo(
+    () => famiglieLessico[selectedFamily] || null,
+    [famiglieLessico, selectedFamily],
+  )
 
-  const paroleFiltrate = nuvolaEmerse
+  const wordList = useMemo(() => {
+    if (!famData) return []
+    const words = []
+    const seen = new Set()
+    const famColor = FAMILY_COLORS[selectedFamily] || '#94a3b8'
 
-  const correnteFiltrata = useMemo(() => {
-    if (filtro === FILTRO_TUTTE) return null
-    return correnti.find((c) => c.nome === filtro) || null
-  }, [correnti, filtro])
-
-  const famiglieDaMostrare = useMemo(() => {
-    if (!elencoCompletoAperto) return []
-    if (filtro !== FILTRO_TUTTE && correnteFiltrata?.familyName) {
-      const det = famiglieLessico[correnteFiltrata.familyName]
-      return det ? [det] : []
-    }
-    return Object.values(famiglieLessico).filter(Boolean)
-  }, [elencoCompletoAperto, filtro, correnteFiltrata, famiglieLessico])
-
-  const correntiAttive = useMemo(() => {
-    const set = new Set(paroleFiltrate.map((s) => s.corrente))
-    return set.size
-  }, [paroleFiltrate])
-
-  const famigliaDettaglio = useMemo(() => {
-    if (!correnteFiltrata?.familyName) return null
-    return famiglieLessico[correnteFiltrata.familyName] || null
-  }, [correnteFiltrata, famiglieLessico])
-
-  const descrizioneCorrenteFiltrata = useMemo(() => {
-    if (!correnteFiltrata) return ''
-    return (
-      famigliaDettaglio?.lettura ||
-      correnteFiltrata.descrizioneBreve?.trim() ||
-      ''
-    )
-  }, [correnteFiltrata, famigliaDettaglio])
-
-  const handleCopy = useCallback(async (parola) => {
-    const mostra = () => {
-      setCopiata({ parola })
-      setTimeout(() => {
-        setCopiata((cur) => (cur && cur.parola === parola ? null : cur))
-      }, 1500)
-    }
-    try {
-      if (navigator?.clipboard?.writeText) {
-        await navigator.clipboard.writeText(parola)
-        mostra()
-        return
-      }
-      throw new Error('clipboard non disponibile')
-    } catch {
-      // Fallback: execCommand su textarea temporanea
-      try {
-        const ta = document.createElement('textarea')
-        ta.value = parola
-        ta.style.position = 'fixed'
-        ta.style.opacity = '0'
-        document.body.appendChild(ta)
-        ta.focus()
-        ta.select()
-        document.execCommand('copy')
-        document.body.removeChild(ta)
-        mostra()
-      } catch {
-        // Anche il fallback fallito: nessun toast.
+    for (const sub of famData.sottoCorrenti || []) {
+      for (const stato of sub.stati || []) {
+        const p = String(stato || '').trim()
+        if (!p || seen.has(p.toLowerCase())) continue
+        seen.add(p.toLowerCase())
+        words.push({ parola: p, tipo: 'aggettivo', sub, colore: famColor })
       }
     }
-  }, [])
 
-  const handleScrollTop = useCallback(() => {
-    window.scrollTo({
-      top: 0,
-      behavior: prefersReducedMotion ? 'auto' : 'smooth',
-    })
-  }, [prefersReducedMotion])
+    for (const p of famData.vocabolarioForme || []) {
+      const t = String(p || '').trim()
+      if (!t || seen.has(t.toLowerCase())) continue
+      seen.add(t.toLowerCase())
+      words.push({ parola: t, tipo: 'forma', sub: null, colore: famColor })
+    }
 
-  // Varianti animazione cloud (stagger in viewport)
-  const cloudVariants = {
-    hidden: {},
-    visible: {
-      transition: {
-        staggerChildren: prefersReducedMotion ? 0 : 0.02,
-      },
+    return words
+  }, [famData, selectedFamily])
+
+  const handleWordClick = useCallback(
+    (word) => {
+      const paroleVicine = word.sub
+        ? (word.sub.stati || []).filter((s) => s !== word.parola).slice(0, 6)
+        : []
+      setSelectedWord({
+        parola: word.parola,
+        famiglia: FAMILY_DISPLAY_NAMES[selectedFamily] || selectedFamily,
+        sottocorrente: word.sub?.titolo || null,
+        definizione: word.sub?.descrizione || famData?.lettura || '',
+        paroleVicine,
+      })
     },
+    [selectedFamily, famData],
+  )
+
+  const handleFamilyChange = (key) => {
+    setSelectedFamily(key)
+    setSelectedWord(null)
   }
-  const pillEnterVariants = prefersReducedMotion
-    ? { hidden: { opacity: 1, y: 0 }, visible: { opacity: 1, y: 0 } }
-    : { hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0 } }
 
   return (
     <section
-      aria-labelledby="parole-stati-animo-title"
+      aria-labelledby="dizionario-emotivo-title"
       className="parole-stati-animo-section"
       style={{
         background: 'linear-gradient(to bottom, #0f172a 0%, #020817 100%)',
-        paddingTop: 120,
-        paddingBottom: 160,
+        paddingTop: 80,
+        paddingBottom: 80,
         paddingLeft: 24,
         paddingRight: 24,
         color: '#e2e8f0',
@@ -205,444 +143,284 @@ export default function ParoleStatiAnimo({
     >
       <div className="parole-stati-animo-section__inner">
         <ReportPassageHeader
-          step="4"
+          step={step}
           eyebrow={PAROLE_UI.eyebrow}
           title={PAROLE_UI.title}
-          lead={PAROLE_UI.intro}
+          lead={PAROLE_UI.educazioneSubtitle}
           accentColor={coloreDominante}
-          titleId="parole-stati-animo-title"
+          titleId="dizionario-emotivo-title"
         />
 
         <div className="parole-stati-animo-guide">
-          {LESSICO_GUIDE.map((paragraph) => (
-            <p key={paragraph.slice(0, 48)}>{paragraph}</p>
+          {(PAROLE_UI.educazioneParagraphs || []).map((p) => (
+            <p key={p.slice(0, 48)}>{p}</p>
           ))}
+          {PAROLE_UI.educazioneCta && (
+            <p>
+              <em>{PAROLE_UI.educazioneCta}</em>
+            </p>
+          )}
         </div>
 
-        <section className="parole-stati-animo-zone parole-stati-animo-zone--emerge" aria-labelledby="parole-zone-emerse">
-          <header className="parole-stati-animo-zone__head">
-            <h3 id="parole-zone-emerse" className="parole-stati-animo-zone__title">
-              {PAROLE_UI.zoneEmerseTitle}
-            </h3>
-            <p className="parole-stati-animo-zone__lead">{PAROLE_UI.zoneEmerseLead}</p>
-          </header>
+        <p
+          className="parole-stati-animo-zone__lead"
+          style={{ marginTop: 32, marginBottom: 32 }}
+        >
+          La nuvola mostra le parole della tua famiglia emotiva prevalente. Puoi esplorare le
+          sfumature del lessico e, se vuoi, aprire anche i dizionari delle altre famiglie.
+        </p>
 
-        {/* FILTRO CORRENTI */}
+        {/* SELETTORE FAMIGLIA */}
         <div
           role="group"
-          aria-label={PAROLE_UI.filtroAria}
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: 8,
-            marginBottom: descrizioneCorrenteFiltrata ? 16 : 40,
-          }}
+          aria-label="Scegli una famiglia emotiva"
+          style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 28 }}
         >
-          <FiltroPill
-            selezionata={filtro === FILTRO_TUTTE}
-            onClick={() => setFiltro(FILTRO_TUTTE)}
-            label={PAROLE_UI.filtroTutte}
-            ariaLabel={PAROLE_UI.filtroTutteAria}
-          />
-          {correnti.map((c) => (
-            <FiltroPill
-              key={c.nome}
-              selezionata={filtro === c.nome}
-              onClick={() => setFiltro((cur) => (cur === c.nome ? FILTRO_TUTTE : c.nome))}
-              label={c.nome}
-              colore={c.colore}
-              ariaLabel={`Filtra per corrente ${c.nome}`}
-            />
-          ))}
+          {FAMILY_ORDER.filter((k) => famiglieLessico[k]).map((k) => {
+            const isSelected = k === selectedFamily
+            const color = FAMILY_COLORS[k]
+            return (
+              <button
+                key={k}
+                type="button"
+                aria-pressed={isSelected}
+                onClick={() => handleFamilyChange(k)}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  background: isSelected ? withAlpha(color, 0.15) : '#1e293b',
+                  border: `1px solid ${isSelected ? withAlpha(color, 0.6) : '#334155'}`,
+                  borderRadius: 2,
+                  padding: '8px 16px',
+                  fontFamily: MONO_STACK,
+                  fontSize: 11,
+                  color: isSelected ? '#ffffff' : '#94a3b8',
+                  cursor: 'pointer',
+                  minHeight: 44,
+                  transition: 'background 0.2s ease, border-color 0.2s ease, color 0.2s ease',
+                }}
+              >
+                <span
+                  aria-hidden="true"
+                  style={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    background: color,
+                    flexShrink: 0,
+                  }}
+                />
+                {FAMILY_DISPLAY_NAMES[k]}
+              </button>
+            )
+          })}
         </div>
 
-        {descrizioneCorrenteFiltrata && (
-          <p className="parole-stati-animo-corrente-desc">{descrizioneCorrenteFiltrata}</p>
-        )}
-
-        <div style={{ position: 'relative', marginBottom: 12, minHeight: 18 }}>
-          <p className="parole-stati-animo-copy-hint">{PAROLE_UI.copyHint}</p>
+        {/* DESCRIZIONE FAMIGLIA */}
+        {famData?.lettura && (
           <p
-            aria-live="polite"
             style={{
-              fontFamily: MONO_STACK,
-              opacity: 0.3,
-              fontSize: 12,
-              textAlign: 'right',
-              margin: 0,
+              fontFamily: BODY_STACK,
+              fontSize: '0.9rem',
+              opacity: 0.65,
+              lineHeight: 1.7,
+              marginBottom: 36,
+              maxWidth: 640,
+              textAlign: 'justify',
             }}
           >
-            {paroleFiltrate.length} stati d&apos;animo · {correntiAttive}{' '}
-            {correntiAttive === 1 ? 'corrente' : 'correnti'}
+            {famData.lettura}
           </p>
-        </div>
+        )}
 
+        {/* SCHEDA DEFINIZIONE (sopra la nuvola quando aperta) */}
+        <AnimatePresence>
+          {selectedWord && (
+            <motion.div
+              key={`def-${selectedWord.parola}`}
+              initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 8 }}
+              transition={{ duration: 0.2 }}
+              style={{
+                background: '#1e293b',
+                border: '1px solid #334155',
+                borderRadius: 4,
+                padding: 24,
+                marginBottom: 32,
+                position: 'relative',
+              }}
+            >
+              <button
+                type="button"
+                aria-label="Chiudi definizione"
+                onClick={() => setSelectedWord(null)}
+                style={{
+                  position: 'absolute',
+                  top: 12,
+                  right: 12,
+                  background: 'transparent',
+                  border: '1px solid #334155',
+                  color: '#94a3b8',
+                  borderRadius: 2,
+                  padding: '4px 10px',
+                  fontFamily: MONO_STACK,
+                  fontSize: 11,
+                  cursor: 'pointer',
+                  lineHeight: 1,
+                }}
+              >
+                ✕
+              </button>
+              <h4
+                style={{
+                  fontFamily: BODY_STACK,
+                  fontSize: '1.35rem',
+                  fontWeight: 700,
+                  color: '#e2e8f0',
+                  margin: '0 0 8px',
+                }}
+              >
+                {selectedWord.parola}
+              </h4>
+              <p
+                style={{
+                  fontFamily: MONO_STACK,
+                  fontSize: 11,
+                  color: '#64748b',
+                  margin: '0 0 16px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                }}
+              >
+                Famiglia: {selectedWord.famiglia}
+                {selectedWord.sottocorrente && ` · ${selectedWord.sottocorrente}`}
+              </p>
+              {selectedWord.definizione && (
+                <p
+                  style={{
+                    fontFamily: BODY_STACK,
+                    fontSize: '0.9rem',
+                    color: '#cbd5e1',
+                    lineHeight: 1.7,
+                    margin: selectedWord.paroleVicine.length > 0 ? '0 0 16px' : 0,
+                    textAlign: 'justify',
+                  }}
+                >
+                  {selectedWord.definizione}
+                </p>
+              )}
+              {selectedWord.paroleVicine.length > 0 && (
+                <div>
+                  <p
+                    style={{
+                      fontFamily: MONO_STACK,
+                      fontSize: 11,
+                      color: '#64748b',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                      margin: '0 0 8px',
+                    }}
+                  >
+                    Parole vicine
+                  </p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                    {selectedWord.paroleVicine.map((p) => (
+                      <span
+                        key={p}
+                        style={{
+                          fontFamily: MONO_STACK,
+                          fontSize: 12,
+                          color: '#94a3b8',
+                          background: '#0f172a',
+                          border: '1px solid #1e293b',
+                          padding: '4px 8px',
+                          borderRadius: 2,
+                        }}
+                      >
+                        {p}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* NUVOLA DI PAROLE */}
         <motion.div
-          variants={cloudVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.15 }}
-          layout
+          key={selectedFamily}
+          initial={prefersReducedMotion ? {} : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.35 }}
           style={{
             display: 'flex',
             flexWrap: 'wrap',
             alignItems: 'center',
             gap: 0,
+            marginBottom: 40,
           }}
         >
-          <AnimatePresence>
-            {paroleFiltrate.map((s) => {
-              const attenuata = filtro !== FILTRO_TUTTE && s.corrente !== filtro
-              return (
-                <ParolaPill
-                  key={`${s.parola}-${s.corrente}`}
-                  stato={s}
-                  attenuata={attenuata}
-                  enterVariants={pillEnterVariants}
-                  prefersReducedMotion={prefersReducedMotion}
-                  tooltipAttivo={tooltipKey === `${s.parola}-${s.corrente}`}
-                  onShowTooltip={() => setTooltipKey(`${s.parola}-${s.corrente}`)}
-                  onHideTooltip={() => setTooltipKey((k) => (k === `${s.parola}-${s.corrente}` ? null : k))}
-                  onCopy={() => handleCopy(s.parola)}
-                />
-              )
-            })}
-          </AnimatePresence>
+          {wordList.map((w) => (
+            <WordPill
+              key={`${w.parola}-${w.tipo}`}
+              word={w}
+              isSelected={selectedWord?.parola === w.parola}
+              prefersReducedMotion={prefersReducedMotion}
+              onClick={() => handleWordClick(w)}
+            />
+          ))}
         </motion.div>
 
-        {paroleFiltrate.length === 0 && (
-          <p
-            style={{
-              fontFamily: MONO_STACK,
-              opacity: 0.4,
-              fontSize: 13,
-              marginTop: 24,
-            }}
-          >
-            Nessuno stato d&apos;animo per questa corrente.
+        {wordList.length === 0 && (
+          <p style={{ fontFamily: MONO_STACK, opacity: 0.4, fontSize: 13, marginBottom: 40 }}>
+            Dizionario non disponibile per questa famiglia.
           </p>
         )}
-        </section>
-
-        <section
-          className="parole-stati-animo-zone parole-stati-animo-zone--dizionario"
-          aria-labelledby="parole-zone-dizionario"
-        >
-          <header className="parole-stati-animo-zone__head">
-            <h3 id="parole-zone-dizionario" className="parole-stati-animo-zone__title">
-              {PAROLE_UI.zoneDizionarioTitle}
-            </h3>
-            <p className="parole-stati-animo-zone__lead">{PAROLE_UI.zoneDizionarioLead}</p>
-          </header>
-
-        <div className="parole-stati-animo-expand-row">
-          <button
-            type="button"
-            className="parole-stati-animo-expand-btn"
-            aria-expanded={elencoCompletoAperto}
-            onClick={() => setElencoCompletoAperto((open) => !open)}
-          >
-            {elencoCompletoAperto ? PAROLE_UI.chiudiElencoCompleto : PAROLE_UI.apriElencoCompleto}
-          </button>
-        </div>
-
-        {famiglieDaMostrare.length > 0 && (
-          <div className="parole-stati-animo-famiglia-panel">
-            {famiglieDaMostrare.map((fam) => {
-              const forme = fam.vocabolarioForme || fam.paroleComplete || []
-              const sottoCorrenti = Array.isArray(fam.sottoCorrenti) ? fam.sottoCorrenti : []
-              const showFamigliaHeading = famiglieDaMostrare.length > 1
-              return (
-                <div key={fam.familyName} className="parole-stati-animo-famiglia-block">
-                  {showFamigliaHeading && (
-                    <h3 className="parole-stati-animo-famiglia-heading">{fam.familyName}</h3>
-                  )}
-                  {forme.length > 0 && (
-                    <section className="parole-stati-animo-vocab-section" aria-labelledby={`forme-${fam.familyName}`}>
-                      <h3 id={`forme-${fam.familyName}`} className="parole-stati-animo-famiglia-heading">
-                        {PAROLE_UI.formeTitle}
-                      </h3>
-                      <p className="parole-stati-animo-emerse-hint">{PAROLE_UI.formeHint}</p>
-                      <ul className="parole-stati-animo-stati-list" aria-label={`Forme nominali: ${fam.familyName}`}>
-                        {forme.map((stato) => (
-                          <li key={`forme-${fam.familyName}-${stato}`}>
-                            <button
-                              type="button"
-                              className="parole-stati-animo-stato-chip parole-stati-animo-stato-chip--forme"
-                              onClick={() => handleCopy(stato)}
-                            >
-                              {stato}
-                            </button>
-                          </li>
-                        ))}
-                      </ul>
-                    </section>
-                  )}
-                  {sottoCorrenti.length > 0 && (
-                    <div className="parole-stati-animo-sotto-correnti">
-                      <h3 className="parole-stati-animo-famiglia-heading">{PAROLE_UI.aggettiviTitle}</h3>
-                      <p className="parole-stati-animo-emerse-hint">{PAROLE_UI.aggettiviHint}</p>
-                      <h4 className="parole-stati-animo-sotto-section-label">{PAROLE_UI.sottoCorrentiTitle}</h4>
-                      {sottoCorrenti.map((sub) => (
-                        <article key={sub.id} className="parole-stati-animo-sotto-card">
-                          <header className="parole-stati-animo-sotto-header">
-                            <h5 className="parole-stati-animo-sotto-title">{sub.titolo}</h5>
-                            <p className="parole-stati-animo-sotto-meta">
-                              {sub.intervallo && <span>{sub.intervallo}</span>}
-                              {sub.colore && <span>{sub.colore}</span>}
-                            </p>
-                          </header>
-                          {sub.descrizione && (
-                            <p className="parole-stati-animo-sotto-desc">{sub.descrizione}</p>
-                          )}
-                          {Array.isArray(sub.stati) && sub.stati.length > 0 && (
-                            <ul className="parole-stati-animo-stati-list" aria-label={`Aggettivi: ${sub.titolo}`}>
-                              {sub.stati.map((stato) => (
-                                <li key={stato}>
-                                  <button
-                                    type="button"
-                                    className="parole-stati-animo-stato-chip parole-stati-animo-stato-chip--aggettivi"
-                                    onClick={() => handleCopy(stato)}
-                                  >
-                                    {stato}
-                                  </button>
-                                </li>
-                              ))}
-                            </ul>
-                          )}
-                        </article>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        )}
-        </section>
-
-        {/* SEZIONE FINALE — CHIUSURA */}
-        <footer style={{ paddingTop: 80 }}>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 16,
-              width: '100%',
-            }}
-            aria-hidden="true"
-          >
-            <span style={{ flex: 1, height: 1, background: '#1e293b' }} />
-            <FioreCorrenti correnti={correnti} size={40} />
-            <span style={{ flex: 1, height: 1, background: '#1e293b' }} />
-          </div>
-
-          <div style={{ textAlign: 'center', marginTop: 40 }}>
-            <p
-              style={{
-                fontFamily: MONO_STACK,
-                fontSize: 10,
-                opacity: 0.3,
-                margin: 0,
-              }}
-            >
-              {PAROLE_UI.footerModel}
-            </p>
-            <p
-              style={{
-                fontFamily: MONO_STACK,
-                fontSize: 10,
-                opacity: 0.2,
-                margin: '6px 0 0',
-              }}
-            >
-              {PAROLE_UI.footerCredit}
-            </p>
-            <button
-              type="button"
-              onClick={handleScrollTop}
-              style={{
-                marginTop: 28,
-                background: 'transparent',
-                border: '1px solid rgba(255,255,255,0.15)',
-                color: 'rgba(255,255,255,0.4)',
-                padding: '10px 24px',
-                borderRadius: 2,
-                fontFamily: MONO_STACK,
-                fontSize: 12,
-                cursor: 'pointer',
-                minHeight: 44,
-              }}
-            >
-              {PAROLE_UI.scrollTop}
-            </button>
-          </div>
-        </footer>
       </div>
-
-      {/* MICRO-TOAST "Copiato" */}
-      <AnimatePresence>
-        {copiata && (
-          <motion.div
-            initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 8 }}
-            transition={{ duration: 0.2 }}
-            role="status"
-            aria-live="polite"
-            style={{
-              position: 'fixed',
-              bottom: 32,
-              left: '50%',
-              transform: 'translateX(-50%)',
-              background: '#1e293b',
-              border: '1px solid #334155',
-              color: '#e2e8f0',
-              padding: '8px 16px',
-              borderRadius: 2,
-              fontFamily: MONO_STACK,
-              fontSize: 12,
-              zIndex: 50,
-              pointerEvents: 'none',
-            }}
-          >
-            {PAROLE_UI.copied}
-          </motion.div>
-        )}
-      </AnimatePresence>
     </section>
   )
 }
 
-function FiltroPill({ selezionata, onClick, label, colore, ariaLabel }) {
-  const baseStyle = {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: 8,
-    background: selezionata && colore ? withAlpha(colore, 0.15) : '#1e293b',
-    border: `1px solid ${selezionata ? (colore ? withAlpha(colore, 0.6) : 'rgba(255,255,255,0.6)') : '#334155'}`,
-    borderRadius: 2,
-    padding: '8px 16px',
-    fontFamily: MONO_STACK,
-    fontSize: 11,
-    color: selezionata ? '#ffffff' : '#94a3b8',
-    cursor: 'pointer',
-    transition: 'background 0.2s ease, border-color 0.2s ease, color 0.2s ease',
-    minHeight: 44,
-  }
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={selezionata}
-      aria-label={ariaLabel}
-      style={baseStyle}
-    >
-      {colore && (
-        <span
-          aria-hidden="true"
-          style={{
-            width: 8,
-            height: 8,
-            borderRadius: '50%',
-            background: colore,
-            flexShrink: 0,
-          }}
-        />
-      )}
-      {label}
-    </button>
-  )
-}
-
-function ParolaPill({
-  stato,
-  attenuata,
-  enterVariants,
-  prefersReducedMotion,
-  tooltipAttivo,
-  onShowTooltip,
-  onHideTooltip,
-  onCopy,
-}) {
+function WordPill({ word, isSelected, prefersReducedMotion, onClick }) {
   const [hover, setHover] = useState(false)
-  const peso = PESO_STYLE[stato.peso] || PESO_STYLE.minore
-  const coloreTesto = lightenForDark(stato.colore, 0.4)
-  const mostraTooltip = hover || tooltipAttivo
-
-  const attivoOpacity = peso.opacity
-  const filtroOpacity = attenuata ? 0.1 : attivoOpacity
-  const scale = attenuata ? 0.95 : 1
-
-  const bgAlpha = hover && !attenuata ? 0.2 : 0.08
-  const borderAlpha = attenuata ? 0.2 : hover ? 0.5 : 0.2
+  const coloreTesto = lightenForDark(word.colore, 0.4)
+  const bgAlpha = hover || isSelected ? 0.2 : 0.08
+  const borderAlpha = hover || isSelected ? 0.5 : 0.2
 
   return (
     <motion.button
       type="button"
       layout
-      variants={enterVariants}
+      initial={prefersReducedMotion ? {} : { opacity: 0, y: 4 }}
       animate={{
-        opacity: filtroOpacity,
-        scale: hover && !attenuata && !prefersReducedMotion ? 1.05 : scale,
+        opacity: 1,
+        y: 0,
+        scale: hover && !prefersReducedMotion ? 1.05 : 1,
       }}
-      transition={{ duration: 0.3, ease: 'easeOut' }}
+      transition={{ duration: 0.2 }}
+      onClick={onClick}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
-      onFocus={onShowTooltip}
-      onBlur={onHideTooltip}
-      onClick={() => {
-        onCopy()
-        // su touch: il focus mostra il tooltip
-        onShowTooltip()
-      }}
-      aria-label={`${stato.parola} — corrente ${stato.corrente}. Clicca per copiare.`}
+      aria-label={`${word.parola}${word.sub ? ` — ${word.sub.titolo}` : ''}. Clicca per la definizione.`}
       style={{
-        position: 'relative',
-        background: withAlpha(stato.colore, bgAlpha),
-        border: `1px solid ${withAlpha(stato.colore, borderAlpha)}`,
+        background: withAlpha(word.colore, bgAlpha),
+        border: `1px solid ${withAlpha(word.colore, borderAlpha)}`,
         borderRadius: 2,
         padding: '6px 12px',
         margin: 4,
-        fontFamily: peso.useBody ? BODY_STACK : MONO_STACK,
-        fontSize: peso.fontSize,
-        fontWeight: peso.fontWeight,
+        fontFamily: BODY_STACK,
+        fontSize: '0.9rem',
+        fontWeight: isSelected ? 700 : 400,
         color: coloreTesto,
         cursor: 'pointer',
         lineHeight: 1.2,
         whiteSpace: 'nowrap',
       }}
     >
-      {stato.parola}
-      <AnimatePresence>
-        {mostraTooltip && (
-          <motion.span
-            role="tooltip"
-            initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
-            style={{
-              position: 'absolute',
-              bottom: 'calc(100% + 6px)',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              background: '#0f172a',
-              border: '1px solid #334155',
-              color: '#e2e8f0',
-              padding: '4px 8px',
-              borderRadius: 2,
-              fontFamily: MONO_STACK,
-              fontSize: 10,
-              whiteSpace: 'nowrap',
-              pointerEvents: 'none',
-              zIndex: 10,
-            }}
-          >
-            {stato.corrente}
-          </motion.span>
-        )}
-      </AnimatePresence>
+      {word.parola}
     </motion.button>
   )
 }

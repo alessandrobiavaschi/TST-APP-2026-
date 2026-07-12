@@ -17,26 +17,26 @@ import { LESSICO_INTRO } from '../../content/statiAnimoLessico.js'
 export const REPORT_CRITERION = {
   legendItems: [
     'Prevalenza = somma dei punteggi della famiglia.',
-    'Presenza = quanto quella famiglia ha risuonato nelle tue risposte durante l’ascolto.',
+    'Presenza = quota percentuale di ciascuna famiglia rispetto al totale del profilo (fette di una torta).',
   ],
   legend:
-    'Prevalenza = somma dei punteggi della famiglia. Presenza = quanto quella famiglia ha risuonato nelle tue risposte durante l’ascolto.',
+    'Prevalenza = somma dei punteggi della famiglia. Presenza = quota percentuale di ciascuna famiglia rispetto al totale del profilo (fette di una torta).',
   legendCompact:
-    'Prevalenza · somma dei punteggi  |  Presenza · % di risonanza nel profilo',
+    'Prevalenza · somma dei punteggi  |  Presenza · quota % sul totale del profilo (fette di una torta)',
   prevalenza: 'Prevalenza',
   attivazione: 'Presenza nel tuo profilo',
   attivazioneShort: 'Presenza',
   attivazioneTooltip:
-    'Indica l’intensità con cui questa frequenza emotiva ha risuonato nelle tue risposte durante l’ascolto dei suoni.',
+    'Indica la quota percentuale di ciascuna famiglia emotiva rispetto al totale del profilo (come fette di una torta).',
   famigliaPrevalente: 'Famiglia prevalente (somma dei punteggi)',
-  temperamentoPrevalente: 'Temperamento (da prevalenza)',
+  temperamentoPrevalente: 'Qualità (da prevalenza)',
   sottodisposizionePrevalente: 'Sottodisposizione (prevalenza)',
   portatoPrevalente: 'Portato prevalente (somma dei punteggi PE)',
   livelloRelativo: 'Livello relativo (1–7)',
   quotaPortato: 'Quota sul totale PE',
   quotaGrezza: 'Quota sul totale dei punteggi',
-  naturaCriterio: 'Natura e temperamento derivano dalla prevalenza: la famiglia con più punti.',
-  graficiAttivazione: 'Grafici e barre mostrano la presenza: quanto ogni famiglia ha risuonato nel profilo.',
+  naturaCriterio: 'Natura e qualità derivano dalla prevalenza: la famiglia con più punti.',
+  graficiAttivazione: 'Presenza = quota percentuale di ciascuna famiglia emotiva rispetto al totale del profilo (fette di una torta).',
 }
 
 /** @deprecated Usare REPORT_CRITERION.legend */
@@ -50,14 +50,13 @@ export function formatAttivazione(value) {
 
 export const HERO_UI = {
   ...HERO,
-  prevalenzaLabel: 'Famiglia con più punti · somma dei punteggi',
   activationLabel: 'Presenza · %',
   sottodisposizioneLabel: 'Sfumatura · corrente più forte',
 }
 export { GLOSSARY_UI }
 
 export const SINTESI_UI = {
-  eyebrow: 'Passo 1 · sintesi',
+  eyebrow: 'Sintesi del profilo',
   title: SINTESI_REST.title,
   subtitle: SINTESI_REST.subtitle,
   srOnlyTitle: (userName) =>
@@ -68,14 +67,14 @@ export const SINTESI_UI = {
   chipsAria: 'Indicatori chiave del profilo',
   howToReadToggle: SINTESI_REST.orientationTitle,
   leadExpandToggle: 'Approfondisci la sintesi del profilo',
-  cardDominante: 'Temperamento (da prevalenza)',
+  cardDominante: 'Qualità (da prevalenza)',
   cardFamiglia: 'Famiglia prevalente',
   prevalenzaMethod: 'Più punti in questo test',
-  naturaPrevalenteLabel: 'Temperamento',
+  naturaPrevalenteLabel: 'Qualità',
   sottodisposizioneMethod: 'Corrente più forte',
-  distribuzioneTitle: 'Presenza per famiglia',
-  distribuzioneCaption: REPORT_CRITERION.graficiAttivazione,
-  distribuzioneOrderLabel: 'Ordine per presenza',
+  distribuzioneTitle: 'Grafici dei risultati',
+  distribuzioneCaption: '',
+  distribuzioneOrderLabel: 'Ordine delle famiglie per presenza',
   cardFocus: 'Dimensione di orientamento',
   orientationTitle: SINTESI_REST.orientationTitle,
   orientationBody: SINTESI_REST.orientationBody,
@@ -95,23 +94,22 @@ export const SINTESI_UI = {
   editorialNote: SINTESI_REST.editorialNote,
   disclaimerShort:
     'Fotografia di questo test, non una definizione fissa della persona.',
-  prevalenzaNota:
-    `${REPORT_CRITERION.naturaCriterio} ${REPORT_CRITERION.graficiAttivazione}`,
+  prevalenzaNota: REPORT_CRITERION.naturaCriterio,
 }
 
 export const PROFILO_UI = {
-  eyebrow: 'Passo 2 · racconto',
-  title: 'Cosa significa?',
-  subtitle: 'Quattro capitoli in sequenza: natura, racconto, risorse, ombre.',
+  eyebrow: 'Famiglia emotiva',
+  title: 'La tua famiglia emotiva di appartenenza',
+  subtitle: 'Quattro aspetti in sequenza: natura, memoria, esperienza, essere Musica, risorse, ombre.',
   panelIntroTitle: 'Cosa trovi qui',
-  chapterNavHint: 'Salta al capitolo o scorri in ordine — tutti aperti.',
+  chapterNavHint: 'Salta all’aspetto o scorri in ordine — tutti aperti.',
 }
 
 export const APPROFONDIMENTO_AREAS = ['Timbro', 'Intervalli', 'Ritmo', 'Melodia', 'Armonia']
 
 export const APPROFONDIMENTO_UI = {
-  eyebrow: 'Passo 5 · approfondimento sonoro',
-  title: 'In quali stimoli si accende?',
+  eyebrow: 'Approfondimento sonoro',
+  title: 'Aree sonore del test',
   lead:
     'Il test sonoro si articola in cinque aree. Qui vedi se le famiglie emotive restano omogenee o se emergono contrasti a seconda dello stimolo.',
   chartPlainTitle: 'Come leggere il grafico',
@@ -138,10 +136,14 @@ export const APPROFONDIMENTO_UI = {
 }
 
 export const RAPPORTI_UI = {
-  eyebrow: 'Passo 3 · quattro lenti',
-  title: 'Dove cambia?',
+  eyebrow: 'Quattro lenti',
+  title: 'Quattro prospettive',
   intro:
-    'Quattro lenti sullo stesso profilo: natura, sé, altro e agire. Apri una scheda alla volta.',
+    "Le quattro lenti leggono lo stesso profilo in prospettive diverse: fondo emotivo, rapporto con sé, apertura all’altro e spinta ad agire.",
+  lensesKicker: 'Per cosa stanno',
+  lensesTitle: 'Ogni lente risponde a una domanda diversa',
+  lensesLead:
+    'Il numero 1–7 non è un voto sulla persona: indica quanto la famiglia emotiva più forte domina dentro quella lente.',
   tablistAria: 'Seleziona rapporto',
   correntePrincipaleLabel: 'Famiglia più alta in questa lente',
   radarCaption: 'Livello relativo 1–7 per famiglia in questo rapporto (non è attivazione %).',
@@ -149,17 +151,43 @@ export const RAPPORTI_UI = {
   scaleBannerTitle: 'Come leggere i grafici',
   scaleBanner:
     'Qui i grafici usano una scala 1–7 (confronto interno a ciascun rapporto), non le percentuali di attivazione della Sintesi.',
+  lensCards: [
+    {
+      id: 'natura',
+      question: 'Che tono emotivo hai di base?',
+      plain: 'Il fondo stabile del profilo, prima delle situazioni.',
+      areasPlain: 'Timbro, Intervalli e Armonia',
+    },
+    {
+      id: 'se',
+      question: 'Come stai in rapporto con te?',
+      plain: 'Interiorità, ascolto di sé e racconto personale.',
+      areasPlain: 'Intervalli e Melodia',
+    },
+    {
+      id: 'altro',
+      question: 'Come ti apri a persone e ambiente?',
+      plain: 'Disponibilità relazionale e modo di lasciarti toccare.',
+      areasPlain: 'Timbro e Melodia',
+    },
+    {
+      id: 'agire',
+      question: 'Come trasformi il sentire in azione?',
+      plain: 'Movimento, iniziativa, sosta o lasciar scorrere.',
+      areasPlain: 'Ritmo e Melodia',
+    },
+  ],
   readLabels: {
-    composizione: 'Composizione',
-    cosaIndica: 'Cosa indica',
+    composizione: 'Aree sonore usate',
+    cosaIndica: 'Cosa indica nel profilo',
   },
 }
 
 export const PORTATO_UI = {
-  eyebrow: 'Passo 3 · vissuto',
-  title: 'Come hai vissuto gli stimoli',
+  eyebrow: 'Vissuto del test',
+  title: 'Forza delle tue correnti emotive',
   lead:
-    'Il portato esperienziale fotografa come hai orientato l’ascolto: attrazione (simpatia), rifiuto (antipatia) o distacco (indifferenza). Nel modello TST ogni stimolo mette in moto il calore affettivo — la voce prevalente è quella con più punti; le percentuali mostrano il bilancio tra le tre.',
+    "Ecco un quadro che manifesta la forza delle tue correnti emotive. Quanto sono vive e forti queste forze è data dall’intensità di simpatia, antipatia o indifferenza provati durante il test da parte dell’utente nei confronti dei suoni ascoltati.",
   prevalenteLabel: 'Prevalenza',
   quotaLabel: 'Quota',
   badgePrevalente: 'Prevalente',
@@ -167,8 +195,14 @@ export const PORTATO_UI = {
 }
 
 export const PAROLE_UI = {
-  eyebrow: 'Passo 4 · lessico',
-  title: 'Quali parole restano?',
+  eyebrow: "un contributo all'educazione emotiva",
+  title: 'Dizionario emotivo',
+  educazioneSubtitle: 'Qui trovi le parole utili per nominare i sentimenti che il test ha fatto emergere.',
+  educazioneParagraphs: [
+    "Uno degli aspetti dell'educazione emotiva è rendersi sempre più consapevoli degli effetti che la Musica provoca nel suscitare in modo del tutto naturale sentimenti, emozioni e stati d'animo.",
+    "Al sorgere di queste molteplici sensazioni dovrebbe essere associata anche la capacità di nominarle e di selezionarle. La costruzione di un proprio dizionario dei sentimenti è un preludio concreto per praticare l'educazione emotiva.",
+  ],
+  educazioneCta: 'Naviga qui sotto e rendi vive queste parole quando ti trovi a «sentire» della Musica.',
   zoneEmerseTitle: 'Le tue parole dal test',
   zoneEmerseLead: 'Aggettivi scelti nelle risposte — clicca per copiarli.',
   zoneDizionarioTitle: 'Dizionario di riferimento',
@@ -197,34 +231,30 @@ export const PAROLE_UI = {
 }
 
 export const MAPPA_UI = {
-  eyebrow: 'Mappa e relazioni',
-  title: 'Campo emotivo e relazioni con gli altri',
+  eyebrow: 'Passo 3 · relazioni',
+  title: 'Le cinque famiglie emotive in relazione tra loro',
   intro: SECTION_INTROS.mappa.intro,
   methodTitle: 'Come leggere questa sezione',
   methodParagraphs: SECTION_INTROS.mappa.points,
   methodPoints: [
-    'Famiglia prevalente: famiglia con più punti complessivi.',
-    'Attivazione nei grafici a petali: quanto si accende ciascuna famiglia.',
-    'Portato esperienziale: voce con più punti tra simpatia, antipatia e indifferenza.',
+    'Famiglia prevalente: la famiglia con più punti complessivi; dà il tono principale del profilo.',
+    'Relazioni tra temperamenti: come il temperamento prevalente può incontrare gli altri temperamenti.',
+    'Le ipotesi descrivono tendenze emerse dal test, non un verdetto fisso sulla persona.',
   ],
-  solarEyebrow: 'Campo emotivo',
-  solarTitle: 'Le cinque aree del profilo',
-  solarCopy:
-    'Calma, Malinconia, Volitività, Entusiasmo e Anaffettività: i punteggi dei pianeti derivano da attivazione e sotto-correnti.',
   relationsEyebrow: 'Relazioni tra temperamenti',
   relationsTitle: 'Temperamento prevalente nelle relazioni (da prevalenza)',
   relationsCopy: '',
   sourceNote: null,
   simpleLead:
-    'Dopo lo schema interno, qui trovi la mappa visiva del profilo e — in fondo — come il tuo temperamento si relaziona con gli altri.',
+    'Qui trovi una lettura su come il temperamento prevalente può incontrare gli altri temperamenti.',
   summaryBoxTitle: 'In parole semplici',
   summaryZero:
-    'La mappa solare mostra come si accendono le cinque famiglie nel tuo profilo. Le relazioni in fondo descrivono invece l’incontro con altri temperamenti — non la convivenza interna, già letta sopra.',
-  advancedToggle: 'Mostra mappa solare e relazioni interpersonali',
+    'Questa sezione risponde a una domanda diversa: come il temperamento prevalente incontra altri temperamenti.',
+  advancedToggle: 'Mostra relazioni interpersonali',
 }
 
 export const DIALOGO_UI = {
-  eyebrow: 'Passo 3 · dentro di te',
+  eyebrow: 'Passo 4 · dentro di te',
   title: 'Come convivono le correnti nel tuo profilo',
   /** @deprecated Usare lead */
   subtitle: (dominantLabel, nCoppie) =>
@@ -253,24 +283,28 @@ export const HELP_MODAL_UI = {
     'Leggi il report in cinque passi, dall’alto verso il basso. Ogni passo aggiunge un livello di dettaglio.',
   items: [
     {
-      title: '1 · Che profilo emerge?',
-      text: 'Sintesi del profilo: famiglia prevalente, sfumatura e distribuzione generale.',
+      title: '1 · Risultato con fiore',
+      text: 'Prima vista del risultato prevalente.',
     },
     {
-      title: '2 · Cosa significa?',
-      text: 'Profilo descrittivo in quattro capitoli: natura, racconto, risorse e ombre.',
+      title: '2 · Risultati del test',
+      text: 'Caratteristica emotiva, grafici dei risultati e famiglia emotiva di appartenenza.',
     },
     {
-      title: '3 · Dove cambia?',
-      text: 'Quattro rapporti, portato, schema interno delle correnti e mappa con relazioni interpersonali.',
+      title: '3 · La tua Natura emotiva in relazione alle altre',
+      text: 'Natura emotiva di base, sé, altro e agire.',
     },
     {
-      title: '4 · Quali parole restano?',
-      text: 'Lessico emerso dal test e vocabolario di riferimento per famiglia. Clicca un termine per copiarlo.',
+      title: '4 · Forza delle tue correnti emotive',
+      text: 'Punteggi di empatia, antipatia e indifferenza che manifestano la forza delle correnti emotive.',
     },
     {
-      title: '5 · In quali stimoli si accende?',
-      text: 'Approfondimento sonoro: Timbro, Intervalli, Ritmo, Melodia e Armonia, più filtro musicale finale.',
+      title: "5 · un contributo all'educazione emotiva",
+      text: 'Dizionario emotivo: esplora le parole della tua famiglia prevalente e delle altre famiglie.',
+    },
+    {
+      title: '6 · Aree sonore del test',
+      text: 'Approfondimento sonoro per area (Timbro, Intervalli, Ritmo, Melodia, Armonia) e filtro musicale.',
     },
     {
       title: 'Galassia',
@@ -295,14 +329,14 @@ export const PRIMA_LETTURA_UI = {
 export const NAVBAR_UI = {
   reportKicker: 'Il tuo report',
   modalitaAria: 'Vista: report scritto o mappa Galassia',
-  temperamentLabel: 'Temperamento (prevalenza)',
+  temperamentLabel: 'Qualità (prevalenza)',
   helpAria: 'Guida alla lettura del report',
   download: 'Scarica',
 }
 
 export const REPORT_NAV_UI = {
   indexTitle: 'Percorso di lettura',
-  indexHint: 'Cinque passi in ordine. Tocca una voce per saltare alla sezione.',
+  indexHint: 'Sei passi in ordine. Apri un blocco e scegli la sotto-sezione.',
   ariaLabel: 'Indice del report — navigazione tra sezioni',
   layoutHint:
     'Leggi dall’alto verso il basso. Ogni blocco aggiunge un livello: prima sintesi, poi racconto, poi dettagli.',
@@ -310,7 +344,7 @@ export const REPORT_NAV_UI = {
 
 export const READING_GUIDE_UI = {
   eyebrow: 'Percorso di lettura',
-  title: 'Leggi il report in 5 passaggi',
+  title: 'Leggi il report in 6 passaggi',
   toggleLabel: 'Mostra il percorso consigliato',
   toggleLabelOpen: 'Nascondi il percorso',
   body:
@@ -320,39 +354,46 @@ export const READING_GUIDE_UI = {
   stepButtonAria: (title) => `Vai al passo: ${title}`,
   steps: [
     {
-      id: 'report-tst-sintesi',
-      groupId: 'report-group-identita',
+      id: 'report-group-profilo-generale',
+      groupId: 'report-group-profilo-generale',
       label: '1',
-      title: 'Che profilo emerge?',
-      text: 'Guarda famiglia prevalente, sfumatura principale e distribuzione delle cinque famiglie.',
-    },
-    {
-      id: 'report-tst-profilo',
-      groupId: 'report-group-profilo',
-      label: '2',
-      title: 'Cosa significa?',
-      text: 'Leggi natura, racconto, risorse e ombre: qui il numero diventa testo.',
+      title: 'Risultati del test',
+      text: 'Leggi la prima sintesi dei risultati del test.',
     },
     {
       id: 'report-tst-rapporti',
-      groupId: 'report-group-rapporti',
+      groupId: 'report-tst-rapporti',
+      label: '2',
+      title: 'Quattro rapporti',
+      text: 'Confronta natura, sé, altro e agire.',
+    },
+    {
+      id: 'report-group-forza-correnti',
+      groupId: 'report-group-forza-correnti',
       label: '3',
-      title: 'Dove cambia?',
-      text: 'Confronta natura, sé, altro e agire; poi portato, schema interno e relazioni con altri temperamenti.',
+      title: 'Forza delle tue correnti emotive',
+      text: 'Osserva quanto sono vive le correnti emotive nei punteggi di empatia, antipatia e indifferenza.',
     },
     {
-      id: 'report-tst-parole',
-      groupId: 'report-group-lessico',
+      id: 'report-group-educazione',
+      groupId: 'report-group-educazione',
       label: '4',
-      title: 'Quali parole restano?',
-      text: 'Usa il lessico per nominare meglio gli stati d’animo emersi.',
+      title: "un contributo all'educazione emotiva",
+      text: 'Esplora il dizionario emotivo: le parole della tua famiglia prevalente e delle altre famiglie.',
     },
     {
-      id: 'report-tst-approfondimento',
-      groupId: 'report-group-approfondimento',
+      id: 'report-group-musicalita',
+      groupId: 'report-group-musicalita',
       label: '5',
-      title: 'In quali stimoli si accende?',
-      text: 'Confronta Timbro, Intervalli, Ritmo, Melodia e Armonia per vedere dove il profilo cambia.',
+      title: 'Musicalità',
+      text: 'Leggi la relazione tra disposizione prevalente e linguaggio musicale.',
+    },
+    {
+      id: 'report-group-approfondimento',
+      groupId: 'report-group-approfondimento',
+      label: '6',
+      title: 'Aree sonore del test',
+      text: 'Osserva come le famiglie emotive si attivano nelle aree sonore del test.',
     },
   ],
 }
@@ -412,13 +453,13 @@ export const GALASSIA_PORTATO_UI = {
 
 export const GALASSIA_RAPPORTI_UI = {
   intro:
-    'Quattro lenti — natura, sé, altro, agire — sullo stesso profilo. Ogni lente mostra come si distribuiscono le cinque famiglie in quella direzione.',
+    'Quattro lenti sullo stesso profilo: tono di base, rapporto con sé, apertura all’altro e spinta ad agire. Ogni lente mostra quale famiglia emotiva pesa di più in quella direzione.',
   scaleNote:
     'I valori sono livelli 1–7 interni a ciascuna lente, non le percentuali della Sintesi.',
-  tapHint: 'Seleziona una lente per aprire il radar delle cinque famiglie.',
+  tapHint: 'Seleziona una lente per vedere da quali famiglie emotive è composta.',
   idleHintKicker: 'Quattro rapporti',
   idleHintLead:
-    'Natura, sé, altro e agire: quattro lenti sullo stesso profilo. Livelli 1–7, non percentuali.',
+    'Natura, sé, altro e agire non sono persone diverse: sono quattro modi di leggere lo stesso profilo. Livelli 1–7, non percentuali.',
   constellationHint: 'Tocca un satellite per il livello di una singola famiglia (scala 1–7).',
   dominantLabel: 'Famiglia più alta in questa lente',
   cards: [
@@ -427,28 +468,28 @@ export const GALASSIA_RAPPORTI_UI = {
       label: 'Natura di base',
       areas: 'Timbro + Intervalli + Armonia',
       metaphor: 'Terra · Luce · Calore',
-      meaning: 'Il suolo emotivo: chi sei al di là delle situazioni.',
+      meaning: 'Risponde a: che tono emotivo hai di base?',
     },
     {
       id: 'se',
       label: 'Rapporto con te stesso',
       areas: 'Intervalli + Melodia',
       metaphor: 'Luce · Aria',
-      meaning: 'Interiorità e dialogo con te stesso.',
+      meaning: 'Risponde a: come stai in rapporto con la tua interiorità?',
     },
     {
       id: 'altro',
       label: 'Rapporto con l’Altro',
       areas: 'Timbro + Melodia',
       metaphor: 'Terra · Aria',
-      meaning: 'Come ti disponi verso persone e ambiente.',
+      meaning: 'Risponde a: come ti apri a persone e ambiente?',
     },
     {
       id: 'agire',
       label: 'Rapporto con l’Agire',
       areas: 'Ritmo + Melodia',
       metaphor: 'Acqua · Aria',
-      meaning: 'Come trasformi emozioni in movimento e iniziativa.',
+      meaning: 'Risponde a: come trasformi il sentire in movimento?',
     },
   ],
 }
@@ -456,18 +497,17 @@ export const GALASSIA_RAPPORTI_UI = {
 export const GALASSIA_MAP_MODES = [
   { id: 'disposizioni', label: 'Disposizioni', shortLabel: 'Mappa', hint: 'Cinque famiglie · Rosa dei venti' },
   {
-    id: 'rapporti',
-    label: 'Quattro rapporti',
-    shortLabel: 'Rapporti',
-    hint: 'Quattro lenti: natura, sé, altro, agire · scala 1–7',
-  },
-  {
     id: 'portato',
     label: 'Portato',
     shortLabel: 'Portato',
     hint: 'Come hai vissuto gli stimoli: simpatia, antipatia, indifferenza',
   },
-  { id: 'parole', label: 'Parole', shortLabel: 'Parole', hint: 'Lessico per disposizione, sfumature e relazioni' },
+  {
+    id: 'parole',
+    label: 'Lessico',
+    shortLabel: 'Lessico',
+    hint: 'Parole emerse e dizionario TST per ogni disposizione',
+  },
 ]
 
 export const GALASSIA_UI = {
@@ -485,14 +525,15 @@ export const GALASSIA_UI = {
     disposizioni: 'Cinque disposizioni',
     rapporti: 'Quattro rapporti',
     portato: 'Portato esperienziale',
-    parole: 'Lessico emerso',
+    parole: 'Lessico',
   },
   modeSwitchAria: 'Sezione della Galassia',
   modeIdle: {
     disposizioni: 'Cinque famiglie sulla rosa dei venti del modello TST.',
     rapporti: GALASSIA_RAPPORTI_UI.intro,
     portato: GALASSIA_PORTATO_UI.intro,
-    parole: 'Lessico TST per disposizione: parole emerse, dizionario e sfumature interne di ogni famiglia.',
+    parole:
+      'Lessico TST: ogni pianeta è una famiglia emotiva; il numero indica quante parole del dizionario sono collegate a quella famiglia.',
   },
   monitorKicker: 'Lettura',
   monitorAria: 'Lettura della corrente o sfumatura selezionata',
@@ -514,11 +555,37 @@ export const GALASSIA_UI = {
     disposizioni: 'Tocca un mondo per aprire costellazione e lettura.',
     rapporti: 'Tocca una lente — natura, sé, altro o agire.',
     portato: 'Tocca un mondo per leggere simpatia, antipatia o indifferenza.',
-    parole: 'Tocca una famiglia per vedere parole, sottodisposizioni e relazioni.',
+    parole: 'Tocca una famiglia: vedrai parole emerse dal test, lessico di riferimento e sfumature interne.',
   },
 }
 
 export const GALASSIA_READING_STEPS_BY_MODE = {
+  parole: [
+    {
+      id: 'famiglie',
+      label: '1',
+      title: 'Ogni pianeta è una famiglia',
+      text: 'Entusiasmo, Calma, Volitività, Malinconia e Anaffettività raccolgono parole dello stesso colore emotivo.',
+    },
+    {
+      id: 'conteggio',
+      label: '2',
+      title: 'Il numero conta le parole',
+      text: '“34 parole” significa parole collegate a quella famiglia nel lessico TST; non è un punteggio né una percentuale.',
+    },
+    {
+      id: 'emerse',
+      label: '3',
+      title: 'Distingui emerse e riferimento',
+      text: 'Le parole emerse sono quelle scelte nelle risposte; le altre sono dizionario di riferimento per nominare meglio il profilo.',
+    },
+    {
+      id: 'sfumature',
+      label: '4',
+      title: 'Apri le sfumature',
+      text: 'Tocca una famiglia: i satelliti mostrano sottodisposizioni e parole specifiche di ciascuna sfumatura.',
+    },
+  ],
   portato: [
     {
       id: 'cosa',
@@ -602,7 +669,7 @@ export const GALASSIA_READING_STEPS = [
     id: 'modes',
     label: '5',
     title: 'Cambia prospettiva',
-    text: 'Scegli Disposizioni, Rapporti, Portato o Parole — stessi dati del report, lenti diverse.',
+    text: 'Scegli Disposizioni, Portato o Lessico — stessi dati del report, lenti diverse.',
   },
 ]
 

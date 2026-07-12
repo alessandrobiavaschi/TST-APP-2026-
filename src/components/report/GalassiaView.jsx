@@ -10,6 +10,7 @@ import {
   getFamigliaLabel,
 } from '../../content/dialogoCorrenti.js'
 import { FAMIGLIE_LESSICO } from '../../content/statiAnimoLessico.js'
+import { getRelationalCorpusForDominant } from '../../content/relational/index.js'
 import reportContent from '../../content_report.json'
 import {
   GALASSIA_UI,
@@ -20,6 +21,7 @@ import {
   GALASSIA_RAPPORTI_UI,
 } from './reportUiCopy.js'
 import GalassiaTutorialOverlay from './GalassiaTutorialOverlay.jsx'
+import LessicoAtlasView from './LessicoAtlasView.jsx'
 import {
   markGalassiaOpeningGuideSeen,
   shouldShowGalassiaTutorial,
@@ -63,6 +65,20 @@ const WIND_ANCHORS = {
   flemmatica: { x: 50, y: 51 },
   entusiasmo: { x: 50, y: 25 },
   agnostica_anaffettiva: { x: 50, y: 79 },
+}
+
+const PAROLE_CLUSTER_ANCHORS = {
+  malinconica_nostalgica: { x: 27, y: 55 },
+  collerico_volitiva: { x: 73, y: 55 },
+  flemmatica: { x: 50, y: 51 },
+  entusiasmo: { x: 50, y: 25 },
+  agnostica_anaffettiva: { x: 50, y: 79 },
+}
+
+function subOrbitOffset(index, total, radiusPct) {
+  if (total <= 1) return { dx: 0, dy: 0 }
+  const angle = (index / total) * Math.PI * 2 - Math.PI / 2
+  return { dx: Math.cos(angle) * radiusPct, dy: Math.sin(angle) * radiusPct * 0.6 }
 }
 
 /** Margini % della mappa: riservano spazio a titolo, etichette sotto i cerchi e pannello CRT. */
@@ -489,7 +505,7 @@ const RAPPORTI_ANCHORS = {
 const PORTATO_ANCHORS = {
   Simpatia: { x: 28, y: 36 },
   Antipatia: { x: 72, y: 36 },
-  Indifferenza: { x: 50, y: 74 },
+  Indifferenza: { x: 50, y: 68 },
 }
 
 const PORTATO_COLORS = {
@@ -612,10 +628,8 @@ const LESSICO_RELATIONS_BY_FAMILY = {
   },
 }
 
-function mapModeSupportsZoom(mode, node) {
-  if (mode === 'disposizioni' || mode === 'rapporti') return true
-  if (mode === 'parole') return Boolean(node?.sottoCorrenti?.length)
-  return false
+function mapModeSupportsZoom(mode) {
+  return mode === 'disposizioni' || mode === 'rapporti'
 }
 
 function rapportoLivello(peso) {
@@ -642,11 +656,13 @@ function formatNodeWeight(mode, node) {
     const emergedCount = Number(node?.raw?.emerseCount) || 0
     const wordLabel =
       totalWords === 1 ? '1 parola' : `${totalWords} parole`
+    const lexiconLabel =
+      totalWords === 1 ? '1 parola nel lessico' : `${totalWords} parole nel lessico`
     return {
-      short: totalWords ? wordLabel : `${activationPct}%`,
-      display: totalWords ? wordLabel : `${activationPct}%`,
+      short: totalWords ? `${wordLabel} lessico` : `${activationPct}% presenza`,
+      display: totalWords ? lexiconLabel : `${activationPct}% presenza`,
       sizeRatio: Math.max(0.18, activationPct / 100),
-      headBadge: emergedCount > 0 ? `${emergedCount} emerse` : wordLabel,
+      headBadge: emergedCount > 0 ? `${emergedCount} emerse dal test` : wordLabel,
       isRapportiLevel: false,
     }
   }
@@ -727,10 +743,7 @@ function buildWordEntries(labels = [], emergedSet = new Set(), source = 'diziona
       isEmerged: emergedSet.has(key),
     })
   }
-  return [...byKey.values()].sort((a, b) => {
-    if (a.isEmerged !== b.isEmerged) return a.isEmerged ? -1 : 1
-    return a.nome.localeCompare(b.nome, 'it')
-  })
+  return [...byKey.values()].sort((a, b) => a.nome.localeCompare(b.nome, 'it'))
 }
 
 function buildLessicoRelations(familyKey = '') {
@@ -872,7 +885,7 @@ function buildLessicoGalaxyNodes({
   })
 }
 
-function buildModeIdlePanel(mode, { dominant, portato } = {}) {
+function buildModeIdlePanel(mode, { dominant, portato, deepReading } = {}) {
   const modeMeta = GALASSIA_MAP_MODES.find((item) => item.id === mode)
   const base = {
     kind: 'idle',
@@ -884,7 +897,9 @@ function buildModeIdlePanel(mode, { dominant, portato } = {}) {
         ? GALASSIA_RAPPORTI_UI.tapHint
         : mode === 'portato'
           ? GALASSIA_PORTATO_UI.tapHint
-          : GALASSIA_UI.clickPlanetHint,
+          : mode === 'parole'
+            ? GALASSIA_UI.mapHintByMode.parole
+            : GALASSIA_UI.clickPlanetHint,
     dominantChip:
       dominant && (mode === 'disposizioni' || mode === 'parole')
         ? {
@@ -894,6 +909,7 @@ function buildModeIdlePanel(mode, { dominant, portato } = {}) {
             colore: dominant.colore,
           }
         : null,
+    deepReading: mode === 'disposizioni' && Array.isArray(deepReading) ? deepReading : null,
   }
   if (mode === 'rapporti') {
     return {
@@ -905,27 +921,27 @@ function buildModeIdlePanel(mode, { dominant, portato } = {}) {
     return {
       ...base,
       idleKicker: 'Lessico emotivo',
-      dominantChipLabel: 'Disposizione più attiva',
+      dominantChipLabel: 'Famiglia più presente',
       intro:
-        'Le parole sono organizzate per disposizione, sottodisposizione e colore. Le relazioni distinguono accoppiamenti e contrasti tra famiglie.',
+        'Questa vista spiega per cosa stanno le parole: non aggiunge un punteggio, ma ordina parole emerse dal test e dizionario TST per famiglia emotiva.',
       introPoints: [
         {
           id: 'settori',
-          label: 'Disposizione',
-          areas: 'Famiglia colore',
-          meaning: 'Raccoglie le parole del dizionario TST e quelle emerse nel test.',
+          label: 'Pianeta',
+          areas: 'Famiglia emotiva',
+          meaning: 'Il cerchio rappresenta una disposizione, come Entusiasmo o Calma.',
         },
         {
-          id: 'orbite',
-          label: 'Sottodisposizione',
-          areas: 'Satelliti',
-          meaning: 'Mostra le sfumature interne e le parole specifiche di ciascuna.',
+          id: 'conteggio',
+          label: 'Numero',
+          areas: 'Parole nel lessico',
+          meaning: 'Il conteggio indica quante parole TST sono collegate a quella famiglia.',
         },
         {
-          id: 'relazioni',
-          label: 'Relazioni',
-          areas: 'Accoppiamenti / contrasti',
-          meaning: 'Aiuta a leggere quali famiglie si sostengono o si mettono in tensione.',
+          id: 'emerse',
+          label: 'Emerse',
+          areas: 'Risposte del test',
+          meaning: 'Nel pannello trovi quali parole sono state scelte e quali sono di riferimento.',
         },
       ],
     }
@@ -1051,8 +1067,8 @@ function buildModePanelContent(mode, node, activeSub = null) {
       relations,
       sottoCorrenti: Array.isArray(node.sottoCorrenti) ? node.sottoCorrenti : [],
       stats: [
-        { label: 'Parole', value: raw.totalWords || words.length },
-        { label: 'Emersi', value: raw.emerseCount || 0 },
+        { label: 'Lessico', value: raw.totalWords || words.length },
+        { label: 'Emerse', value: raw.emerseCount || 0 },
         { label: 'Sfumature', value: raw.subCount || 0 },
       ],
       statiDanimo: words.slice(0, 12).map((word) => word.nome),
@@ -1279,6 +1295,338 @@ function buildProfileInfo({ corrente, rankedData, paroleEmerse, rapporti }) {
   }
 }
 
+const REPRESENTATIVE_WORDS = {
+  'parole-entusiasmo': ['Gioioso', 'Curioso', 'Dinamico'],
+  'parole-malinconica_nostalgica': ['Riflessivo', 'Nostalgico', 'Pensieroso'],
+  'parole-collerico_volitiva': ['Determinato', 'Fermo', 'Coraggioso'],
+  'parole-flemmatica': ['Pacifico', 'Contemplativo', 'Equilibrato'],
+  'parole-agnostica_anaffettiva': ['Distaccato', 'Lucido', 'Indifferente'],
+}
+
+function ParoleWordCloud({
+  nodes,
+  selectedFamilyId,
+  selectedSubId,
+  onSelectFamily,
+  onSelectSub,
+}) {
+  const isAnyFamilySelected = selectedFamilyId !== null
+
+  // Utility to find word metadata (to highlight emerged words)
+  const getWordObject = (familyNode, name) => {
+    const found = (familyNode.words || []).find(
+      (w) => w.nome.toLowerCase() === name.toLowerCase(),
+    )
+    return found || { id: `rep-${name}`, nome: name, isEmerged: false }
+  }
+
+  return (
+    <div className="galassia-parole-cloud" aria-label="Galassia lessicale">
+      {/* ── STATE 1: COMPLETE MAP (No family selected) ───────────────── */}
+      {!isAnyFamilySelected &&
+        (Array.isArray(nodes) ? nodes : []).map((familyNode) => {
+          const srcId = familyNode.raw?.sourceId || ''
+          const anchor = PAROLE_CLUSTER_ANCHORS[srcId] || familyNode.anchor || { x: 50, y: 50 }
+          const color = familyNode.colore || '#94a3b8'
+          const repWordNames = REPRESENTATIVE_WORDS[familyNode.id] || []
+
+          const offsets = [
+            { dx: -4.8, dy: 6.0 },
+            { dx: 0, dy: 8.3 },
+            { dx: 4.8, dy: 6.0 },
+          ]
+
+          return (
+            <React.Fragment key={familyNode.id}>
+              {/* Background Nebula */}
+              <div
+                aria-hidden="true"
+                className="galassia-parole-nebula"
+                style={{
+                  left: `${anchor.x}%`,
+                  top: `${anchor.y}%`,
+                  width: '24%',
+                  height: '25.8%',
+                  background: `radial-gradient(ellipse at center, ${color}22 0%, ${color}0b 50%, transparent 74%)`,
+                  opacity: 0.6,
+                }}
+              />
+
+              {/* Family Node Bubble */}
+              <button
+                type="button"
+                className="galassia-parole-family"
+                style={{
+                  left: `${anchor.x}%`,
+                  top: `${anchor.y}%`,
+                  '--cloud-color': color,
+                  opacity: 0.92,
+                  pointerEvents: 'auto',
+                }}
+                onClick={() => onSelectFamily(familyNode.id)}
+                aria-label={`Disposizione ${familyNode.nome}`}
+              >
+                <span className="galassia-parole-family-dot" style={{ background: color }} aria-hidden />
+                <span>{familyNode.nome}</span>
+              </button>
+
+              {/* Representative words */}
+              {repWordNames.map((wordName, idx) => {
+                const word = getWordObject(familyNode, wordName)
+                const offset = offsets[idx % offsets.length]
+                const x = anchor.x + offset.dx
+                const y = anchor.y + offset.dy * 0.6
+
+                return (
+                  <button
+                    key={word.id}
+                    type="button"
+                    className={`galassia-parole-word${word.isEmerged ? ' is-emerged' : ''}`}
+                    style={{
+                      left: `${x}%`,
+                      top: `${y}%`,
+                      '--cloud-color': color,
+                      '--word-font-size': '12.4px',
+                      opacity: word.isEmerged ? 0.92 : 0.68,
+                      pointerEvents: 'auto',
+                    }}
+                    onClick={() => onSelectFamily(familyNode.id)}
+                    aria-label={word.nome}
+                    title={word.nome}
+                  >
+                    {word.nome}
+                  </button>
+                )
+              })}
+            </React.Fragment>
+          )
+        })}
+
+      {/* ── STATE 2 & 3: FAMILY FOCUS / SUBDISPOSITION FOCUS ─────────── */}
+      {isAnyFamilySelected &&
+        (Array.isArray(nodes) ? nodes : []).map((familyNode) => {
+          const isSelected = selectedFamilyId === familyNode.id
+          if (!isSelected) return null // Hide all other families completely
+
+          const srcId = familyNode.raw?.sourceId || ''
+          const anchor = PAROLE_CLUSTER_ANCHORS[srcId] || familyNode.anchor || { x: 50, y: 50 }
+          const color = familyNode.colore || '#94a3b8'
+          const subs = Array.isArray(familyNode.sottoCorrenti) ? familyNode.sottoCorrenti : []
+
+          return (
+            <React.Fragment key={familyNode.id}>
+              {/* Background Nebula (Enhanced for focused family) */}
+              <div
+                aria-hidden="true"
+                className="galassia-parole-nebula is-active"
+                style={{
+                  left: `${anchor.x}%`,
+                  top: `${anchor.y}%`,
+                  width: '54%',
+                  height: '58%',
+                  background: `radial-gradient(ellipse at center, ${color}36 0%, ${color}14 46%, transparent 74%)`,
+                  opacity: 1,
+                }}
+              />
+
+              {/* Family Node Bubble */}
+              <button
+                type="button"
+                className="galassia-parole-family is-active"
+                style={{
+                  left: `${anchor.x}%`,
+                  top: `${anchor.y}%`,
+                  '--cloud-color': color,
+                  opacity: selectedSubId ? 0.35 : 1, // Dimmed if a subdisposition is clicked
+                  pointerEvents: 'auto',
+                }}
+                onClick={() => onSelectFamily(familyNode.id)} // Toggles/deselects family
+                aria-pressed={true}
+                aria-label={`Disposizione ${familyNode.nome}`}
+              >
+                <span className="galassia-parole-family-dot" style={{ background: color }} aria-hidden />
+                <span>{familyNode.nome}</span>
+              </button>
+
+              {/* Subdispositions and their words */}
+              {subs.map((sub, si) => {
+                const subAngle = (si / subs.length) * Math.PI * 2 - Math.PI / 2
+                const cx = anchor.x + Math.cos(subAngle) * 8.5
+                const cy = anchor.y + Math.sin(subAngle) * 8.5 * 0.6
+                const subColor = sub.colore || color
+
+                const isSubActive = selectedSubId === sub.id
+                const isAnySubActive = selectedSubId !== null
+
+                // In State 3, hide other subdispositions completely
+                if (isAnySubActive && !isSubActive) return null
+
+                // State 2: Focus Family (Subdispositions & 3 orbit words visible)
+                if (!isAnySubActive) {
+                  const subWords = sub.words || []
+                  const emergedSubWords = subWords.filter((w) => w.isEmerged)
+                  const referenceSubWords = subWords.filter((w) => !w.isEmerged)
+                  const displayWords = [...emergedSubWords, ...referenceSubWords].slice(0, 3)
+
+                  return (
+                    <React.Fragment key={sub.id}>
+                      {/* Subdisposition button (Dashed pill) */}
+                      <button
+                        type="button"
+                        className="galassia-parole-sub"
+                        style={{
+                          left: `${cx}%`,
+                          top: `${cy}%`,
+                          '--cloud-color': subColor,
+                          pointerEvents: 'auto',
+                        }}
+                        onClick={() => onSelectSub(familyNode.id, sub.id)}
+                        aria-pressed={false}
+                        aria-label={`Sottodisposizione ${sub.nome}`}
+                      >
+                        {sub.nome}
+                      </button>
+
+                      {/* Halo of 3 orbiting words */}
+                      {displayWords.map((word, wordIndex) => {
+                        const wordAngles =
+                          displayWords.length === 1
+                            ? [subAngle]
+                            : displayWords.length === 2
+                              ? [subAngle - 0.2, subAngle + 0.2]
+                              : [subAngle - 0.28, subAngle, subAngle + 0.28]
+                        const wordAngle = wordAngles[wordIndex % wordAngles.length]
+                        const rx = 8.5 + 3.0
+                        const wx = anchor.x + Math.cos(wordAngle) * rx
+                        const wy = anchor.y + Math.sin(wordAngle) * rx * 0.6
+
+                        return (
+                          <button
+                            key={word.id}
+                            type="button"
+                            className={`galassia-parole-word${word.isEmerged ? ' is-emerged' : ''}`}
+                            style={{
+                              left: `${wx}%`,
+                              top: `${wy}%`,
+                              '--cloud-color': subColor,
+                              '--word-font-size': '12.4px',
+                              opacity: word.isEmerged ? 0.94 : 0.72,
+                              pointerEvents: 'auto',
+                            }}
+                            onClick={() => onSelectSub(familyNode.id, sub.id)}
+                            aria-label={word.nome}
+                            title={word.nome}
+                          >
+                            {word.nome}
+                          </button>
+                        )
+                      })}
+                    </React.Fragment>
+                  )
+                }
+
+                // State 3: Focus Subdisposition (Selected subdisposition + all its words in double orbit rings)
+                if (isSubActive) {
+                  const subWords = sub.words || []
+                  const emergedSubWords = subWords.filter((w) => w.isEmerged)
+                  const referenceSubWords = subWords.filter((w) => !w.isEmerged)
+                  const displayWords = [...emergedSubWords, ...referenceSubWords].slice(0, 15)
+
+                  return (
+                    <React.Fragment key={sub.id}>
+                      {/* Concentric Guide Rings */}
+                      <div
+                        className="galassia-parole-orbit-ring"
+                        style={{
+                          left: `${cx}%`,
+                          top: `${cy}%`,
+                          width: '18%',
+                          height: `${18 * 0.6}%`,
+                          color: subColor,
+                          opacity: 0.16,
+                        }}
+                      />
+                      <div
+                        className="galassia-parole-orbit-ring"
+                        style={{
+                          left: `${cx}%`,
+                          top: `${cy}%`,
+                          width: '32%',
+                          height: `${32 * 0.6}%`,
+                          color: subColor,
+                          opacity: 0.1,
+                        }}
+                      />
+
+                      {/* Active Subdisposition button (solid active style) */}
+                      <button
+                        type="button"
+                        className="galassia-parole-sub is-active"
+                        style={{
+                          left: `${cx}%`,
+                          top: `${cy}%`,
+                          '--cloud-color': subColor,
+                          pointerEvents: 'auto',
+                          zIndex: 22,
+                        }}
+                        onClick={() => onSelectSub(familyNode.id, sub.id)}
+                        aria-pressed={true}
+                        aria-label={`Sottodisposizione ${sub.nome}`}
+                      >
+                        {sub.nome}
+                      </button>
+
+                      {/* Double Concentric Orbit Words */}
+                      {displayWords.map((word, wi) => {
+                        let rx, ry, angle
+                        if (wi < 5) {
+                          // Ring 1 (Inner 5 words)
+                          rx = 4.2
+                          ry = 3.2
+                          angle = (wi / 5) * Math.PI * 2 - Math.PI / 2
+                        } else {
+                          // Ring 2 (Outer 10 words)
+                          rx = 8.5
+                          ry = 6.5
+                          angle = ((wi - 5) / 10) * Math.PI * 2 - Math.PI / 2 + Math.PI / 10
+                        }
+                        const wx = cx + Math.cos(angle) * rx
+                        const wy = cy + Math.sin(angle) * ry * 0.6
+
+                        return (
+                          <button
+                            key={word.id}
+                            type="button"
+                            className={`galassia-parole-word${word.isEmerged ? ' is-emerged' : ''}`}
+                            style={{
+                              left: `${wx}%`,
+                              top: `${wy}%`,
+                              '--cloud-color': subColor,
+                              '--word-font-size': word.isEmerged ? '14px' : '13px',
+                              opacity: word.isEmerged ? 1 : 0.78,
+                              pointerEvents: 'auto',
+                              zIndex: 20,
+                            }}
+                            aria-label={word.nome}
+                            title={word.nome}
+                          >
+                            {word.nome}
+                          </button>
+                        )
+                      })}
+                    </React.Fragment>
+                  )
+                }
+
+                return null
+              })}
+            </React.Fragment>
+          )
+        })}
+    </div>
+  )
+}
+
 function GalassiaOperatorGuide({ mapMode = 'disposizioni', onDismiss }) {
   const modeMeta = GALASSIA_MAP_MODES.find((item) => item.id === mapMode)
   const steps = GALASSIA_READING_STEPS_BY_MODE[mapMode] || GALASSIA_READING_STEPS
@@ -1489,6 +1837,10 @@ function GalassiaCrtPanel({
   const meaning = shortText(panel.definizione || panel.cosaIndica || '', isSub ? 150 : 120)
   const parole = Array.isArray(panel.statiDanimo) ? panel.statiDanimo : []
   const paroleLimit = isSub ? 5 : 4
+  const lessicoWords = Array.isArray(panel.words) ? panel.words : []
+  const lessicoWordsLimit = 150
+  const emergedLessicoWords = Array.isArray(panel.emergedWords) ? panel.emergedWords : []
+  const referenceLessicoWords = lessicoWords.filter((word) => !word.isEmerged)
   const showSubnav = isCostellazione && !activeSubId
   const showProfileReading = isCostellazione && profileInfo && !isSub
 
@@ -1587,6 +1939,14 @@ function GalassiaCrtPanel({
                 {panel.scaleNote && (
                   <p className="galassia-view__crt-scale-note">{panel.scaleNote}</p>
                 )}
+                {Array.isArray(panel.deepReading) && panel.deepReading.length > 0 ? (
+                  <div className="galassia-view__crt-deep-reading">
+                    <p className="galassia-view__crt-deep-kicker">Lettura del profilo</p>
+                    {panel.deepReading.map((line) => (
+                      <p key={line} className="galassia-view__crt-deep-line">{line}</p>
+                    ))}
+                  </div>
+                ) : null}
                 {panel.tapHint && (
                   <p className="galassia-view__crt-hint galassia-view__crt-hint--compact">{panel.tapHint}</p>
                 )}
@@ -1727,8 +2087,13 @@ function GalassiaCrtPanel({
                   />
                   <span>{panel.nome}</span>
                 </h2>
+                {panel.definizione && (
+                  <p className="galassia-view__crt-indica">
+                    {shortText(panel.definizione, 220)}
+                  </p>
+                )}
                 {Array.isArray(panel.stats) && panel.stats.length > 0 ? (
-                  <dl className="galassia-view__lexicon-stats">
+                  <dl className="galassia-view__lexicon-stats" aria-label="Dati del lessico">
                     {panel.stats.map((stat) => (
                       <div key={stat.label}>
                         <dt>{stat.label}</dt>
@@ -1737,43 +2102,30 @@ function GalassiaCrtPanel({
                     ))}
                   </dl>
                 ) : null}
-                {panel.definizione && (
-                  <p className="galassia-view__crt-indica">
-                    {shortText(panel.definizione, 220)}
-                  </p>
-                )}
-                {Array.isArray(panel.emergedWords) && panel.emergedWords.length > 0 ? (
-                  <section className="galassia-view__lexicon-block galassia-view__lexicon-block--emerged">
-                    <h3>Parole emerse nel test</h3>
-                    <div className="galassia-view__lexicon-cloud">
-                      {panel.emergedWords.slice(0, 10).map((word) => (
-                        <span key={word.id} className="galassia-view__lexicon-chip galassia-view__lexicon-chip--emerged">
-                          {word.nome}
-                        </span>
-                      ))}
-                    </div>
-                  </section>
-                ) : null}
-                {Array.isArray(panel.words) && panel.words.length > 0 ? (
+                {emergedLessicoWords.length > 0 ? (
                   <section className="galassia-view__lexicon-block">
-                    <h3>Parole della disposizione</h3>
+                    <h3>Parole emerse dal test</h3>
                     <div className="galassia-view__lexicon-cloud">
-                      {panel.words.slice(0, 24).map((word) => (
+                      {emergedLessicoWords.slice(0, lessicoWordsLimit).map((word) => (
                         <span
                           key={word.id}
-                          className={`galassia-view__lexicon-chip${word.isEmerged ? ' galassia-view__lexicon-chip--emerged' : ''}`}
+                          className="galassia-view__lexicon-chip galassia-view__lexicon-chip--emerged"
                         >
                           {word.nome}
                         </span>
                       ))}
                     </div>
                   </section>
-                ) : null}
+                ) : (
+                  <p className="galassia-view__lexicon-note">
+                    Nessuna parola di questa famiglia è stata scelta direttamente nelle risposte.
+                  </p>
+                )}
                 {Array.isArray(panel.sottoCorrenti) && panel.sottoCorrenti.length > 0 ? (
                   <section className="galassia-view__lexicon-block galassia-view__lexicon-block--subs">
-                    <h3>Sottodisposizioni</h3>
+                    <h3>Sfumature interne</h3>
                     <div className="galassia-view__lexicon-subgrid">
-                      {panel.sottoCorrenti.map((sub) => (
+                      {panel.sottoCorrenti.slice(0, 6).map((sub) => (
                         <button
                           key={sub.id}
                           type="button"
@@ -1785,33 +2137,30 @@ function GalassiaCrtPanel({
                             <strong>{sub.nome}</strong>
                             <em>{sub.wordCount || sub.words?.length || 0} parole</em>
                           </span>
-                          <small>
-                            {(sub.words || [])
-                              .slice(0, 4)
-                              .map((word) => word.nome)
-                              .join(' · ')}
-                          </small>
+                          {sub.descrizione ? <small>{shortText(sub.descrizione, 80)}</small> : null}
                         </button>
                       ))}
                     </div>
                   </section>
                 ) : null}
-                {Array.isArray(panel.relations) && panel.relations.length > 0 ? (
-                  <section className="galassia-view__lexicon-block galassia-view__lexicon-block--relations">
-                    <h3>Accoppiamenti e contrasti</h3>
-                    <div className="galassia-view__lexicon-relations">
-                      {panel.relations.map((relation) => (
+                {referenceLessicoWords.length > 0 ? (
+                  <section className="galassia-view__lexicon-block">
+                    <h3>Lessico di riferimento</h3>
+                    <div className="galassia-view__lexicon-cloud">
+                      {referenceLessicoWords.slice(0, lessicoWordsLimit).map((word) => (
                         <span
-                          key={`${relation.kind}-${relation.familyKey}`}
-                          className={`galassia-view__lexicon-relation galassia-view__lexicon-relation--${relation.kind}`}
-                          style={{ '--relation-chip-color': relation.colore }}
+                          key={word.id}
+                          className="galassia-view__lexicon-chip"
                         >
-                          <b>{relation.kind === 'pair' ? 'Si accoppia' : 'Contrasta'}</b>
-                          {relation.nome}
-                          <em>{relation.label}</em>
+                          {word.nome}
                         </span>
                       ))}
                     </div>
+                    {referenceLessicoWords.length > lessicoWordsLimit ? (
+                      <p className="galassia-view__lexicon-note">
+                        +{referenceLessicoWords.length - lessicoWordsLimit} parole nel dizionario completo.
+                      </p>
+                    ) : null}
                   </section>
                 ) : null}
               </>
@@ -1830,34 +2179,42 @@ function GalassiaCrtPanel({
                 </p>
                 {panel.definizione && (
                   <p className="galassia-view__crt-indica">
-                    {shortText(panel.definizione, 240)}
+                    {shortText(panel.definizione, 320)}
                   </p>
                 )}
-                {Array.isArray(panel.emergedWords) && panel.emergedWords.length > 0 ? (
-                  <section className="galassia-view__lexicon-block galassia-view__lexicon-block--emerged">
-                    <h3>In questo test</h3>
+                {emergedLessicoWords.length > 0 ? (
+                  <section className="galassia-view__lexicon-block">
+                    <h3>Parole emerse dal test</h3>
                     <div className="galassia-view__lexicon-cloud">
-                      {panel.emergedWords.map((word) => (
-                        <span key={word.id} className="galassia-view__lexicon-chip galassia-view__lexicon-chip--emerged">
+                      {emergedLessicoWords.slice(0, lessicoWordsLimit).map((word) => (
+                        <span
+                          key={word.id}
+                          className="galassia-view__lexicon-chip galassia-view__lexicon-chip--emerged"
+                        >
                           {word.nome}
                         </span>
                       ))}
                     </div>
                   </section>
                 ) : null}
-                {Array.isArray(panel.words) && panel.words.length > 0 ? (
+                {referenceLessicoWords.length > 0 ? (
                   <section className="galassia-view__lexicon-block">
-                    <h3>Parole della sottodisposizione</h3>
+                    <h3>Lessico della sottodisposizione</h3>
                     <div className="galassia-view__lexicon-cloud">
-                      {panel.words.slice(0, 32).map((word) => (
+                      {referenceLessicoWords.slice(0, lessicoWordsLimit).map((word) => (
                         <span
                           key={word.id}
-                          className={`galassia-view__lexicon-chip${word.isEmerged ? ' galassia-view__lexicon-chip--emerged' : ''}`}
+                          className="galassia-view__lexicon-chip"
                         >
                           {word.nome}
                         </span>
                       ))}
                     </div>
+                    {referenceLessicoWords.length > lessicoWordsLimit ? (
+                      <p className="galassia-view__lexicon-note">
+                        +{referenceLessicoWords.length - lessicoWordsLimit} parole nel dizionario completo.
+                      </p>
+                    ) : null}
                   </section>
                 ) : null}
               </>
@@ -2087,6 +2444,258 @@ function GalassiaCrtPanel({
   )
 }
 
+function GalassiaMobileAlternativeView({
+  mapMode,
+  mapNodes,
+}) {
+  const [openNodeId, setOpenNodeId] = useState(null)
+  const [openSubId, setOpenSubId] = useState(null)
+
+  const toggleNode = (nodeId) => {
+    setOpenNodeId((prev) => (prev === nodeId ? null : nodeId))
+    setOpenSubId(null)
+  }
+
+  const toggleSub = (subId) => {
+    setOpenSubId((prev) => (prev === subId ? null : subId))
+  }
+
+  const formatWeight = (node) => {
+    if (mapMode === 'disposizioni') return `Presenza: ${Math.round(pesoToPct(node.peso))}%`
+    if (mapMode === 'rapporti') return `Dominanza: ${node.peso}/7`
+    if (mapMode === 'portato') return `Presenza: ${Math.round(node.peso)}%`
+    if (mapMode === 'parole') return `${node.words?.length || 0} parole`
+    return ''
+  }
+
+  return (
+    <div className="galassia-mobile-alternative">
+      <div className="galassia-mobile-intro">
+        <p className="galassia-mobile-hint">
+          {mapMode === 'disposizioni' && 'Mappa delle 5 disposizioni emotive. Tocca una card per vederne sfumature e relazioni.'}
+          {mapMode === 'rapporti' && 'I quattro rapporti indicano la dominanza di ciascun temperamento nelle diverse lenti.'}
+          {mapMode === 'portato' && 'Il portato esperienziale indica come hai orientato l\'ascolto nel test.'}
+          {mapMode === 'parole' && 'Il lessico emotivo TST associato a ciascuna famiglia emotiva.'}
+        </p>
+      </div>
+
+      <div className="galassia-mobile-list">
+        {mapNodes.map((node) => {
+          const isOpen = openNodeId === node.id
+          const hasSottoCorrenti = Array.isArray(node.sottoCorrenti) && node.sottoCorrenti.length > 0
+          const weightLabel = formatWeight(node)
+
+          return (
+            <div
+              key={node.id}
+              className={`galassia-mobile-node-card${isOpen ? ' is-open' : ''}`}
+              style={{ '--node-border-color': node.colore }}
+            >
+              <button
+                type="button"
+                className="galassia-mobile-node-trigger"
+                onClick={() => toggleNode(node.id)}
+              >
+                <div className="galassia-mobile-node-header-left">
+                  <span className="galassia-mobile-node-dot" style={{ backgroundColor: node.colore }} />
+                  <span className="galassia-mobile-node-name">{node.nome}</span>
+                </div>
+                <div className="galassia-mobile-node-header-right">
+                  <span className="galassia-mobile-node-weight">{weightLabel}</span>
+                  <span className="galassia-mobile-node-chevron">{isOpen ? '−' : '+'}</span>
+                </div>
+              </button>
+
+              {isOpen && (
+                <div className="galassia-mobile-node-content">
+                  {node.raw?.descrizioneCompleta && (
+                    <p className="galassia-mobile-node-desc">{node.raw.descrizioneCompleta}</p>
+                  )}
+                  {node.raw?.cosaIndica && (
+                    <div className="galassia-mobile-node-meaning-box">
+                      <strong className="galassia-mobile-box-title">Nel modello TST:</strong>
+                      <p className="galassia-mobile-box-text">{node.raw.cosaIndica}</p>
+                    </div>
+                  )}
+                  {node.raw?.lettura && (
+                    <p className="galassia-mobile-node-desc">{node.raw.lettura}</p>
+                  )}
+
+                  {hasSottoCorrenti && (
+                    <div className="galassia-mobile-subcurrents-section">
+                      <p className="galassia-mobile-section-heading">
+                        {mapMode === 'rapporti' ? 'Famiglie componenti' : 'Sfumature interne'}
+                      </p>
+                      <div className="galassia-mobile-subcurrents-grid">
+                        {node.sottoCorrenti.map((sub) => {
+                          const isSubOpen = openSubId === sub.id
+                          return (
+                            <div
+                              key={sub.id}
+                              className={`galassia-mobile-sub-item${isSubOpen ? ' is-open' : ''}`}
+                            >
+                              <button
+                                type="button"
+                                className="galassia-mobile-sub-trigger"
+                                onClick={() => toggleSub(sub.id)}
+                              >
+                                <span className="galassia-mobile-sub-name">{sub.nome}</span>
+                                <span className="galassia-mobile-sub-val">
+                                  {sub.livello ? `Livello ${sub.livello}/7` : sub.peso ? `${Math.round(pesoToPct(sub.peso))}%` : ''}
+                                </span>
+                              </button>
+                              {isSubOpen && (
+                                <div className="galassia-mobile-sub-details">
+                                  {sub.statiDanimo && sub.statiDanimo.length > 0 && (
+                                    <p className="galassia-mobile-sub-words">
+                                      <strong>Stati d'animo:</strong> {sub.statiDanimo.join(', ')}
+                                    </p>
+                                  )}
+                                  {sub.words && sub.words.length > 0 && (
+                                    <p className="galassia-mobile-sub-words">
+                                      <strong>Parole dizionario:</strong> {sub.words.map((w) => w.nome).join(', ')}
+                                    </p>
+                                  )}
+                                  {sub.descrizione && (
+                                    <p className="galassia-mobile-sub-desc">{sub.descrizione}</p>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {mapMode === 'parole' && node.words && node.words.length > 0 && (
+                    <div className="galassia-mobile-words-section">
+                      <p className="galassia-mobile-section-heading">Termini associati</p>
+                      <div className="galassia-mobile-words-cloud">
+                        {node.words.map((word) => (
+                          <span
+                            key={word.id}
+                            className={`galassia-mobile-word-chip${word.isEmerged ? ' is-emerged' : ''}`}
+                            style={{ '--word-color': node.colore }}
+                          >
+                            {word.nome}
+                            {word.isEmerged ? ' *' : ''}
+                          </span>
+                        ))}
+                      </div>
+                      <p className="galassia-mobile-words-note">* Parole emerse (scelte da te nel test)</p>
+                    </div>
+                  )}
+
+                  {mapMode === 'disposizioni' && node.raw?.activePartners && (
+                    <div className="galassia-mobile-relations-section">
+                      <p className="galassia-mobile-section-heading">Relazioni con altre disposizioni</p>
+                      <ul className="galassia-mobile-relations-list">
+                        {node.raw.activePartners.map((partner) => (
+                          <li key={partner.id} className="galassia-mobile-relation-row">
+                            <span className="galassia-mobile-relation-partner" style={{ color: partner.colore || '#fff' }}>
+                              {partner.nome}
+                            </span>
+                            <span className="galassia-mobile-relation-text">
+                              {partner.type === 'dialogue' && 'entra in dialogo costruttivo'}
+                              {partner.type === 'opposition' && 'si contrappone o compensa'}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+const DEEP_READ_FAMILY_META = {
+  blu: { shortName: 'Malinconica', relationalKey: 'malinconico', essence: 'memoria, profondita e ricerca di senso' },
+  rosso: { shortName: 'Volitiva', relationalKey: 'assertivo', essence: 'direzione, decisione e presenza nel fare' },
+  verde: { shortName: 'Flemmatica', relationalKey: 'flemmatico', essence: 'calma, continuita e capacita di depositare' },
+  giallo: { shortName: 'Entusiasta', relationalKey: 'entusiasta', essence: 'slancio, apertura e movimento creativo' },
+  grigio: { shortName: 'Anaffettiva', relationalKey: 'anaffettivo', essence: 'distanza osservativa, lucidita e separazione' },
+}
+
+const DEEP_READ_RELATION_KEYS = {
+  malinconico: 'ma', flemmatico: 'fl', entusiasta: 'en', assertivo: 'as', anaffettivo: 'an',
+}
+
+function getDeepReadMeta(item) {
+  return DEEP_READ_FAMILY_META[item?.familyKey] || {
+    shortName: item?.nome || 'Corrente',
+    relationalKey: '',
+    essence: item?.descrizione || '',
+  }
+}
+
+function getDeepReadRole(item, dominantPeso) {
+  const peso = Number(item?.peso) || 0
+  const ratio = dominantPeso > 0 ? peso / dominantPeso : 0
+  if (ratio >= 0.72) return 'alleanza'
+  if (ratio >= 0.42) return 'compensazione'
+  if (ratio >= 0.18) return 'tensione leggera'
+  return 'sullo sfondo'
+}
+
+function buildGalassiaDeepReading(rankedData) {
+  if (!rankedData || rankedData.length === 0) return []
+  const dominant = rankedData[0]
+  const secondaries = rankedData.slice(1)
+  const dominantMeta = getDeepReadMeta(dominant)
+  const dominantPeso = Number(dominant?.peso) || 0
+
+  const corpus = getRelationalCorpusForDominant(dominantMeta.shortName, dominant?.familyKey)
+  const relations = corpus.available && Array.isArray(corpus.relations) ? corpus.relations : []
+
+  const cards = secondaries.map((s) => {
+    const meta = getDeepReadMeta(s)
+    const targetKey = DEEP_READ_RELATION_KEYS[meta.relationalKey]
+    const relation = relations.find((r) => r.key === targetKey) || null
+    const keywords = String(relation?.sub || '').split('·').map((k) => k.trim()).filter(Boolean).slice(0, 5)
+    const role = getDeepReadRole(s, dominantPeso)
+    return { secondary: s, secondaryName: meta.shortName, role, keywords }
+  })
+
+  const [second, third] = cards
+  const low = [...cards].reverse().find((c) => c.role === 'sullo sfondo')
+
+  if (!second) {
+    return [
+      `Nel tuo caso la corrente ${dominantMeta.shortName} appare come il principale punto di organizzazione: il profilo tende a leggere le esperienze attraverso ${dominantMeta.essence}.`,
+      'Le altre correnti restano meno definite: questo rende la lettura piu centrata, ma anche piu sensibile ai momenti in cui una parte secondaria prova a farsi spazio.',
+    ]
+  }
+
+  const secondMeta = getDeepReadMeta(second.secondary)
+  const lines = [
+    `Nel tuo caso la corrente ${dominantMeta.shortName} non si presenta da sola: viene modificata soprattutto dalla parte ${second.secondaryName}. Questo significa che ${dominantMeta.essence} prende un colore piu vicino a ${secondMeta.essence}.`,
+  ]
+
+  if (second.keywords.length > 0) {
+    lines.push(`La qualita emergente e fatta di ${second.keywords.join(', ')}: non come etichetta fissa, ma come modo interno di tenere insieme due spinte diverse.`)
+  }
+
+  if (third && getDeepReadRole(third.secondary, dominantPeso) !== 'sullo sfondo') {
+    const thirdMeta = getDeepReadMeta(third.secondary)
+    lines.push(`Anche la parte ${third.secondaryName} partecipa alla scena: non sposta il centro, ma aggiunge una seconda modulazione. Dove ${second.secondaryName} porta la modifica piu visibile, ${third.secondaryName} introduce ${thirdMeta.essence}.`)
+  }
+
+  if (low) {
+    const lowKeywords = low.keywords.slice(0, 3)
+    const suffix = lowKeywords.length > 0 ? `, come ${lowKeywords.join(', ')},` : ''
+    lines.push(`La corrente ${low.secondaryName} sembra piu lontana dal centro. Questo puo indicare che le sue qualita${suffix} non sono il primo linguaggio del profilo: possono emergere in modo selettivo, oppure restare come area da integrare con delicatezza.`)
+  }
+
+  return lines
+}
+
 export default function GalassiaView({
   correntData,
   paroleEmerse = [],
@@ -2103,6 +2712,8 @@ export default function GalassiaView({
     () => [...data].sort((a, b) => pesoToPct(b.peso) - pesoToPct(a.peso)),
     [data],
   )
+
+  const deepReading = useMemo(() => buildGalassiaDeepReading(rankedData), [rankedData])
 
   const reducedMotion = usePrefersReducedMotion()
   const isMobile = useIsMobile()
@@ -2169,7 +2780,7 @@ export default function GalassiaView({
   }, [mapMode, data, effectiveSelectedId, selectedNode])
 
   const isZoomedView = Boolean(
-    effectiveSelectedId && selectedNode && mapModeSupportsZoom(mapMode, selectedNode),
+    effectiveSelectedId && selectedNode && mapModeSupportsZoom(mapMode),
   )
   const guideDeckOpen = showGuideDeck && !isZoomedView && !showTutorial
 
@@ -2254,7 +2865,7 @@ export default function GalassiaView({
       if (activePanelNode) {
         return buildModePanelContent(mapMode, activePanelNode)
       }
-      return buildModeIdlePanel(mapMode, { dominant: rankedData[0], portato })
+      return buildModeIdlePanel(mapMode, { dominant: rankedData[0], portato, deepReading })
     }
 
     return resolveGalassiaPanelContent({
@@ -2327,9 +2938,28 @@ export default function GalassiaView({
     setCamera(CAMERA_RESET)
   }
 
+  const focusCameraOnPercentage = useCallback((px, py, targetScale = 2.0) => {
+    pointersRef.current.clear()
+    pinchGestureRef.current = null
+    mouseDragRef.current = null
+    webkitGestureRef.current = null
+    if (mapW <= 0 || mapH <= 0) return
+
+    const localX = (px / 100) * mapW - mapW / 2
+    const localY = (py / 100) * mapH - mapH / 2
+
+    const targetX = -localX * targetScale
+    const targetY = -localY * targetScale
+
+    beginCameraAnimation()
+    const clamped = clampCamera({ x: targetX, y: targetY, scale: targetScale }, mapW, mapH)
+    cameraRef.current = clamped
+    setCamera(clamped)
+  }, [mapW, mapH, beginCameraAnimation])
+
   const selectPlanet = (id) => {
     const node = mapNodes.find((item) => item.id === id)
-    const shouldZoom = node && mapModeSupportsZoom(mapMode, node)
+    const shouldZoom = node && mapModeSupportsZoom(mapMode)
     pointersRef.current.clear()
     pinchGestureRef.current = null
     mouseDragRef.current = null
@@ -2346,6 +2976,43 @@ export default function GalassiaView({
     setHoveredCore(false)
     dismissOpeningGuide()
   }
+
+  const selectFamily = useCallback((id) => {
+    setSelectedId((prev) => {
+      const nextId = prev === id ? null : id
+      if (nextId) {
+        const node = mapNodes.find((item) => item.id === nextId)
+        const srcId = node?.raw?.sourceId || ''
+        const anchor = PAROLE_CLUSTER_ANCHORS[srcId] || node?.anchor || { x: 50, y: 50 }
+        focusCameraOnPercentage(anchor.x, anchor.y, 2.0)
+      } else {
+        resetCamera()
+      }
+      return nextId
+    })
+    setActiveSubId(null)
+  }, [mapNodes, focusCameraOnPercentage])
+
+  const selectFamilyAndSub = useCallback((familyId, subId) => {
+    setSelectedId(familyId)
+    setActiveSubId(subId)
+
+    const node = mapNodes.find((item) => item.id === familyId)
+    const srcId = node?.raw?.sourceId || ''
+    const anchor = PAROLE_CLUSTER_ANCHORS[srcId] || node?.anchor || { x: 50, y: 50 }
+
+    const subs = node?.sottoCorrenti || []
+    const si = subs.findIndex((s) => s.id === subId)
+    let cx = anchor.x
+    let cy = anchor.y
+    if (si !== -1) {
+      const { dx: sox, dy: soy } = subOrbitOffset(si, subs.length, subs.length <= 1 ? 0 : 4.8)
+      cx += sox
+      cy += soy
+    }
+
+    focusCameraOnPercentage(cx, cy, 2.4)
+  }, [mapNodes, focusCameraOnPercentage])
 
   const switchMapMode = useCallback(
     (nextMode) => {
@@ -2388,12 +3055,15 @@ export default function GalassiaView({
     pinchGestureRef.current = null
     mouseDragRef.current = null
     webkitGestureRef.current = null
-    if (isZoomedView) {
+    const needsCameraReset =
+      isZoomedView || camera.scale !== 1 || camera.x !== 0 || camera.y !== 0
+
+    if (needsCameraReset) {
       beginCameraAnimation()
       cameraRef.current = CAMERA_RESET
       setCamera(CAMERA_RESET)
     }
-    const delay = isZoomedView && !reducedMotion ? 340 : 0
+    const delay = needsCameraReset && !reducedMotion ? 340 : 0
     window.setTimeout(() => {
       setSelectedId(null)
       setActiveSubId(null)
@@ -2401,7 +3071,7 @@ export default function GalassiaView({
       setHoveredSubId(null)
       setHoveredCore(false)
     }, delay)
-  }, [beginCameraAnimation, reducedMotion, isZoomedView])
+  }, [beginCameraAnimation, reducedMotion, isZoomedView, camera])
 
   const beginPinchGesture = () => {
     const layer = mapLayerRef.current
@@ -2996,393 +3666,417 @@ export default function GalassiaView({
         <GalassiaOperatorGuide mapMode={mapMode} onDismiss={closeGuidePermanently} />
       ) : null}
 
-      <div
-        ref={mapLayerRef}
-        className="galassia-view__map-layer relative z-10 h-full w-full"
-        onWheel={handleMapWheel}
-        onPointerDown={handleMapPointerDown}
-        onPointerMove={handleMapPointerMove}
-        onPointerUp={endPointerGesture}
-        onPointerCancel={endPointerGesture}
-        onLostPointerCapture={endPointerGesture}
-        onClick={(event) => {
-          if (!isZoomedView) return
-          const target = event.target
-          if (!(target instanceof Element)) return
-          if (target.closest(INTERACTIVE_MAP_SELECTOR)) {
-            return
-          }
-          backToMap()
-        }}
-      >
-        {isPanelIdle && !guideDeckOpen && !showTutorial && (
-          <div className="galassia-view__idle-hint" aria-hidden="true">
-            <span>Tocca un pianeta per leggere il profilo</span>
-          </div>
-        )}
-        <div ref={mapCanvasRef} className="galassia-view__map-viewport">
-          <div
-            className={`galassia-view__map-canvas${cameraAnimating ? ' galassia-view__map-canvas--animating' : ''}`}
-            style={{
-              transform: `translate3d(${camera.x}px, ${camera.y}px, 0) scale(${camera.scale})`,
-            }}
-          >
-        <div className="galassia-view__map-stage">
-        {isZoomedView ? (
-          <button type="button" className="galassia-view__back-chip" onClick={backToMap}>
-            <span aria-hidden="true">←</span>
-            {GALASSIA_UI.backToMap}
-          </button>
-        ) : null}
-        {mapMode === 'disposizioni' ? (
-          <>
-        <svg
-          className="galassia-view__axis"
-          viewBox="0 0 100 100"
-          preserveAspectRatio="none"
-          aria-hidden="true"
+      {mapMode === 'parole' ? (
+        <LessicoAtlasView
+          paroleEmerse={paroleEmerse}
+          isMobile={isMobile}
+        />
+      ) : !isMobile ? (
+        <div
+          ref={mapLayerRef}
+          className="galassia-view__map-layer relative z-10 h-full w-full"
+          onWheel={handleMapWheel}
+          onPointerDown={handleMapPointerDown}
+          onPointerMove={handleMapPointerMove}
+          onPointerUp={endPointerGesture}
+          onPointerCancel={endPointerGesture}
+          onLostPointerCapture={endPointerGesture}
+          onClick={(event) => {
+            if (!isZoomedView) return
+            const target = event.target
+            if (!(target instanceof Element)) return
+            if (target.closest(INTERACTIVE_MAP_SELECTOR)) {
+              return
+            }
+            backToMap()
+          }}
         >
-          <ellipse cx="50" cy="50" rx="29" ry="20" />
-          <ellipse cx="50" cy="50" rx="43" ry="30" />
-          <line x1="17" y1="52" x2="83" y2="52" />
-          <line x1="50" y1="18" x2="50" y2="82" />
-        </svg>
-        <svg
-          className="galassia-view__wind-field"
-          viewBox="0 0 100 100"
-          preserveAspectRatio="none"
-          aria-hidden="true"
-        >
-          <path className="galassia-view__wind-line galassia-view__wind-line--blu" d="M18 54 C31 45, 40 45, 50 51" />
-          <path className="galassia-view__wind-line galassia-view__wind-line--rosso" d="M82 54 C70 47, 61 47, 50 51" />
-          <path className="galassia-view__wind-line galassia-view__wind-line--giallo" d="M50 20 C56 34, 56 43, 50 51" />
-          <path className="galassia-view__wind-line galassia-view__wind-line--grigio" d="M50 84 C44 70, 44 60, 50 51" />
-          <path className="galassia-view__wind-line galassia-view__wind-line--verde" d="M38 50 C44 45, 56 45, 62 50 C56 57, 44 57, 38 50" />
-        </svg>
-          </>
-        ) : null}
-        {mapMode === 'portato' && portato?.hasData ? (
-          <>
-            <svg
-              className="galassia-view__portato-triangle"
-              viewBox="0 0 100 100"
-              preserveAspectRatio="none"
-              aria-hidden="true"
-            >
-              <polygon
-                points={`${PORTATO_ANCHORS.Simpatia.x},${PORTATO_ANCHORS.Simpatia.y} ${PORTATO_ANCHORS.Antipatia.x},${PORTATO_ANCHORS.Antipatia.y} ${PORTATO_ANCHORS.Indifferenza.x},${PORTATO_ANCHORS.Indifferenza.y}`}
-              />
-            </svg>
-            <div className="galassia-view__portato-axis-labels" aria-hidden="true">
-              <span
-                className="galassia-view__portato-axis-label galassia-view__portato-axis-label--simpatia"
-                style={{ left: `${PORTATO_ANCHORS.Simpatia.x}%`, top: `${PORTATO_ANCHORS.Simpatia.y - 14}%` }}
-              >
-                {GALASSIA_PORTATO_UI.axisAttrazione}
-              </span>
-              <span
-                className="galassia-view__portato-axis-label galassia-view__portato-axis-label--antipatia"
-                style={{ left: `${PORTATO_ANCHORS.Antipatia.x}%`, top: `${PORTATO_ANCHORS.Antipatia.y - 14}%` }}
-              >
-                {GALASSIA_PORTATO_UI.axisRifiuto}
-              </span>
-              <span
-                className="galassia-view__portato-axis-label galassia-view__portato-axis-label--indifferenza"
-                style={{ left: `${PORTATO_ANCHORS.Indifferenza.x}%`, top: `${PORTATO_ANCHORS.Indifferenza.y + 10}%` }}
-              >
-                {GALASSIA_PORTATO_UI.axisDistacco}
-              </span>
+          {isPanelIdle && !guideDeckOpen && !showTutorial && (
+            <div className="galassia-view__idle-hint" aria-hidden="true">
+              <span>Tocca un pianeta per leggere il profilo</span>
             </div>
-            {!effectiveSelectedId ? (
-              <div className="galassia-view__portato-map-triad">
-                <PortatoTriadSpectrum dimensioni={portato.dimensioni} showLegend={false} />
-              </div>
-            ) : null}
-          </>
-        ) : null}
-        {relationLines.length > 0 ? (
+          )}
+          <div ref={mapCanvasRef} className="galassia-view__map-viewport">
+            <div
+              className={`galassia-view__map-canvas${cameraAnimating ? ' galassia-view__map-canvas--animating' : ''}`}
+              style={{
+                transform: `translate(${camera.x}px, ${camera.y}px) scale(${camera.scale})`,
+              }}
+            >
+          <div className="galassia-view__map-stage">
+          {isZoomedView ? (
+            <button type="button" className="galassia-view__back-chip" onClick={backToMap}>
+              <span aria-hidden="true">←</span>
+              {GALASSIA_UI.backToMap}
+            </button>
+          ) : null}
+          {mapMode === 'disposizioni' ? (
+            <>
           <svg
-            className="galassia-view__relation-lines"
+            className="galassia-view__axis"
             viewBox="0 0 100 100"
             preserveAspectRatio="none"
             aria-hidden="true"
           >
-            {relationLines.map((line) => (
-              <line
-                key={line.id}
-                x1={line.from.x}
-                y1={line.from.y}
-                x2={line.to.x}
-                y2={line.to.y}
-                data-kind={line.kind || 'dialogue'}
-                style={{ '--relation-color': line.colore }}
-              />
-            ))}
+            <ellipse cx="50" cy="50" rx="29" ry="20" />
+            <ellipse cx="50" cy="50" rx="43" ry="30" />
+            <line x1="17" y1="52" x2="83" y2="52" />
+            <line x1="50" y1="18" x2="50" y2="82" />
           </svg>
-        ) : null}
-        <div className="galassia-view__axis-labels" aria-hidden={mapMode !== 'disposizioni'}>
-          {mapMode === 'disposizioni'
-            ? GALASSIA_AXIS.map((item) => (
-                <span key={item.className} className={`galassia-view__axis-label ${item.className}`}>
-                  <strong>{item.title}</strong>
-                  <small>{item.text}</small>
-                </span>
-              ))
-            : null}
-        </div>
-
-        <AnimatePresence>
-          {!effectiveSelectedId && mapMode === 'disposizioni' && guideStars.map((star) => (
-            <motion.button
-              key={star.id}
-              type="button"
-              className="galassia-view__guide-star"
-              style={{
-                left: `${star.pos.x}%`,
-                top: `${star.pos.y}%`,
-                '--guide-star-color': star.sub.colore || '#f8fafc',
-                '--guide-star-size': `${star.size}px`,
-              }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={reducedMotion ? { duration: 0 } : { delay: star.delay, duration: 0.28 }}
-              onClick={(event) => {
-                event.stopPropagation()
-                selectGuideStar(star.parentId, star.sub.id)
-              }}
-              onMouseEnter={() => setHoveredId(star.parentId)}
-              onMouseLeave={() => setHoveredId((prev) => (prev === star.parentId ? null : prev))}
-              onFocus={() => setHoveredId(star.parentId)}
-              onBlur={() => setHoveredId((prev) => (prev === star.parentId ? null : prev))}
-              aria-label={`Apri la costellazione ${star.parentName}, sottocorrente ${star.sub.nome}, ${star.pct}%`}
-              title={`${star.sub.nome} · ${star.parentName} · ${star.pct}%`}
-            >
-              <span className="galassia-view__guide-star-core" aria-hidden="true" />
-              <span className="galassia-view__guide-star-label">
-                {star.sub.nome}
-              </span>
-            </motion.button>
-          ))}
-        </AnimatePresence>
-
-        <AnimatePresence>
-          {isZoomedView && selectedNode && selectedNode.mode === mapMode && constellationNodes.length > 0 && (
-            <motion.div
-              key={`constellation-${mapMode}-${selectedNode.id}`}
-              className="galassia-view__constellation"
-              style={{
-                left: `calc(${focusCenter.x}% - ${constellationSize / 2}px)`,
-                top: `calc(${focusCenter.y}% - ${constellationSize / 2}px)`,
-                width: constellationSize,
-                height: constellationSize,
-                '--constellation-color': selectedNode.colore,
-              }}
-              initial={{ opacity: 0, scale: 0.28 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.4 }}
-              transition={
-                reducedMotion
-                  ? { duration: 0 }
-                  : GALASSIA_STABLE_ENTER_TRANSITION
-              }
-            >
+          <svg
+            className="galassia-view__wind-field"
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+          >
+            <path className="galassia-view__wind-line galassia-view__wind-line--blu" d="M18 54 C31 45, 40 45, 50 51" />
+            <path className="galassia-view__wind-line galassia-view__wind-line--rosso" d="M82 54 C70 47, 61 47, 50 51" />
+            <path className="galassia-view__wind-line galassia-view__wind-line--giallo" d="M50 20 C56 34, 56 43, 50 51" />
+            <path className="galassia-view__wind-line galassia-view__wind-line--grigio" d="M50 84 C44 70, 44 60, 50 51" />
+            <path className="galassia-view__wind-line galassia-view__wind-line--verde" d="M38 50 C44 45, 56 45, 62 50 C56 57, 44 57, 38 50" />
+          </svg>
+            </>
+          ) : null}
+          {mapMode === 'portato' && portato?.hasData ? (
+            <>
               <svg
-                className="galassia-view__constellation-lines"
-                viewBox={`${-constellationSize / 2} ${-constellationSize / 2} ${constellationSize} ${constellationSize}`}
+                className="galassia-view__portato-triangle"
+                viewBox="0 0 100 100"
+                preserveAspectRatio="none"
                 aria-hidden="true"
               >
-                {constellationNodes.map(({ sub, x, y }) => (
-                  <line key={sub.id} x1="0" y1="0" x2={x} y2={y} />
-                ))}
+                <polygon
+                  points={`${PORTATO_ANCHORS.Simpatia.x},${PORTATO_ANCHORS.Simpatia.y} ${PORTATO_ANCHORS.Antipatia.x},${PORTATO_ANCHORS.Antipatia.y} ${PORTATO_ANCHORS.Indifferenza.x},${PORTATO_ANCHORS.Indifferenza.y}`}
+                />
               </svg>
-              <button
-                type="button"
-                className={`galassia-view__constellation-core${hoveredCore ? ' galassia-view__constellation-core--show-label' : ''}`}
-                style={{ '--core-color': selectedNode.colore }}
-                onClick={(event) => {
-                  event.stopPropagation()
-                  setActiveSubId(null)
-                }}
-                onMouseEnter={() => {
-                  setHoveredCore(true)
-                  setHoveredSubId(null)
-                }}
-                onMouseLeave={() => setHoveredCore(false)}
-                onFocus={() => setHoveredCore(true)}
-                onBlur={() => setHoveredCore(false)}
-                aria-pressed={!activeSubId}
-                aria-label={`${selectedNode.nome}, ${formatNodeWeight(mapMode, selectedNode).display}`}
-              >
-                <span className="galassia-view__constellation-core-node" aria-hidden="true" />
-                <span className="galassia-view__constellation-core-label">
-                  <strong>{selectedNode.nome}</strong>
-                  <small>{formatNodeWeight(mapMode, selectedNode).short}</small>
+              <div className="galassia-view__portato-axis-labels" aria-hidden="true">
+                <span
+                  className="galassia-view__portato-axis-label galassia-view__portato-axis-label--simpatia"
+                  style={{ left: `${PORTATO_ANCHORS.Simpatia.x}%`, top: `${PORTATO_ANCHORS.Simpatia.y - 14}%` }}
+                >
+                  {GALASSIA_PORTATO_UI.axisAttrazione}
                 </span>
-              </button>
-              {constellationNodes.map(({ sub, x, y, weightLabel, size, trait }, index) => {
-                const isActive = sub.id === activeSubId
-                const isHovered = sub.id === hoveredSubId
-                const showLabel = !isMobile || isActive || isHovered
-                const labelSide =
-                  constellationLayout.n === 2
-                    ? (x < 0 ? 'below' : 'above')
-                    : (y >= 0 ? 'below' : 'above')
-                return (
-                  <motion.div
-                    key={sub.id}
-                    className={`galassia-view__constellation-wrap galassia-view__constellation-wrap--label-${labelSide}${isActive ? ' galassia-view__constellation-wrap--active' : ''}${isHovered ? ' galassia-view__constellation-wrap--hovered' : ''}${showLabel ? ' galassia-view__constellation-wrap--show-label' : ''}`}
-                    style={{
-                      left: `calc(50% + ${x - size / 2}px)`,
-                      top: `calc(50% + ${y - size / 2}px)`,
-                    }}
-                    initial={{ opacity: 0, scale: 0.2 }}
-                    animate={{ opacity: 1, scale: isActive ? 1.06 : 1 }}
-                    exit={{ opacity: 0, scale: 0.35 }}
-                    transition={
-                      reducedMotion
-                        ? { duration: 0 }
-                        : {
-                            delay: 0.12 + index * 0.06,
-                            ...GALASSIA_STABLE_ENTER_TRANSITION,
-                          }
-                    }
-                  >
-                    <button
-                      type="button"
-                      className="galassia-view__constellation-hit"
-                      style={{
-                        '--node-color': sub.colore || selectedNode.colore,
-                        '--node-size': `${size}px`,
-                      }}
-                      onClick={(event) => {
-                        event.stopPropagation()
-                        setActiveSubId(sub.id)
-                      }}
-                      onMouseEnter={() => {
-                        setHoveredSubId(sub.id)
-                        setHoveredCore(false)
-                      }}
-                      onMouseLeave={() => setHoveredSubId((prev) => (prev === sub.id ? null : prev))}
-                      onFocus={() => setHoveredSubId(sub.id)}
-                      onBlur={() => setHoveredSubId((prev) => (prev === sub.id ? null : prev))}
-                      aria-label={`${sub.nome}, ${weightLabel}`}
-                      aria-pressed={isActive}
-                    >
-                      <span className="galassia-view__constellation-node" aria-hidden="true" />
-                      {mapMode === 'parole' && isActive && Array.isArray(sub.words) && sub.words.length > 0 ? (
-                        <span className="galassia-view__word-orbit" aria-hidden="true">
-                          {sub.words.slice(0, 8).map((word, wordIndex) => {
-                            const angle = -Math.PI / 2 + (wordIndex * Math.PI * 2) / Math.min(8, sub.words.length)
-                            const radius = size / 2 + 44 + (wordIndex % 2) * 12
-                            return (
-                              <span
-                                key={word.id}
-                                className={`galassia-view__word-star${word.isEmerged ? ' galassia-view__word-star--emerged' : ''}`}
-                                style={{
-                                  transform: `translate(-50%, -50%) translate(${Math.cos(angle) * radius}px, ${Math.sin(angle) * radius}px)`,
-                                }}
-                              >
-                                {word.nome}
-                              </span>
-                            )
-                          })}
-                        </span>
-                      ) : null}
-                      <span className="galassia-view__constellation-label" aria-hidden={!isActive && !isHovered}>
-                        <strong>{sub.nome}</strong>
-                        <small>{weightLabel}</small>
-                        {trait ? (
-                          <em className="galassia-view__constellation-trait">{trait}</em>
-                        ) : null}
-                      </span>
-                    </button>
-                  </motion.div>
-                )
-              })}
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Pianeti (correnti / rapporti / portato / famiglie parole) */}
-        {planetLayout.map((layout) => {
-          const c = layout.node
-          if (!c) return null
-          const isHovered = hoveredId === c.id
-          return (
-            <motion.div
-              key={c.id}
-              className={`galassia-view__planet-wrap absolute -translate-x-1/2 -translate-y-1/2${layout.isSelected ? ' galassia-view__planet-wrap--selected' : ''}${isZoomedView && !layout.isSelected ? ' galassia-view__planet-wrap--dimmed' : ''}${effectiveSelectedId === c.id && !isZoomedView ? ' galassia-view__planet-wrap--highlight' : ''}`}
-              initial={false}
-              animate={{ left: `${layout.pos.x}%`, top: `${layout.pos.y}%`, opacity: layout.opacity }}
-              transition={positionTransition}
-              style={{ zIndex: layout.isSelected ? 20 : 10 }}
+                <span
+                  className="galassia-view__portato-axis-label galassia-view__portato-axis-label--antipatia"
+                  style={{ left: `${PORTATO_ANCHORS.Antipatia.x}%`, top: `${PORTATO_ANCHORS.Antipatia.y - 14}%` }}
+                >
+                  {GALASSIA_PORTATO_UI.axisRifiuto}
+                </span>
+                <span
+                  className="galassia-view__portato-axis-label galassia-view__portato-axis-label--indifferenza"
+                  style={{ left: `${PORTATO_ANCHORS.Indifferenza.x}%`, top: `${PORTATO_ANCHORS.Indifferenza.y - 14}%` }}
+                >
+                  {GALASSIA_PORTATO_UI.axisDistacco}
+                </span>
+              </div>
+              {!effectiveSelectedId ? (
+                <div className="galassia-view__portato-map-triad">
+                  <PortatoTriadSpectrum dimensioni={portato.dimensioni} showLegend={false} compact={true} />
+                </div>
+              ) : null}
+            </>
+          ) : null}
+          {relationLines.length > 0 ? (
+            <svg
+              className="galassia-view__relation-lines"
+              viewBox="0 0 100 100"
+              preserveAspectRatio="none"
+              aria-hidden="true"
             >
+              {relationLines.map((line) => (
+                <line
+                  key={line.id}
+                  x1={line.from.x}
+                  y1={line.from.y}
+                  x2={line.to.x}
+                  y2={line.to.y}
+                  data-kind={line.kind || 'dialogue'}
+                  style={{ '--relation-color': line.colore }}
+                />
+              ))}
+            </svg>
+          ) : null}
+          <div className="galassia-view__axis-labels" aria-hidden={mapMode !== 'disposizioni'}>
+            {mapMode === 'disposizioni'
+              ? GALASSIA_AXIS.map((item) => (
+                  <span key={item.className} className={`galassia-view__axis-label ${item.className}`}>
+                    <strong>{item.title}</strong>
+                    <small>{item.text}</small>
+                  </span>
+                ))
+              : null}
+          </div>
+
+          <AnimatePresence>
+            {!effectiveSelectedId && mapMode === 'disposizioni' && guideStars.map((star) => (
               <motion.button
+                key={star.id}
                 type="button"
-                className="flex min-h-11 min-w-11 items-center justify-center rounded-full outline-none ring-offset-2 ring-offset-[#020817] focus-visible:ring-2 focus-visible:ring-white"
-                animate={{
-                  y: 0,
-                  scale: layout.scale,
+                className="galassia-view__guide-star"
+                style={{
+                  left: `${star.pos.x}%`,
+                  top: `${star.pos.y}%`,
+                  '--guide-star-color': star.sub.colore || '#f8fafc',
+                  '--guide-star-size': `${star.size}px`,
                 }}
-                transition={{
-                  scale: positionTransition,
-                }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={reducedMotion ? { duration: 0 } : { delay: star.delay, duration: 0.28 }}
                 onClick={(event) => {
                   event.stopPropagation()
-                  selectPlanet(c.id)
+                  selectGuideStar(star.parentId, star.sub.id)
                 }}
-                onMouseEnter={() => setHoveredId(c.id)}
-                onMouseLeave={() => setHoveredId((prev) => (prev === c.id ? null : prev))}
-                onFocus={() => setHoveredId(c.id)}
-                onBlur={() => setHoveredId((prev) => (prev === c.id ? null : prev))}
-                aria-label={`${c.nome}, ${layout.weight.display}`}
-                aria-pressed={layout.isSelected}
+                onMouseEnter={() => setHoveredId(star.parentId)}
+                onMouseLeave={() => setHoveredId((prev) => (prev === star.parentId ? null : prev))}
+                onFocus={() => setHoveredId(star.parentId)}
+                onBlur={() => setHoveredId((prev) => (prev === star.parentId ? null : prev))}
+                aria-label={`Apri la costellazione ${star.parentName}, sottocorrente ${star.sub.nome}, ${star.pct}%`}
+                title={`${star.sub.nome} · ${star.parentName} · ${star.pct}%`}
               >
-                <span className="relative flex items-center justify-center">
-                  <span
-                    aria-hidden
-                    className="absolute rounded-full"
-                    style={{
-                      width: layout.circle + 12,
-                      height: layout.circle + 12,
-                      border: `1px solid ${c.colore}`,
-                      opacity: isHovered ? 0.55 : 0.3,
-                    }}
-                  />
-                  <span
-                    aria-hidden
-                    className="rounded-full"
-                    style={{
-                      width: layout.circle,
-                      height: layout.circle,
-                      backgroundColor: c.colore,
-                      opacity: 0.85,
-                      boxShadow: isHovered
-                        ? `0 0 24px ${c.colore}, 0 0 8px ${c.colore}`
-                        : `0 0 14px ${c.colore}66`,
-                    }}
-                  />
+                <span className="galassia-view__guide-star-core" aria-hidden="true" />
+                <span className="galassia-view__guide-star-label">
+                  {star.sub.nome}
                 </span>
               </motion.button>
+            ))}
+          </AnimatePresence>
 
-              <span
-                className="galassia-view__planet-label"
-                style={{ top: `calc(50% + ${layout.circle / 2 + 8}px)` }}
-                title={`${c.nome} · ${layout.weight.display}`}
+          <AnimatePresence>
+            {isZoomedView && selectedNode && selectedNode.mode === mapMode && mapMode !== 'parole' && constellationNodes.length > 0 && (
+              <motion.div
+                key={`constellation-${mapMode}-${selectedNode.id}`}
+                className="galassia-view__constellation"
+                style={{
+                  left: `calc(${focusCenter.x}% - ${constellationSize / 2}px)`,
+                  top: `calc(${focusCenter.y}% - ${constellationSize / 2}px)`,
+                  width: constellationSize,
+                  height: constellationSize,
+                  '--constellation-color': selectedNode.colore,
+                }}
+                initial={{ opacity: 0, scale: 0.28 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.4 }}
+                transition={
+                  reducedMotion
+                    ? { duration: 0 }
+                    : GALASSIA_STABLE_ENTER_TRANSITION
+                }
               >
-                <strong>{c.nome}</strong>
-                <small>{layout.weight.short}</small>
-              </span>
-            </motion.div>
-          )
-        })}
-        </div>
-        </div>
-        </div>
-      </div>
+                <svg
+                  className="galassia-view__constellation-lines"
+                  viewBox={`${-constellationSize / 2} ${-constellationSize / 2} ${constellationSize} ${constellationSize}`}
+                  aria-hidden="true"
+                >
+                  {constellationNodes.map(({ sub, x, y }) => (
+                    <line key={sub.id} x1="0" y1="0" x2={x} y2={y} />
+                  ))}
+                </svg>
+                <button
+                  type="button"
+                  className={`galassia-view__constellation-core${hoveredCore ? ' galassia-view__constellation-core--show-label' : ''}`}
+                  style={{ '--core-color': selectedNode.colore }}
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    setActiveSubId(null)
+                  }}
+                  onMouseEnter={() => {
+                    setHoveredCore(true)
+                    setHoveredSubId(null)
+                  }}
+                  onMouseLeave={() => setHoveredCore(false)}
+                  onFocus={() => setHoveredCore(true)}
+                  onBlur={() => setHoveredCore(false)}
+                  aria-pressed={!activeSubId}
+                  aria-label={`${selectedNode.nome}, ${formatNodeWeight(mapMode, selectedNode).display}`}
+                >
+                  <span className="galassia-view__constellation-core-node" aria-hidden="true" />
+                  <span className="galassia-view__constellation-core-label">
+                    <strong>{selectedNode.nome}</strong>
+                    <small>{formatNodeWeight(mapMode, selectedNode).short}</small>
+                  </span>
+                </button>
+                {constellationNodes.map(({ sub, x, y, weightLabel, size, trait }, index) => {
+                  const isActive = sub.id === activeSubId
+                  const isHovered = sub.id === hoveredSubId
+                  const showLabel = !isMobile || isActive || isHovered
+                  const labelSide =
+                    constellationLayout.n === 2
+                      ? (x < 0 ? 'below' : 'above')
+                      : (y >= 0 ? 'below' : 'above')
+                  return (
+                    <motion.div
+                      key={sub.id}
+                      className={`galassia-view__constellation-wrap galassia-view__constellation-wrap--label-${labelSide}${isActive ? ' galassia-view__constellation-wrap--active' : ''}${isHovered ? ' galassia-view__constellation-wrap--hovered' : ''}${showLabel ? ' galassia-view__constellation-wrap--show-label' : ''}`}
+                      style={{
+                        left: `calc(50% + ${x - size / 2}px)`,
+                        top: `calc(50% + ${y - size / 2}px)`,
+                      }}
+                      initial={{ opacity: 0, scale: 0.2 }}
+                      animate={{ opacity: 1, scale: isActive ? 1.06 : 1 }}
+                      exit={{ opacity: 0, scale: 0.35 }}
+                      transition={
+                        reducedMotion
+                          ? { duration: 0 }
+                          : {
+                              delay: 0.12 + index * 0.06,
+                              ...GALASSIA_STABLE_ENTER_TRANSITION,
+                            }
+                      }
+                    >
+                      <button
+                        type="button"
+                        className="galassia-view__constellation-hit"
+                        style={{
+                          '--node-color': sub.colore || selectedNode.colore,
+                          '--node-size': `${size}px`,
+                        }}
+                        onClick={(event) => {
+                          event.stopPropagation()
+                          setActiveSubId(sub.id)
+                        }}
+                        onMouseEnter={() => {
+                          setHoveredSubId(sub.id)
+                          setHoveredCore(false)
+                        }}
+                        onMouseLeave={() => setHoveredSubId((prev) => (prev === sub.id ? null : prev))}
+                        onFocus={() => setHoveredSubId(sub.id)}
+                        onBlur={() => setHoveredSubId((prev) => (prev === sub.id ? null : prev))}
+                        aria-label={`${sub.nome}, ${weightLabel}`}
+                        aria-pressed={isActive}
+                      >
+                        <span className="galassia-view__constellation-node" aria-hidden="true" />
+                        {mapMode === 'parole' && isActive && Array.isArray(sub.words) && sub.words.length > 0 ? (
+                          <span className="galassia-view__word-orbit" aria-hidden="true">
+                            {sub.words.slice(0, 8).map((word, wordIndex) => {
+                              const angle = -Math.PI / 2 + (wordIndex * Math.PI * 2) / Math.min(8, sub.words.length)
+                              const radius = size / 2 + 44 + (wordIndex % 2) * 12
+                              return (
+                                <span
+                                  key={word.id}
+                                  className="galassia-view__word-star"
+                                  style={{
+                                    transform: `translate(-50%, -50%) translate(${Math.cos(angle) * radius}px, ${Math.sin(angle) * radius}px)`,
+                                  }}
+                                >
+                                  {word.nome}
+                                </span>
+                              )
+                            })}
+                          </span>
+                        ) : null}
+                        <span className="galassia-view__constellation-label" aria-hidden={!isActive && !isHovered}>
+                          <strong>{sub.nome}</strong>
+                          <small>{weightLabel}</small>
+                          {trait ? (
+                            <em className="galassia-view__constellation-trait">{trait}</em>
+                          ) : null}
+                        </span>
+                      </button>
+                    </motion.div>
+                  )
+                })}
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-      {isPanelIdle && !guideDeckOpen ? (
+          {mapMode === 'parole' ? (
+            <ParoleWordCloud
+              nodes={mapNodes}
+              selectedFamilyId={effectiveSelectedId}
+              selectedSubId={activeSubId}
+              onSelectFamily={selectFamily}
+              onSelectSub={selectFamilyAndSub}
+              camera={camera}
+              mapW={mapW}
+              mapH={mapH}
+            />
+          ) : null}
+
+          {mapMode !== 'parole' && planetLayout.map((layout) => {
+            const c = layout.node
+            if (!c) return null
+            const isHovered = hoveredId === c.id
+            return (
+              <motion.div
+                key={c.id}
+                className={`galassia-view__planet-wrap absolute -translate-x-1/2 -translate-y-1/2${layout.isSelected ? ' galassia-view__planet-wrap--selected' : ''}${isZoomedView && !layout.isSelected ? ' galassia-view__planet-wrap--dimmed' : ''}${effectiveSelectedId === c.id && !isZoomedView ? ' galassia-view__planet-wrap--highlight' : ''}`}
+                initial={false}
+                animate={{ left: `${layout.pos.x}%`, top: `${layout.pos.y}%`, opacity: layout.opacity }}
+                transition={positionTransition}
+                style={{ zIndex: layout.isSelected ? 20 : 10 }}
+              >
+                <motion.button
+                  type="button"
+                  className="flex min-h-11 min-w-11 items-center justify-center rounded-full outline-none ring-offset-2 ring-offset-[#020817] focus-visible:ring-2 focus-visible:ring-white"
+                  animate={{
+                    y: 0,
+                    scale: layout.scale,
+                  }}
+                  transition={{
+                    scale: positionTransition,
+                  }}
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    selectPlanet(c.id)
+                  }}
+                  onMouseEnter={() => setHoveredId(c.id)}
+                  onMouseLeave={() => setHoveredId((prev) => (prev === c.id ? null : prev))}
+                  onFocus={() => setHoveredId(c.id)}
+                  onBlur={() => setHoveredId((prev) => (prev === c.id ? null : prev))}
+                  aria-label={`${c.nome}, ${layout.weight.display}`}
+                  aria-pressed={layout.isSelected}
+                >
+                  <span className="relative flex items-center justify-center">
+                    <span
+                      aria-hidden
+                      className="absolute rounded-full"
+                      style={{
+                        width: layout.circle + 12,
+                        height: layout.circle + 12,
+                        border: `1px solid ${c.colore}`,
+                        opacity: isHovered ? 0.55 : 0.3,
+                      }}
+                    />
+                    <span
+                      aria-hidden
+                      className="rounded-full"
+                      style={{
+                        width: layout.circle,
+                        height: layout.circle,
+                        backgroundColor: c.colore,
+                        opacity: 0.85,
+                        boxShadow: isHovered
+                          ? `0 0 24px ${c.colore}, 0 0 8px ${c.colore}`
+                          : `0 0 14px ${c.colore}66`,
+                      }}
+                    />
+                  </span>
+                </motion.button>
+
+                <span
+                  className="galassia-view__planet-label"
+                  style={{ top: `calc(50% + ${layout.circle / 2 + 8}px)` }}
+                  title={`${c.nome} · ${layout.weight.display}`}
+                >
+                  <strong>{c.nome}</strong>
+                  <small>{layout.weight.short}</small>
+                </span>
+              </motion.div>
+            )
+          })}
+          </div>
+          </div>
+          </div>
+        </div>
+      ) : (
+        <GalassiaMobileAlternativeView
+          mapMode={mapMode}
+          mapNodes={mapNodes}
+        />
+      )}
+
+      {mapMode !== 'parole' && isPanelIdle && !guideDeckOpen && isMobile ? (
         <GalassiaMapHint
           mode={mapMode}
           dominant={mapMode === 'disposizioni' ? rankedData[0] : null}
@@ -3390,7 +4084,7 @@ export default function GalassiaView({
         />
       ) : null}
 
-      {!isPanelIdle ? (
+      {mapMode !== 'parole' && (!isPanelIdle || !isMobile) && !guideDeckOpen && !showTutorial ? (
         <GalassiaCrtPanel
           panel={panelContent}
           selected={mapMode === 'disposizioni' ? selected : selectedNode}

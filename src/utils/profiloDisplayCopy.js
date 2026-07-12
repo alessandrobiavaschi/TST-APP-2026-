@@ -71,7 +71,7 @@ const TRIM_LIMITS = {
   natura: { maxParagraphs: 4, maxListItems: 0 },
   racconto: { maxParagraphs: 4, maxListItems: 0 },
   risorse: { maxParagraphs: 2, maxListItems: 5 },
-  ombre: { maxParagraphs: 2, maxListItems: 5 },
+  ombre: { maxParagraphs: 4, maxListItems: 5 },
 }
 
 /**
@@ -136,7 +136,7 @@ const DISPLAY_BY_FAMILY = {
   Blu: {
     natura: {
       inSintesi:
-        'In questa famiglia emerge il piacere di stare con sé stessi, di osservarsi interiormente e di riflettere su ciò che si è vissuto. La natura lunare malinconico-nostalgica predilige riflessività e percezione emotiva profonda — con orientamento al passato.',
+        'In questa famiglia emerge il piacere di stare con sé stessi, di osservarsi interiormente e di riflettere su ciò che si è vissuto. La caratteristica lunare malinconico-nostalgica predilige riflessività e percezione emotiva profonda — con orientamento al passato.',
       corpo: [],
     },
   },
@@ -150,7 +150,7 @@ const DISPLAY_BY_FAMILY = {
   Giallo: {
     natura: {
       inSintesi:
-        'In questa famiglia emerge il piacere del movimento, della curiosità, della scoperta del nuovo e dell’estroversione. La natura solare sanguigno-entusiasta guarda al futuro: slancio vitale, partecipazione e ricerca di bagliori di bellezza.',
+        'In questa famiglia emerge il piacere del movimento, della curiosità, della scoperta del nuovo e dell’estroversione. La caratteristica emotiva solare sanguigno-entusiasta guarda al futuro: slancio vitale, partecipazione e ricerca di bagliori di bellezza.',
       corpo: [],
     },
   },
@@ -181,10 +181,7 @@ export function getProfiloPanelDisplay({ panelId, famiglia, rawTesto = '', profi
   const enableList = panelId === 'risorse' || panelId === 'ombre' || panelId === 'racconto'
   const blocks = chunkProfiloText(raw, { enableList })
 
-  const hook =
-    panelId === 'natura'
-      ? (profilo.fraseChiave || DISPLAY_BY_FAMILY[fam]?.natura?.inSintesi || buildInSintesiFallback(fam, profilo)).trim()
-      : ''
+  const hook = ''
 
   if (blocks.length > 0) {
     return {

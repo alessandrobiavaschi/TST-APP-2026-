@@ -159,6 +159,7 @@ export default function OperatorSection({
   sezioniTest,
   filtroMusicale,
   correnteColore = '#4ade80',
+  step = '6',
 }) {
   const accent = correnteColore || '#4ade80'
 
@@ -169,7 +170,7 @@ export default function OperatorSection({
       aria-labelledby="operator-heading"
     >
       <ReportPassageHeader
-        step="5"
+        step={step}
         eyebrow={APPROFONDIMENTO_UI.eyebrow}
         title={APPROFONDIMENTO_UI.title}
         lead={APPROFONDIMENTO_UI.lead}

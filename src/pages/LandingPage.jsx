@@ -1,8 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useSkyTheme } from '../SkyThemeContext.jsx'
 import AuthBox from '../components/AuthBox.jsx'
-import VideoBackground0311 from '../components/VideoBackground0311.jsx'
+import { useSkyTheme } from '../SkyThemeContext.jsx'
 import { useAuth } from '../AuthContext.jsx'
 import {
   signInWithGoogle as authSignInWithGoogle,
@@ -11,8 +10,106 @@ import {
   requestPasswordReset as authRequestPasswordReset,
   getGoogleAuthDiagnosticEventName,
 } from '../auth.js'
-import LandingPreviewShowcase from '../components/report/LandingPreviewShowcase.jsx'
-import LandingNarrativeRail from '../components/LandingNarrativeRail.jsx'
+import '../styles/landing-nebula.css'
+
+const PANELS_DATA = [
+  {
+    num: '01',
+    color: '#7dabfa',
+    eyebrow: "MUSICA COME LINGUAGGIO DELL'IDENTITÀ EMOTIVA",
+    title: 'Perché un test sonoro?',
+    paragraphs: [
+      "La Musica è il mezzo più evoluto per la comunicazione emotiva. Il test non è un gioco è un primo concreto esempio di uso della musica a fini umanistici. I flussi sonori sono una lente per osservare l'area del sentire, oltre la sfera cognitiva.",
+    ],
+  },
+  {
+    num: '02',
+    color: '#c4b5fd',
+    eyebrow: 'COME CI SI MUOVE TRA SIMPATIA, ANTIPATIA E INDIFFERENZA ATTRAVERSO STIMOLI SONORI MUSICALI.',
+    title: "TST illumina l'area del sentire",
+    paragraphs: [
+      'Il protocollo TST rivela le istintive reazioni emotive e affettive a stimoli sonori multipli che fanno parte delle qualità oggettive del codice musicale.',
+      'I 5 elementi del codice musicale sono Timbro, Ritmo, Intervalli, Armonia e Melodia.',
+      'Per "area del sentire" si intendono diverse tipologie di forze emotive che agiscono in maniera unica e irripetibile nell\'interiorità di ciascun individuo. Dal punto di vista musicale, queste aree sono sintetizzate in cinque grandi correnti di energia emotiva: Flemma, Entusiasmo, Malinconia-Nostalgia, Volitività e Anaffettività.',
+    ],
+  },
+  {
+    num: '03',
+    color: '#5eead4',
+    eyebrow: '72 PASSI BREVI, NESSUNA RISPOSTA GIUSTA O SBAGLIATA',
+    title: 'Un percorso di ascolto guidato',
+    paragraphs: [
+      'TST è costituito da 72 brevi stimoli sonori e musicali, da sentire uno per volta.',
+      'Sono organizzati per Timbri, Intervalli, Ritmi, Melodie ed Armonie.',
+      'Associa in modo istintivo i flussi sonori alle tue sensazioni, emozioni e sentimenti individuando nella barra delle risposte quelli che corrispondono meglio alle tue percezioni.',
+    ],
+  },
+  {
+    num: '04',
+    color: '#a5b4fc',
+    eyebrow: 'DAI SUONI AI PROFILI TEMPERAMENTALI',
+    title: 'Flussi musicali come rilevatori e rivelatori',
+    paragraphs: [
+      "La risonanza tra Musica e Disposizioni Intellettuali, Emotive e Spirituali dell'Uomo si è evidenziata nel corso dei secoli come elemento oggettivo conclamato.",
+      'Basandosi su questa evidenza, TST entra nei dettagli di questa relazione utilizzando singoli suoni e flussi musicali come strumenti rilevatori e rivelatori di una complessità emotiva interiore che va oltre la sfera cognitiva.',
+      "Le risposte date attraverso il questionario, opportunamente decodificate, creano un profilo interiore unico per ciascun individuo e una mappa sintetica dell'identità emotiva individuale.",
+    ],
+  },
+  {
+    num: '05',
+    color: '#fbbf62',
+    eyebrow: 'UNA MAPPA VISIVA DELLA STRUTTURA EMOTIVA',
+    title: 'Cosa ottieni alla fine',
+    paragraphs: [
+      "Il report finale TST restituisce quattro indicatori dell'identità emotiva: la tua natura di base, il rapporto con te stesso, il rapporto con l'altro e il rapporto con l'agire, insieme alla rappresentazione visiva della tua complessità temperamentale.",
+    ],
+  },
+  {
+    num: '06',
+    color: '#c4b5fd',
+    eyebrow: 'LA PROCEDURA, LO STUDIO E LA BIBLIOGRAFIA',
+    title: 'Elementi essenziali della procedura TST',
+    paragraphs: [
+      'Questa procedura nasce da anni di ricerca, studi e sperimentazioni di Franco Mussida, raccolti in libri, saggi e pubblicazioni*. Ne è derivata una procedura di rilevanza scientifica sul rapporto tra l\'oggettività del codice musicale e la realtà emotiva individuale.',
+      "In questa versione informatica, il linguaggio è stato appositamente curato e scelto da Franco Mussida, dal comitato scientifico Co2, dal CPM Music Institute e dall'Università degli Studi di Pavia.",
+      'Per iniziare subito il test, vai direttamente al pannello di accesso.',
+    ],
+    footnote:
+      '*La Musica Ignorata (Skira, 2013); Le Chiavi Nascoste della Musica (Skira, 2016); Il Pianeta della Musica (Salani, 2019, oggi alla VI ed.)',
+  },
+]
+
+const TIMELINE_DATA = [
+  {
+    color: '#7dabfa',
+    label: 'Ippocrate & Galeno — Rudolf Steiner',
+    text: 'L\'idea che ognuno porti dentro di sé una "cifra" affettiva propria accompagna il pensiero umano da millenni: è il concetto di temperamento. Già Ippocrate e Galeno immaginarono quattro grandi disposizioni — sanguigno, flemmatico, collerico, melanconico — e secoli dopo Rudolf Steiner le riprese e sviluppò nella sua pedagogia.',
+  },
+  {
+    color: '#5eead4',
+    label: 'Thomas & Chess — New York Longitudinal Study',
+    text: "Ciò che gli antichi avevano saggiamente intuito è stato confermato dalla ricerca scientifica del Novecento: in studi durati vent'anni, come il New York Longitudinal Study, Thomas e Chess dimostrarono che le differenze temperamentali sono reali, misurabili e presenti fin dai primi mesi di vita.",
+  },
+  {
+    color: '#a5b4fc',
+    label: 'Cloninger',
+    text: "Pochi anni dopo, Cloninger ne individuò le basi psicobiologiche, distinguendo ciò che nel temperamento è innato da ciò che matura con l'esperienza.",
+  },
+  {
+    color: '#c4b5fd',
+    label: 'Franco Mussida',
+    text: 'Ai quattro temperamenti citati, Franco Mussida aggiunge una quinta disposizione: il ruolo della forza anaffettiva e intellettuale sulle componenti temperamentali.',
+  },
+]
+
+function buildStarShadow() {
+  return Array.from({ length: 90 }, () => {
+    const x = Math.round(Math.random() * 2000)
+    const y = Math.round(Math.random() * 4000)
+    const o = (Math.random() * 0.6 + 0.3).toFixed(2)
+    return `${x}px ${y}px rgba(255,255,255,${o})`
+  }).join(',')
+}
 
 function LandingPage() {
   const navigate = useNavigate()
@@ -24,40 +121,39 @@ function LandingPage() {
   const [authError, setAuthError] = useState('')
   const [resetMessage, setResetMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isMobileViewport, setIsMobileViewport] = useState(false)
-  const [activeSectionIndex, setActiveSectionIndex] = useState(0)
+  const [scrollY, setScrollY] = useState(0)
+  const [revealed, setRevealed] = useState({})
+  const [activePanelIndex, setActivePanelIndex] = useState(-1)
   const hasAuthenticatedSession = Boolean(currentUser)
   const accessBoxRef = useRef(null)
-  const heroIntroSectionRef = useRef(null)
-  const heroMessageSectionRef = useRef(null)
   const accessSectionRef = useRef(null)
-  const valuesSectionRef = useRef(null)
-  const previewSectionRef = useRef(null)
-  const narrativeRailSectionRef = useRef(null)
-  const tornaSuSectionRef = useRef(null)
+  const starShadow = useMemo(() => buildStarShadow(), [])
 
-  const trackLandingPreviewEvent = (eventName, payload = {}) => {
+  const scrollAccessSectionIntoView = useCallback(() => {
     if (typeof window === 'undefined') return
-    const eventPayload = {
-      event: eventName,
-      source: 'landing_preview',
-      ...payload,
-      timestamp: Date.now(),
-    }
-    window.dispatchEvent(new CustomEvent('tst:analytics', { detail: eventPayload }))
-    if (Array.isArray(window.dataLayer)) {
-      window.dataLayer.push(eventPayload)
-    }
-  }
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        accessSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      })
+    })
+  }, [])
+
+  const openAccessBox = useCallback(
+    (mode = 'scelta') => {
+      setAuthError('')
+      setResetMessage('')
+      setInitialAuthMode(mode)
+      setShowAccessBox(true)
+      scrollAccessSectionIntoView()
+    },
+    [scrollAccessSectionIntoView],
+  )
 
   const navigateToLogin = () => {
     const loginParams = new URLSearchParams(location.search.replace(/^\?/, ''))
     loginParams.set('accesso', '1')
     if (location.pathname === '/') {
-      setShowAccessBox(true)
-      window.requestAnimationFrame(() => {
-        accessSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      })
+      openAccessBox()
       return
     }
     navigate({ pathname: '/', search: `?${loginParams.toString()}` }, { state: { openAccessBox: true } })
@@ -73,41 +169,12 @@ function LandingPage() {
     navigateToLogin()
   }
 
-  const scrollToAccessSection = ({ revealPanel = true } = {}) => {
-    setAuthError('')
-    setResetMessage('')
-    if (!hasAuthenticatedSession && revealPanel) {
-      setShowAccessBox(true)
-    }
-    window.requestAnimationFrame(() => {
-      accessSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    })
+  const scrollToPitch = () => {
+    document.getElementById('tst-pitch')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
-  const getLandingSections = () =>
-    [
-      heroIntroSectionRef.current,
-      heroMessageSectionRef.current,
-      valuesSectionRef.current,
-      narrativeRailSectionRef.current,
-      accessSectionRef.current,
-      previewSectionRef.current,
-      tornaSuSectionRef.current,
-    ].filter(Boolean)
-
-  const scrollToSection = (sectionIndex) => {
-    const sections = getLandingSections()
-    const targetSection = sections[sectionIndex]
-    if (!targetSection) return
-    if (sectionIndex === 0) {
-      window.requestAnimationFrame(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' })
-      })
-      return
-    }
-    window.requestAnimationFrame(() => {
-      targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    })
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const handleGoogleLogin = async () => {
@@ -181,13 +248,15 @@ function LandingPage() {
       return
     }
     setResetMessage(
-      result.message || 'Se esiste un account con questa email, e stata inviata una mail per reimpostare la password.',
+      result.message || 'Se esiste un account con questa email, è stata inviata una mail per reimpostare la password.',
     )
   }
 
   useEffect(() => {
-    // queueMicrotask evita il trigger sincrono di setState dentro useEffect
     queueMicrotask(() => setLandingSkyOverride({ timeOfDay: 'sunset', weather: 'sereno' }))
+    return () => {
+      setLandingSkyOverride(null)
+    }
   }, [setLandingSkyOverride])
 
   useEffect(() => {
@@ -198,14 +267,15 @@ function LandingPage() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return
-    const onOpenAccess = () => {
-      setAuthError('')
-      setResetMessage('')
-      setShowAccessBox(true)
-    }
+    const onOpenAccess = () => openAccessBox('scelta')
+    const onOpenAccessRegister = () => openAccessBox('register')
     window.addEventListener('tst:open-access', onOpenAccess)
-    return () => window.removeEventListener('tst:open-access', onOpenAccess)
-  }, [])
+    window.addEventListener('tst:open-access-register', onOpenAccessRegister)
+    return () => {
+      window.removeEventListener('tst:open-access', onOpenAccess)
+      window.removeEventListener('tst:open-access-register', onOpenAccessRegister)
+    }
+  }, [openAccessBox])
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -228,31 +298,13 @@ function LandingPage() {
   }, [])
 
   useEffect(() => {
-    if (typeof window === 'undefined') return
-    const mediaQuery = window.matchMedia('(max-width: 768px)')
-    const applyViewportState = (event) => {
-      setIsMobileViewport(Boolean(event.matches))
-    }
-    applyViewportState(mediaQuery)
-    if (typeof mediaQuery.addEventListener === 'function') {
-      mediaQuery.addEventListener('change', applyViewportState)
-      return () => mediaQuery.removeEventListener('change', applyViewportState)
-    }
-    mediaQuery.addListener(applyViewportState)
-    return () => mediaQuery.removeListener(applyViewportState)
-  }, [])
-
-  useEffect(() => {
     if (location?.state?.openAccessBox) {
       queueMicrotask(() => {
-        setAuthError('')
-        setResetMessage('')
-        setInitialAuthMode(location.state.openRegister ? 'register' : 'scelta')
-        setShowAccessBox(true)
+        openAccessBox(location.state.openRegister ? 'register' : 'scelta')
         navigate('.', { replace: true, state: {} })
       })
     }
-  }, [location, navigate])
+  }, [location, navigate, openAccessBox])
 
   useEffect(() => {
     if (location.pathname !== '/') return
@@ -261,371 +313,261 @@ function LandingPage() {
     params.delete('accesso')
     const rest = params.toString()
     queueMicrotask(() => {
-      setAuthError('')
-      setResetMessage('')
-      setShowAccessBox(true)
+      openAccessBox('scelta')
       navigate(
         { pathname: '/', search: rest ? `?${rest}` : '', hash: location.hash || '' },
         { replace: true, state: {} },
       )
     })
-  }, [location.pathname, location.search, location.hash, navigate])
+  }, [location.pathname, location.search, location.hash, navigate, openAccessBox])
 
   useEffect(() => {
     if (showAccessBox && accessBoxRef.current) {
-      accessBoxRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+      accessSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
   }, [showAccessBox])
 
   useEffect(() => {
     if (!authReady || !hasAuthenticatedSession) return
-    // Reindirizza solo se l'utente si è appena autenticato tramite il box di accesso
-    // (flow mobile Google login). Negli altri casi lasciamo la landing visibile anche ai loggati.
     if (showAccessBox) {
       navigate('/home', { replace: true })
     }
   }, [authReady, hasAuthenticatedSession, showAccessBox, navigate])
 
+  // Parallasse dello sfondo nebula in base allo scroll
   useEffect(() => {
     if (typeof window === 'undefined') return
-    let rafId = null
-
-    const updateActiveSection = () => {
-      rafId = null
-      const sections = getLandingSections()
-      if (!sections.length) return
-      const offsetAnchor = window.scrollY + 140
-      let nextIndex = 0
-      for (let index = 0; index < sections.length; index += 1) {
-        if (sections[index].offsetTop <= offsetAnchor) {
-          nextIndex = index
-        }
-      }
-      setActiveSectionIndex((prev) => (prev === nextIndex ? prev : nextIndex))
+    let ticking = false
+    const onScroll = () => {
+      if (ticking) return
+      ticking = true
+      window.requestAnimationFrame(() => {
+        setScrollY(window.scrollY || window.pageYOffset || 0)
+        ticking = false
+      })
     }
-
-    const handleViewportChange = () => {
-      if (rafId !== null) return
-      rafId = window.requestAnimationFrame(updateActiveSection)
-    }
-
-    updateActiveSection()
-    window.addEventListener('scroll', handleViewportChange, { passive: true })
-    window.addEventListener('resize', handleViewportChange)
-    return () => {
-      if (rafId !== null) window.cancelAnimationFrame(rafId)
-      window.removeEventListener('scroll', handleViewportChange)
-      window.removeEventListener('resize', handleViewportChange)
-    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  if (isMobileViewport) {
-    return (
-      <div className="landing-mobile-hero">
-        {/* Hero section */}
-        <div className="landing-mobile-section">
-          <p className="landing-mobile-eyebrow">Test Sonoro Temperamentale</p>
-          <h1 className="landing-mobile-headline">
-            La tua natura<br />in 72 ascolti.
-          </h1>
-          <p className="landing-mobile-sub">
-            TST NON È UN QUIZ. È UNO STRUMENTO ARTISTICO-SCIENTIFICO CHE RIVELA L&apos;INTIMA NATURA EMOTIVA
-            INDIVIDUALE.
-          </p>
-          <div className="landing-mobile-ctas">
-            <button type="button" className="landing-mobile-cta-primary" onClick={handleStartClick}>
-              Avvia il test
-            </button>
-            <button type="button" className="landing-mobile-cta-link" onClick={() => scrollToAccessSection({ revealPanel: false })}>
-              Scopri di più ›
-            </button>
-          </div>
-        </div>
-
-        {/* Feature tile 1 */}
-        <div className="landing-mobile-tile landing-mobile-tile--light">
-          <p className="landing-mobile-tile-eyebrow">72 frammenti sonori</p>
-          <h2 className="landing-mobile-tile-title">La musica come lente emotiva</h2>
-          <p className="landing-mobile-tile-body">
-            Il test usa la musica come stimolo emozionale. Un protocollo unico privo di algoritmi che illumina le nostre
-            profonde qualità interiori.
-          </p>
-        </div>
-
-        {/* Feature tile 2 */}
-        <div className="landing-mobile-tile landing-mobile-tile--dark">
-          <p className="landing-mobile-tile-eyebrow">Risultati</p>
-          <h2 className="landing-mobile-tile-title">Un report clinico sulla tua natura</h2>
-          <p className="landing-mobile-tile-body">
-            Scopri la tua Disposizione Prevalente, il tuo Portato Esperienziale e la mappa delle tue correnti emotive.
-          </p>
-        </div>
-
-        <div className="landing-mobile-narrative">
-          <LandingNarrativeRail />
-        </div>
-
-        <div className="landing-mobile-preview">
-          <LandingPreviewShowcase />
-        </div>
-
-        {/* Access section */}
-        {!hasAuthenticatedSession && (
-          <div className="landing-mobile-auth" ref={accessSectionRef}>
-            <p className="landing-mobile-auth-title">Accedi per iniziare</p>
-            {!showAccessBox ? (
-              <div className="landing-mobile-ctas">
-                <button type="button" className="landing-mobile-cta-primary" onClick={() => setShowAccessBox(true)}>
-                  Login / Crea account
-                </button>
-              </div>
-            ) : (
-              <div ref={accessBoxRef}>
-                <AuthBox
-                  initialMode={initialAuthMode}
-                  onGoogleSignIn={handleGoogleLogin}
-                  onEmailSubmit={handleAuthBoxEmailSubmit}
-                  onRegisterSubmit={handleAuthBoxRegisterSubmit}
-                  onPasswordReset={handlePasswordResetRequest}
-                  onGuestEnter={() => navigate('/nuovo-test', { state: { mode: 'guest' } })}
-                  onClose={() => setShowAccessBox(false)}
-                  authError={authError}
-                  resetMessage={resetMessage}
-                  isSubmitting={isSubmitting}
-                />
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+  // Reveal-on-scroll per pitch, slider intro, pannelli e metodologia
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return
+          const id = entry.target.getAttribute('data-reveal-id')
+          if (id) {
+            setRevealed((prev) => (prev[id] ? prev : { ...prev, [id]: true }))
+          }
+          observer.unobserve(entry.target)
+        })
+      },
+      { threshold: 0.05, rootMargin: '0px 0px -5% 0px' },
     )
-  }
+    document.querySelectorAll('[data-reveal-id]').forEach((el) => observer.observe(el))
+    return () => observer.disconnect()
+  }, [])
+
+  // Pannello attivo per la dot-nav laterale
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActivePanelIndex(parseInt(entry.target.getAttribute('data-panel-index'), 10))
+          }
+        })
+      },
+      { threshold: 0.5 },
+    )
+    document.querySelectorAll('[data-panel-index]').forEach((el) => observer.observe(el))
+    return () => observer.disconnect()
+  }, [])
+
+  const auroraOffset = `translate3d(0px, ${(-scrollY * 0.12).toFixed(1)}px, 0)`
 
   return (
-    <div
-      className={`landing-apple-root page-video-bg-root${
-        isMobileViewport ? ' landing-apple-root--mobile-static' : ''
-      }`}
-    >
-      {!isMobileViewport && <VideoBackground0311 />}
-      <div className="landing-apple-inner">
-        {!isMobileViewport && <div className="landing-vignette" aria-hidden="true" />}
-        <div className="landing-apple-overlay">
-          {!isMobileViewport && (
-            <header className="landing-apple-header">
-              <div className="landing-apple-logo">
-                <span className="landing-apple-logo-mark">TST</span>
-                <span className="landing-apple-logo-sub">Test Temperamentale</span>
-              </div>
-              <button
-                type="button"
-                className="landing-apple-mini-cta"
-                onClick={handleStartClick}
-              >
-                Inizia
-              </button>
-            </header>
-          )}
-
-          <aside className="landing-apple-progress-rail" aria-label="Navigazione sezioni">
-            {[
-              'Hero intro',
-              'Hero messaggio',
-              'Valore',
-              'Percorso',
-              'Accesso',
-              'Preview',
-              'Torna su',
-            ].map((label, index) => (
-              <button
-                key={label}
-                type="button"
-                className={`landing-apple-progress-dot ${activeSectionIndex === index ? 'is-active' : ''}`}
-                onClick={() => scrollToSection(index)}
-                aria-label={`Vai a ${label}`}
-                aria-current={activeSectionIndex === index ? 'true' : undefined}
-              />
-            ))}
-          </aside>
-
-          <main className="landing-apple-main" aria-labelledby="landing-apple-title">
-            <section ref={heroIntroSectionRef} className="landing-apple-hero landing-apple-hero--intro">
-              <div className="landing-apple-hero-intro">
-                <p className="landing-wind-title landing-apple-intro-title" aria-hidden="true">
-                  <span className="wind-title-wrapper">
-                    <span className="wind-title-layer wind-title-layer--base">TST</span>
-                    <span className="wind-title-layer wind-title-layer--shift1">TST</span>
-                    <span className="wind-title-layer wind-title-layer--shift2">TST</span>
-                  </span>
-                </p>
-                <p className="landing-apple-intro-subtitle">TEST SONORO TEMPERAMENTALE</p>
-                <button type="button" className="landing-apple-start-cta" onClick={handleStartClick}>
-                  Avvia
-                </button>
-              </div>
-            </section>
-
-            <section ref={heroMessageSectionRef} className="landing-apple-hero landing-apple-hero--message">
-              <p className="landing-apple-eyebrow">Esperienza sonora guidata</p>
-              <div className="landing-apple-hero-copy">
-                <h1 id="landing-apple-title" className="landing-apple-display-title">
-                  TST NON È UN QUIZ. È UNO STRUMENTO ARTISTICO-SCIENTIFICO CHE RIVELA L’INTIMA NATURA EMOTIVA
-                  INDIVIDUALE.
-                </h1>
-                <p className="landing-apple-lead">
-                  Il test usa la musica come stimolo emozionale. Un protocollo unico privo di algoritmi che illumina le
-                  nostre profonde qualità interiori
-                </p>
-              </div>
-              <div className="landing-apple-hero-actions">
-                <button
-                  type="button"
-                  className="landing-apple-cta landing-apple-cta--primary"
-                  onClick={handleStartClick}
-                >
-                  Avvia il test
-                </button>
-              </div>
-            </section>
-
-            <section ref={valuesSectionRef} className="landing-apple-values" aria-label="Valore del test">
-              <div className="landing-apple-section-head">
-                <p className="landing-apple-section-kicker">Tre passaggi</p>
-                <h2>TRE PASSAGGI PER STILARE UNA MAPPA DELLA PROPRIA NATURA EMOTIVA, PER CONOSCERSI INTIMAMENTE</h2>
-              </div>
-              <div className="landing-apple-values-grid">
-                <article>
-                  <h3>Perché un test sonoro?</h3>
-                  <p>
-                    La Musica è il mezzo più evoluto per la comunicazione emotiva. Il test non è un gioco è un primo
-                    concreto esempio di uso della musica a fini umanistici. I flussi sonori sono una lente per
-                    osservare l’area del sentire, oltre la sfera cognitiva.
-                  </p>
-                </article>
-                <article>
-                  <h3>Cosa si osserva: l&apos;area del sentire</h3>
-                  <p>
-                    Il protocollo TST rivela le istintive reazioni emotive e affettive a forme simboliche del Codice
-                    Musical
-                  </p>
-                  <p>
-                    Osserva l’area del sentire: come ci si muove tra simpatia, antipatia e indifferenza rispetto a
-                    singoli stimoli musicali.
-                  </p>
-                </article>
-                <article>
-                  <h3>Un percorso di ascolto guidato</h3>
-                  <p>
-                    È fatto da 72 brevi frammenti sonori da sentire, uno alla volta, organizzati per timbro,
-                    intervalli, ritmo, melodia e armonia.
-                  </p>
-                  <p>
-                    Associa in modo istintivo i suoni alle tue sensazioni e barra le risposte che corrispondono alle
-                    tue percezioni.
-                  </p>
-                </article>
-              </div>
-              <div className="landing-apple-section-actions">
-                <button
-                  type="button"
-                  className="landing-apple-cta landing-apple-cta--secondary"
-                  onClick={() => scrollToAccessSection({ revealPanel: true })}
-                >
-                  Inizia dal tuo accesso
-                </button>
-              </div>
-            </section>
-
-            <section
-              ref={narrativeRailSectionRef}
-              className="landing-apple-narrative-rail-section"
-              aria-label="Perché il test sonoro"
-            >
-              <LandingNarrativeRail />
-            </section>
-
-            <section
-              ref={accessSectionRef}
-              className="landing-apple-access"
-              aria-label="Accesso al Test Temperamentale"
-            >
-              {!hasAuthenticatedSession && (
-                <>
-                  {!showAccessBox && (
-                    <div className="landing-apple-access-intro">
-                      <button
-                        type="button"
-                        className="landing-apple-cta landing-apple-cta--primary"
-                        onClick={() => setShowAccessBox(true)}
-                      >
-                        Apri accesso
-                      </button>
-                    </div>
-                  )}
-                  {showAccessBox && (
-                    <div ref={accessBoxRef} className="landing-apple-auth-shell">
-                      <AuthBox
-                        initialMode={initialAuthMode}
-                        onGoogleSignIn={handleGoogleLogin}
-                        onEmailSubmit={handleAuthBoxEmailSubmit}
-                        onRegisterSubmit={handleAuthBoxRegisterSubmit}
-                        onPasswordReset={handlePasswordResetRequest}
-                        onGuestEnter={() => navigate('/nuovo-test', { state: { mode: 'guest' } })}
-                        onClose={() => setShowAccessBox(false)}
-                        authError={authError}
-                        resetMessage={resetMessage}
-                        isSubmitting={isSubmitting}
-                      />
-                    </div>
-                  )}
-                </>
-              )}
-            </section>
-
-            <section
-              ref={previewSectionRef}
-              className="landing-apple-preview-stack"
-              aria-label="Anteprima della restituzione"
-            >
-              <div className="landing-apple-section-head landing-apple-preview-stack__head">
-                <p className="landing-apple-section-kicker">Preview</p>
-                <h2>Guarda in breve come si legge il report.</h2>
-                <p>
-                  Quello che vedi qui è solo un&apos;anteprima: testi e grafici sono esemplificativi e non corrispondono
-                  al tuo profilo reale. Il radar mostra tre esempi che alternano per farti capire come si legge una
-                  restituzione.
-                </p>
-              </div>
-              <div className="landing-apple-preview-wrap landing-apple-preview-wrap--landing-xl">
-                <LandingPreviewShowcase
-                  chartHeight={300}
-                  onStart={() => {
-                    trackLandingPreviewEvent('landing_preview_cta_click', { cta: 'avvia_test' })
-                    handleStartClick()
-                  }}
-                  onTrack={(eventName, payload) => trackLandingPreviewEvent(eventName, payload)}
-                />
-              </div>
-            </section>
-
-            <section
-              ref={tornaSuSectionRef}
-              className="landing-apple-back-top"
-              aria-label="Torna all'inizio della pagina"
-            >
-              <button
-                type="button"
-                className="landing-apple-scroll-cue"
-                onClick={() => scrollToSection(0)}
-              >
-                <span className="landing-apple-scroll-cue-line" aria-hidden="true" />
-                <span className="landing-apple-scroll-cue-arrow landing-apple-scroll-cue-arrow--up" aria-hidden="true" />
-                <span className="landing-apple-scroll-cue-label">Torna su</span>
-              </button>
-            </section>
-          </main>
-        </div>
+    <div className="tst-nebula">
+      <div className="tst-nebula-bg" aria-hidden="true">
+        <div className="tst-nebula-bg-image" style={{ transform: auroraOffset }} />
+        <div className="tst-nebula-bg-gradient" />
+        <div className="tst-nebula-bg-stars" style={{ boxShadow: starShadow }} />
       </div>
+
+      <main className="tst-nebula-main">
+        <section data-screen-label="Hero" className="tst-nebula-hero">
+          <div className="tst-nebula-hero-word">
+            {'TST'.split('').map((letter, index) => (
+              <span key={letter + index} style={{ animationDelay: `${index * 130}ms` }}>
+                {letter}
+              </span>
+            ))}
+          </div>
+          <p className="tst-nebula-hero-sub tst-nebula-legible">
+            Test Sonoro Temperamentale per la Rilevazione dell'Identità Emotiva
+          </p>
+          <button type="button" className="tst-nebula-hero-cta" onClick={scrollToPitch}>
+            AVVIA
+          </button>
+          <div className="tst-nebula-chevron" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M6 9l6 6 6-6"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+        </section>
+
+        <div ref={accessSectionRef} className="tst-nebula-access">
+          {!hasAuthenticatedSession && showAccessBox && (
+            <div ref={accessBoxRef} className="tst-nebula-access-shell">
+              <AuthBox
+                initialMode={initialAuthMode}
+                onGoogleSignIn={handleGoogleLogin}
+                onEmailSubmit={handleAuthBoxEmailSubmit}
+                onRegisterSubmit={handleAuthBoxRegisterSubmit}
+                onPasswordReset={handlePasswordResetRequest}
+                onGuestEnter={() => navigate('/nuovo-test', { state: { mode: 'guest' } })}
+                onClose={() => setShowAccessBox(false)}
+                authError={authError}
+                resetMessage={resetMessage}
+                isSubmitting={isSubmitting}
+              />
+            </div>
+          )}
+        </div>
+
+        <section
+          data-screen-label="Pitch"
+          id="tst-pitch"
+          data-reveal-id="pitch"
+          className={`tst-nebula-pitch tst-nebula-reveal ${revealed.pitch ? 'is-revealed' : ''}`}
+        >
+          <p className="tst-nebula-pitch-lead tst-nebula-legible">
+            TST è uno strumento scientifico-artistico musicale che rivela l'intima natura emotiva
+            individuale.
+          </p>
+          <p className="tst-nebula-pitch-body tst-nebula-legible">
+            Il test usa la musica come stimolo emozionale. Un protocollo unico privo di algoritmi che
+            illumina le nostre profonde qualità interiori.
+          </p>
+          <button type="button" className="tst-nebula-pitch-cta" onClick={handleStartClick}>
+            AVVIA IL TEST
+          </button>
+        </section>
+
+        <section
+          data-screen-label="Slider Intro"
+          id="tst-slider-intro"
+          data-reveal-id="sliderIntro"
+          className={`tst-nebula-slider-intro tst-nebula-reveal ${revealed.sliderIntro ? 'is-revealed' : ''}`}
+        >
+          <span className="tst-nebula-eyebrow tst-nebula-legible">Perché il test sonoro</span>
+          <h2 className="tst-nebula-slider-intro-title tst-nebula-legible">
+            Sei passaggi per capire cosa ascolti e cosa rivela di te.
+          </h2>
+        </section>
+
+        <div className="tst-nebula-panel-dots" aria-hidden="true">
+          {PANELS_DATA.map((panel, index) => (
+            <div
+              key={panel.num}
+              className={`tst-nebula-panel-dot ${activePanelIndex === index ? 'is-active' : ''}`}
+              style={{ '--dot-color': panel.color }}
+            />
+          ))}
+        </div>
+
+        {PANELS_DATA.map((panel, index) => {
+          const even = index % 2 === 0
+          const revealId = `panel-${index}`
+          return (
+            <section
+              key={panel.num}
+              data-screen-label={`Panel ${panel.num}`}
+              data-panel-index={index}
+              data-reveal-id={revealId}
+              className={`tst-nebula-panel ${even ? 'tst-nebula-panel--even' : 'tst-nebula-panel--odd'}`}
+            >
+              <div className="tst-nebula-panel-number">{panel.num}</div>
+              <div
+                className={`tst-nebula-panel-content ${revealed[revealId] ? 'is-revealed' : ''}`}
+              >
+                <span className="tst-nebula-eyebrow tst-nebula-legible" style={{ color: panel.color }}>
+                  {panel.eyebrow}
+                </span>
+                <h3 className="tst-nebula-panel-title tst-nebula-legible">{panel.title}</h3>
+                {panel.paragraphs.map((paragraph) => (
+                  <p key={paragraph.slice(0, 24)} className="tst-nebula-panel-paragraph tst-nebula-legible">
+                    {paragraph}
+                  </p>
+                ))}
+                {panel.footnote && (
+                  <p className="tst-nebula-panel-footnote tst-nebula-legible">{panel.footnote}</p>
+                )}
+              </div>
+            </section>
+          )
+        })}
+
+        <section
+          data-screen-label="Metodologia"
+          id="tst-method"
+          data-reveal-id="method"
+          className={`tst-nebula-method tst-nebula-reveal ${revealed.method ? 'is-revealed' : ''}`}
+        >
+          <div className="tst-nebula-method-head">
+            <h2 className="tst-nebula-method-title tst-nebula-legible">
+              Metodologia: il frutto di anni di ricerca
+            </h2>
+            <p className="tst-nebula-method-intro tst-nebula-legible">
+              La procedura TST è stata collaudata in 40 anni di ricerca da Franco Mussida, soprattutto in
+              contesti dove la fragilità affettiva è particolarmente accentuata, come istituti di pena e
+              comunità di recupero.
+            </p>
+          </div>
+
+          <div className="tst-nebula-timeline">
+            {TIMELINE_DATA.map((item) => (
+              <div key={item.label} className="tst-nebula-timeline-item">
+                <div className="tst-nebula-timeline-marker">
+                  <div className="tst-nebula-timeline-dot" style={{ '--dot-color': item.color }} />
+                  <div className="tst-nebula-timeline-line" />
+                </div>
+                <div className="tst-nebula-timeline-body">
+                  <span className="tst-nebula-timeline-label tst-nebula-legible" style={{ '--dot-color': item.color, color: item.color }}>
+                    {item.label}
+                  </span>
+                  <p className="tst-nebula-timeline-text tst-nebula-legible">{item.text}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <footer className="tst-nebula-footer">
+          <button type="button" className="tst-nebula-back-top" onClick={scrollToTop}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M18 15l-6-6-6 6"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            Torna su
+          </button>
+          <div className="tst-nebula-footer-badge">TST</div>
+        </footer>
+      </main>
     </div>
   )
 }

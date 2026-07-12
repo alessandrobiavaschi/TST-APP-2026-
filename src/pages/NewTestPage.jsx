@@ -40,7 +40,23 @@ function computeColorTotalsForRecord(record) {
   return { blu, rosso, verde, giallo, grigio }
 }
 
-function getDisposizionePrevalente(record) {
+const DISPOSIZIONE_LABELS_BY_COLOR = {
+  blu: 'Malinconia',
+  rosso: 'Volitività',
+  giallo: 'Entusiasmo',
+  verde: 'Calma',
+  grigio: 'Anaffettività',
+}
+
+const SOTTOCORRENTE_KEYS_BY_COLOR = {
+  blu: ['BLU_1_Depressiva', 'BLU_2_Lunare', 'BLU_3_Nostalgia', 'BLU_4_Solare'],
+  rosso: ['ROSSO_1_Assertivita', 'ROSSO_2_Dubbio_Collera'],
+  verde: ['VERDE_1_Calma'],
+  giallo: ['GIALLO_1_Gioia_Entusiasmo', 'GIALLO_2_Volitivo_Passionale'],
+  grigio: ['GRIGIO_1_Distaccato_Nichilista', 'GRIGIO_2_Intellettuale_Saggio'],
+}
+
+function getDisposizionePrevalenteKey(record) {
   if (!record) return ''
   const totals = computeColorTotalsForRecord(record)
   let bestKey = null
@@ -55,22 +71,18 @@ function getDisposizionePrevalente(record) {
   })
 
   if (!bestKey || bestValue <= 0) return ''
+  return bestKey
+}
 
-  const labels = {
-    blu: 'Malinconia',
-    rosso: 'Volitività',
-    giallo: 'Entusiasmo',
-    verde: 'Calma',
-    grigio: 'Anaffettività',
-  }
-
-  return labels[bestKey] || ''
+function getDisposizionePrevalente(record) {
+  const bestKey = getDisposizionePrevalenteKey(record)
+  return DISPOSIZIONE_LABELS_BY_COLOR[bestKey] || ''
 }
 
 const SOTTODISPOSIZIONE_LABELS = {
   BLU_1_Depressiva: 'Depressiva',
   BLU_2_Lunare: 'Lunare',
-  BLU_3_Nostalgia: 'Nostalgia',
+  BLU_3_Nostalgia: 'Nostalgica',
   BLU_4_Solare: 'Solare',
   ROSSO_1_Assertivita: 'Assertività',
   ROSSO_2_Dubbio_Collera: 'Dubbio / Collera',
@@ -83,26 +95,15 @@ const SOTTODISPOSIZIONE_LABELS = {
 
 function getSottodisposizionePrevalente(record) {
   if (!record) return ''
-
-  const values = {
-    BLU_1_Depressiva: record.BLU_1_Depressiva || 0,
-    BLU_2_Lunare: record.BLU_2_Lunare || 0,
-    BLU_3_Nostalgia: record.BLU_3_Nostalgia || 0,
-    BLU_4_Solare: record.BLU_4_Solare || 0,
-    ROSSO_1_Assertivita: record.ROSSO_1_Assertivita || 0,
-    ROSSO_2_Dubbio_Collera: record.ROSSO_2_Dubbio_Collera || 0,
-    VERDE_1_Calma: record.VERDE_1_Calma || 0,
-    GIALLO_1_Gioia_Entusiasmo: record.GIALLO_1_Gioia_Entusiasmo || 0,
-    GIALLO_2_Volitivo_Passionale: record.GIALLO_2_Volitivo_Passionale || 0,
-    GRIGIO_1_Distaccato_Nichilista: record.GRIGIO_1_Distaccato_Nichilista || 0,
-    GRIGIO_2_Intellettuale_Saggio: record.GRIGIO_2_Intellettuale_Saggio || 0,
-  }
+  const disposizioneKey = getDisposizionePrevalenteKey(record)
+  const candidateKeys = SOTTOCORRENTE_KEYS_BY_COLOR[disposizioneKey] || []
+  if (candidateKeys.length === 0) return ''
 
   let bestKey = null
   let bestValue = -Infinity
 
-  Object.entries(values).forEach(([key, value]) => {
-    const numeric = Number(value) || 0
+  candidateKeys.forEach((key) => {
+    const numeric = Number(record[key]) || 0
     if (numeric > bestValue) {
       bestValue = numeric
       bestKey = key
@@ -1515,7 +1516,6 @@ function NewTestPage() {
                       playsInline
                       onPlay={() => {
                         setNeuroChoiceStage('passive')
-                        setIsChoicesVisible(false)
                       }}
                       onError={() => {
                         const issue = getAudioSourceIssue(audioSrc)

@@ -1,54 +1,60 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useReducedMotion } from 'framer-motion'
-import { REPORT_GROUPS, SECTION_TO_GROUP, getVisibleReportSections } from './reportSectionsConfig'
+import {
+  getReportNavGroups,
+} from './reportSectionsConfig'
 import { REPORT_NAV_UI } from './reportUiCopy.js'
 import { getStickyOffsetPx, scrollToReportSection } from './reportSectionNavUtils'
+import { PROFILO_CHAPTER_EVENT } from './profiloChapterNav'
 
 /**
- * Menu laterale del report: cinque passi sempre visibili + sotto-voci per sezione.
- * Scroll-spy con IntersectionObserver; il click apre il blocco contenuto e scrolla.
+ * Menu laterale del report: indice piatto delle sezioni principali.
+ * Scroll-spy con IntersectionObserver; il click scrolla alla sezione.
  */
 export default function ReportSectionController({
-  accentColor = '#4ade80',
   profilo = {},
-  filtroMusicale = {},
+  musicista = {},
   sections: sectionsProp,
-  groups = REPORT_GROUPS,
-  onEnsureGroupOpen,
   onNavigate,
 }) {
   const reduceMotion = useReducedMotion()
   const sections = useMemo(
     () =>
       sectionsProp ||
-      getVisibleReportSections(profilo, {
-        filtroMusicaleHasData: Boolean(filtroMusicale?.hasData),
-      }),
-    [sectionsProp, profilo, filtroMusicale],
+      getReportNavGroups(profilo, { musicista }),
+    [sectionsProp, profilo, musicista],
+  )
+  const navSections = useMemo(
+    () =>
+      sections.map((section) => ({
+        ...section,
+        label: section.title || section.label,
+      })),
+    [sections],
   )
   const [activeId, setActiveId] = useState(sections[0]?.id ?? '')
-  const resolvedActiveId = sections.some((s) => s.id === activeId)
-    ? activeId
-    : sections[0]?.id ?? ''
+  const resolvedActiveId = useMemo(() => {
+    let targetId = activeId
+    if (targetId && targetId.startsWith('report-chapter-')) {
+      targetId = 'report-group-profilo-generale'
+    }
+    return sections.some((s) => s.id === targetId)
+      ? targetId
+      : sections[0]?.id ?? ''
+  }, [activeId, sections])
   const scrollLockRef = useRef(false)
   const userNavigatedRef = useRef(false)
   const mobileListRef = useRef(null)
   const activeMobileBtnRef = useRef(null)
   const activeRailBtnRef = useRef(null)
 
-  const sectionsByGroup = useMemo(() => {
-    const map = new Map(groups.map((g) => [g.id, []]))
-    sections.forEach((section) => {
-      const list = map.get(section.groupId)
-      if (list) list.push(section)
-    })
-    return map
-  }, [groups, sections])
-
   useEffect(() => {
-    const groupId = SECTION_TO_GROUP[resolvedActiveId]
-    if (groupId) onEnsureGroupOpen?.(groupId)
-  }, [resolvedActiveId, onEnsureGroupOpen])
+    const onChapterNav = () => {
+      setActiveId('report-group-profilo-generale')
+    }
+    window.addEventListener(PROFILO_CHAPTER_EVENT, onChapterNav)
+    return () => window.removeEventListener(PROFILO_CHAPTER_EVENT, onChapterNav)
+  }, [])
 
   useEffect(() => {
     const ids = sections.map((s) => s.id)
@@ -79,6 +85,9 @@ export default function ReportSectionController({
           }
         }
       }
+      if (bestId && bestId.startsWith('report-chapter-')) {
+        bestId = `report-chapter-${window.__tstActiveProfiloChapter || 'natura'}`
+      }
       setActiveId((prev) => (prev === bestId ? prev : bestId))
     }
 
@@ -101,7 +110,14 @@ export default function ReportSectionController({
     }
 
     bindObserver()
-    const onScroll = () => pickActive()
+    let scrollRafId = null
+    const onScroll = () => {
+      if (scrollRafId) return
+      scrollRafId = requestAnimationFrame(() => {
+        pickActive()
+        scrollRafId = null
+      })
+    }
     const onResize = () => bindObserver()
     window.addEventListener('scroll', onScroll, { passive: true })
     window.addEventListener('resize', onResize, { passive: true })
@@ -109,6 +125,7 @@ export default function ReportSectionController({
 
     return () => {
       observer?.disconnect()
+      if (scrollRafId) cancelAnimationFrame(scrollRafId)
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('resize', onResize)
     }
@@ -134,7 +151,6 @@ export default function ReportSectionController({
       setActiveId(id)
       if (onNavigate) {
         onNavigate(id, {
-          reduceMotion,
           onScrollComplete: () => {
             scrollLockRef.current = false
           },
@@ -153,7 +169,6 @@ export default function ReportSectionController({
 
   const navProps = {
     'aria-label': REPORT_NAV_UI.ariaLabel,
-    style: { '--section-nav-accent': accentColor },
   }
 
   const renderSectionLink = (section, variant) => {
@@ -162,12 +177,12 @@ export default function ReportSectionController({
     return (
       <li
         key={`${variant}-${section.id}`}
-        className={`report-section-controller__section-li report-section-controller__section-li--${variant}${section.isSub ? ' report-section-controller__section-li--sub' : ''}`}
+        className={`report-section-controller__section-li report-section-controller__section-li--${variant}`}
       >
         <button
           type="button"
           ref={isActive ? activeRef : null}
-          className={`report-section-controller__section report-section-controller__section--${variant}${section.isSub ? ' report-section-controller__section--sub' : ''}`}
+          className={`report-section-controller__section report-section-controller__section--${variant}`}
           data-active={isActive ? 'true' : 'false'}
           aria-current={isActive ? 'location' : undefined}
           onClick={() => handleSectionClick(section.id)}
@@ -183,35 +198,6 @@ export default function ReportSectionController({
     )
   }
 
-  const renderStep = (group, variant) => {
-    const childSections = sectionsByGroup.get(group.id) || []
-    if (childSections.length === 0) return null
-    const stepActive = childSections.some((s) => s.id === resolvedActiveId)
-    const sectionsClass = `report-section-controller__step-sections report-section-controller__step-sections--${variant}`
-
-    return (
-      <li
-        key={`${variant}-step-${group.id}`}
-        className={`report-section-controller__step report-section-controller__step--${variant}${stepActive ? ' report-section-controller__step--active' : ''}`}
-      >
-        <div className="report-section-controller__step-head">
-          <span className="report-section-controller__step-num" aria-hidden="true">
-            {group.stepLabel}
-          </span>
-          <div className="report-section-controller__step-copy">
-            <p className="report-section-controller__step-title">{group.title}</p>
-            {group.subtitle ? (
-              <span className="report-section-controller__step-subtitle">{group.subtitle}</span>
-            ) : null}
-          </div>
-        </div>
-        <ul className={sectionsClass}>
-          {childSections.map((section) => renderSectionLink(section, variant))}
-        </ul>
-      </li>
-    )
-  }
-
   return (
     <>
       <nav
@@ -219,13 +205,11 @@ export default function ReportSectionController({
         data-visible="true"
         {...navProps}
       >
-        <div className="report-section-controller__index-head">
-          <p className="report-section-controller__mobile-label">{REPORT_NAV_UI.indexTitle}</p>
-          <p className="report-section-controller__index-hint">{REPORT_NAV_UI.indexHint}</p>
+        <div ref={mobileListRef} className="report-section-controller__mobile-scroll-container">
+          <ul className="report-section-controller__mobile-steps">
+            {navSections.map((section) => renderSectionLink(section, 'mobile'))}
+          </ul>
         </div>
-        <ul ref={mobileListRef} className="report-section-controller__mobile-list">
-          {groups.map((group) => renderStep(group, 'mobile'))}
-        </ul>
       </nav>
 
       <nav
@@ -235,10 +219,9 @@ export default function ReportSectionController({
       >
         <div className="report-section-controller__index-head report-section-controller__index-head--rail">
           <p className="report-section-controller__rail-label">{REPORT_NAV_UI.indexTitle}</p>
-          <p className="report-section-controller__index-hint">{REPORT_NAV_UI.indexHint}</p>
         </div>
         <ul className="report-section-controller__rail-list">
-          {groups.map((group) => renderStep(group, 'rail'))}
+          {navSections.map((section) => renderSectionLink(section, 'rail'))}
         </ul>
       </nav>
     </>

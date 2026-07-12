@@ -44,8 +44,15 @@ function HomePage() {
   }, [location.pathname, location.state])
 
   useEffect(() => {
-    queueMicrotask(() => setLandingSkyOverride({ timeOfDay: 'sunset', weather: 'sereno' }))
-  }, [setLandingSkyOverride])
+    if (!currentUser) {
+      queueMicrotask(() => setLandingSkyOverride({ timeOfDay: 'sunset', weather: 'sereno' }))
+    } else {
+      queueMicrotask(() => setLandingSkyOverride(null))
+    }
+    return () => {
+      setLandingSkyOverride(null)
+    }
+  }, [currentUser, setLandingSkyOverride])
 
   useEffect(() => {
     if (typeof window === 'undefined') return

@@ -1,134 +1,135 @@
-# CLAUDE.md
+# CLAUDE.md — Onboarding TST 2026
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Guida di onboarding per Claude Code su questo repository. Struttura in tre livelli: stack tecnico, scopo dei componenti, regole di lavoro.
 
-## Commands
+---
 
+## 1. Tech Stack & Struttura
+
+**Stack:** React 19 + Vite 7, JavaScript/JSX (alcuni file in TypeScript: `.ts`), Tailwind CSS 4, Firebase (Auth + Firestore), React Router 7, Framer Motion, Recharts.
+
+**Comandi principali:**
 ```bash
-npm run dev          # dev server (Vite, localhost:5173)
-npm run build        # production build → dist/
-npm run preview      # preview dist/ locally
-npm run lint         # ESLint (flat config, eslint.config.js)
+npm run dev              # dev server (Vite, localhost:5173)
+npm run build             # build produzione → dist/
+npm run preview           # preview di dist/ in locale
+npm run lint               # ESLint (flat config in eslint.config.js)
+npm run optimize:media     # ottimizzazione asset media (scripts/optimize-media.mjs)
+npm run media:landing-hq   # re-encode video landing in HQ
 ```
 
-No test suite is configured. There are no unit tests in this repo.
+⚠️ **Non esiste una test suite** in questo repo (nessun runner configurato). Non chiedere/aspettarti `npm test`.
 
-## Environment
-
-Copy `.env.example` to `.env` and fill in Firebase credentials:
-
+**Struttura cartelle principali:**
 ```
-VITE_FIREBASE_API_KEY=
-VITE_FIREBASE_AUTH_DOMAIN=   # must be <project>.firebaseapp.com (not a custom domain)
-VITE_FIREBASE_PROJECT_ID=
-VITE_FIREBASE_STORAGE_BUCKET=
-VITE_FIREBASE_MESSAGING_SENDER_ID=
-VITE_FIREBASE_APP_ID=
-VITE_AUDIO_BASE_URL=          # optional — base URL for audio files; empty = /audio/N.mp3
+src/
+  pages/          → una pagina per ogni route (LandingPage, NewTestPage, ReportPage, ...)
+  components/      → componenti condivisi; components/report/ = componenti del report TST
+  components/primitives/  → building block UI riusabili
+  config/          → mapping e configurazioni dati (dispositions, galaxy, tema famiglie)
+  content/          → testi narrativi (content_report.json, reportRestitution.js)
+  utils/            → logica di calcolo/derivazione dati per il report
+  firestore/        → accesso a Firestore (query, salvataggio risultati)
+  hooks/, styles/, theme/, plugins/
 ```
 
-`vite.config.js` also accepts `FIREBASE_*` and `NEXT_PUBLIC_FIREBASE_*` prefixes (for Netlify/CI) and bakes them into `__TST_FIREBASE_BUILD__` at build time.
+**Config di progetto:** `vite.config.js` (env Firebase build-time), `tailwind.config.js`, `eslint.config.js`, `.env` / `.env.example` (credenziali Firebase, `VITE_AUDIO_BASE_URL`).
 
-## Architecture
+---
 
-### Provider tree (`main.jsx`)
+## 2. Scopo dei componenti principali
+
+### Provider tree (`src/main.jsx`)
 ```
 BrowserRouter
-  SkyThemeProvider      ← sky background state (weather, time-of-day)
-    UiSoundProvider     ← UI sound effects toggle
-      App               ← header, mobile nav, routes, GDPR banner, ErrorBoundary
+  SkyThemeProvider     ← stato sfondo animato (meteo, ora del giorno)
+    UiSoundProvider    ← toggle suoni UI
+      App              ← header, nav mobile, routing, banner GDPR, ErrorBoundary
 ```
 
-### Routing
-| Route | Page |
-|---|---|
-| `/` | LandingPage — marketing, video background, auth entry point |
-| `/home` | HomePage — personal area after login |
-| `/nuovo-test` | NewTestPage — 72-step audio test |
-| `/tutorial` | TutorialPage — listening tutorial slides |
-| `/risultati` | ResultsPage — test archive |
-| `/risultati/report` | ReportPage — single test report |
-| `/tst` | TstPage — test description |
-| `/profilo` | ProfilePage |
-| `/info` | InfoPage (contacts / privacy) |
-
-`/dashboard-operatore` redirects to `/home` — the operator role is now unified under the same account.
-
-### Test scoring engine (`src/testLogic.js`)
-
-The 72 audio files are grouped into question types, resolved by `getLogicTypeForFile(n)`:
-
-| File range | Type | Options |
+### Routing (`src/pages/`)
+| Route | Pagina | Scopo |
 |---|---|---|
-| 1–4 | `AFFINITA_BASE` | 5 preset options |
-| 5–28, 43–45, 47–57, 59–72 | `DIZIONARIO_1` | 15 sensations |
-| 29–42 | `DIZIONARIO_2` | 14 complex adjectives |
-| 46 | `AFFINITA_ECCEZIONE` | 5 options, weight ×2 |
-| 51, 58 | `AFFINITA_STANDARD` | 5 options, weight ×1 |
+| `/` | LandingPage | marketing, video background, entry point auth |
+| `/home` | HomePage | area personale post-login |
+| `/nuovo-test` | NewTestPage | test audio a 72 step |
+| `/tutorial` | TutorialPage | slide tutorial d'ascolto |
+| `/risultati` | ResultsPage | archivio test svolti |
+| `/risultati/report` | ReportPage | report del singolo test |
+| `/tst` | TstPage | descrizione del test |
+| `/profilo` | ProfilePage | profilo utente |
+| `/info` | InfoPage | contatti / privacy |
 
-Files 42–46 carry weight +2; all others +1. The key function is:
+`/dashboard-operatore` reindirizza a `/home` (ruolo operatore unificato sullo stesso account).
 
-```js
-computeScoreDeltaForAnswer({ fileNumber, answerLabel, affinitaOptionId, isConfirmation })
-// → { [correnteKey]: number, [portatoKey]: number }
-```
+### Motore di scoring (`src/testLogic.js`)
+Elabora le risposte ai 72 file audio. `getLogicTypeForFile(n)` classifica ogni file in un tipo di domanda (AFFINITA_BASE, DIZIONARIO_1/2, AFFINITA_ECCEZIONE, AFFINITA_STANDARD). `computeScoreDeltaForAnswer(...)` converte ogni risposta in punteggio su 11 **correnti emotive** + 3 **portato esperienziale**. Le correnti si aggregano in 5 famiglie colore (BLU→Malinconia, ROSSO→Volitività, VERDE→Calma, GIALLO→Entusiasmo, GRIGIO→Anaffettività) che determinano `Disposizione_Prevalente`.
 
-Each answer scores into one of 11 **correnti emotive** (e.g. `GIALLO_1_Gioia_Entusiasmo`) and one of 3 **portato esperienziale** keys (`PE_Simpatia`, `PE_Antipatia`, `PE_Indifferenza`). The 11 correnti aggregate into 5 colour families that produce `Disposizione_Prevalente`:
+### Schema dati (`src/dbSchema.js`, `src/firestorePaths.js`)
+Collection Firestore `test_results`, ~103 campi per documento: profiling utente, risposte grezze `File_01`…`File_72`, punteggi portato/correnti, esiti finali. Ogni documento è di proprietà del campo `userId` (regole Firestore in `firestore.rules`). Salvataggio via `saveTestResultForUser()` in `src/firestore/testResults.js`.
 
-- **BLU** (BLU_1–4) → Malinconia
-- **ROSSO** (ROSSO_1–2) → Volitività
-- **VERDE** (VERDE_1) → Calma
-- **GIALLO** (GIALLO_1–2) → Entusiasmo
-- **GRIGIO** (GRIGIO_1–2) → Anaffettività
+### Sfondo animato (`src/SkyThemeContext.jsx`)
+Video di sfondo dinamico su tutte le pagine tranne `/`, basato su combinazione `timeOfDay × weather`. Config in `skyVideosConfig.js`, persistita in `localStorage` (`tst_sky_config_v1`).
 
-### Firestore schema (`src/dbSchema.js`, `src/firestorePaths.js`)
+### Componenti del report — file chiave (`src/components/report/`)
+Flusso: `ReportPage` → `ReportShell` (config in `reportSectionsConfig.js`):
+1. **HeroScreen.jsx** — hero di apertura (legenda Natura/Disposizione)
+2. **SintesiCorrenti.jsx** — dati chiave + grafici di presenza
+3. **NavbarTST.jsx** — navigazione interna al report (toggle vista Galassia)
+4. `ProfiloEmotivo` → capitoli Natura, Racconto, Risorse, Ombre
+5. `QuattroRapporti`, `SezionePortatoEsperienziale`, `DialogoCorrenti`
+6. `ParoleStatiAnimo`, `ApprofondimentoSezioni`, `OperatorSection`
+7. `GalassiaView` — vista alternativa via toggle navbar
 
-Collection `test_results`. Each document has ~103 fields:
-- **Blocco A**: profiling (Nome, Cognome, Data_Nascita, Titolo_Studio, Pratica_Musicale, Strumento_Suonato)
-- **Blocco B**: raw answers `File_01`…`File_72` (string — the label chosen)
-- **Blocco C**: PE_Simpatia, PE_Antipatia, PE_Indifferenza (number)
-- **Blocco D**: 11 correnti emotive (number)
-- **Blocco E**: final feedback fields + `Disposizione_Prevalente`, `Sottodisposizione_Prevalente`, `Portato_Esperienziale_Prevalente`
-- `userId`: Firebase Auth UID (set by `saveTestResultForUser()` in `src/firestore/testResults.js`)
+**File di supporto al report:**
+- `src/config/reportFamilyTheme.js` — tema visivo per famiglia colore
+- `src/content_report.json` — testi narrativi del report
+- `src/reportProfiloPdf.js` — generazione PDF del profilo
+- `src/utils/buildReportData.js` — assembla i dati del report dal record Firestore
+- `src/utils/profiloDisplayCopy.js` — etichette e copy di visualizzazione
+- `src/utils/reportRecordUtils.js` — utility sui punteggi/record
 
-Firestore rules: each document is owned by the `userId` field; users can only read/write their own records. Collection `aree` is owned by `operatoreUid`.
+**File secondari (dati/etichette):** `src/testLogic.js`, `src/pages/ResultsPage.jsx`, `src/pages/NewTestPage.jsx`, `src/utils/galassiaData.js`, `src/config/galaxyTheoryContent.ts`, `src/config/dispositions.ts`, `src/config/galaxyDocBridge.ts`, `src/config/semanticConcepts.ts`.
 
-### Sky background system (`src/SkyThemeContext.jsx`)
+### Terminologia da rispettare in copy/label
+- "Malinconica / Nostalgica" = nome della **famiglia** (gruppo BLU) — mai chiamarla "temperamento" isolato.
+- "Lunare" / "Solare" = **qualità** (sotto-tipi) dentro la famiglia BLU, non temperamenti autonomi.
+- "Temperamento" resta corretto solo a livello di famiglia.
 
-Animated video background across all pages except `/`. State: `timeOfDay` (morning/afternoon/sunset/twilight/night) × `weather` (sereno/nuvoloso/caldissimo/neve). `skyVideosConfig.js` maps each combination to a video file in `/public/Video Background/` and a visual profile `{ tone, warmth, intensity }` used for armocromia theming.
+### Convenzioni UI (dettagli in `GUIDA_UI_UX.md`)
+Riusare le classi CSS esistenti — non crearne varianti ad-hoc: `page`, `page-header`, `page-card`, `nav-button primary/secondary/ghost`, `answers-grid`, `feedback-field`, `report-section`. Ogni pagina ha una sola CTA primaria. Flussi lunghi (es. test 72 step) mostrano sempre "Passo N di 72" + progress bar + nome sezione corrente.
 
-- Weather changes automatically every 15 min (simulated clock, not wall clock).
-- `forceRandomWeatherChange()` cycles through `PRIORITY_SKY_SEQUENCE` before going random.
-- Config persisted in `localStorage` key `tst_sky_config_v1`.
-- Toggle static mode (no video, CSS fallback) via header button.
+---
 
-### Report components (`src/components/report/`)
+## 3. Regole di ingaggio e workflow
 
-Active flow: `ReportPage` → `ReportShell` (see `reportSectionsConfig.js`):
+**Root fissa del progetto:** `/Users/alessandrobiavaschi/Downloads/TST 2026 cursor` — posizionarsi sempre qui prima di qualsiasi comando. Ignorare sempre percorsi fuori da questa root (es. `Downloads/App v2`, `Downloads/App v5`, `TST_demo`, `~/package.json`).
 
-1. `HeroScreen` — opening hero (Natura / Disposizione legend, no duplicate activation circles)
-2. `SintesiCorrenti` — key facts + presence charts
-3. `ProfiloEmotivo` — chapters Natura, Racconto, Risorse, Ombre (+ `EmotionalIntegrations` after Ombre when enabled)
-4. `QuattroRapporti`, `SezionePortatoEsperienziale`, `DialogoCorrenti`
-5. `ParoleStatiAnimo`, `ApprofondimentoSezioni` (+ `OperatorSection`)
-6. `GalassiaView` — alternate view via navbar toggle
+**Modalità di lavoro: chirurgica, non esplorativa.**
+- Parti sempre dai file chiave già mappati sopra (sezione 2), non rileggere tutto il progetto ogni volta.
+- Cerca solo le stringhe necessarie al prompt corrente con grep mirato:
+  ```
+  grep -rn "testo" src --include="*.jsx" --include="*.tsx" --include="*.js" --include="*.ts" --include="*.json"
+  ```
+- Modifica solo le righe effettivamente coinvolte — interventi mirati, non refactor.
+- Non toccare layout, scoring, ordine sezioni o logiche interpretative se non esplicitamente richiesto.
+- Se una scelta è ambigua: segnala il dubbio e proponi la soluzione più conservativa — non inventare.
 
-User-facing score copy: **Prevalenza** (sum of points) vs **Presenza** (% resonance in profile) — see `reportUiCopy.js` `REPORT_CRITERION`.
+**Stile e UI**
+- Usare Tailwind e le classi CSS condivise già esistenti (vedi sezione 2) — non introdurre varianti ad-hoc senza motivo.
+- **Non aggiungere mai** micro-titoli, kicker, eyebrow label o soprattitoli nei componenti UI a meno che non siano esplicitamente richiesti: è una scelta stilistica che spetta solo all'utente.
 
-Narrative texts live in `src/content_report.json` and `src/content/reportRestitution.js`. Score utilities in `src/utils/reportRecordUtils.js` and `src/utils/buildReportData.js`.
+**Verifica prima di chiudere un task**
+- Non esiste una test suite: la verifica passa da `npm run lint` e, quando pertinente, da `npm run build`.
+- Dopo ogni modifica fai un grep di controllo per confermare che il cambiamento sia coerente nel resto del codebase.
 
-Landing/home/report video: `public/Video Background/SFONDO LANDING.mp4` via `VideoBackground0311.jsx`. Audio files: optional `VITE_AUDIO_BASE_URL` (no MP3 in repo by default).
+**Report finale di ogni intervento**
+Alla fine di ogni modifica, riportare sempre in modo sintetico:
+- file modificati
+- cosa è cambiato
+- cosa non è stato toccato
+- eventuali dubbi
+- eventuali errori di build/lint
 
-### UI conventions (see `GUIDA_UI_UX.md` for full detail)
-
-Reuse these CSS classes — do not create ad-hoc variants:
-- `page`, `page-header`, `page-card`
-- `nav-button primary` / `nav-button secondary` / `nav-button ghost`
-- `answers-grid`, `feedback-field`, `report-section`
-
-Every page needs a single primary CTA. Long flows (like the 72-step test) must always show "Passo N di 72" + progress bar + current section name.
-
-### Known caveats
-
-- No test runner is configured.
-- `src/plugins/BANANA/` is an experimental plugin (animated flowers) — not part of the main flow.
+**Known caveats**
+- `src/plugins/BANANA/` è un plugin sperimentale (fiori animati), non parte del flusso principale.

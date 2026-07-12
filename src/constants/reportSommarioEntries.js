@@ -20,8 +20,8 @@ const REPORT_SOMMARIO_ENTRIES_ALL = [
   },
   {
     id: 'report-chapter-racconto',
-    label: 'Il tuo Racconto',
-    navLabel: 'Racconto',
+    label: 'La tua Memoria, la tua Esperienza, il tuo Essere Musica',
+    navLabel: 'Memoria, Esperienza, Essere Musica',
     sub: true,
   },
   {

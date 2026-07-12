@@ -1,10 +1,10 @@
 import React, { useMemo, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import ReportPassageHeader from './ReportPassageHeader.jsx'
+import EmotionalShape from './EmotionalShape.jsx'
 import ReportRadarChart from './ReportRadarChart.jsx'
+import SectionDivider from './SectionDivider.jsx'
 import { REPORT_CRITERION, SINTESI_UI, formatAttivazione } from './reportUiCopy.js'
-import ReportCriterionLegend from './ReportCriterionLegend.jsx'
-import InfoTip from './InfoTip.jsx'
 import { normalizeFamigliaName } from '../../content/reportRestitution.js'
 import { FAMILY_THEME } from '../../config/reportFamilyTheme.js'
 import { GlossaryLink } from './ReportGlossaryDrawer.jsx'
@@ -12,47 +12,155 @@ import './SintesiCorrenti.css'
 
 void motion
 
-function famigliaMacroFor(famiglia) {
-  const fam = normalizeFamigliaName(famiglia)
-  return FAMILY_THEME[fam]?.macro || ''
-}
-
-function splitSentences(text) {
-  const trimmed = String(text || '').trim()
-  if (!trimmed) return []
-  return trimmed
-    .split(/(?<=[.!?])\s+/)
-    .map((s) => s.trim())
-    .filter(Boolean)
-}
-
-function joinSentences(sentences) {
-  return sentences.join(' ')
-}
-
-function compactParagraph(text, maxSentences = 2) {
-  const sentences = splitSentences(text)
-  if (sentences.length) return joinSentences(sentences.slice(0, maxSentences))
-  return String(text || '').trim()
-}
-
 /**
  * SintesiCorrenti — distribuzione delle cinque famiglie emotive.
  * Apertura visuale: hero compatto, chip chiave, grafici; narrativa in disclosure.
  */
 
 const FAMILY_REF = {
-  Verde: { color: '#16a34a', pos: { cx: 200, cy: 260 } },
-  Blu: { color: '#2563eb', pos: { cx: 130, cy: 180 } },
-  Rosso: { color: '#dc2626', pos: { cx: 270, cy: 180 } },
-  Giallo: { color: '#ca8a04', pos: { cx: 200, cy: 110 } },
-  Grigio: { color: '#6b7280', pos: { cx: 200, cy: 200 } },
+  Verde: { color: '#16a34a' },
+  Blu: { color: '#2563eb' },
+  Rosso: { color: '#dc2626' },
+  Giallo: { color: '#ca8a04' },
+  Grigio: { color: '#6b7280' },
 }
 const FAMILY_ORDER = ['Verde', 'Blu', 'Rosso', 'Giallo', 'Grigio']
 
-const MAX_RX = 95
-const MIN_RX = 16
-const RY_RATIO = 120 / 110
+const TOTAL_SCORE_RADAR_AXES = [
+  { key: 'verde', corrente: 'Calma' },
+  { key: 'rosso', corrente: 'Volitività' },
+  { key: 'blu', corrente: 'Malinconia' },
+  { key: 'giallo', corrente: 'Entusiasmo' },
+  { key: 'grigio', corrente: 'Anaffettività' },
+]
+
+const FAMILY_LAYOUT = {
+  Giallo: { cx: 200, cy: 78, angle: -90 },
+  Rosso: { cx: 92, cy: 168, angle: -8 },
+  Blu: { cx: 308, cy: 168, angle: 8 },
+  Verde: { cx: 278, cy: 292, angle: -12 },
+  Grigio: { cx: 122, cy: 298, angle: 12 },
+}
+
+const FAMILY_PRESENCE_LABELS = {
+  verde: { title: 'Calma', detail: 'flemmatica' },
+  giallo: { title: 'Entusiasmo', detail: 'gioiosità' },
+  rosso: { title: 'Volitività', detail: 'collerica' },
+  grigio: { title: 'Anaffettività', detail: 'nichilista' },
+  blu: { title: 'Malinconia', detail: 'nostalgica / lunare-solare' },
+}
+
+const FAMILY_FULL_LABELS = {
+  Verde: 'Calma Flemmatica',
+  Giallo: 'Entusiasmo / Gioiosità',
+  Rosso: 'Volitività Collerica',
+  Grigio: 'Anaffettività / Nichilismo',
+  Blu: 'Malinconia / Nostalgica',
+}
+
+// Fonti: docs/fonti-scientifiche/_estratto/MATRICE_TRACCIABILITA.md e
+// docs/fonti-scientifiche/_estratto/STATI_D_ANIMO_IN_4_FAMIGLIE_salvataggio_automatico.txt.
+const BRIEF_SUMMARY_BY_FAMILY = {
+  Blu: {
+    family: "Malinconico - nostalgico",
+    fundamentalPleasure:
+      "il piacere di stare con sé stessi, dell’introversione, dell’osservarsi interiormente e del riflettere su ciò che si è vissuto",
+    qualities: "caratteristiche emotive lunari, solari e nostalgiche",
+    qualitiesByQuality: {
+      Lunare:
+        "una caratteristica Lunare e una Solare. Quella Lunare opera nel chiuso dell’interiorità, su una visione riflessa dell’esperienza emotiva",
+      Solare:
+        "una caratteristica Lunare e una Solare. Quella Solare apre verso il mondo, portando speranza, serenità e fiducia nel futuro",
+      Nostalgica:
+        "una caratteristica riflessiva e una nostalgica. Quella Nostalgica porta a elaborare il passato attraverso il rimpianto o, nel suo volto più luminoso, attraverso la riconoscenza verso ciò che si è vissuto",
+      Depressiva:
+        "una caratteristica introspettiva e una depressiva. Quella Depressiva opera nel chiuso dell’interiorità, scandagliandone gli aspetti più scuri",
+    },
+    orientation: "sé stessi, la memoria, la riflessione e l’interiorità",
+    note: "La tristezza è solo uno dei volti dolorosi della malinconia.",
+    defaultQuality: "Lunare",
+  },
+  Giallo: {
+    family: "Entusiasmo / Gioiosità",
+    fundamentalPleasure:
+      "il piacere del movimento, della curiosità, della scoperta del nuovo e dell’apertura verso il mondo",
+    qualities: "caratteristiche emotive legate alla gioia, all’entusiasmo, alla curiosità e alla solarità",
+    qualitiesByQuality: {
+      Solare:
+        "una caratteristica Solare e una Passionale. Quella Solare si esprime con vivacità, positività e un moto naturale verso il fuori e verso gli altri",
+      "Gioioso-entusiasta":
+        "una caratteristica Solare e una Passionale. Quella Solare si esprime con vivacità, positività e un moto naturale verso il fuori e verso gli altri",
+      Passionale:
+        "una caratteristica Solare e una Passionale. Quella Passionale si esprime con intensità affettiva, trasporto e un profondo senso di fusione con ciò che si ama",
+    },
+    orientation: "il fuori, gli altri, la relazione, la natura, le attività e le possibilità",
+    note: "",
+    defaultQuality: "Solare",
+  },
+  Rosso: {
+    family: "Volitivo-Collerica",
+    fundamentalPleasure:
+      "il piacere del fare, del realizzare ciò che si desidera, del governarsi e del mettersi alla prova",
+    qualities: "caratteristiche emotive legate all’assertività volitiva, al dubbio e alla collera",
+    qualitiesByQuality: {
+      Assertiva:
+        "una caratteristica Assertiva e una del Dubbio. Quella Assertiva si esprime con fermezza, determinazione e volontà di concretizzare nel presente",
+      "Dubbio-collerica":
+        "una caratteristica Assertiva e una del Dubbio. Quella del Dubbio porta all’esitazione e all’ambiguità; quando si esaspera, può trasformarsi in collera",
+    },
+    orientation: "l’azione, la responsabilità, la decisione e la realizzazione",
+    note: "",
+    defaultQuality: "Assertiva",
+  },
+  Verde: {
+    family: "Calma Flemmatica",
+    fundamentalPleasure: "il piacere della lentezza, del riposo, della calma e della contemplazione",
+    qualities:
+      "caratteristiche emotive legate alla pace interiore, alla moderazione, alla prudenza e all’osservazione contemplativa",
+    orientation:
+      "la calma interiore — non per riflettere su sé stessi, ma per trovare quiete ed equilibrio affettivo",
+    note: "",
+    defaultQuality: "Flemmatica",
+  },
+  Grigio: {
+    family: "Anaffettiva / Nichilista",
+    fundamentalPleasure:
+      "il piacere del calcolo, della dubbiosità di origine intellettuale, dell’oggettività e della distanza affettiva",
+    qualities:
+      "caratteristiche emotive legate all’anaffettività, al distacco, al nichilismo e alla dimensione intellettuale",
+    qualitiesByQuality: {
+      Anaffettiva:
+        "una caratteristica Anaffettiva e una della Saggezza. Quella Anaffettiva agisce con gelido distacco intellettuale, osservando ogni cosa senza lasciarsi coinvolgere dalla sfera sentimentale",
+      Distaccata:
+        "una caratteristica Anaffettiva e una della Saggezza. Quella Anaffettiva agisce con gelido distacco intellettuale, osservando ogni cosa senza lasciarsi coinvolgere dalla sfera sentimentale",
+      "Intellettuale-saggia":
+        "una caratteristica Anaffettiva e una della Saggezza. Quella della Saggezza orienta lo stesso sguardo distaccato verso un’osservazione amorevole e compassionevole, aprendosi alla devozione e alla cura dell’altro",
+    },
+    orientation: "il distacco, l’oggettività, l’analisi e la distanza dal coinvolgimento immediato",
+    note: "",
+    defaultQuality: "Anaffettiva",
+  },
+}
+
+function renderBriefSummaryParagraph(paragraph) {
+  if (paragraph === "La tristezza è solo uno dei volti dolorosi della malinconia.") {
+    return <>La tristezza è <em>solo</em> uno dei volti dolorosi della malinconia.</>
+  }
+
+  return paragraph
+}
+
+const MIN_ELLIPSE_RX = 42
+const MAX_ELLIPSE_RX = 74
+const MIN_ELLIPSE_RY = 16
+const MAX_ELLIPSE_RY = 30
+const FAMILY_PANEL_TINT = {
+  Verde: '220, 235, 221',
+  Blu: '218, 228, 238',
+  Rosso: '239, 222, 219',
+  Giallo: '243, 235, 211',
+  Grigio: '231, 233, 236',
+}
 
 function hexToRgb(hex) {
   if (typeof hex !== 'string') return null
@@ -96,51 +204,117 @@ function assignFamilies(correnti) {
   return assigned
 }
 
-function blobPath(cx, cy, rx, ry, seed = 1) {
-  const steps = 6
-  const pts = []
-  for (let i = 0; i < steps; i++) {
-    const angle = (i / steps) * Math.PI * 2
-    const wobble = 0.86 + 0.28 * (Math.sin(seed * 12.9898 + i * 4.233) * 0.5 + 0.5)
-    pts.push({
-      x: cx + Math.cos(angle) * rx * wobble,
-      y: cy + Math.sin(angle) * ry * wobble,
-    })
-  }
-  let d = `M ${pts[0].x.toFixed(2)} ${pts[0].y.toFixed(2)}`
-  for (let i = 0; i < steps; i++) {
-    const p0 = pts[(i - 1 + steps) % steps]
-    const p1 = pts[i]
-    const p2 = pts[(i + 1) % steps]
-    const p3 = pts[(i + 2) % steps]
-    const c1x = p1.x + (p2.x - p0.x) / 6
-    const c1y = p1.y + (p2.y - p0.y) / 6
-    const c2x = p2.x - (p3.x - p1.x) / 6
-    const c2y = p2.y - (p3.y - p1.y) / 6
-    d += ` C ${c1x.toFixed(2)} ${c1y.toFixed(2)}, ${c2x.toFixed(2)} ${c2y.toFixed(2)}, ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}`
-  }
-  return d + ' Z'
-}
-
 function pctAttivazione(peso) {
   return formatAttivazione(peso)
 }
 
-function KeyFactRow({ facts = [] }) {
-  if (!facts.length) return null
-  return (
-    <dl className="sintesi-correnti__key-facts" aria-label="Esiti principali del profilo">
-      {facts.map((fact) => (
-        <div key={fact.id} className="sintesi-correnti__key-fact">
-          <dt className="sintesi-correnti__key-fact-label">{fact.label}</dt>
-          <dd className="sintesi-correnti__key-fact-value">{fact.value}</dd>
-          {fact.method ? (
-            <dd className="sintesi-correnti__key-fact-method">{fact.method}</dd>
-          ) : null}
-        </div>
-      ))}
-    </dl>
-  )
+function buildTotalScoreRadarData(totalScores = {}, correnti = [], assignedFamilies = []) {
+  const valuesByKey = {
+    blu: Number(totalScores.blu) || 0,
+    rosso: Number(totalScores.rosso) || 0,
+    verde: Number(totalScores.verde) || 0,
+    giallo: Number(totalScores.giallo) || 0,
+    grigio: Number(totalScores.grigio) || 0,
+  }
+
+  const hasTotalScores = Object.values(valuesByKey).some((value) => value > 0)
+
+  if (!hasTotalScores) {
+    correnti.forEach((corrente, index) => {
+      const familyName = assignedFamilies[index] || corrente?.familyName || ''
+      const key = corrente?.familyKey || FAMILY_THEME[normalizeFamigliaName(familyName)]?.key
+      if (key && Object.prototype.hasOwnProperty.call(valuesByKey, key)) {
+        valuesByKey[key] = Number(corrente?.peso) || 0
+      }
+    })
+  }
+
+  const sumRaw = Object.values(valuesByKey).reduce((a, b) => a + b, 0)
+  const max = Math.max(...TOTAL_SCORE_RADAR_AXES.map((axis) => valuesByKey[axis.key] || 0), 0)
+
+  return TOTAL_SCORE_RADAR_AXES.map((axis) => {
+    const rawValue = valuesByKey[axis.key] || 0
+    const valore = max > 0 ? Math.min(7, Math.max(1, Math.round((rawValue / max) * 7))) : 1
+    const distributionPercent = sumRaw > 0 ? Number(((rawValue / sumRaw) * 100).toFixed(1)) : 0
+    const familyLabels = {
+      blu: 'Malinconico - nostalgico',
+      giallo: 'Entusiasmo / Gioiosità',
+      rosso: 'Volitività Collerica',
+      verde: 'Calma Flemmatica',
+      grigio: 'Anaffettività / Nichilismo',
+    }
+    return {
+      corrente: axis.corrente,
+      valore,
+      rawValue,
+      familyKey: axis.key,
+      familyLabel: familyLabels[axis.key] || axis.corrente,
+      distributionPercent,
+    }
+  })
+}
+
+function resolveBriefQuality({ familyName, sottodisposizione, correnteDominante }) {
+  const haystack = `${sottodisposizione || ''} ${correnteDominante || ''}`.toLowerCase()
+
+  if (haystack.includes('nostalg')) return 'Nostalgica'
+  if (haystack.includes('depress')) return 'Depressiva'
+  if (haystack.includes('lunare')) return 'Lunare'
+  if (haystack.includes('solare')) return 'Solare'
+  if (haystack.includes('assert') || haystack.includes('marziale')) return 'Assertiva'
+  if (haystack.includes('dubbio') || haystack.includes('collera')) return 'Dubbio-collerica'
+  if (haystack.includes('flemm')) return 'Flemmatica'
+  if (haystack.includes('gioia') || haystack.includes('entusiasm')) return 'Gioioso-entusiasta'
+  if (haystack.includes('passion')) return 'Passionale'
+  if (haystack.includes('saggio') || haystack.includes('intellett')) return 'Intellettuale-saggia'
+  if (haystack.includes('distacc')) return 'Distaccata'
+  if (haystack.includes('anaff')) return 'Anaffettiva'
+
+  return BRIEF_SUMMARY_BY_FAMILY[familyName]?.defaultQuality || 'Flemmatica'
+}
+
+function buildBriefSummary({ familyName, sottodisposizione, correnteDominante }) {
+  const copy = BRIEF_SUMMARY_BY_FAMILY[familyName] || BRIEF_SUMMARY_BY_FAMILY.Verde
+  const quality = resolveBriefQuality({ familyName, sottodisposizione, correnteDominante })
+  const qualitiesText = copy.qualitiesByQuality?.[quality] ?? copy.qualities
+
+  const paragraphs = [
+    `In essa emerge ${copy.fundamentalPleasure}.`,
+    `Al suo interno si distinguono ${qualitiesText}.`,
+    `Chi ne fa parte orienta la propria energia emotiva verso ${copy.orientation}.`,
+  ]
+
+  if (copy.note) paragraphs.push(copy.note)
+
+  return {
+    introFamily: copy.family,
+    introQuality: quality,
+    paragraphs,
+  }
+}
+
+function familyPresenceLabel(item = {}, fallbackFamily = '') {
+  const key = String(item.familyKey || '').toLowerCase()
+  const normalized = normalizeFamigliaName(fallbackFamily || item.familyName || '')
+  const themeKey = FAMILY_THEME[normalized]?.key
+  const label = FAMILY_PRESENCE_LABELS[key || themeKey]
+  if (label) return label
+  return {
+    title: item.label || item.macroLabel || item.nome || fallbackFamily,
+    detail: item.nome && item.nome !== item.label ? item.nome : '',
+  }
+}
+
+function familyFullLabel(familyName) {
+  return FAMILY_FULL_LABELS[familyName] || FAMILY_FULL_LABELS.Verde
+}
+
+function familySectionIntro(dominantFamilyFullLabel) {
+  return [
+    'Nel tuo test visivo sono riportate tutte e cinque le componenti emotive.',
+    `Nonostante dai risultati emerga una prevalenza della famiglia ${dominantFamilyFullLabel}, le altre famiglie rimangono comunque presenti e contribuiscono, con intensità differenti, alla costruzione della tua identità emotiva.`,
+    'Verifica, attraverso i grafici, come le diverse componenti si relazionano tra loro.',
+  ]
 }
 
 function SintesiDisclosure({ id, title, defaultOpen = false, children, className = '' }) {
@@ -178,161 +352,132 @@ function SintesiDisclosure({ id, title, defaultOpen = false, children, className
   )
 }
 
+
 export default function SintesiCorrenti({
   correnti = [],
   correnteDominante = '',
-  focus = '',
-  userName = '',
+  _userName = '',
   correnteColore = '',
   famiglia = '',
-  sintesiLead = '',
-  sintesiKeyFacts = [],
-  sintesiLeadExtended = [],
-  sintesiParagrafi = [],
-  datiRadar = null,
+  datiRadar: _datiRadar = null,
+  totalScores = null,
   sottocorrenti = [],
-  onOpenGlossary,
+  onOpenGlossary: _onOpenGlossary,
   sottodisposizione = '',
-  portato = null,
+  stepPrefix = '1',
 }) {
   const prefersReducedMotion = useReducedMotion()
-  const [hovered, setHovered] = useState(null)
+  const [activeDetailFamily, setActiveDetailFamily] = useState(null)
 
-  const radarData = useMemo(() => {
-    if (Array.isArray(datiRadar) && datiRadar.length) return datiRadar
-    return correnti.map((c) => ({
-      corrente: c.nome,
-      valore: Number(c.peso) || 0,
-    }))
-  }, [datiRadar, correnti])
+  const [isMobileViewport, setIsMobileViewport] = useState(false)
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return undefined
+    const media = window.matchMedia('(max-width: 768px)')
+    const sync = () => setIsMobileViewport(media.matches)
+    sync()
+    media.addEventListener('change', sync)
+    return () => media.removeEventListener('change', sync)
+  }, [])
+
+
 
   const families = useMemo(() => assignFamilies(correnti), [correnti])
-  const maxPeso = useMemo(
-    () => correnti.reduce((m, c) => Math.max(m, Number(c.peso) || 0), 0) || 1,
-    [correnti],
-  )
 
-  const blobs = useMemo(() => {
-    return correnti.map((c, idx) => {
-      const family = families[idx]
-      const ref = FAMILY_REF[family] || FAMILY_REF.Grigio
-      const peso = Number(c.peso) || 0
-      const rx = Math.max(MIN_RX, Math.min(MAX_RX, MAX_RX * Math.sqrt(peso / maxPeso)))
-      const ry = rx * RY_RATIO
-      const color = c.colore || ref.color
-      return {
-        key: `${family}-${idx}`,
-        nome: c.nome || family,
-        peso,
-        color,
-        pos: ref.pos,
-        path: blobPath(ref.pos.cx, ref.pos.cy, rx, ry, idx + 1),
-        ry,
-      }
-    })
-  }, [correnti, families, maxPeso])
+
 
   const ordered = useMemo(() => {
     return correnti
-      .map((c, idx) => ({ ...c, _idx: idx, color: c.colore || FAMILY_REF[families[idx]]?.color }))
+      .map((c, idx) => ({ ...c, _idx: idx, color: c.colore || FAMILY_REF[families[idx]]?.color, family: families[idx] }))
       .sort((a, b) => (Number(b.peso) || 0) - (Number(a.peso) || 0))
   }, [correnti, families])
 
-  const topSottocorrenti = useMemo(() => {
-    return (Array.isArray(sottocorrenti) ? sottocorrenti : [])
-      .filter((sub) => (Number(sub?.valore) || 0) > 0 || (Number(sub?.percentuale) || 0) > 0)
-      .slice(0, 6)
-  }, [sottocorrenti])
+  const totalScoreRadarData = useMemo(
+    () => buildTotalScoreRadarData(totalScores || {}, correnti, families),
+    [totalScores, correnti, families],
+  )
 
   const accentColor =
     correnteColore || ordered[0]?.color || correnti[0]?.colore || FAMILY_REF.Verde.color
 
-  const famigliaMacro = famigliaMacroFor(famiglia)
-  const famigliaPrevalenteLabel = famigliaMacro || correnteDominante || ''
+  const dominantFamilyName = normalizeFamigliaName(famiglia)
+  const dominantPresenceLabel = familyPresenceLabel({ familyName: dominantFamilyName }, dominantFamilyName)
+  const dominantFamilyFullLabel = familyFullLabel(dominantFamilyName)
 
-  const leadSentences = useMemo(() => splitSentences(sintesiLead), [sintesiLead])
-  const leadShort = useMemo(() => joinSentences(leadSentences.slice(0, 1)), [leadSentences])
+  React.useEffect(() => {
+    if (totalScoreRadarData.length > 0 && !activeDetailFamily) {
+      const dominant = totalScoreRadarData.find(
+        (d) => d.familyKey.toLowerCase() === (famiglia || '').toLowerCase()
+      )
+      setActiveDetailFamily(dominant || totalScoreRadarData[0])
+    }
+  }, [totalScoreRadarData, famiglia, activeDetailFamily])
 
-  const keyFacts = useMemo(() => {
-    if (Array.isArray(sintesiKeyFacts) && sintesiKeyFacts.length) {
-      return sintesiKeyFacts
+  const renderDetailPanel = () => {
+    if (!activeDetailFamily) return null
+    const colors = {
+      verde: '#16a34a',
+      blu: '#2563eb',
+      rosso: '#dc2626',
+      giallo: '#ca8a04',
+      grigio: '#6b7280',
     }
-    const fallback = []
-    if (famigliaPrevalenteLabel) {
-      fallback.push({
-        id: 'famiglia',
-        label: SINTESI_UI.cardFamiglia,
-        value: famigliaPrevalenteLabel,
-        method: SINTESI_UI.prevalenzaMethod,
-      })
-    }
-    if (sottodisposizione) {
-      fallback.push({
-        id: 'sfumatura',
-        label: SINTESI_UI.chipSottodisposizione,
-        value: sottodisposizione,
-        method: SINTESI_UI.sottodisposizioneMethod,
-      })
-    }
-    if (focus) {
-      fallback.push({
-        id: 'orientamento',
-        label: SINTESI_UI.chipOrientamento,
-        value: focus,
-        method: 'Descrittivo',
-      })
-    }
-    if (portato?.prevalenteLabel) {
-      fallback.push({
-        id: 'portato',
-        label: SINTESI_UI.chipPortato,
-        value: portato.prevalenteLabel,
-        method: 'Voce con più punti',
-      })
-    }
-    return fallback
-  }, [
-    sintesiKeyFacts,
-    famigliaPrevalenteLabel,
+    const accent = colors[activeDetailFamily.familyKey] || '#94a3b8'
+    return (
+      <div className="sintesi-correnti__detail-panel" style={{
+        marginTop: '1.5rem',
+        padding: '1.25rem',
+        background: 'rgba(255, 255, 255, 0.05)',
+        border: `1px solid rgba(255, 255, 255, 0.1)`,
+        borderLeft: `4px solid ${accent}`,
+        borderRadius: '8px',
+        width: '100%',
+        boxSizing: 'border-box',
+        textAlign: 'left'
+      }}>
+        <h4 style={{ margin: '0 0 0.75rem', fontSize: '1.1rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          Famiglia: {activeDetailFamily.familyLabel}
+        </h4>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1rem', color: 'rgba(255, 255, 255, 0.85)' }}>
+          <div>
+            <p style={{ margin: '0.25rem 0', fontSize: '0.9rem' }}><strong>Punteggio grezzo:</strong> {activeDetailFamily.rawValue}</p>
+            <p style={{ margin: '0.25rem 0', fontSize: '0.9rem' }}><strong>Scala 7:</strong> {activeDetailFamily.valore} / 7</p>
+          </div>
+          <div>
+            <p style={{ margin: '0.25rem 0', fontSize: '0.9rem' }}><strong>Distribuzione interiore:</strong> {activeDetailFamily.distributionPercent}%</p>
+          </div>
+        </div>
+        <p style={{ margin: '0.75rem 0 0', fontSize: '0.8rem', color: 'rgba(255, 255, 255, 0.5)', borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '0.5rem' }}>
+          Calcolo 1–7: arrotondamento di ({activeDetailFamily.rawValue} / punteggio grezzo
+          massimo) × 7. Distribuzione: {activeDetailFamily.rawValue} diviso per la somma dei
+          punteggi delle cinque famiglie emotive.
+        </p>
+      </div>
+    )
+  }
+
+  const briefSummary = buildBriefSummary({
+    familyName: dominantFamilyName,
     sottodisposizione,
-    focus,
-    portato,
-  ])
+    correnteDominante,
+  })
+  const familyIntroParagraphs = familySectionIntro(briefSummary.introFamily)
 
-  const extendedBlocks = useMemo(() => {
-    const blocks = []
-    if (leadSentences.length > 1) {
-      blocks.push(joinSentences(leadSentences.slice(1)))
-    }
-    if (Array.isArray(sintesiLeadExtended)) {
-      sintesiLeadExtended.forEach((p) => {
-        if (p) blocks.push(p)
-      })
-    }
-    return blocks.filter(Boolean)
-  }, [leadSentences, sintesiLeadExtended])
+  const familySottocorrenti = (Array.isArray(sottocorrenti) ? sottocorrenti : [])
+    .filter((sub) => normalizeFamigliaName(sub?.familyName) === dominantFamilyName)
+    .sort((a, b) => {
+      if ((Number(b.percentuale) || 0) !== (Number(a.percentuale) || 0)) {
+        return (Number(b.percentuale) || 0) - (Number(a.percentuale) || 0)
+      }
+      return (Number(b.valore) || 0) - (Number(a.valore) || 0)
+    })
 
-  const summaryParagraphs = useMemo(() => {
-    const paragraphs = []
-    const add = (value, maxSentences = 2) => {
-      const paragraph = compactParagraph(value, maxSentences)
-      if (!paragraph || paragraphs.includes(paragraph)) return
-      paragraphs.push(paragraph)
-    }
+  const summarySottocorrenti = familySottocorrenti
 
-    add(leadShort, 1)
-    add(extendedBlocks[0] || (Array.isArray(sintesiParagrafi) ? sintesiParagrafi[0] : ''), 2)
-
-    return paragraphs.slice(0, 2)
-  }, [leadShort, extendedBlocks, sintesiParagrafi])
-
-  const summaryTitle = famigliaPrevalenteLabel
-    ? `Prevale ${famigliaPrevalenteLabel}`
-    : 'Sintesi del profilo'
-  const summarySubtitle = sottodisposizione
-    ? `Sfumatura principale: ${sottodisposizione}`
-    : correnteDominante || ''
-  const summarySottocorrenti = topSottocorrenti.slice(0, 3)
+  const sottocorrenteDisplayName = (nome) => {
+    if (nome === 'Lunare') return 'Caratteristica Lunare'
+    if (nome === 'Nostalgia') return 'Nostalgica'
+    return nome
+  }
 
   const viewport = { once: true, amount: 0.15 }
   const sectionFade = prefersReducedMotion
@@ -344,313 +489,371 @@ export default function SintesiCorrenti({
         transition: { duration: 0.45 },
       }
 
-  const petalEnter = prefersReducedMotion
-    ? {}
-    : {
-        initial: { opacity: 0 },
-        whileInView: { opacity: 1 },
-        viewport,
-        transition: { duration: 0.35 },
-      }
+  if (isMobileViewport) {
+    return (
+      <section
+        id="prima-sintesi-risultato"
+        className="sintesi-correnti sintesi-correnti--mobile"
+        aria-labelledby="sintesi-correnti-heading"
+        style={{ '--sc-accent': accentColor }}
+      >
+        <ReportPassageHeader
+          step={`${stepPrefix}.1`}
+          eyebrow={SINTESI_UI.eyebrow}
+          title={briefSummary.introQuality}
+          lead={SINTESI_UI.subtitle}
+          accentColor={accentColor}
+          titleId="sintesi-correnti-heading"
+        />
 
-  const visibleTitle = userName
-    ? `${SINTESI_UI.title} — ${userName}`
-    : SINTESI_UI.title
+        {/* Unified Editorial Summary Card */}
+        <div className="sintesi-editorial-card">
+          <div className="sintesi-editorial-text">
+            <p className="sintesi-editorial-body">
+              La tua famiglia emotiva di appartenenza è{' '}
+              <strong>{briefSummary.introFamily}</strong> e la sua caratteristica emotiva
+              (sottofamiglia) prevalente è <strong>{briefSummary.introQuality}</strong>.
+            </p>
+            <p className="sintesi-editorial-body">
+              Questa famiglia emotiva appartiene a una delle 5 forze emotive comuni a tutti.
+            </p>
+            {briefSummary.paragraphs.map((paragraph) => (
+              <p key={paragraph} className="sintesi-editorial-body">
+                {renderBriefSummaryParagraph(paragraph)}
+              </p>
+            ))}
+          </div>
+        </div>
+
+        <SectionDivider />
+
+        {/* b) Attivazione (numbers/bars come after explanation) */}
+        <div id="report-tst-grafici" className="report-tst-section-anchor sintesi-mobile-activation">
+          <div className="sintesi-family-intro" style={{ borderBottom: 'none', paddingBottom: 0 }}>
+            <ReportPassageHeader
+              step={`${stepPrefix}.2`}
+              eyebrow="Distribuzione"
+              title={SINTESI_UI.distribuzioneTitle}
+              accentColor={accentColor}
+            />
+            <div className="sintesi-family-intro__text">
+              {familyIntroParagraphs.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
+            </div>
+          </div>
+          <ul className="sintesi-mobile-bars-list">
+            {ordered.map((c, i) => {
+              const peso = Number(c.peso) || 0
+              const barColor = c.color
+              const label = familyPresenceLabel(c)
+              const isActive = activeDetailFamily?.familyKey === c.familyKey
+              return (
+                <li
+                  className={`sintesi-mobile-bar-row${isActive ? ' sintesi-mobile-bar-row--active' : ''}`}
+                  key={`bar-${c.nome}-${c._idx}`}
+                  onClick={() => {
+                    const radarItem = totalScoreRadarData.find(d => d.familyKey === c.familyKey)
+                    if (radarItem) setActiveDetailFamily(radarItem)
+                  }}
+                  style={{ cursor: 'pointer', borderRadius: '6px', padding: '0.25rem 0.5rem', transition: 'background-color 0.2s ease' }}
+                >
+                  <div className="sintesi-mobile-bar-row-info">
+                    <div className="sintesi-mobile-bar-row-left">
+                      <span className="sintesi-mobile-bar-rank">{String(i + 1).padStart(2, '0')}</span>
+                      <span className="sintesi-mobile-bar-dot" style={{ backgroundColor: barColor }} />
+                      <span className="sintesi-mobile-bar-name">
+                        <strong>{label.title}</strong>
+                        {label.detail ? (
+                          <span className="sintesi-mobile-bar-subname"> {label.detail}</span>
+                        ) : null}
+                      </span>
+                    </div>
+                    <span className="sintesi-mobile-bar-pct">{pctAttivazione(peso)}</span>
+                  </div>
+                  <div className="sintesi-mobile-bar-track">
+                    <motion.div
+                      className="sintesi-mobile-bar-fill"
+                      style={{ backgroundColor: barColor }}
+                      initial={prefersReducedMotion ? false : { width: '0%' }}
+                      whileInView={{ width: `${Math.min(100, Math.max(0, peso))}%` }}
+                      viewport={viewport}
+                      transition={prefersReducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 90, damping: 18, delay: i * 0.1 }}
+                    />
+                  </div>
+                </li>
+              )
+            })}
+          </ul>
+        </div>
+
+        {/* Sottocorrenti */}
+        {summarySottocorrenti.length > 0 ? (
+          <div className="sintesi-mobile-subcurrents">
+            <h3 className="sintesi-mobile-section-title">
+              Sottocategorie di {dominantPresenceLabel.title.toLowerCase()}
+            </h3>
+            <p className="sintesi-mobile-explanation">
+              All’interno di questa famiglia, il test evidenzia le caratteristiche emotive specifiche che
+              contribuiscono a definire meglio la tua appartenenza.
+            </p>
+            <ul className="sintesi-mobile-subcurrents-list">
+              {summarySottocorrenti.map((sub) => (
+                <li key={sub.rawKey} className="sintesi-mobile-subcurrent-card">
+                  <span
+                    className="sintesi-mobile-subcurrent-dot"
+                    style={{ backgroundColor: sub.colore }}
+                  />
+                  <div className="sintesi-mobile-subcurrent-text">
+                    <span className="sintesi-mobile-subcurrent-name">{sottocorrenteDisplayName(sub.nome)}</span>
+                  </div>
+                  <span className="sintesi-mobile-subcurrent-val">
+                    {pctAttivazione(sub.percentuale)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+
+        {/* Visualizer and Legend (radar chart scaled for mobile viewport) */}
+        <div className="sintesi-mobile-visuals">
+          <h3 className="sintesi-mobile-section-title">Visualizzazione Grafica</h3>
+          <p className="sintesi-mobile-explanation">
+            La forma visiva del tuo carattere emotivo. Le 5 componenti convivono nello stesso spazio.
+          </p>
+          <div className="sintesi-mobile-radar-container">
+            <div className="sintesi-correnti__total-radar">
+              <p className="sintesi-correnti__radar-label">Total score</p>
+              <p className="sintesi-correnti__radar-caption">
+                Scala 1-7 derivata dai punteggi totali delle delle cinque famiglie.
+              </p>
+              <ReportRadarChart
+                data={totalScoreRadarData}
+                color={accentColor}
+                height={300}
+                outerRadius="72%"
+                domain={[1, 7]}
+                className="sintesi-correnti__total-radar-chart"
+                ariaLabel="Grafico radar del total score delle cinque famiglie emotive"
+                onFamilySelect={(key) => {
+                  const radarItem = totalScoreRadarData.find(d => d.familyKey === key)
+                  if (radarItem) setActiveDetailFamily(radarItem)
+                }}
+              />
+            </div>
+            <EmotionalShape familiesData={ordered} />
+          </div>
+          {renderDetailPanel()}
+        </div>
+
+
+      </section>
+    )
+  }
 
   return (
     <section
+      id="prima-sintesi-risultato"
       className="sintesi-correnti"
       aria-labelledby="sintesi-correnti-heading"
       style={{ '--sc-accent': accentColor }}
     >
       <ReportPassageHeader
-        step="1"
+        step={`${stepPrefix}.1`}
         eyebrow={SINTESI_UI.eyebrow}
-        title={visibleTitle}
+        title={briefSummary.introQuality}
         lead={SINTESI_UI.subtitle}
         accentColor={accentColor}
         titleId="sintesi-correnti-heading"
       />
 
       <div className="sintesi-correnti__summary">
-        <div className="sintesi-correnti__answer-card">
-          <div className="sintesi-correnti__answer-main">
-            <p className="sintesi-correnti__answer-eyebrow">Sintesi chiara</p>
-            <h3 className="sintesi-correnti__answer-title">
-              {summaryTitle}
-              {summarySubtitle ? (
-                <span className="sintesi-correnti__answer-subtitle">{summarySubtitle}</span>
-              ) : null}
-            </h3>
-            {summaryParagraphs.map((paragraph, index) => (
-              <p key={`${index}-${paragraph.slice(0, 52)}`} className="sintesi-correnti__answer-copy">
-                {paragraph}
+        {/* Unified Editorial Summary Card */}
+        <div className="sintesi-editorial-card">
+          <div className="sintesi-editorial-text">
+            <p className="sintesi-editorial-body">
+              La tua famiglia emotiva di appartenenza è{' '}
+              <strong>{briefSummary.introFamily}</strong> e la sua caratteristica emotiva
+              (sottofamiglia) prevalente è <strong>{briefSummary.introQuality}</strong>.
+            </p>
+            <p className="sintesi-editorial-body">
+              Questa famiglia emotiva appartiene a una delle 5 forze emotive comuni a tutti.
+            </p>
+            {briefSummary.paragraphs.map((paragraph) => (
+              <p key={paragraph} className="sintesi-editorial-body">
+                {renderBriefSummaryParagraph(paragraph)}
               </p>
             ))}
-            {summarySottocorrenti.length > 0 ? (
-              <div className="sintesi-correnti__answer-subcurrents">
-                <span className="sintesi-correnti__answer-subcurrents-label">
-                  Sottocorrenti più attive
-                </span>
-                <ul className="sintesi-correnti__answer-subcurrents-list">
-                  {summarySottocorrenti.map((sub) => (
-                    <li key={sub.rawKey} className="sintesi-correnti__answer-subcurrent">
-                      <span
-                        className="sintesi-correnti__answer-subcurrent-dot"
-                        style={{ backgroundColor: sub.colore }}
-                        aria-hidden="true"
-                      />
-                      <span className="sintesi-correnti__answer-subcurrent-name">{sub.nome}</span>
-                      <span className="sintesi-correnti__answer-subcurrent-value">
-                        {pctAttivazione(sub.percentuale)}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ) : null}
-          </div>
-          <div className="sintesi-correnti__answer-side">
-            <KeyFactRow facts={keyFacts} />
           </div>
         </div>
 
-        <header className="sintesi-correnti__hero sintesi-correnti__hero--secondary">
-          <p className="sintesi-correnti__prevalenza-nota">{SINTESI_UI.prevalenzaNota}</p>
-          <p className="sintesi-correnti__disclaimer">{SINTESI_UI.disclaimerShort}</p>
-          <div className="sintesi-correnti__criterion-legend-wrap">
-            <ReportCriterionLegend
-              variant="full"
-              className="sintesi-correnti__criterion-legend"
+        <div className="sintesi-divider-container" style={{ gridColumn: '1 / -1', width: '100%', marginBottom: '2.5rem' }}>
+          <SectionDivider />
+        </div>
+
+        <div id="report-tst-grafici" className="report-tst-section-anchor sintesi-correnti__container sintesi-correnti__order-visuals">
+          <div className="sintesi-family-intro" style={{ borderBottom: 'none', paddingBottom: 0 }}>
+            <ReportPassageHeader
+              step={`${stepPrefix}.2`}
+              eyebrow="Distribuzione"
+              title={SINTESI_UI.distribuzioneTitle}
+              accentColor={accentColor}
             />
-            <InfoTip
-              glossaryId="configurazione-prevalente"
-              term="Prevalenza"
-              variant="button"
-              className="sintesi-correnti__info-tip"
-            />
-            <InfoTip
-              tip={REPORT_CRITERION.attivazioneTooltip}
-              term="Presenza"
-              variant="button"
-              className="sintesi-correnti__info-tip"
-            />
+            <div className="sintesi-family-intro__text">
+              {familyIntroParagraphs.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
+            </div>
           </div>
-        </header>
 
-        <div className="sintesi-correnti__container sintesi-correnti__order-visuals">
-          <h3 className="sintesi-correnti__section-title">{SINTESI_UI.distribuzioneTitle}</h3>
-          <p className="sintesi-correnti__section-caption">{SINTESI_UI.distribuzioneCaption}</p>
-          <div className="sintesi-correnti__visual sintesi-correnti__visual--desktop">
-            <motion.div
-              className="sintesi-correnti__flower sintesi-correnti__order-flower"
-              {...sectionFade}
-            >
-              <svg
-                className="sintesi-correnti__svg"
-                viewBox="0 0 400 400"
-                role="group"
-                aria-label={SINTESI_UI.flowerAriaLabel}
-                preserveAspectRatio="xMidYMid meet"
-              >
-                <g className="sintesi-correnti__petals">
-                  {blobs.map((b, i) => {
-                    const isHovered = hovered === i
-                    const isDimmed = hovered !== null && hovered !== i
-                    const fillOpacity = isHovered ? 0.9 : isDimmed ? 0.45 : 0.72
-
-                    return (
-                      <motion.g
-                        key={b.key}
-                        {...petalEnter}
-                        transition={{
-                          ...petalEnter.transition,
-                          delay: prefersReducedMotion ? 0 : i * 0.06,
-                        }}
-                        onMouseEnter={() => setHovered(i)}
-                        onMouseLeave={() => setHovered((h) => (h === i ? null : h))}
-                        onFocus={() => setHovered(i)}
-                        onBlur={() => setHovered((h) => (h === i ? null : h))}
-                        tabIndex={0}
-                        role="img"
-                        aria-label={`${b.nome}, ${REPORT_CRITERION.attivazione} ${pctAttivazione(b.peso)}`}
-                      >
-                        <motion.path
-                          d={b.path}
-                          fill={b.color}
-                          stroke={b.color}
-                          strokeOpacity={0.35}
-                          strokeWidth={1.25}
-                          animate={{ fillOpacity }}
-                          transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
-                          style={{ cursor: 'pointer' }}
-                        />
-                      </motion.g>
-                    )
-                  })}
-                </g>
-
-                {hovered !== null && blobs[hovered] && (
-                  <g
-                    pointerEvents="none"
-                    transform={`translate(${blobs[hovered].pos.cx}, ${
-                      blobs[hovered].pos.cy - blobs[hovered].ry - 14
-                    })`}
-                  >
-                    <rect
-                      x={-72}
-                      y={-22}
-                      width={144}
-                      height={30}
-                      rx={8}
-                      fill="#0b1020"
-                      fillOpacity={0.95}
-                      stroke={blobs[hovered].color}
-                      strokeOpacity={0.45}
-                    />
-                    <text
-                      x={0}
-                      y={-2}
-                      textAnchor="middle"
-                      fill="#f8fafc"
-                      fontSize={13}
-                      fontFamily="var(--font-display)"
-                    >
-                      {blobs[hovered].nome} · Attivazione {pctAttivazione(blobs[hovered].peso)}
-                    </text>
-                  </g>
-                )}
-              </svg>
-            </motion.div>
-
+          <div className="sintesi-correnti__analysis-grid">
             <motion.div
               className="sintesi-correnti__radar sintesi-correnti__order-radar"
               {...sectionFade}
               transition={{ ...sectionFade.transition, delay: prefersReducedMotion ? 0 : 0.12 }}
             >
-              <p className="sintesi-correnti__radar-label">{SINTESI_UI.radarTitle}</p>
-              {SINTESI_UI.radarCaption ? (
-                <p className="sintesi-correnti__radar-caption">{SINTESI_UI.radarCaption}</p>
-              ) : null}
-              <ReportRadarChart
-                data={radarData}
-                color={accentColor}
-                height={220}
-                domain={[0, 100]}
-                scaleLabel="Presenza %"
-                className="sintesi-correnti__radar-chart"
-                ariaLabel={SINTESI_UI.radarAriaLabel}
-              />
-            </motion.div>
-          </div>
-
-          <div className="sintesi-correnti__data">
-            <div className="sintesi-correnti__data-head">
-              <div className="sintesi-correnti__data-head-copy">
-                <span className="sintesi-correnti__kicker">{SINTESI_UI.distribuzioneTitle}</span>
-                {SINTESI_UI.distribuzioneOrderLabel ? (
-                  <p className="sintesi-correnti__data-order">
-                    {SINTESI_UI.distribuzioneOrderLabel}
+              <div className="sintesi-correnti__visual-panel sintesi-correnti__visual-panel--radar">
+                <div className="sintesi-correnti__total-radar">
+                  <p className="sintesi-correnti__radar-label">Total score</p>
+                  <p className="sintesi-correnti__radar-caption">
+                    Scala 1-7 derivata dai punteggi totali delle cinque famiglie.
                   </p>
-                ) : null}
-                {SINTESI_UI.distribuzioneCaption ? (
-                  <p className="sintesi-correnti__data-caption">{SINTESI_UI.distribuzioneCaption}</p>
-                ) : null}
-              </div>
-            </div>
-            <ul className="sintesi-correnti__list sintesi-correnti__order-bars">
-              {ordered.map((c, i) => {
-                const peso = Number(c.peso) || 0
-                const barColor = c.color
-                const fillTransition = prefersReducedMotion
-                  ? { duration: 0 }
-                  : {
-                      type: 'spring',
-                      stiffness: 90,
-                      damping: 18,
-                      delay: i * 0.12,
-                    }
-                return (
-                  <li className="sintesi-correnti__row" key={`${c.nome}-${c._idx}`}>
-                    <span className="sintesi-correnti__rank" aria-hidden="true">
-                      {String(i + 1).padStart(2, '0')}
-                    </span>
-                    <span
-                      className="sintesi-correnti__dot"
-                      style={{ backgroundColor: barColor }}
-                      aria-hidden
-                    />
-                    <span className="sintesi-correnti__row-name">
-                      <span className="sintesi-correnti__row-macro">{c.label || c.nome}</span>
-                      {c.label && c.nome && c.label !== c.nome ? (
-                        <span className="sintesi-correnti__row-temp">{c.nome}</span>
-                      ) : null}
-                    </span>
-                    <span className="sintesi-correnti__bar-track">
-                      <motion.span
-                        className="sintesi-correnti__bar-fill"
-                        style={{ backgroundColor: barColor }}
-                        initial={prefersReducedMotion ? false : { width: '0%' }}
-                        whileInView={{ width: `${Math.min(100, Math.max(0, peso))}%` }}
-                        viewport={viewport}
-                        transition={fillTransition}
-                      />
-                    </span>
-                    <span
-                      className="sintesi-correnti__row-pct"
-                      title={REPORT_CRITERION.attivazione}
-                    >
-                      <span className="sintesi-correnti__row-pct-label" aria-hidden="true">
-                        {REPORT_CRITERION.attivazioneShort}
-                      </span>
-                      <span className="sr-only">{REPORT_CRITERION.attivazione}: </span>
-                      {pctAttivazione(peso)}
-                    </span>
-                  </li>
-                )
-              })}
-            </ul>
-
-            {topSottocorrenti.length > 0 ? (
-              <div className="sintesi-correnti__subcurrents">
-                <div className="sintesi-correnti__subcurrents-head">
-                  <span className="sintesi-correnti__subcurrents-title">
-                    {SINTESI_UI.subcurrentsTitle}
-                  </span>
-                  <span className="sintesi-correnti__subcurrents-count">
-                    {topSottocorrenti.length}
-                  </span>
+                  <ReportRadarChart
+                    data={totalScoreRadarData}
+                    color={accentColor}
+                    height={420}
+                    outerRadius="72%"
+                    domain={[1, 7]}
+                    className="sintesi-correnti__total-radar-chart"
+                    ariaLabel="Grafico radar del total score delle cinque famiglie emotive"
+                    onFamilySelect={(key) => {
+                      const radarItem = totalScoreRadarData.find(d => d.familyKey === key)
+                      if (radarItem) setActiveDetailFamily(radarItem)
+                    }}
+                  />
                 </div>
-                <ul className="sintesi-correnti__subcurrents-list">
-                  {topSottocorrenti.map((sub) => (
-                    <li key={sub.rawKey} className="sintesi-correnti__subcurrent">
-                      <span
-                        className="sintesi-correnti__subcurrent-dot"
-                        style={{ backgroundColor: sub.colore }}
-                        aria-hidden="true"
-                      />
-                      <span className="sintesi-correnti__subcurrent-main">
-                        <span className="sintesi-correnti__subcurrent-name">{sub.nome}</span>
-                        <span className="sintesi-correnti__subcurrent-meta">
-                          {sub.familyName}
-                          {sub.shadeLabel ? ` · ${sub.shadeLabel}` : ''}
-                        </span>
-                      </span>
-                      <span
-                        className="sintesi-correnti__subcurrent-value"
-                        title={REPORT_CRITERION.attivazione}
-                      >
-                        {pctAttivazione(sub.percentuale)}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
               </div>
-            ) : null}
+              <div className="sintesi-correnti__visual-panel sintesi-correnti__visual-panel--ellipses">
+                <EmotionalShape familiesData={ordered} height="100%" />
+              </div>
+            </motion.div>
 
-            <p className="sintesi-correnti__editorial sintesi-correnti__order-note">
-              {SINTESI_UI.editorialNote}
-            </p>
+            <div className="sintesi-correnti__side-metrics">
+              <div className="sintesi-correnti__data">
+                <div className="sintesi-correnti__data-head">
+                  <div className="sintesi-correnti__data-head-copy">
+                    <span className="sintesi-correnti__kicker">{SINTESI_UI.distribuzioneTitle}</span>
+                    {SINTESI_UI.distribuzioneOrderLabel ? (
+                      <p className="sintesi-correnti__data-order">
+                        {SINTESI_UI.distribuzioneOrderLabel}
+                      </p>
+                    ) : null}
+                    {SINTESI_UI.distribuzioneCaption ? (
+                      <p className="sintesi-correnti__data-caption">{SINTESI_UI.distribuzioneCaption}</p>
+                    ) : null}
+                  </div>
+                </div>
+                <ul className="sintesi-correnti__list sintesi-correnti__order-bars">
+                  {ordered.map((c, i) => {
+                    const peso = Number(c.peso) || 0
+                    const barColor = c.color
+                    const label = familyPresenceLabel(c)
+                    const fillTransition = prefersReducedMotion
+                      ? { duration: 0 }
+                      : {
+                          type: 'spring',
+                          stiffness: 90,
+                          damping: 18,
+                          delay: i * 0.12,
+                        }
+                    return (
+                      <li
+                        className={`sintesi-correnti__row${activeDetailFamily?.familyKey === c.familyKey ? ' sintesi-correnti__row--active' : ''}`}
+                        key={`${c.nome}-${c._idx}`}
+                        onClick={() => {
+                          const radarItem = totalScoreRadarData.find(d => d.familyKey === c.familyKey)
+                          if (radarItem) setActiveDetailFamily(radarItem)
+                        }}
+                        style={{ cursor: 'pointer', borderRadius: '6px', padding: '0.25rem 0.5rem', transition: 'background-color 0.2s ease' }}
+                      >
+                        <span className="sintesi-correnti__rank" aria-hidden="true">
+                          {String(i + 1).padStart(2, '0')}
+                        </span>
+                        <span
+                          className="sintesi-correnti__dot"
+                          style={{ backgroundColor: barColor }}
+                          aria-hidden
+                        />
+                        <span className="sintesi-correnti__row-name">
+                          <span className="sintesi-correnti__row-macro">{label.title}</span>
+                          {label.detail ? (
+                            <span className="sintesi-correnti__row-temp">{label.detail}</span>
+                          ) : null}
+                        </span>
+                        <span className="sintesi-correnti__bar-track">
+                          <motion.span
+                            className="sintesi-correnti__bar-fill"
+                            style={{ backgroundColor: barColor }}
+                            initial={prefersReducedMotion ? false : { width: '0%' }}
+                            whileInView={{ width: `${Math.min(100, Math.max(0, peso))}%` }}
+                            viewport={viewport}
+                            transition={fillTransition}
+                          />
+                        </span>
+                        <span
+                          className="sintesi-correnti__row-pct"
+                          title={REPORT_CRITERION.attivazione}
+                        >
+                          <span className="sintesi-correnti__row-pct-label" aria-hidden="true">
+                            {REPORT_CRITERION.attivazioneShort}
+                          </span>
+                          <span className="sr-only">{REPORT_CRITERION.attivazione}: </span>
+                          {pctAttivazione(peso)}
+                        </span>
+                      </li>
+                    )
+                  })}
+                </ul>
+                {renderDetailPanel()}
+              </div>
+
+              {familySottocorrenti.length > 0 ? (
+                <div className="sintesi-correnti__subcurrents">
+                  <div className="sintesi-correnti__subcurrents-head">
+                    <span className="sintesi-correnti__subcurrents-title">
+                      Sottocategorie di {dominantPresenceLabel.title.toLowerCase()}
+                    </span>
+                    <span className="sintesi-correnti__subcurrents-count">
+                      {familySottocorrenti.length}
+                    </span>
+                  </div>
+                  <p className="sintesi-correnti__subcurrents-caption">
+                    Caratteristiche emotive specifiche che definiscono meglio la famiglia prevalente.
+                  </p>
+                  <ul className="sintesi-correnti__subcurrents-list">
+                    {familySottocorrenti.map((sub) => (
+                      <li key={sub.rawKey} className="sintesi-correnti__subcurrent">
+                        <span
+                          className="sintesi-correnti__subcurrent-dot"
+                          style={{ backgroundColor: sub.colore }}
+                          aria-hidden="true"
+                        />
+                        <span className="sintesi-correnti__subcurrent-main">
+                          <span className="sintesi-correnti__subcurrent-name">{sottocorrenteDisplayName(sub.nome)}</span>
+                        </span>
+                        <span
+                          className="sintesi-correnti__subcurrent-value"
+                          title={REPORT_CRITERION.attivazione}
+                        >
+                          {pctAttivazione(sub.percentuale)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+            </div>
           </div>
         </div>
       </div>
@@ -662,54 +865,37 @@ export default function SintesiCorrenti({
           className="sintesi-correnti__disclosure--visual-mobile"
         >
           <div className="sintesi-correnti__visual sintesi-correnti__visual--mobile-inline">
-            <div className="sintesi-correnti__flower sintesi-correnti__order-flower">
-              <svg
-                className="sintesi-correnti__svg"
-                viewBox="0 0 400 400"
-                role="group"
-                aria-label={SINTESI_UI.flowerAriaLabel}
-                preserveAspectRatio="xMidYMid meet"
-              >
-                <g className="sintesi-correnti__petals">
-                  {blobs.map((b) => (
-                    <path
-                      key={b.key}
-                      d={b.path}
-                      fill={b.color}
-                      fillOpacity={0.72}
-                      stroke={b.color}
-                      strokeOpacity={0.35}
-                      strokeWidth={1.25}
-                    />
-                  ))}
-                </g>
-              </svg>
-            </div>
             <div className="sintesi-correnti__radar sintesi-correnti__order-radar">
-              <p className="sintesi-correnti__radar-label">{SINTESI_UI.radarTitle}</p>
-              {SINTESI_UI.radarCaption ? (
-                <p className="sintesi-correnti__radar-caption">{SINTESI_UI.radarCaption}</p>
-              ) : null}
-              <ReportRadarChart
-                data={radarData}
-                color={accentColor}
-                height={180}
-                domain={[0, 100]}
-                scaleLabel="Presenza %"
-                className="sintesi-correnti__radar-chart"
-                ariaLabel={SINTESI_UI.radarAriaLabel}
-              />
+              <div className="sintesi-correnti__visual-panel sintesi-correnti__visual-panel--radar">
+                <div className="sintesi-correnti__total-radar">
+                  <p className="sintesi-correnti__radar-label">Total score</p>
+                  <p className="sintesi-correnti__radar-caption">
+                    Scala 1-7 derivata dai punteggi totali delle cinque famiglie.
+                  </p>
+                  <ReportRadarChart
+                    data={totalScoreRadarData}
+                    color={accentColor}
+                    height={300}
+                    outerRadius="72%"
+                    domain={[1, 7]}
+                    className="sintesi-correnti__total-radar-chart"
+                    ariaLabel="Grafico radar del total score delle delle cinque famiglie emotive"
+                    onFamilySelect={(key) => {
+                      const radarItem = totalScoreRadarData.find(d => d.familyKey === key)
+                      if (radarItem) setActiveDetailFamily(radarItem)
+                    }}
+                  />
+                </div>
+              </div>
+              <div className="sintesi-correnti__visual-panel sintesi-correnti__visual-panel--ellipses">
+                <EmotionalShape familiesData={ordered} />
+              </div>
             </div>
           </div>
+          {renderDetailPanel()}
         </SintesiDisclosure>
 
-        {onOpenGlossary ? (
-          <div className="sintesi-correnti__glossary-link sintesi-correnti__order-glossary">
-            <GlossaryLink onOpen={() => onOpenGlossary()}>
-              {SINTESI_UI.glossaryLink}
-            </GlossaryLink>
-          </div>
-        ) : null}
+
       </div>
     </section>
   )

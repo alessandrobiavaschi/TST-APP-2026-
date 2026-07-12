@@ -1,4 +1,55 @@
+import { REPORT_SECTIONS, SECTION_TO_GROUP } from './reportSectionsConfig.js'
+
 const SCROLL_LOCK_MS = 700
+
+/** Voci menu senza anchor dedicato → contenitore della sezione. */
+const SECTION_SCROLL_ALIASES = {
+  'report-rapporto-natura': 'report-tst-rapporti',
+  'report-rapporto-se': 'report-tst-rapporti',
+  'report-rapporto-altro': 'report-tst-rapporti',
+  'report-rapporto-agire': 'report-tst-rapporti',
+}
+
+function domAnchorId(id) {
+  if (typeof document === 'undefined') return null
+  return document.getElementById(id) ? id : null
+}
+
+/**
+ * Destinazione scroll dal menu: non apre accordion chiusi — punta all'intestazione del gruppo.
+ * Se il gruppo è già aperto dall'utente, punta all'anchor interno quando esiste.
+ */
+export function resolveReportScrollTarget(sectionId, { groupOpen = {} } = {}) {
+  if (!sectionId) return sectionId
+
+  if (sectionId === 'report-hero' || sectionId.startsWith('report-group-')) {
+    return sectionId
+  }
+
+  const navMeta = REPORT_SECTIONS.find((s) => s.id === sectionId)
+  const groupId = navMeta?.groupId || SECTION_TO_GROUP[sectionId]
+
+  if (groupId && !groupOpen[groupId]) {
+    return groupId
+  }
+
+  if (sectionId.startsWith('report-chapter-')) {
+    return domAnchorId(sectionId) || 'report-tst-famiglia'
+  }
+
+  const candidates = [
+    sectionId,
+    SECTION_SCROLL_ALIASES[sectionId],
+    sectionId.startsWith('report-chapter-') ? 'report-tst-famiglia' : null,
+  ].filter(Boolean)
+
+  for (const candidate of candidates) {
+    const resolved = domAnchorId(candidate)
+    if (resolved) return resolved
+  }
+
+  return groupId || sectionId
+}
 
 export function getStickyOffsetPx() {
   if (typeof window === 'undefined') return 96

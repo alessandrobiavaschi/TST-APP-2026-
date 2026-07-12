@@ -95,6 +95,16 @@ function ReportPage() {
     }
   }, [routedRecord])
 
+  const showIntroFrame =
+    resultRevealPhase !== 'visible' || contextPhase === 'show'
+
+  useEffect(() => {
+    if (showIntroFrame) return
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+    document.documentElement.scrollTop = 0
+    document.body.scrollTop = 0
+  }, [showIntroFrame, record])
+
   if (!record || !record.raw || typeof record.raw !== 'object') {
     try {
       window.sessionStorage.removeItem('tst_last_report_record')
@@ -146,8 +156,9 @@ function ReportPage() {
   const accentColor = accentColors[dominantColorName] || '#6b7280'
 
   let rapportiLevels
+  let rapportiTotals
   try {
-    const rapportiTotals = computeRapportiTotalsFromRaw(record.raw || {})
+    rapportiTotals = computeRapportiTotalsFromRaw(record.raw || {})
     rapportiLevels = {
       natura: normalizeLevels(rapportiTotals.natura),
       se: normalizeLevels(rapportiTotals.se),
@@ -162,6 +173,7 @@ function ReportPage() {
       altro: normalizeLevels({ blu: 0, rosso: 0, verde: 0, giallo: 0, grigio: 0 }),
       agire: normalizeLevels({ blu: 0, rosso: 0, verde: 0, giallo: 0, grigio: 0 }),
     }
+    rapportiTotals = { natura: {}, se: {}, altro: {}, agire: {} }
   }
 
   const portatoTotals = {
@@ -215,6 +227,7 @@ function ReportPage() {
       dominantColorName,
       textBlock,
       rapportiLevels,
+      rapportiTotals,
       portatoEsperienziale,
       focus,
       nomeCompleto: nomeCompleto === 'Test anonimo' ? '' : nomeCompleto,
@@ -241,9 +254,6 @@ function ReportPage() {
       </div>
     )
   }
-
-  const showIntroFrame =
-    resultRevealPhase !== 'visible' || contextPhase === 'show'
 
   return (
     <div className="report-page-wrapper page-video-bg-root report-page-wrapper--night" lang="it">

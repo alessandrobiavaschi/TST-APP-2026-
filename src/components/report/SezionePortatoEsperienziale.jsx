@@ -30,6 +30,7 @@ function formatValore(n) {
 export default function SezionePortatoEsperienziale({
   portato,
   correnteColore = '#4ade80',
+  step = '3',
 }) {
   const reduceMotion = useReducedMotion()
   const dimensioni = useMemo(
@@ -57,7 +58,7 @@ export default function SezionePortatoEsperienziale({
     >
       <div className="report-tst-portato__inner">
         <ReportPassageHeader
-          step="3"
+          step={step}
           eyebrow={PORTATO_UI.eyebrow}
           title={PORTATO_UI.title}
           lead={PORTATO_UI.lead}
@@ -102,14 +103,6 @@ export default function SezionePortatoEsperienziale({
                 key={dim.key}
                 role="listitem"
                 className={`report-tst-portato__card${isPrevalente ? ' report-tst-portato__card--prevalente' : ''}`}
-                style={
-                  isPrevalente
-                    ? {
-                        borderColor: `${barColor}66`,
-                        boxShadow: `0 0 24px ${barColor}22`,
-                      }
-                    : undefined
-                }
               >
                 <div className="report-tst-portato__card-top">
                   <p className="report-tst-portato__dim-label">{dim.label}</p>
@@ -172,12 +165,6 @@ export default function SezionePortatoEsperienziale({
             transition={{ duration: 0.45, ease: 'easeOut', delay: 0.12 }}
           >
             <p className="report-tst-portato__narrative-text">{portato.descrizione}</p>
-            {portato.vitalita ? (
-              <p className="report-tst-portato__vitalita">
-                <span className="report-tst-portato__vitalita-label">Asse vitalità</span>
-                {portato.vitalita}
-              </p>
-            ) : null}
           </motion.div>
         ) : (
           <p className="report-tst-portato__empty">

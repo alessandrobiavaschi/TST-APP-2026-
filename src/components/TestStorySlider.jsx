@@ -9,11 +9,12 @@ export const TEST_STORY_SLIDES = [
   },
   {
     id: 'area-sentire',
-    title: "Cosa si osserva: l'area del sentire",
-    kicker: 'Oltre quello che pensi, verso quello che senti',
+    title: 'TST illumina l’area del sentire',
+    kicker: 'Come ci si muove tra simpatia, antipatia e indifferenza attraverso stimoli sonori musicali.',
     body: [
-      'Il protocollo TST rivela le istintive reazioni emotive e affettive a forme simboliche del Codice Musical',
-      'Osserva l’area del sentire: come ci si muove tra simpatia, antipatia e indifferenza rispetto a singoli  stimoli musicali.',
+      'Il protocollo TST rivela le istintive reazioni emotive e affettive a stimoli sonori multipli che fanno parte delle qualità oggettive del codice musicale.',
+      'I 5 elementi del codice musicale sono Timbro, Ritmo, Intervalli, Armonia e Melodia.',
+      'Per “area del sentire” si intendono diverse tipologie di forze emotive che agiscono in maniera unica e irripetibile nell’interiorità di ciascun individuo. Dal punto di vista musicale, queste aree sono sintetizzate in cinque grandi correnti di energia emotiva: Flemma, Entusiasmo, Malinconia-Nostalgia, Volitività e Anaffettività.',
     ],
   },
   {
@@ -21,17 +22,19 @@ export const TEST_STORY_SLIDES = [
     title: 'Un percorso di ascolto guidato',
     kicker: '72 passi brevi, nessuna risposta giusta o sbagliata',
     body: [
-      'È fatto da 72 brevi frammenti sonori da sentire, uno alla volta, organizzati per timbro, intervalli, ritmo, melodia e armonia',
-      'Associa in modo istintivo i suoni alle tue sensazioni e barra le risposte che corrispondono alle tue percezioni',
+      'TST è costituito da 72 brevi stimoli sonori e musicali, da sentire uno per volta.',
+      'Sono organizzati per Timbri, Intervalli, Ritmi, Melodie ed Armonie.',
+      'Associa in modo istintivo i flussi sonori alle tue sensazioni, emozioni e sentimenti individuando nella barra delle risposte quelli che corrispondono meglio alle tue percezioni.',
     ],
   },
   {
     id: 'flussi',
-    title: 'Flussi musicali come rivelatori',
+    title: 'Flussi musicali come rilevatori e rivelatori',
     kicker: 'Dai suoni ai profili temperamentali',
     body: [
-      'Singoli suoni e flussi musicali sono utilizzati come strumenti rivelatori di aspetti interiori che vanno oltre la sfera cognitiva.',
-      'Le risposte creano un profilo interiore unico, una mappa sintetica dell’identità emotiva individuale.',
+      'La risonanza tra Musica e Disposizioni Intellettuali, Emotive e Spirituali dell’Uomo si è evidenziata nel corso dei secoli come elemento oggettivo conclamato.',
+      'Basandosi su questa evidenza, TST entra nei dettagli di questa relazione utilizzando singoli suoni e flussi musicali come strumenti rilevatori e rivelatori di una complessità emotiva interiore che va oltre la sfera cognitiva.',
+      'Le risposte date attraverso il questionario, opportunamente decodificate, creano un profilo interiore unico per ciascun individuo e una mappa sintetica dell’identità emotiva individuale.',
     ],
   },
   {
@@ -39,18 +42,18 @@ export const TEST_STORY_SLIDES = [
     title: 'Cosa ottieni alla fine',
     kicker: 'Una mappa visiva della struttura emotiva',
     body: [
-      'Il report finale restituisce quattro indicatori dell’identità emotiva e la rappresentazione visiva della propria natura temperamentale',
-      'le aree cui ci si realizza o ci si protegge di più o di meno.',
+      'Il report finale TST restituisce quattro indicatori dell’identità emotiva: la tua natura di base, il rapporto con te stesso, il rapporto con l’altro e il rapporto con l’agire, insieme alla rappresentazione visiva della tua complessità temperamentale.',
     ],
   },
   {
     id: 'origini',
-    title: 'La metodologia del TST: il frutto di anni di ricerca in contesti reali',
-    kicker: 'Ricerca in contesti reali, non laboratorio di marketing',
+    title: 'Elementi essenziali della procedura TST',
+    kicker: 'La procedura, lo studio e la bibliografia',
     body: [
-      'Questa procedura è stata testata in anni di ricerca, studi, sperimentazioni riportate in pubblicazioni e alla formalizzazione di una ricerca su rilevazioni scientifiche sul rapporto tra l’oggettività del codice musicale e la realtà emotiva individuale.',
-      'In questa versione informatica, il linguaggio è stato appositamente curato e scelto dal comitato scientifico (CPM Music Institute, Università degli Studi di Pavia).',
-      'Se vuoi iniziare subito, vai direttamente al pannello di accesso.',
+      'Questa procedura nasce da anni di ricerca, studi e sperimentazioni di Franco Mussida, raccolti in libri, saggi e pubblicazioni*. Ne è derivata una procedura di rilevanza scientifica sul rapporto tra l\'oggettività del codice musicale e la realtà emotiva individuale.',
+      'In questa versione informatica, il linguaggio è stato appositamente curato e scelto da Franco Mussida, dal comitato scientifico Co2, dal CPM Music Institute e dall’Università degli Studi di Pavia.',
+      'Per iniziare subito il test, vai direttamente al pannello di accesso.',
+      '*La Musica Ignorata (Skira, 2013); Le Chiavi Nascoste della Musica (Skira, 2016); Il Pianeta della Musica (Salani, 2019, oggi alla VI ed.)',
     ],
   },
 ]

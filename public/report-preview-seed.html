@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <title>Report preview seed</title>
+  </head>
+  <body>
+    <script>
+      const record = {
+        id: 'preview-readable-galaxy',
+        raw: {
+          Nome: 'Anteprima',
+          Cognome: 'Galassia',
+          BLU_1_Depressiva: 4,
+          BLU_2_Lunare: 8,
+          BLU_3_Nostalgia: 5,
+          BLU_4_Solare: 3,
+          ROSSO_1_Assertivita: 7,
+          ROSSO_2_Dubbio_Collera: 4,
+          VERDE_1_Calma: 13,
+          GIALLO_1_Gioia_Entusiasmo: 6,
+          GIALLO_2_Volitivo_Passionale: 3,
+          GRIGIO_1_Distaccato_Nichilista: 2,
+          GRIGIO_2_Intellettuale_Saggio: 3,
+          PE_Simpatia: 18,
+          PE_Antipatia: 7,
+          PE_Indifferenza: 5,
+          Disposizione_Prevalente: 'Calma',
+          Sottodisposizione_Prevalente: 'Calma',
+          Portato_Esperienziale_Prevalente: 'Simpatia',
+        },
+      }
+      window.sessionStorage.setItem('tst_last_report_record', JSON.stringify(record))
+      window.location.replace('/risultati/report#galassia')
+    </script>
+  </body>
+</html>

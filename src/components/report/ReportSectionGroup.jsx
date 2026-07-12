@@ -8,10 +8,8 @@ import React, { useId } from 'react'
 export default function ReportSectionGroup({
   id,
   title,
-  subtitle,
   intro,
   stepLabel,
-  readingFocus,
   isOpen,
   onToggle,
   children,
@@ -21,6 +19,7 @@ export default function ReportSectionGroup({
 
   return (
     <section
+      id={id}
       className={`report-section-group${isOpen ? ' report-section-group--open' : ''}`}
       data-group-id={id}
     >
@@ -39,12 +38,6 @@ export default function ReportSectionGroup({
         ) : null}
         <span className="report-section-group__heading">
           <span className="report-section-group__title">{title}</span>
-          {subtitle ? (
-            <span className="report-section-group__subtitle">{subtitle}</span>
-          ) : null}
-          {readingFocus ? (
-            <span className="report-section-group__focus">{readingFocus}</span>
-          ) : null}
         </span>
         <span className="report-section-group__chevron" aria-hidden="true" />
       </button>

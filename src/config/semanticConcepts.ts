@@ -79,7 +79,7 @@ export const SEMANTIC_CONCEPTS: Record<string, SemanticConcept> = {
     ],
     calculationLabel: 'Somma dei valori delle correnti collegate a curiosità, movimento, slancio e azione.',
     moduleLinks: [
-      { module: 'Profilo', label: 'Capitolo Racconto', anchor: 'report-chapter-racconto' },
+      { module: 'Profilo', label: 'Capitolo Memoria, Esperienza, Essere Musica', anchor: 'report-chapter-racconto' },
       { module: 'Galassia', label: 'Entusiasmo', anchor: 'report-galassia' },
     ],
   },

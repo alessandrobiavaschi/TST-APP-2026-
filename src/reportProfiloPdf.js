@@ -128,7 +128,7 @@ export const PROFILE_PDF_BLOCKS = {
   },
   Giallo: {
     restituzione_caratteri_estesi:
-      'In questa famiglia emerge il piacere del movimento, della curiosità, della scoperta del nuovo e dell’estroversione. La natura solare sanguigno-entusiasta guarda al futuro: slancio vitale, partecipazione e ricerca di bagliori di bellezza.',
+      'In questa famiglia emerge il piacere del movimento, della curiosità, della scoperta del nuovo e dell’estroversione. La caratteristica emotiva solare sanguigno-entusiasta guarda al futuro: slancio vitale, partecipazione e ricerca di bagliori di bellezza.',
     natura_paragrafi: [
       'Da Sud verso Nord soffiano venti caldi: interiormente diventano il flusso dell’Entusiasmo — colore Giallo, continente dell’Entusiasmo — con orientamento al futuro.',
       'Nel pre-infantile il bambino accumula energia da spendere; ritmo e ripetizione guidano un apprendimento rapidissimo. La soddisfazione per i successi, anche piccoli, accende l’Entusiasmo come area affettiva strutturata.',
@@ -169,7 +169,7 @@ export const PROFILE_PDF_BLOCKS = {
   },
   Blu: {
     restituzione_caratteri_estesi:
-      'In questa famiglia emerge il piacere di stare con sé stessi, di osservarsi interiormente e di riflettere su ciò che si è vissuto. La natura lunare malinconico-nostalgica predilige riflessività e percezione emotiva profonda — con orientamento al passato.',
+      'In questa famiglia emerge il piacere di stare con sé stessi, di osservarsi interiormente e di riflettere su ciò che si è vissuto. La caratteristica lunare malinconico-nostalgica predilige riflessività e percezione emotiva profonda — con orientamento al passato.',
     natura_paragrafi: [
       'Da Ovest verso Est si fa sentire l’azione riflessa della Luna: sul piano emotivo diventa il flusso Malinconia — continente della Malinconia — con orientamento al passato.',
       'Chi ha propensioni malinconiche orienta l’energia dentro di sé: piacere di riflettere, stare in disparte, non temere la solitudine scelta. La tristezza è un volto della Malinconia, non l’intera corrente: forza riflessiva che illumina l’interno.',
@@ -178,7 +178,7 @@ export const PROFILE_PDF_BLOCKS = {
     ].join('\n'),
     descrizione_estesa: [
       'Il sorgere della malinconia si avverte nell’adolescenza: attorno ai nove-dieci anni una «seconda nascita» affettiva, luce riflessa della Luna rispetto al Sole dell’età adulta.',
-      'Quattro sotto-correnti articolano la famiglia: Malinconia depressiva (Blu notte), lunare (Blu medio), Nostalgia (Blu reale) e Malinconia solare (Celeste) che apre verso fiducia e speranza.',
+      'Quattro sotto-correnti articolano la famiglia: Depressiva, Lunare, Nostalgica e Solare.',
       'Nell’ascolto questa natura è sensibile all’identità del timbro: archi, doppie ance, frequenze medie e medio-basse, suoni corposi e scuri, pianoforte pastoso o arpa possono favorire un contatto intimo con il mondo interno.',
       'Il piacere musicale passa dalla melodia, dagli intervalli e dalle tonalità capaci di muovere memoria e sentimento. Cerca musica profonda, testi poetici o umanistici, ritmi non invasivi, cambi armonici che permettano di sostare e riflettere senza essere spinti fuori da sé.',
     ].join('\n'),

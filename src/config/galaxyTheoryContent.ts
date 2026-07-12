@@ -108,7 +108,7 @@ export const GALAXY_THEORY_BY_DISPOSITION: Record<string, GalaxyTheoryFamily> = 
       },
       {
         rawKey: 'BLU_3_Nostalgia',
-        title: 'Nostalgia',
+        title: 'Nostalgica',
         interval: 'Settima minore e maggiore',
         color: 'Blu reale',
         description: `Nel modello TST questa sfumatura descrive il rapporto con i ricordi e con ciò che si sente perduto o lontano. Può portare rimpianto, ma anche riconoscenza: non indica tristezza in senso clinico, bensì una memoria affettiva intensa.`,

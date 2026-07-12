@@ -1,262 +1,26 @@
-import React, { useEffect, useMemo, useState } from 'react'
-import { getRelationalCorpusForDominant } from '../../content/relationalDeductions.js'
-import { FAMILY_NAME_BY_KEY, FAMILY_THEME } from '../../config/reportFamilyTheme.js'
-import { getSolarPlanetScore } from '../../utils/solarPlanetScores.js'
+import React, { useMemo, useState } from 'react'
+import { getRelationalCorpusForDominant, DOMINANT_TO_RELATIONS_KEY } from '../../content/relationalDeductions.js'
+import { RELATION_ACCENTS } from '../../content/relational/shared.js'
 import ReportPassageHeader from './ReportPassageHeader.jsx'
-import { MAPPA_UI, REPORT_CRITERION } from './reportUiCopy.js'
-import PlainLanguageBox from './PlainLanguageBox.jsx'
+import { MAPPA_UI } from './reportUiCopy.js'
 
-const PLANETS = [
-  {
-    id: 'flemma',
-    label: 'Flemma',
-    familyKey: 'verde',
-    familyName: 'Verde',
-    galassiaFamily: 'verde',
-  },
-  {
-    id: 'volitivita',
-    label: 'Volitività',
-    familyKey: 'rosso',
-    familyName: 'Rosso',
-    galassiaFamily: 'rosso',
-  },
-  {
-    id: 'entusiasmo',
-    label: 'Entusiasmo',
-    familyKey: 'giallo',
-    familyName: 'Giallo',
-    galassiaFamily: 'giallo',
-  },
-  {
-    id: 'anaffettivita',
-    label: 'Anaffettività',
-    familyKey: 'grigio',
-    familyName: 'Grigio',
-    galassiaFamily: 'grigio',
-  },
-  {
-    id: 'malinconia-lunare',
-    label: 'Malinc. lunare',
-    familyKey: 'blu',
-    familyName: 'Blu',
-    galassiaFamily: 'blu',
-    bluVariant: 'lunare',
-  },
-  {
-    id: 'malinconia-solare',
-    label: 'Malinc. solare',
-    familyKey: 'blu',
-    familyName: 'Blu',
-    galassiaFamily: 'blu',
-    bluVariant: 'solare',
-  },
-]
+const TARGET_CODES = {
+  fl: 'FLM',
+  ma: 'MAL',
+  as: 'ASS',
+  en: 'ENT',
+  an: 'ANA',
+}
+
+const DOMINANT_CODES = {
+  flemmatico: 'FLM',
+  malinconico: 'MAL',
+  assertivo: 'ASS',
+  entusiasta: 'ENT',
+  anaffettivo: 'ANA',
+}
 
 const TAB_ORDER = ['dinamica', 'frizioni', 'risorse']
-
-function planetColors(familyName, variant) {
-  const theme = FAMILY_THEME[familyName] || FAMILY_THEME.Verde
-  const stroke = theme.dot
-  const outer = theme.gradient.to
-  const inner = theme.gradient.from
-  if (variant === 'solare') {
-    return { outer: '#78350f', inner: '#fcd34d', stroke: '#f59e0b', text: '#fffbeb' }
-  }
-  return { outer, inner, stroke, text: '#f8fafc' }
-}
-
-function splitLabel(label) {
-  const words = String(label || '').split(' ')
-  if (words.length <= 1) return [label]
-  return [words[0], words.slice(1).join(' ')]
-}
-
-function resolveDefaultPlanetId(dominantFamilyKey) {
-  const key = String(dominantFamilyKey || '').toLowerCase()
-  const familyName = FAMILY_NAME_BY_KEY[key]
-  if (familyName === 'Blu') return 'malinconia-lunare'
-  const direct = PLANETS.find((p) => p.familyKey === key && !p.bluVariant)
-  return direct?.id || PLANETS[0].id
-}
-
-function buildPlanetState({ correnti, rawRecord, activePlanetId }) {
-  const scoreInput = { correnti, rawRecord }
-  return PLANETS.map((planet) => ({
-    ...planet,
-    color: planetColors(planet.familyName, planet.bluVariant),
-    score: getSolarPlanetScore(planet.id, scoreInput),
-    descrizione:
-      correnti.find((c) => c.familyKey === planet.familyKey)?.descrizioneBreve || '',
-    isActive: planet.id === activePlanetId,
-  }))
-}
-
-function SolarEmotionSystem({
-  correnti,
-  rawRecord,
-  dominantFamilyKey,
-  onOpenGalassia,
-}) {
-  const defaultActive = useMemo(
-    () => resolveDefaultPlanetId(dominantFamilyKey),
-    [dominantFamilyKey],
-  )
-  const [activePlanetId, setActivePlanetId] = useState(defaultActive)
-
-  useEffect(() => {
-    setActivePlanetId(defaultActive)
-  }, [defaultActive])
-
-  const planets = useMemo(
-    () => buildPlanetState({ correnti, rawRecord, activePlanetId }),
-    [correnti, rawRecord, activePlanetId],
-  )
-  const activePlanet = planets.find((p) => p.id === activePlanetId) || planets[0]
-  const cx = 300
-  const cy = 300
-  const orbitR = 198
-  const angles = [-90, -30, 30, 90, 150, 210]
-
-  return (
-    <section className="emotional-integrations__solar" aria-labelledby="emotional-solar-title">
-      <div className="emotional-integrations__section-head">
-        <p className="emotional-integrations__eyebrow">{MAPPA_UI.solarEyebrow}</p>
-        <h3 id="emotional-solar-title" className="emotional-integrations__title">
-          {MAPPA_UI.solarTitle}
-        </h3>
-        <p className="emotional-integrations__copy">{MAPPA_UI.solarCopy}</p>
-      </div>
-
-      <div className="emotional-integrations__solar-grid">
-        <svg
-          className="emotional-integrations__solar-svg"
-          viewBox="0 0 600 600"
-          role="img"
-          aria-label="Sistema di sei pianeti emotivi con la disposizione selezionata"
-        >
-          <circle className="emotional-integrations__orbit" cx={cx} cy={cy} r={orbitR} />
-          <circle className="emotional-integrations__sun-glow" cx={cx} cy={cy} r="54" />
-          <circle className="emotional-integrations__sun-mid" cx={cx} cy={cy} r="34" />
-          <circle className="emotional-integrations__sun" cx={cx} cy={cy} r="18" />
-
-          {planets.map((planet, i) => {
-            const angle = (angles[i] * Math.PI) / 180
-            const x = cx + orbitR * Math.cos(angle)
-            const y = cy + orbitR * Math.sin(angle)
-            const [line1, line2] = splitLabel(planet.label)
-            const scoreRadius = 14 + Math.min(18, Math.max(2, planet.score / 3))
-            const selectPlanet = () => setActivePlanetId(planet.id)
-
-            return (
-              <g
-                key={planet.id}
-                role="button"
-                tabIndex={0}
-                aria-label={`Seleziona ${planet.label}, ${REPORT_CRITERION.attivazioneShort} ${Math.round(planet.score)} per cento`}
-                aria-pressed={planet.isActive}
-                onClick={selectPlanet}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter' || event.key === ' ') {
-                    event.preventDefault()
-                    selectPlanet()
-                  }
-                }}
-              >
-                <circle
-                  className="emotional-integrations__planet-hit"
-                  cx={x}
-                  cy={y}
-                  r="38"
-                  fill="transparent"
-                  stroke="transparent"
-                />
-                <g
-                  className={`emotional-integrations__planet${planet.isActive ? ' emotional-integrations__planet--active' : ''}`}
-                  aria-hidden="true"
-                >
-                  <circle
-                    cx={x}
-                    cy={y}
-                    r="30"
-                    fill={planet.color.inner}
-                    stroke={planet.color.stroke}
-                    strokeWidth="1.3"
-                  />
-                  <circle
-                    cx={x}
-                    cy={y}
-                    r={scoreRadius}
-                    fill={planet.color.outer}
-                    opacity="0.7"
-                  />
-                  <text
-                    className="emotional-integrations__planet-label"
-                    x={x}
-                    y={line2 ? y - 3 : y + 4}
-                    fill={planet.color.text}
-                  >
-                    {line1}
-                  </text>
-                  {line2 ? (
-                    <text
-                      className="emotional-integrations__planet-label"
-                      x={x}
-                      y={y + 9}
-                      fill={planet.color.text}
-                    >
-                      {line2}
-                    </text>
-                  ) : null}
-                </g>
-              </g>
-            )
-          })}
-        </svg>
-
-        <aside className="emotional-integrations__solar-card">
-          <p className="emotional-integrations__metric-label">Pianeta attivo</p>
-          <h4>{activePlanet.label}</h4>
-          <p>
-            {REPORT_CRITERION.attivazione}: <strong>{Math.round(activePlanet.score)}%</strong>
-          </p>
-          {activePlanet.descrizione ? (
-            <p className="emotional-integrations__copy">{activePlanet.descrizione}</p>
-          ) : null}
-          <p className="emotional-integrations__source-note">
-            Metafora visiva da sistema_pianeti.html; i pesi provengono dai punteggi di questo test.
-          </p>
-          {onOpenGalassia ? (
-            <button
-              type="button"
-              className="nav-button secondary emotional-integrations__galassia-link"
-              onClick={onOpenGalassia}
-            >
-              Apri in Galassia
-            </button>
-          ) : null}
-          <div className="emotional-integrations__mini-list" aria-label="Altri pianeti">
-            {planets
-              .filter((p) => p.id !== activePlanet.id)
-              .map((p) => (
-                <button
-                  type="button"
-                  key={p.id}
-                  className="emotional-integrations__mini-planet"
-                  onClick={() => setActivePlanetId(p.id)}
-                  style={{ '--planet-color': p.color.stroke }}
-                >
-                  <span aria-hidden="true" />
-                  {p.label}
-                  <small title={REPORT_CRITERION.attivazione}>{Math.round(p.score)}%</small>
-                </button>
-              ))}
-          </div>
-        </aside>
-      </div>
-    </section>
-  )
-}
 
 function RelationalDeductionsSection({ correnteDominante, famiglia }) {
   const corpus = useMemo(
@@ -266,6 +30,11 @@ function RelationalDeductionsSection({ correnteDominante, famiglia }) {
   const relations = corpus.available ? corpus.relations : []
   const [activeRelation, setActiveRelation] = useState(relations[0]?.key || null)
   const [activeTab, setActiveTab] = useState('dinamica')
+
+  const dominantKey = useMemo(() => {
+    return DOMINANT_TO_RELATIONS_KEY[String(correnteDominante || '').trim()] || DOMINANT_TO_RELATIONS_KEY[String(famiglia || '').trim()] || 'flemmatico'
+  }, [correnteDominante, famiglia])
+  const dominantColor = RELATION_ACCENTS[dominantKey] || '#0F6E56'
 
   if (!corpus.available) {
     return (
@@ -314,25 +83,142 @@ function RelationalDeductionsSection({ correnteDominante, famiglia }) {
       </div>
 
       <div className="emotional-integrations__relations-grid">
-        <div className="emotional-integrations__relation-list" role="list">
-          {relations.map((item) => (
-            <button
-              type="button"
-              key={item.key}
-              className={`emotional-integrations__relation-card${item.key === activeRelation ? ' emotional-integrations__relation-card--active' : ''}`}
-              onClick={() => handleCardClick(item.key)}
-              aria-expanded={item.key === activeRelation}
-              style={{ '--relation-accent': item.accent }}
-            >
-              <span className="emotional-integrations__relation-icon" aria-hidden="true">
-                {item.icon}
-              </span>
-              <span>
-                <strong>{item.name}</strong>
-                <small>{item.sub}</small>
-              </span>
-            </button>
-          ))}
+        <div className="emotional-integrations__relations-sidebar">
+          <div className="emotional-integrations__relation-list" role="list">
+            {relations.map((item) => (
+              <button
+                type="button"
+                key={item.key}
+                className={`emotional-integrations__relation-card${item.key === activeRelation ? ' emotional-integrations__relation-card--active' : ''}`}
+                onClick={() => handleCardClick(item.key)}
+                aria-expanded={item.key === activeRelation}
+                style={{ '--relation-accent': item.accent }}
+              >
+                <div className="emotional-integrations__bond-wrapper">
+                  <svg width="34" height="20" viewBox="0 0 34 20" fill="none" className="emotional-integrations__bond-icon" aria-hidden="true">
+                    <circle cx="8" cy="10" r="5" fill={dominantColor} />
+                    <circle cx="8" cy="10" r="1.8" fill="#111729" />
+                    <line x1="13" y1="10" x2="21" y2="10" stroke="rgba(255, 255, 255, 0.25)" strokeWidth="1.2" strokeDasharray="2 1.5" />
+                    <circle cx="26" cy="10" r="5" fill={item.accent} />
+                    <circle cx="26" cy="10" r="1.8" fill="#111729" />
+                  </svg>
+                </div>
+                <span className="emotional-integrations__relation-info">
+                  <strong>{item.name}</strong>
+                  <small>{item.sub}</small>
+                </span>
+                <span className="emotional-integrations__relation-code">{`INT-${item.key.toUpperCase()}`}</span>
+              </button>
+            ))}
+          </div>
+
+          <div className="emotional-integrations__map-card">
+            <div className="emotional-integrations__map-header">
+              <span className="emotional-integrations__map-tag">// GRAFO DELLE INTERAZIONI</span>
+              <h4 className="emotional-integrations__map-title">Mappa dei Vettori Relazionali</h4>
+            </div>
+            <div className="emotional-integrations__map-svg-wrap">
+              <svg viewBox="0 0 240 220" className="emotional-integrations__map-svg" aria-hidden="true">
+                {/* Orbital reference rings */}
+                <circle cx="120" cy="110" r="75" fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="1" />
+                <circle cx="120" cy="110" r="45" fill="none" stroke="rgba(255,255,255,0.02)" strokeWidth="1" strokeDasharray="3 3" />
+
+                {/* Connection lines */}
+                {relations.map((item, idx) => {
+                  const targetCoordinates = [
+                    { x: 120, y: 35 },
+                    { x: 195, y: 110 },
+                    { x: 120, y: 185 },
+                    { x: 45, y: 110 },
+                  ]
+                  const coords = targetCoordinates[idx] || { x: 120, y: 110 }
+                  const isActive = item.key === activeRelation
+                  return (
+                    <line
+                      key={`line-${item.key}`}
+                      x1="120"
+                      y1="110"
+                      x2={coords.x}
+                      y2={coords.y}
+                      stroke={isActive ? item.accent : "rgba(255, 255, 255, 0.12)"}
+                      strokeWidth={isActive ? 2.5 : 1}
+                      strokeDasharray={isActive ? "none" : "3 3"}
+                      style={{ transition: 'all 0.3s ease' }}
+                    />
+                  )
+                })}
+
+                {/* Satellite Nodes */}
+                {relations.map((item, idx) => {
+                  const targetCoordinates = [
+                    { x: 120, y: 35 },
+                    { x: 195, y: 110 },
+                    { x: 120, y: 185 },
+                    { x: 45, y: 110 },
+                  ]
+                  const coords = targetCoordinates[idx] || { x: 120, y: 110 }
+                  const isActive = item.key === activeRelation
+                  const code = TARGET_CODES[item.key] || item.key.toUpperCase()
+                  return (
+                    <g
+                      key={`node-${item.key}`}
+                      className="emotional-integrations__map-node"
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => handleCardClick(item.key)}
+                    >
+                      {isActive && (
+                        <circle
+                          cx={coords.x}
+                          cy={coords.y}
+                          r="16"
+                          fill={item.accent}
+                          opacity="0.18"
+                          style={{ transition: 'all 0.3s ease' }}
+                        />
+                      )}
+                      <circle
+                        cx={coords.x}
+                        cy={coords.y}
+                        r="11"
+                        fill={isActive ? item.accent : "#0f172a"}
+                        stroke={item.accent}
+                        strokeWidth={isActive ? 2 : 1.2}
+                        style={{ transition: 'all 0.3s ease' }}
+                      />
+                      <text
+                        x={coords.x}
+                        y={coords.y}
+                        textAnchor="middle"
+                        dominantBaseline="central"
+                        fill={isActive ? "#ffffff" : "rgba(255, 255, 255, 0.6)"}
+                        fontSize="8"
+                        fontFamily="var(--font-mono)"
+                        fontWeight="bold"
+                      >
+                        {code}
+                      </text>
+                    </g>
+                  )
+                })}
+
+                {/* Center Dominant Node */}
+                <circle cx="120" cy="110" r="18" fill="#0f172a" stroke={dominantColor} strokeWidth="2.5" />
+                <circle cx="120" cy="110" r="14" fill={dominantColor} opacity="0.15" />
+                <text
+                  x="120"
+                  y="110"
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                  fill="#ffffff"
+                  fontSize="10"
+                  fontFamily="var(--font-mono)"
+                  fontWeight="bold"
+                >
+                  {DOMINANT_CODES[dominantKey] || 'TST'}
+                </text>
+              </svg>
+            </div>
+          </div>
         </div>
 
         {detailOpen && relation ? (
@@ -340,14 +226,17 @@ function RelationalDeductionsSection({ correnteDominante, famiglia }) {
             className="emotional-integrations__relation-detail"
             style={{ '--relation-accent': relation.accent }}
           >
-            <header>
-              <span
-                className="emotional-integrations__relation-icon emotional-integrations__relation-icon--large"
-                aria-hidden="true"
-              >
-                {relation.icon}
-              </span>
-              <div>
+            <header className="emotional-integrations__detail-header">
+              <div className="emotional-integrations__bond-wrapper emotional-integrations__bond-wrapper--large">
+                <svg width="46" height="24" viewBox="0 0 46 24" fill="none" className="emotional-integrations__bond-icon emotional-integrations__bond-icon--large" aria-hidden="true">
+                  <circle cx="10" cy="12" r="7" fill={dominantColor} />
+                  <circle cx="10" cy="12" r="2.2" fill="#0f172a" />
+                  <line x1="17" y1="12" x2="29" y2="12" stroke="rgba(255, 255, 255, 0.35)" strokeWidth="1.5" strokeDasharray="3 2" />
+                  <circle cx="36" cy="12" r="7" fill={relation.accent} />
+                  <circle cx="36" cy="12" r="2.2" fill="#0f172a" />
+                </svg>
+              </div>
+              <div className="emotional-integrations__detail-title">
                 <h4>{relation.name}</h4>
                 <p>{relation.sub}</p>
               </div>
@@ -358,7 +247,7 @@ function RelationalDeductionsSection({ correnteDominante, famiglia }) {
               role="tablist"
               aria-label={`Lettura ${relation.name}`}
             >
-              {TAB_ORDER.map((key) => {
+              {TAB_ORDER.map((key, idx) => {
                 const tab = relation.tabs[key]
                 if (!tab) return null
                 return (
@@ -370,7 +259,8 @@ function RelationalDeductionsSection({ correnteDominante, famiglia }) {
                     aria-selected={activeTab === key}
                     onClick={() => setActiveTab(key)}
                   >
-                    {tab.label}
+                    <span className="emotional-integrations__tab-num">{`0${idx + 1}`}</span>
+                    <span className="emotional-integrations__tab-text">{tab.label}</span>
                   </button>
                 )
               })}
@@ -378,15 +268,21 @@ function RelationalDeductionsSection({ correnteDominante, famiglia }) {
 
             <div className="emotional-integrations__pane" role="tabpanel">
               {tabData?.title ? (
-                <h5 className="emotional-integrations__pane-title">{tabData.title}</h5>
+                <div className="emotional-integrations__pane-title-group">
+                  <span className="emotional-integrations__pane-tag">MATRICE DI INTERAZIONE</span>
+                  <h5 className="emotional-integrations__pane-title">{tabData.title}</h5>
+                </div>
               ) : null}
-              {(tabData?.body || []).map((paragraph) => (
-                <p key={paragraph}>{paragraph}</p>
+              {(tabData?.body || []).map((paragraph, index) => (
+                <p key={index} className="emotional-integrations__pane-paragraph">{paragraph}</p>
               ))}
               {tabData?.tip ? (
                 <aside className="emotional-integrations__tip">
-                  <p className="emotional-integrations__tip-label">{corpus.tipLabel}</p>
-                  <p>{tabData.tip}</p>
+                  <div className="emotional-integrations__tip-header">
+                    <span className="emotional-integrations__tip-prefix">//</span>
+                    <p className="emotional-integrations__tip-label">{corpus.tipLabel}</p>
+                  </div>
+                  <p className="emotional-integrations__tip-body">{tabData.tip}</p>
                 </aside>
               ) : null}
             </div>
@@ -398,10 +294,9 @@ function RelationalDeductionsSection({ correnteDominante, famiglia }) {
 }
 
 export default function EmotionalIntegrations({
-  correnti = [],
-  rawRecord = {},
   profilo = {},
-  onOpenGalassia,
+  stepPrefix = '1',
+  step,
 }) {
   const accentColor = profilo?.colore || '#4ade80'
 
@@ -412,57 +307,22 @@ export default function EmotionalIntegrations({
       aria-labelledby="emotional-integrations-title"
     >
       <ReportPassageHeader
-        step="3"
-        eyebrow={MAPPA_UI.eyebrow}
+        step={step || `${stepPrefix}.4`}
+        eyebrow="Relazioni tra famiglie"
         title={MAPPA_UI.title}
-        lead={MAPPA_UI.simpleLead}
         accentColor={accentColor}
         titleId="emotional-integrations-title"
       />
-      <div className="emotional-integrations__intro">
-        <PlainLanguageBox
-          title={MAPPA_UI.summaryBoxTitle}
-          accentColor={accentColor}
-          className="emotional-integrations__summary-box"
-        >
-          {MAPPA_UI.summaryZero}
-        </PlainLanguageBox>
-        {MAPPA_UI.methodPoints?.length > 0 ? (
-          <ul className="emotional-integrations__summary-points">
-            {MAPPA_UI.methodPoints.map((point) => (
-              <li key={point}>{point}</li>
-            ))}
-          </ul>
-        ) : null}
-        {onOpenGalassia ? (
-          <button
-            type="button"
-            className="nav-button secondary emotional-integrations__galassia-link emotional-integrations__galassia-link--intro"
-            onClick={onOpenGalassia}
-          >
-            Apri in Galassia
-          </button>
-        ) : null}
-      </div>
 
-      <details className="emotional-integrations__advanced">
-        <summary className="emotional-integrations__advanced-toggle">
-          {MAPPA_UI.advancedToggle}
-        </summary>
+      <div className="emotional-integrations__advanced">
         <div className="emotional-integrations__advanced-body">
-          <SolarEmotionSystem
-            correnti={correnti}
-            rawRecord={rawRecord}
-            dominantFamilyKey={String(profilo?.famiglia || '').toLowerCase()}
-            onOpenGalassia={onOpenGalassia}
-          />
           <RelationalDeductionsSection
             key={`${profilo?.correnteDominante || ''}-${profilo?.famiglia || ''}`}
             correnteDominante={profilo?.correnteDominante}
             famiglia={profilo?.famiglia}
           />
         </div>
-      </details>
+      </div>
     </section>
   )
 }

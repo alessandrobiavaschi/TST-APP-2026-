@@ -6,30 +6,22 @@ import React from 'react'
  */
 export default function ReportPassageHeader({
   step,
-  eyebrow,
   title,
   lead,
-  accentColor,
   className = '',
   titleId,
 }) {
   return (
     <header
       className={`report-passage-header ${className}`.trim()}
-      style={accentColor ? { '--passage-accent': accentColor } : undefined}
     >
-      <div className="report-passage-header__meta">
-        {step ? (
-          <span className="report-passage-header__step" aria-hidden="true">
-            {step}
-          </span>
-        ) : null}
-        {eyebrow ? (
-          <p className="report-passage-header__eyebrow">{eyebrow}</p>
-        ) : null}
-      </div>
       {title ? (
         <h2 id={titleId} className="report-passage-header__title">
+          {step ? (
+            <span className="report-passage-header__step-inline" aria-hidden="true">
+              {step}
+            </span>
+          ) : null}
           {title}
         </h2>
       ) : null}

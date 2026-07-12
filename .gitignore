@@ -31,3 +31,7 @@ dist-ssr
 .venv*/
 .audit_pdf_frames/
 Claude modifiche galaxy.pdf
+
+# Local test audio files (ignored in git)
+public/audio/*.mp3
+

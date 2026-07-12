@@ -1,0 +1,183 @@
+/* =====================================================================
+   sezione-musica.css — Sezione «Musicalità» del report TST.
+   ===================================================================== */
+
+.sezione-musica {
+  padding: var(--space-md, 24px) 0 var(--space-xl, 72px);
+}
+
+.sezione-musica__meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  margin: 0 0 28px;
+}
+
+.sezione-musica__badge,
+.sezione-musica__instrument {
+  font-size: var(--text-caption, 0.8125rem);
+  line-height: 1.35;
+}
+
+.sezione-musica__badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 7px 13px;
+  border: 1px solid color-mix(in srgb, var(--music-accent, #4ade80) 58%, transparent);
+  border-radius: 999px;
+  color: var(--music-accent, #4ade80);
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--music-accent, #4ade80) 20%, rgba(255, 255, 255, 0.06)),
+      rgba(255, 255, 255, 0.04)
+    );
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+  font-weight: 700;
+}
+
+.sezione-musica__instrument {
+  color: var(--text-secondary, rgba(255, 255, 255, 0.78));
+}
+
+.sezione-musica__instrument strong {
+  color: var(--text-primary, #fff);
+  font-weight: 650;
+}
+
+.sezione-musica__content {
+  display: grid;
+  gap: clamp(32px, 5vw, 58px);
+}
+
+.sezione-musica__block {
+  display: grid;
+  gap: 18px;
+  max-width: min(100%, 980px);
+}
+
+.sezione-musica__block h3 {
+  margin: 0;
+  color: var(--text-primary, #fff);
+  font-size: clamp(1rem, 0.96rem + 0.18vw, 1.12rem);
+  font-weight: 750;
+  letter-spacing: 0;
+}
+
+.sezione-musica__block p {
+  margin: 0;
+  color: var(--text-secondary, rgba(255, 255, 255, 0.8));
+  font-size: var(--text-caption, 0.8125rem);
+  line-height: 1.62;
+}
+
+.sezione-musica__block--lead {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(22px, 3.3vw, 36px);
+  border: 1px solid color-mix(in srgb, var(--corrente-primaria, #4ade80) 30%, rgba(255, 255, 255, 0.13));
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.045)),
+    color-mix(in srgb, var(--corrente-primaria, #4ade80) 8%, transparent);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.24);
+}
+
+.sezione-musica__block--panel {
+  padding: clamp(24px, 3.8vw, 42px) 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.13);
+}
+
+.sezione-musica__block--lead::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--corrente-primaria, #4ade80);
+}
+
+.sezione-musica__block--lead p {
+  max-width: 78ch;
+  color: var(--text-primary, rgba(255, 255, 255, 0.92));
+  font-size: clamp(0.95rem, 0.9rem + 0.18vw, 1.05rem);
+  line-height: 1.58;
+}
+
+.sezione-musica__detail-list {
+  display: grid;
+  gap: 0;
+}
+
+.sezione-musica__detail-row {
+  display: grid;
+  grid-template-columns: minmax(140px, 0.24fr) 1fr;
+  gap: clamp(16px, 3vw, 34px);
+  padding: 16px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sezione-musica__detail-row:last-child {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sezione-musica__detail-row h4 {
+  margin: 0;
+  color: var(--corrente-primaria, #4ade80);
+  font-size: var(--text-caption, 0.8125rem);
+  font-weight: 750;
+  letter-spacing: 0;
+}
+
+.sezione-musica__summary-grid {
+  display: grid;
+  gap: clamp(24px, 4vw, 46px);
+}
+
+.sezione-musica__summary-grid h4 {
+  margin: 0 0 12px;
+  color: var(--corrente-primaria, #4ade80);
+  font-size: var(--text-caption, 0.8125rem);
+  font-weight: 750;
+  letter-spacing: 0;
+}
+
+@media (min-width: 900px) {
+  .sezione-musica__summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.sezione-musica__block--keywords {
+  position: relative;
+  max-width: min(100%, 980px);
+  padding-top: 4px;
+}
+
+.sezione-musica__list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 18px;
+  color: var(--text-secondary, rgba(255, 255, 255, 0.8));
+  font-size: var(--text-caption, 0.8125rem);
+  line-height: 1.55;
+}
+
+.sezione-musica__list li::marker {
+  color: var(--corrente-primaria, #4ade80);
+}
+
+.sezione-musica__keywords {
+  color: var(--text-primary, rgba(255, 255, 255, 0.9));
+  font-weight: 650;
+}
+
+@media (max-width: 680px) {
+  .sezione-musica__detail-row {
+    grid-template-columns: 1fr;
+    gap: 7px;
+    padding: 16px 0;
+  }
+}

@@ -50,11 +50,11 @@
     }
   },
   "Blu": {
-    "restituzione_natura": "NATURA LUNARE",
+    "restituzione_natura": "CARATTERISTICA LUNARE",
     "restituzione_caratteri": "MALINCONICO NOSTALGICA",
-    "restituzione_caratteri_estesi": "In questa famiglia emerge il piacere di stare con sé stessi, di osservarsi interiormente e di riflettere su ciò che si è vissuto. La natura lunare malinconico-nostalgica predilige riflessività e percezione emotiva profonda — con orientamento al passato.",
+    "restituzione_caratteri_estesi": "In questa famiglia emerge il piacere di stare con sé stessi, di osservarsi interiormente e di riflettere su ciò che si è vissuto. La caratteristica lunare malinconico-nostalgica predilige riflessività e percezione emotiva profonda — con orientamento al passato.",
     "restituzione_dimensione": "passato",
-    "descrizione_estesa": "Il sorgere della malinconia si avverte nell’adolescenza: attorno ai nove-dieci anni una «seconda nascita» affettiva, luce riflessa della Luna rispetto al Sole dell’età adulta.\nQuattro sotto-correnti articulano la famiglia: Malinconia depressiva (Blu notte), lunare (Blu medio), Nostalgia (Blu reale) e Malinconia solare (Celeste) che apre verso fiducia e speranza.",
+    "descrizione_estesa": "Il sorgere della malinconia si avverte nell’adolescenza: attorno ai nove-dieci anni una «seconda nascita» affettiva, luce riflessa della Luna rispetto al Sole dell’età adulta.\nQuattro sotto-correnti articolano la famiglia: Depressiva, Lunare, Nostalgica e Solare.",
     "risorse": "In questa corrente il piacere dell’introspezione orienta l’energia verso senso, profondità e autenticità.\n- La solitudine scelta può essere spazio di ascolto interiore, non punizione.\n- La nostalgia, nella forma di saudade, può trasformare la perdita in ricordo e riconoscenza.\n- La malinconia solare apre una breccia verso fiducia e compassione mantenendo la delicatezza lunare.",
     "ombre": "Quando questa corrente si irrigidisce, il chiuso dell’interiorità può generare paura dell’inconosciuto e blocco relazionale.\n- La tristezza può restare al rimpianto senza passare alla gratitudine.\n- Il piacere dell’introspezione può trasformarsi in isolamento eccessivo.\n- Si può confondere l’identità con il dolore, fino a sentire la malinconia come unica autenticità affettiva.",
     "lessico": [
@@ -147,7 +147,7 @@
     ]
   },
   "Rosso": {
-    "restituzione_natura": "NATURA MARZIALE",
+    "restituzione_natura": "CARATTERISTICA MARZIALE",
     "restituzione_caratteri": "VOLITIVO COLLERICA",
     "restituzione_caratteri_estesi": "In questa famiglia emerge il piacere del fare, di realizzare ciò che si desidera, di governarsi e mettersi alla prova. La natura marziale volitivo-collerica predilige assertività, costanza, sincerità e impegno nel qui e ora — con orientamento al presente.",
     "restituzione_dimensione": "presente",
@@ -207,7 +207,7 @@
     ]
   },
   "Verde": {
-    "restituzione_natura": "NATURA FLEMMATICA",
+    "restituzione_natura": "CARATTERISTICA FLEMMATICA",
     "restituzione_caratteri": "CONTEMPLATIVA",
     "restituzione_caratteri_estesi": "In questa famiglia emerge il piacere della lentezza, del silenzio, della calma, del riposo e della contemplazione. I caratteri flemmatici prediligono il certo, la ripetitività, l’assenza di eccitazione — con orientamento all’«oblio sospeso», il tempo della bonaccia interiore.",
     "restituzione_dimensione": "oblio sospeso",
@@ -246,9 +246,9 @@
     ]
   },
   "Giallo": {
-    "restituzione_natura": "NATURA SOLARE",
+    "restituzione_natura": "CARATTERISTICA EMOTIVA SOLARE",
     "restituzione_caratteri": "SANGUINICO ENTUSIASTA",
-    "restituzione_caratteri_estesi": "In questa famiglia emerge il piacere del movimento, della curiosità, della scoperta del nuovo e dell’estroversione. La natura solare sanguigno-entusiasta guarda al futuro: slancio vitale, partecipazione e ricerca di bagliori di bellezza.",
+    "restituzione_caratteri_estesi": "In questa famiglia emerge il piacere del movimento, della curiosità, della scoperta del nuovo e dell’estroversione. La caratteristica emotiva solare sanguigno-entusiasta guarda al futuro: slancio vitale, partecipazione e ricerca di bagliori di bellezza.",
     "restituzione_dimensione": "futuro",
     "descrizione_estesa": "Nel pre-infantile la curiosità è piacere da esercitare: registra gesti e li associa agli effetti, guidato dal ritmo. La soddisfazione per ciò che si è riusciti a fare accende l’Entusiasmo come continente interiore.\nConvivono la Gioia e l’Entusiasmo (stati da Gioioso a Irrefrenabile) e l’Entusiasmo volitivo passionale (Innamorato, Appassionato, Ardente). I climi dell’Entusiasmo sono antidoto all’apatia e al gelo intellettuale.",
     "risorse": "In questa corrente la gioia del movimento spinge a esplorare il mondo con slancio diretto.\n- Capacità di contagiare gli altri con entusiasmo, facilitando aggregazione e creatività condivisa.\n- Predisposizione a percepire e valorizzare ciò che è nuovo, brillante e vitale.\n- Antidoto contro apatia, gelo intellettuale e indifferenza, portando luce e calore.",
@@ -289,7 +289,7 @@
     ]
   },
   "Grigio": {
-    "restituzione_natura": "NATURA ANAFFETTIVA",
+    "restituzione_natura": "CARATTERISTICA ANAFFETTIVA",
     "restituzione_caratteri": "AGNOSTICO ANAFFETTIVA",
     "restituzione_caratteri_estesi": "In questa famiglia emerge il piacere del calcolo, della dubbiosità di origine intellettuale e dell’oggettività fisica. È una corrente che agisce in modo trasversale sulle altre quattro aree del temperamento: può raffreddare l’affetto o, nel suo versante evoluto, orientare l’intelletto verso saggezza e dedizione.",
     "restituzione_dimensione": "trasversale",

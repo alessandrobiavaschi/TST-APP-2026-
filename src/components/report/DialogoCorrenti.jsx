@@ -104,7 +104,7 @@ function CoppiaCard({ coppia, isOpen, onToggle }) {
   )
 }
 
-export default function DialogoCorrenti({ colorTotals = {}, accentColor = '' }) {
+export default function DialogoCorrenti({ colorTotals = {}, accentColor = '', stepPrefix = '1', step }) {
   const coppie = useMemo(() => getDialogoCoppie(colorTotals), [colorTotals])
   const [openIndex, setOpenIndex] = useState(0)
 
@@ -120,8 +120,8 @@ export default function DialogoCorrenti({ colorTotals = {}, accentColor = '' }) 
       style={{ '--dc-accent': resolvedAccent }}
     >
       <ReportPassageHeader
-        step="3"
-        eyebrow={DIALOGO_UI.eyebrow}
+        step={step || `${stepPrefix}.5`}
+        eyebrow="Dialogo interno"
         title={DIALOGO_UI.title}
         lead={DIALOGO_UI.lead(dominantLabel, coppie.length)}
         accentColor={resolvedAccent}

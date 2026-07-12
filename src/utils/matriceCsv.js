@@ -87,7 +87,8 @@ function coerceSchemaField(key, rawStr) {
   }
   if (t === 'timestamp') {
     if (!s.trim()) return null
-    return s
+    const date = new Date(s)
+    return Number.isNaN(date.getTime()) ? s : date
   }
   return s
 }

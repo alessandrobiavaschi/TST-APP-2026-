@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useRef } from 'react'
 import { useSyncVideoToCanvas } from '../hooks/useSyncVideoToCanvas.js'
 
-/** Sfondo landing e report: `public/Video Background/SFONDO LANDING.mp4`. */
-const LANDING_FILE = 'Video Background/SFONDO LANDING.mp4'
+/** Sfondo landing e report: `public/SFONDO LANDING.mp4`. */
+const LANDING_FILE = 'SFONDO LANDING.mp4'
 // In Vite, files in `public/` are served from the app root (not `/public/...`).
 const LANDING_LOOP = `${import.meta.env.BASE_URL}${encodeURI(LANDING_FILE)}`
 

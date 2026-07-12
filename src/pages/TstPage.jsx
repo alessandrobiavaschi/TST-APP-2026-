@@ -25,7 +25,8 @@ function TstPage() {
         <div className="info-hero-card section-hero-card section-hero-card--newtest">
           <h1 className="section-hero-title">Scopri il TST</h1>
           <p className="section-hero-subtitle">
-            Tutto quello che può servirti prima di provare il Test.
+            Uno strumento scientifico-artistico musicale che rivela l&apos;intima natura emotiva
+            individuale.
           </p>
         </div>
       </header>

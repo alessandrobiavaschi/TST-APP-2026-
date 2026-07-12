@@ -1,13 +1,8 @@
-import React, { useMemo, useState } from 'react'
-import {
-  motion,
-  useReducedMotion,
-  useScroll,
-  useMotionValueEvent,
-} from 'framer-motion'
-import { getFlowerStillByColor } from '../../colorAssets.js'
-import FioreCorrenti from './FioreCorrenti.jsx'
+import React, { useMemo } from 'react'
+import { motion, useReducedMotion } from 'framer-motion'
 import { HERO_UI } from './reportUiCopy.js'
+import { getFlowerStillByColor } from '../../colorAssets.js'
+import { computeColorTotals, getDominantColorInfo } from '../../utils/reportRecordUtils.js'
 
 // Il setup ESLint del progetto non riconosce l'uso di `motion.X` nel JSX come
 // riferimento alla variabile (stessa convenzione di HeroSummary.jsx).
@@ -22,16 +17,13 @@ void motion
  * automaticamente per ogni profilo.
  *
  * Props:
- *  - naturaName: string            es. "NATURA FLEMMATICA"  (diventa l'unico <h1>)
+ *  - naturaName: string            es. "NATURA FLEMMATICA"
  *  - disposizione: string          es. "CONTEMPLATIVA"
- *  - fraseChiave: string
+ *  - userName: string              nome e cognome della persona
  *  - correnteColore: string        hex colore dominante (es. "#16a34a")
  *  - correnteColoreChiara?: string hex versione chiara (opzionale; default calcolato)
  *  - correnteColoreMedia?: string  hex versione media/scura (opzionale; default calcolato)
  *  - correnti: Array<{ nome: string, colore: string, peso: number }>  // 5 correnti
- *  - famigliaColore?: string        es. "Verde" → still fiore per famiglia (colorAssets)
- *  - onStartReport: () => void
- *  - onStartGalassia: () => void
  */
 
 /* ------------------------------------------------------------------ */
@@ -74,6 +66,10 @@ function mixToward(hex, target, amount) {
 const lighten = (hex, a) => mixToward(hex, WHITE, a)
 const darken = (hex, a) => mixToward(hex, BLACK, a)
 
+function toTitleCase(str) {
+  return String(str || '').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase())
+}
+
 function rgba(hex, a) {
   const c = parseHex(hex)
   if (!c) return hex
@@ -91,72 +87,58 @@ const NOISE_SVG =
 
 const EDGE_COLOR = '#020817'
 
-const FAMIGLIA_TO_COLOR_KEY = {
-  blu: 'blu',
-  rosso: 'rosso',
-  verde: 'verde',
-  giallo: 'giallo',
-  grigio: 'grigio',
-}
-
-function resolveColorKeyFromFamiglia(famigliaColore) {
-  if (!famigliaColore) return null
-  const normalized = String(famigliaColore).trim().toLowerCase()
-  return FAMIGLIA_TO_COLOR_KEY[normalized] || null
-}
-
 /* ------------------------------------------------------------------ */
 /* Componente principale.                                             */
 /* ------------------------------------------------------------------ */
 
 export default function HeroScreen({
-  naturaName = 'NATURA FLEMMATICA',
+  _naturaName = 'NATURA FLEMMATICA',
   disposizione = 'CONTEMPLATIVA',
-  fraseChiave = '',
+  _userName = '',
   correnteColore = '#16a34a',
   correnteColoreChiara,
   correnteColoreMedia,
-  correnti = [],
-  famigliaColore,
-  onStartReport,
-  onStartGalassia,
+  _correnti = [],
+  rawRecord = {},
+  _portato = {},
 }) {
   const reduceMotion = useReducedMotion()
-  const [scrolled, setScrolled] = useState(false)
 
-  const { scrollY } = useScroll()
+  const colorKey = useMemo(() => {
+    const totals = computeColorTotals(rawRecord)
+    const { dominantKey } = getDominantColorInfo(totals)
+    return dominantKey
+  }, [rawRecord])
 
-  useMotionValueEvent(scrollY, 'change', (v) => {
-    if (v > 24 && !scrolled) setScrolled(true)
-  })
+  const bgImage = useMemo(() => {
+    return getFlowerStillByColor(colorKey)
+  }, [colorKey])
+
+  const edgeColor = useMemo(() => {
+    // Derive a very dark, premium ambient background color from the family's dominant color
+    return darken(correnteColore, 0.75)
+  }, [correnteColore])
 
   /* Varianti colore: usa le prop se fornite, altrimenti deriva dal dominante. */
   const colors = useMemo(() => {
     const media = correnteColoreMedia || darken(correnteColore, 0.32)
     const chiara = correnteColoreChiara || lighten(correnteColore, 0.35)
     // Stop intermedio OPACO (media → bordo), così lo sfondo non traspare mai.
-    const edgeRgb = parseHex(EDGE_COLOR) || BLACK
+    const edgeRgb = parseHex(edgeColor) || BLACK
     const mid = mixToward(media, edgeRgb, 0.62)
     return { media, chiara, mid }
-  }, [correnteColore, correnteColoreChiara, correnteColoreMedia])
-
-  /* Still fiore TST (stesso asset di FinalFlowerTransition). */
-  const flowerStillUrl = useMemo(() => {
-    const key = resolveColorKeyFromFamiglia(famigliaColore)
-    return key ? getFlowerStillByColor(key) : null
-  }, [famigliaColore])
+  }, [correnteColore, correnteColoreChiara, correnteColoreMedia, edgeColor])
 
   /* CSS custom properties iniettate sul root → tutta la scena è data-driven. */
   const rootStyle = {
     '--corrente': correnteColore,
     '--corrente-chiara': colors.chiara,
     '--corrente-media': colors.media,
-    '--hero-edge': EDGE_COLOR,
-    minHeight: 'calc(100svh - var(--app-header-offset, 56px))',
+    '--hero-edge': edgeColor,
     position: 'relative',
     overflow: 'visible',
-    paddingBottom: 'clamp(2rem, 6vh, 4rem)',
-    backgroundColor: EDGE_COLOR,
+    paddingBottom: 'clamp(2rem, 4vh, 3rem)',
+    backgroundColor: edgeColor,
   }
 
   /* Helper transizione fade-in (rispetta reduced-motion). */
@@ -169,13 +151,14 @@ export default function HeroScreen({
           transition: { delay, duration: 0.7, ease: [0.22, 1, 0.36, 1] },
         }
 
-  const gradientStyle = flowerStillUrl
-    ? {
-        backgroundImage: `radial-gradient(circle at 50% 40%, ${rgba(colors.media, 0.62)} 0%, ${rgba(colors.mid, 0.78)} 42%, ${rgba(EDGE_COLOR, 0.52)} 72%, ${rgba(EDGE_COLOR, 0.28)} 100%)`,
-      }
-    : {
-        backgroundImage: `radial-gradient(circle at 50% 42%, var(--corrente-media) 0%, ${colors.mid} 46%, var(--hero-edge) 100%)`,
-      }
+  const famigliaText = toTitleCase(disposizione)
+
+  const gradientStyle = {
+    backgroundImage: `
+      radial-gradient(circle at 50% 46%, ${rgba(colors.media, 0.12)} 0%, ${rgba(colors.mid, 0.42)} 42%, ${rgba(edgeColor, 0.82)} 84%),
+      linear-gradient(180deg, ${rgba(edgeColor, 0.42)} 0%, ${rgba(edgeColor, 0.08)} 48%, ${rgba(edgeColor, 0.56)} 100%)
+    `,
+  }
 
   return (
     <section
@@ -184,253 +167,177 @@ export default function HeroScreen({
       className="hero-screen relative w-full"
     >
       <div className="hero-screen__backdrop" aria-hidden="true">
-        {/* Layer 0 — foto fiore full-bleed (famiglia / disposizione prevalente). */}
-        {flowerStillUrl ? (
+        {/* Layer -1 — Nature background image matching the disposition */}
+        {bgImage && (
           <div
-            className="hero-screen__flower"
-            style={{ backgroundImage: `url("${flowerStillUrl}")` }}
+            className="hero-screen__nature-bg"
+            style={{ backgroundImage: `url(${bgImage})` }}
           />
-        ) : correnti.length > 0 ? (
-          <div className="hero-screen__flower-fallback" aria-hidden="true">
-            <FioreCorrenti correnti={correnti} size={320} ariaLabel="" />
-          </div>
-        ) : null}
-        {/* Layer 1 — gradiente radiale: centro opaco per il titolo, bordi più trasparenti. */}
+        )}
+
+        {/* Layer 1 — Radial gradient overlay: ensures contrast for titles and text */}
         <div
           className="hero-screen__gradient"
           style={{
             ...gradientStyle,
-            backgroundColor: flowerStillUrl ? 'transparent' : EDGE_COLOR,
+            backgroundColor: bgImage ? 'transparent' : edgeColor,
           }}
         />
-        {/* Layer 2 — noise. */}
+        {/* Layer 2 — Noise overlay */}
         <div
           className="hero-screen__noise"
           style={{ backgroundImage: `url("${NOISE_SVG}")` }}
         />
       </div>
 
-      {/* Layer 3 — contenuto (titolo, disposizione, cerchi, CTA). */}
+      {/* Layer 3 — contenuto essenziale: sintesi identitaria. */}
       <div
-        className="report-tst-hero__content hero-screen__content flex w-full flex-col items-center justify-center px-6 py-6 sm:py-8"
+        className="report-tst-hero__content hero-screen__content flex w-full flex-col items-center justify-center px-6 py-10 sm:py-12"
       >
-        <div className="report-tst-hero__inner flex w-full max-w-3xl flex-col items-center gap-5 sm:gap-6">
-          {/* 1. Label monospace */}
+        <div className="report-tst-hero__inner report-tst-hero__identity flex w-full max-w-4xl flex-col items-center">
           <motion.p
-            {...fade(0.2)}
-            style={{
-              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-              textTransform: 'uppercase',
-              letterSpacing: '0.3em',
-              fontSize: '0.7rem',
-              color: rgba(colors.chiara, 0.6),
-              margin: 0,
-            }}
+            {...fade(0.1, 12)}
+            className="hero-screen__restituzione-label"
           >
-            {HERO_UI.label}
+            Restituzioni del Test
           </motion.p>
-
-          <motion.p
-            {...fade(0.35)}
-            className="report-tst-hero__measure-label"
-          >
-            {HERO_UI.prevalenzaLabel}
-          </motion.p>
-
-          {/* 2. Nome natura — unico h1, dominante */}
           <motion.h1
-            {...fade(0.5, 24)}
+            {...fade(0.2, 24)}
+            className="hero-screen__sintesi-title"
             style={{
-              fontSize: 'clamp(3rem, 8vw, 7rem)',
-              lineHeight: 1.05,
+              maxWidth: 'min(1040px, 92vw)',
               color: '#ffffff',
               margin: 0,
+              textAlign: 'center',
+              textShadow: '0 2px 24px rgba(0, 0, 0, 0.75)',
             }}
           >
-            {naturaName}
+            <span className="hero-screen__sintesi-bridge">La tua famiglia emotiva prevalente è</span>
+            <strong className="hero-screen__sintesi-family">{famigliaText}</strong>
           </motion.h1>
-
-          {/* 3. Disposizione */}
-          <motion.p
-            {...fade(0.8)}
-            style={{
-              fontFamily: 'var(--font-mono)',
-              textTransform: 'uppercase',
-              letterSpacing: '0.2em',
-              fontSize: 'clamp(0.75rem, 1.8vw, 0.95rem)',
-              fontWeight: 500,
-              color: 'var(--corrente-chiara)',
-              margin: 0,
-            }}
-          >
-            {disposizione}
-          </motion.p>
-
-          <motion.div
-            {...fade(1.0)}
-            className="hero-screen__legend report-tst-hero__legend"
-          >
-            <p>{HERO_UI.naturaLegend}</p>
-            <p>{HERO_UI.disposizioneLegend}</p>
+          <motion.div {...fade(0.45, 8)} className="hero-screen__cta-sintesi">
+            <a
+              href="#prima-sintesi-risultato"
+              className="nav-button primary hero-screen__cta-sintesi-link"
+            >
+              Leggi la prima sintesi del risultato del test
+            </a>
           </motion.div>
-
-          {/* 4. Linea divisoria animata (width 0 → 60px) */}
-          <motion.span
-            aria-hidden="true"
-            initial={reduceMotion ? false : { width: 0 }}
-            animate={{ width: 60 }}
-            transition={reduceMotion ? { duration: 0 } : { delay: 1, duration: 0.6, ease: 'easeOut' }}
-            style={{
-              display: 'block',
-              height: '1px',
-              backgroundColor: rgba(correnteColore, 0.4),
-            }}
-          />
-
-          {/* 5. Frase chiave */}
-          {fraseChiave ? (
-            <motion.p
-              {...fade(1.2)}
-              className="report-tst-hero__frase-chiave"
-            >
-              {fraseChiave}
-            </motion.p>
-          ) : null}
-
-          {/* 6. Bottoni */}
-          <motion.div
-            {...fade(1.8)}
-            className="flex flex-col items-center justify-center gap-4 sm:flex-row"
-            style={{ marginTop: '0.5rem' }}
-          >
-            <button
-              type="button"
-              onClick={onStartReport}
-              className="hero-screen-btn-primary"
-              style={{
-                backgroundColor: 'var(--corrente)',
-                color: '#ffffff',
-                fontFamily: 'var(--font-body)',
-                fontWeight: 500,
-                fontSize: '1rem',
-                padding: '14px 32px',
-                minHeight: '44px',
-                border: 'none',
-                borderRadius: '2px',
-                cursor: 'pointer',
-                transition: 'filter 0.2s ease, background-color 0.2s ease',
-              }}
-            >
-              {HERO_UI.ctaReport}
-            </button>
-            <button
-              type="button"
-              onClick={onStartGalassia}
-              className="hero-screen-btn-secondary"
-              style={{
-                backgroundColor: 'transparent',
-                color: 'rgba(255, 255, 255, 0.8)',
-                fontFamily: 'var(--font-body)',
-                fontWeight: 500,
-                fontSize: '1rem',
-                padding: '14px 32px',
-                minHeight: '44px',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-                borderRadius: '2px',
-                cursor: 'pointer',
-                transition: 'border-color 0.2s ease, color 0.2s ease',
-              }}
-            >
-              {HERO_UI.ctaGalassia}
-            </button>
-          </motion.div>
-
-          {HERO_UI.readingDurationHint ? (
-            <motion.p
-              {...fade(2)}
-              className="report-tst-hero__duration-hint"
-              style={{
-                margin: 0,
-                maxWidth: '28rem',
-                fontFamily: 'var(--font-body)',
-                fontSize: '0.875rem',
-                lineHeight: 1.5,
-                color: 'rgba(255, 255, 255, 0.55)',
-              }}
-            >
-              {HERO_UI.readingDurationHint}
-            </motion.p>
-          ) : null}
-
-          {Array.isArray(HERO_UI.journeySteps) && HERO_UI.journeySteps.length > 0 ? (
-            <motion.div {...fade(2.1)} className="hero-screen__journey">
-              <p className="hero-screen__journey-label">{HERO_UI.journeyLabel}</p>
-              <ol className="hero-screen__journey-steps">
-                {HERO_UI.journeySteps.map((item) => (
-                  <li key={item.n} className="hero-screen__journey-step">
-                    <span className="hero-screen__journey-num">{item.n}</span>
-                    <span className="hero-screen__journey-q">{item.q}</span>
-                  </li>
-                ))}
-              </ol>
-            </motion.div>
-          ) : null}
         </div>
       </div>
-
-      {/* Scroll indicator: scompare dopo il primo scroll. */}
-      {!scrolled ? (
-        <motion.div
-          aria-hidden="true"
-          initial={reduceMotion ? false : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={reduceMotion ? { duration: 0 } : { delay: 2.2, duration: 0.6 }}
-            style={{
-              position: 'absolute',
-            bottom: '24px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 4,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '6px',
-          }}
-        >
-          <motion.svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="rgba(255, 255, 255, 0.7)"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            animate={reduceMotion ? undefined : { y: [0, 7, 0] }}
-            transition={
-              reduceMotion ? undefined : { duration: 1.8, repeat: Infinity, ease: 'easeInOut' }
-            }
-          >
-            <path d="M6 9l6 6 6-6" />
-          </motion.svg>
-          <span
-            style={{
-              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-              fontSize: '0.6rem',
-              textTransform: 'uppercase',
-              letterSpacing: '0.25em',
-              color: 'rgba(255, 255, 255, 0.4)',
-            }}
-          >
-            {HERO_UI.scrollHint}
-          </span>
-        </motion.div>
-      ) : null}
 
       {/* Stili hover (scoped via classi dedicate). Usa la CSS custom property
           --corrente per la box-shadow del bottone primario. */}
       <style>{`
+        .hero-screen__flower-container {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1;
+          pointer-events: none;
+          opacity: 0.72;
+          transform: scale(1.12);
+        }
+        .hero-screen__flower-container .fiore-mood {
+          background: transparent !important;
+          border: none !important;
+          box-shadow: none !important;
+          padding: 0 !important;
+        }
+        .hero-screen__sintesi-title {
+          font-family: var(--font-body);
+          font-weight: 450;
+          line-height: 1.08;
+          letter-spacing: 0;
+          text-wrap: balance;
+        }
+        .hero-screen__sintesi-title span {
+          display: inline;
+        }
+        .hero-screen__restituzione-label {
+          font-size: clamp(0.68rem, 1vw, 0.82rem);
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+          color: var(--report-structural-accent, #c4b5fd);
+          font-weight: 500;
+          margin: 0 0 clamp(0.85rem, 2vh, 1.3rem) 0;
+          opacity: 0.82;
+          text-align: center;
+        }
+        .hero-screen__sintesi-bridge {
+          display: block;
+          font-size: clamp(1.05rem, 1.6vw, 1.65rem);
+          color: color-mix(in srgb, var(--corrente-chiara, #fde68a) 78%, #ffffff);
+          font-weight: 420;
+          margin-bottom: 0.1em;
+        }
+        .hero-screen__cta-sintesi {
+          margin-top: clamp(1.4rem, 3vh, 2rem);
+        }
+        .hero-screen__cta-sintesi-link {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          color: #ffffff;
+          font-size: clamp(0.82rem, 1.1vw, 0.96rem);
+          letter-spacing: 0.03em;
+          text-decoration: none;
+          padding: 0.78rem 1.35rem;
+          border: 1px solid color-mix(in srgb, var(--corrente-chiara, #fde68a) 58%, transparent);
+          border-radius: 999px;
+          background: color-mix(in srgb, var(--corrente, #7c3aed) 72%, rgba(15, 23, 42, 0.42));
+          box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+          transition: transform 0.2s, filter 0.2s, box-shadow 0.2s;
+        }
+        .hero-screen__cta-sintesi-link:hover {
+          color: #ffffff;
+          transform: translateY(-2px);
+          filter: brightness(1.08);
+          box-shadow: 0 14px 34px rgba(0, 0, 0, 0.34);
+        }
+        .hero-screen__cta-sintesi-link:focus-visible {
+          outline: 2px solid rgba(255, 255, 255, 0.82);
+          outline-offset: 4px;
+        }
+        .hero-screen__sintesi-nature-line {
+          display: block;
+          margin-top: clamp(0.85rem, 1.8vh, 1.35rem);
+          font-size: clamp(1.85rem, 3.2vw, 3.75rem);
+          line-height: 1.05;
+          color: color-mix(in srgb, var(--corrente-chiara, #fde68a) 82%, #ffffff);
+        }
+        .hero-screen__sintesi-nature-label {
+          display: inline;
+          font-weight: 450;
+        }
+        .hero-screen__sintesi-family,
+        .hero-screen__sintesi-nature {
+          font-size: clamp(2.6rem, 6.1vw, 6.8rem);
+          color: #ffffff;
+          font-weight: 700;
+        }
+        .hero-screen__sintesi-title .hero-screen__sintesi-family {
+          display: block;
+          margin-top: 0.18em;
+        }
+        .hero-screen__sintesi-nature {
+          display: inline;
+          font-size: inherit;
+          color: color-mix(in srgb, var(--corrente-chiara, #fde68a) 72%, #ffffff);
+        }
+        @media (max-width: 768px) {
+          .hero-screen__flower-container {
+            transform: scale(1.25);
+          }
+          .hero-screen__sintesi-family {
+            font-size: clamp(2.15rem, 10vw, 4.2rem);
+          }
+          .hero-screen__sintesi-nature-line {
+            font-size: clamp(1.55rem, 6.8vw, 2.7rem);
+          }
+        }
         .hero-screen-btn-primary {
           color: #ffffff;
           text-shadow: none;

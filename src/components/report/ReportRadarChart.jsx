@@ -31,11 +31,25 @@ function hexToRgba(hex, alpha) {
 }
 
 /** Tick assi radar (monospace 11px #94a3b8) — stile QuattroRapporti. */
-export function ReportRadarAxisTick({ x, y, payload, textAnchor }) {
+export function ReportRadarAxisTick({ x, y, payload, textAnchor, cx, cy }) {
+  let nudgedX = x
+  let nudgedY = y
+
+  if (typeof cx === 'number' && typeof cy === 'number') {
+    const dx = x - cx
+    const dy = y - cy
+    const dist = Math.sqrt(dx * dx + dy * dy)
+    if (dist > 0) {
+      const nudgeAmount = 12
+      nudgedX = x + (dx / dist) * nudgeAmount
+      nudgedY = y + (dy / dist) * nudgeAmount
+    }
+  }
+
   return (
     <text
-      x={x}
-      y={y}
+      x={nudgedX}
+      y={nudgedY}
       textAnchor={textAnchor}
       fill="#94a3b8"
       fontSize={11}
@@ -68,22 +82,36 @@ export default function ReportRadarChart({
   ariaLabel = 'Grafico radar delle cinque correnti emotive',
   scaleLabel = '',
   domain = null,
+  onFamilySelect = null,
 }) {
   const reduceMotion = useReducedMotion()
   const strokeColor = color || FALLBACK_COLOR
   const radarData = data.map((d) => ({
     corrente: d.corrente,
     valore: typeof d.valore === 'number' ? d.valore : 0,
+    familyKey: d.familyKey,
+    familyLabel: d.familyLabel,
+    rawValue: d.rawValue,
+    distributionPercent: d.distributionPercent,
   }))
 
   if (!radarData.length) return null
+
+  const handleChartClick = (state) => {
+    if (state && typeof state.activeTooltipIndex === 'number' && onFamilySelect) {
+      const clickedData = radarData[state.activeTooltipIndex]
+      if (clickedData?.familyKey) {
+        onFamilySelect(clickedData.familyKey)
+      }
+    }
+  }
 
   return (
     <div
       className={className}
       role="img"
       aria-label={ariaLabel}
-      style={{ width: '100%', minHeight: height }}
+      style={{ width: '100%', minHeight: height, cursor: onFamilySelect ? 'pointer' : 'default' }}
     >
       {scaleLabel ? (
         <p className="report-radar-chart__scale" aria-hidden="true">
@@ -91,7 +119,14 @@ export default function ReportRadarChart({
         </p>
       ) : null}
       <ResponsiveContainer width="100%" height={height} debounce={100}>
-        <RadarChart data={radarData} outerRadius={outerRadius}>
+        <RadarChart
+          data={radarData}
+          outerRadius={outerRadius}
+          cx="50%"
+          cy="50%"
+          margin={{ top: 10, right: 30, bottom: 10, left: 30 }}
+          onClick={handleChartClick}
+        >
           <PolarGrid stroke="#334155" strokeOpacity={0.5} />
           <PolarAngleAxis dataKey="corrente" tick={<ReportRadarAxisTick />} />
           {domain ? (

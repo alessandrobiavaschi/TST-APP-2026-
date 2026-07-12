@@ -5,6 +5,39 @@ import { NAVBAR_UI } from './reportUiCopy.js'
 // Il flat-config ESLint del repo non rileva l'uso di `motion` via JSX member.
 void motion
 
+function toDisplayCase(value) {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .replace(/(^|\s|')([a-zà-ú])/g, (match, prefix, letter) => `${prefix}${letter.toUpperCase()}`)
+}
+
+function formatNatureResult(natura = '') {
+  const raw = String(natura || '').trim()
+  const normalized = raw
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+
+  if (normalized.includes('caratteristica emotiva')) {
+    return `caratteristica emotiva ${toDisplayCase(normalized.replace(/caratteristica emotiva/g, '').trim())}`
+  }
+
+  if (normalized.includes('qualità emotiva')) {
+    return `caratteristica emotiva ${toDisplayCase(normalized.replace(/qualità emotiva/g, '').trim())}`
+  }
+
+  if (normalized.includes('caratteristica')) {
+    return `caratteristica ${toDisplayCase(normalized.replace(/caratteristica/g, '').trim())}`
+  }
+
+  if (normalized.includes('natura')) {
+    return `caratteristica ${toDisplayCase(normalized.replace(/natura/g, '').trim())}`
+  }
+
+  return toDisplayCase(raw)
+}
+
 /**
  * <NavbarTST /> — navbar sticky del Report TST.
  *
@@ -23,7 +56,6 @@ void motion
  *   - modalita: 'report' | 'galassia'
  *   - onModalitaChange: (m) => void
  *   - userName: string
- *   - correnteColore: string (hex)
  *   - correnteDominante: string
  *   - onDownload: () => void
  *   - onOpenHelp: () => void
@@ -34,8 +66,8 @@ export default function NavbarTST({
   modalita = 'report',
   onModalitaChange,
   userName = '',
-  correnteColore = '#4ade80',
   correnteDominante = '',
+  profilo,
   onDownload,
   onOpenHelp,
 }) {
@@ -63,6 +95,9 @@ export default function NavbarTST({
     { id: 'report', label: 'Report' },
     { id: 'galassia', label: 'Galassia' },
   ]
+  const famigliaResult = toDisplayCase(profilo?.disposizione || profilo?.famiglia || '')
+  const naturaResult = formatNatureResult(profilo?.natura || correnteDominante)
+  const correnteTitle = ['famiglia', famigliaResult, naturaResult].filter(Boolean).join(' · ')
 
   return (
     <header
@@ -76,10 +111,10 @@ export default function NavbarTST({
         right: 0,
         zIndex: 50,
         minHeight: 'var(--navbar-tst-height, 56px)',
-        borderBottom: '1px solid #1e293b',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
         backgroundColor: 'rgba(10, 15, 26, 0.92)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
+        backdropFilter: 'blur(18px)',
+        WebkitBackdropFilter: 'blur(18px)',
         opacity: visible ? 1 : 0,
         transform: visible ? 'translateY(0)' : 'translateY(-100%)',
         pointerEvents: visible ? 'auto' : 'none',
@@ -93,7 +128,7 @@ export default function NavbarTST({
         <div className="navbar-tst__left">
           <span
             className="navbar-tst__logo"
-            style={{ color: correnteColore }}
+            style={{ color: 'var(--report-structural-accent, #a78bfa)' }}
           >
             TST
           </span>
@@ -141,15 +176,15 @@ export default function NavbarTST({
 
         {/* ── Destra: corrente + scarica + aiuto ──────────────────── */}
         <div className="navbar-tst__right">
-          {correnteDominante ? (
-            <span className="navbar-tst__corrente" title={correnteDominante}>
-              <span className="navbar-tst__corrente-label">{NAVBAR_UI.temperamentLabel}</span>
-              <span
-                className="navbar-tst__dot"
-                style={{ backgroundColor: correnteColore }}
-                aria-hidden="true"
-              />
-              <span className="navbar-tst__corrente-name">{correnteDominante}</span>
+          {famigliaResult || naturaResult ? (
+            <span className="navbar-tst__corrente" title={correnteTitle}>
+              <span className="navbar-tst__corrente-label">famiglia</span>
+              {famigliaResult ? (
+                <span className="navbar-tst__corrente-family">{famigliaResult}</span>
+              ) : null}
+              {naturaResult ? (
+                <span className="navbar-tst__corrente-name">{naturaResult}</span>
+              ) : null}
             </span>
           ) : null}
           <span className="navbar-tst__sep navbar-tst__sep--right" aria-hidden="true" />

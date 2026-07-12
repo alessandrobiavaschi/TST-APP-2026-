@@ -3,8 +3,8 @@
 .dialogo-correnti {
   --dc-panel: rgba(13, 21, 37, 0.92);
   --dc-panel-soft: rgba(22, 31, 50, 0.66);
-  --dc-border: rgba(148, 163, 184, 0.2);
-  --dc-border-strong: rgba(148, 163, 184, 0.34);
+  --dc-border: rgba(255, 255, 255, 0.2);
+  --dc-border-strong: rgba(255, 255, 255, 0.34);
   --dc-text: #f8fafc;
   --dc-muted: #aab5c6;
   --dc-faint: #747f93;
@@ -36,9 +36,9 @@
   align-items: center;
   width: fit-content;
   padding: 0.18rem 0.56rem;
-  border: 1px solid rgba(148, 163, 184, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 999px;
-  background: rgba(148, 163, 184, 0.08);
+  background: rgba(255, 255, 255, 0.08);
   font-size: 0.67rem;
   font-weight: 600;
   letter-spacing: 0.1em;
@@ -75,15 +75,16 @@
 /* ── Single card ─────────────────────────────────────────────────── */
 
 .dialogo-correnti__card {
-  border: 1px solid var(--dc-border);
-  border-radius: 8px;
-  background: var(--dc-panel);
+  border: none;
+  border-bottom: 1px solid var(--dc-border);
+  border-radius: 0;
+  background: transparent;
   overflow: hidden;
   transition: border-color 0.2s;
 }
 
 .dialogo-correnti__card--open {
-  border-color: rgba(var(--dc-accent-rgb, 148, 163, 184), 0.45);
+  border-bottom-color: var(--dc-accent, #4ade80);
 }
 
 .dialogo-correnti__card-trigger {
@@ -92,24 +93,28 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.9rem 1.1rem;
+  padding: 1.1rem 0;
   background: transparent;
   border: none;
   cursor: pointer;
   color: var(--dc-text);
   text-align: left;
-  transition: background 0.15s;
+  transition: color 0.15s;
 }
 
 .dialogo-correnti__card-trigger:hover,
 .dialogo-correnti__card-trigger:focus-visible {
-  background: rgba(148, 163, 184, 0.06);
+  background: transparent;
   outline: none;
+}
+
+.dialogo-correnti__card-trigger:hover .dialogo-correnti__card-chevron {
+  color: var(--dc-accent, #4ade80);
 }
 
 .dialogo-correnti__card-trigger:focus-visible {
   outline: 2px solid var(--dc-accent, #4ade80);
-  outline-offset: -2px;
+  outline-offset: 2px;
 }
 
 .dialogo-correnti__card-pair {
@@ -163,11 +168,11 @@
 /* ── Card body ───────────────────────────────────────────────────── */
 
 .dialogo-correnti__card-body {
-  padding: 0.25rem 1.1rem 1.1rem;
+  padding: 0.25rem 0 1.25rem 0;
   display: flex;
   flex-direction: column;
   gap: 1.1rem;
-  border-top: 1px solid var(--dc-border);
+  border-top: none;
 }
 
 .dialogo-correnti__row {
@@ -216,8 +221,8 @@
 /* fallback per browser senza color-mix */
 @supports not (color: color-mix(in srgb, red 10%, transparent)) {
   .dialogo-correnti__chip {
-    border-color: rgba(148, 163, 184, 0.3);
-    background: rgba(148, 163, 184, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
     color: #aab5c6;
   }
 }

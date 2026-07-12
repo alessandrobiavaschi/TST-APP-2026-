@@ -28,7 +28,7 @@
  * }
  */
 
-import { computeColorTotals } from './reportRecordUtils.js'
+import { computeColorTotals, computeRelativePercentages } from './reportRecordUtils.js'
 import { DISPOSITIONS } from '../config/dispositions'
 import { RAW_DOC_VISUAL } from '../config/galaxyDocBridge'
 import {
@@ -75,10 +75,11 @@ function toPct(value, max) {
  */
 export function buildCorrentDataFromRecord(rawRecord = {}) {
   const totals = computeColorTotals(rawRecord)
+  const relativePcts = computeRelativePercentages(totals)
 
   return DISPOSITIONS.map((disposition) => {
     const { colorKey } = disposition
-    const peso = toPct(totals[colorKey], THEORETICAL_MAX_COLOR_TOTALS[colorKey])
+    const peso = relativePcts[colorKey] ?? 0
 
     const sottoCorrenti = disposition.rawKeys.map((rawKey) => {
       const doc = RAW_DOC_VISUAL[rawKey] || null
@@ -192,7 +193,7 @@ export const EXAMPLE_CORRENT_DATA = [
       },
       {
         id: 'BLU_3_Nostalgia',
-        nome: 'Nostalgia',
+        nome: 'Nostalgica',
         colore: '#1d4ed8',
         peso: 18,
         descrizione: 'Settima min/Mag · Blu reale (saudade)',

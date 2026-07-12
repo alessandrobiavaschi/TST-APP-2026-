@@ -128,7 +128,13 @@ Reuse these CSS classes — do not create ad-hoc variants:
 
 Every page needs a single primary CTA. Long flows (like the 72-step test) must always show "Passo N di 72" + progress bar + current section name.
 
+## Syntax Guardrails
+
+### Quotes formatting
+Always use standard straight quotes (`'` or `"`) in JavaScript/TypeScript source code and configurations. Do not use smart/curly quotes (`‘`, `’`, `“`, `”`) even within string declarations, as they cause Rollup parser failures during `npm run build`.
+
 ### Known caveats
 
 - No test runner is configured.
 - `src/plugins/BANANA/` is an experimental plugin (animated flowers) — not part of the main flow.
+
