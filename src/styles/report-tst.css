@@ -3738,8 +3738,11 @@
 }
 .report-tst-portato__grid {
   display: grid;
-  gap: var(--space-md);
+  column-gap: var(--space-md);
+  row-gap: var(--space-xs);
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: auto auto auto auto auto;
+  align-items: start;
   margin-bottom: var(--space-md);
 }
 .report-tst-portato__card {
@@ -3747,9 +3750,11 @@
   border: none;
   border-radius: 0;
   padding: var(--space-md) 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: subgrid;
+  grid-row: span 5;
 }
 
 .report-tst-portato__card--prevalente {
@@ -3762,15 +3767,21 @@
   justify-content: space-between;
   gap: var(--space-xs);
 }
+.report-tst-portato__card--prevalente .report-tst-portato__card-top {
+  padding-right: 90px;
+}
 .report-tst-portato__dim-label {
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: var(--text-label);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--text-tertiary);
   margin: 0;
 }
 .report-tst-portato__badge {
+  position: absolute;
+  top: var(--space-md);
+  right: 0;
   font-family: var(--font-mono);
   font-size: var(--text-micro);
   letter-spacing: 0.1em;
@@ -3779,11 +3790,10 @@
   border: 1px solid color-mix(in srgb, var(--text-accent) 40%, transparent);
   border-radius: 999px;
   padding: 3px 8px;
-  flex-shrink: 0;
 }
 .report-tst-portato__valore {
   font-family: var(--font-body);
-  font-size: var(--text-title-md);
+  font-size: 2.75rem;
   font-weight: 600;
   font-style: normal;
   line-height: 1;
