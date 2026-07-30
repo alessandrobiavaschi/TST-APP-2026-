@@ -4,9 +4,12 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "predev": "node scripts/prepare-audio.mjs",
     "dev": "vite",
+    "prebuild": "node scripts/prepare-audio.mjs",
     "build": "vite build",
     "lint": "eslint .",
+    "test": "node --test",
     "preview": "vite preview",
     "optimize:media": "node scripts/optimize-media.mjs",
     "media:landing-hq": "node scripts/reencode-landing-hq.mjs"

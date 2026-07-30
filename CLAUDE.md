@@ -96,6 +96,29 @@ Flusso: `ReportPage` → `ReportShell` (config in `reportSectionsConfig.js`):
 - "Lunare" / "Solare" = **qualità** (sotto-tipi) dentro la famiglia BLU, non temperamenti autonomi.
 - "Temperamento" resta corretto solo a livello di famiglia.
 
+### Regole design vincolanti
+
+**Testo paragrafi:** `max-width: 65ch`, `line-height: 1.65`, `text-align: left` — mai `justify` senza `hyphens: auto` e `lang="it"` sull'elemento.
+
+**Font:** serif solo per `h1`–`h3`; sans-serif per corpo testo e UI; monospace esclusivamente per micro-etichette tipo "QUOTA" o "PREVALENZA" — mai per titoli, chip, legende o testi di grafici.
+
+**Colore rosso:** riservato al tema Marziale/Volitività (numeri di sezione, callout, chip identitari). Mai usare per stati attivi di navigazione, mai per dati negativi. Stati attivi = bianco + underline. Antipatia = colore neutro freddo.
+
+**Numerazione sezioni:** un solo sistema — cerchietto numerato; sottocapitoli in formato `1.1` nello stesso stile.
+
+**Scroll anchor:** ogni ancora di sezione ha `scroll-margin-top: 140px` per non finire sotto l'header sticky.
+
+**Accordion:** i titoli mantengono lo stesso font (serif) sia chiusi che aperti.
+
+### Regole testo vincolanti
+
+- Mai alterare il significato dei contenuti esistenti.
+- Evitare elenchi di 3–4 sostantivi in serie ("X, Y, Z e W") se ne esiste già uno nello stesso blocco: spezzare in due frasi.
+- Evitare il costrutto "Non è X, ma Y": riformulare in positivo.
+- Virgolette caporali «» solo per citazioni vere, mai per enfatizzare singole parole.
+- Non mostrare all'utente nomi di file (`.pdf`) o codici interni (es. `INT-MA`).
+- Alternare frasi lunghe e corte; unire paragrafi monofrase consecutivi.
+
 ### Convenzioni UI (dettagli in `GUIDA_UI_UX.md`)
 Riusare le classi CSS esistenti — non crearne varianti ad-hoc: `page`, `page-header`, `page-card`, `nav-button primary/secondary/ghost`, `answers-grid`, `feedback-field`, `report-section`. Ogni pagina ha una sola CTA primaria. Flussi lunghi (es. test 72 step) mostrano sempre "Passo N di 72" + progress bar + nome sezione corrente.
 

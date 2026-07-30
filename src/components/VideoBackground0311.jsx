@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useRef } from 'react'
-import { useSyncVideoToCanvas } from '../hooks/useSyncVideoToCanvas.js'
 
 /** Sfondo landing e report: `public/SFONDO LANDING.mp4`. */
 const LANDING_FILE = 'SFONDO LANDING.mp4'
@@ -7,17 +6,7 @@ const LANDING_FILE = 'SFONDO LANDING.mp4'
 const LANDING_LOOP = `${import.meta.env.BASE_URL}${encodeURI(LANDING_FILE)}`
 
 function VideoBackground0311({ className = '', showOverlay = false }) {
-  const containerRef = useRef(null)
   const videoRef = useRef(null)
-  const canvasRef = useRef(null)
-
-  useSyncVideoToCanvas({
-    videoRef,
-    canvasRef,
-    containerRef,
-    objectPosition: { x: 50, y: 50 },
-    enabled: true,
-  })
 
   const ensurePlaying = useCallback(() => {
     const el = videoRef.current
@@ -51,10 +40,10 @@ function VideoBackground0311({ className = '', showOverlay = false }) {
   }, [ensurePlaying])
 
   return (
-    <div ref={containerRef} className={`page-video-bg ${className}`}>
+    <div className={`page-video-bg ${className}`}>
       <video
         ref={videoRef}
-        className="page-video-bg__layer page-video-bg__video-source page-video-bg__landing-loop"
+        className="page-video-bg__layer page-video-bg__landing-loop"
         src={LANDING_LOOP}
         aria-hidden="true"
         muted
@@ -70,11 +59,6 @@ function VideoBackground0311({ className = '', showOverlay = false }) {
         onError={(e) => {
           console.warn('Video sfondo: caricamento fallito', LANDING_LOOP, e?.target?.error)
         }}
-      />
-      <canvas
-        ref={canvasRef}
-        className="page-video-bg__layer page-video-bg__display-canvas page-video-bg__landing-loop"
-        aria-hidden="true"
       />
       {showOverlay && <div className="page-video-overlay" />}
     </div>

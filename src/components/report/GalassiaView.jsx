@@ -2886,6 +2886,7 @@ export default function GalassiaView({
     hoveredSubId,
     rankedData,
     portato,
+    deepReading,
   ])
 
   const isPanelIdle = panelContent?.kind === 'idle' && !isZoomedView

@@ -778,35 +778,35 @@
   }
 
   /* ── Redesign Results Loading Screen (Mobile) ── */
-  .nuovo-test-page .result-analysis-transition {
+  .result-analysis-transition {
     padding: 1rem !important;
   }
-  .nuovo-test-page .result-analysis-card {
+  .result-analysis-card {
     width: 100% !important;
     max-height: 94vh !important;
     padding: 1.25rem 1.1rem !important;
     border-radius: 16px !important;
   }
-  .nuovo-test-page .result-analysis-flower-carousel {
+  .result-analysis-flower-carousel {
     height: 9.5rem !important;
     margin: 0.85rem auto 0.45rem !important;
   }
-  .nuovo-test-page .result-analysis-flower-image {
+  .result-analysis-flower-image {
     width: 90px !important;
     height: 90px !important;
   }
-  .nuovo-test-page .result-analysis-flower-slide {
+  .result-analysis-flower-slide {
     width: 110px !important;
   }
-  .nuovo-test-page .result-analysis-message {
+  .result-analysis-message {
     font-size: 0.92rem !important;
     line-height: 1.4 !important;
   }
-  .nuovo-test-page .result-analysis-progress {
+  .result-analysis-progress {
     margin-top: 0.65rem !important;
     height: 0.5rem !important;
   }
-  .nuovo-test-page .result-analysis-note {
+  .result-analysis-note {
     font-size: 0.8rem !important;
   }
 

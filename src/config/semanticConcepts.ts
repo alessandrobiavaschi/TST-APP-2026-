@@ -35,9 +35,9 @@ export const SEMANTIC_CONCEPTS: Record<string, SemanticConcept> = {
     relatedRawKeys: ['BLU_2_Lunare', 'BLU_3_Nostalgia'],
     relatedPortato: ['Simpatia', 'Indifferenza'],
     relatedConcepts: [],
-    evidenceLabel: 'Cerca la presenza della famiglia blu e delle sue sotto-correnti lunari/nostalgiche.',
+    evidenceLabel: 'Cerca la presenza della natura Lunare, rappresentata in blu, e delle sue caratteristiche.',
     sourceLines: [CORPUS_INTERVALLI_COSA_ATTIVA_MEMORIA, CORPUS_SCHEMA_ASSI_ORIENTAMENTO[0]],
-    calculationLabel: 'Somma dei valori delle correnti collegate alla famiglia blu indicate nella matrice.',
+    calculationLabel: 'Somma dei valori delle correnti collegate alla natura Lunare indicate nella matrice.',
     moduleLinks: [
       { module: 'Profilo', label: 'Capitolo Natura', anchor: 'report-chapter-natura' },
       { module: 'Galassia', label: 'Corrente malinconica', anchor: 'report-galassia' },

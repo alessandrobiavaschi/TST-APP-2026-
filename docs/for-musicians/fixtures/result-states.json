@@ -1,0 +1,220 @@
+{
+  "schemaVersion": 1,
+  "notice": "Fixture dimostrative per il design. Non sono risultati clinici e non definiscono soglie di scoring.",
+  "families": ["Blu", "Rosso", "Verde", "Giallo", "Grigio"],
+  "areas": ["Timbro", "Intervalli", "Ritmo", "Melodia", "Armonia"],
+  "cases": [
+    {
+      "id": "dominant_clear",
+      "label": "Dominante netta",
+      "resultState": "S1",
+      "areaState": "A1",
+      "profile": {
+        "dominant": "Rosso",
+        "secondary": "Blu",
+        "familyPresence": { "Blu": 18, "Rosso": 47, "Verde": 12, "Giallo": 14, "Grigio": 9 }
+      },
+      "areas": {
+        "Timbro": { "first": "Rosso", "second": "Blu", "relation": "confirm" },
+        "Intervalli": { "first": "Rosso", "second": "Blu", "relation": "confirm" },
+        "Ritmo": { "first": "Rosso", "second": "Giallo", "relation": "confirm" },
+        "Melodia": { "first": "Rosso", "second": "Blu", "relation": "confirm" },
+        "Armonia": { "first": "Rosso", "second": "Verde", "relation": "confirm" }
+      },
+      "portato": "Simpatia",
+      "musician": { "active": true, "instrument": "Pianoforte" },
+      "signature": "Nel tuo test emerge una firma prevalentemente Volitiva, riconoscibile in tutte le aree e particolarmente netta nel Ritmo e nel Timbro."
+    },
+    {
+      "id": "dominant_secondary",
+      "label": "Dominante con seconda presenza",
+      "resultState": "S2",
+      "areaState": "A3",
+      "profile": {
+        "dominant": "Rosso",
+        "secondary": "Blu",
+        "familyPresence": { "Blu": 29, "Rosso": 38, "Verde": 11, "Giallo": 13, "Grigio": 9 }
+      },
+      "areas": {
+        "Timbro": { "first": "Rosso", "second": "Blu", "relation": "confirm" },
+        "Intervalli": { "first": "Blu", "second": "Rosso", "relation": "shift" },
+        "Ritmo": { "first": "Rosso", "second": "Giallo", "relation": "confirm" },
+        "Melodia": { "first": "Blu", "second": "Rosso", "relation": "shift" },
+        "Armonia": { "first": "Rosso", "second": "Verde", "relation": "confirm" }
+      },
+      "portato": "Simpatia",
+      "musician": { "active": true, "instrument": "Chitarra" },
+      "signature": "La Volitivita costituisce il terreno principale; Malinconia e Intervalli introducono un registro piu riflessivo."
+    },
+    {
+      "id": "near_tie",
+      "label": "Quasi parita",
+      "resultState": "S3",
+      "areaState": "A4",
+      "profile": {
+        "dominant": "Giallo",
+        "secondary": "Verde",
+        "familyPresence": { "Blu": 13, "Rosso": 15, "Verde": 32, "Giallo": 34, "Grigio": 6 }
+      },
+      "areas": {
+        "Timbro": { "first": "Giallo", "second": "Verde", "relation": "dual" },
+        "Intervalli": { "first": "Verde", "second": "Giallo", "relation": "dual" },
+        "Ritmo": { "first": "Giallo", "second": "Rosso", "relation": "dual" },
+        "Melodia": { "first": "Giallo", "second": "Verde", "relation": "dual" },
+        "Armonia": { "first": "Verde", "second": "Giallo", "relation": "dual" }
+      },
+      "portato": "Simpatia",
+      "musician": { "active": false, "instrument": "" },
+      "signature": "Entusiasmo e Calma hanno un peso vicino e si alternano fra movimento ritmico e clima armonico."
+    },
+    {
+      "id": "three_relevant",
+      "label": "Tre presenze importanti",
+      "resultState": "S4",
+      "areaState": "A2",
+      "profile": {
+        "dominant": "Blu",
+        "secondary": "Verde",
+        "localizedThird": "Rosso",
+        "familyPresence": { "Blu": 31, "Rosso": 21, "Verde": 28, "Giallo": 12, "Grigio": 8 }
+      },
+      "areas": {
+        "Timbro": { "first": "Blu", "second": "Rosso", "relation": "confirm" },
+        "Intervalli": { "first": "Blu", "second": "Verde", "relation": "confirm" },
+        "Ritmo": { "first": "Rosso", "second": "Verde", "relation": "third_local" },
+        "Melodia": { "first": "Blu", "second": "Verde", "relation": "confirm" },
+        "Armonia": { "first": "Verde", "second": "Blu", "relation": "shift" }
+      },
+      "portato": "Misto",
+      "musician": { "active": true, "instrument": "Voce" },
+      "signature": "Malinconia e Calma formano il nucleo della risposta; la Volitivita compare soprattutto nel Ritmo."
+    },
+    {
+      "id": "distributed",
+      "label": "Profilo distribuito",
+      "resultState": "S5",
+      "areaState": "A5",
+      "profile": {
+        "dominant": null,
+        "secondary": null,
+        "familyPresence": { "Blu": 22, "Rosso": 21, "Verde": 19, "Giallo": 21, "Grigio": 17 }
+      },
+      "areas": {
+        "Timbro": { "first": "Rosso", "second": "Giallo", "relation": "variable" },
+        "Intervalli": { "first": "Blu", "second": "Grigio", "relation": "variable" },
+        "Ritmo": { "first": "Giallo", "second": "Rosso", "relation": "variable" },
+        "Melodia": { "first": "Blu", "second": "Giallo", "relation": "variable" },
+        "Armonia": { "first": "Verde", "second": "Blu", "relation": "variable" }
+      },
+      "portato": "Misto",
+      "musician": { "active": false, "instrument": "" },
+      "signature": "Nessuna famiglia concentra da sola la risposta: la mappa cambia in relazione all'area sonora."
+    },
+    {
+      "id": "weak_leader",
+      "label": "Prima famiglia debole",
+      "resultState": "S6",
+      "areaState": "A6",
+      "profile": {
+        "dominant": "Verde",
+        "secondary": "Blu",
+        "familyPresence": { "Blu": 18, "Rosso": 15, "Verde": 24, "Giallo": 17, "Grigio": 16 }
+      },
+      "areas": {
+        "Timbro": { "first": "Verde", "second": "Blu", "relation": "distributed" },
+        "Intervalli": { "first": "Blu", "second": "Verde", "relation": "distributed" },
+        "Ritmo": { "first": "Giallo", "second": "Rosso", "relation": "distributed" },
+        "Melodia": { "first": "Blu", "second": "Verde", "relation": "distributed" },
+        "Armonia": { "first": "Verde", "second": "Blu", "relation": "distributed" }
+      },
+      "portato": "Indifferenza",
+      "musician": { "active": false, "instrument": "" },
+      "signature": "La Calma e la presenza piu alta nel confronto, ma non emerge una firma nettamente dominante."
+    },
+    {
+      "id": "single_area_contradiction",
+      "label": "Scarto forte in una sola area",
+      "resultState": "S1",
+      "areaState": "A3",
+      "profile": {
+        "dominant": "Verde",
+        "secondary": "Giallo",
+        "familyPresence": { "Blu": 11, "Rosso": 13, "Verde": 43, "Giallo": 25, "Grigio": 8 }
+      },
+      "areas": {
+        "Timbro": { "first": "Verde", "second": "Blu", "relation": "confirm" },
+        "Intervalli": { "first": "Verde", "second": "Blu", "relation": "confirm" },
+        "Ritmo": { "first": "Giallo", "second": "Rosso", "relation": "shift" },
+        "Melodia": { "first": "Verde", "second": "Giallo", "relation": "confirm" },
+        "Armonia": { "first": "Verde", "second": "Blu", "relation": "confirm" }
+      },
+      "portato": "Simpatia",
+      "musician": { "active": true, "instrument": "Basso" },
+      "signature": "La Calma organizza il profilo complessivo; nel Ritmo la risposta cambia registro e si orienta verso l'Entusiasmo."
+    },
+    {
+      "id": "anaffective_dominant",
+      "label": "Anaffettivita dominante, contenuto limitato",
+      "resultState": "S2",
+      "areaState": "A2",
+      "profile": {
+        "dominant": "Grigio",
+        "secondary": "Rosso",
+        "familyPresence": { "Blu": 12, "Rosso": 25, "Verde": 10, "Giallo": 9, "Grigio": 44 }
+      },
+      "areas": {
+        "Timbro": { "first": "Grigio", "second": "Rosso", "relation": "confirm" },
+        "Intervalli": { "first": "Grigio", "second": "Blu", "relation": "confirm" },
+        "Ritmo": { "first": "Rosso", "second": "Grigio", "relation": "shift" },
+        "Melodia": { "first": "Grigio", "second": "Rosso", "relation": "confirm" },
+        "Armonia": { "first": "Grigio", "second": "Verde", "relation": "confirm" }
+      },
+      "portato": "Indifferenza",
+      "musician": { "active": true, "instrument": "Elettronica" },
+      "signature": "Nel tuo test prevale l'Anaffettivita; il Ritmo introduce una presenza Volitiva. La fonte offre per questo profilo una descrizione tecnico-musicale piu limitata."
+    },
+    {
+      "id": "antipathy_not_gray",
+      "label": "Antipatia prevalente senza Anaffettivita",
+      "resultState": "S2",
+      "areaState": "A1",
+      "profile": {
+        "dominant": "Blu",
+        "secondary": "Rosso",
+        "familyPresence": { "Blu": 39, "Rosso": 27, "Verde": 13, "Giallo": 14, "Grigio": 7 }
+      },
+      "areas": {
+        "Timbro": { "first": "Blu", "second": "Rosso", "relation": "confirm" },
+        "Intervalli": { "first": "Blu", "second": "Rosso", "relation": "confirm" },
+        "Ritmo": { "first": "Rosso", "second": "Blu", "relation": "shift" },
+        "Melodia": { "first": "Blu", "second": "Giallo", "relation": "confirm" },
+        "Armonia": { "first": "Blu", "second": "Verde", "relation": "confirm" }
+      },
+      "portato": "Antipatia",
+      "musician": { "active": false, "instrument": "" },
+      "signature": "La Malinconia e la presenza principale. L'Antipatia descrive il modo di reagire a parte degli stimoli e non modifica automaticamente la famiglia del profilo."
+    },
+    {
+      "id": "missing_area_data",
+      "label": "Dati di area incompleti",
+      "resultState": "S2",
+      "areaState": "A7",
+      "profile": {
+        "dominant": "Giallo",
+        "secondary": "Rosso",
+        "familyPresence": { "Blu": 14, "Rosso": 28, "Verde": 11, "Giallo": 40, "Grigio": 7 }
+      },
+      "areas": {
+        "Timbro": { "first": "Giallo", "second": "Rosso", "relation": "confirm" },
+        "Intervalli": { "first": null, "second": null, "relation": "insufficient" },
+        "Ritmo": { "first": "Giallo", "second": "Rosso", "relation": "confirm" },
+        "Melodia": { "first": "Giallo", "second": "Blu", "relation": "confirm" },
+        "Armonia": { "first": null, "second": null, "relation": "insufficient" }
+      },
+      "portato": null,
+      "musician": { "active": true, "instrument": "Batteria" },
+      "signature": "Entusiasmo e Volitivita sono le presenze piu riconoscibili. Per Intervalli e Armonia non sono disponibili dati sufficienti."
+    }
+  ]
+}
+

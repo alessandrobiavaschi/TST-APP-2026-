@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect, useRef } from 'react'
+import React, { Suspense, lazy, useState, useEffect, useLayoutEffect, useRef } from 'react'
 import { Routes, Route, NavLink, useNavigate, Navigate, useLocation } from 'react-router-dom'
 import { onAuthStateChanged, signOut } from 'firebase/auth'
 import './firebaseConfig.js'
@@ -9,20 +9,21 @@ import {
 } from './auth.js'
 import { AuthContext } from './AuthContext.jsx'
 import { useUiSounds } from './UiSoundProvider.jsx'
-import LandingPage from './pages/LandingPage.jsx'
-import HomePage from './pages/HomePage.jsx'
-import NewTestPage from './pages/NewTestPage.jsx'
-import ResultsPage from './pages/ResultsPage.jsx'
-import ReportPage from './pages/ReportPage.jsx'
-import InfoPage from './pages/InfoPage.jsx'
-import ProfilePage from './pages/ProfilePage.jsx'
-import TstPage from './pages/TstPage.jsx'
-import TutorialPage from './pages/TutorialPage.jsx'
 import { useSkyTheme } from './SkyThemeContext.jsx'
 import SkyBackground from './components/SkyBackground.jsx'
 import './styles/app-shell.css'
 import './App.css'
 import './styles/tst-mobile.css'
+
+const LandingPage = lazy(() => import('./pages/LandingPage.jsx'))
+const HomePage = lazy(() => import('./pages/HomePage.jsx'))
+const NewTestPage = lazy(() => import('./pages/NewTestPage.jsx'))
+const ResultsPage = lazy(() => import('./pages/ResultsPage.jsx'))
+const ReportPage = lazy(() => import('./pages/ReportPage.jsx'))
+const InfoPage = lazy(() => import('./pages/InfoPage.jsx'))
+const ProfilePage = lazy(() => import('./pages/ProfilePage.jsx'))
+const TstPage = lazy(() => import('./pages/TstPage.jsx'))
+const TutorialPage = lazy(() => import('./pages/TutorialPage.jsx'))
 
 class AppErrorBoundary extends React.Component {
   constructor(props) {
@@ -381,15 +382,20 @@ function App() {
     navigate({ pathname: '/', search: loginSearch, state: { openAccessBox: true, openRegister: true } })
   }
 
-  const handleLogoutClick = async () => {
+  const logout = async () => {
     if (!auth) return
+    await signOut(auth)
+    setCurrentUser(null)
+    setIsAccountMenuOpen(false)
+    setMobileNavOpen(false)
+    navigate('/', { replace: true })
+  }
+
+  const handleLogoutClick = async () => {
     try {
-      await signOut(auth)
+      await logout()
     } catch (error) {
       console.error('Errore durante il logout:', error)
-    } finally {
-      setIsAccountMenuOpen(false)
-      navigate('/')
     }
   }
 
@@ -432,7 +438,7 @@ function App() {
   const isTestFlowPage = location.pathname === '/nuovo-test'
 
   return (
-    <AuthContext.Provider value={{ user: effectiveUser, authReady }}>
+    <AuthContext.Provider value={{ user: effectiveUser, authReady, logout }}>
       <div
         className={`app-shell app-with-sky${
           cookieConsent === null && !testSessionActive ? ' has-gdpr-banner' : ''
@@ -816,6 +822,7 @@ function App() {
           >
             <AppErrorBoundary>
               <RouteScrollReset />
+              <Suspense fallback={<div className="page" aria-busy="true" aria-label="Caricamento pagina" />}>
               <Routes>
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/home" element={<HomePage />} />
@@ -828,6 +835,7 @@ function App() {
                 <Route path="/profilo" element={<ProfilePage />} />
                 <Route path="/info" element={<InfoPage />} />
               </Routes>
+              </Suspense>
             </AppErrorBoundary>
           </div>
         </main>

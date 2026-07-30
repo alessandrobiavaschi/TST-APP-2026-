@@ -6,7 +6,7 @@
 export const PROFILE_PDF_BLOCKS = {
   Grigio: {
     restituzione_caratteri_estesi:
-      'In questa famiglia emerge il piacere del calcolo, della dubbiosità di origine intellettuale e dell’oggettività fisica. È una corrente che agisce in modo trasversale sulle altre quattro aree del temperamento: può raffreddare l’affetto o, nel suo versante evoluto, orientare l’intelletto verso saggezza e dedizione.',
+      'Nella natura Anaffettiva emerge il piacere del calcolo, della dubbiosità di origine intellettuale e dell’oggettività fisica. Le caratteristiche agnostica e anaffettiva agiscono in modo trasversale sulle altre quattro aree del temperamento: possono raffreddare l’affetto o, nel versante evoluto, orientare l’intelletto verso saggezza e dedizione.',
     natura_paragrafi: [
       'Da Nord verso Sud soffiano venti gelidi: sul piano emotivo diventano la corrente agnostico-anaffettiva — colore Grigio scuro, intervallo di ottava — che raffredda e raggela affettivamente.',
       'Nella Rosa dei venti questa corrente è trasversale: getta la sua ombra sulle quattro macro-aree, sulla linea orizzontale del presente ma con distacco polare — osservazione, non passione. Accanto al polo anaffettivo esiste il versante agnostico-intellettuale evolutivo: saggezza, devozione, dedizione.',
@@ -44,7 +44,7 @@ export const PROFILE_PDF_BLOCKS = {
   },
   Rosso: {
     restituzione_caratteri_estesi:
-      'In questa famiglia emerge il piacere del fare, di realizzare ciò che si desidera, di governarsi e mettersi alla prova. La natura marziale volitivo-collerica predilige assertività, costanza, sincerità e impegno nel qui e ora — con orientamento al presente.',
+      'Nella natura Marziale emerge il piacere del fare, di realizzare ciò che si desidera, di governarsi e mettersi alla prova. Le caratteristiche volitiva e collerica prediligono assertività, costanza, sincerità e impegno nel qui e ora — con orientamento al presente.',
     natura_paragrafi: [
       'Da Est verso Ovest soffiano i venti che seguono l’azione vitale sul percorso del Sole. Sul piano emotivo diventano il flusso Volitivo — colore Rosso, intervallo di quarta —: il piacere del fare, impulso che agisce nel presente.',
       'Nel rapporto con te stesso, chi ama agire sente l’Io come alleato: responsabilità, prove da superare, sicurezza nel qui e ora. Sport e Musica condividono la sincerità dell’emozione autentica; dopo l’adolescenza quel finalizzatore sei tu, governatore di te stesso.',
@@ -88,7 +88,7 @@ export const PROFILE_PDF_BLOCKS = {
   },
   Verde: {
     restituzione_caratteri_estesi:
-      'In questa famiglia emerge il piacere della lentezza, del silenzio, della calma, del riposo e della contemplazione. I caratteri flemmatici prediligono il certo, la ripetitività, l’assenza di eccitazione — con orientamento all’«oblio sospeso», il tempo della bonaccia interiore.',
+      'Nella natura Flemmatica emerge il piacere della lentezza, del silenzio, della calma, del riposo e della contemplazione. La caratteristica contemplativa predilige il certo, la ripetitività e l’assenza di eccitazione — con orientamento all’«oblio sospeso», il tempo della bonaccia interiore.',
     natura_paragrafi: [
       'Al centro della Rosa dei venti domina un vento calmo e contemplativo — come l’occhio del ciclone, bonaccia silenziosa. Sul piano emotivo è la corrente flemmatica, colore Verde, orientata all’«oblio sospeso».',
       'La flemmaticità si forma nel periodo neonatale: riposo, nutrimento, sognare e assaporare sedimentano moderazione, prudenza e gentilezza gratuita. Chi ha propensioni flemmatiche orienta l’energia verso calma ed equilibrio affettivo.',
@@ -128,7 +128,7 @@ export const PROFILE_PDF_BLOCKS = {
   },
   Giallo: {
     restituzione_caratteri_estesi:
-      'In questa famiglia emerge il piacere del movimento, della curiosità, della scoperta del nuovo e dell’estroversione. La caratteristica emotiva solare sanguigno-entusiasta guarda al futuro: slancio vitale, partecipazione e ricerca di bagliori di bellezza.',
+      'Nella natura Solare emerge il piacere del movimento, della curiosità, della scoperta del nuovo e dell’estroversione. Le caratteristiche sanguigna ed entusiasta guardano al futuro: slancio vitale, partecipazione e ricerca di bagliori di bellezza.',
     natura_paragrafi: [
       'Da Sud verso Nord soffiano venti caldi: interiormente diventano il flusso dell’Entusiasmo — colore Giallo, continente dell’Entusiasmo — con orientamento al futuro.',
       'Nel pre-infantile il bambino accumula energia da spendere; ritmo e ripetizione guidano un apprendimento rapidissimo. La soddisfazione per i successi, anche piccoli, accende l’Entusiasmo come area affettiva strutturata.',
@@ -169,7 +169,7 @@ export const PROFILE_PDF_BLOCKS = {
   },
   Blu: {
     restituzione_caratteri_estesi:
-      'In questa famiglia emerge il piacere di stare con sé stessi, di osservarsi interiormente e di riflettere su ciò che si è vissuto. La caratteristica lunare malinconico-nostalgica predilige riflessività e percezione emotiva profonda — con orientamento al passato.',
+      'Nella natura Lunare emerge il piacere di stare con sé stessi, di osservarsi interiormente e di riflettere su ciò che si è vissuto. Le caratteristiche malinconica e nostalgica prediligono riflessività e percezione emotiva profonda — con orientamento al passato.',
     natura_paragrafi: [
       'Da Ovest verso Est si fa sentire l’azione riflessa della Luna: sul piano emotivo diventa il flusso Malinconia — continente della Malinconia — con orientamento al passato.',
       'Chi ha propensioni malinconiche orienta l’energia dentro di sé: piacere di riflettere, stare in disparte, non temere la solitudine scelta. La tristezza è un volto della Malinconia, non l’intera corrente: forza riflessiva che illumina l’interno.',

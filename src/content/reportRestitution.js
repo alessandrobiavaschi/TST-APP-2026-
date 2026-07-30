@@ -96,21 +96,21 @@ export const GLOSSARY = [
   {
     id: 'rosa-dei-venti',
     term: 'Rosa dei venti',
-    oneLine: 'Schema del modello che dispone le cinque famiglie emotive su cinque direzioni.',
+    oneLine: 'Schema del modello che dispone le cinque nature emotive su cinque direzioni.',
     explain:
-      'Ogni direzione corrisponde a una famiglia (malinconia, volitività, calma, entusiasmo, anaffettività). Il grafico confronta i pesi relativi; non indica luoghi né condizioni esterne.',
+      'Ogni direzione corrisponde a una natura (Lunare, Marziale, Flemmatica, Solare, Anaffettiva). Il grafico confronta i pesi relativi; i colori sono soltanto una convenzione visiva.',
     usefulFor:
-      'Usa la Rosa dei venti per confrontare le cinque famiglie nello stesso test, non per stabilire un’identità fissa.',
+      'Usa la Rosa dei venti per confrontare le cinque nature nello stesso test, non per stabilire un’identità fissa.',
     tags: ['galassia'],
   },
   {
     id: 'corrente-emotiva',
-    term: 'Corrente emotiva',
-    oneLine: 'Denominazione della qualità (es. lunare, flemmatica) all’interno di una famiglia.',
+    term: 'Caratteristica emotiva',
+    oneLine: 'Sottofamiglia che specifica una natura emotiva (es. contemplativa, depressiva).',
     explain:
-      'La famiglia è il raggruppamento (malinconia, calma, ecc.); la qualità è l’etichetta sul grafico. Tutte le famiglie sono presenti; la prevalente indica il peso maggiore in questa somministrazione.',
+      'La natura è una delle cinque categorie del modello; la caratteristica ne descrive una sottofamiglia. Tutte le nature sono presenti; la prevalente indica il peso maggiore in questa somministrazione.',
     usefulFor:
-      'Leggi famiglia e qualità insieme: ad esempio malinconia e lunare si riferiscono allo stesso polo con due livelli di descrizione.',
+      'Leggi natura e caratteristica insieme: per esempio natura Flemmatica e caratteristica Contemplativa.',
     tags: ['sintesi'],
   },
   {
@@ -127,7 +127,7 @@ export const GLOSSARY = [
     term: 'Natura',
     oneLine: 'Suolo emotivo di fondo emerso dal test.',
     explain:
-      'Indica quale famiglia prevale nel profilo complessivo in questa somministrazione. Punto di partenza per ipotesi, non carattere immutabile.',
+      'Indica quale delle cinque nature — Lunare, Marziale, Flemmatica, Solare, Anaffettiva — prevale nel profilo complessivo in questa somministrazione.',
     usefulFor: 'Adatta ritmo, profondità e tipo di stimolo (movimento vs riflessione).',
     tags: ['profilo'],
   },

@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
 /* =========================================================
    Landing design system (single direction, dark premium)
    ========================================================= */
@@ -75,15 +77,6 @@
 
 .app-main-inner {
   min-height: inherit;
-}
-
-.app-header {
-  position: sticky;
-  top: 0;
-  z-index: 90;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(7, 11, 18, 0.74);
-  backdrop-filter: blur(14px);
 }
 
 .app-header-inner {
@@ -1955,16 +1948,6 @@ body {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='2' stitchTiles='noStitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
 }
 
-.app-header {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  backdrop-filter: blur(20px);
-  background:
-    linear-gradient(to bottom, rgba(246, 248, 251, 0.96), rgba(246, 248, 251, 0.9));
-  border-bottom: 1px solid rgba(221, 228, 236, 0.9);
-  box-shadow: var(--shadow-header);
-}
 
 /* Pagina Nuovo Test – experience immersiva */
 
@@ -15037,7 +15020,7 @@ body {
   margin: 0.2rem 0 1.1rem;
 }
 
-.nuovo-test-page .result-analysis-transition {
+.result-analysis-transition {
   position: fixed;
   inset: 0;
   z-index: 130;
@@ -15045,25 +15028,44 @@ body {
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  padding: clamp(0.9rem, 3vw, 1.6rem);
-  background: radial-gradient(circle at 20% 10%, rgba(75, 118, 252, 0.18), transparent 46%),
-    linear-gradient(145deg, rgba(5, 15, 44, 0.98), rgba(5, 24, 74, 0.98));
+  padding: clamp(1rem, 4vw, 2.5rem);
+  background:
+    radial-gradient(circle at 18% 12%, rgba(99, 130, 246, 0.3), transparent 34%),
+    radial-gradient(circle at 82% 86%, rgba(245, 158, 11, 0.16), transparent 32%),
+    rgba(3, 9, 27, 0.9);
+  backdrop-filter: blur(18px) saturate(120%);
+  -webkit-backdrop-filter: blur(18px) saturate(120%);
 }
 
-.nuovo-test-page .result-analysis-card {
-  width: min(92vw, 38rem);
-  max-height: min(90vh, 44rem);
+.result-analysis-card {
+  width: min(100%, 34rem);
+  max-height: calc(100dvh - 2rem);
   overflow: auto;
-  padding: clamp(1rem, 2.4vw, 1.8rem);
-  border-radius: 1.15rem;
-  border: 1px solid rgba(151, 183, 255, 0.45);
-  background: rgba(10, 20, 54, 0.92);
-  box-shadow: 0 24px 56px rgba(2, 8, 28, 0.62);
-  backdrop-filter: blur(8px);
+  padding: clamp(1.25rem, 3.2vw, 2rem);
+  border-radius: 1.5rem;
+  border: 1px solid rgba(181, 204, 255, 0.24);
+  background: linear-gradient(155deg, rgba(17, 31, 72, 0.96), rgba(8, 18, 49, 0.98));
+  box-shadow: 0 30px 80px rgba(0, 4, 18, 0.58), inset 0 1px 0 rgba(255, 255, 255, 0.08);
   -webkit-overflow-scrolling: touch;
 }
 
-.nuovo-test-page .result-analysis-kicker {
+.result-analysis-header {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.result-analysis-status-dot {
+  width: 0.75rem;
+  height: 0.75rem;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: #8fb4ff;
+  box-shadow: 0 0 0 0 rgba(143, 180, 255, 0.55);
+  animation: result-analysis-status-pulse 1.8s ease-out infinite;
+}
+
+.result-analysis-kicker {
   margin: 0;
   font-size: 0.74rem;
   font-weight: 700;
@@ -15072,41 +15074,44 @@ body {
   color: rgba(196, 217, 255, 0.92);
 }
 
-.nuovo-test-page .result-analysis-title {
+.result-analysis-title {
   margin: 0.42rem 0 0;
-  font-size: clamp(1.08rem, 2.6vw, 1.26rem);
+  font-size: clamp(1.2rem, 3vw, 1.55rem);
   line-height: 1.25;
   color: #f8fbff;
 }
 
-.nuovo-test-page .result-analysis-flower-shell {
+.result-analysis-flower-shell {
   width: min(100%, 13.5rem);
   aspect-ratio: 1 / 1;
   margin: 0.85rem auto 0.25rem;
   border-radius: 1rem;
-  background: #ffffff;
+  background:
+    radial-gradient(circle, rgba(255, 255, 255, 0.12), transparent 62%),
+    rgba(116, 149, 225, 0.07);
   display: grid;
   place-items: center;
-  box-shadow: 0 16px 36px rgba(4, 10, 30, 0.35);
+  border: 1px solid rgba(178, 205, 255, 0.12);
+  box-shadow: inset 0 0 38px rgba(105, 147, 242, 0.08);
   overflow: hidden;
 }
 
-.nuovo-test-page .result-analysis-flower-image {
+.result-analysis-flower-image {
   width: 82%;
   height: 82%;
   object-fit: contain;
 }
 
-.nuovo-test-page .result-analysis-flower-carousel {
+.result-analysis-flower-carousel {
   position: relative;
   width: 100%;
   max-width: 620px;
-  height: 11.5rem;
+  height: 12.5rem;
   margin: 1rem auto 0.5rem;
   overflow: hidden;
 }
 
-.nuovo-test-page .result-analysis-flower-shimmer {
+.result-analysis-flower-shimmer {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -15117,33 +15122,33 @@ body {
   z-index: 1;
 }
 
-.nuovo-test-page .result-analysis-flower-track {
+.result-analysis-flower-track {
   height: 100%;
   display: flex;
   transition: transform 760ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.nuovo-test-page .result-analysis-flower-slide {
+.result-analysis-flower-slide {
   height: 100%;
   display: grid;
   place-items: center;
   flex-shrink: 0;
 }
 
-.nuovo-test-page .result-analysis-flower-image.is-active {
+.result-analysis-flower-image.is-active {
   opacity: 1;
   transform: scale(1.07) rotate(-2deg);
   filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.38)) drop-shadow(0 0 14px rgba(96, 161, 255, 0.45));
   transition: opacity 520ms ease, transform 520ms ease;
 }
 
-.nuovo-test-page .result-analysis-flower-image:not(.is-active) {
+.result-analysis-flower-image:not(.is-active) {
   opacity: 0.45;
   transform: scale(0.88);
   transition: opacity 520ms ease, transform 520ms ease;
 }
 
-.nuovo-test-page .result-analysis-message {
+.result-analysis-message {
   margin: 0.55rem 0 0;
   font-size: clamp(0.9rem, 2.2vw, 1rem);
   color: rgba(228, 237, 255, 0.9);
@@ -15152,7 +15157,7 @@ body {
   animation: result-analysis-message-pulse 1.8s ease-in-out infinite;
 }
 
-.nuovo-test-page .result-analysis-progress {
+.result-analysis-progress {
   margin-top: 0.82rem;
   height: 0.64rem;
   width: 100%;
@@ -15161,7 +15166,7 @@ body {
   background: rgba(65, 89, 150, 0.5);
 }
 
-.nuovo-test-page .result-analysis-progress-bar {
+.result-analysis-progress-bar {
   height: 100%;
   border-radius: 999px;
   background: linear-gradient(90deg, #4f8eff, #75a3ff 45%, #9ebcff);
@@ -15169,18 +15174,36 @@ body {
   transition: width 140ms linear;
 }
 
-.nuovo-test-page .result-analysis-note {
-  margin: 0.5rem 0 0;
+.result-analysis-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.65rem;
+}
+
+.result-analysis-note {
+  display: flex;
+  align-items: center;
+  gap: 0.38rem;
+  margin: 0;
   font-size: clamp(0.78rem, 1.9vw, 0.88rem);
   line-height: 1.35;
   color: rgba(198, 216, 255, 0.84);
 }
 
-.nuovo-test-page .result-analysis-percent {
-  margin: 0.45rem 0 0;
+.result-analysis-percent {
+  margin: 0;
   font-size: 0.8rem;
   color: rgba(210, 223, 255, 0.9);
   text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes result-analysis-status-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(143, 180, 255, 0.55); }
+  70% { box-shadow: 0 0 0 0.65rem rgba(143, 180, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(143, 180, 255, 0); }
 }
 
 @keyframes result-analysis-message-pulse {
@@ -16781,7 +16804,7 @@ body {
 .app-header {
   position: sticky;
   top: 0;
-  z-index: 60;
+  z-index: 90;
   background: rgba(255, 255, 255, 0.88);
   border-bottom: 1px solid rgba(223, 218, 246, 0.95);
   box-shadow: var(--shadow-header);
@@ -22069,8 +22092,6 @@ a:focus-visible {
    TST LANDING OVERHAUL - REFINEMENTS & WOW CHICCHE
    ========================================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
-
 /* Apply font scope to landing route */
 .tst-route-landing {
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -22203,4 +22224,3 @@ a:focus-visible {
   background-color: #60a5fa;
   border-radius: 50%;
 }
-

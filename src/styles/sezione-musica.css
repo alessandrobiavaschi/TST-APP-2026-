@@ -1,183 +1,174 @@
-/* =====================================================================
-   sezione-musica.css — Sezione «Musicalità» del report TST.
-   ===================================================================== */
-
-.sezione-musica {
-  padding: var(--space-md, 24px) 0 var(--space-xl, 72px);
-}
-
-.sezione-musica__meta-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px 14px;
-  margin: 0 0 28px;
-}
-
-.sezione-musica__badge,
-.sezione-musica__instrument {
-  font-size: var(--text-caption, 0.8125rem);
-  line-height: 1.35;
-}
-
-.sezione-musica__badge {
-  display: inline-flex;
-  align-items: center;
-  min-height: 34px;
-  padding: 7px 13px;
-  border: 1px solid color-mix(in srgb, var(--music-accent, #4ade80) 58%, transparent);
-  border-radius: 999px;
-  color: var(--music-accent, #4ade80);
-  background:
-    linear-gradient(
-      135deg,
-      color-mix(in srgb, var(--music-accent, #4ade80) 20%, rgba(255, 255, 255, 0.06)),
-      rgba(255, 255, 255, 0.04)
-    );
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
-  font-weight: 700;
-}
-
-.sezione-musica__instrument {
-  color: var(--text-secondary, rgba(255, 255, 255, 0.78));
-}
-
-.sezione-musica__instrument strong {
-  color: var(--text-primary, #fff);
-  font-weight: 650;
-}
-
-.sezione-musica__content {
-  display: grid;
-  gap: clamp(32px, 5vw, 58px);
-}
-
-.sezione-musica__block {
-  display: grid;
-  gap: 18px;
-  max-width: min(100%, 980px);
-}
-
-.sezione-musica__block h3 {
-  margin: 0;
-  color: var(--text-primary, #fff);
-  font-size: clamp(1rem, 0.96rem + 0.18vw, 1.12rem);
-  font-weight: 750;
-  letter-spacing: 0;
-}
-
-.sezione-musica__block p {
-  margin: 0;
-  color: var(--text-secondary, rgba(255, 255, 255, 0.8));
-  font-size: var(--text-caption, 0.8125rem);
-  line-height: 1.62;
-}
-
-.sezione-musica__block--lead {
-  position: relative;
-  overflow: hidden;
-  padding: clamp(22px, 3.3vw, 36px);
-  border: 1px solid color-mix(in srgb, var(--corrente-primaria, #4ade80) 30%, rgba(255, 255, 255, 0.13));
-  border-radius: 8px;
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.045)),
-    color-mix(in srgb, var(--corrente-primaria, #4ade80) 8%, transparent);
-  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.24);
-}
-
-.sezione-musica__block--panel {
-  padding: clamp(24px, 3.8vw, 42px) 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.13);
-}
-
-.sezione-musica__block--lead::before {
-  content: '';
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 3px;
-  background: var(--corrente-primaria, #4ade80);
-}
-
-.sezione-musica__block--lead p {
-  max-width: 78ch;
-  color: var(--text-primary, rgba(255, 255, 255, 0.92));
-  font-size: clamp(0.95rem, 0.9rem + 0.18vw, 1.05rem);
-  line-height: 1.58;
-}
-
-.sezione-musica__detail-list {
-  display: grid;
-  gap: 0;
-}
-
-.sezione-musica__detail-row {
-  display: grid;
-  grid-template-columns: minmax(140px, 0.24fr) 1fr;
-  gap: clamp(16px, 3vw, 34px);
-  padding: 16px 0;
+.fm-section {
+  padding: clamp(34px, 5vw, 58px) 0;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.sezione-musica__detail-row:last-child {
+.fm-section h2 {
+  margin: 0;
+  color: #f8fafc;
+  font-size: clamp(1.65rem, 3.2vw, 2.55rem);
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+}
+
+.fm-section h3 {
+  margin: 0;
+  color: #f8fafc;
+  font-size: 1rem;
+}
+
+.fm-section p,
+.fm-section li {
+  color: rgba(226, 232, 240, 0.78);
+  font-size: 0.94rem;
+  line-height: 1.65;
+}
+
+.fm-section-lead {
+  max-width: 72ch;
+  margin: 10px 0 24px;
+}
+
+.fm-narrative-block {
+  max-width: 76ch;
+  margin-top: 28px;
+}
+
+.fm-narrative-block h3 + p {
+  margin: 10px 0 24px;
+}
+
+.fm-narrative-block--closing {
+  margin-top: 30px;
+  padding: 24px 0 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.fm-subsection-title {
+  margin-top: 34px !important;
+  font-size: 1.15rem !important;
+}
+
+.fm-music-rows {
+  margin-top: 22px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.sezione-musica__detail-row h4 {
-  margin: 0;
-  color: var(--corrente-primaria, #4ade80);
-  font-size: var(--text-caption, 0.8125rem);
-  font-weight: 750;
-  letter-spacing: 0;
-}
-
-.sezione-musica__summary-grid {
+.fm-music-row {
   display: grid;
-  gap: clamp(24px, 4vw, 46px);
+  grid-template-columns: minmax(150px, 0.24fr) 1fr;
+  gap: clamp(20px, 4vw, 48px);
+  padding: 20px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.sezione-musica__summary-grid h4 {
-  margin: 0 0 12px;
-  color: var(--corrente-primaria, #4ade80);
-  font-size: var(--text-caption, 0.8125rem);
-  font-weight: 750;
-  letter-spacing: 0;
+.fm-music-row h3 {
+  color: var(--music-accent, #f87171);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.76rem;
+  letter-spacing: 0.04em;
 }
 
-@media (min-width: 900px) {
-  .sezione-musica__summary-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+.fm-music-row p { margin: 0; }
+
+.fm-interval-reading > p { max-width: 76ch; }
+
+.fm-interval-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 12px;
+  margin-top: 22px;
 }
 
-.sezione-musica__block--keywords {
-  position: relative;
-  max-width: min(100%, 980px);
-  padding-top: 4px;
+.fm-interval-item {
+  padding: clamp(18px, 2.5vw, 24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.fm-interval-item span {
+  display: block;
+  margin-top: 5px;
+  color: var(--music-accent, #f87171);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.fm-interval-item strong {
+  display: block;
+  margin-top: 5px;
+  color: #f8fafc;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.fm-interval-item .fm-interval-item__label {
+  margin: 18px 0 0;
+  color: rgba(226, 232, 240, 0.48);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.fm-interval-item > .fm-interval-item__label:first-child {
+  margin-top: 0;
+}
+
+.fm-interval-item__states ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fm-interval-item__meaning > p:last-child {
+  margin: 9px 0 0;
+  color: rgba(226, 232, 240, 0.78);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.fm-interval-item__states li {
+  padding: 5px 9px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.035);
+  color: rgba(226, 232, 240, 0.78);
+  font-size: 0.78rem;
+  line-height: 1.3;
 }
 
 .sezione-musica__list {
-  display: grid;
-  gap: 8px;
-  margin: 0;
-  padding-left: 18px;
-  color: var(--text-secondary, rgba(255, 255, 255, 0.8));
-  font-size: var(--text-caption, 0.8125rem);
-  line-height: 1.55;
+  margin: 14px 0 0;
+  padding-left: 20px;
 }
 
-.sezione-musica__list li::marker {
-  color: var(--corrente-primaria, #4ade80);
+.sezione-musica__list li + li {
+  margin-top: 7px;
 }
 
 .sezione-musica__keywords {
-  color: var(--text-primary, rgba(255, 255, 255, 0.9));
-  font-weight: 650;
+  margin: 10px 0 0;
+  color: var(--music-accent, #f87171) !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.76rem !important;
+  letter-spacing: 0.04em;
 }
 
-@media (max-width: 680px) {
-  .sezione-musica__detail-row {
-    grid-template-columns: 1fr;
-    gap: 7px;
-    padding: 16px 0;
-  }
+.sezione-musica__keyword-block {
+  margin-top: 30px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 720px) {
+  .fm-music-row { grid-template-columns: 1fr; gap: 8px; }
+  .fm-interval-list { grid-template-columns: 1fr; }
 }

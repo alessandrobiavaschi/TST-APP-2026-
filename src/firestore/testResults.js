@@ -5,8 +5,11 @@ import { TEST_RESULTS_COLLECTION, TEST_RESULT_USER_ID_FIELD, SHARED_TESTS_COLLEC
  * Salva un risultato TST: nessuna email operatore; solo userId (uid Auth) come riferimento.
  */
 export async function saveTestResultForUser({ db, user, payload, overrideTimestamp = true }) {
-  if (!db || !user) {
+  if (!db || !user?.uid) {
     throw new Error('Impossibile salvare il test: utente o database non disponibili.')
+  }
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+    throw new Error('Impossibile salvare il test: dati non validi.')
   }
 
   const docPayload = {
@@ -29,6 +32,7 @@ function generateShortCode() {
 
 function sanitizeForFirestore(value) {
   if (value === undefined) return null
+  if (value instanceof Date || typeof value?.toDate === 'function') return value
   if (Array.isArray(value)) {
     return value.map((entry) => sanitizeForFirestore(entry))
   }

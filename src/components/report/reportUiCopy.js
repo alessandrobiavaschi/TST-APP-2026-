@@ -98,9 +98,8 @@ export const SINTESI_UI = {
 }
 
 export const PROFILO_UI = {
-  eyebrow: 'Famiglia emotiva',
-  title: 'La tua famiglia emotiva di appartenenza',
-  subtitle: 'Quattro aspetti in sequenza: natura, memoria, esperienza, essere Musica, risorse, ombre.',
+  eyebrow: 'Natura emotiva',
+  title: 'La tua natura emotiva di appartenenza',
   panelIntroTitle: 'Cosa trovi qui',
   chapterNavHint: 'Salta all’aspetto o scorri in ordine — tutti aperti.',
 }
@@ -155,25 +154,25 @@ export const RAPPORTI_UI = {
     {
       id: 'natura',
       question: 'Che tono emotivo hai di base?',
-      plain: 'Il fondo stabile del profilo, prima delle situazioni.',
+      plain: 'Il tuo equilibrio emotivo di base',
       areasPlain: 'Timbro, Intervalli e Armonia',
     },
     {
       id: 'se',
       question: 'Come stai in rapporto con te?',
-      plain: 'Interiorità, ascolto di sé e racconto personale.',
+      plain: 'Come riconosci ciò che senti',
       areasPlain: 'Intervalli e Melodia',
     },
     {
       id: 'altro',
       question: 'Come ti apri a persone e ambiente?',
-      plain: 'Disponibilità relazionale e modo di lasciarti toccare.',
+      plain: 'Come entri in relazione con gli altri',
       areasPlain: 'Timbro e Melodia',
     },
     {
       id: 'agire',
       question: 'Come trasformi il sentire in azione?',
-      plain: 'Movimento, iniziativa, sosta o lasciar scorrere.',
+      plain: 'Come trasformi il sentire in azione',
       areasPlain: 'Ritmo e Melodia',
     },
   ],
@@ -195,7 +194,7 @@ export const PORTATO_UI = {
 }
 
 export const PAROLE_UI = {
-  eyebrow: "un contributo all'educazione emotiva",
+  eyebrow: "Un contributo all'educazione emotiva",
   title: 'Dizionario emotivo',
   educazioneSubtitle: 'Qui trovi le parole utili per nominare i sentimenti che il test ha fatto emergere.',
   educazioneParagraphs: [
@@ -276,39 +275,39 @@ export const TRACCE_UI = {
 }
 
 export const HELP_MODAL_UI = {
-  title: 'Guida alla lettura del report',
+  title: 'Come orientarti nel report',
   closeAria: 'Chiudi la guida',
   rileggLabel: 'Rileggi l’introduzione',
   lead:
-    'Leggi il report in cinque passi, dall’alto verso il basso. Ogni passo aggiunge un livello di dettaglio.',
+    'Non devi leggere tutto in una volta. Parti dalla sintesi e approfondisci ciò che ti incuriosisce: ogni sezione osserva le risposte sonore da un punto di vista diverso.',
   items: [
     {
-      title: '1 · Risultato con fiore',
-      text: 'Prima vista del risultato prevalente.',
+      title: '1 · Il profilo in sintesi',
+      text: 'Riconosci la disposizione prevalente, la sottodisposizione e la presenza delle cinque famiglie emotive nel risultato.',
     },
     {
-      title: '2 · Risultati del test',
-      text: 'Caratteristica emotiva, grafici dei risultati e famiglia emotiva di appartenenza.',
+      title: '2 · La famiglia emotiva',
+      text: 'Entra nella lettura di Natura, Racconto, Risorse e Ombre della famiglia emersa come prevalente.',
     },
     {
-      title: '3 · La tua Natura emotiva in relazione alle altre',
-      text: 'Natura emotiva di base, sé, altro e agire.',
+      title: '3 · I quattro rapporti e il dialogo interno',
+      text: 'Osserva come le correnti si organizzano nella natura di base e nei rapporti con te, con l’altro e con l’agire.',
     },
     {
-      title: '4 · Forza delle tue correnti emotive',
-      text: 'Punteggi di empatia, antipatia e indifferenza che manifestano la forza delle correnti emotive.',
+      title: '4 · Attivazioni e portato esperienziale',
+      text: 'Distingui la forza delle correnti dal modo in cui gli stimoli hanno generato simpatia, antipatia o indifferenza.',
     },
     {
-      title: "5 · un contributo all'educazione emotiva",
-      text: 'Dizionario emotivo: esplora le parole della tua famiglia prevalente e delle altre famiglie.',
+      title: '5 · Parole e stati d’animo',
+      text: 'Usa il lessico emotivo per dare un nome alle sfumature emerse e confrontarle con quelle delle altre famiglie.',
     },
     {
-      title: '6 · Aree sonore del test',
-      text: 'Approfondimento sonoro per area (Timbro, Intervalli, Ritmo, Melodia, Armonia) e filtro musicale.',
+      title: '6 · Dove si attiva il profilo',
+      text: 'Scopri quali risposte arrivano da Timbro, Intervalli, Ritmo, Melodia e Armonia e come contribuiscono al filtro musicale.',
     },
     {
-      title: 'Galassia',
-      text: 'Mappa interattiva delle correnti e delle sotto-correnti del modello.',
+      title: 'Le viste alternative',
+      text: 'Apri Galassia per esplorare la mappa interattiva delle correnti, oppure For Musicians per la lettura dedicata alla dimensione musicale.',
     },
   ],
 }
@@ -336,66 +335,10 @@ export const NAVBAR_UI = {
 
 export const REPORT_NAV_UI = {
   indexTitle: 'Percorso di lettura',
-  indexHint: 'Sei passi in ordine. Apri un blocco e scegli la sotto-sezione.',
+  indexHint: 'Cinque passi in ordine. Apri un blocco e scegli la sotto-sezione.',
   ariaLabel: 'Indice del report — navigazione tra sezioni',
   layoutHint:
     'Leggi dall’alto verso il basso. Ogni blocco aggiunge un livello: prima sintesi, poi racconto, poi dettagli.',
-}
-
-export const READING_GUIDE_UI = {
-  eyebrow: 'Percorso di lettura',
-  title: 'Leggi il report in 6 passaggi',
-  toggleLabel: 'Mostra il percorso consigliato',
-  toggleLabelOpen: 'Nascondi il percorso',
-  body:
-    'Parti dalla sintesi e scorri in ordine, oppure salta al passo che risponde alla tua domanda in questo momento.',
-  rememberClosedLabel: 'Non aprire automaticamente al prossimo accesso',
-  rememberClosedHint: 'Puoi riaprire il percorso in qualsiasi momento con il pulsante sopra.',
-  stepButtonAria: (title) => `Vai al passo: ${title}`,
-  steps: [
-    {
-      id: 'report-group-profilo-generale',
-      groupId: 'report-group-profilo-generale',
-      label: '1',
-      title: 'Risultati del test',
-      text: 'Leggi la prima sintesi dei risultati del test.',
-    },
-    {
-      id: 'report-tst-rapporti',
-      groupId: 'report-tst-rapporti',
-      label: '2',
-      title: 'Quattro rapporti',
-      text: 'Confronta natura, sé, altro e agire.',
-    },
-    {
-      id: 'report-group-forza-correnti',
-      groupId: 'report-group-forza-correnti',
-      label: '3',
-      title: 'Forza delle tue correnti emotive',
-      text: 'Osserva quanto sono vive le correnti emotive nei punteggi di empatia, antipatia e indifferenza.',
-    },
-    {
-      id: 'report-group-educazione',
-      groupId: 'report-group-educazione',
-      label: '4',
-      title: "un contributo all'educazione emotiva",
-      text: 'Esplora il dizionario emotivo: le parole della tua famiglia prevalente e delle altre famiglie.',
-    },
-    {
-      id: 'report-group-musicalita',
-      groupId: 'report-group-musicalita',
-      label: '5',
-      title: 'Musicalità',
-      text: 'Leggi la relazione tra disposizione prevalente e linguaggio musicale.',
-    },
-    {
-      id: 'report-group-approfondimento',
-      groupId: 'report-group-approfondimento',
-      label: '6',
-      title: 'Aree sonore del test',
-      text: 'Osserva come le famiglie emotive si attivano nelle aree sonore del test.',
-    },
-  ],
 }
 
 export const REPORT_SHELL_UI = {

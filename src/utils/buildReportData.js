@@ -332,15 +332,6 @@ function detectContrastingPresence(levels = {}) {
  * @param {object} levels
  * @param {string} dominantKey — chiave famiglia dominante (es. 'blu')
  */
-function computeGapFromSecond(levels = {}, dominantKey = '') {
-  const entries = Object.entries(levels)
-    .map(([k, v]) => ({ key: k, value: Number(v) || 0 }))
-    .sort((a, b) => b.value - a.value)
-  const dominantValue = entries.find((e) => e.key === dominantKey)?.value ?? 0
-  const secondValue = entries.find((e) => e.key !== dominantKey)?.value ?? 0
-  return { dominantValue, secondValue, gap: dominantValue - secondValue }
-}
-
 function resolveNaturaBelongingLabel(value) {
   const v = Number(value) || 0
   if (v >= 6) return 'profonda appartenenza'
@@ -352,7 +343,7 @@ function resolveNaturaBelongingLabel(value) {
 /**
  * Restituisce il levelLabel da mostrare nel tag visivo della Prospettiva 1.
  */
-function resolveNaturaLevelLabel(levels = {}, dominantColorKey = '') {
+function resolveNaturaLevelLabel(levels = {}) {
   const contrasting = detectContrastingPresence(levels)
   if (contrasting) return 'Profilo composito — compresenza emotiva'
 
@@ -363,10 +354,10 @@ function resolveNaturaLevelLabel(levels = {}, dominantColorKey = '') {
   if (spread <= 1) return 'Eccellente equilibrio emotivo'
   if (spread <= 2) return 'Buon equilibrio emotivo'
   if (spread <= 3) return 'Discreto equilibrio emotivo'
-  return 'Profilo orientato — tendenza prevalente netta'
+  return 'Aderenza alla tua famiglia emotiva: alta'
 }
 
-function resolveNaturaBalanceLabel(levels = {}, dominantColorKey = '') {
+function resolveNaturaBalanceLabel(levels = {}) {
   const contrasting = detectContrastingPresence(levels)
   if (contrasting) {
     return 'una compresenza di componenti in tensione, che conferisce profondità ma anche complessità al profilo emotivo'
@@ -387,10 +378,10 @@ function resolveNaturaBalanceLabel(levels = {}, dominantColorKey = '') {
   return 'una tendenza ad avere uno sguardo poco lucido sullo stato emotivo'
 }
 
-function buildNaturaBaseText({ dispositionLabel, dominantLevel, levels, dominantColorKey }) {
+function buildNaturaBaseText({ dispositionLabel, dominantLevel, levels }) {
   const famiglia = lowerInitial(dispositionLabel)
   const appartenenza = resolveNaturaBelongingLabel(dominantLevel)
-  const equilibrio = resolveNaturaBalanceLabel(levels, dominantColorKey)
+  const equilibrio = resolveNaturaBalanceLabel(levels)
   const contrasting = detectContrastingPresence(levels)
 
   const terzoperiodo = contrasting
@@ -407,7 +398,7 @@ function buildNaturaBaseText({ dispositionLabel, dominantLevel, levels, dominant
 /**
  * Restituisce il levelLabel da mostrare nel tag visivo della Prospettiva 2.
  */
-function resolveSelfLevelLabel(dominantLevel, levels = {}, dominantColorKey = '') {
+function resolveSelfLevelLabel(dominantLevel, levels = {}) {
   const contrasting = detectContrastingPresence(levels)
   const v = Number(dominantLevel) || 0
 
@@ -426,7 +417,7 @@ function resolveSelfHarmonyLabel(value) {
   return 'una tendenza a vivere in armonia con la tua natura'
 }
 
-function buildSelfRelationshipText({ dispositionLabel, dominantLevel, levels, dominantColorKey }) {
+function buildSelfRelationshipText({ dispositionLabel, dominantLevel, levels }) {
   const famiglia = lowerInitial(dispositionLabel)
   const armonia = resolveSelfHarmonyLabel(dominantLevel)
   const contrasting = detectContrastingPresence(levels)
@@ -451,13 +442,13 @@ function resolveOtherLevelLabel(enthusiasmLevel, levels = {}) {
   const melancoliaLevel = Number(levels['blu']) || 0
   const flemmaLevel = Number(levels['verde']) || 0
 
-  if (v >= 6) return `Eccellente propensione all\'ascolto del prossimo`
-  if (v >= 5) return `Buona propensione all\'ascolto del prossimo`
-  if (v >= 4) return `Discreta propensione all\'ascolto del prossimo`
+  if (v >= 6) return `Eccellente propensione all'ascolto del prossimo`
+  if (v >= 5) return `Buona propensione all'ascolto del prossimo`
+  if (v >= 4) return `Discreta propensione all'ascolto del prossimo`
   // Entusiasmo basso: distingui
-  if (volitiveLevel >= 5) return `Tendenza alla competitività nel rapporto con l\'altro`
-  if (melancoliaLevel >= 5 || flemmaLevel >= 5) return `Tendenza alla prudenza e alla riservatezza nel rapporto con l\'altro`
-  return `Tendenza alla prudenza nel rapporto con l\'altro`
+  if (volitiveLevel >= 5) return `Tendenza alla competitività nel rapporto con l'altro`
+  if (melancoliaLevel >= 5 || flemmaLevel >= 5) return `Tendenza alla prudenza e alla riservatezza nel rapporto con l'altro`
+  return `Tendenza alla prudenza nel rapporto con l'altro`
 }
 
 function resolveOtherRelationshipLabel(enthusiasmLevel, levels = {}) {
@@ -773,7 +764,7 @@ export function buildReportData({
       definizione:
         'Il suolo emotivo di fondo: Terra sonora (Timbro), Luce sonora (Intervalli) e Calore sonoro (Armonia). Mostra l’impronta che tendi ad abitare al di là delle situazioni.',
       cosaIndica:
-        'Sintesi strutturale della disposizione prevalente: come risuoni nel profondo,',
+        'Mostra come risuoni nel profondo e quale equilibrio tende a guidare il tuo modo spontaneo di sentire.',
     },
     {
       id: 'se',
@@ -828,10 +819,9 @@ export function buildReportData({
         familyLabel: f.familyName,
         valore: Number(levels?.[f.key]) || 0,
         rawValue,
+        totalRawPoints: rawSum,
+        maxRawPoints: rawMax,
         distributionPercent: rawSum > 0 ? Number(((rawValue / rawSum) * 100).toFixed(1)) : 0,
-        calculation: rawMax > 0
-          ? `arrotondamento di (${rawValue} / ${rawMax}) × 7`
-          : 'nessun punteggio disponibile',
       }
     })
     const localPrincipale = radarFamilies.reduce(

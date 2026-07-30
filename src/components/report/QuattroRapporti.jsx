@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 
 // Il flat-config ESLint del repo non rileva l'uso di `motion` via `motion.div`
@@ -7,6 +7,8 @@ import { RAPPORTI_UI } from './reportUiCopy.js'
 import { FAMILY_THEME } from '../../config/reportFamilyTheme.js'
 import ReportPassageHeader from './ReportPassageHeader.jsx'
 import InfoTip from './InfoTip.jsx'
+import CalculationDisclosure from './CalculationDisclosure.jsx'
+import { scrollElementToReportCenter } from './reportSectionNavUtils.js'
 import {
   ResponsiveContainer,
   RadarChart,
@@ -91,6 +93,8 @@ export default function QuattroRapporti({
   const reduceMotion = useReducedMotion()
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [selectedFamilyIndex, setSelectedFamilyIndex] = useState(0)
+  const rapportiMainRef = useRef(null)
+  const shouldCenterRapportoRef = useRef(false)
 
   const activeIndex =
     rapporti.length > 0
@@ -120,6 +124,32 @@ export default function QuattroRapporti({
   }
 
   const fadeDuration = reduceMotion ? 0 : 0.15
+
+  const selectRapporto = (index) => {
+    shouldCenterRapportoRef.current = true
+    if (index === selectedIndex) {
+      window.requestAnimationFrame(() => {
+        shouldCenterRapportoRef.current = false
+        scrollElementToReportCenter(rapportiMainRef.current, {
+          reduceMotion,
+          placement: 'start',
+        })
+      })
+    }
+    setSelectedIndex(index)
+  }
+
+  useEffect(() => {
+    if (!shouldCenterRapportoRef.current) return undefined
+    shouldCenterRapportoRef.current = false
+    const raf = window.requestAnimationFrame(() => {
+      scrollElementToReportCenter(rapportiMainRef.current, {
+        reduceMotion,
+        placement: 'start',
+      })
+    })
+    return () => window.cancelAnimationFrame(raf)
+  }, [selectedIndex, reduceMotion])
 
   return (
     <section
@@ -161,6 +191,7 @@ export default function QuattroRapporti({
           {rapporti.map((r, i) => {
             const selected = i === activeIndex
             const color = r?.correntePrincipale?.colore || FALLBACK_COLOR
+            const lensCopy = RAPPORTI_LENS_BY_ID[r?.id]
             return (
               <button
                 key={r?.id ?? i}
@@ -172,18 +203,18 @@ export default function QuattroRapporti({
                 tabIndex={selected ? 0 : -1}
                 className={`quattro-rapporti-tab${selected ? ' quattro-rapporti-tab--selected' : ''}`}
                 style={{ '--qr-tab-color': color }}
-                onClick={() => setSelectedIndex(i)}
+                onClick={() => selectRapporto(i)}
               >
                 <span className="quattro-rapporti-tab__index">{pad2(i)}</span>
                 <span className="quattro-rapporti-tab__name">{r?.nome}</span>
-                <span className="quattro-rapporti-tab__meta">{r?.composizione}</span>
+                <span className="quattro-rapporti-tab__meaning">{lensCopy?.plain}</span>
                 <span className="quattro-rapporti-tab__dot" aria-hidden="true" />
               </button>
             )
           })}
         </div>
 
-        <div className="quattro-rapporti-main">
+        <div ref={rapportiMainRef} className="quattro-rapporti-main">
           <div className="quattro-rapporti-radar-wrap">
             <div
               className="quattro-rapporti-radar"
@@ -226,13 +257,23 @@ export default function QuattroRapporti({
               {selectedFamily ? (
                 <div className="quattro-rapporti-radar-detail" aria-live="polite">
                   <strong>{selectedFamily.familyLabel || selectedFamily.corrente}</strong>
-                  <span>Punteggio grezzo: {selectedFamily.rawValue ?? 0}</span>
-                  <span>Formalizzazione: {selectedFamily.valore}/7</span>
-                  <span>Distribuzione interiore: {selectedFamily.distributionPercent ?? 0}%</span>
-                  <small>
-                    Calcolo 1–7: {selectedFamily.calculation}. Distribuzione: punteggio grezzo diviso
-                    per la somma dei punti delle cinque famiglie in questa prospettiva.
-                  </small>
+                  <CalculationDisclosure>
+                    <div className="calculation-disclosure__method">
+                      <p>{active.composizioneSemplice}</p>
+                      <p><strong>Risposte considerate:</strong> {active.composizione}</p>
+                    </div>
+                    <div className="calculation-disclosure__metrics">
+                      <p><strong>Punti ottenuti:</strong> {selectedFamily.rawValue ?? 0}</p>
+                      <p><strong>Presenza in questo rapporto:</strong> {selectedFamily.distributionPercent ?? 0}%</p>
+                      <p><strong>Valore nel grafico:</strong> {selectedFamily.valore} su 7</p>
+                    </div>
+                    <p className="calculation-disclosure__formula">
+                      La presenza è la quota di questi {selectedFamily.rawValue ?? 0} punti sui{' '}
+                      {selectedFamily.totalRawPoints ?? 0} punti ottenuti dalle cinque famiglie in
+                      questo rapporto. Nel grafico, la famiglia con più punti vale 7; le altre
+                      ricevono un valore proporzionato ai suoi {selectedFamily.maxRawPoints ?? 0} punti.
+                    </p>
+                  </CalculationDisclosure>
                 </div>
               ) : null}
             </div>
@@ -261,6 +302,14 @@ export default function QuattroRapporti({
                     {active.nome}
                   </h3>
 
+                  {active.sottotitolo ? (
+                    <p className="quattro-rapporti-read__question">{active.sottotitolo}</p>
+                  ) : null}
+
+                  {active.cosaIndica ? (
+                    <p className="quattro-rapporti-read__subtitle">{active.cosaIndica}</p>
+                  ) : null}
+
                   {active.levelLabel ? (
                     <p
                       className="quattro-rapporti-read__level-label"
@@ -281,17 +330,6 @@ export default function QuattroRapporti({
                       {active.levelLabel}
                     </p>
                   ) : null}
-
-                  {active.sottotitolo ? (
-                    <p className="quattro-rapporti-read__question">{active.sottotitolo}</p>
-                  ) : null}
-
-                  <div className="quattro-rapporti-read__block">
-                    <p className="quattro-rapporti-read__label">
-                      {RAPPORTI_UI.readLabels.cosaIndica}
-                    </p>
-                    <p className="quattro-rapporti-read__text">{active.cosaIndica}</p>
-                  </div>
 
                   <div className="quattro-rapporti-read__block">
                     <p className="quattro-rapporti-read__label">

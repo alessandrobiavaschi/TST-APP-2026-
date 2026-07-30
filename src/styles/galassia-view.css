@@ -2055,6 +2055,12 @@
   }
 }
 
+.galassia-view--zoomed .galassia-view__constellation-core-label strong,
+.galassia-view--zoomed .galassia-view__constellation-core-label small {
+  color: #f8fafc;
+  text-shadow: none;
+}
+
 @media (max-width: 768px) {
   .galassia-view {
     --galassia-edge: 12px;

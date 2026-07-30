@@ -85,4 +85,28 @@ export function scrollToReportSection(id, { reduceMotion = false, onLockChange }
   return true
 }
 
+/**
+ * Porta un elemento al centro dell'area realmente visibile del report, cioe'
+ * sotto header e sub-bar sticky. Se il contenuto e' piu' alto dell'area utile,
+ * ne allinea l'inizio per evitare di nasconderne il titolo.
+ */
+export function scrollElementToReportCenter(
+  el,
+  { reduceMotion = false, placement = 'center' } = {},
+) {
+  if (!el || typeof window === 'undefined') return false
+
+  const stickyOffset = getStickyOffsetPx() + 16
+  const viewportBottom = window.innerHeight
+  const availableHeight = Math.max(160, viewportBottom - stickyOffset)
+  const rect = el.getBoundingClientRect()
+  const behavior = reduceMotion ? 'auto' : 'smooth'
+  const top = placement === 'start' || rect.height > availableHeight * 0.82
+    ? rect.top + window.scrollY - stickyOffset - 16
+    : rect.top + window.scrollY - stickyOffset + (rect.height - availableHeight) / 2
+
+  window.scrollTo({ top: Math.max(0, top), behavior })
+  return true
+}
+
 export { SCROLL_LOCK_MS }

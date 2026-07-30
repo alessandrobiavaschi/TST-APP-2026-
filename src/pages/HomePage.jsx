@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Navigate, useNavigate, useLocation } from 'react-router-dom'
-import { signOut, deleteUser } from 'firebase/auth'
-import { auth } from '../firebaseConfig.js'
+import { deleteUser } from 'firebase/auth'
 import {
   signInWithGoogle as authSignInWithGoogle,
   signInWithEmail as authSignInWithEmail,
@@ -17,7 +16,7 @@ import { TEST_STORY_SLIDES } from '../components/TestStorySlider.jsx'
 import { useSkyTheme } from '../SkyThemeContext.jsx'
 
 function HomePage() {
-  const { user: currentUser, authReady } = useAuth()
+  const { user: currentUser, authReady, logout } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const { setLandingSkyOverride } = useSkyTheme()
@@ -199,10 +198,7 @@ function HomePage() {
     setAccountError('')
     setAccountMessage('')
     try {
-      if (auth) {
-        await signOut(auth)
-        setAccountMessage('Sei stato disconnesso.')
-      }
+      await logout()
     } catch (err) {
       setAccountError(err.message || 'Errore durante la disconnessione.')
     }

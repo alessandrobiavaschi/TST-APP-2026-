@@ -15,7 +15,7 @@ const MOBILE_MQ = '(max-width: 768px)'
 
 /** Dal testo di guida del report (stesso linguaggio del percorso utente). */
 const REPORT_OUTLINE = [
-  'In alto vedi la famiglia emotiva prevalente e il suo significato.',
+  'In alto vedi la natura emotiva prevalente e il suo significato.',
   'La mappa sulle cinque disposizioni mostra come si distribuiscono le tue risposte.',
   'Più sotto trovi come le famiglie si distribuiscono tra natura, sé, altro e azione.',
   'Alla fine un lessico di stati d’animo per dare parole precise a come ti senti.',

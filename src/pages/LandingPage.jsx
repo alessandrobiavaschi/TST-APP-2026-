@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import AuthBox from '../components/AuthBox.jsx'
+import VideoBackground0311 from '../components/VideoBackground0311.jsx'
 import { useSkyTheme } from '../SkyThemeContext.jsx'
 import { useAuth } from '../AuthContext.jsx'
 import {
@@ -121,7 +122,6 @@ function LandingPage() {
   const [authError, setAuthError] = useState('')
   const [resetMessage, setResetMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [scrollY, setScrollY] = useState(0)
   const [revealed, setRevealed] = useState({})
   const [activePanelIndex, setActivePanelIndex] = useState(-1)
   const hasAuthenticatedSession = Boolean(currentUser)
@@ -334,22 +334,6 @@ function LandingPage() {
     }
   }, [authReady, hasAuthenticatedSession, showAccessBox, navigate])
 
-  // Parallasse dello sfondo nebula in base allo scroll
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-    let ticking = false
-    const onScroll = () => {
-      if (ticking) return
-      ticking = true
-      window.requestAnimationFrame(() => {
-        setScrollY(window.scrollY || window.pageYOffset || 0)
-        ticking = false
-      })
-    }
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
-
   // Reveal-on-scroll per pitch, slider intro, pannelli e metodologia
   useEffect(() => {
     if (typeof window === 'undefined') return undefined
@@ -387,12 +371,11 @@ function LandingPage() {
     return () => observer.disconnect()
   }, [])
 
-  const auroraOffset = `translate3d(0px, ${(-scrollY * 0.12).toFixed(1)}px, 0)`
-
   return (
     <div className="tst-nebula">
       <div className="tst-nebula-bg" aria-hidden="true">
-        <div className="tst-nebula-bg-image" style={{ transform: auroraOffset }} />
+        <VideoBackground0311 className="tst-nebula-bg-video" />
+        <div className="tst-nebula-bg-corner-vignette" />
         <div className="tst-nebula-bg-gradient" />
         <div className="tst-nebula-bg-stars" style={{ boxShadow: starShadow }} />
       </div>

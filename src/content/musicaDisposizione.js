@@ -19,8 +19,12 @@ export const MUSICISTI_SCHEDA_KEYS = [
 export const MUSICISTI_SCHEDE = {
   Blu: {
     label: 'Malinconica',
+    profiloEmotivo:
+      'Ciò che contraddistingue il temperamento malinconico è il piacere di stare con sé stessi, dell’introversione, di osservarsi interiormente, di riflettere su ciò che si è vissuto.',
     cosaCerca:
       'La famiglia malinconica tende a cercare profondità, sfumature, memoria emotiva e introspezione. La musica diventa spesso uno spazio in cui osservare ciò che è complesso, fragile o difficile da esprimere a parole.',
+    piaceriAscolto:
+      'Subisce in modo speciale il fascino della melodia e degli intervalli attraverso i quali si gode ogni tipo di stato d’animo e ci riflette sopra. Cerca una Musica profonda, adatta a mettere in movimento il suo mondo interiore. Si interessa allo sposalizio che il suono celebra con i sentimenti e riflette in modo meno istintivo sugli effetti che provoca.',
     linguaggioMusicale: {
       timbri:
         'Timbri medi e scuri, corposi e pastosi: oboi, clarinetti, violoncelli, contrabbassi, arpa, pianoforte morbido e chitarre dal suono ampio.',
@@ -28,6 +32,31 @@ export const MUSICISTI_SCHEDE = {
         'Cadenze fantasiose e non violente, spesso tra Andante e ballad, con ritmi presenti ma non invasivi.',
       melodiaArmonia:
         'Melodie anche complesse, modi minori, accordi larghi, cambi armonici e intervalli che evocano interiorità.',
+    },
+    intervalli: {
+      correnti: [
+        {
+          nome: 'Corrente emotiva malinconica lunare',
+          intervallo: 'Terza minore',
+          significato:
+            'La Malinconia lunare è vista come una forza emotiva che opera nel chiuso dell’interiorità e agisce su una visione riflessa dell’esperienza emotiva. La paura si trasforma in timore e nella tristezza di non potersi liberare da quel vivere al chiuso, dove la luce delle esperienze di relazione arriva solo di riflesso.',
+          stati: ['Pensieroso', 'Triste', 'Timido', 'Pessimista', 'Preoccupato', 'Demotivato', 'Amareggiato', 'Ombroso', 'Sconfortato', 'Scoraggiato', 'Scombussolato', 'Vergognoso', 'Cupo', 'Fosco', 'Turbato', 'Lunatico', 'Lamentoso'],
+        },
+        {
+          nome: 'Corrente emotiva della nostalgia solare e lunare',
+          intervallo: 'Settima minore e maggiore',
+          significato:
+            'Le forze emotive del temperamento nostalgico fanno vivere un’esperienza simile alla malinconia lunare, dalla quale riprendono il senso del dolore interiore. Qui però il dolore nasce da una perdita, da un senso di mancanza, dal sentirsi soli o abbandonati. La nostalgia può diventare rimpianto oppure riconoscenza verso ciò che si è ricevuto.',
+          stati: ['Rimpiangente', 'Afflitto', 'Straziato', 'Rammaricato', 'Desolato', 'Disperato', 'Sconsolato', 'Mortificato', 'Abbandonato', 'Nostalgico', 'Compassionevole', 'Accorato', 'Rimembrante', 'Desiderante', 'Riconoscente', 'Grato'],
+        },
+        {
+          nome: 'Corrente emotiva della malinconia solare',
+          intervallo: 'Terza maggiore',
+          significato:
+            'La Malinconia solare opera nello spazio interiore ma, diversamente dalla Malinconia lunare rivolta al passato, cerca di aprire una breccia verso il mondo. Da questa apertura nasce un clima positivo legato alla speranza, alla serenità e alla fiducia nel futuro.',
+          stati: ['Ottimista', 'Aperto', 'Sereno', 'Positivista', 'Buono', 'Simpatico', 'Meravigliato', 'Benevolente', 'Lieto', 'Leggero', 'Mite', 'Contento', 'Chiaro', 'Compassionevole', 'Fiducioso', 'Solidale', 'Speranzoso', 'Affettuoso', 'Pietoso'],
+        },
+      ],
     },
     fareMusica: {
       suonare:
@@ -61,8 +90,12 @@ export const MUSICISTI_SCHEDE = {
 
   Verde: {
     label: 'Calma',
+    profiloEmotivo:
+      'Ciò che contraddistingue il temperamento flemmatico è il piacere della lentezza, del silenzio, della calma, del riposo e della contemplazione.',
     cosaCerca:
       'La famiglia calma tende a cercare riposo, armonia, delicatezza e continuità. La musica diventa spesso un luogo in cui sentirsi sostenuti, respirare con gli altri e abitare un clima sonoro senza dover forzare l’esposizione.',
+    piaceriAscolto:
+      'Subisce in modo speciale il fascino dell’armonia, che lo guida alla calma. Cerca la sensazione del riposo anche durante il giorno. Sente, vive le proprie funzioni vitali come il respiro e il battito costante del cuore che gli portano benessere e rilassatezza. Utilizza il suono come strumento per allontanarsi da tutto ciò che porta frenesia, è alla costante ricerca del piacere consolatorio.',
     linguaggioMusicale: {
       timbri:
         'Timbri scuri, quieti e medio-bassi: corni, fagotti, flauti morbidi, marimba, arpa, chitarra classica e legni dal suono naturale.',
@@ -70,6 +103,17 @@ export const MUSICISTI_SCHEDE = {
         'Cadenze dolci, Adagio o Andante, Easy Listening e ritmi delicati; meno adatti i ritmi rapidi, aggressivi o troppo eccitati.',
       melodiaArmonia:
         'Melodie rarefatte, poche note, armonie sospese, toniche e quinte, senza bruschi cambi di tonalità.',
+    },
+    intervalli: {
+      correnti: [
+        {
+          nome: 'Corrente emotiva della calma flemmatica',
+          intervallo: 'Quinta e quinta eccedente',
+          significato:
+            'La corrente flemmatica richiama un vento gentile, calmo e contemplativo, simile all’occhio del ciclone dove ogni movimento si placa. È la sensazione della pausa, della bonaccia, della leggerezza del non movimento e di un equilibrio quasi perfetto. Nel rapporto con sé stessi, il flemmatico ama riposare e contemplare e orienta questa energia verso un clima di calma e di equilibrio affettivo.',
+          stati: ['Rilassato', 'Calmo', 'Gentile', 'Disteso', 'Pacato', 'Placido', 'Pacifico', 'Tranquillo', 'Estatico', 'Serafico', 'Contemplativo', 'Sognante', 'Equilibrato', 'Quieto', 'Tollerante', 'Mistico', 'Prudente', 'Meditativo', 'Ammirato', 'Annoiato', 'Pigro', 'Oziante', 'Svampito', 'Indolente', 'Ignavo'],
+        },
+      ],
     },
     fareMusica: {
       suonare:
@@ -103,8 +147,12 @@ export const MUSICISTI_SCHEDE = {
 
   Giallo: {
     label: 'Entusiastica',
+    profiloEmotivo:
+      'Ciò che contraddistingue il temperamento gioioso entusiasta è il piacere del movimento, della curiosità, della scoperta del nuovo, dell’estroversione.',
     cosaCerca:
       'La famiglia entusiastica tende a cercare energia, movimento, luce e partecipazione immediata. La musica diventa spesso una spinta vitale: qualcosa che accende il corpo, porta fuori da sé e invita a cantare, ballare o condividere.',
+    piaceriAscolto:
+      'Subisce in modo speciale il fascino del ritmo, al quale risponde con naturalezza, muovendosi a tempo. Predilige il movimento fisico. Si mette in gioco con spontaneità filtrando la brillantezza e la positività della Musica. Preferisce avere un ruolo musicale attivo e gli capita quindi di cantare senza farsi minimamente domande sul risultato. L’importante è che possa esprimere il suo entusiasmo. Danzare non lo spaventa: è il suo pane.',
     linguaggioMusicale: {
       timbri:
         'Timbri chiari, luminosi, brillanti e decisi: percussioni, trombe, violini, celesta, vibrafono, canto ed elettronica popolare.',
@@ -112,6 +160,24 @@ export const MUSICISTI_SCHEDE = {
         'Ritmo accentuato, ripetitivo ma curioso, con tempi Allegro intorno a 110-160 bpm e forte senso di movimento.',
       melodiaArmonia:
         'Melodie chiare, riconoscibili e cariche, atmosfere armoniche semplici, positive, solari e spesso in modo maggiore.',
+    },
+    intervalli: {
+      correnti: [
+        {
+          nome: 'Corrente della gioia e dell’entusiasmo',
+          intervallo: 'Sesta',
+          significato:
+            'L’Entusiasmo è descritto come un flusso emotivo gioioso, pervaso di solarità e calore. Nel rapporto con sé stessi orienta l’energia verso il mondo, avventurandosi con curiosità e alimentando il piacere di uscire da sé per abbracciare persone, natura, oggetti e attività nuove.',
+          stati: ['Gioioso', 'Cinetico', 'Vivace', 'Veloce', 'Vitale', 'Fluido', 'Allegro', 'Felice', 'Festoso', 'Entusiasta', 'Esaltato', 'Ardente', 'Euforico', 'Caloroso', 'Reattivo', 'Curioso', 'Volitivo', 'Dinamico', 'Esuberante', 'Solare', 'Positivista', 'Irrefrenabile'],
+        },
+        {
+          nome: 'Continente dell’entusiasmo volitivo passionale',
+          intervallo: 'Prima',
+          significato:
+            'La Prima è associata all’Entusiasmo volitivo passionale: una forma di partecipazione intensa in cui l’energia entusiasta acquista calore, slancio e adesione. Gli stati collegati descrivono il passaggio dall’ammirazione alla passione e alla veemenza.',
+          stati: ['Innamorato', 'Amorevole', 'Ammirato', 'Appassionato', 'Infuocato', 'Ardente', 'Impetuoso', 'Veemente', 'Deferente', 'Illuminato'],
+        },
+      ],
     },
     fareMusica: {
       suonare:
@@ -145,8 +211,12 @@ export const MUSICISTI_SCHEDE = {
 
   Rosso: {
     label: 'Volitiva',
+    profiloEmotivo:
+      'Ciò che contraddistingue il temperamento volitivo, collerico è il piacere del fare, realizzare ciò che si desidera e a cui si ambisce, il piacere di governarsi e governare, di mettersi alla prova.',
     cosaCerca:
       'La famiglia volitiva tende a cercare forza, direzione, concretezza e controllo dell’energia. La musica diventa spesso un campo di prova: un luogo in cui restare svegli, governare il tempo, riconoscere struttura e misurarsi con intensità.',
+    piaceriAscolto:
+      'Subisce in modo speciale il fascino del timbro, nel quale vede i segni di identità e personalità. Gode dell’energia del suono in termini di forza e incisività. Nonostante sia predisposto all’analisi intellettuale, cerca la Musica più per svagarsi, per riposarsi dalla sua attività fisica. Non sempre ci riesce, spesso non sa lasciarsi andare e, suo malgrado, si ritrova a utilizzare il lato razionale per analizzare, discernere.',
     linguaggioMusicale: {
       timbri:
         'Timbri medi, decisi, fermi, squillanti o ruvidi: sax, trombe, tromboni, viole, percussioni, pianoforte e tastiere.',
@@ -154,6 +224,24 @@ export const MUSICISTI_SCHEDE = {
         'Tempi forti e costanti, spesso vicini al Rock, intorno a 90-130 bpm, con sonorità chiare e leggibili.',
       melodiaArmonia:
         'Melodie memorabili, frammenti brevi e intensi, unisoni potenti, scale meno consuete e intervalli duri.',
+    },
+    intervalli: {
+      correnti: [
+        {
+          nome: 'Corrente emotiva dell’assertività volitiva',
+          intervallo: 'Quarta',
+          significato:
+            'La corrente volitiva invita a muoversi e a percorrere la vita operante. È una forza che spinge verso il piacere del fare, del realizzare ciò che si desidera, del governarsi e governare e del mettersi alla prova. La Quarta raccoglie il versante della saldezza, della decisione e del coraggio.',
+          stati: ['Stabile', 'Saldo', 'Sicuro', 'Certo', 'Costante', 'Determinato', 'Decisionista', 'Fermo', 'Schietto', 'Sincero', 'Franco', 'Fiero', 'Risoluto', 'Fedele', 'Spavaldo', 'Altero', 'Ostinato', 'Orgoglioso', 'Coraggioso', 'Impavido'],
+        },
+        {
+          nome: 'Corrente del dubbio e della collera',
+          intervallo: 'Quarta eccedente',
+          significato:
+            'Alla fermezza volitiva si affianca un versante polare: quando la forza del fare perde stabilità può trasformarsi in incertezza, esitazione, sospetto o collera. La Quarta eccedente raccoglie questo passaggio dal dubbio alla tensione e alla rabbia.',
+          stati: ['Incerto', 'Inquieto', 'Dubbioso', 'Esitante', 'Ambiguo', 'Misterioso', 'Indeciso', 'Oscillante', 'Precario', 'Perplesso', 'Irrisoluto', 'Smarrito', 'Elusivo', 'Equivoco', 'Criptico', 'Enigmatico', 'Infido', 'Subdolo', 'Rabbioso', 'Rancoroso', 'Irato', 'Furioso', 'Iracondo', 'Travagliato', 'Tribolato', 'Odioso', 'Diffidente', 'Sospettoso', 'Nevrotico'],
+        },
+      ],
     },
     fareMusica: {
       suonare:
@@ -187,15 +275,30 @@ export const MUSICISTI_SCHEDE = {
 
   Grigio: {
     label: 'Anaffettiva',
+    profiloEmotivo:
+      'Ciò che contraddistingue il temperamento agnostico anaffettivo è il piacere del calcolo, della dubbiosità di origine intellettuale, dell’oggettività fisica.',
     cosaCerca:
       'La famiglia anaffettiva tende a cercare distanza, sospensione, dubbio e osservazione. La musica viene vissuta come un territorio ambiguo e mentale, capace di stare tra dentro e fuori senza consegnarsi subito a una risposta emotiva netta.',
+    piaceriAscolto:
+      'Ogni cosa viene osservata ma senza vero interesse, con un distacco intellettuale anaffettivo che riduce tutto a qualcosa di banale, di poco appagante, di dissacrante. Si manifesta anch’essa come un piacere, ma è un piacere astratto, intellettuale, che si usa prevalentemente a livello numerico matematico.',
     linguaggioMusicale: {
       timbri:
         'Il materiale disponibile non indica una tavolozza strumentale stabile: il centro è la qualità sospesa, fredda o ambigua del suono più che una famiglia timbrica specifica.',
       ritmo:
         'Il ritmo non è il primo criterio: conta di più la sensazione di sospensione, distanza e instabilità percettiva.',
       melodiaArmonia:
-        'Emergono la quarta, la quarta eccedente e il tritono, con richiami a Rock Metal e Blues come luoghi di ambiguità e tensione.',
+        'La fonte non definisce una preferenza stabile per melodia e armonia: il centro della lettura è la distanza affettiva con cui il suono viene osservato.',
+    },
+    intervalli: {
+      correnti: [
+        {
+          nome: 'Corrente agnostica anaffettiva',
+          intervallo: 'Ottava',
+          significato:
+            'La corrente agnostica anaffettiva è descritta come un flusso che raffredda affettivamente e agisce in modo trasversale sulle altre aree temperamentali. Il suo centro è la dubbiosità di origine intellettuale: osservazione, calcolo e distacco. Lo stesso impulso può però orientarsi eticamente verso saggezza, dedizione e devozione.',
+          stati: ['Anaffettivo', 'Apatico', 'Matematico', 'Lucido', 'Freddo', 'Insensibile', 'Indifferente', 'Nullista', 'Impotente', 'Distaccato', 'Imperturbabile', 'Saggio', 'Dedito', 'Devoto', 'Beato', 'Illuminato'],
+        },
+      ],
     },
     fareMusica: {
       suonare:

@@ -4,7 +4,7 @@
  * Mappa data-driven famiglia → identità visiva e narrativa, usata dalla nuova
  * esperienza report (hero full-bleed, sezione sintesi, fiore SVG, navbar).
  *
- * Le 5 famiglie colore corrispondono alle disposizioni:
+ * I colori sono soltanto una convenzione visiva per le 5 nature emotive:
  *   BLU → Malinconia · ROSSO → Volitività · VERDE → Calma
  *   GIALLO → Entusiasmo · GRIGIO → Anaffettività
  *
@@ -16,7 +16,7 @@ export const FAMILY_THEME = {
   Verde: {
     key: 'verde',
     label: 'Verde',
-    nature: 'CARATTERISTICA FLEMMATICA',
+    nature: 'NATURA FLEMMATICA',
     corrente: 'Flemmatica',
     disposition: 'CONTEMPLATIVA',
     macro: 'Calma',
@@ -33,7 +33,7 @@ export const FAMILY_THEME = {
   Rosso: {
     key: 'rosso',
     label: 'Rosso',
-    nature: 'CARATTERISTICA MARZIALE',
+    nature: 'NATURA MARZIALE',
     corrente: 'Marziale',
     disposition: 'VOLITIVO COLLERICA',
     macro: 'Volitività',
@@ -50,7 +50,7 @@ export const FAMILY_THEME = {
   Blu: {
     key: 'blu',
     label: 'Blu',
-    nature: 'CARATTERISTICA LUNARE',
+    nature: 'NATURA LUNARE',
     corrente: 'Lunare',
     disposition: 'MALINCONICO NOSTALGICA',
     macro: 'Malinconia',
@@ -67,7 +67,7 @@ export const FAMILY_THEME = {
   Giallo: {
     key: 'giallo',
     label: 'Giallo',
-    nature: 'CARATTERISTICA EMOTIVA SOLARE',
+    nature: 'NATURA SOLARE',
     corrente: 'Solare',
     disposition: 'SANGUINICO ENTUSIASTA',
     macro: 'Entusiasmo',
@@ -84,7 +84,7 @@ export const FAMILY_THEME = {
   Grigio: {
     key: 'grigio',
     label: 'Grigio',
-    nature: 'CARATTERISTICA ANAFFETTIVA',
+    nature: 'NATURA ANAFFETTIVA',
     corrente: 'Anaffettiva',
     disposition: 'AGNOSTICO ANAFFETTIVA',
     macro: 'Anaffettività',

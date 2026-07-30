@@ -2,22 +2,20 @@
 
 .sintesi-correnti {
   scroll-margin-top: var(--report-sticky-offset, 96px);
-  --sc-panel: rgba(13, 21, 37, 0.92);
-  --sc-panel-soft: rgba(22, 31, 50, 0.66);
-  --sc-border: rgba(255, 255, 255, 0.2);
-  --sc-border-strong: rgba(255, 255, 255, 0.34);
-  --sc-text: #f8fafc;
-  --sc-muted: #aab5c6;
-  --sc-faint: #747f93;
+  --sc-panel: var(--report-surface-card, rgba(255, 255, 255, 0.035));
+  --sc-panel-soft: var(--report-surface, rgba(255, 255, 255, 0.03));
+  --sc-border: var(--report-surface-card-border, rgba(255, 255, 255, 0.08));
+  --sc-border-strong: rgba(255, 255, 255, 0.16);
+  --sc-text: var(--text-primary, #fdfdfe);
+  --sc-muted: var(--text-secondary, rgba(242, 242, 245, 0.72));
+  --sc-faint: var(--text-tertiary, rgba(242, 242, 245, 0.52));
   width: 100%;
   min-width: 0;
   overflow-x: clip;
   box-sizing: border-box;
   padding: 2.5rem 1rem 3rem;
   color: var(--sc-text);
-  background:
-    linear-gradient(180deg, rgba(4, 8, 18, 0.04), rgba(4, 8, 18, 0.32)),
-    #101827;
+  background: transparent;
 }
 
 .sintesi-correnti__answer-card {
@@ -1324,10 +1322,10 @@
 @media (max-width: 768px) {
   .sintesi-correnti--mobile {
     padding: 2.5rem 1rem 2.5rem !important;
-    background: #0d1324 !important;
+    background: var(--report-surface-card, rgba(255, 255, 255, 0.035)) !important;
   }
   .sintesi-mobile-card {
-    background: rgba(30, 41, 59, 0.45) !important;
+    background: rgba(255, 255, 255, 0.04) !important;
     border: 1px solid rgba(255, 255, 255, 0.12) !important;
     border-radius: 14px !important;
     padding: 1.25rem 1.1rem !important;
@@ -1480,7 +1478,7 @@
     display: flex !important;
     align-items: center !important;
     padding: 0.65rem 0.8rem !important;
-    background: rgba(30, 41, 59, 0.3) !important;
+    background: rgba(255, 255, 255, 0.035) !important;
     border: 1px solid rgba(255, 255, 255, 0.05) !important;
     border-radius: 12px !important;
     gap: 0.65rem !important;
@@ -1514,7 +1512,7 @@
   }
   .sintesi-mobile-radar-container {
     width: 100% !important;
-    background: rgba(30, 41, 59, 0.2) !important;
+    background: rgba(255, 255, 255, 0.025) !important;
     border: 1px solid rgba(255, 255, 255, 0.04) !important;
     border-radius: 14px !important;
     padding: 1rem 0.5rem 1.25rem !important;

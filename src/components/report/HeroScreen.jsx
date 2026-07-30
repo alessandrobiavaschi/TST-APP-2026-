@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { HERO_UI } from './reportUiCopy.js'
+import { scrollToReportSection } from './reportSectionNavUtils.js'
 import { getFlowerStillByColor } from '../../colorAssets.js'
 import { computeColorTotals, getDominantColorInfo } from '../../utils/reportRecordUtils.js'
 
@@ -92,8 +93,8 @@ const EDGE_COLOR = '#020817'
 /* ------------------------------------------------------------------ */
 
 export default function HeroScreen({
-  _naturaName = 'NATURA FLEMMATICA',
-  disposizione = 'CONTEMPLATIVA',
+  naturaName = 'NATURA FLEMMATICA',
+  _disposizione = 'CONTEMPLATIVA',
   _userName = '',
   correnteColore = '#16a34a',
   correnteColoreChiara,
@@ -151,7 +152,20 @@ export default function HeroScreen({
           transition: { delay, duration: 0.7, ease: [0.22, 1, 0.36, 1] },
         }
 
-  const famigliaText = toTitleCase(disposizione)
+  const naturaText = toTitleCase(String(naturaName || '').replace(/^NATURA\s+/i, ''))
+
+  const handleSummaryClick = (event) => {
+    const targetId = 'prima-sintesi-risultato'
+    const target = document.getElementById(targetId)
+
+    if (!target) return
+
+    event.preventDefault()
+    window.history.pushState(null, '', `#${targetId}`)
+    // La prima sintesi appartiene al gruppo "Risultati del test": partendo
+    // dall'intestazione del gruppo, il titolo non resta sotto il chrome sticky.
+    scrollToReportSection('report-group-profilo-generale', { reduceMotion })
+  }
 
   const gradientStyle = {
     backgroundImage: `
@@ -212,13 +226,14 @@ export default function HeroScreen({
               textShadow: '0 2px 24px rgba(0, 0, 0, 0.75)',
             }}
           >
-            <span className="hero-screen__sintesi-bridge">La tua famiglia emotiva prevalente è</span>
-            <strong className="hero-screen__sintesi-family">{famigliaText}</strong>
+            <span className="hero-screen__sintesi-bridge">La tua natura emotiva prevalente è</span>
+            <strong className="hero-screen__sintesi-family">{naturaText}</strong>
           </motion.h1>
           <motion.div {...fade(0.45, 8)} className="hero-screen__cta-sintesi">
             <a
               href="#prima-sintesi-risultato"
               className="nav-button primary hero-screen__cta-sintesi-link"
+              onClick={handleSummaryClick}
             >
               Leggi la prima sintesi del risultato del test
             </a>

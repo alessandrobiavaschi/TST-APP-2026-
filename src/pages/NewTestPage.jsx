@@ -18,126 +18,8 @@ import { buildTestAudioUrl, getAudioSourceIssue } from '../audioUrls.js'
 import { useAuth } from '../AuthContext.jsx'
 import { useAdaptiveFlow } from '../hooks/useAdaptiveFlow.js'
 import { getFlowerStillByColor } from '../colorAssets.js'
+import { compactTestRecord, computeTestResultFields } from '../utils/testRecordProcessing.js'
 import '../styles/nuovo-test-flow.css'
-
-function computeColorTotalsForRecord(record) {
-  const blu =
-    (record.BLU_1_Depressiva || 0) +
-    (record.BLU_2_Lunare || 0) +
-    (record.BLU_3_Nostalgia || 0) +
-    (record.BLU_4_Solare || 0)
-  const rosso =
-    (record.ROSSO_1_Assertivita || 0) +
-    (record.ROSSO_2_Dubbio_Collera || 0)
-  const verde = record.VERDE_1_Calma || 0
-  const giallo =
-    (record.GIALLO_1_Gioia_Entusiasmo || 0) +
-    (record.GIALLO_2_Volitivo_Passionale || 0)
-  const grigio =
-    (record.GRIGIO_1_Distaccato_Nichilista || 0) +
-    (record.GRIGIO_2_Intellettuale_Saggio || 0)
-
-  return { blu, rosso, verde, giallo, grigio }
-}
-
-const DISPOSIZIONE_LABELS_BY_COLOR = {
-  blu: 'Malinconia',
-  rosso: 'Volitività',
-  giallo: 'Entusiasmo',
-  verde: 'Calma',
-  grigio: 'Anaffettività',
-}
-
-const SOTTOCORRENTE_KEYS_BY_COLOR = {
-  blu: ['BLU_1_Depressiva', 'BLU_2_Lunare', 'BLU_3_Nostalgia', 'BLU_4_Solare'],
-  rosso: ['ROSSO_1_Assertivita', 'ROSSO_2_Dubbio_Collera'],
-  verde: ['VERDE_1_Calma'],
-  giallo: ['GIALLO_1_Gioia_Entusiasmo', 'GIALLO_2_Volitivo_Passionale'],
-  grigio: ['GRIGIO_1_Distaccato_Nichilista', 'GRIGIO_2_Intellettuale_Saggio'],
-}
-
-function getDisposizionePrevalenteKey(record) {
-  if (!record) return ''
-  const totals = computeColorTotalsForRecord(record)
-  let bestKey = null
-  let bestValue = -Infinity
-
-  Object.entries(totals).forEach(([key, value]) => {
-    const numeric = Number(value) || 0
-    if (numeric > bestValue) {
-      bestValue = numeric
-      bestKey = key
-    }
-  })
-
-  if (!bestKey || bestValue <= 0) return ''
-  return bestKey
-}
-
-function getDisposizionePrevalente(record) {
-  const bestKey = getDisposizionePrevalenteKey(record)
-  return DISPOSIZIONE_LABELS_BY_COLOR[bestKey] || ''
-}
-
-const SOTTODISPOSIZIONE_LABELS = {
-  BLU_1_Depressiva: 'Depressiva',
-  BLU_2_Lunare: 'Lunare',
-  BLU_3_Nostalgia: 'Nostalgica',
-  BLU_4_Solare: 'Solare',
-  ROSSO_1_Assertivita: 'Assertività',
-  ROSSO_2_Dubbio_Collera: 'Dubbio / Collera',
-  VERDE_1_Calma: 'Calma',
-  GIALLO_1_Gioia_Entusiasmo: 'Gioia / Entusiasmo',
-  GIALLO_2_Volitivo_Passionale: 'Volitivo / Passionale',
-  GRIGIO_1_Distaccato_Nichilista: 'Distaccato / Nichilista',
-  GRIGIO_2_Intellettuale_Saggio: 'Intellettuale / Saggio',
-}
-
-function getSottodisposizionePrevalente(record) {
-  if (!record) return ''
-  const disposizioneKey = getDisposizionePrevalenteKey(record)
-  const candidateKeys = SOTTOCORRENTE_KEYS_BY_COLOR[disposizioneKey] || []
-  if (candidateKeys.length === 0) return ''
-
-  let bestKey = null
-  let bestValue = -Infinity
-
-  candidateKeys.forEach((key) => {
-    const numeric = Number(record[key]) || 0
-    if (numeric > bestValue) {
-      bestValue = numeric
-      bestKey = key
-    }
-  })
-
-  if (!bestKey || bestValue <= 0) return ''
-  return SOTTODISPOSIZIONE_LABELS[bestKey] || bestKey
-}
-
-function getPortatoEsperienzialePrevalente(record) {
-  if (!record) return ''
-  const simpatia = Number(record.PE_Simpatia) || 0
-  const antipatia = Number(record.PE_Antipatia) || 0
-  const indifferenza = Number(record.PE_Indifferenza) || 0
-  const max = Math.max(simpatia, antipatia, indifferenza)
-  if (max <= 0) return ''
-  if (simpatia === max) return 'Simpatia'
-  if (antipatia === max) return 'Antipatia'
-  if (indifferenza === max) return 'Indifferenza'
-  return ''
-}
-
-function computeAutoFields(record) {
-  const disposizione = getDisposizionePrevalente(record)
-  const sottodisposizione = getSottodisposizionePrevalente(record)
-  const portato = getPortatoEsperienzialePrevalente(record)
-
-  const result = {}
-  if (disposizione) result.Disposizione_Prevalente = disposizione
-  if (sottodisposizione) result.Sottodisposizione_Prevalente = sottodisposizione
-  if (portato) result.Portato_Esperienziale_Prevalente = portato
-  return result
-}
 
 const STATO_ANIMO_OPTIONS = [
   { value: 'SA_SERENO', label: 'Sereno/a' },
@@ -564,6 +446,8 @@ function NewTestPage() {
     return () => {
       stopPreviewAudio()
       if (nextStepTimerRef.current) {
+        // Il cleanup deve cancellare il timer più recente al momento dell'unmount.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         window.clearTimeout(nextStepTimerRef.current)
       }
       if (resetTimerRef.current) {
@@ -901,16 +785,6 @@ function NewTestPage() {
     return true
   }
 
-  const sanitizePayload = (record) => {
-    const out = {}
-    Object.entries(record).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        out[key] = value
-      }
-    })
-    return out
-  }
-
   const buildLocalDraftSnapshot = () => ({
     version: 1,
     savedAt: Date.now(),
@@ -1008,8 +882,8 @@ function NewTestPage() {
     const activeUser = user
     const isComplete = isTestComplete()
     const shouldSaveAsDraft = forceDraft || !isComplete
-    const autoFields = computeAutoFields(testRecord)
-    const payload = sanitizePayload({
+    const autoFields = computeTestResultFields(testRecord)
+    const payload = compactTestRecord({
       ...testRecord,
       ...autoFields,
       Stato_Consegna: shouldSaveAsDraft ? 'BOZZA' : 'CONSEGNATO',
@@ -1235,6 +1109,8 @@ function NewTestPage() {
     }
     saveLocalDraftSnapshot()
     return undefined
+  // Le funzioni leggono intenzionalmente lo snapshot della render corrente.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profilingDone, currentFile, testRecord, answersByFile, isSubmitting, showIntro])
 
   useEffect(() => {
@@ -1250,6 +1126,8 @@ function NewTestPage() {
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload)
     }
+  // Il listener viene riallineato sui dati; le funzioni leggono lo snapshot corrente.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profilingDone, currentFile, testRecord, answersByFile])
 
   useEffect(() => {
@@ -1896,13 +1774,18 @@ function NewTestPage() {
               isAnalyzingResult &&
               createPortal(
                 <section
-                  className="nuovo-test-page result-analysis-transition"
+                  className="result-analysis-transition"
                   aria-live="polite"
                   aria-label="Elaborazione risultati"
                 >
                   <div className="result-analysis-card">
-                    <p className="result-analysis-kicker">Elaborazione risultati</p>
-                    <h3 className="result-analysis-title">Stiamo calcolando il tuo report</h3>
+                    <header className="result-analysis-header">
+                      <span className="result-analysis-status-dot" aria-hidden="true" />
+                      <div>
+                        <p className="result-analysis-kicker">Elaborazione risultati</p>
+                        <h2 className="result-analysis-title">Il tuo profilo sta prendendo forma</h2>
+                      </div>
+                    </header>
 
                     {loadingFlowerImages.length > 0 && (
                       <div className="result-analysis-flower-shell result-analysis-flower-carousel" aria-hidden="true">
@@ -1941,17 +1824,27 @@ function NewTestPage() {
                       {RESULT_ANALYSIS_MESSAGES[analysisMessageIndex]}
                     </p>
 
-                    <div className="result-analysis-progress" aria-hidden="true">
+                    <div
+                      className="result-analysis-progress"
+                      role="progressbar"
+                      aria-label="Avanzamento elaborazione"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                      aria-valuenow={Math.round(analysisProgress)}
+                    >
                       <div
                         className="result-analysis-progress-bar"
                         style={{ width: `${analysisProgress.toFixed(2)}%` }}
                       />
                     </div>
 
-                    <p className="result-analysis-note">
-                      Privacy attiva: i dati vengono trattati in forma riservata e protetta.
-                    </p>
-                    <p className="result-analysis-percent">{Math.round(analysisProgress)}%</p>
+                    <div className="result-analysis-footer">
+                      <p className="result-analysis-note">
+                        <span aria-hidden="true">&#128274;</span>
+                        I tuoi dati restano riservati e protetti.
+                      </p>
+                      <p className="result-analysis-percent">{Math.round(analysisProgress)}%</p>
+                    </div>
                   </div>
                 </section>,
                 document.body,

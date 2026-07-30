@@ -105,7 +105,7 @@ const RADAR_FAMIGLIE = [
   { subject: 'Anaffettività', key: 'grigio', color: '#6b7280' },
 ]
 
-/** Etichette colonne matrice risultati: le 5 disposizioni (Malinconia = famiglia Blu, non la sottosezione Lunare) */
+/** Etichette colonne matrice risultati: le 5 macro-aree cromatiche del punteggio. */
 const MATRICE_HEADERS = [
   { key: 'blu', label: 'Malinconia' },
   { key: 'rosso', label: 'Volitività' },
@@ -218,7 +218,7 @@ function IconDelete({ title, onClick, className = '' }) {
 }
 
 const DISPOSIZIONI_SIGNIFICATO = {
-  Malinconia: 'Introspettivo, orientato alla riflessione, alla memoria e al passato (famiglia Blu; Lunare è una sottosezione).',
+  Malinconia: 'Introspettivo, orientato alla riflessione, alla memoria e al passato.',
   Volitività: 'Energia volitiva, orientata all’azione, alla prova e all’assertività nel presente.',
   Entusiasmo: 'Gioia del movimento, curiosità, entusiasmo verso ciò che è nuovo.',
   Calma: 'Calma profonda, bisogno di riposo, protezione e spazi di silenzio.',

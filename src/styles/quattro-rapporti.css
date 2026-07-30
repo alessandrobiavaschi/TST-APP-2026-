@@ -2,9 +2,9 @@
 
 .quattro-rapporti-section {
   width: 100%;
-  padding: clamp(1.5rem, 4vw, 3rem) var(--space-md, 1rem);
+  padding: clamp(1.5rem, 4vw, 3rem) 0;
   color: #f8fafc;
-  background: #0f172a;
+  background: transparent;
 }
 
 .quattro-rapporti-section__inner {
@@ -28,7 +28,7 @@
   padding: 1.15rem 1.25rem 1.35rem;
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 8px;
-  background: rgba(30, 41, 59, 0.35);
+  background: var(--report-surface-card, rgba(255, 255, 255, 0.035));
   box-shadow: none;
   color: inherit;
   text-align: left;
@@ -37,12 +37,12 @@
 }
 
 .quattro-rapporti-tab:hover {
-  background: rgba(51, 65, 85, 0.5);
+  background: rgba(255, 255, 255, 0.06);
   border-color: rgba(255, 255, 255, 0.1);
 }
 
 .quattro-rapporti-tab--selected {
-  background: color-mix(in srgb, var(--qr-tab-color, #94a3b8) 12%, rgba(30, 41, 59, 0.6));
+  background: color-mix(in srgb, var(--qr-tab-color, #94a3b8) 10%, rgba(255, 255, 255, 0.035));
   border-color: color-mix(in srgb, var(--qr-tab-color, #94a3b8) 45%, transparent);
 }
 
@@ -79,12 +79,13 @@
   line-height: 1.32;
 }
 
-.quattro-rapporti-tab__meta {
+.quattro-rapporti-tab__meaning {
   display: block;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.62rem;
-  letter-spacing: 0.04em;
-  color: rgba(255, 255, 255, 0.42);
+  max-width: calc(100% - 1rem);
+  font-family: var(--font-body);
+  font-size: 0.76rem;
+  line-height: 1.35;
+  color: rgba(226, 232, 240, 0.68);
 }
 
 .quattro-rapporti-tab__dot {
@@ -136,7 +137,7 @@
   align-self: stretch;
   width: 1px;
   min-height: 25rem;
-  background: #1e293b;
+  background: var(--report-surface-card-border, rgba(255, 255, 255, 0.08));
   position: relative;
 }
 
@@ -171,12 +172,21 @@
 }
 
 .quattro-rapporti-read__question {
-  margin: -0.35rem 0 0;
+  margin: -0.45rem 0 0;
   color: var(--qr-accent, #94a3b8);
   font-family: var(--font-body);
   font-size: 1rem;
   font-weight: 760;
   line-height: 1.35;
+}
+
+.quattro-rapporti-read__subtitle {
+  margin: -0.65rem 0 0;
+  max-width: 38rem;
+  color: rgba(248, 250, 252, 0.74);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  line-height: 1.55;
 }
 
 .quattro-rapporti-read__summary {
@@ -185,7 +195,7 @@
   padding: 0.72rem 0.85rem;
   border: 1px solid color-mix(in srgb, var(--qr-accent, #94a3b8) 24%, rgba(255, 255, 255, 0.2));
   border-radius: 8px;
-  background: color-mix(in srgb, var(--qr-accent, #94a3b8) 8%, rgba(15, 23, 42, 0.68));
+  background: color-mix(in srgb, var(--qr-accent, #94a3b8) 7%, rgba(255, 255, 255, 0.035));
 }
 
 .quattro-rapporti-read__summary span {
@@ -245,7 +255,7 @@
 
 @supports not (color: color-mix(in srgb, red 10%, transparent)) {
   .quattro-rapporti-tab--selected {
-    background: #1e293b;
+    background: rgba(255, 255, 255, 0.06);
     border-color: #64748b;
   }
 }

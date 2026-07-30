@@ -1,9 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { getProfiloPanelDisplay } from '../../utils/profiloDisplayCopy.js'
 import ReportPassageHeader from './ReportPassageHeader.jsx'
 import { PROFILO_CHAPTER_EVENT, chapterAnchorId } from './profiloChapterNav.js'
-import { scrollToReportSection } from './reportSectionNavUtils.js'
+import { scrollElementToReportCenter } from './reportSectionNavUtils.js'
 import { getPersonalizedTitles } from '../../config/reportFamilyTheme.js'
 import { PROFILO_UI } from './reportUiCopy.js'
 
@@ -58,11 +58,6 @@ function ChapterBlock({ sezione, index, famiglia, profilo, reduceMotion, title }
     rawTesto: sezione.testo,
     profilo,
   })
-  const subtitle =
-    sezione.id === 'natura' && (profilo?.natura || sezione.label)
-      ? (profilo?.natura || sezione.label).replace(/\s*·\s*/g, ' · ')
-      : null
-
   return (
     <article
       className="profilo-chapter-block"
@@ -88,11 +83,6 @@ function ChapterBlock({ sezione, index, famiglia, profilo, reduceMotion, title }
         viewport={{ once: true, margin: '-40px' }}
         transition={{ duration: reduceMotion ? 0 : 0.35, ease: 'easeOut' }}
       >
-        {subtitle ? (
-          <p className="profilo-panel__subtitle" style={{ color: accent }}>
-            {subtitle}
-          </p>
-        ) : null}
         {display.panelIntro ? (
           <p className="profilo-panel__connector">{display.panelIntro}</p>
         ) : null}
@@ -112,6 +102,8 @@ export default function ProfiloEmotivo({
   const reduceMotion = useReducedMotion()
   const [activeChapter, setActiveChapter] = useState('natura')
   const [isExpanded, setIsExpanded] = useState(false)
+  const chapterContentRef = useRef(null)
+  const shouldCenterChapterRef = useRef(false)
   const personalizedTitles = useMemo(() => getPersonalizedTitles(famiglia), [famiglia])
 
   const ordered = PANEL_ORDER.map((id) => sezioni.find((s) => s && s.id === id)).filter(Boolean)
@@ -127,6 +119,7 @@ export default function ProfiloEmotivo({
   const selectChapter = useCallback(
     (panelId, shouldScroll = false, isExternalEvent = false) => {
       if (!PANEL_ORDER.includes(panelId)) return
+      const isAlreadyActive = panelId === activeChapter
       setActiveChapter(panelId)
 
       // Update global helper variable for scrollspy override
@@ -142,13 +135,17 @@ export default function ProfiloEmotivo({
       }
 
       if (!shouldScroll) return
-      window.requestAnimationFrame(() => {
-        scrollToReportSection('report-tst-famiglia', {
-          reduceMotion,
+      shouldCenterChapterRef.current = true
+      if (isAlreadyActive) {
+        window.requestAnimationFrame(() => {
+          shouldCenterChapterRef.current = false
+          const target = chapterContentRef.current?.querySelector('.profilo-chapter-block__head')
+            || chapterContentRef.current
+          scrollElementToReportCenter(target, { reduceMotion })
         })
-      })
+      }
     },
-    [reduceMotion, setActiveChapter],
+    [activeChapter, reduceMotion],
   )
 
   const scrollToChapter = useCallback(
@@ -175,7 +172,16 @@ export default function ProfiloEmotivo({
   useEffect(() => {
     // Set global helper on mount/activeChapter changes
     window.__tstActiveProfiloChapter = activeChapter
-  }, [activeChapter])
+
+    if (!shouldCenterChapterRef.current) return undefined
+    shouldCenterChapterRef.current = false
+    const raf = window.requestAnimationFrame(() => {
+      const target = chapterContentRef.current?.querySelector('.profilo-chapter-block__head')
+        || chapterContentRef.current
+      scrollElementToReportCenter(target, { reduceMotion })
+    })
+    return () => window.cancelAnimationFrame(raf)
+  }, [activeChapter, reduceMotion])
 
   useEffect(() => {
     const onChapterNav = (event) => {
@@ -192,23 +198,12 @@ export default function ProfiloEmotivo({
           step={`${stepPrefix}.3`}
           eyebrow={PROFILO_UI.eyebrow}
           title={PROFILO_UI.title}
-          lead={PROFILO_UI.subtitle}
           accentColor={headerColor}
           titleId="pe-section-title"
         />
 
-        {/* Card di sintesi della famiglia emotiva con Approfondisci */}
+        {/* Card di sintesi della natura emotiva con Approfondisci */}
         <div className="profilo-family-summary-card" style={{ maxWidth: '860px', margin: '0 auto 2.5rem', width: '100%', boxSizing: 'border-box' }}>
-          <h4 className="profilo-family-summary-card__title" style={{
-            fontSize: '1.25rem',
-            fontWeight: '700',
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-            marginBottom: '0.75rem',
-            color: headerColor
-          }}>
-            Famiglia {profilo.famiglia} ({profilo.disposizione})
-          </h4>
           <p className="profilo-family-summary-card__brief" style={{
             fontSize: '1.05rem',
             lineHeight: '1.6',
@@ -249,7 +244,7 @@ export default function ProfiloEmotivo({
                   fontStyle: 'italic',
                   textAlign: 'left'
                 }}>
-                  Approfondimento non ancora disponibile per questa famiglia emotiva.
+                  Approfondimento non ancora disponibile per questa natura emotiva.
                 </p>
               )}
             </div>
@@ -320,7 +315,7 @@ export default function ProfiloEmotivo({
           ))}
         </div>
 
-        <div className="profilo-chapter-list profilo-chapter-list--tabs">
+        <div ref={chapterContentRef} className="profilo-chapter-list profilo-chapter-list--tabs">
           {activeSezione ? (
             <ChapterBlock
               key={activeSezione.id}

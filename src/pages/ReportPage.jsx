@@ -9,21 +9,10 @@ import {
   computeRapportiTotalsFromRaw,
 } from '../utils/reportRecordUtils.js'
 import FinalFlowerTransition from '../components/report/FinalFlowerTransition'
-import VideoBackground0311 from '../components/VideoBackground0311.jsx'
-import PrimaLetturaContext from '../components/report/PrimaLetturaContext.jsx'
 import ReportShell from '../components/report/ReportShell.jsx'
 import { buildReportData } from '../utils/buildReportData.js'
 import { getMergedReportBlock } from '../reportContentMerged.js'
-import '../styles/report-experience.css'
 import '../styles/report-tst.css'
-
-const accentColors = {
-  Blu: '#3b82f6',
-  Rosso: '#ef4444',
-  Verde: '#22c55e',
-  Giallo: '#eab308',
-  Grigio: '#6b7280',
-}
 
 function ReportPage() {
   const location = useLocation()
@@ -49,35 +38,6 @@ function ReportPage() {
   const playSubmitTransition = fromSubmit && !skipReportTransition
   const [transitionPhase, setTransitionPhase] = useState(playSubmitTransition ? 'video' : 'none')
   const [resultRevealPhase, setResultRevealPhase] = useState(playSubmitTransition ? 'hold' : 'visible')
-  const [contextPhase, setContextPhase] = useState(() => {
-    if (!fromSubmit) return 'skip'
-    try {
-      if (typeof window !== 'undefined' && window.localStorage.getItem('tst_context_seen_v1') === '1') {
-        return 'skip'
-      }
-    } catch {
-      // se localStorage non è accessibile, mostriamo comunque il contesto
-    }
-    return 'show'
-  })
-
-  const handleOpenProfileFromContext = (dontShowAgain = false) => {
-    if (dontShowAgain) {
-      try {
-        if (typeof window !== 'undefined') {
-          window.localStorage.setItem('tst_context_seen_v1', '1')
-        }
-      } catch {
-        // ignore: il flag non è essenziale al funzionamento
-      }
-    }
-    setContextPhase('skip')
-  }
-
-  const handleRilleggiIntroduzione = () => {
-    setContextPhase('show')
-  }
-
   useEffect(() => {
     if (resultRevealPhase !== 'hold') return undefined
     const timer = window.setTimeout(() => {
@@ -95,8 +55,7 @@ function ReportPage() {
     }
   }, [routedRecord])
 
-  const showIntroFrame =
-    resultRevealPhase !== 'visible' || contextPhase === 'show'
+  const showIntroFrame = resultRevealPhase !== 'visible'
 
   useEffect(() => {
     if (showIntroFrame) return
@@ -152,8 +111,6 @@ function ReportPage() {
         dimensione: textBlock.restituzione_dimensione,
       }
     : null
-
-  const accentColor = accentColors[dominantColorName] || '#6b7280'
 
   let rapportiLevels
   let rapportiTotals
@@ -257,12 +214,8 @@ function ReportPage() {
 
   return (
     <div className="report-page-wrapper page-video-bg-root report-page-wrapper--night" lang="it">
-      <VideoBackground0311 showOverlay className="report-page-wrapper__video" />
       {showIntroFrame ? (
-        <div
-          className="report-page report-xp report-page-frame min-h-screen"
-          style={{ '--report-xp-accent': accentColor }}
-        >
+        <div className="report-page report-page-frame min-h-screen">
           {playSubmitTransition && transitionPhase === 'video' && (
             <FinalFlowerTransition
               colorKey={dominantKey}
@@ -279,12 +232,6 @@ function ReportPage() {
           {playSubmitTransition && resultRevealPhase === 'hold' && (
             <div className="report-final-reveal-blank" aria-hidden="true" />
           )}
-          {resultRevealPhase === 'visible' && contextPhase === 'show' && (
-            <PrimaLetturaContext
-              onOpenProfile={handleOpenProfileFromContext}
-              accentColor={accentColor}
-            />
-          )}
         </div>
       ) : (
         <ReportShell
@@ -292,7 +239,6 @@ function ReportPage() {
           onDownload={() => downloadCsvSingleRecord(record)}
           onNavigateHome={() => navigate('/home')}
           onNavigateArchive={handleClose}
-          onRilleggiIntroduzione={handleRilleggiIntroduzione}
         />
       )}
     </div>

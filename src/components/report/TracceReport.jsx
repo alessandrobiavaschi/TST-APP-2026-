@@ -9,7 +9,6 @@ export default function TracceReport({ correnteColore = '#4ade80' }) {
     <section
       aria-labelledby="tracce-heading"
       className="report-placeholder"
-      style={{ background: '#0b1220' }}
     >
       <div className="report-placeholder__inner">
         <p

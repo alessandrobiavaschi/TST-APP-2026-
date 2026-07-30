@@ -24,6 +24,8 @@ export const FAMIGLIA_APPROFONDIMENTO = {
       'Il sorgere della malinconia si avverte nel periodo dell’adolescenza. Al termine del percorso dell’infanzia, che al pari del periodo neonatale dura davvero un attimo rispetto al tempo della vita, c’è un momento in cui la crescita, l’evoluzione individuale si arresta. Attorno ai nove-dieci anni si vive un periodo che ricorda quello prenatale: si tratta di una seconda nascita, quella affettiva.',
       'Nel periodo preadolescenziale, l’organo dell’orecchio comincia concretamente a lavorare insieme al respiro, sviluppando quell’abbozzo di centrale interiore che imparerà a decodificare il suono in modo più profondo ed elaborato. Il novello adolescente inizia a «sentire» che la sua identità è separata rispetto a quella dei componenti della famiglia, degli amici di gioco, dei compagni di scuola.',
       'Più avanti, verso i tredici-quattordici anni, l’elaborazione dell’energia emotiva prende la via dell’introspezione. Si comincia a sentire un calore speciale, un sottile piacere per la malinconia: la si avverte come un piacere salvifico, come un balsamo che guarisce la solitudine.',
+      'Con la scoperta della Musica ci si accorge dell’esistenza di una sorgente inesauribile di emozioni sempre a disposizione, che non fa domande, ma si fa scegliere e ascoltare. Una sorgente che dura nel tempo e non si esaurisce nel breve scoppiare di una risata o di un’arrabbiatura: la Musica dona qualcosa che non svanisce.',
+      'La Musica è uno specchio dell’organizzazione emotiva. Non si limita a rifletterne la superficie, ma rende percepibile ciò che normalmente rimane invisibile, mostrando e facendo sperimentare le qualità del proprio sentire.',
       'Nelle canzoni predilige ritmi non invasivi con testi a carattere poetico o umanistico riflessivo; cerca ascolti che lo riempiano intimamente facendogli vivere con sincerità la dimensione emozionale.',
       'Il musicista malinconico ama interpretare e comporre più che eseguire, leggere o improvvisare. Vive con grande piacere il bel suono, è particolarmente sensibile alla liricità, alle interpretazioni sentite, ricche di dinamiche. La Musica lo coinvolge più emotivamente che intellettualmente.',
       'I piaceri del temperamento malinconico quando ascolta Musica sono quelli di subire il fascino della melodia e degli intervalli, attraverso i quali si gode ogni tipo di stato d’animo e ci si riflette sopra. Cerca una Musica profonda, adatta a mettere in movimento il suo mondo interiore.',
@@ -36,10 +38,13 @@ export const FAMIGLIA_APPROFONDIMENTO = {
     ],
     qualita: [
       'È proprio attraverso la forza della Malinconia che si acquista maggior consapevolezza del proprio essere interiore.',
+      'Questa forza permette di cogliere e osservare una pulsione emotiva, un sentimento e un piacere. Nello spazio interiore ogni esperienza presenta due facce: una immaginativa e una affettiva.',
       'I grandi musicisti, i grandi idealisti, le persone che sentono la solitudine come un valore da proteggere, hanno goduto di questa luce riflessa e hanno così maturato una propensione malinconica.',
+      'La Musica di natura malinconica può essere di grande aiuto al carattere volitivo. La propensione a superare ostacoli e vincere difficoltà può infatti indurire la sensibilità; la corrente malinconica richiama invece l’importanza di un rapporto autentico con le persone.',
     ],
     ombre: [
       'Se riportiamo alla luce una delle immagini più suggestive dell’interiorità che i Beatles ci hanno offerto negli anni Sessanta, quella che vedeva il cervello come una cantina da raggiungere, nelle cui profondità si scende con delle scale: oltre al buio lì rappresentato, qualche gradino più sotto della tristezza, trovi il covo nero della depressione.',
+      'Nell’esperienza musicale può perdersi in dimensioni troppo sognanti. Anche il movimento fisico non rappresenta il suo centro naturale: danzare è una sfida che accetta di malavoglia e che declina volentieri; quando l’accetta, deve ricorrere all’aiuto della volontà.',
     ],
     sottocategorie: [
       {
@@ -85,8 +90,8 @@ export const FAMIGLIA_APPROFONDIMENTO = {
     ],
     racconto: [
       'Nel dispiegarsi delle facoltà della vita, l’energia dell’Io ha aiutato a superare ogni momento di crescita, facendoci provare un piacere unico per ogni disposizione temperamentale. Scalando di anno in anno posizioni, crescendo, maturando, arriva a mostrarsi davvero per quello che è attorno al ventesimo anno di età.',
-      'A cavallo dei trent’anni si ha la sensazione che l’energia del lascito genitoriale si sia come estinta. Ci si sente soli per davvero, con una gelida sfera intellettuale guidata dall’Io che è cresciuta fino a coprire i sentimenti: è il deserto emotivo, la solitudine, la paura di non poter più sentire. I sentimenti, in realtà, si inabissano come fa un fiume carsico, dandoci la sensazione di aver perso il Cuore.',
-      'Il fiume carsico irromperà in superficie più impetuoso di prima. In fin dei conti è una nuova nascita, il momento in cui ognuno ricomincia con forze solo sue.',
+      'Intorno ai trent’anni si può avvertire come esaurita l’energia ricevuta dal lascito genitoriale. Si sperimenta allora una solitudine autentica, mentre una fredda sfera intellettuale, governata dall’Io, si espande fino a ricoprire i sentimenti. È il deserto emotivo: la solitudine accompagnata dalla paura di non riuscire più a sentire. In realtà, i sentimenti sprofondano come un fiume carsico, suscitando l’impressione di avere perduto il Cuore. Questa fase coincide con la massima intensità dell’azione dell’Io.',
+      'Il fiume carsico irromperà in superficie più impetuoso di prima. In fin dei conti è una nuova nascita, il momento in cui ognuno ricomincia con forze solo sue. Se quanto è stato costruito in precedenza poggia su fondamenta solide, quelle basi permettono di ripartire; se invece tali fondamenta mancano, rimane comunque la possibilità di ricostruire la propria vita. È durante questo passaggio che la parola «futuro» inizia ad assumere il suo significato più autentico.',
       'Ritmicamente ricerca tempi forti e costanti. Ama la Musica con i piedi per terra, dalle sonorità chiare e leggibili; subisce il fascino della melodia che memorizza con facilità i testi. Ama farsi spiazzare.',
       'La sua propensione intellettuale gli fa apprezzare istintivamente l’improvvisazione, che segue con piacere, ma solo come ascoltatore. Come musicista è molto organizzato, non abbonda di fantasia, per questo fatica a «lasciarsi andare»; legge benissimo ed esegue altrettanto bene. Digerisce poco il minimalismo, e alla ripetitività resiste pochissimo.',
       'Riserva molta attenzione ai concetti espressi dal testo ed è un attento critico verso gli aspetti interpretativi. La Musica lo coinvolge più mentalmente che fisicamente o sentimentalmente.',
@@ -98,12 +103,13 @@ export const FAMIGLIA_APPROFONDIMENTO = {
     ],
     qualita: [
       'Un aspetto della collericità è vivere il piacere di fare, di concretizzare, di realizzare. La forza di un procedere sicuro e determinato. Una forza che spinge a prendersi responsabilità per sé e per gli altri. Una tendenza a operare affrontando rischi, ad andare oltre l’ostacolo, spesso a cercarli per poterli superare.',
-      'Saldezza e piglio volitivo sono qualità che il tuo Io deve offrire anche ai suoi gregari: da questo dipende la tua armonia, il tuo equilibrio comportamentale.',
+      'L’Io deve mettere la propria fermezza e la propria forza di volontà anche al servizio dei suoi gregari: la Calma, l’Entusiasmo e la Riflessività. La solidità dell’intelletto si oppone alla debolezza del pensiero; un sentire stabile e autentico protegge dall’instabilità affettiva; una volontà chiara rischiara invece i cammini, anche difficili, che permettono di realizzare ciò a cui si tiene. L’armonia del comportamento nasce dall’equilibrio tra queste forze.',
       'Le forze emotive che contraddistinguono la natura temperamentale volitiva collerica sono potenti, forti, in quanto il loro operare dà il via all’azione. Sono forze che agiscono al fine di concretizzare nella realtà sogni e ambizioni: fermezza, solidità, sicurezza, franchezza, costanza, determinazione.',
+      '- Per mantenere in equilibrio il governatore e i suoi gregari è necessaria anche la saggezza: occorre saper ridimensionare il proprio Io e guardare con un poco d’ironia al «grande governatore». D’altra parte, senza la Calma, l’Entusiasmo e la Riflessività, che cosa potrebbe governare?',
     ],
     ombre: [
       'Fermezza, solidità, sicurezza, franchezza, costanza, determinazione hanno però anche le loro rispettive ombre, aspetti polari negativi che si rivelano contrastanti.',
-      'Se l’Io guarda solo a se stesso si disarmonizza, si sclerotizza e si «egoicizza», diventa strabico al punto da non riconoscere più i suoi gregari, da non nutrirli con le sue qualità.',
+      'Quando l’Io rivolge lo sguardo soltanto a sé stesso, perde armonia, si irrigidisce e si «egoicizza», fino a diventare incapace di riconoscere i propri gregari e di alimentarli con le sue qualità. Se il «sentire» non viene coltivato consapevolmente, finisce per inaridirsi e disidratarsi, privando la persona di uno strumento essenziale di conoscenza.',
       'L’elemento essenziale che crea lo stimolo a vivere in modo esasperato questa condizione è il dubbio, uno stato d’animo instabile, altamente altalenante che chiamiamo dubbiosità: una forza che alimenta il volgere al negativo tutto ciò che induce all’azione, ovvero l’indecisione, l’incertezza, fino a dare corpo all’ambiguità — un procedere esitante insicuro, un tendere a cambiare idea spesso per paura di sbagliare.',
       'Una terza condizione della natura temperamentale volitiva collerica è lo stato d’animo rabbioso, iracondo: forze che possono diventare esplosive quando la corrente emotiva della collericità assertiva si esaspera. Rabbia e ira nascono spesso da rapporti con visioni opposte, spesso dominate da reciproci istinti di antipatia covati ma non manifestati: da questa impossibilità di dialogo emerge un’energia egoico assertiva scaricata verso il contendente in termini di rabbia trattenuta, o di ira manifestata con violenza.',
     ],
@@ -174,10 +180,11 @@ export const FAMIGLIA_APPROFONDIMENTO = {
       'Ciò che contraddistingue il temperamento gioioso entusiasta è il piacere del movimento, della curiosità, della scoperta del nuovo, dell’estroversione.',
       'Da Sud verso Nord soffiano venti caldi: un flusso emotivo gioioso pervaso di solarità e di calore. Quel flusso si chiama Entusiasmo. Nel suo espandersi in un carattere in formazione, offre quello che di emotivo nasce dal nostro interiore Continente dell’Entusiasmo.',
       'L’esperienza affettiva che si vive con le forze dell’entusiasmo si manifesta con il piacere di uscire da sé stessi per abbracciare tutto ciò che è nuovo, che è fuori da noi: persone, natura, oggetti, le più svariate attività.',
+      'È a questa tendenza che si agganciano le correnti musicali, orientando l’energia emotiva verso un moto centrifugo: un movimento che va verso il fuori, si disperde nel mondo e lo abbraccia, risvegliando e appagando la gioia di sentire questa propensione nel proprio carattere.',
     ],
     racconto: [
       'Passato il periodo neonatale inizia quello pre-infantile: il bambino acquista gradualmente un po’ di controllo dei movimenti, si mette in posizione verticale e sta sempre meno in braccio. Inizia a immagazzinare progressivamente un’enorme quantità di energia emotiva da spendere.',
-      'Per i bambini è ancora troppo presto per elaborare interiormente quest’energia: qualsiasi emozione forte, positiva o negativa, provoca istintivamente solo due tipi di reazione, il riso convinto o un pianto doloroso. Le emozioni verranno elaborate nel periodo successivo, quello adolescenziale, quando la Musica sarà riconosciuta come una vitamina insostituibile.',
+      'Per i bambini è ancora troppo presto per elaborare interiormente quest’energia: qualsiasi emozione forte, positiva o negativa, provoca istintivamente solo due tipi di reazione, il riso convinto o un pianto doloroso. Le emozioni verranno elaborate nel periodo successivo, quello adolescenziale, quando la Musica sarà riconosciuta come una vitamina insostituibile. Quest’energia si manifesta anche attraverso i suoni: dapprima in gridolini indistinti di piacere e dispiacere, poi nelle prime sensazioni di desiderio, gioia e dolore, fino a diventare parole. Il canto è un volo in un cielo fatto di colori emotivi attraverso le traiettorie della melodia.',
       'La curiosità è un piacere da esercitare, permette di imparare a fare qualsiasi cosa. La curiosità che porta a vivere un’esperienza di successo, sia pur piccolo, viene premiata con il sorgere dell’«Entusiasmo», una qualità del sentire istintivo che, una volta memorizzata, alimenta e sedimenta il Continente dell’Entusiasmo, che si posiziona accanto a quello della Flemma.',
       'Adora composizioni con melodie chiare e riconoscibili che non inducano a riflettere troppo, ma piuttosto a dare carica, con ritmi accentuati; l’importante è che la melodia non sia sempre uguale, altrimenti si annoierebbe.',
       'Quando ascolta Musica gli risulta difficile non muoversi, e ha quindi un atteggiamento molto coinvolto, proiettato verso l’esterno. È interessato al testo della canzone, soprattutto se trova la storia simpatica, ma è il fascino del ritmo a coinvolgerlo di più. È sempre alla ricerca di novità, di suoni mai sentiti: si potrebbe dire che gli va bene tutto pur di muoversi.',
@@ -190,8 +197,14 @@ export const FAMIGLIA_APPROFONDIMENTO = {
       'La curiosità è un piacere da esercitare, permette di imparare a fare qualsiasi cosa.',
       'La curiosità che porta a vivere un’esperienza di successo, sia pur piccolo, viene premiata con il sorgere dell’«Entusiasmo», una qualità del sentire istintivo che, una volta memorizzata, alimenta e sedimenta il Continente dell’Entusiasmo, che si posiziona accanto a quello della Flemma.',
       'I climi emotivi dell’Entusiasmo costituiscono un antidoto fondamentale: portano dentro una scintilla di luminoso e ingenuo coraggio in grado di proiettarci fuori da noi stessi e di lanciarci alla perenne ricerca di bagliori di bellezza.',
+      '- L’istintività e la carica cinetica delle musiche che evocano Entusiasmo e gioia possono contrastare l’insorgere dell’apatia e dell’indifferenza.',
+      '- I climi emotivi dell’Entusiasmo aiutano a superare il gelo intellettuale e l’immobilismo anaffettivo del Dubbio.',
     ],
-    ombre: [],
+    ombre: [
+      'L’entusiasmo irrefrenabile può far fare mille cose, mille progetti che magari non verranno portati a termine.',
+      'L’eccitazione, l’entusiasmo e la voglia di affrontare un’attività possono generare uno stato d’animo inquieto e arrivare a non far dormire, come può accadere prima di una partita o di un’esibizione alla quale si tiene.',
+      'Provare entusiasmo comporta un dispendio di energia emotiva. Come ogni energia, anche quella emotiva ha bisogno di essere controllata, talvolta limitata e soprattutto orientata.',
+    ],
     sottocategorie: [
       {
         nome: 'Gioia ed entusiasmo',
@@ -218,12 +231,13 @@ export const FAMIGLIA_APPROFONDIMENTO = {
       'Ciò che contraddistingue il temperamento agnostico anaffettivo è il piacere del calcolo, della dubbiosità di origine intellettuale, dell’oggettività fisica.',
       'Da Nord verso Sud soffiano venti gelidi: diventano un flusso emotivo che raffredda, raggela affettivamente. Possiamo chiamare questa corrente: agnostica anaffettiva.',
       'Tra le correnti emotive è l’unica che agisce in modo trasversale, gettando la sua ombra su ciascuna delle quattro aree essenziali del sistema temperamentale.',
-      'Chi vive nel dubbio si aggira sulla stessa linea orizzontale del presente che contraddistingue la corrente Collerico volitiva, che manifesta calda passione. La corrente agnostico anaffettiva agisce invece in modo polare, con gelido distacco.',
+      'Chi vive nel dubbio si aggira sulla stessa linea orizzontale del presente che contraddistingue la corrente Collerico volitiva, che manifesta calda passione. La corrente agnostico anaffettiva agisce invece in modo polare, con gelido distacco. È una corrente forte ma non luminosa, simile a una vibrante cometa scura: genera pensieri che tendono a raggelare, più che ad alimentare, l’insieme dell’area affettiva.',
     ],
     racconto: [
       'Da quando alle macchine è stato dato uno spazio sempre più ampio, nella nostra società si è costituita una speciale corrente temperamentale che oggi appare acquisire sempre maggiore forza: qualcosa che si è sedimentata come una vera e propria area temperamentale a partire dagli anni Settanta.',
       'Tramontate le spinte idealistiche legate all’organizzazione politica, si fanno largo nella popolazione due diversi aspetti etici: un aspetto religioso e profondo, che negli anni Settanta ha trovato nel Buddhismo una visione secondo cui la realtà fisica è l’illusione dietro la quale si apre la vera dimensione della vita; e una corrente del moderno laicismo, che si ferma solo alla pelle, al non appartenere a nulla, al non farsi toccare in profondità da nulla per poter provare a sperimentare tutto, ma solo superficialmente.',
       'Una diffidenza che, in questa fase evolutiva, sospende e congela in un clima interiore alimentato da un sempre più tempo della distrazione, anche attraverso l’uso compulsivo della tecnologia.',
+      'Non si tratta del dubbio che accompagna le scelte quotidiane e che, presto o tardi, permette di individuare una direzione. La corrente anaffettiva si manifesta quando la meta non appare e non si avverte il desiderio di raggiungerla: prende allora forma un’immobilità fredda, un perenne astenersi dalle opinioni, nel quale ci si sente d’accordo con tutti e con nessuno.',
     ],
     movimento: [
       'Questo sedimentare distaccato e dubbioso, anaffettivo, potrebbe essere considerato come una variabile della corrente emotiva della Volitività: un flusso forte ma non luminoso, una sorta di vibrante cometa scura che finisce per far nascere pensieri che tendono a raggelare più che ad alimentare l’insieme dell’area affettiva.',
@@ -232,10 +246,15 @@ export const FAMIGLIA_APPROFONDIMENTO = {
     qualita: [
       'Esiste un altro lato della medaglia, che mantiene la caratteristica della volitività del temperamento ma la eleva eticamente. Per osservarne le qualità occorre un attento lavoro su sé stessi, sui pensieri, e sulla natura dell’intelletto, impegnandosi a orientarlo eticamente nel mondo vivente.',
       'Si dà così vita a una famiglia evoluta che si approccia al sentire espresso dalla natura senziente, accogliendo le diversità manifestate dai temperamenti, osservandole con amorevolezza compassionevole. Saggezza, devozione, dedizione, senso della beatitudine fanno parte di questa famiglia, che realizza una più evoluta armonia tra sentire e pensare — tra l’operare della calda passionalità affettiva e quello freddo e distaccato dell’intelletto. Un primo passo che semina il senso sociale del Noi.',
+      '- La fermezza volitiva può guadagnare equilibrio attraverso l’esercizio della stima e dell’ammirazione.',
+      '- L’osservazione della bellezza della natura e delle figure guida alimenta il riconoscimento del valore presente fuori da sé.',
+      '- La stima permette di riconoscere i propri limiti e ciò che gli altri conoscono o sanno fare meglio di noi.',
     ],
     ombre: [
       'Ogni cosa viene osservata ma senza vero interesse, con un distacco intellettuale anaffettivo che riduce tutto a qualcosa di banale, di poco appagante, di dissacrante. Pian piano un velo di grigio inizia a coprire il vero Entusiasmo, la vera Flemma e la vera Malinconia: un clima di interiore distacco nichilista che cresce sempre di più, che spinge a realizzare ma senza che venga provato intimo piacere, vero interesse né sentimento.',
       'È una forza che fa provare la sensazione di sentirsi in una posizione alta e altra, come se si fosse pienamente distaccati dalla propria natura senziente, passionale, inducendo a operare in modo asettico, escludendo del tutto la sfera emotiva, senza preoccuparsi delle conseguenze umanistiche ed affettive di questo agire. Sono le forze del polo negativo della calamita, che allontana invece che avvicinare.',
+      'In quella condizione il Dubbio può trasformarsi in immobilismo: una posizione di indifferenza e staticità che rinuncia al positivo e si astiene continuamente dal prendere posizione.',
+      'Il «sentire» può diventare qualcosa di cui non fidarsi. Si crea allora una sensazione asettica di equidistanza da tutto: il Continente del Dubbio agisce come un inibitore dell’Entusiasmo e della Volontà, limitando l’intensità delle altre disposizioni temperamentali.',
     ],
     sottocategorie: [
       {

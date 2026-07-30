@@ -131,7 +131,7 @@ export default function ParoleStatiAnimo({
       aria-labelledby="dizionario-emotivo-title"
       className="parole-stati-animo-section"
       style={{
-        background: 'linear-gradient(to bottom, #0f172a 0%, #020817 100%)',
+        background: 'transparent',
         paddingTop: 80,
         paddingBottom: 80,
         paddingLeft: 24,
@@ -166,7 +166,7 @@ export default function ParoleStatiAnimo({
           className="parole-stati-animo-zone__lead"
           style={{ marginTop: 32, marginBottom: 32 }}
         >
-          La nuvola mostra le parole della tua famiglia emotiva prevalente. Puoi esplorare le
+          La nuvola mostra le parole della tua natura emotiva prevalente. Puoi esplorare le
           sfumature del lessico e, se vuoi, aprire anche i dizionari delle altre famiglie.
         </p>
 
@@ -244,9 +244,9 @@ export default function ParoleStatiAnimo({
               exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 8 }}
               transition={{ duration: 0.2 }}
               style={{
-                background: '#1e293b',
-                border: '1px solid #334155',
-                borderRadius: 4,
+                background: 'rgba(255, 255, 255, 0.035)',
+                border: '1px solid rgba(255, 255, 255, 0.09)',
+                borderRadius: 16,
                 padding: 24,
                 marginBottom: 32,
                 position: 'relative',
@@ -333,8 +333,8 @@ export default function ParoleStatiAnimo({
                           fontFamily: MONO_STACK,
                           fontSize: 12,
                           color: '#94a3b8',
-                          background: '#0f172a',
-                          border: '1px solid #1e293b',
+                          background: 'rgba(255, 255, 255, 0.035)',
+                          border: '1px solid rgba(255, 255, 255, 0.09)',
                           padding: '4px 8px',
                           borderRadius: 2,
                         }}

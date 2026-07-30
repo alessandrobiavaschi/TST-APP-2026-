@@ -119,7 +119,7 @@ export function buildInSintesiFallback(famiglia, profilo = {}) {
     return `${tag.charAt(0).toUpperCase()}${tag.slice(1)}`
   }
   if (tag) return tag
-  return `Prevalenza emersa dal test: famiglia ${theme?.macro || famiglia}.`
+  return `Prevalenza emersa dal test: natura ${theme?.corrente || famiglia}.`
 }
 
 /**
@@ -129,35 +129,35 @@ const DISPLAY_BY_FAMILY = {
   Verde: {
     natura: {
       inSintesi:
-        'In questa famiglia emerge il piacere della lentezza, del silenzio, della calma, del riposo e della contemplazione. I caratteri flemmatici prediligono il certo, la ripetitività, l’assenza di eccitazione — con orientamento all’«oblio sospeso», il tempo della bonaccia interiore.',
+        'Nella natura Flemmatica emerge il piacere della lentezza, del silenzio, della calma, del riposo e della contemplazione. La caratteristica contemplativa predilige il certo, la ripetitività e l’assenza di eccitazione — con orientamento all’«oblio sospeso», il tempo della bonaccia interiore.',
       corpo: [],
     },
   },
   Blu: {
     natura: {
       inSintesi:
-        'In questa famiglia emerge il piacere di stare con sé stessi, di osservarsi interiormente e di riflettere su ciò che si è vissuto. La caratteristica lunare malinconico-nostalgica predilige riflessività e percezione emotiva profonda — con orientamento al passato.',
+        'Nella natura Lunare emerge il piacere di stare con sé stessi, di osservarsi interiormente e di riflettere su ciò che si è vissuto. Le caratteristiche malinconica e nostalgica prediligono riflessività e percezione emotiva profonda — con orientamento al passato.',
       corpo: [],
     },
   },
   Rosso: {
     natura: {
       inSintesi:
-        'In questa famiglia emerge il piacere del fare, di realizzare ciò che si desidera, di governarsi e mettersi alla prova. La natura marziale volitivo-collerica predilige assertività, costanza, sincerità e impegno nel qui e ora — con orientamento al presente.',
+        'Nella natura Marziale emerge il piacere del fare, di realizzare ciò che si desidera, di governarsi e mettersi alla prova. Le caratteristiche volitiva e collerica prediligono assertività, costanza, sincerità e impegno nel qui e ora — con orientamento al presente.',
       corpo: [],
     },
   },
   Giallo: {
     natura: {
       inSintesi:
-        'In questa famiglia emerge il piacere del movimento, della curiosità, della scoperta del nuovo e dell’estroversione. La caratteristica emotiva solare sanguigno-entusiasta guarda al futuro: slancio vitale, partecipazione e ricerca di bagliori di bellezza.',
+        'Nella natura Solare emerge il piacere del movimento, della curiosità, della scoperta del nuovo e dell’estroversione. Le caratteristiche sanguigna ed entusiasta guardano al futuro: slancio vitale, partecipazione e ricerca di bagliori di bellezza.',
       corpo: [],
     },
   },
   Grigio: {
     natura: {
       inSintesi:
-        'In questa famiglia emerge il piacere del calcolo, della dubbiosità di origine intellettuale e dell’oggettività fisica. È una corrente che agisce in modo trasversale sulle altre quattro aree del temperamento.',
+        'Nella natura Anaffettiva emerge il piacere del calcolo, della dubbiosità di origine intellettuale e dell’oggettività fisica. Le caratteristiche agnostica e anaffettiva agiscono in modo trasversale sulle altre quattro aree del temperamento.',
       corpo: [],
     },
   },

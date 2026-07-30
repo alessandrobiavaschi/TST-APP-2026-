@@ -1,6 +1,6 @@
 import { GROUP_INTROS } from '../../content/reportRestitution.js'
 import { FAMILY_THEME } from '../../config/reportFamilyTheme.js'
-import { shouldShowEmotionalIntegrations, shouldShowMusicaSection } from './reportFeatureFlags.js'
+import { shouldShowEmotionalIntegrations } from './reportFeatureFlags.js'
 
 const REPORT_NAV_SECTION_IDS = new Set([
   'report-tst-sintesi',
@@ -37,7 +37,7 @@ export const REPORT_SECTIONS = [
   { id: 'report-group-profilo-generale', label: 'Risultati del test', groupId: 'report-group-profilo-generale' },
   { id: 'report-tst-sintesi', label: 'Caratteristica emotiva', navStep: '1.1', groupId: 'report-group-profilo-generale', isSub: true },
   { id: 'report-tst-grafici', label: 'Grafici dei risultati', navStep: '1.2', groupId: 'report-group-profilo-generale', isSub: true },
-  { id: 'report-tst-famiglia', label: 'La tua famiglia emotiva di appartenenza', navStep: '1.3', groupId: 'report-group-profilo-generale', isSub: true },
+  { id: 'report-tst-famiglia', label: 'La tua natura emotiva di appartenenza', navStep: '1.3', groupId: 'report-group-profilo-generale', isSub: true },
   { id: 'report-chapter-natura', label: 'Natura', groupId: 'report-group-profilo-generale', isSub: true, isSubSub: true },
   { id: 'report-chapter-racconto', label: 'Memoria, Esperienza, Essere Musica', groupId: 'report-group-profilo-generale', isSub: true, isSubSub: true },
   { id: 'report-chapter-risorse', label: 'Risorse', groupId: 'report-group-profilo-generale', isSub: true, isSubSub: true },
@@ -47,7 +47,7 @@ export const REPORT_SECTIONS = [
   { id: 'report-rapporto-se', label: 'Rapporto con te stesso', groupId: 'report-group-profilo-generale', isSub: true, isSubSub: true },
   { id: 'report-rapporto-altro', label: "Rapporto con l'altro", groupId: 'report-group-profilo-generale', isSub: true, isSubSub: true },
   { id: 'report-rapporto-agire', label: "Rapporto con l'agire", groupId: 'report-group-profilo-generale', isSub: true, isSubSub: true },
-  { id: 'report-tst-mappa', label: 'Le cinque famiglie emotive in relazione tra loro', navStep: '1.5', groupId: 'report-group-profilo-generale', isSub: true },
+  { id: 'report-tst-mappa', label: 'Le cinque famiglie emotive in relazione tra loro', navStep: '1.5', groupId: 'report-group-relazioni', isSub: true },
   { id: 'report-tst-dialogo', label: 'Dialogo tra le correnti emotive', navStep: '1.6', groupId: 'report-group-profilo-generale', isSub: true },
 
   // 2. Forza delle tue correnti emotive
@@ -55,17 +55,13 @@ export const REPORT_SECTIONS = [
   { id: 'report-tst-portato', label: 'Portato esperienziale', navStep: '3.1', groupId: 'report-group-forza-correnti', isSub: true },
   { id: 'report-group-forza-correnti', label: 'Attivazioni delle correnti', navStep: '3.2', groupId: 'report-group-forza-correnti', isSub: true },
 
-  // 4. un contributo all'educazione emotiva
-  { id: 'report-group-educazione', label: "un contributo all'educazione emotiva", groupId: 'report-group-educazione' },
+  // 4. Un contributo all'educazione emotiva
+  { id: 'report-group-educazione', label: "Un contributo all'educazione emotiva", groupId: 'report-group-educazione' },
   { id: 'report-tst-parole', label: 'Parole e stati d\'animo', navStep: '4.1', groupId: 'report-group-educazione', isSub: true },
 
-  // 5. Musicalità (solo se il profilo dichiara pratica musicale)
-  { id: 'report-group-musicalita', label: 'Musicalità', groupId: 'report-group-musicalita' },
-  { id: 'report-tst-musica', label: 'Musicalità', navStep: '5.1', groupId: 'report-group-musicalita', isSub: true },
-
-  // 6. In quali stimoli si accende?
+  // 5. In quali stimoli si accende?
   { id: 'report-group-approfondimento', label: 'Aree sonore del test', groupId: 'report-group-approfondimento' },
-  { id: 'report-tst-approfondimento', label: 'Aree sonore del test', navStep: '6.1', groupId: 'report-group-approfondimento', isSub: true },
+  { id: 'report-tst-approfondimento', label: 'Aree sonore del test', navStep: '5.1', groupId: 'report-group-approfondimento', isSub: true },
 ]
 
 /** Macro-blocchi accordion del report — ordine = percorso di lettura. */
@@ -108,21 +104,11 @@ export const REPORT_GROUPS = [
   },
   {
     id: 'report-group-educazione',
-    title: "un contributo all'educazione emotiva",
+    title: "Un contributo all'educazione emotiva",
     subtitle: 'Dizionario emotivo per nominare i sentimenti emersi dal test',
     intro: GROUP_INTROS['report-group-educazione'] || '',
     stepLabel: '4',
     readingFocus: 'Parole emerse dal test, dizionario per famiglia, definizioni e copia.',
-    defaultOpen: false,
-  },
-  {
-    id: 'report-group-musicalita',
-    title: 'Musicalità',
-    subtitle: 'Lettura musicale della famiglia emotiva prevalente',
-    intro: '',
-    stepLabel: '5',
-    readingFocus: 'Come la disposizione prevalente tende a vivere ascolto, esecuzione, composizione e interpretazione.',
-    hideNavSubsections: true,
     defaultOpen: false,
   },
   {
@@ -132,6 +118,15 @@ export const REPORT_GROUPS = [
     intro: GROUP_INTROS['report-group-approfondimento'] || '',
     stepLabel: '6',
     readingFocus: 'Come le famiglie emotive si attivano area per area.',
+    defaultOpen: false,
+  },
+  {
+    id: 'report-group-relazioni',
+    title: 'Le cinque famiglie emotive in relazione tra loro',
+    subtitle: '',
+    intro: '',
+    stepLabel: '7',
+    readingFocus: 'Come le cinque famiglie emotive dialogano e si bilanciano tra loro.',
     defaultOpen: false,
   },
 ]
@@ -145,19 +140,14 @@ export function getReportGroups(profilo = {}) {
   let stepIndex = 0
 
   return REPORT_GROUPS
-    .map((group) => {
-      const stepLabel = group.stepLabel ? String(++stepIndex) : group.stepLabel
-      if (group.id !== 'report-group-musicalita') {
-        return { ...group, stepLabel }
-      }
-      const title = buildMusicalitaTitle(profilo)
-      return {
-        ...group,
-        title,
-        label: title,
-        stepLabel,
-      }
-    })
+    .filter(
+      (group) =>
+        group.id !== 'report-group-relazioni' || shouldShowEmotionalIntegrations(profilo),
+    )
+    .map((group) => ({
+      ...group,
+      stepLabel: group.stepLabel ? String(++stepIndex) : group.stepLabel,
+    }))
 }
 
 export function getReportNavGroups(profilo = {}) {
@@ -166,8 +156,7 @@ export function getReportNavGroups(profilo = {}) {
 
 /** Sezioni tracciate dallo scroll-spy e visibili come sotto-voci nel menu. */
 export function getVisibleReportSections(profilo = {}, options = {}) {
-  const musicista = options.musicista || {}
-  const showMusica = options.showMusicaSection ?? shouldShowMusicaSection(musicista)
+  void options
 
   return REPORT_SECTIONS.filter((section) => {
     if (section.isSubSub) return false
@@ -175,7 +164,6 @@ export function getVisibleReportSections(profilo = {}, options = {}) {
     if (!REPORT_NAV_SECTION_IDS.has(section.id)) return false
     if (!section.isSub || !section.navStep) return false
     if (section.id === 'report-tst-mappa') return shouldShowEmotionalIntegrations(profilo)
-    if (section.id === 'report-tst-musica') return showMusica
     return true
   })
 }

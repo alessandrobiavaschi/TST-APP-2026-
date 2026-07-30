@@ -1,0 +1,91 @@
+.calculation-disclosure {
+  margin-top: 0.55rem;
+}
+
+.calculation-disclosure__trigger {
+  appearance: none;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.5);
+  font: inherit;
+  font-size: 0.68rem;
+  line-height: 1.35;
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 255, 255, 0.22);
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+  transition: color 160ms ease, text-decoration-color 160ms ease;
+}
+
+.calculation-disclosure__trigger:hover,
+.calculation-disclosure__trigger:focus-visible,
+.calculation-disclosure__trigger[aria-expanded='true'] {
+  color: rgba(255, 255, 255, 0.82);
+  text-decoration-color: currentColor;
+}
+
+.calculation-disclosure__trigger:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+.calculation-disclosure__content {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  animation: calculation-disclosure-enter 160ms ease-out;
+}
+
+.calculation-disclosure__metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.35rem 1rem;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.88rem;
+}
+
+.calculation-disclosure__metrics p,
+.calculation-disclosure__intro,
+.calculation-disclosure__method p,
+.calculation-disclosure__formula {
+  margin: 0;
+}
+
+.calculation-disclosure__intro,
+.calculation-disclosure__method {
+  margin-bottom: 0.65rem;
+}
+
+.calculation-disclosure__method p + p {
+  margin-top: 0.35rem;
+}
+
+.calculation-disclosure__formula {
+  margin-top: 0.65rem;
+}
+
+@keyframes calculation-disclosure-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .calculation-disclosure__trigger {
+    transition: none;
+  }
+
+  .calculation-disclosure__content {
+    animation: none;
+  }
+}
