@@ -4,6 +4,7 @@ import {
   getQuestionGroupForFile,
   getLogicTypeForFile,
 } from '../testLogic.js'
+import { FAMILY_ORDER, FAMILY_THEME } from '../config/reportFamilyTheme.js'
 
 const REPORT_SECTION_DEFS = [
   { key: 'A_TIMBRO', label: 'Timbro', from: 1, to: 28 },
@@ -140,21 +141,22 @@ export function formatDateShort(value) {
 }
 
 export function computeColorTotals(record = {}) {
+  const n = (value) => Number(value) || 0
   const blu =
-    (record.BLU_1_Depressiva || 0) +
-    (record.BLU_2_Lunare || 0) +
-    (record.BLU_3_Nostalgia || 0) +
-    (record.BLU_4_Solare || 0)
+    n(record.BLU_1_Depressiva) +
+    n(record.BLU_2_Lunare) +
+    n(record.BLU_3_Nostalgia) +
+    n(record.BLU_4_Solare)
   const rosso =
-    (record.ROSSO_1_Assertivita || 0) +
-    (record.ROSSO_2_Dubbio_Collera || 0)
-  const verde = record.VERDE_1_Calma || 0
+    n(record.ROSSO_1_Assertivita) +
+    n(record.ROSSO_2_Dubbio_Collera)
+  const verde = n(record.VERDE_1_Calma)
   const giallo =
-    (record.GIALLO_1_Gioia_Entusiasmo || 0) +
-    (record.GIALLO_2_Volitivo_Passionale || 0)
+    n(record.GIALLO_1_Gioia_Entusiasmo) +
+    n(record.GIALLO_2_Volitivo_Passionale)
   const grigio =
-    (record.GRIGIO_1_Distaccato_Nichilista || 0) +
-    (record.GRIGIO_2_Intellettuale_Saggio || 0)
+    n(record.GRIGIO_1_Distaccato_Nichilista) +
+    n(record.GRIGIO_2_Intellettuale_Saggio)
 
   return { blu, rosso, verde, giallo, grigio }
 }
@@ -196,21 +198,28 @@ export const DOMINANT_COLOR_NAME_BY_KEY = {
   grigio: 'Grigio',
 }
 
+/**
+ * Ordine canonico di tie-break sui pareggi tra famiglie: stessa policy usata per
+ * costruire `reportData.correnti[]` (vedi FAMILY_ORDER in config/reportFamilyTheme.js),
+ * cosi' la famiglia "dominante" annunciata coincide sempre con la prima riga a parità
+ * di punteggio nella classifica famiglie.
+ */
+const TIE_BREAK_KEY_ORDER = FAMILY_ORDER.map((familyName) => FAMILY_THEME[familyName].key)
+
 export function getDominantColorInfo(totals = {}) {
-  const normalizedTotals = {
-    blu: Number(totals.blu) || 0,
-    rosso: Number(totals.rosso) || 0,
-    verde: Number(totals.verde) || 0,
-    giallo: Number(totals.giallo) || 0,
-    grigio: Number(totals.grigio) || 0,
+  let dominantKey = TIE_BREAK_KEY_ORDER[0]
+  let dominantValue = Number(totals[dominantKey]) || 0
+  for (let i = 1; i < TIE_BREAK_KEY_ORDER.length; i += 1) {
+    const key = TIE_BREAK_KEY_ORDER[i]
+    const value = Number(totals[key]) || 0
+    if (value > dominantValue) {
+      dominantValue = value
+      dominantKey = key
+    }
   }
-  const [dominantKey] = Object.entries(normalizedTotals).reduce(
-    (acc, cur) => (cur[1] > acc[1] ? cur : acc),
-    ['blu', 0],
-  )
   return {
     dominantKey,
-    dominantColorName: DOMINANT_COLOR_NAME_BY_KEY[dominantKey] || 'Blu',
+    dominantColorName: DOMINANT_COLOR_NAME_BY_KEY[dominantKey] || DOMINANT_COLOR_NAME_BY_KEY[TIE_BREAK_KEY_ORDER[0]],
   }
 }
 
