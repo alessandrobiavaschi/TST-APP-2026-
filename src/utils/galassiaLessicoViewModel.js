@@ -13,31 +13,40 @@
  *
  * Forma del view model restituito da `buildLessicoAnaliticoViewModel`:
  * {
- *   lessicoStabile: {                    // teoria, uguale per tutti gli utenti
+ *   datiDisponibili: boolean,            // false se nessuna famiglia ha valoreAssoluto > 0 (record vuoto/non svolto)
+ *   lessicoStabile: {                    // teoria, uguale per tutti gli utenti — sempre popolato, anche a datiDisponibili:false
  *     [familyName]: { vocabolarioForme: string[], vocabolarioAggettivi: string[], fonte: 'teoria' }
  *   },
- *   lessicoSituazionale: [{              // dipende dalle risposte reali di questo utente
+ *   lessicoSituazionale: [{              // dipende dalle risposte reali di questo utente — [] se datiDisponibili:false
  *     parola, familyKey, familyName, correnteKey, count, fileKeys: string[], fonte: 'test',
  *   }],                                  // ordinato per count decrescente, vedi §tie-break sotto
  *   campoDiForze: {
  *     perFamiglia: [{ familyKey, familyName, direzione: {x,y,z}, polarita, peso, vettore: {x,y,z} }],
- *     risultante: { x, y, z },
+ *     risultante: { x, y, z },           // {0,0,0} se datiDisponibili:false (dato onesto, non un default plausibile)
  *     magnitudineRisultante: number,
- *     polaritaDominante: string,         // polarità della famiglia con peso maggiore
+ *     polaritaDominante: string,         // '' se datiDisponibili:false — MAI un default silenzioso (es. Verde) spacciato per dominanza reale
  *     criterio: 'vettore statico per famiglia (config/dispositions.ts) scalato per peso reale (0-1); metafora visiva, non un calcolo scientifico',
  *   },
- *   contrastiLessicali: [{
- *     coppia: [familyNameA, familyNameB], gap, isContrastante,
- *     paroleA: string[], fonteParoleA: 'test'|'teoria'|'nessuna',
- *     paroleB: string[], fonteParoleB: 'test'|'teoria'|'nessuna',
- *   }],
- *   firmaPersonale: { codice: string, componenti: { dominante, sottodisposizione, rankingFamiglie } },
+ *   contrastiLessicali: [],              // [] se datiDisponibili:false, altrimenti le 3 coppie con gap/isContrastante/parole
+ *   firmaPersonale: {                    // tutto vuoto/[] se datiDisponibili:false — niente codice plausibile per un profilo senza dati
+ *     codice: string, componenti: { dominante, sottodisposizione, rankingFamiglie },
+ *   },
  *   costellazioniSemantiche: [{
  *     conceptId, label, famiglieCollegate: string[], correntiUtenteCollegate: [{rawKey,nome,percentuale}],
  *     relatedConceptsDisponibili: boolean,
- *   }],
+ *   }],                                  // correntiUtenteCollegate naturalmente [] a datiDisponibili:false (nessun filtro aggiuntivo necessario)
  *   _gap: string[],                      // parti della missione non sostenute dai dati attuali
  * }
+ *
+ * Stato vuoto: un record senza alcun punteggio reale (nessuna famiglia con
+ * valoreAssoluto > 0) NON deve mai produrre un output "plausibile" che sembri
+ * un profilo reale. `lessicoStabile` resta popolato perché è materiale di
+ * riferimento dichiarato (teoria, uguale per chiunque, mai spacciato per dato
+ * personale) — tutto il resto che dipenderebbe da un confronto/ranking tra
+ * famiglie (`polaritaDominante`, `firmaPersonale`, `contrastiLessicali`) viene
+ * esplicitamente svuotato invece di ricadere su un default (es. la famiglia
+ * Verde, prima in `FAMILY_ORDER`, che altrimenti vincerebbe silenziosamente
+ * ogni confronto a punteggi tutti pari).
  */
 
 import { FAMILY_ORDER, FAMILY_THEME } from '../config/reportFamilyTheme.js'
@@ -78,7 +87,7 @@ function buildLessicoStabile() {
  * reale (0-1) di questo profilo. È una metafora visiva per la Galassia, non
  * un calcolo scientifico del TST: nessun punteggio viene derivato da qui.
  */
-function buildCampoDiForze(correnti = []) {
+function buildCampoDiForze(correnti = [], datiDisponibili = false) {
   const perFamiglia = FAMILY_ORDER.map((familyName) => {
     const theme = FAMILY_THEME[familyName]
     const corrente = correnti.find((c) => c.familyKey === theme.key)
@@ -102,10 +111,12 @@ function buildCampoDiForze(correnti = []) {
   )
   const magnitudineRisultante = Math.sqrt(risultante.x ** 2 + risultante.y ** 2 + risultante.z ** 2)
 
-  const dominante = perFamiglia.reduce(
-    (best, f) => (f.peso > best.peso ? f : best),
-    perFamiglia[0] || { peso: -Infinity, polarita: '' },
-  )
+  // A datiDisponibili:false ogni famiglia ha peso 0: senza questa guardia
+  // il reduce sceglierebbe comunque la prima famiglia di FAMILY_ORDER (Verde)
+  // come "dominante", un default silenzioso che sembrerebbe un dato reale.
+  const dominante = datiDisponibili
+    ? perFamiglia.reduce((best, f) => (f.peso > best.peso ? f : best), perFamiglia[0])
+    : null
 
   return {
     perFamiglia,
@@ -172,7 +183,12 @@ function buildContrastiLessicali(correnti = [], lessicoSituazionale = [], lessic
  * classificate. Stessi dati di input → stesso codice, sempre. Nessun dato
  * viene derivato che non sia già in `reportData`.
  */
-function buildFirmaPersonale({ dominantColorName, sottodisposizionePrevalente, correntiByPeso = [] }) {
+function buildFirmaPersonale({ dominantColorName, sottodisposizionePrevalente, correntiByPeso = [], datiDisponibili = false }) {
+  // Un profilo senza dati reali non riceve un codice plausibile: niente da firmare.
+  if (!datiDisponibili) {
+    return { codice: '', componenti: { dominante: '', sottodisposizione: '', rankingFamiglie: [] } }
+  }
+
   const rankingFamiglie = correntiByPeso.map((c) => c.familyKey)
   const dominanteSlug = toSlug(dominantColorName)
   const sottodisposizioneSlug = sottodisposizionePrevalente ? toSlug(sottodisposizionePrevalente) : ''
@@ -251,15 +267,32 @@ export function buildLessicoAnaliticoViewModel({
 } = {}) {
   const gap = []
 
+  // Nessuna famiglia con un punteggio reale => record vuoto/test non svolto.
+  // Da qui in poi ogni sezione derivata da un confronto tra famiglie deve
+  // restare esplicitamente vuota invece di ricadere su un default plausibile.
+  const datiDisponibili = correnti.some((c) => (Number(c.valoreAssoluto) || 0) > 0)
+  if (!datiDisponibili) {
+    gap.push(
+      'datiDisponibili: false — nessuna famiglia ha un punteggio reale (record vuoto o test non completato). polaritaDominante, firmaPersonale e contrastiLessicali sono stati svuotati esplicitamente invece di usare un default silenzioso.',
+    )
+  }
+
   const lessicoStabile = buildLessicoStabile()
   const lessicoSituazionale = extractParoleDalTest(rawRecord)
   if (lessicoSituazionale.length === 0) {
     gap.push('lessicoSituazionale: nessuna parola emersa (nessuna risposta DIZIONARIO_2 nel record).')
   }
 
-  const campoDiForze = buildCampoDiForze(correnti)
-  const contrastiLessicali = buildContrastiLessicali(correnti, lessicoSituazionale, lessicoStabile)
-  const firmaPersonale = buildFirmaPersonale({ dominantColorName, sottodisposizionePrevalente, correntiByPeso })
+  const campoDiForze = buildCampoDiForze(correnti, datiDisponibili)
+  const contrastiLessicali = datiDisponibili
+    ? buildContrastiLessicali(correnti, lessicoSituazionale, lessicoStabile)
+    : []
+  const firmaPersonale = buildFirmaPersonale({
+    dominantColorName,
+    sottodisposizionePrevalente,
+    correntiByPeso,
+    datiDisponibili,
+  })
   const costellazioniSemantiche = buildCostellazioniSemantiche(sottocorrenti)
 
   gap.push(
@@ -276,6 +309,7 @@ export function buildLessicoAnaliticoViewModel({
   )
 
   return {
+    datiDisponibili,
     lessicoStabile,
     lessicoSituazionale,
     campoDiForze,

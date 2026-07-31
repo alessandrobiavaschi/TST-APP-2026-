@@ -23,12 +23,13 @@ after(async () => {
 const FAMILY_KEYS = ['verde', 'rosso', 'blu', 'giallo', 'grigio']
 const FAMILY_NAMES = ['Verde', 'Rosso', 'Blu', 'Giallo', 'Grigio']
 
-function makeCorrenti(pesoByKey = {}) {
+function makeCorrenti({ pesoByKey = {}, scala1a7ByKey = {} } = {}) {
   return FAMILY_KEYS.map((familyKey, idx) => ({
     familyKey,
     familyName: FAMILY_NAMES[idx],
     peso: pesoByKey[familyKey] ?? 0,
-    scala1a7: pesoByKey.scala1a7ByKey?.[familyKey] ?? 1,
+    valoreAssoluto: pesoByKey[familyKey] ?? 0,
+    scala1a7: scala1a7ByKey[familyKey] ?? 1,
   }))
 }
 
@@ -56,11 +57,33 @@ test('lessicoSituazionale conserva conteggio, tracciabilita file e fonte test', 
   assert.deepEqual(saldo.fileKeys, ['File_29', 'File_30'])
   assert.equal(saldo.fonte, 'test')
   assert.equal(saldo.familyKey, 'rosso')
+  assert.equal(saldo.correnteKey, 'ROSSO_1_Assertivita')
 
   // ordinamento per count decrescente: "Saldo" (count 2) prima di "Sereno" (count 1)
   const idxSaldo = vm.lessicoSituazionale.findIndex((p) => p.parola === 'Saldo')
   const idxSereno = vm.lessicoSituazionale.findIndex((p) => p.parola === 'Sereno')
   assert.ok(idxSaldo < idxSereno)
+})
+
+test('lessicoSituazionale: parole di sotto-correnti diverse della stessa famiglia mantengono un correnteKey distinto e non ambiguo', () => {
+  const rawRecord = {
+    File_29: 'Sereno - fiducioso - aperto', // BLU_4_Solare
+    File_30: 'Malinconico - triste - riflessivo', // BLU_2_Lunare — stessa famiglia Blu, sotto-corrente diversa
+  }
+  const vm = buildLessicoAnaliticoViewModel({ rawRecord, correnti: makeCorrenti() })
+
+  const sereno = vm.lessicoSituazionale.find((p) => p.parola === 'Sereno')
+  const malinconico = vm.lessicoSituazionale.find((p) => p.parola === 'Malinconico')
+  assert.ok(sereno && malinconico)
+  assert.equal(sereno.familyKey, 'blu')
+  assert.equal(malinconico.familyKey, 'blu')
+  // stessa famiglia (Blu), ma provenienza (correnteKey) distinta e non fusa:
+  // il nome "corrente" di famiglia (es. "Lunare" per Blu) non deve mai essere
+  // usato come identità, perché omonimo di una sotto-corrente specifica
+  // (BLU_2_Lunare) e di nomi di altre famiglie (es. "Solare" per Giallo).
+  assert.equal(sereno.correnteKey, 'BLU_4_Solare')
+  assert.equal(malinconico.correnteKey, 'BLU_2_Lunare')
+  assert.notEqual(sereno.correnteKey, malinconico.correnteKey)
 })
 
 test('lessicoSituazionale vuoto segnala il gap corrispondente', () => {
@@ -70,7 +93,7 @@ test('lessicoSituazionale vuoto segnala il gap corrispondente', () => {
 })
 
 test('campoDiForze: una sola famiglia al 100% produce una risultante uguale alla sua direzione statica', () => {
-  const correnti = makeCorrenti({ blu: 100 })
+  const correnti = makeCorrenti({ pesoByKey: { blu: 100 } })
   const vm = buildLessicoAnaliticoViewModel({ correnti })
   const bluForza = vm.campoDiForze.perFamiglia.find((f) => f.familyKey === 'blu')
   assert.ok(bluForza)
@@ -89,6 +112,7 @@ test('campoDiForze: tutte le famiglie a zero producono una risultante nulla e de
 
 test('contrastiLessicali rileva un contrasto quando la policy dei Quattro Rapporti lo prevede', () => {
   const correnti = makeCorrenti({
+    pesoByKey: { blu: 50, rosso: 50 },
     scala1a7ByKey: { blu: 6, rosso: 6, verde: 1, giallo: 1, grigio: 1 },
   })
   const vm = buildLessicoAnaliticoViewModel({ correnti })
@@ -106,6 +130,7 @@ test('contrastiLessicali rileva un contrasto quando la policy dei Quattro Rappor
 test('contrastiLessicali preferisce le parole situazionali quando disponibili', () => {
   const rawRecord = { File_29: 'Saldo - sicuro - volitivo' } // ROSSO_1_Assertivita
   const correnti = makeCorrenti({
+    pesoByKey: { blu: 50, rosso: 50 },
     scala1a7ByKey: { blu: 6, rosso: 6, verde: 1, giallo: 1, grigio: 1 },
   })
   const vm = buildLessicoAnaliticoViewModel({ rawRecord, correnti })
@@ -121,7 +146,7 @@ test('contrastiLessicali preferisce le parole situazionali quando disponibili', 
 
 test('firmaPersonale e deterministica a parita di input', () => {
   const input = {
-    correnti: makeCorrenti({ blu: 40, rosso: 30, verde: 15, giallo: 10, grigio: 5 }),
+    correnti: makeCorrenti({ pesoByKey: { blu: 40, rosso: 30, verde: 15, giallo: 10, grigio: 5 } }),
     dominantColorName: 'Blu',
     sottodisposizionePrevalente: 'Lunare',
     correntiByPeso: [
@@ -136,6 +161,39 @@ test('firmaPersonale e deterministica a parita di input', () => {
   const vm2 = buildLessicoAnaliticoViewModel(input)
   assert.equal(vm1.firmaPersonale.codice, vm2.firmaPersonale.codice)
   assert.equal(vm1.firmaPersonale.codice, 'blu_lunare_blu-rosso-verde')
+})
+
+test('stato vuoto: un record senza punteggi reali non riceve polarita dominante, firma o contrasti fittizi', () => {
+  const vm = buildLessicoAnaliticoViewModel({
+    rawRecord: {},
+    correnti: makeCorrenti(),
+    correntiByPeso: [],
+    sottocorrenti: [],
+    dominantColorName: '',
+    sottodisposizionePrevalente: '',
+  })
+
+  assert.equal(vm.datiDisponibili, false)
+  // nessun default silenzioso (es. "Verde", prima famiglia dichiarata) spacciato per dato reale
+  assert.equal(vm.campoDiForze.polaritaDominante, '')
+  assert.deepEqual(vm.campoDiForze.risultante, { x: 0, y: 0, z: 0 })
+  assert.equal(vm.firmaPersonale.codice, '')
+  assert.deepEqual(vm.firmaPersonale.componenti, { dominante: '', sottodisposizione: '', rankingFamiglie: [] })
+  assert.deepEqual(vm.contrastiLessicali, [])
+  assert.ok(vm._gap.some((g) => g.startsWith('datiDisponibili:')))
+  // il lessico stabile (teoria) resta comunque disponibile: non e' "dato personale" da nascondere
+  assert.ok(Object.keys(vm.lessicoStabile).length === 5)
+})
+
+test('stato vuoto: se anche una sola famiglia ha un punteggio reale, i dati derivati tornano popolati', () => {
+  const vm = buildLessicoAnaliticoViewModel({
+    correnti: makeCorrenti({ pesoByKey: { blu: 1 } }),
+    correntiByPeso: [{ familyKey: 'blu' }],
+    dominantColorName: 'Blu',
+  })
+  assert.equal(vm.datiDisponibili, true)
+  assert.notEqual(vm.campoDiForze.polaritaDominante, '')
+  assert.notEqual(vm.firmaPersonale.codice, '')
 })
 
 test('costellazioniSemantiche esclude Rosso e Grigio e segnala il grafo concetti assente', () => {

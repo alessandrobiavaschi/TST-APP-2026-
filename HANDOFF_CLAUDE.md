@@ -1,6 +1,49 @@
 # HANDOFF — Claude Code
 
-## Round 3 — Galassia Lessicale 2.0 (corrente)
+## Round 4 — fix su 3 blocchi rilevati dai test di Codex (corrente)
+
+### Task
+Codex ha rilevato, testando il round 3, tre blocchi pertinenti alla mia ownership:
+1. parole omonime possono essere attribuite alla famiglia sbagliata;
+2. lo stato vuoto può ricevere dati demo;
+3. il contratto del view model lessicale non è ancora collegato alla UI (da documentare più chiaramente, non da collegare — resta lavoro di Antigravity).
+
+### 1. Identità/provenienza delle parole — corretto
+`extractParoleDalTest` (`buildReportData.js`) deduplicava le parole emerse con la chiave `parola + nome corrente di famiglia` (es. "Lunare" per Blu, "Solare" per Giallo — vedi `FAMILY_THEME.*.corrente` in `reportFamilyTheme.js`). Questi nomi collidono per assonanza con le sotto-correnti specifiche (`BLU_2_Lunare`, `BLU_4_Solare`): usarli come identità univoca è strutturalmente ambiguo, perché due sotto-correnti diverse (anche della stessa famiglia) potrebbero in linea di principio produrre la stessa parola e venire fuse in un'unica voce, perdendo/sovrascrivendo silenziosamente il `correnteKey` reale di una delle due. **Fix:** la chiave di deduplica ora usa `parola + correnteKey specifico` (es. `BLU_4_Solare`), l'identità più granulare e univoca disponibile — nessuna sotto-corrente può più "rubare" l'identità di un'altra. Verificato che con i 13 testi reali di DIZIONARIO_2 non esiste oggi una collisione effettiva (nessuna parola letterale si ripete tra le voci del dizionario) — il fix è una correzione strutturale della granularità dell'identità, non la correzione di un bug oggi osservabile con i dati reali del dizionario. Testato esplicitamente con due sotto-correnti diverse della stessa famiglia (Blu: `BLU_2_Lunare` vs `BLU_4_Solare`) che restano distinte.
+
+### 2. Stato vuoto — corretto
+Un record senza alcun punteggio reale (nessuna famiglia con `valoreAssoluto > 0`, cioè test non svolto/report vuoto) produceva comunque output "plausibili": `campoDiForze.polaritaDominante` cadeva di default sulla prima famiglia di `FAMILY_ORDER` (Verde), e `firmaPersonale` generava un codice apparentemente valido a partire da quel default — un profilo senza dati sembrava avere una polarità e una firma reali. **Fix:** aggiunto un campo esplicito `datiDisponibili` (`true` se almeno una famiglia ha un punteggio reale) che governa l'intero view model: a `datiDisponibili: false`, `campoDiForze.polaritaDominante` è `''`, `firmaPersonale` è completamente vuota (`codice: ''`, componenti vuoti), `contrastiLessicali` è `[]`. `lessicoStabile` resta invece sempre popolato perché è materiale di riferimento dichiarato (teoria, non dato personale). Aggiunto anche un messaggio esplicito in `_gap` quando `datiDisponibili` è `false`. Testato sia il caso "tutto vuoto" sia il caso limite "una sola famiglia con un punto" (che deve tornare a popolare tutto normalmente).
+
+### 3. Contratto per Antigravity — documentazione rafforzata
+Il modulo non è (ancora) collegato a nessun componente: è un contratto pronto, non un difetto di questo round. Ho reso più esplicito, qui sotto, l'intero contratto — forma dei dati, comportamento a stato vuoto, dove/come collegarlo — così che chi lo integra (Antigravity) non debba dedurlo dal codice sorgente.
+
+**Contratto sintetico per l'integrazione:**
+- Punto di ingresso unico: `buildLessicoAnaliticoViewModel({ rawRecord, correnti, correntiByPeso, sottocorrenti, dominantColorName, sottodisposizionePrevalente })`, esportato da `src/utils/galassiaLessicoViewModel.js` (anche `export default`).
+- Tutti gli input sono già presenti in `reportData` (vedi `buildReportData.js`) tranne `rawRecord`, che è `record.raw`.
+- **Controllare sempre `vm.datiDisponibili` prima di renderizzare** `campoDiForze.polaritaDominante`, `firmaPersonale` o `contrastiLessicali`: a `false` questi campi sono intenzionalmente vuoti (stringa vuota o array vuoto), non `null`/`undefined` — un componente che si limita a un controllo di verità (`if (polaritaDominante)`) si comporta già correttamente senza bisogno di leggere `datiDisponibili` esplicitamente, ma il flag resta disponibile per un messaggio esplicito tipo "nessun dato disponibile".
+- `lessicoStabile` è sempre popolato (5 famiglie) indipendentemente da `datiDisponibili`: è teoria di riferimento, va eventualmente presentata come tale (`fonte: 'teoria'` su ogni voce), mai spacciata per specifica dell'utente.
+- Ogni parola in `lessicoSituazionale` porta sempre `familyKey`, `correnteKey` e `fonte: 'test'`: usare questi campi per il colore/attribuzione in UI, mai il testo della parola stessa o il nome "corrente" di famiglia per dedurre la provenienza.
+- Consultare sempre `vm._gap` prima di presentare come "certe" le parti segnalate come non sostenute dai dati (grafo concetti, contrasti parola-per-parola, campo di forze come metafora).
+
+Nessuna modifica a componenti/CSS/layout in questo round.
+
+### Comandi eseguiti e risultati
+- `npm run lint` → pulito.
+- `npm test` → 24/24 (12 preesistenti/round-3 invariati + 12 sul modulo lessicale, di cui 3 nuovi per i fix di questo round).
+- `npm run build` → completata con successo, 1221 moduli.
+
+### File modificati
+- `src/utils/buildReportData.js` — `extractParoleDalTest`: chiave di deduplica cambiata da `parola|corrente-famiglia` a `parola|correnteKey`; docstring aggiornata.
+- `src/utils/galassiaLessicoViewModel.js` — aggiunto `datiDisponibili`; `buildCampoDiForze`, `buildFirmaPersonale` e l'orchestrazione principale ora rispettano questo flag; header JSDoc riscritto per documentare esplicitamente il comportamento a stato vuoto.
+- `test/galassiaLessicoViewModel.test.js` — helper `makeCorrenti` esteso con `valoreAssoluto`; 3 nuovi test (identità sotto-correnti, stato vuoto completo, stato vuoto con un solo punto reale); rafforzato un test esistente con l'assert su `correnteKey`.
+- `HANDOFF_CLAUDE.md` — questa sezione.
+
+### Comportamento atteso nel browser
+Nessuno: nessun componente/CSS toccato, il modulo resta non collegato come nel round precedente.
+
+---
+
+## Round 3 — Galassia Lessicale 2.0
 
 ### Task
 Nuova missione distribuita in `AI_TASK.md` (commit `a857bed`, dopo l'integrazione completa del ciclo precedente): trasformare la Galassia lessicale in un sistema analitico interattivo — campo di forze lessicale, costellazioni semantiche, lessico stabile e situazionale, contrasti lessicali, firma personale, tracciabilità musica-parola — senza modificare il calcolo scientifico del test. Ruolo Claude: architettura e flusso dati, business logic, calcoli e trasformazioni, contenuti, contratti tra moduli; niente redesign visivo.

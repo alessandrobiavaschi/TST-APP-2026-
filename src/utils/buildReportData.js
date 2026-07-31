@@ -585,6 +585,14 @@ function buildActionRelationshipText({ volitiveLevel, levels }) {
  * `fileKeys` conserva la tracciabilità verifica bile parola → file audio
  * (es. `['File_31']`), inclusa quando la stessa parola emerge da più file.
  *
+ * Identità/deduplica: ogni parola è identificata da `parola + correnteKey`
+ * specifico (es. `BLU_4_Solare`), non dal nome corrente di famiglia — che può
+ * essere omonimo di una sotto-corrente di un'altra famiglia (es. il nome
+ * corrente della famiglia Giallo è "Solare", che collide per assonanza con
+ * la sotto-corrente `BLU_4_Solare`). Cosi' non esiste ambiguità di
+ * attribuzione anche se due sotto-correnti diverse producessero la stessa
+ * parola.
+ *
  * @param {object} rawRecord
  */
 export function extractParoleDalTest(rawRecord = {}) {
@@ -617,7 +625,13 @@ export function extractParoleDalTest(rawRecord = {}) {
         const raw = part.trim()
         if (!raw || raw.toLowerCase() === 'mi è indifferente') return
         const parola = titleCaseStato(raw)
-        const id = `${parola}|${theme.corrente}`
+        // Identità univoca: parola + correnteKey specifico (es. BLU_4_Solare),
+        // non il nome corrente di famiglia (es. "Lunare" per Blu, "Solare" per
+        // Giallo — nomi che collidono per assonanza con le sotto-correnti
+        // BLU_2_Lunare/BLU_4_Solare). Cosi' due sotto-correnti diverse che
+        // producessero per caso la stessa parola non vengono mai fuse sotto
+        // un'unica provenienza ambigua.
+        const id = `${parola}|${correnteKey}`
         const prev = byKey.get(id)
         const fileKeys = prev?.fileKeys ? [...prev.fileKeys] : []
         if (!fileKeys.includes(fileKey)) fileKeys.push(fileKey)
