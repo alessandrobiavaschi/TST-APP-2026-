@@ -6,6 +6,10 @@ Su richiesta dell'utente, il progetto non dipende più da Claude Code, Antigravi
 
 Il deploy è consentito soltanto dopo una richiesta esplicita dell'utente e la verifica preventiva del target e della build. Restano vietate modifiche alle credenziali e cancellazioni di risorse remote.
 
+## Correzione recupero bundle dopo deploy
+
+L'app riconosce ora gli errori di caricamento dei moduli lazy causati da una scheda rimasta aperta durante un deploy. Esegue un solo reload con cache buster, protetto da cooldown, e Firebase Hosting serve gli HTML senza cache persistente mentre mantiene immutabili gli asset con hash. Questo evita che l'apertura del report cada nell'ErrorBoundary dopo la sostituzione della build.
+
 ## Sintesi
 
 Codex ha aggiunto test contrattuali per i dati quantitativi e lessicali consumati dalla Galassia, senza modificare componenti React, stili, contenuti o logica scientifica.
