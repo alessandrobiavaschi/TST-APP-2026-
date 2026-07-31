@@ -9,7 +9,7 @@ export const UI = {
   pageTitle: 'L\'Anaffettivo nelle Relazioni',
   pageSubtitle: 'Come si relaziona una persona anaffettiva con gli altri temperamenti',
   tipLabel: TIP_LABEL,
-  sourceNote: 'Testi derivati da Il Pianeta della Musica - FM.pdf, nel formato TST.',
+  sourceNote: 'Testi derivati da Il Pianeta della Musica, adattati al formato TST.',
 }
 
 export const RELATIONS = [
