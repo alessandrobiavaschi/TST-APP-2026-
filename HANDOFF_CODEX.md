@@ -1,92 +1,82 @@
-# HANDOFF CODEX
+# HANDOFF CODEX — Galassia Lessicale 2.0
 
-## Summary
+## Sintesi
 
-Added integration contract tests for the data consumed by the Report TST result graphs. The suite loads the real `buildReportData` module through Vite, so JSON, TypeScript bridges, content sources, theoretical maxima, and the production adapter are exercised without copying the scientific calculation into the tests.
+Codex ha aggiunto test contrattuali per i dati quantitativi e lessicali consumati dalla Galassia, senza modificare componenti React, stili, contenuti o logica scientifica.
 
-No report component, scientific scoring rule, content file, stylesheet, or production configuration was modified.
+La verifica indipendente di `repo_scout` e `change_reviewer` ha inoltre identificato condizioni d'integrazione che devono essere risolte sulle branch proprietarie prima del merge finale. In particolare, il lessico situazionale deve essere identificato almeno dalla coppia famiglia/parola (non dalla sola parola) e lo stato vuoto non deve mai essere sostituito con dati dimostrativi.
 
-## Changed files
+## File modificati
 
-- `test/reportGraphDataContract.test.js`
-  - verifies the five-family mapping and canonical presence of zero-valued families;
-  - distinguishes raw points, percentage presence, and normalized radar values;
-  - verifies percentage rounding totals exactly 100;
-  - verifies stable ordering under ties;
-  - verifies all 11 subcurrents against their family and theoretical maximum;
-  - verifies empty, partial, and historical records;
-  - verifies saved historical subdisposition handling.
+- `test/galassiaDataContract.test.js`
+  - conserva sempre le 5 famiglie e le 11 sottocorrenti, incluse quelle a zero;
+  - verifica mapping famiglia/sottocorrente e massimi teorici;
+  - confronta record numerici e record storici con valori numerici serializzati;
+  - protegge pareggi, fallback dei pannelli, relazioni e determinismo;
+  - verifica tutti gli elementi di `DIZIONARIO_2`, mantenendo corrente e famiglia scientifica;
+  - verifica aggregazione delle ripetizioni e comportamento sicuro di campi vuoti o label legacy sconosciute;
+  - verifica che output derivati da record validi, parziali e numeri fuori range restino serializzabili e finiti.
 - `HANDOFF_CODEX.md`
-  - records verification, findings, limitations, and integration instructions.
+  - documenta verifiche, rischi e istruzioni d'integrazione.
 
-## Decisions and assumptions
+## Confini rispettati
 
-- Kept changes inside Codex ownership: tests and the required handoff only.
-- Used the existing `node:test` runner and Vite dependency; no package or lockfile changes were needed.
-- Treated numeric Firestore fields as numbers, matching the documented schema. Numeric strings remain an unresolved historical-data risk described below.
-- Kept zero-valued families in every contract. Where an existing normalized visualization represents zero as level 1 for visibility, the test explicitly keeps raw value `0` and percentage `0` separate from normalized value `1`.
-- Did not alter scientific logic or visual components owned by Claude Code and Antigravity.
+- Branch: `ai/codex`.
+- Nessuna modifica alla UI o al calcolo TST.
+- Nessun lockfile o file di configurazione modificato.
+- Nessun deploy.
+- Runner esistente `node:test` e caricamento dei moduli reali tramite Vite SSR; nessuna duplicazione delle formule scientifiche nei test.
 
-## Commands executed
+## Verifiche eseguite
 
 ```text
-git rev-parse --show-toplevel
-git branch --show-current
-git status --short
 npm test
 npm run lint
 npm run build
-npx eslint test/reportGraphDataContract.test.js
 git diff --check
-npm run dev -- --host 127.0.0.1
 ```
 
-Read-only browser verification was performed at `1440x900`, `768x1024`, and `375x812` on `/risultati/report`.
+Esito finale:
 
-## Verification results
+- test: 21 passati, 0 falliti;
+- lint: passato;
+- build di produzione: passata;
+- typecheck: non disponibile, perché `package.json` non contiene uno script dedicato.
 
-- Branch: `ai/codex`.
-- Tests: 12 passed, 0 failed.
-- ESLint: passed.
-- Production build: passed; 1221 modules transformed.
-- Typecheck: unavailable; no typecheck script is configured.
-- Browser console on the empty report state: no warnings or errors.
-- Horizontal overflow on the empty report state: none at desktop, tablet, or mobile viewport.
-- Empty report actions remain keyboard-focusable (`tabIndex=0`).
-- `change_reviewer`: confirmed the Vite test loader closes cleanly and the suite is stable across repeated runs.
+## Findings bloccanti per l'integrazione
 
-## Unresolved integration findings
+1. **Identità delle parole emerse.** `LessicoAtlasView` evidenzia attualmente tramite la sola parola normalizzata. Lemmi presenti in famiglie diverse possono quindi essere marcati nella famiglia sbagliata. L'identità minima deve includere `familyKey` e parola normalizzata; quando disponibile deve includere anche `correnteKey`.
+2. **Stato vuoto reale.** `GalassiaView` può sostituire un array vuoto con `EXAMPLE_CORRENT_DATA`. I valori demo non devono apparire in un report reale privo di dati; l'eventuale modalità demo deve essere esplicita.
+3. **Contratto end-to-end.** Il view model introdotto su `ai/claude` non è ancora collegato nella baseline: `ReportShell` non lo inoltra e la modalità parole passa a `LessicoAtlasView` soltanto `paroleEmerse`. Il merge deve garantire che tutte le viste leggano lo stesso contratto, senza pipeline statiche parallele.
+4. **Costellazioni semantiche.** Le relazioni secondarie dichiarate da `semanticConcepts.ts` non devono essere perse: `regolazione-interna` collega Verde e Grigio, mentre `slancio-vitale` collega Giallo e Rosso. Famiglia primaria e famiglie collegate devono restare concetti distinti.
+5. **Profilo senza dati.** Con tutte le correnti a zero non devono essere fabbricate polarità dominanti o firme personali. Il contratto dovrebbe esporre esplicitamente `hasData: false` e valori dominanti vuoti.
+6. **Tracciabilità incompleta.** Una label legacy sconosciuta viene oggi ignorata senza errore. In un record misto valido/legacy, il nuovo contratto deve riportare i `fileKey` non riconosciuti, senza dichiarare il profilo completo e senza mostrare codici interni direttamente all'utente.
+7. **Omonimi e associazioni multiple.** Un lemma può appartenere a più correnti, nella stessa famiglia o in famiglie diverse. Il nodo visuale può essere deduplicato, ma deve conservare un array di associazioni univoche per famiglia e corrente.
+8. **Immutabilità.** Gli array del lessico stabile restituiti dal view model non devono essere riferimenti mutabili alle fonti globali; una modifica lato UI non deve alterare le costruzioni successive.
+9. **Accessibilità.** I risultati filtrati non visibili non devono restare nel percorso Tab; i filtri devono esporre lo stato (`aria-pressed`); il pannello deve gestire apertura, Escape e ripristino del focus sia desktop sia mobile.
+10. **Normalizzazione unica.** Ricerca, deduplica ed evidenziazione devono usare lo stesso normalizzatore per maiuscole, accenti, Unicode composto/decomposto, apostrofi, trattini e spazi.
+11. **Input numerici non finiti.** La pipeline converte correttamente stringhe numeriche e limita i valori finiti fuori range nei satelliti, ma `Infinity` può ancora propagarsi nelle percentuali di famiglia. La branch proprietaria della logica deve definire e applicare una policy esplicita prima dell'integrazione.
+12. **Limite del test sui massimi.** Il test verifica l'adattamento rispetto alle costanti scientifiche di produzione; non usa una seconda copia dei massimi come oracolo. Il caso storico `GRIGIO_2_Intellettuale_Saggio > 0`, il cui massimo configurato è zero, richiede una semantica UI esplicita di dato non misurabile anziché un ambiguo `0%`.
 
-These findings are demonstrable in the current source but are outside Codex file ownership. They must be resolved or explicitly accepted when integrating the visual redesign.
+## Istruzioni d'integrazione
 
-1. **Radar, petals, and ranking do not share one tested UI transformer.** `SintesiCorrenti` recalculates its radar in `buildTotalScoreRadarData`, while `EmotionalShape` independently recalculates petal size. A ratio of `0.2` becomes level `1` in the radar and `2.2` in the petals. The new data-contract suite cannot detect a divergence introduced inside those private component functions.
-2. **Displayed percentage can disagree between views.** The report adapter uses integer largest-remainder percentages that total 100; the detail panel independently recalculates one-decimal percentages. Three equal values can be displayed as `34/33/33` in one view and `33.3/33.3/33.3` in another.
-3. **Zero can be mistaken for a measured level.** Raw zero and presence zero are rendered with a minimum normalized graphic level of 1. Visibility is correct, but the legend and tooltip must make the distinction explicit.
-4. **Tie policy is inconsistent across presentation.** Persisted prevalence uses `blu, rosso, verde, giallo, grigio`; the visual ranking starts from `Verde, Rosso, Blu, Giallo, Grigio`. Equal scores can therefore show Blu as prevalent while Verde appears first.
-5. **Historical numeric strings aggregate incorrectly.** A read-only reproducer produced `blu: "5200"` from `BLU_1="5"` and `BLU_2="2"`, because `computeColorTotals` does not coerce each operand before addition. Resulting presence was `99%` instead of the numeric result. The Firestore schema specifies numbers, but legacy imports should be audited.
-6. **Derived historical subdisposition is not consistently consumed.** `buildReportData` derives `sottodisposizionePrevalente` when a saved field is absent, but `ReportShell` passes the raw saved field to `SintesiCorrenti` instead of the derived value.
-7. **One historical subcurrent has no theoretical denominator.** `GRIGIO_2_Intellettuale_Saggio` has theoretical maximum `0`; a positive historical value is therefore displayed as `0%`.
-8. **Petal family assignment depends on color distance.** `assignFamilies` infers families from hardcoded colors instead of using the existing `familyKey`, so a palette change can associate a value with the wrong petal.
-9. **Keyboard and reduced-motion gaps remain in the current UI.** Clickable ranking rows are `<li>` elements without keyboard semantics; radar and petal selection are mouse-only; petal animations do not honor reduced motion.
-10. **Copy and metric contract are not aligned.** A percentage radar is passed by the adapter but ignored by `SintesiCorrenti`; current captioning can describe a percentage while the visible radar uses the 1-7 scale.
+1. Integrare prima il contratto dati di Claude e la UI di Antigravity nella branch di integrazione.
+2. Risolvere i finding sopra nelle rispettive aree di ownership; non aggirarli modificando il calcolo scientifico.
+3. Integrare il commit Codex e rieseguire `npm test`, `npm run lint` e `npm run build` sull'albero combinato.
+4. Aggiungere test diretti del view model combinato per:
+   - stato tutto-zero senza dominante o firma;
+   - stessa parola in due famiglie, con evidenziazione della sola associazione corretta;
+   - record misto con risposta valida e label storica sconosciuta;
+   - relazioni semantiche Verde/Grigio e Giallo/Rosso;
+   - mutazione di un output che non altera input né invocazioni successive;
+   - serializzazione senza `undefined`, `NaN`, riferimenti ciclici o chiavi famiglia sconosciute.
+5. Eseguire QA reale nel browser con un record approvato a desktop, tablet e mobile: resize, scroll, tastiera, focus, Escape, filtri, tooltip, contrasto, overflow, console e `prefers-reduced-motion`.
 
-## Browser verification limits
+## Comportamento atteso
 
-The Codex worktree had no authenticated result or report record in route/session state. The route correctly rendered the safe `Report non disponibile` state, but the complete graphs, tooltips, scrolling sections, keyboard interactions, contrast, overlap, and animation performance could not be exercised with real data. Those checks must be repeated after integration using a real or approved synthetic report fixture.
-
-## Integration instructions
-
-1. Cherry-pick the Codex commit into the integration branch after the redesigned visual components and data changes are present.
-2. Run `npm test`, `npm run lint`, and `npm run build`.
-3. Resolve the findings above with the owning branches. Prefer one exported pure view-model transformer consumed by ranking, radar, petals, tooltip, and legend; add direct tests against that transformer.
-4. Repeat browser QA with an actual report at desktop, tablet, and mobile widths, including resize, scroll, keyboard-only navigation, reduced motion, tooltip content, console output, and horizontal overflow.
-5. Confirm that all five families remain visible at zero and that the UI labels raw points, profile presence, and normalized graphic value as separate quantities.
-
-## Expected browser behavior
-
-- Ranking, radar, petals, percentages, and subcategories must resolve each value through the same family key and shared view model.
-- Zero-valued families remain visible and are explicitly labelled `0` points / `0%`, even if a minimum visual mark is retained.
-- Ties follow one documented order across prevalence and ranking.
-- Tooltips and legends state the unit shown and are reachable without a pointer.
-- No horizontal scrolling or overlapping labels occurs at 1440 px, 768 px, 375 px, or during intermediate resize.
-- Empty and historical records render without runtime warnings or missing-family failures.
+- Le 5 famiglie restano presenti anche a zero e nessun dato demo viene confuso con un risultato.
+- Dopo l'integrazione, ogni parola situazionale deve mantenere famiglia, corrente e provenienza corretti; la baseline Codex protegge famiglia/corrente, mentre `fileKeys`, `fonte` e diagnostica legacy richiedono il view model Claude integrato.
+- Lessico stabile e lessico emerso sono distinguibili, ma condividono normalizzazione e identità coerenti.
+- Campo di forze, costellazioni, contrasti, firma e tracciabilità leggono un unico view model deterministico.
+- Record vuoti, parziali e storici non producono errori, false attribuzioni o indicatori personali inventati.
+- Filtri e pannelli sono pienamente utilizzabili da tastiera e non generano overflow su viewport ridotte.
