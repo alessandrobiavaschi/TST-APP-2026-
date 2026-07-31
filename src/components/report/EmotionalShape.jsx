@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 
+void motion
+
 // Angoli e posizioni esatte basate sul design del modello CPM fornito
 const FAMILY_PARAMS = {
   Giallo: { color: '#EAB308', angle: -90 }, // Entusiasmo: Alto (ore 12)
