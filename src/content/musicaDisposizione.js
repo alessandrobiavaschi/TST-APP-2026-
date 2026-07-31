@@ -7,6 +7,33 @@
 export const MUSICISTI_INTRO =
   'Una lettura musicale della famiglia emotiva emersa dal test: ascolto, suono, composizione e interpretazione come modi di organizzare l’esperienza.'
 
+/**
+ * Passaggi tecnici spostati dai quattro capitoli del profilo alla lettura
+ * For Musicians. Restano separati dal racconto umano ed esperienziale.
+ */
+export const MUSICISTI_APPROFONDIMENTO = {
+  Blu: [
+    'Nelle canzoni predilige ritmi non invasivi con testi a carattere poetico o umanistico riflessivo; cerca ascolti che lo riempiano intimamente facendogli vivere con sincerità la dimensione emozionale.',
+    'Il musicista malinconico ama interpretare e comporre più che eseguire, leggere o improvvisare. Vive con grande piacere il bel suono, è particolarmente sensibile alla liricità, alle interpretazioni sentite, ricche di dinamiche. La Musica lo coinvolge più emotivamente che intellettualmente.',
+    'I piaceri del temperamento malinconico quando ascolta Musica sono quelli di subire il fascino della melodia e degli intervalli, attraverso i quali si gode ogni tipo di stato d’animo e ci si riflette sopra. Cerca una Musica profonda, adatta a mettere in movimento il suo mondo interiore.',
+  ],
+  Rosso: [
+    'Ritmicamente ricerca tempi forti e costanti. Ama la Musica con i piedi per terra, dalle sonorità chiare e leggibili; subisce il fascino della melodia che memorizza con facilità i testi. Ama farsi spiazzare.',
+    'La sua propensione intellettuale gli fa apprezzare istintivamente l’improvvisazione, che segue con piacere, ma solo come ascoltatore. Come musicista è molto organizzato, non abbonda di fantasia, per questo fatica a «lasciarsi andare»; legge benissimo ed esegue altrettanto bene. Digerisce poco il minimalismo, e alla ripetitività resiste pochissimo.',
+    'Riserva molta attenzione ai concetti espressi dal testo ed è un attento critico verso gli aspetti interpretativi. La Musica lo coinvolge più mentalmente che fisicamente o sentimentalmente.',
+  ],
+  Verde: [
+    'Adora composizioni con pochi strumenti e ricerca atmosfere e climi armonici in cui potersi rilassare, lasciarsi andare al mondo del sogno. Cerca atmosfere larghe senza concitazione e, nelle canzoni, predilige melodie rarefatte con poche note e molto clima armonico.',
+    'Il musicista flemmatico ama molto ascoltare e suonare con gli altri, esegue e legge volentieri con meticolosità le parti che gli assegnano. La sua propensione a contemplare, a vivere l’armonia sognando, lo rende adatto a stare in gruppi.',
+    'Quando ascolta Musica preferisce non pensare: proprio per questo è scarsamente interessato al testo. Subisce in modo speciale il fascino dell’armonia, che lo guida alla calma, e cerca la sensazione del riposo anche durante il giorno.',
+  ],
+  Giallo: [
+    'Adora composizioni con melodie chiare e riconoscibili che non inducano a riflettere troppo, ma piuttosto a dare carica, con ritmi accentuati; l’importante è che la melodia non sia sempre uguale, altrimenti si annoierebbe.',
+    'Quando ascolta Musica gli risulta difficile non muoversi, e ha quindi un atteggiamento molto coinvolto, proiettato verso l’esterno. È interessato al testo della canzone, soprattutto se trova la storia simpatica, ma è il fascino del ritmo a coinvolgerlo di più. È sempre alla ricerca di novità, di suoni mai sentiti: si potrebbe dire che gli va bene tutto pur di muoversi.',
+  ],
+  Grigio: [],
+}
+
 export const MUSICISTI_SCHEDA_KEYS = [
   { key: 'cosaCerca', label: 'Cosa cerca nella Musica' },
   { key: 'linguaggioMusicale', label: 'Linguaggio musicale' },

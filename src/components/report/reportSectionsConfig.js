@@ -48,7 +48,6 @@ export const REPORT_SECTIONS = [
   { id: 'report-rapporto-altro', label: "Rapporto con l'altro", groupId: 'report-group-profilo-generale', isSub: true, isSubSub: true },
   { id: 'report-rapporto-agire', label: "Rapporto con l'agire", groupId: 'report-group-profilo-generale', isSub: true, isSubSub: true },
   { id: 'report-tst-mappa', label: 'Le cinque famiglie emotive in relazione tra loro', navStep: '1.5', groupId: 'report-group-relazioni', isSub: true },
-  { id: 'report-tst-dialogo', label: 'Dialogo tra le correnti emotive', navStep: '1.6', groupId: 'report-group-profilo-generale', isSub: true },
 
   // 2. Forza delle tue correnti emotive
   { id: 'report-group-forza-correnti', label: 'Forza delle tue correnti emotive', groupId: 'report-group-forza-correnti' },
@@ -104,7 +103,7 @@ export const REPORT_GROUPS = [
   },
   {
     id: 'report-group-educazione',
-    title: "Un contributo all'educazione emotiva",
+    title: 'Dizionario emotivo',
     subtitle: 'Dizionario emotivo per nominare i sentimenti emersi dal test',
     intro: GROUP_INTROS['report-group-educazione'] || '',
     stepLabel: '4',

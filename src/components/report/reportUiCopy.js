@@ -145,7 +145,7 @@ export const RAPPORTI_UI = {
     'Il numero 1–7 non è un voto sulla persona: indica quanto la famiglia emotiva più forte domina dentro quella lente.',
   tablistAria: 'Seleziona rapporto',
   correntePrincipaleLabel: 'Famiglia più alta in questa lente',
-  radarCaption: 'Livello relativo 1–7 per famiglia in questo rapporto (non è attivazione %).',
+  radarCaption: 'Livello relativo per famiglia · scala 1–7',
   radarScaleNote: 'Scala 1–7 · confronto interno a questa lente',
   scaleBannerTitle: 'Come leggere i grafici',
   scaleBanner:
@@ -186,7 +186,7 @@ export const PORTATO_UI = {
   eyebrow: 'Vissuto del test',
   title: 'Forza delle tue correnti emotive',
   lead:
-    "Ecco un quadro che manifesta la forza delle tue correnti emotive. Quanto sono vive e forti queste forze è data dall’intensità di simpatia, antipatia o indifferenza provati durante il test da parte dell’utente nei confronti dei suoni ascoltati.",
+    "L’intensità di queste correnti deriva dalla simpatia, antipatia o indifferenza che hai provato durante il test verso i suoni ascoltati.",
   prevalenteLabel: 'Prevalenza',
   quotaLabel: 'Quota',
   badgePrevalente: 'Prevalente',
@@ -201,7 +201,7 @@ export const PAROLE_UI = {
     "Uno degli aspetti dell'educazione emotiva è rendersi sempre più consapevoli degli effetti che la Musica provoca nel suscitare in modo del tutto naturale sentimenti, emozioni e stati d'animo.",
     "Al sorgere di queste molteplici sensazioni dovrebbe essere associata anche la capacità di nominarle e di selezionarle. La costruzione di un proprio dizionario dei sentimenti è un preludio concreto per praticare l'educazione emotiva.",
   ],
-  educazioneCta: 'Naviga qui sotto e rendi vive queste parole quando ti trovi a «sentire» della Musica.',
+  educazioneCta: 'Naviga qui sotto e rendi vive queste parole quando ti trovi ad ascoltare la Musica.',
   zoneEmerseTitle: 'Le tue parole dal test',
   zoneEmerseLead: 'Aggettivi scelti nelle risposte — clicca per copiarli.',
   zoneDizionarioTitle: 'Dizionario di riferimento',

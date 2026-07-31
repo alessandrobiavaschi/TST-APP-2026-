@@ -500,10 +500,10 @@ export default function SintesiCorrenti({
         {/* Unified Editorial Summary Card */}
         <div className="sintesi-editorial-card">
           <div className="sintesi-editorial-text">
-            <p className="sintesi-editorial-body">
+            <p className="sintesi-editorial-body sintesi-editorial-body--lead">
               La tua natura emotiva di appartenenza è{' '}
-              <strong>{briefSummary.introFamily}</strong> e la sua caratteristica emotiva
-              (sottofamiglia) prevalente è <strong>{briefSummary.introQuality}</strong>.
+              <strong className="sintesi-editorial-highlight">{briefSummary.introFamily}</strong> e la sua caratteristica emotiva
+              (sottofamiglia) prevalente è <strong className="sintesi-editorial-highlight">{briefSummary.introQuality}</strong>.
             </p>
             <p className="sintesi-editorial-body">
               Questa natura emotiva è una delle 5 forze emotive comuni a tutti.
@@ -615,10 +615,10 @@ export default function SintesiCorrenti({
           </p>
           <div className="sintesi-mobile-radar-container">
             <div className="sintesi-correnti__total-radar">
-              <p className="sintesi-correnti__radar-label">Total score</p>
               <p className="sintesi-correnti__radar-caption">
                 Scala 1-7 derivata dai punteggi totali delle delle cinque famiglie.
               </p>
+              <p className="sintesi-correnti__radar-hint">Passa il cursore sui vertici per i punteggi esatti.</p>
               <ReportRadarChart
                 data={totalScoreRadarData}
                 color={accentColor}
@@ -663,10 +663,10 @@ export default function SintesiCorrenti({
         {/* Unified Editorial Summary Card */}
         <div className="sintesi-editorial-card">
           <div className="sintesi-editorial-text">
-            <p className="sintesi-editorial-body">
+            <p className="sintesi-editorial-body sintesi-editorial-body--lead">
               La tua natura emotiva di appartenenza è{' '}
-              <strong>{briefSummary.introFamily}</strong> e la sua caratteristica emotiva
-              (sottofamiglia) prevalente è <strong>{briefSummary.introQuality}</strong>.
+              <strong className="sintesi-editorial-highlight">{briefSummary.introFamily}</strong> e la sua caratteristica emotiva
+              (sottofamiglia) prevalente è <strong className="sintesi-editorial-highlight">{briefSummary.introQuality}</strong>.
             </p>
             <p className="sintesi-editorial-body">
               Questa natura emotiva è una delle 5 forze emotive comuni a tutti.
@@ -706,10 +706,10 @@ export default function SintesiCorrenti({
             >
               <div className="sintesi-correnti__visual-panel sintesi-correnti__visual-panel--radar">
                 <div className="sintesi-correnti__total-radar">
-                  <p className="sintesi-correnti__radar-label">Total score</p>
                   <p className="sintesi-correnti__radar-caption">
                     Scala 1-7 derivata dai punteggi totali delle cinque famiglie.
                   </p>
+                  <p className="sintesi-correnti__radar-hint">Passa il cursore sui vertici per i punteggi esatti.</p>
                   <ReportRadarChart
                     data={totalScoreRadarData}
                     color={accentColor}
@@ -859,10 +859,10 @@ export default function SintesiCorrenti({
             <div className="sintesi-correnti__radar sintesi-correnti__order-radar">
               <div className="sintesi-correnti__visual-panel sintesi-correnti__visual-panel--radar">
                 <div className="sintesi-correnti__total-radar">
-                  <p className="sintesi-correnti__radar-label">Total score</p>
                   <p className="sintesi-correnti__radar-caption">
                     Scala 1-7 derivata dai punteggi totali delle cinque famiglie.
                   </p>
+                  <p className="sintesi-correnti__radar-hint">Passa il cursore sui vertici per i punteggi esatti.</p>
                   <ReportRadarChart
                     data={totalScoreRadarData}
                     color={accentColor}

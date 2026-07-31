@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { getProfiloPanelDisplay } from '../../utils/profiloDisplayCopy.js'
 import ReportPassageHeader from './ReportPassageHeader.jsx'
+import SectionNumber from './SectionNumber.jsx'
 import { PROFILO_CHAPTER_EVENT, chapterAnchorId } from './profiloChapterNav.js'
 import { scrollElementToReportCenter } from './reportSectionNavUtils.js'
 import { getPersonalizedTitles } from '../../config/reportFamilyTheme.js'
@@ -65,9 +66,7 @@ function ChapterBlock({ sezione, index, famiglia, profilo, reduceMotion, title }
       style={{ '--profilo-accent': accent }}
     >
       <header className="profilo-chapter-block__head">
-        <span className="profilo-chapter-block__index" aria-hidden="true">
-          {String(index + 1).padStart(2, '0')}
-        </span>
+        <SectionNumber value={index + 1} size="sm" className="profilo-chapter-block__index" />
         <div>
           <h3 className="profilo-panel__title">{title || sezione.titolo}</h3>
           {sezione.sottotitolo ? (
@@ -101,7 +100,6 @@ export default function ProfiloEmotivo({
 }) {
   const reduceMotion = useReducedMotion()
   const [activeChapter, setActiveChapter] = useState('natura')
-  const [isExpanded, setIsExpanded] = useState(false)
   const chapterContentRef = useRef(null)
   const shouldCenterChapterRef = useRef(false)
   const personalizedTitles = useMemo(() => getPersonalizedTitles(famiglia), [famiglia])
@@ -202,7 +200,7 @@ export default function ProfiloEmotivo({
           titleId="pe-section-title"
         />
 
-        {/* Card di sintesi della natura emotiva con Approfondisci */}
+        {/* Sintesi breve; l'approfondimento e distribuito nei quattro capitoli. */}
         <div className="profilo-family-summary-card" style={{ maxWidth: '860px', margin: '0 auto 2.5rem', width: '100%', boxSizing: 'border-box' }}>
           <p className="profilo-family-summary-card__brief" style={{
             fontSize: '1.05rem',
@@ -213,76 +211,6 @@ export default function ProfiloEmotivo({
             {profilo.fraseChiave}
           </p>
 
-          {isExpanded && (
-            <div
-              id="family-extended-description"
-              className="profilo-family-summary-card__extended"
-              role="region"
-              style={{
-                marginTop: '1rem',
-                borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-                paddingTop: '1rem'
-              }}
-            >
-              {profilo.descrizioneEstesa ? (
-                profilo.descrizioneEstesa.split('\n').map((para, i) => (
-                  <p key={i} className="profilo-family-summary-card__para" style={{
-                    fontSize: '1.00rem',
-                    lineHeight: '1.6',
-                    color: 'rgba(255, 255, 255, 0.8)',
-                    marginBottom: '0.75rem',
-                    textAlign: 'left'
-                  }}>
-                    {para}
-                  </p>
-                ))
-              ) : (
-                <p className="profilo-family-summary-card__para" style={{
-                  fontSize: '1rem',
-                  lineHeight: '1.6',
-                  color: 'rgba(255, 255, 255, 0.6)',
-                  fontStyle: 'italic',
-                  textAlign: 'left'
-                }}>
-                  Approfondimento non ancora disponibile per questa natura emotiva.
-                </p>
-              )}
-            </div>
-          )}
-
-          <div style={{ marginTop: '1rem' }}>
-            <button
-              type="button"
-              className="profilo-family-summary-card__btn"
-              aria-expanded={isExpanded}
-              aria-controls="family-extended-description"
-              onClick={() => setIsExpanded(!isExpanded)}
-              style={{
-                background: 'rgba(255, 255, 255, 0.08)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                borderRadius: '8px',
-                padding: '0.5rem 1.25rem',
-                color: '#fff',
-                fontSize: '0.875rem',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.5rem'
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'
-                e.currentTarget.style.borderColor = headerColor
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'
-                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'
-              }}
-            >
-              {isExpanded ? 'Riduci' : 'Approfondisci'}
-            </button>
-          </div>
         </div>
 
         <nav className="profilo-chapter-nav" aria-label="Capitoli del profilo emotivo">

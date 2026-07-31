@@ -102,13 +102,17 @@ Flusso: `ReportPage` → `ReportShell` (config in `reportSectionsConfig.js`):
 
 **Font:** serif solo per `h1`–`h3`; sans-serif per corpo testo e UI; monospace esclusivamente per micro-etichette tipo "QUOTA" o "PREVALENZA" — mai per titoli, chip, legende o testi di grafici.
 
-**Colore rosso:** riservato al tema Marziale/Volitività (numeri di sezione, callout, chip identitari). Mai usare per stati attivi di navigazione, mai per dati negativi. Stati attivi = bianco + underline. Antipatia = colore neutro freddo.
+**Colore accento:** ogni report usa il colore della propria natura emotiva, letto da una variabile CSS (`--accent`). Usarlo solo per: numeri di capitolo, callout identitari, chip della natura prevalente, voce attiva del percorso di lettura. Mai per dati negativi (Antipatia usa sempre un neutro freddo, indipendentemente dalla natura). Non hardcodare mai un colore specifico nei componenti: usare sempre `var(--accent)`.
 
 **Numerazione sezioni:** un solo sistema — cerchietto numerato; sottocapitoli in formato `1.1` nello stesso stile.
 
 **Scroll anchor:** ogni ancora di sezione ha `scroll-margin-top: 140px` per non finire sotto l'header sticky.
 
 **Accordion:** i titoli mantengono lo stesso font (serif) sia chiusi che aperti.
+
+**Scala di spaziatura:** 4 soli valori, in variabili CSS — `--space-xs: 8px`, `--space-sm: 16px`, `--space-md: 32px`, `--space-lg: 64px`. Nessun altro valore di margin/padding fuori scala. Uso: spazio tra paragrafi = `--space-xs`/`--space-sm` (piccolo); spazio tra blocco e blocco = `--space-md` (medio); spazio tra capitoli = `--space-lg` (grande). Mai margini inline hardcodati (es. `style={{ marginTop: 32 }}`) per sostituire la scala.
+
+**Massimo due livelli di contenitore visibile:** il capitolo (accordion) è il primo livello; dentro, il contenuto scorre libero sul fondo pagina, senza card. Solo un elemento che è davvero un'unità a sé (callout tipo "Come leggere il grafico" o "Consiglio pratico", grafico, box di dettaglio) può avere un secondo livello visibile (bordo/sfondo proprio). Niente card intermedie che wrappano solo testo scorrevole tra il titolo del capitolo e il primo elemento reale. Un callout dentro una card perde bordo e sfondo (tiene solo la barra laterale colorata) — il bordo/sfondo si applica una sola volta per ramo. Padding interno dei contenitori rimasti: un solo valore, dalla scala di spaziatura sopra.
 
 ### Regole testo vincolanti
 

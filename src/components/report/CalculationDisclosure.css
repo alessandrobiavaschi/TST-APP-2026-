@@ -4,31 +4,48 @@
 
 .calculation-disclosure__trigger {
   appearance: none;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: rgba(255, 255, 255, 0.5);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.78);
   font: inherit;
-  font-size: 0.68rem;
+  font-size: 0.78rem;
+  font-weight: 600;
   line-height: 1.35;
-  text-decoration: underline;
-  text-decoration-color: rgba(255, 255, 255, 0.22);
-  text-underline-offset: 0.2em;
   cursor: pointer;
-  transition: color 160ms ease, text-decoration-color 160ms ease;
+  transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
 }
 
 .calculation-disclosure__trigger:hover,
 .calculation-disclosure__trigger:focus-visible,
 .calculation-disclosure__trigger[aria-expanded='true'] {
-  color: rgba(255, 255, 255, 0.82);
-  text-decoration-color: currentColor;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.42);
+  color: #fff;
 }
 
 .calculation-disclosure__trigger:focus-visible {
   outline: 2px solid currentColor;
   outline-offset: 4px;
   border-radius: 2px;
+}
+
+.calculation-disclosure__trigger-icon {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 160ms ease;
+}
+
+.calculation-disclosure__trigger[aria-expanded='true'] .calculation-disclosure__trigger-icon {
+  transform: rotate(-135deg);
 }
 
 .calculation-disclosure__content {
@@ -42,14 +59,31 @@
 }
 
 .calculation-disclosure__metrics {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 0.35rem 1rem;
-  color: rgba(255, 255, 255, 0.82);
-  font-size: 0.88rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem 1.75rem;
 }
 
-.calculation-disclosure__metrics p,
+.calculation-disclosure__metrics p {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 1.02rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.calculation-disclosure__metrics strong {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+}
+
 .calculation-disclosure__intro,
 .calculation-disclosure__method p,
 .calculation-disclosure__formula {

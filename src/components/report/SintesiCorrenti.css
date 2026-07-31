@@ -305,16 +305,29 @@
   flex-direction: column;
   gap: 1.25rem;
   max-width: 780px;
-  margin: 0 auto;
+  margin: 0;
   text-align: left;
 }
 
 .sintesi-editorial-body {
+  width: 100%;
   margin: 0;
   font-family: var(--font-body);
   font-size: 1.08rem;
-  line-height: 1.75;
+  line-height: 1.65;
   color: #d1dbe7;
+  text-align: left;
+}
+
+.sintesi-editorial-body--lead {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--sc-text);
+}
+
+.sintesi-editorial-highlight {
+  color: var(--sc-accent, #4ade80);
+  font-weight: 700;
 }
 
 .sintesi-family-intro {
@@ -697,20 +710,43 @@
   }
 }
 
-.sintesi-correnti__radar-label {
-  margin: 0 0 0.35rem;
-  font-family: var(--font-body, system-ui, sans-serif);
-  font-size: 0.78rem;
-  font-weight: 800;
-  letter-spacing: 0;
-  color: var(--sc-muted);
-}
-
 .sintesi-correnti__radar-caption {
   margin: 0 0 0.55rem;
   font-size: 0.82rem;
   line-height: 1.45;
   color: var(--sc-faint);
+}
+
+.sintesi-correnti__radar-hint {
+  margin: 0 0 0.75rem;
+  font-size: 0.76rem;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.report-radar-chart__tooltip {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(15, 23, 42, 0.94);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.report-radar-chart__tooltip-name {
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.report-radar-chart__tooltip-value {
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--sc-accent, #4ade80);
 }
 
 .sintesi-correnti__radar-chart {

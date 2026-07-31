@@ -19,7 +19,6 @@ import TracceReport from './TracceReport'
 import SezionePortatoEsperienziale from './SezionePortatoEsperienziale'
 import ParoleStatiAnimo from './ParoleStatiAnimo'
 import EmotionalIntegrations from './EmotionalIntegrations.jsx'
-import DialogoCorrenti from './DialogoCorrenti.jsx'
 import SectionDivider from './SectionDivider'
 import FioreCorrenti from './FioreCorrenti'
 import { buildCorrentDataFromRecord } from '../../utils/galassiaData.js'
@@ -498,22 +497,12 @@ export default function ReportShell({
                           />
                         </Suspense>
                       </div>
-                      <SectionDivider />
-                      <div id="report-tst-dialogo" className="report-tst-section-anchor">
-                        <DialogoCorrenti
-                          colorTotals={coloriCorrenti}
-                          accentColor={correnteColore}
-                          stepPrefix="1"
-                          step="1.6"
-                        />
-                      </div>
                     </div>
                   </section>
 
                   {/* ── Indice degli approfondimenti finali ───────────────── */}
                   <section className="report-detail-navigation" aria-labelledby="report-detail-navigation-title">
                     <header className="report-detail-navigation__header">
-                      <p className="report-detail-navigation__eyebrow">Approfondisci</p>
                       <h2 id="report-detail-navigation-title" className="report-identity-detail-title">
                         Il dettaglio della tua identità emotiva
                       </h2>
@@ -539,7 +528,6 @@ export default function ReportShell({
                             <SezionePortatoEsperienziale
                               portato={portato}
                               correnteColore={correnteColore}
-                              step={String(idx + 1)}
                             />
                           </div>
                           {SHOW_TRACCE_SECTION ? (
@@ -558,7 +546,6 @@ export default function ReportShell({
                             famiglieLessico={famiglieLessico}
                             correnteDominante={profilo?.correnteDominante || ''}
                             famiglia={profilo?.famiglia || ''}
-                            step={String(idx + 1)}
                           />
                         </div>
                       ) : null}
@@ -571,7 +558,6 @@ export default function ReportShell({
                               sezioniTest={approfondimento?.sezioniTest}
                               filtroMusicale={filtroMusicale}
                               correnteColore={correnteColore}
-                              step={String(idx + 1)}
                             />
                           </Suspense>
                         </div>
@@ -583,7 +569,6 @@ export default function ReportShell({
                           rawRecord={rawRecord}
                           profilo={profilo}
                           onOpenGalassia={() => changeModalita('galassia')}
-                          step={String(idx + 1)}
                         />
                       ) : null}
                         </ReportSectionGroup>

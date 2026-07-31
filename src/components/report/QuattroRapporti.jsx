@@ -6,6 +6,7 @@ void motion
 import { RAPPORTI_UI } from './reportUiCopy.js'
 import { FAMILY_THEME } from '../../config/reportFamilyTheme.js'
 import ReportPassageHeader from './ReportPassageHeader.jsx'
+import SectionNumber from './SectionNumber.jsx'
 import InfoTip from './InfoTip.jsx'
 import CalculationDisclosure from './CalculationDisclosure.jsx'
 import { scrollElementToReportCenter } from './reportSectionNavUtils.js'
@@ -44,19 +45,15 @@ function hexToRgba(hex, alpha) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`
 }
 
-function pad2(n) {
-  return String(n + 1).padStart(2, '0')
-}
-
 function AxisTick({ x, y, payload, textAnchor, index, onSelect }) {
   return (
     <text
       x={x}
       y={y}
       textAnchor={textAnchor}
-      fill="#94a3b8"
-      fontSize={11}
-      fontFamily="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+      fill="#e2e8f0"
+      fontSize={13}
+      fontFamily="'Public Sans', system-ui, -apple-system, sans-serif"
       dominantBaseline="central"
       role="button"
       tabIndex="0"
@@ -205,7 +202,7 @@ export default function QuattroRapporti({
                 style={{ '--qr-tab-color': color }}
                 onClick={() => selectRapporto(i)}
               >
-                <span className="quattro-rapporti-tab__index">{pad2(i)}</span>
+                <SectionNumber value={i + 1} size="sm" className="quattro-rapporti-tab__index" />
                 <span className="quattro-rapporti-tab__name">{r?.nome}</span>
                 <span className="quattro-rapporti-tab__meaning">{lensCopy?.plain}</span>
                 <span className="quattro-rapporti-tab__dot" aria-hidden="true" />
@@ -234,17 +231,17 @@ export default function QuattroRapporti({
                   />
                   <PolarRadiusAxis
                     angle={90}
-                    domain={[1, 7]}
+                    domain={[0, 7]}
                     tick={{ fill: '#64748b', fontSize: 10 }}
                     axisLine={false}
                   />
                   <Radar
                     dataKey="valore"
-                    stroke={hexToRgba(activeColor, 0.8)}
-                    strokeWidth={2}
+                    stroke={hexToRgba(activeColor, 0.9)}
+                    strokeWidth={2.5}
                     fill={activeColor}
-                    fillOpacity={0.3}
-                    dot={{ r: 6, fill: activeColor, stroke: activeColor }}
+                    fillOpacity={0.15}
+                    dot={{ r: 5, fill: activeColor, stroke: activeColor }}
                     isAnimationActive={!reduceMotion}
                     animationDuration={400}
                   />
@@ -256,7 +253,7 @@ export default function QuattroRapporti({
               </div>
               {selectedFamily ? (
                 <div className="quattro-rapporti-radar-detail" aria-live="polite">
-                  <strong>{selectedFamily.familyLabel || selectedFamily.corrente}</strong>
+                  <strong>{selectedFamily.corrente}</strong>
                   <CalculationDisclosure>
                     <div className="calculation-disclosure__method">
                       <p>{active.composizioneSemplice}</p>
@@ -268,7 +265,9 @@ export default function QuattroRapporti({
                       <p><strong>Valore nel grafico:</strong> {selectedFamily.valore} su 7</p>
                     </div>
                     <p className="calculation-disclosure__formula">
-                      La presenza è la quota di questi {selectedFamily.rawValue ?? 0} punti sui{' '}
+                      Il valore nel grafico è su una scala 1–7 interna a questo rapporto, non una
+                      percentuale di attivazione. La presenza è la quota di questi{' '}
+                      {selectedFamily.rawValue ?? 0} punti sui{' '}
                       {selectedFamily.totalRawPoints ?? 0} punti ottenuti dalle cinque famiglie in
                       questo rapporto. Nel grafico, la famiglia con più punti vale 7; le altre
                       ricevono un valore proporzionato ai suoi {selectedFamily.maxRawPoints ?? 0} punti.
@@ -298,7 +297,7 @@ export default function QuattroRapporti({
                   transition={{ duration: fadeDuration }}
                 >
                   <h3 className="quattro-rapporti-read__title">
-                    <span className="quattro-rapporti-read__index-prefix">{pad2(activeIndex)} · </span>
+                    <SectionNumber value={activeIndex + 1} size="sm" className="quattro-rapporti-read__index-prefix" />
                     {active.nome}
                   </h3>
 

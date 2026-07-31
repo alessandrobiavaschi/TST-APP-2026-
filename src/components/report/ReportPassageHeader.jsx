@@ -1,4 +1,5 @@
 import React from 'react'
+import SectionNumber from './SectionNumber.jsx'
 
 /**
  * Intestazione unificata per ogni passaggio del report.
@@ -10,6 +11,7 @@ export default function ReportPassageHeader({
   lead,
   className = '',
   titleId,
+  titleVisuallyHidden = false,
 }) {
   return (
     <header
@@ -17,12 +19,10 @@ export default function ReportPassageHeader({
     >
       {title ? (
         <h2 id={titleId} className="report-passage-header__title">
-          {step ? (
-            <span className="report-passage-header__step-inline" aria-hidden="true">
-              {step}
-            </span>
+          {step && !titleVisuallyHidden ? (
+            <SectionNumber value={step} size="sm" className="report-passage-header__step-inline" />
           ) : null}
-          {title}
+          <span className={titleVisuallyHidden ? 'sr-only' : undefined}>{title}</span>
         </h2>
       ) : null}
       {lead ? <p className="report-passage-header__lead">{lead}</p> : null}

@@ -52,11 +52,8 @@
 }
 
 .quattro-rapporti-tab__index {
-  display: block;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.68rem;
-  letter-spacing: 0.08em;
-  color: rgba(255, 255, 255, 0.32);
+  display: inline-flex;
+  margin-bottom: 0.5rem;
 }
 
 .quattro-rapporti-tab__name {
@@ -120,10 +117,10 @@
 
 .quattro-rapporti-radar-caption {
   margin: 0 0 0.2rem;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.58rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  letter-spacing: 0;
+  text-transform: none;
   color: rgba(255, 255, 255, 0.72);
 }
 
@@ -142,9 +139,10 @@
 }
 
 .quattro-rapporti-read__index-prefix {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  color: var(--qr-accent, #94a3b8);
-  font-weight: 700;
+  margin-right: 0.6rem;
+  vertical-align: middle;
+  position: relative;
+  top: -0.08em;
 }
 
 .quattro-rapporti-read {

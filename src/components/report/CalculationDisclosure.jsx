@@ -34,6 +34,7 @@ export default function CalculationDisclosure({ children, className = '' }) {
         onClick={() => setOpen((current) => !current)}
       >
         Come si ottengono questi numeri?
+        <span className="calculation-disclosure__trigger-icon" aria-hidden="true" />
       </button>
       {open ? (
         <div id={contentId} className="calculation-disclosure__content">

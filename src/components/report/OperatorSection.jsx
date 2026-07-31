@@ -7,6 +7,7 @@ import {
   YAxis,
   Tooltip,
   Legend as BarLegend,
+  Customized,
 } from 'recharts'
 import ReportAccordion from './ReportAccordion'
 import ReportPassageHeader from './ReportPassageHeader.jsx'
@@ -43,6 +44,42 @@ function OperatorLegend() {
         </span>
       ))}
     </div>
+  )
+}
+
+function rowTotal(row) {
+  return (row?.Blu || 0) + (row?.Rosso || 0) + (row?.Verde || 0) + (row?.Giallo || 0) + (row?.Grigio || 0)
+}
+
+/** Overlay "n/d" sulle colonne del grafico che non hanno dati calcolati. */
+function EmptyAreaOverlay({ xAxisMap, yAxisMap, data = [], emptyAreas }) {
+  if (!emptyAreas?.size) return null
+  const xAxis = xAxisMap && Object.values(xAxisMap)[0]
+  const yAxis = yAxisMap && Object.values(yAxisMap)[0]
+  if (!xAxis?.scale || !yAxis?.scale) return null
+  const bandwidth = xAxis.scale.bandwidth ? xAxis.scale.bandwidth() : 0
+  const baseline = yAxis.scale(0)
+
+  return (
+    <g aria-hidden="true">
+      {data.map((row) => {
+        if (!emptyAreas.has(row.nome)) return null
+        const x = xAxis.scale(row.nome)
+        if (x == null) return null
+        return (
+          <text
+            key={row.nome}
+            x={x + bandwidth / 2}
+            y={baseline - 10}
+            textAnchor="middle"
+            fontSize={11}
+            fill="rgba(243, 241, 237, 0.55)"
+          >
+            n/d
+          </text>
+        )
+      })}
+    </g>
   )
 }
 
@@ -162,6 +199,9 @@ export default function OperatorSection({
   step = '6',
 }) {
   const accent = correnteColore || '#4ade80'
+  const chartData = sezioniData || []
+  const emptyAreas = chartData.filter((row) => rowTotal(row) === 0).map((row) => row.nome)
+  const emptyAreaSet = new Set(emptyAreas)
 
   return (
     <section
@@ -173,6 +213,7 @@ export default function OperatorSection({
         step={step}
         eyebrow={APPROFONDIMENTO_UI.eyebrow}
         title={APPROFONDIMENTO_UI.title}
+        titleVisuallyHidden
         lead={APPROFONDIMENTO_UI.lead}
         accentColor={accent}
         titleId="operator-heading"
@@ -192,11 +233,11 @@ export default function OperatorSection({
         <p className="report-operator-chart-caption">{APPROFONDIMENTO_UI.chartCaption}</p>
         <div className="report-operator-chart-canvas">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={sezioniData || []} margin={{ top: 16, right: 16, bottom: 16, left: 8 }}>
+            <BarChart data={chartData} margin={{ top: 16, right: 16, bottom: 16, left: 8 }}>
               <XAxis dataKey="nome" stroke="#64748b" tick={{ fontSize: 12 }} />
               <YAxis stroke="#64748b" tick={{ fontSize: 12 }} />
               <Tooltip
-                formatter={(value) => [value?.toFixed?.(0) ?? value, '']}
+                formatter={(value, name) => [value?.toFixed?.(0) ?? value, name]}
                 contentStyle={{
                   borderRadius: 12,
                   border: '1px solid #e2e8f0',
@@ -211,9 +252,15 @@ export default function OperatorSection({
               <Bar dataKey="Verde" fill={BAR_COLORS.Verde} name="Calma" />
               <Bar dataKey="Giallo" fill={BAR_COLORS.Giallo} name="Entusiasmo" />
               <Bar dataKey="Grigio" fill={BAR_COLORS.Grigio} name="Anaffettività" />
+              <Customized component={(props) => <EmptyAreaOverlay {...props} data={chartData} emptyAreas={emptyAreaSet} />} />
             </BarChart>
           </ResponsiveContainer>
         </div>
+        {emptyAreas.length ? (
+          <p className="report-operator-chart-empty-note">
+            Dati non disponibili per: {emptyAreas.join(', ')}.
+          </p>
+        ) : null}
       </div>
 
       <FiltroMusicalePanel filtroMusicale={filtroMusicale} accentColor={accent} />

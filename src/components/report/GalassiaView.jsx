@@ -510,7 +510,7 @@ const PORTATO_ANCHORS = {
 
 const PORTATO_COLORS = {
   Simpatia: '#4ade80',
-  Antipatia: '#f87171',
+  Antipatia: '#64748b',
   Indifferenza: '#94a3b8',
 }
 

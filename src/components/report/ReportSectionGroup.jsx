@@ -1,4 +1,5 @@
 import React, { useId } from 'react'
+import SectionNumber from './SectionNumber.jsx'
 
 /**
  * Wrapper accordion per macro-blocchi del report.
@@ -31,11 +32,7 @@ export default function ReportSectionGroup({
         aria-controls={panelId}
         onClick={onToggle}
       >
-        {stepLabel ? (
-          <span className="report-section-group__step" aria-hidden="true">
-            {stepLabel}
-          </span>
-        ) : null}
+        {stepLabel ? <SectionNumber value={stepLabel} /> : null}
         <span className="report-section-group__heading">
           <span className="report-section-group__title">{title}</span>
         </span>

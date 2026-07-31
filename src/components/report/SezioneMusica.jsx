@@ -1,5 +1,8 @@
 import React from 'react'
-import { MUSICISTI_SCHEDE } from '../../content/musicaDisposizione.js'
+import {
+  MUSICISTI_APPROFONDIMENTO,
+  MUSICISTI_SCHEDE,
+} from '../../content/musicaDisposizione.js'
 import '../../styles/sezione-musica.css'
 
 function BulletList({ items }) {
@@ -66,6 +69,7 @@ function Intervals({ data }) {
 
 export default function SezioneMusica({ profilo = {} }) {
   const scheda = MUSICISTI_SCHEDE[profilo?.famiglia || '']
+  const approfondimento = MUSICISTI_APPROFONDIMENTO[profilo?.famiglia || ''] || []
   if (!scheda) return null
 
   return (
@@ -88,6 +92,14 @@ export default function SezioneMusica({ profilo = {} }) {
           <div className="fm-narrative-block fm-narrative-block--closing">
             <h3>Perché queste qualità musicali la attraggono</h3>
             <p>{scheda.piaceriAscolto}</p>
+          </div>
+        ) : null}
+        {approfondimento.length ? (
+          <div className="fm-narrative-block fm-narrative-block--closing">
+            <h3>Approfondimento musicale</h3>
+            {approfondimento.map((paragrafo) => (
+              <p key={paragrafo}>{paragrafo}</p>
+            ))}
           </div>
         ) : null}
       </section>

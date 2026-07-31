@@ -10270,7 +10270,7 @@ body {
   font-size: 0.74rem;
   font-weight: 600;
   line-height: 1.2;
-  color: var(--report-body);
+  color: var(--text-primary, var(--report-body));
 }
 
 /* --- Accordion Sezioni principali: bordo colorato, titoli chiari --- */
@@ -15137,13 +15137,13 @@ body {
 
 .result-analysis-flower-image.is-active {
   opacity: 1;
-  transform: scale(1.07) rotate(-2deg);
+  transform: scale(1.07);
   filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.38)) drop-shadow(0 0 14px rgba(96, 161, 255, 0.45));
   transition: opacity 520ms ease, transform 520ms ease;
 }
 
 .result-analysis-flower-image:not(.is-active) {
-  opacity: 0.45;
+  opacity: 1;
   transform: scale(0.88);
   transition: opacity 520ms ease, transform 520ms ease;
 }
@@ -22042,8 +22042,8 @@ a:focus-visible {
 }
 
 .portato-badge--antipatia {
-  background: rgba(239, 68, 68, 0.08);
-  color: #b91c1c;
+  background: rgba(100, 116, 139, 0.12);
+  color: #475569;
 }
 
 .portato-badge--indifferenza {

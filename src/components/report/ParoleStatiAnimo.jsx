@@ -23,7 +23,6 @@ const FAMILY_COLORS = {
 
 const FAMILY_ORDER = ['Blu', 'Rosso', 'Verde', 'Giallo', 'Grigio']
 
-const MONO_STACK = 'var(--font-mono)'
 const BODY_STACK = 'var(--font-body)'
 
 function withAlpha(hex, alpha) {
@@ -132,8 +131,8 @@ export default function ParoleStatiAnimo({
       className="parole-stati-animo-section"
       style={{
         background: 'transparent',
-        paddingTop: 80,
-        paddingBottom: 80,
+        paddingTop: 24,
+        paddingBottom: 24,
         paddingLeft: 24,
         paddingRight: 24,
         color: '#e2e8f0',
@@ -146,6 +145,7 @@ export default function ParoleStatiAnimo({
           step={step}
           eyebrow={PAROLE_UI.eyebrow}
           title={PAROLE_UI.title}
+          titleVisuallyHidden
           lead={PAROLE_UI.educazioneSubtitle}
           accentColor={coloreDominante}
           titleId="dizionario-emotivo-title"
@@ -164,7 +164,7 @@ export default function ParoleStatiAnimo({
 
         <p
           className="parole-stati-animo-zone__lead"
-          style={{ marginTop: 32, marginBottom: 32 }}
+          style={{ marginTop: 'var(--space-xs)', marginBottom: 'var(--space-md)' }}
         >
           La nuvola mostra le parole della tua natura emotiva prevalente. Puoi esplorare le
           sfumature del lessico e, se vuoi, aprire anche i dizionari delle altre famiglie.
@@ -191,9 +191,9 @@ export default function ParoleStatiAnimo({
                   gap: 8,
                   background: isSelected ? withAlpha(color, 0.15) : '#1e293b',
                   border: `1px solid ${isSelected ? withAlpha(color, 0.6) : '#334155'}`,
-                  borderRadius: 2,
+                  borderRadius: '999px',
                   padding: '8px 16px',
-                  fontFamily: MONO_STACK,
+                  fontFamily: BODY_STACK,
                   fontSize: 11,
                   color: isSelected ? '#ffffff' : '#94a3b8',
                   cursor: 'pointer',
@@ -224,10 +224,10 @@ export default function ParoleStatiAnimo({
               fontFamily: BODY_STACK,
               fontSize: '0.9rem',
               opacity: 0.65,
-              lineHeight: 1.7,
+              lineHeight: 1.65,
               marginBottom: 36,
               maxWidth: 640,
-              textAlign: 'justify',
+              textAlign: 'left',
             }}
           >
             {famData.lettura}
@@ -263,9 +263,9 @@ export default function ParoleStatiAnimo({
                   background: 'transparent',
                   border: '1px solid #334155',
                   color: '#94a3b8',
-                  borderRadius: 2,
+                  borderRadius: '50%',
                   padding: '4px 10px',
-                  fontFamily: MONO_STACK,
+                  fontFamily: BODY_STACK,
                   fontSize: 11,
                   cursor: 'pointer',
                   lineHeight: 1,
@@ -286,7 +286,7 @@ export default function ParoleStatiAnimo({
               </h4>
               <p
                 style={{
-                  fontFamily: MONO_STACK,
+                  fontFamily: BODY_STACK,
                   fontSize: 11,
                   color: '#64748b',
                   margin: '0 0 16px',
@@ -303,9 +303,9 @@ export default function ParoleStatiAnimo({
                     fontFamily: BODY_STACK,
                     fontSize: '0.9rem',
                     color: '#cbd5e1',
-                    lineHeight: 1.7,
+                    lineHeight: 1.65,
                     margin: selectedWord.paroleVicine.length > 0 ? '0 0 16px' : 0,
-                    textAlign: 'justify',
+                    textAlign: 'left',
                   }}
                 >
                   {selectedWord.definizione}
@@ -315,7 +315,7 @@ export default function ParoleStatiAnimo({
                 <div>
                   <p
                     style={{
-                      fontFamily: MONO_STACK,
+                      fontFamily: BODY_STACK,
                       fontSize: 11,
                       color: '#64748b',
                       textTransform: 'uppercase',
@@ -330,7 +330,7 @@ export default function ParoleStatiAnimo({
                       <span
                         key={p}
                         style={{
-                          fontFamily: MONO_STACK,
+                          fontFamily: BODY_STACK,
                           fontSize: 12,
                           color: '#94a3b8',
                           background: 'rgba(255, 255, 255, 0.035)',
@@ -375,7 +375,7 @@ export default function ParoleStatiAnimo({
         </motion.div>
 
         {wordList.length === 0 && (
-          <p style={{ fontFamily: MONO_STACK, opacity: 0.4, fontSize: 13, marginBottom: 40 }}>
+          <p style={{ fontFamily: BODY_STACK, opacity: 0.4, fontSize: 13, marginBottom: 40 }}>
             Dizionario non disponibile per questa famiglia.
           </p>
         )}
@@ -408,7 +408,7 @@ function WordPill({ word, isSelected, prefersReducedMotion, onClick }) {
       style={{
         background: withAlpha(word.colore, bgAlpha),
         border: `1px solid ${withAlpha(word.colore, borderAlpha)}`,
-        borderRadius: 2,
+        borderRadius: '999px',
         padding: '6px 12px',
         margin: 4,
         fontFamily: BODY_STACK,

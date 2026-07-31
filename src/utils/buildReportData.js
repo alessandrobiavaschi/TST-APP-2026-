@@ -414,7 +414,7 @@ function resolveSelfHarmonyLabel(value) {
   if (v >= 6) return 'una eccellente capacità di vivere in armonia con la tua natura'
   if (v >= 5) return 'una buona capacità di vivere in armonia con la tua natura'
   if (v >= 4) return 'una discreta capacità di vivere in armonia con la tua natura'
-  return 'una tendenza a vivere in armonia con la tua natura'
+  return 'una tendenza parziale a vivere in armonia con la tua natura'
 }
 
 function buildSelfRelationshipText({ dispositionLabel, dominantLevel, levels }) {

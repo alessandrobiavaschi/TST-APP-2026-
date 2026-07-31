@@ -49,6 +49,14 @@ export default function EmotionalShape({ familiesData = [], height = 'clamp(440p
     }
   }, [])
 
+  const maxScore = Math.max(...familiesData.map((f) => Number(f.peso) || 0), 1)
+  const activeFamilyKey = selectedFamily || hoveredFamily
+  const activeFamilyData = familiesData.find((f) => (f.family || 'Verde') === activeFamilyKey)
+  const activeScore = activeFamilyData
+    ? Math.max(1 + (Number(activeFamilyData.peso) || 0) / maxScore * 6, MIN_VISIBLE_TAGLIA)
+    : null
+  const activeColor = activeFamilyKey ? (FAMILY_PARAMS[activeFamilyKey] || FAMILY_PARAMS.Verde).color : null
+
   return (
     <div
       className="emotional-shape-container"
@@ -116,9 +124,7 @@ export default function EmotionalShape({ familiesData = [], height = 'clamp(440p
         </g>
 
         <g style={{ mixBlendMode: 'screen' }}>
-          {familiesData.map((data, idx, arr) => {
-            const maxScore = Math.max(...arr.map(f => Number(f.peso) || 0), 1) // Trova il punteggio massimo per normalizzare a 7
-            
+          {familiesData.map((data, idx) => {
             const familyKey = data.family || 'Verde'
             const params = FAMILY_PARAMS[familyKey] || FAMILY_PARAMS.Verde
             const score = Number(data.peso) || 0
@@ -226,9 +232,6 @@ export default function EmotionalShape({ familiesData = [], height = 'clamp(440p
                     <tspan x={labelX} dy="0" style={{ transition: 'fill 0.2s', fill: isHighlighted ? params.color : '#F8FAFC' }}>
                       {NOMI_FAMIGLIE[familyKey] || familyKey}
                     </tspan>
-                    <tspan x={labelX} dy="40" fontSize="26" fontWeight="800" opacity={isHighlighted ? 1 : 0} style={{ transition: 'opacity 0.2s', fill: '#e8eef8' }}>
-                      {normalizedTaglia.toFixed(1)} / 7
-                    </tspan>
                   </text>
                 </motion.g>
               </g>
@@ -236,10 +239,20 @@ export default function EmotionalShape({ familiesData = [], height = 'clamp(440p
           })}
         </g>
         
-        {/* Testo guida in alto per evitare sovrapposizioni e allinearlo visivamente */}
-        <text x="600" y="90" fill="#94a3b8" fontSize="18" fontWeight="600" textAnchor="middle" opacity="0.8">
-          Passa il cursore o clicca sui petali per i punteggi esatti
-        </text>
+        {/* Lettura unica e fissa in alto: evita sovrapposizioni con le etichette dei petali */}
+        {activeFamilyKey ? (
+          <g style={{ pointerEvents: 'none' }}>
+            <rect x="380" y="60" width="440" height="60" rx="16" fill="#070d1b" stroke={activeColor} strokeWidth="1.5" opacity="0.95" />
+            <text x="600" y="90" fill="#f8fafc" fontSize="24" fontWeight="800" textAnchor="middle" dominantBaseline="central">
+              {NOMI_FAMIGLIE[activeFamilyKey] || activeFamilyKey}
+              <tspan fill={activeColor}> — {activeScore.toFixed(1)} / 7</tspan>
+            </text>
+          </g>
+        ) : (
+          <text x="600" y="90" fill="#94a3b8" fontSize="18" fontWeight="600" textAnchor="middle" opacity="0.8">
+            Passa il cursore o clicca sui petali per i punteggi esatti
+          </text>
+        )}
       </svg>
     </div>
   )

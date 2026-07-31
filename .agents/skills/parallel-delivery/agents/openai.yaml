@@ -1,0 +1,4 @@
+interface:
+  display_name: "Parallel Delivery"
+  short_description: "Coordinate safe parallel development handoffs"
+  default_prompt: "Use $parallel-delivery to complete an assigned development task safely and prepare a clear handoff."

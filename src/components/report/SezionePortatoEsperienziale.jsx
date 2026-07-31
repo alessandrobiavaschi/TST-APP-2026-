@@ -7,7 +7,7 @@ void motion
 
 const PORTATO_ACCENT = {
   Simpatia: '#4ade80',
-  Antipatia: '#f87171',
+  Antipatia: '#64748b',
   Indifferenza: '#94a3b8',
 }
 
@@ -61,6 +61,7 @@ export default function SezionePortatoEsperienziale({
           step={step}
           eyebrow={PORTATO_UI.eyebrow}
           title={PORTATO_UI.title}
+          titleVisuallyHidden
           lead={PORTATO_UI.lead}
           accentColor={accent}
           titleId="report-tst-portato-heading"

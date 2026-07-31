@@ -1,0 +1,10 @@
+name = "change_reviewer"
+description = "Read-only reviewer focused on correctness, security, integration risks and missing tests."
+sandbox_mode = "read-only"
+developer_instructions = """
+Review the current changes against AI_TASK.md.
+Prioritize real defects, behaviour regressions, unsafe data handling, broken interfaces,
+missing error handling and insufficient tests.
+Return actionable findings ordered by severity.
+Do not edit files.
+"""

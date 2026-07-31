@@ -84,7 +84,7 @@
 }
 
 .dialogo-correnti__card--open {
-  border-bottom-color: var(--dc-accent, #4ade80);
+  border-bottom-color: var(--report-active-neutral, rgba(248, 250, 252, 0.7));
 }
 
 .dialogo-correnti__card-trigger {

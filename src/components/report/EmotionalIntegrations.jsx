@@ -61,10 +61,7 @@ function RelationalDeductionsSection({ correnteDominante, famiglia }) {
   const detailOpen = Boolean(activeRelation)
 
   const handleCardClick = (key) => {
-    if (key === activeRelation) {
-      setActiveRelation(null)
-      return
-    }
+    if (key === activeRelation) return
     setActiveRelation(key)
     setActiveTab('dinamica')
   }
@@ -105,7 +102,6 @@ function RelationalDeductionsSection({ correnteDominante, famiglia }) {
                 </div>
                 <span className="emotional-integrations__relation-info">
                   <strong>{item.name}</strong>
-                  <small>{item.sub}</small>
                 </span>
                 <span className="emotional-integrations__relation-code">{`INT-${item.key.toUpperCase()}`}</span>
               </button>
@@ -192,7 +188,7 @@ function RelationalDeductionsSection({ correnteDominante, famiglia }) {
                         dominantBaseline="central"
                         fill={isActive ? "#ffffff" : "rgba(255, 255, 255, 0.6)"}
                         fontSize="8"
-                        fontFamily="var(--font-mono)"
+                        fontFamily="var(--font-body)"
                         fontWeight="bold"
                       >
                         {code}
@@ -211,7 +207,7 @@ function RelationalDeductionsSection({ correnteDominante, famiglia }) {
                   dominantBaseline="central"
                   fill="#ffffff"
                   fontSize="10"
-                  fontFamily="var(--font-mono)"
+                  fontFamily="var(--font-body)"
                   fontWeight="bold"
                 >
                   {DOMINANT_CODES[dominantKey] || 'TST'}
@@ -310,6 +306,7 @@ export default function EmotionalIntegrations({
         step={step || `${stepPrefix}.4`}
         eyebrow="Relazioni tra famiglie"
         title={MAPPA_UI.title}
+        titleVisuallyHidden
         accentColor={accentColor}
         titleId="emotional-integrations-title"
       />

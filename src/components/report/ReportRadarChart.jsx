@@ -7,6 +7,7 @@ import {
   PolarAngleAxis,
   PolarRadiusAxis,
   Radar,
+  Tooltip,
 } from 'recharts'
 
 const FALLBACK_COLOR = '#94a3b8'
@@ -30,7 +31,22 @@ function hexToRgba(hex, alpha) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`
 }
 
-/** Tick assi radar (monospace 11px #94a3b8) — stile QuattroRapporti. */
+function RadarTooltipContent({ active, payload, domain }) {
+  if (!active || !payload || !payload.length) return null
+  const item = payload[0]?.payload
+  if (!item) return null
+  const maxScale = Array.isArray(domain) ? domain[1] : null
+  return (
+    <div className="report-radar-chart__tooltip">
+      <span className="report-radar-chart__tooltip-name">{item.corrente}</span>
+      <span className="report-radar-chart__tooltip-value">
+        {item.valore}{maxScale ? ` / ${maxScale}` : ''}
+      </span>
+    </div>
+  )
+}
+
+/** Tick assi radar — sans-serif, dimensione e contrasto aumentati. */
 export function ReportRadarAxisTick({ x, y, payload, textAnchor, cx, cy }) {
   let nudgedX = x
   let nudgedY = y
@@ -51,9 +67,9 @@ export function ReportRadarAxisTick({ x, y, payload, textAnchor, cx, cy }) {
       x={nudgedX}
       y={nudgedY}
       textAnchor={textAnchor}
-      fill="#94a3b8"
-      fontSize={11}
-      fontFamily="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+      fill="#e2e8f0"
+      fontSize={13}
+      fontFamily="'Public Sans', system-ui, -apple-system, sans-serif"
       dominantBaseline="central"
     >
       {payload?.value}
@@ -129,6 +145,7 @@ export default function ReportRadarChart({
         >
           <PolarGrid stroke="#334155" strokeOpacity={0.5} />
           <PolarAngleAxis dataKey="corrente" tick={<ReportRadarAxisTick />} />
+          <Tooltip content={<RadarTooltipContent domain={domain} />} />
           {domain ? (
             <PolarRadiusAxis
               angle={90}
@@ -139,11 +156,11 @@ export default function ReportRadarChart({
           ) : null}
           <Radar
             dataKey="valore"
-            stroke={hexToRgba(strokeColor, 0.8)}
-            strokeWidth={2}
+            stroke={hexToRgba(strokeColor, 0.9)}
+            strokeWidth={2.5}
             fill={strokeColor}
-            fillOpacity={0.3}
-            dot={{ r: 6, fill: strokeColor, stroke: strokeColor }}
+            fillOpacity={0.15}
+            dot={{ r: 5, fill: strokeColor, stroke: strokeColor }}
             isAnimationActive={!reduceMotion}
             animationDuration={400}
           />
