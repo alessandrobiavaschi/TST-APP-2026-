@@ -170,31 +170,43 @@ function colorDistance(a, b) {
   return (a.r - b.r) ** 2 + (a.g - b.g) ** 2 + (a.b - b.b) ** 2
 }
 
-function assignFamilies(correnti) {
-  const refRgb = FAMILY_ORDER.map((name) => ({ name, rgb: hexToRgb(FAMILY_REF[name].color) }))
-  const candidates = []
-  correnti.forEach((c, idx) => {
-    const rgb = hexToRgb(c.colore)
-    refRgb.forEach((ref) => {
-      candidates.push({ idx, family: ref.name, dist: colorDistance(rgb, ref.rgb) })
-    })
-  })
-  candidates.sort((a, b) => a.dist - b.dist)
-  const assigned = new Array(correnti.length).fill(null)
-  const usedFamilies = new Set()
-  candidates.forEach(({ idx, family, dist }) => {
-    if (assigned[idx] !== null) return
-    if (usedFamilies.has(family)) return
-    if (!Number.isFinite(dist)) return
-    assigned[idx] = family
-    usedFamilies.add(family)
-  })
-  correnti.forEach((_, idx) => {
-    if (assigned[idx] === null) {
-      assigned[idx] = FAMILY_ORDER[idx % FAMILY_ORDER.length]
+function getFamilyLogical(c) {
+  if (c.familyName) return c.familyName
+  if (c.familyKey) {
+    const map = { verde: 'Verde', grigio: 'Grigio', blu: 'Blu', rosso: 'Rosso', giallo: 'Giallo' }
+    return map[c.familyKey.toLowerCase()]
+  }
+  if (c.nome) {
+    const map = {
+      calma: 'Verde',
+      anaffettività: 'Grigio',
+      malinconia: 'Blu',
+      volitività: 'Rosso',
+      entusiasmo: 'Giallo',
     }
+    return map[c.nome.toLowerCase()]
+  }
+  return null
+}
+
+function assignFamilies(correnti) {
+  return correnti.map((c, idx) => {
+    const logical = getFamilyLogical(c)
+    if (logical) return logical
+
+    const refRgb = FAMILY_ORDER.map((name) => ({ name, rgb: hexToRgb(FAMILY_REF[name].color) }))
+    const rgb = hexToRgb(c.colore)
+    let bestFamily = FAMILY_ORDER[idx % FAMILY_ORDER.length]
+    let bestDist = Infinity
+    refRgb.forEach((ref) => {
+      const dist = colorDistance(rgb, ref.rgb)
+      if (dist < bestDist) {
+        bestDist = dist
+        bestFamily = ref.name
+      }
+    })
+    return bestFamily
   })
-  return assigned
 }
 
 function pctAttivazione(peso) {
@@ -379,7 +391,16 @@ export default function SintesiCorrenti({
 
   const ordered = useMemo(() => {
     return correnti
-      .map((c, idx) => ({ ...c, _idx: idx, color: c.colore || FAMILY_REF[families[idx]]?.color, family: families[idx] }))
+      .map((c, idx) => {
+        const famName = families[idx]
+        return {
+          ...c,
+          _idx: idx,
+          color: c.colore || FAMILY_REF[famName]?.color,
+          family: famName,
+          familyKey: c.familyKey || (famName ? famName.toLowerCase() : ''),
+        }
+      })
       .sort((a, b) => (Number(b.peso) || 0) - (Number(a.peso) || 0))
   }, [correnti, families])
 
@@ -445,15 +466,15 @@ export default function SintesiCorrenti({
         {/* 3-Column Stats Dashboard */}
         <div className="detail-panel__metrics-grid">
           <div className="detail-panel__metric-card">
-            <span className="detail-panel__metric-label">Risonanza Profilo</span>
+            <span className="detail-panel__metric-label">Risonanza (% del profilo)</span>
             <span className="detail-panel__metric-value">{activeItem.distributionPercent}%</span>
           </div>
           <div className="detail-panel__metric-card">
-            <span className="detail-panel__metric-label">Valore in Scala</span>
+            <span className="detail-panel__metric-label">Scala Normalizzata (1-7)</span>
             <span className="detail-panel__metric-value">{activeItem.valore} <span className="detail-panel__metric-val-max">/ 7</span></span>
           </div>
           <div className="detail-panel__metric-card">
-            <span className="detail-panel__metric-label">Punteggio Grezzo</span>
+            <span className="detail-panel__metric-label">Punteggio Grezzo (punti)</span>
             <span className="detail-panel__metric-value">{activeItem.rawValue} <span className="detail-panel__metric-val-max">pt</span></span>
           </div>
         </div>
@@ -486,7 +507,7 @@ export default function SintesiCorrenti({
               Scale_Value = (Punti Grezzi / Punteggio Massimo) * 7
             </code>
             <p className="formula-explanation">
-              La risonanza (% Risonanza Profilo) rappresenta la percentuale di punti accumulata da questa famiglia sul totale dei punti espressi in tutte e 5 le famiglie. Il valore in scala (1-7) normalizza i punteggi ponendo la famiglia dominante al valore massimo (7/7) e proporzionando le altre.
+              <strong>Nota Metodologica:</strong> La Risonanza (%) e il Valore in Scala (1-7) sono metriche distinte. La risonanza indica la quota di attivazione percentuale di ciascuna famiglia rispetto all'intero profilo emotivo (fette di una torta, somma = 100%). Il valore normalizzato (1-7) normalizza invece i punteggi ponendo la famiglia dominante al massimo (7/7) e proporzionando le altre per rendere l'intensità visivamente confrontabile.
             </p>
           </div>
         </CalculationDisclosure>
@@ -591,11 +612,21 @@ export default function SintesiCorrenti({
                 <li
                   className={`sintesi-mobile-bar-row${isActive ? ' sintesi-mobile-bar-row--active' : ''}`}
                   key={`bar-${c.nome}-${c._idx}`}
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`Rango ${i + 1}: natura ${label.title}, presenza ${pctAttivazione(peso)}`}
                   onMouseEnter={() => setHoveredFamilyKey(c.familyKey)}
                   onMouseLeave={() => setHoveredFamilyKey(null)}
                   onClick={() => {
                     const radarItem = totalScoreRadarData.find(d => d.familyKey === c.familyKey)
                     if (radarItem) setActiveDetailFamily(radarItem)
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      const radarItem = totalScoreRadarData.find(d => d.familyKey === c.familyKey)
+                      if (radarItem) setActiveDetailFamily(radarItem)
+                    }
                   }}
                   style={{ cursor: 'pointer', borderRadius: '6px', padding: '0.25rem 0.5rem', transition: 'background-color 0.2s ease' }}
                 >
@@ -613,7 +644,7 @@ export default function SintesiCorrenti({
                         ) : null}
                       </span>
                     </div>
-                    <span className="sintesi-mobile-bar-pct">{pctAttivazione(peso)}</span>
+                    <span className="sintesi-mobile-bar-pct">Presenza {pctAttivazione(peso)}</span>
                   </div>
                   <div className="sintesi-mobile-bar-track">
                     <motion.div
@@ -843,11 +874,21 @@ export default function SintesiCorrenti({
                       <li
                         className={`sintesi-correnti__row${isActive ? ' sintesi-correnti__row--active' : ''}`}
                         key={`${c.nome}-${c._idx}`}
+                        tabIndex={0}
+                        role="button"
+                        aria-label={`Rango ${i + 1}: natura ${label.title}, presenza ${pctAttivazione(peso)}`}
                         onMouseEnter={() => setHoveredFamilyKey(c.familyKey)}
                         onMouseLeave={() => setHoveredFamilyKey(null)}
                         onClick={() => {
                           const radarItem = totalScoreRadarData.find(d => d.familyKey === c.familyKey)
                           if (radarItem) setActiveDetailFamily(radarItem)
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault()
+                            const radarItem = totalScoreRadarData.find(d => d.familyKey === c.familyKey)
+                            if (radarItem) setActiveDetailFamily(radarItem)
+                          }
                         }}
                         style={{ cursor: 'pointer', borderRadius: '6px', padding: '0.25rem 0.5rem', transition: 'background-color 0.2s ease' }}
                       >

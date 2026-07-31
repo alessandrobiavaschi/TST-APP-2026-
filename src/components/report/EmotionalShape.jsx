@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-
-void motion
+import { motion, useReducedMotion } from 'framer-motion'
 
 // Angoli e posizioni esatte basate sul design del modello CPM fornito
 const FAMILY_PARAMS = {
@@ -44,6 +42,7 @@ export default function EmotionalShape({
   const [hoveredFamily, setHoveredFamily] = useState(null)
   const [isHoveredChart, setIsHoveredChart] = useState(false)
   const [localSelectedFamily, setLocalSelectedFamily] = useState(null)
+  const prefersReducedMotion = useReducedMotion()
 
   useEffect(() => {
     if (activeFamilyKey) return undefined
@@ -97,6 +96,7 @@ export default function EmotionalShape({
       }}
     >
       <svg 
+        className="sintesi-correnti__svg sintesi-correnti__svg--ellipses"
         onMouseEnter={() => setIsHoveredChart(true)}
         onMouseLeave={() => setIsHoveredChart(false)}
         viewBox="40 40 1120 1120"
@@ -192,9 +192,25 @@ export default function EmotionalShape({
               tOffsetX = -30
             }
             const labelX = clamp(tx + tOffsetX, LABEL_MIN_X, LABEL_MAX_X)
+            const transition = prefersReducedMotion ? { duration: 0 } : { duration: 1.0, ease: "easeOut", delay: idx * 0.1 }
+            const labelTransition = prefersReducedMotion ? { duration: 0 } : { duration: 0.6, delay: 0.6 + idx * 0.1 }
             
             return (
-              <g key={`text-${familyKey}`}>
+              <g 
+                key={`text-${familyKey}`}
+                tabIndex={0}
+                role="button"
+                aria-label={`Petalo ${NOMI_FAMIGLIE[familyKey] || familyKey}, valore normalizzato in scala ${activeScore ? activeScore.toFixed(1) : 0} su 7`}
+                onFocus={() => handleFamilyHover(familyKey)}
+                onBlur={() => handleFamilyHover(null)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    handleFamilySelect(familyKey)
+                  }
+                }}
+                style={{ outline: 'none' }}
+              >
                 <g transform={`rotate(${params.angle} ${cx} ${cy})`}>
                 {/* Ellisse di glow esterno (leggermente ridotto lo spessore per non impastare) */}
                 <motion.ellipse
@@ -207,7 +223,7 @@ export default function EmotionalShape({
                   style={{ transformOrigin: `${cx}px ${cy}px` }}
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: isHighlighted ? 0.7 : 0.4 }}
-                  transition={{ duration: 1.0, ease: "easeOut", delay: idx * 0.1 }}
+                  transition={transition}
                 />
                 
                 {/* Ellisse principale nitida */}
@@ -226,7 +242,7 @@ export default function EmotionalShape({
                   style={{ transformOrigin: `${cx}px ${cy}px`, cursor: 'pointer' }}
                   initial={{ scale: 0.8, opacity: 0, fillOpacity: 0 }}
                   animate={{ scale: 1, opacity: 1, fillOpacity }}
-                  transition={{ duration: 1.0, ease: "easeOut", delay: idx * 0.1 }}
+                  transition={transition}
                 />
                 </g>
                 
@@ -234,7 +250,7 @@ export default function EmotionalShape({
                 <motion.g
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ duration: 0.6, delay: 0.6 + idx * 0.1 }}
+                  transition={labelTransition}
                 >
                   <text
                     onMouseEnter={() => handleFamilyHover(familyKey)}
@@ -272,12 +288,12 @@ export default function EmotionalShape({
             <rect x="380" y="60" width="440" height="60" rx="16" fill="#070d1b" stroke={activeColor} strokeWidth="1.5" opacity="0.95" />
             <text x="600" y="90" fill="#f8fafc" fontSize="24" fontWeight="800" textAnchor="middle" dominantBaseline="central">
               {NOMI_FAMIGLIE[activeFamilyKeyResolved] || activeFamilyKeyResolved}
-              <tspan fill={activeColor}> — {activeScore.toFixed(1)} / 7</tspan>
+              <tspan fill={activeColor}> — {activeScore.toFixed(1)} / 7 (Scala 1-7)</tspan>
             </text>
           </g>
         ) : (
           <text x="600" y="90" fill="#94a3b8" fontSize="18" fontWeight="600" textAnchor="middle" opacity="0.8">
-            Passa il cursore o clicca sui petali per i punteggi esatti
+            Passa il cursore o premi Tab sui petali per i punteggi in scala normalizzata 1-7
           </text>
         )}
       </svg>

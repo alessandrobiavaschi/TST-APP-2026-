@@ -892,6 +892,7 @@
   display: block;
   height: 100%;
   border-radius: inherit;
+  min-width: 4px;
 }
 
 .sintesi-correnti__row-pct {
@@ -1501,6 +1502,7 @@
     position: absolute;
     left: 0;
     top: 0;
+    min-width: 4px !important;
   }
   .sintesi-mobile-subcurrents-list {
     display: flex !important;
@@ -1842,4 +1844,22 @@
   line-height: 1.5 !important;
   color: rgba(255, 255, 255, 0.45) !important;
   margin: 0 !important;
+}
+
+/* Focus outlines for accessibility */
+.sintesi-correnti__row:focus-visible,
+.sintesi-mobile-bar-row:focus-visible {
+  outline: 2px solid var(--sc-accent, #3b82f6) !important;
+  outline-offset: 2px;
+}
+
+.sintesi-correnti__svg--ellipses g[role="button"]:focus-visible {
+  outline: 2px dashed var(--sc-accent, #3b82f6) !important;
+  outline-offset: 4px;
+}
+
+/* Subcategory progress fill min-width */
+.sintesi-correnti__subcurrent-fill,
+.sintesi-mobile-subcurrent-fill {
+  min-width: 3px !important;
 }
