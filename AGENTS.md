@@ -1,12 +1,13 @@
 # AGENTS.md
 
-# Multi-agent repository instructions
+# Repository workflow instructions
 Read `AI_TASK.md` before doing any work.
-Use the `parallel-delivery` skill.
-Respect the ownership boundaries defined in `AI_TASK.md`.
+Codex is the primary and sole implementation agent for the current mission.
+Do not require Claude Code, Antigravity, Google credits, external agents, or parallel delivery to continue the work.
+Codex may modify logic, content, UI, tests, and integration files when they are relevant to the requested task.
 Never work directly on `main` (or `master`).
 Do not deploy, delete remote resources, modify credentials or expose secrets.
-Complete the required handoff and commit before declaring the task finished.
+Work on `ai/codex` (or another user-approved feature branch), run the relevant checks, inspect the diff, and commit completed changes before declaring the task finished.
 
 ---
 
@@ -148,4 +149,3 @@ Always use standard straight quotes (`'` or `"`) in JavaScript/TypeScript source
 
 - No test runner is configured.
 - `src/plugins/BANANA/` is an experimental plugin (animated flowers) — not part of the main flow.
-

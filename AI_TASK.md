@@ -1,61 +1,36 @@
-# AI PARALLEL TASK
+# CODEX TASK
 
 ## Missione
 
 Trasformare la Galassia lessicale del report TST in un sistema analitico interattivo: campo di forze lessicale, costellazioni semantiche, lessico stabile e situazionale, contrasti lessicali, firma personale e tracciabilità musica-parola, senza modificare il calcolo scientifico del test.
 
-## Obiettivo comune
+## Obiettivo
 
 Realizzare il task in modo completo, coerente e verificabile, senza introdurre regressioni nel TST.
 
-## Divisione del lavoro
+## Responsabilità
 
-### Claude Code — logica e contenuti
+Codex è responsabile dell'intera consegna:
 
-Responsabile di:
 - architettura e flusso dei dati;
 - business logic;
 - calcoli e trasformazioni;
 - contenuti del report;
 - contratti tra moduli;
-- refactoring strettamente necessario.
-
-Non deve occuparsi del ridisegno visivo, salvo modifiche minime indispensabili al contratto dati.
-
-Consegna:
-- `HANDOFF_CLAUDE.md`
-- commit sulla branch `ai/claude`
-
-### Antigravity — interfaccia e verifica visiva
-
-Responsabile di:
+- refactoring strettamente necessario;
 - componenti React e presentazione;
 - layout, responsive e accessibilità;
 - grafici, animazioni e interazioni;
 - verifica reale nel browser;
-- screenshot o walkthrough.
-
-Non deve modificare la logica di calcolo del TST.
-
-Consegna:
-- `HANDOFF_ANTIGRAVITY.md`
-- commit sulla branch `ai/antigravity`
-
-### Codex — test, robustezza e integrazione
-
-Responsabile di:
+- screenshot o walkthrough quando utili;
 - test automatici;
 - casi limite e gestione errori;
 - regressioni;
 - lint, typecheck e build;
-- compatibilità tra i contributi;
-- report tecnico per l'integrazione.
+- compatibilità e integrazione;
+- report tecnico finale.
 
-Non deve ridisegnare la UI o riscrivere la logica principale senza motivazione documentata.
-
-Consegna:
-- `HANDOFF_CODEX.md`
-- commit sulla branch `ai/codex`
+Claude Code e Antigravity non sono prerequisiti e non devono bloccare l'avanzamento. I loro branch e handoff esistenti possono essere consultati o integrati soltanto quando risultano utili e compatibili.
 
 ## Criteri di accettazione
 
@@ -66,16 +41,17 @@ Consegna:
 - [ ] La UI è verificata su desktop e mobile quando rilevante.
 - [ ] Lint e build passano.
 - [ ] I test rilevanti passano.
-- [ ] Ogni agente modifica solo la propria area.
-- [ ] Ogni agente produce handoff e commit.
+- [ ] Codex completa e verifica tutte le aree necessarie.
+- [ ] Le modifiche completate sono documentate e committate.
 - [ ] Nessun deploy o modifica a credenziali e dati remoti.
 
 ## Regole operative
 
-1. Leggere prima `AI_TASK.md`, `AGENTS.md` e le istruzioni specifiche del proprio agente.
-2. Usare la skill `parallel-delivery`.
-3. Lavorare esclusivamente nel proprio worktree e branch.
+1. Leggere prima `AI_TASK.md`, `AGENTS.md` e la documentazione pertinente.
+2. Lavorare nel worktree Codex sulla branch `ai/codex`, salvo diversa indicazione esplicita dell'utente.
+3. Procedere in modalità singolo agente; non attendere Claude Code, Antigravity o crediti di servizi esterni.
 4. Non modificare `master`.
 5. Non fare stash, reset, rebase o force push.
 6. Non modificare lockfile o configurazioni condivise senza necessità documentata.
-7. Terminare con diff controllato, handoff e commit.
+7. Per ogni intervento, modificare solo i file pertinenti e preservare il comportamento non coinvolto.
+8. Terminare con verifiche pertinenti, diff controllato, riepilogo tecnico e commit.

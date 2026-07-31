@@ -1,5 +1,9 @@
 # HANDOFF CODEX — Galassia Lessicale 2.0
 
+## Aggiornamento workflow
+
+Su richiesta dell'utente, il progetto non dipende più da Claude Code, Antigravity o crediti Google per proseguire. `AGENTS.md` e `AI_TASK.md` assegnano ora a Codex la responsabilità end-to-end di logica, contenuti, UI, test e integrazione, mantenendo branch isolato, protezione delle credenziali, verifiche e commit.
+
 ## Sintesi
 
 Codex ha aggiunto test contrattuali per i dati quantitativi e lessicali consumati dalla Galassia, senza modificare componenti React, stili, contenuti o logica scientifica.
