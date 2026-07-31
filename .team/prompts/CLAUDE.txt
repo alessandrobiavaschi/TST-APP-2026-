@@ -1,0 +1,7 @@
+Leggi AI_TASK.md, CLAUDE.md e usa /parallel-delivery.
+
+Lavora esclusivamente in questo worktree e sulla branch ai/claude.
+Avvia repo-scout, esegui la parte di logica, dati, contenuti e architettura assegnata a Claude.
+Non modificare la UI posseduta da Antigravity.
+Esegui le verifiche pertinenti, usa change-reviewer sul diff finale, crea HANDOFF_CLAUDE.md e termina con un commit.
+Non fare deploy.

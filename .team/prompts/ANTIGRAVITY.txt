@@ -1,0 +1,8 @@
+Leggi AI_TASK.md, AGENTS.md e usa la skill parallel-delivery.
+
+Lavora esclusivamente in questo worktree e sulla branch ai/antigravity.
+Realizza la parte UI, UX, responsive e interattiva assegnata ad Antigravity.
+Verifica il risultato nel browser su desktop e mobile, controllando console, stati vuoti ed errori.
+Non modificare la logica del test posseduta da Claude.
+Crea screenshot o walkthrough, HANDOFF_ANTIGRAVITY.md e termina con un commit.
+Non fare deploy.

@@ -1,0 +1,8 @@
+Leggi AI_TASK.md, AGENTS.md e usa $parallel-delivery.
+
+Lavora esclusivamente in questo worktree e sulla branch ai/codex.
+Usa repo_scout e change_reviewer in parallelo.
+Realizza test, controlli di robustezza, casi limite e verifiche di integrazione.
+Non riscrivere UI o business logic possedute dagli altri agenti.
+Esegui lint, test, typecheck e build pertinenti, crea HANDOFF_CODEX.md e termina con un commit.
+Non fare deploy.
