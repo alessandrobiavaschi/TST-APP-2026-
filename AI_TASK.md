@@ -1,96 +1,81 @@
 # AI PARALLEL TASK
 
 ## Missione
-Ottimizzazione, allineamento grafico/funzionale e verifica visiva del Report Emotivo TST 2026, incluse le sezioni di calcolo, la vista Galassia, il comportamento responsivo e la stabilità complessiva.
 
-## Stato iniziale
-- Stack: React 19 + Vite 7 + Tailwind CSS 4 + Firebase (Auth & Firestore) + Recharts + Framer Motion
-- Branch di partenza: `master`
-- Comandi di avvio: `npm run dev` (avvia Vite su localhost:5173)
-- Comandi di test: `npm run lint` (ESLint) e `npm run build` (nessuna test suite configurata)
-- Vincoli esistenti:
-  - Usare rigorosamente apici dritti (`'` o `"`) nei file JS/JSX/TS/TSX.
-  - Seguire il design system e le classi CSS definite in `AGENTS.md` e `GUIDA_UI_UX.md`.
-  - Non modificare i file condivisi ad alto rischio senza esplicito accordo.
-- Bug o problema attuale: Mancanza di allineamento e verifica visiva in browser del refactoring delle sezioni del report, in particolare su viewport mobile.
+Trasformare la Galassia lessicale del report TST in un sistema analitico interattivo: campo di forze lessicale, costellazioni semantiche, lessico stabile e situazionale, contrasti lessicali, firma personale e tracciabilità musica-parola, senza modificare il calcolo scientifico del test.
+
+## Obiettivo comune
+
+Realizzare il task in modo completo, coerente e verificabile, senza introdurre regressioni nel TST.
+
+## Divisione del lavoro
+
+### Claude Code — logica e contenuti
+
+Responsabile di:
+- architettura e flusso dei dati;
+- business logic;
+- calcoli e trasformazioni;
+- contenuti del report;
+- contratti tra moduli;
+- refactoring strettamente necessario.
+
+Non deve occuparsi del ridisegno visivo, salvo modifiche minime indispensabili al contratto dati.
+
+Consegna:
+- `HANDOFF_CLAUDE.md`
+- commit sulla branch `ai/claude`
+
+### Antigravity — interfaccia e verifica visiva
+
+Responsabile di:
+- componenti React e presentazione;
+- layout, responsive e accessibilità;
+- grafici, animazioni e interazioni;
+- verifica reale nel browser;
+- screenshot o walkthrough.
+
+Non deve modificare la logica di calcolo del TST.
+
+Consegna:
+- `HANDOFF_ANTIGRAVITY.md`
+- commit sulla branch `ai/antigravity`
+
+### Codex — test, robustezza e integrazione
+
+Responsabile di:
+- test automatici;
+- casi limite e gestione errori;
+- regressioni;
+- lint, typecheck e build;
+- compatibilità tra i contributi;
+- report tecnico per l'integrazione.
+
+Non deve ridisegnare la UI o riscrivere la logica principale senza motivazione documentata.
+
+Consegna:
+- `HANDOFF_CODEX.md`
+- commit sulla branch `ai/codex`
 
 ## Criteri di accettazione
-- [ ] Il comportamento richiesto è implementato (layout fluido, sezioni report complete, vista Galassia coerente).
-- [ ] Non vengono introdotte regressioni nel calcolo dei punteggi delle correnti emotive e del portato esperienziale.
-- [ ] Build e lint passano senza errori o warning critici.
-- [ ] La UI viene verificata nel browser (desktop e mobile).
-- [ ] Non vengono esposti dati o segreti (credenziali Firebase, chiavi API).
-- [ ] Ogni agente produce il proprio handoff.
-- [ ] Ogni agente esegue un commit sulla propria branch.
 
-## Ownership
+- [ ] La missione è completata.
+- [ ] Il comportamento esistente non pertinente resta invariato.
+- [ ] I dati mostrati sono coerenti con i dati calcolati.
+- [ ] Stati vuoti, dati mancanti ed errori prevedibili sono gestiti.
+- [ ] La UI è verificata su desktop e mobile quando rilevante.
+- [ ] Lint e build passano.
+- [ ] I test rilevanti passano.
+- [ ] Ogni agente modifica solo la propria area.
+- [ ] Ogni agente produce handoff e commit.
+- [ ] Nessun deploy o modifica a credenziali e dati remoti.
 
-### Claude Code
-Responsabile di:
-- architettura;
-- modello dati;
-- business logic;
-- stato applicativo;
-- API interne;
-- refactoring strutturali;
-- documentazione tecnica.
-Percorsi assegnati:
-- `src/testLogic.js`
-- `src/utils/buildReportData.js`
-- `src/utils/reportRecordUtils.js`
-- `src/content_report.json`
-- `src/content/` (tutta la cartella dei testi)
-File handoff:
-`HANDOFF_CLAUDE.md`
+## Regole operative
 
-### Antigravity
-Responsabile di:
-- componenti visivi;
-- pagine;
-- layout;
-- responsive;
-- accessibilità;
-- interazioni;
-- browser verification;
-- screenshot e walkthrough.
-Percorsi assegnati:
-- `src/components/report/` (tutti i componenti visuali del report)
-- `src/styles/` (fogli di stile dedicati al report)
-- `src/pages/ReportPage.jsx`
-- `src/App.css`
-File handoff:
-`HANDOFF_ANTIGRAVITY.md`
-
-### Codex
-Responsabile di:
-- test;
-- integrazione;
-- gestione degli errori;
-- controllo dei contratti;
-- performance;
-- sicurezza;
-- regressioni;
-- configurazione tecnica strettamente necessaria.
-Percorsi assegnati:
-- `test/` (se presenti script o utility di test)
-- `eslint.config.js`
-- `package.json`
-- `vite.config.js`
-File handoff:
-`HANDOFF_CODEX.md`
-
-## File condivisi ad alto rischio
-Quanti segue non devono essere modificati senza una motivazione esplicita e condivisa:
-- `package.json`
-- `package-lock.json`
-- `vite.config.js`
-- `firebase.json`
-- `.env` e `.env.example`
-
-## Regole
-1. Ogni agente lavora esclusivamente nella propria branch e nel proprio worktree.
-2. Nessun agente modifica direttamente `master`.
-3. Nessun agente esegue deploy.
-4. Nessun agente elimina dati o risorse.
-5. Ogni cambiamento fuori ownership deve essere documentato nel relativo handoff.
-6. Le decisioni dubbie devono privilegiare compatibilità e modifica minima.
+1. Leggere prima `AI_TASK.md`, `AGENTS.md` e le istruzioni specifiche del proprio agente.
+2. Usare la skill `parallel-delivery`.
+3. Lavorare esclusivamente nel proprio worktree e branch.
+4. Non modificare `master`.
+5. Non fare stash, reset, rebase o force push.
+6. Non modificare lockfile o configurazioni condivise senza necessità documentata.
+7. Terminare con diff controllato, handoff e commit.
