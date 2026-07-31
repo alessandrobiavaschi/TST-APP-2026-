@@ -1,6 +1,16 @@
 # CLAUDE.md — Onboarding TST 2026
 
+# Claude Code project instructions
+Read `AI_TASK.md` before beginning.
+Invoke `/parallel-delivery`.
+Work only inside the Claude Code ownership described in `AI_TASK.md`.
+Use read-only subagents for codebase exploration and final review.
+Create `HANDOFF_CLAUDE.md`, run verification and commit the completed work.
+
+---
+
 Guida di onboarding per Claude Code su questo repository. Struttura in tre livelli: stack tecnico, scopo dei componenti, regole di lavoro.
+
 
 ---
 

@@ -1,6 +1,17 @@
 # AGENTS.md
 
+# Multi-agent repository instructions
+Read `AI_TASK.md` before doing any work.
+Use the `parallel-delivery` skill.
+Respect the ownership boundaries defined in `AI_TASK.md`.
+Never work directly on `main` (or `master`).
+Do not deploy, delete remote resources, modify credentials or expose secrets.
+Complete the required handoff and commit before declaring the task finished.
+
+---
+
 This file provides guidance to Codex (Codex.ai/code) when working with code in this repository.
+
 
 ## Commands
 
