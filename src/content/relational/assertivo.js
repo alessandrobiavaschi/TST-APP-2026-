@@ -9,7 +9,7 @@ export const UI = {
   pageTitle: 'L\'Assertivo nelle Relazioni',
   pageSubtitle: 'Come si relaziona una persona assertiva con gli altri temperamenti',
   tipLabel: TIP_LABEL,
-  sourceNote: 'Testi derivati da Il Pianeta della Musica - FM.pdf, nel formato TST.',
+  sourceNote: 'Testi derivati da Il Pianeta della Musica, adattati al formato TST.',
 }
 
 export const RELATIONS = [
