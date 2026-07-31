@@ -170,31 +170,43 @@ function colorDistance(a, b) {
   return (a.r - b.r) ** 2 + (a.g - b.g) ** 2 + (a.b - b.b) ** 2
 }
 
-function assignFamilies(correnti) {
-  const refRgb = FAMILY_ORDER.map((name) => ({ name, rgb: hexToRgb(FAMILY_REF[name].color) }))
-  const candidates = []
-  correnti.forEach((c, idx) => {
-    const rgb = hexToRgb(c.colore)
-    refRgb.forEach((ref) => {
-      candidates.push({ idx, family: ref.name, dist: colorDistance(rgb, ref.rgb) })
-    })
-  })
-  candidates.sort((a, b) => a.dist - b.dist)
-  const assigned = new Array(correnti.length).fill(null)
-  const usedFamilies = new Set()
-  candidates.forEach(({ idx, family, dist }) => {
-    if (assigned[idx] !== null) return
-    if (usedFamilies.has(family)) return
-    if (!Number.isFinite(dist)) return
-    assigned[idx] = family
-    usedFamilies.add(family)
-  })
-  correnti.forEach((_, idx) => {
-    if (assigned[idx] === null) {
-      assigned[idx] = FAMILY_ORDER[idx % FAMILY_ORDER.length]
+function getFamilyLogical(c) {
+  if (c.familyName) return c.familyName
+  if (c.familyKey) {
+    const map = { verde: 'Verde', grigio: 'Grigio', blu: 'Blu', rosso: 'Rosso', giallo: 'Giallo' }
+    return map[c.familyKey.toLowerCase()]
+  }
+  if (c.nome) {
+    const map = {
+      calma: 'Verde',
+      anaffettività: 'Grigio',
+      malinconia: 'Blu',
+      volitività: 'Rosso',
+      entusiasmo: 'Giallo',
     }
+    return map[c.nome.toLowerCase()]
+  }
+  return null
+}
+
+function assignFamilies(correnti) {
+  return correnti.map((c, idx) => {
+    const logical = getFamilyLogical(c)
+    if (logical) return logical
+
+    const refRgb = FAMILY_ORDER.map((name) => ({ name, rgb: hexToRgb(FAMILY_REF[name].color) }))
+    const rgb = hexToRgb(c.colore)
+    let bestFamily = FAMILY_ORDER[idx % FAMILY_ORDER.length]
+    let bestDist = Infinity
+    refRgb.forEach((ref) => {
+      const dist = colorDistance(rgb, ref.rgb)
+      if (dist < bestDist) {
+        bestDist = dist
+        bestFamily = ref.name
+      }
+    })
+    return bestFamily
   })
-  return assigned
 }
 
 function pctAttivazione(peso) {
@@ -359,6 +371,7 @@ export default function SintesiCorrenti({
 }) {
   const prefersReducedMotion = useReducedMotion()
   const [activeDetailFamily, setActiveDetailFamily] = useState(null)
+  const [hoveredFamilyKey, setHoveredFamilyKey] = useState(null)
 
   const [isMobileViewport, setIsMobileViewport] = useState(false)
   React.useEffect(() => {
@@ -378,7 +391,16 @@ export default function SintesiCorrenti({
 
   const ordered = useMemo(() => {
     return correnti
-      .map((c, idx) => ({ ...c, _idx: idx, color: c.colore || FAMILY_REF[families[idx]]?.color, family: families[idx] }))
+      .map((c, idx) => {
+        const famName = families[idx]
+        return {
+          ...c,
+          _idx: idx,
+          color: c.colore || FAMILY_REF[famName]?.color,
+          family: famName,
+          familyKey: c.familyKey || (famName ? famName.toLowerCase() : ''),
+        }
+      })
       .sort((a, b) => (Number(b.peso) || 0) - (Number(a.peso) || 0))
   }, [correnti, families])
 
@@ -411,36 +433,83 @@ export default function SintesiCorrenti({
       giallo: '#ca8a04',
       grigio: '#6b7280',
     }
-    const accent = colors[activeDetailFamily.familyKey] || '#94a3b8'
+    const activeKey = hoveredFamilyKey || activeDetailFamily.familyKey
+    const activeItem = totalScoreRadarData.find(d => d.familyKey === activeKey) || activeDetailFamily
+    const accent = colors[activeItem.familyKey] || '#94a3b8'
+    const activeCapitalized = activeItem.familyKey ? (activeItem.familyKey.charAt(0).toUpperCase() + activeItem.familyKey.slice(1).toLowerCase()) : 'Verde'
+    const activeBriefSummary = BRIEF_SUMMARY_BY_FAMILY[activeCapitalized] || BRIEF_SUMMARY_BY_FAMILY.Verde
+
+    // Quality resolved for active family
+    const resolvedQuality = resolveBriefQuality({
+      familyName: activeCapitalized,
+      sottodisposizione,
+      correnteDominante
+    })
+    const qualitiesText = activeBriefSummary.qualitiesByQuality?.[resolvedQuality] ?? activeBriefSummary.qualities
+
     return (
-      <div className="sintesi-correnti__detail-panel" style={{
-        marginTop: '1.5rem',
-        padding: '1.25rem',
-        background: 'rgba(255, 255, 255, 0.05)',
-        border: `1px solid rgba(255, 255, 255, 0.1)`,
-        borderLeft: `4px solid ${accent}`,
-        borderRadius: '8px',
-        width: '100%',
-        boxSizing: 'border-box',
-        textAlign: 'left'
-      }}>
+      <div 
+        className="sintesi-correnti__detail-panel" 
+        style={{
+          '--panel-accent': accent,
+          borderLeft: `4px solid ${accent}`
+        }}
+      >
+        <div className="detail-panel__header">
+          <span className="detail-panel__status-dot" style={{ backgroundColor: accent }} />
+          <h4 className="detail-panel__title">
+            ANALISI DETTAGLIATA: {activeBriefSummary.family.toUpperCase()}
+          </h4>
+          <span className="detail-panel__subtitle-mono">METRICS & PROFILE COHERENCE</span>
+        </div>
+
+        {/* 3-Column Stats Dashboard */}
+        <div className="detail-panel__metrics-grid">
+          <div className="detail-panel__metric-card">
+            <span className="detail-panel__metric-label">Risonanza (% del profilo)</span>
+            <span className="detail-panel__metric-value">{activeItem.distributionPercent}%</span>
+          </div>
+          <div className="detail-panel__metric-card">
+            <span className="detail-panel__metric-label">Scala Normalizzata (1-7)</span>
+            <span className="detail-panel__metric-value">{activeItem.valore} <span className="detail-panel__metric-val-max">/ 7</span></span>
+          </div>
+          <div className="detail-panel__metric-card">
+            <span className="detail-panel__metric-label">Punteggio Grezzo (punti)</span>
+            <span className="detail-panel__metric-value">{activeItem.rawValue} <span className="detail-panel__metric-val-max">pt</span></span>
+          </div>
+        </div>
+
+        {/* Scientific Explanation Block */}
+        <div className="detail-panel__desc-block">
+          <p className="detail-panel__desc-lead">
+            La famiglia <strong>{activeBriefSummary.family}</strong> rappresenta {activeBriefSummary.fundamentalPleasure}.
+          </p>
+          <p className="detail-panel__desc-body">
+            Al suo interno si distinguono {qualitiesText}. L'energia emotiva viene prevalentemente orientata verso <strong>{activeBriefSummary.orientation}</strong>.
+          </p>
+          {activeBriefSummary.note && (
+            <p className="detail-panel__desc-note">
+              * {activeBriefSummary.note}
+            </p>
+          )}
+        </div>
+
         <CalculationDisclosure>
           <p className="calculation-disclosure__intro">
             Ogni risposta del test assegna punti a una corrente emotiva. Sommiamo poi i
             punti delle correnti che appartengono alla stessa famiglia. Alcuni passaggi
             del test hanno un peso maggiore, come previsto dal metodo.
           </p>
-          <div className="calculation-disclosure__metrics">
-            <p><strong>Punti ottenuti:</strong> {activeDetailFamily.rawValue}</p>
-            <p><strong>Presenza nel profilo:</strong> {activeDetailFamily.distributionPercent}%</p>
-            <p><strong>Valore nel grafico:</strong> {activeDetailFamily.valore} su 7</p>
+          <div className="calculation-disclosure__formula">
+            <span className="formula-header">FORMULA DI RISONANZA & NORMALIZZAZIONE</span>
+            <code className="formula-code">
+              Risonanza = (Punti Grezzi / Punti Totali) * 100
+              Scale_Value = (Punti Grezzi / Punteggio Massimo) * 7
+            </code>
+            <p className="formula-explanation">
+              <strong>Nota Metodologica:</strong> La Risonanza (%) e il Valore in Scala (1-7) sono metriche distinte. La risonanza indica la quota di attivazione percentuale di ciascuna famiglia rispetto all'intero profilo emotivo (fette di una torta, somma = 100%). Il valore normalizzato (1-7) normalizza invece i punteggi ponendo la famiglia dominante al massimo (7/7) e proporzionando le altre per rendere l'intensità visivamente confrontabile.
+            </p>
           </div>
-          <p className="calculation-disclosure__formula">
-            La presenza è la quota di questi {activeDetailFamily.rawValue} punti sui{' '}
-            {activeDetailFamily.totalRawPoints} punti complessivi delle cinque famiglie. Per
-            rendere leggibile il grafico, la famiglia con più punti vale 7; le altre ricevono
-            un valore proporzionato ai suoi {activeDetailFamily.maxRawPoints} punti.
-          </p>
         </CalculationDisclosure>
       </div>
     )
@@ -538,14 +607,26 @@ export default function SintesiCorrenti({
               const peso = Number(c.peso) || 0
               const barColor = c.color
               const label = familyPresenceLabel(c)
-              const isActive = activeDetailFamily?.familyKey === c.familyKey
+              const isActive = (hoveredFamilyKey || activeDetailFamily?.familyKey) === c.familyKey
               return (
                 <li
                   className={`sintesi-mobile-bar-row${isActive ? ' sintesi-mobile-bar-row--active' : ''}`}
                   key={`bar-${c.nome}-${c._idx}`}
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`Rango ${i + 1}: natura ${label.title}, presenza ${pctAttivazione(peso)}`}
+                  onMouseEnter={() => setHoveredFamilyKey(c.familyKey)}
+                  onMouseLeave={() => setHoveredFamilyKey(null)}
                   onClick={() => {
                     const radarItem = totalScoreRadarData.find(d => d.familyKey === c.familyKey)
                     if (radarItem) setActiveDetailFamily(radarItem)
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      const radarItem = totalScoreRadarData.find(d => d.familyKey === c.familyKey)
+                      if (radarItem) setActiveDetailFamily(radarItem)
+                    }
                   }}
                   style={{ cursor: 'pointer', borderRadius: '6px', padding: '0.25rem 0.5rem', transition: 'background-color 0.2s ease' }}
                 >
@@ -555,12 +636,15 @@ export default function SintesiCorrenti({
                       <span className="sintesi-mobile-bar-dot" style={{ backgroundColor: barColor }} />
                       <span className="sintesi-mobile-bar-name">
                         <strong>{label.title}</strong>
+                        {i === 0 && (
+                          <span className="sintesi-correnti__dominant-badge">NATURA PREVALENTE</span>
+                        )}
                         {label.detail ? (
                           <span className="sintesi-mobile-bar-subname"> {label.detail}</span>
                         ) : null}
                       </span>
                     </div>
-                    <span className="sintesi-mobile-bar-pct">{pctAttivazione(peso)}</span>
+                    <span className="sintesi-mobile-bar-pct">Presenza {pctAttivazione(peso)}</span>
                   </div>
                   <div className="sintesi-mobile-bar-track">
                     <motion.div
@@ -591,16 +675,26 @@ export default function SintesiCorrenti({
             <ul className="sintesi-mobile-subcurrents-list">
               {summarySottocorrenti.map((sub) => (
                 <li key={sub.rawKey} className="sintesi-mobile-subcurrent-card">
-                  <span
-                    className="sintesi-mobile-subcurrent-dot"
-                    style={{ backgroundColor: sub.colore }}
-                  />
-                  <div className="sintesi-mobile-subcurrent-text">
+                  <div className="sintesi-mobile-subcurrent-info">
+                    <span
+                      className="sintesi-mobile-subcurrent-dot"
+                      style={{ backgroundColor: sub.colore }}
+                    />
                     <span className="sintesi-mobile-subcurrent-name">{sottocorrenteDisplayName(sub.nome)}</span>
+                    <span className="sintesi-mobile-subcurrent-val">
+                      {pctAttivazione(sub.percentuale)}
+                    </span>
                   </div>
-                  <span className="sintesi-mobile-subcurrent-val">
-                    {pctAttivazione(sub.percentuale)}
-                  </span>
+                  <div className="sintesi-mobile-subcurrent-track">
+                    <motion.div
+                      className="sintesi-mobile-subcurrent-fill"
+                      style={{ backgroundColor: sub.colore }}
+                      initial={prefersReducedMotion ? false : { width: '0%' }}
+                      whileInView={{ width: `${Math.min(100, Math.max(0, sub.percentuale))}%` }}
+                      viewport={viewport}
+                      transition={{ duration: 0.5, ease: "easeOut" }}
+                    />
+                  </div>
                 </li>
               ))}
             </ul>
@@ -616,7 +710,7 @@ export default function SintesiCorrenti({
           <div className="sintesi-mobile-radar-container">
             <div className="sintesi-correnti__total-radar">
               <p className="sintesi-correnti__radar-caption">
-                Scala 1-7 derivata dai punteggi totali delle delle cinque famiglie.
+                Scala 1-7 distribuita sui vertici del grafico radar delle cinque famiglie.
               </p>
               <p className="sintesi-correnti__radar-hint">Passa il cursore sui vertici per i punteggi esatti.</p>
               <ReportRadarChart
@@ -633,7 +727,15 @@ export default function SintesiCorrenti({
                 }}
               />
             </div>
-            <EmotionalShape familiesData={ordered} />
+            <EmotionalShape 
+              familiesData={ordered}
+              activeFamilyKey={hoveredFamilyKey || activeDetailFamily?.familyKey}
+              onFamilySelect={(key) => {
+                const radarItem = totalScoreRadarData.find(d => d.familyKey === key)
+                if (radarItem) setActiveDetailFamily(radarItem)
+              }}
+              onFamilyHover={setHoveredFamilyKey}
+            />
           </div>
           {renderDetailPanel()}
         </div>
@@ -726,7 +828,16 @@ export default function SintesiCorrenti({
                 </div>
               </div>
               <div className="sintesi-correnti__visual-panel sintesi-correnti__visual-panel--ellipses">
-                <EmotionalShape familiesData={ordered} height="100%" />
+                <EmotionalShape 
+                  familiesData={ordered} 
+                  height="100%"
+                  activeFamilyKey={hoveredFamilyKey || activeDetailFamily?.familyKey}
+                  onFamilySelect={(key) => {
+                    const radarItem = totalScoreRadarData.find(d => d.familyKey === key)
+                    if (radarItem) setActiveDetailFamily(radarItem)
+                  }}
+                  onFamilyHover={setHoveredFamilyKey}
+                />
               </div>
             </motion.div>
 
@@ -758,13 +869,26 @@ export default function SintesiCorrenti({
                           damping: 18,
                           delay: i * 0.12,
                         }
+                    const isActive = (hoveredFamilyKey || activeDetailFamily?.familyKey) === c.familyKey
                     return (
                       <li
-                        className={`sintesi-correnti__row${activeDetailFamily?.familyKey === c.familyKey ? ' sintesi-correnti__row--active' : ''}`}
+                        className={`sintesi-correnti__row${isActive ? ' sintesi-correnti__row--active' : ''}`}
                         key={`${c.nome}-${c._idx}`}
+                        tabIndex={0}
+                        role="button"
+                        aria-label={`Rango ${i + 1}: natura ${label.title}, presenza ${pctAttivazione(peso)}`}
+                        onMouseEnter={() => setHoveredFamilyKey(c.familyKey)}
+                        onMouseLeave={() => setHoveredFamilyKey(null)}
                         onClick={() => {
                           const radarItem = totalScoreRadarData.find(d => d.familyKey === c.familyKey)
                           if (radarItem) setActiveDetailFamily(radarItem)
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault()
+                            const radarItem = totalScoreRadarData.find(d => d.familyKey === c.familyKey)
+                            if (radarItem) setActiveDetailFamily(radarItem)
+                          }
                         }}
                         style={{ cursor: 'pointer', borderRadius: '6px', padding: '0.25rem 0.5rem', transition: 'background-color 0.2s ease' }}
                       >
@@ -777,7 +901,12 @@ export default function SintesiCorrenti({
                           aria-hidden
                         />
                         <span className="sintesi-correnti__row-name">
-                          <span className="sintesi-correnti__row-macro">{label.title}</span>
+                          <span className="sintesi-correnti__row-macro">
+                            {label.title}
+                            {i === 0 && (
+                              <span className="sintesi-correnti__dominant-badge">NATURA PREVALENTE</span>
+                            )}
+                          </span>
                           {label.detail ? (
                             <span className="sintesi-correnti__row-temp">{label.detail}</span>
                           ) : null}
@@ -825,20 +954,27 @@ export default function SintesiCorrenti({
                   <ul className="sintesi-correnti__subcurrents-list">
                     {familySottocorrenti.map((sub) => (
                       <li key={sub.rawKey} className="sintesi-correnti__subcurrent">
-                        <span
-                          className="sintesi-correnti__subcurrent-dot"
-                          style={{ backgroundColor: sub.colore }}
-                          aria-hidden="true"
-                        />
-                        <span className="sintesi-correnti__subcurrent-main">
+                        <div className="sintesi-correnti__subcurrent-info">
+                          <span
+                            className="sintesi-correnti__subcurrent-dot"
+                            style={{ backgroundColor: sub.colore }}
+                            aria-hidden="true"
+                          />
                           <span className="sintesi-correnti__subcurrent-name">{sottocorrenteDisplayName(sub.nome)}</span>
-                        </span>
-                        <span
-                          className="sintesi-correnti__subcurrent-value"
-                          title={REPORT_CRITERION.attivazione}
-                        >
-                          {pctAttivazione(sub.percentuale)}
-                        </span>
+                          <span className="sintesi-correnti__subcurrent-value" title={REPORT_CRITERION.attivazione}>
+                            {pctAttivazione(sub.percentuale)}
+                          </span>
+                        </div>
+                        <div className="sintesi-correnti__subcurrent-track">
+                          <motion.div
+                            className="sintesi-correnti__subcurrent-fill"
+                            style={{ backgroundColor: sub.colore }}
+                            initial={prefersReducedMotion ? false : { width: '0%' }}
+                            whileInView={{ width: `${Math.min(100, Math.max(0, sub.percentuale))}%` }}
+                            viewport={viewport}
+                            transition={{ duration: 0.5, ease: "easeOut" }}
+                          />
+                        </div>
                       </li>
                     ))}
                   </ul>
@@ -879,7 +1015,15 @@ export default function SintesiCorrenti({
                 </div>
               </div>
               <div className="sintesi-correnti__visual-panel sintesi-correnti__visual-panel--ellipses">
-                <EmotionalShape familiesData={ordered} />
+                <EmotionalShape 
+                  familiesData={ordered} 
+                  activeFamilyKey={hoveredFamilyKey || activeDetailFamily?.familyKey}
+                  onFamilySelect={(key) => {
+                    const radarItem = totalScoreRadarData.find(d => d.familyKey === key)
+                    if (radarItem) setActiveDetailFamily(radarItem)
+                  }}
+                  onFamilyHover={setHoveredFamilyKey}
+                />
               </div>
             </div>
           </div>

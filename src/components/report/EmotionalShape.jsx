@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-
-void motion
+import { motion, useReducedMotion } from 'framer-motion'
 
 // Angoli e posizioni esatte basate sul design del modello CPM fornito
 const FAMILY_PARAMS = {
@@ -34,28 +32,56 @@ function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value))
 }
 
-export default function EmotionalShape({ familiesData = [], height = 'clamp(440px, 42vw, 560px)' }) {
+export default function EmotionalShape({
+  familiesData = [],
+  height = 'clamp(440px, 42vw, 560px)',
+  activeFamilyKey = null,
+  onFamilySelect = null,
+  onFamilyHover = null,
+}) {
   const [hoveredFamily, setHoveredFamily] = useState(null)
   const [isHoveredChart, setIsHoveredChart] = useState(false)
-  const [selectedFamily, setSelectedFamily] = useState(null)
+  const [localSelectedFamily, setLocalSelectedFamily] = useState(null)
+  const prefersReducedMotion = useReducedMotion()
 
   useEffect(() => {
+    if (activeFamilyKey) return undefined
     const handleDocumentClick = () => {
-      setSelectedFamily(null)
+      setLocalSelectedFamily(null)
     }
     document.addEventListener('click', handleDocumentClick)
     return () => {
       document.removeEventListener('click', handleDocumentClick)
     }
-  }, [])
+  }, [activeFamilyKey])
+
+  const selectedFamily = activeFamilyKey
+    ? (activeFamilyKey.charAt(0).toUpperCase() + activeFamilyKey.slice(1).toLowerCase())
+    : localSelectedFamily
+
+  const handleFamilySelect = (familyKey) => {
+    if (onFamilySelect) {
+      onFamilySelect(familyKey.toLowerCase())
+    } else {
+      setLocalSelectedFamily(prev => prev === familyKey ? null : familyKey)
+    }
+  }
+
+  const handleFamilyHover = (familyKey) => {
+    setHoveredFamily(familyKey)
+    if (onFamilyHover) {
+      onFamilyHover(familyKey ? familyKey.toLowerCase() : null)
+    }
+  }
 
   const maxScore = Math.max(...familiesData.map((f) => Number(f.peso) || 0), 1)
-  const activeFamilyKey = selectedFamily || hoveredFamily
-  const activeFamilyData = familiesData.find((f) => (f.family || 'Verde') === activeFamilyKey)
+  const activeFamilyKeyResolved = selectedFamily || hoveredFamily
+  const activeFamilyData = familiesData.find((f) => (f.family || 'Verde') === activeFamilyKeyResolved)
   const activeScore = activeFamilyData
     ? Math.max(1 + (Number(activeFamilyData.peso) || 0) / maxScore * 6, MIN_VISIBLE_TAGLIA)
     : null
-  const activeColor = activeFamilyKey ? (FAMILY_PARAMS[activeFamilyKey] || FAMILY_PARAMS.Verde).color : null
+  const activeColor = activeFamilyKeyResolved ? (FAMILY_PARAMS[activeFamilyKeyResolved] || FAMILY_PARAMS.Verde).color : null
+
 
   return (
     <div
@@ -70,6 +96,7 @@ export default function EmotionalShape({ familiesData = [], height = 'clamp(440p
       }}
     >
       <svg 
+        className="sintesi-correnti__svg sintesi-correnti__svg--ellipses"
         onMouseEnter={() => setIsHoveredChart(true)}
         onMouseLeave={() => setIsHoveredChart(false)}
         viewBox="40 40 1120 1120"
@@ -165,9 +192,25 @@ export default function EmotionalShape({ familiesData = [], height = 'clamp(440p
               tOffsetX = -30
             }
             const labelX = clamp(tx + tOffsetX, LABEL_MIN_X, LABEL_MAX_X)
+            const transition = prefersReducedMotion ? { duration: 0 } : { duration: 1.0, ease: "easeOut", delay: idx * 0.1 }
+            const labelTransition = prefersReducedMotion ? { duration: 0 } : { duration: 0.6, delay: 0.6 + idx * 0.1 }
             
             return (
-              <g key={`text-${familyKey}`}>
+              <g 
+                key={`text-${familyKey}`}
+                tabIndex={0}
+                role="button"
+                aria-label={`Petalo ${NOMI_FAMIGLIE[familyKey] || familyKey}, valore normalizzato in scala ${activeScore ? activeScore.toFixed(1) : 0} su 7`}
+                onFocus={() => handleFamilyHover(familyKey)}
+                onBlur={() => handleFamilyHover(null)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    handleFamilySelect(familyKey)
+                  }
+                }}
+                style={{ outline: 'none' }}
+              >
                 <g transform={`rotate(${params.angle} ${cx} ${cy})`}>
                 {/* Ellisse di glow esterno (leggermente ridotto lo spessore per non impastare) */}
                 <motion.ellipse
@@ -180,16 +223,16 @@ export default function EmotionalShape({ familiesData = [], height = 'clamp(440p
                   style={{ transformOrigin: `${cx}px ${cy}px` }}
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: isHighlighted ? 0.7 : 0.4 }}
-                  transition={{ duration: 1.0, ease: "easeOut", delay: idx * 0.1 }}
+                  transition={transition}
                 />
                 
                 {/* Ellisse principale nitida */}
                 <motion.ellipse
-                  onMouseEnter={() => setHoveredFamily(familyKey)}
-                  onMouseLeave={() => setHoveredFamily(null)}
+                  onMouseEnter={() => handleFamilyHover(familyKey)}
+                  onMouseLeave={() => handleFamilyHover(null)}
                   onClick={(e) => {
                     e.stopPropagation()
-                    setSelectedFamily(prev => prev === familyKey ? null : familyKey)
+                    handleFamilySelect(familyKey)
                   }}
                   cx={cx} cy={cy} rx={rx} ry={ry}
                   fill={params.color}
@@ -199,7 +242,7 @@ export default function EmotionalShape({ familiesData = [], height = 'clamp(440p
                   style={{ transformOrigin: `${cx}px ${cy}px`, cursor: 'pointer' }}
                   initial={{ scale: 0.8, opacity: 0, fillOpacity: 0 }}
                   animate={{ scale: 1, opacity: 1, fillOpacity }}
-                  transition={{ duration: 1.0, ease: "easeOut", delay: idx * 0.1 }}
+                  transition={transition}
                 />
                 </g>
                 
@@ -207,14 +250,14 @@ export default function EmotionalShape({ familiesData = [], height = 'clamp(440p
                 <motion.g
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ duration: 0.6, delay: 0.6 + idx * 0.1 }}
+                  transition={labelTransition}
                 >
                   <text
-                    onMouseEnter={() => setHoveredFamily(familyKey)}
-                    onMouseLeave={() => setHoveredFamily(null)}
+                    onMouseEnter={() => handleFamilyHover(familyKey)}
+                    onMouseLeave={() => handleFamilyHover(null)}
                     onClick={(e) => {
                       e.stopPropagation()
-                      setSelectedFamily(prev => prev === familyKey ? null : familyKey)
+                      handleFamilySelect(familyKey)
                     }}
                     x={labelX}
                     y={ty}
@@ -240,17 +283,17 @@ export default function EmotionalShape({ familiesData = [], height = 'clamp(440p
         </g>
         
         {/* Lettura unica e fissa in alto: evita sovrapposizioni con le etichette dei petali */}
-        {activeFamilyKey ? (
+        {activeFamilyKeyResolved ? (
           <g style={{ pointerEvents: 'none' }}>
             <rect x="380" y="60" width="440" height="60" rx="16" fill="#070d1b" stroke={activeColor} strokeWidth="1.5" opacity="0.95" />
             <text x="600" y="90" fill="#f8fafc" fontSize="24" fontWeight="800" textAnchor="middle" dominantBaseline="central">
-              {NOMI_FAMIGLIE[activeFamilyKey] || activeFamilyKey}
-              <tspan fill={activeColor}> — {activeScore.toFixed(1)} / 7</tspan>
+              {NOMI_FAMIGLIE[activeFamilyKeyResolved] || activeFamilyKeyResolved}
+              <tspan fill={activeColor}> — {activeScore.toFixed(1)} / 7 (Scala 1-7)</tspan>
             </text>
           </g>
         ) : (
           <text x="600" y="90" fill="#94a3b8" fontSize="18" fontWeight="600" textAnchor="middle" opacity="0.8">
-            Passa il cursore o clicca sui petali per i punteggi esatti
+            Passa il cursore o premi Tab sui petali per i punteggi in scala normalizzata 1-7
           </text>
         )}
       </svg>
