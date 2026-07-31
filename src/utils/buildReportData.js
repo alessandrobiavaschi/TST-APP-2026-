@@ -15,11 +15,23 @@
  * {
  *   utente: { nome },
  *   profilo: { natura, disposizione, famiglia, correnteDominante, fraseChiave, focus, colore },
- *   correnti: [{ nome, colore, peso, label, familyKey, statiAnimo[], sottoCorrenti[] }],  // 5 famiglie
- *   sottocorrenti: [{ rawKey, nome, familyName, valore, percentuale, intervalNote }],
+ *   correnti: [{                       // 5 famiglie — familyKey sempre esplicito, mai dedurre dal colore
+ *     familyKey, familyName, nome, label, colore,
+ *     valoreAssoluto,                  // punteggio grezzo della famiglia (raw points)
+ *     peso,                            // percentuale share-of-whole: le 5 famiglie sommano a 100 (0 se tutte a zero)
+ *     scala1a7,                        // valore normalizzato 1-7 per il radar (stessa formula già in uso)
+ *     statiAnimo[], sottoCorrenti[],
+ *   }],
+ *   correntiByPeso: [...correnti] ordinato per peso decrescente,
+ *   sottocorrenti: [{                  // 11 correnti — familyKey sempre esplicito
+ *     rawKey, nome, familyName, familyKey, valore, maxTeorico,
+ *     misurabile,                      // false se maxTeorico è 0: nessuna risposta del test può valorizzare questa corrente
+ *                                       // (oggi solo GRIGIO_2_Intellettuale_Saggio) — non trattare come "0% di presenza reale"
+ *     percentuale, intervalNote,
+ *   }],
  *   profiloEmotivo: { sezioni: [{ id, label, titolo, testo, correnteColore, correnteSecondaria? }] },
  *   approfondimento: { sezioniData, sezioniTest },
- *   rapporti: [{ id, nome, definizione, composizione, cosaIndica, correntePrincipale{nome,colore}, datiRadar[{corrente,valore}] }],
+ *   rapporti: [{ id, nome, definizione, composizione, cosaIndica, correntePrincipale{nome,colore,familyKey}, datiRadar[{corrente,familyKey,valore}] }],
  *   punteggi: { simpatia, antipatia, indifferenza },
  *   portato: {
  *     simpatia, antipatia, indifferenza,
@@ -27,7 +39,9 @@
  *     dimensioni: [{ key, label, valore, percentuale, definizioneBreve }],
  *   },
  *   statiAnimo: [{ parola, corrente, colore, peso }],
- *   sintesi: { paragrafi: string[], testo: string, datiRadar: [{ corrente, valore }] },
+ *   sottodisposizionePrevalente,        // fonte unica: usa il valore salvato se coerente con la famiglia
+ *                                       // dominante ricalcolata, altrimenti lo deriva — vedi resolveSottodisposizionePrevalente
+ *   sintesi: { paragrafi: string[], testo: string, datiRadar: [{ corrente, familyKey, valore }] }, // valore = scala1a7, NON peso
  *   coloriCorrenti: { [nome]: hex },
  *   rawRecord,
  *   _fallbacks: string[],
@@ -35,7 +49,7 @@
  */
 
 import reportContent from '../content_report.json'
-import { computeColorTotals, computeSezioniTotalsFromRaw, computeRelativePercentages } from './reportRecordUtils.js'
+import { computeColorTotals, computeSezioniTotalsFromRaw, computeRelativePercentages, normalizeLevels } from './reportRecordUtils.js'
 import { THEORETICAL_MAX_COLOR_TOTALS } from '../testLogic.js'
 import {
   FAMILY_ORDER,
@@ -236,7 +250,12 @@ function buildSottocorrenti(rawRecord = {}) {
     const theme = FAMILY_THEME[meta.familyName]
     const valore = Number(rawRecord?.[meta.rawKey]) || 0
     const max = Number(THEORETICAL_MAX_SCORE_BY_CORRENTE_KEY?.[meta.rawKey]) || 0
-    const percentuale = max > 0 ? Math.round(Math.min(100, Math.max(0, (valore / max) * 100))) : 0
+    // Se il massimo teorico è 0 (nessuna risposta del test può mai valorizzare
+    // questa corrente — es. GRIGIO_2_Intellettuale_Saggio), la percentuale resta 0
+    // ma `misurabile: false` distingue esplicitamente "non misurato dal test" da
+    // "misurato, punteggio pari a zero": la UI non deve trattarli come equivalenti.
+    const misurabile = max > 0
+    const percentuale = misurabile ? Math.round(Math.min(100, Math.max(0, (valore / max) * 100))) : 0
 
     return {
       rawKey: meta.rawKey,
@@ -249,6 +268,8 @@ function buildSottocorrenti(rawRecord = {}) {
       shadeLabel: doc.shadeLabel || '',
       intervalNote: doc.intervalNote || '',
       valore,
+      maxTeorico: max,
+      misurabile,
       percentuale,
       criterioPercentuale: 'attivazione',
     }
@@ -632,9 +653,16 @@ export function buildReportData({
   const rawRecord = record?.raw || {}
   const totals = totalsByKey || computeColorTotals(rawRecord)
   const relativePcts = computeRelativePercentages(totals)
+  // Scala 1-7 (radar): stessa identica formula usata oggi per disegnare il radar
+  // "Grafici dei risultati" (floor a 1 quando il punteggio o il massimo del profilo
+  // sono 0). Esposta qui per avere un'unica fonte di verità invece di ricalcolarla
+  // nel componente di presentazione.
+  const scala1a7ByKey = normalizeLevels(totals)
   const domTheme = getFamilyTheme(dominantColorName)
 
-  /* ── Le 5 correnti (famiglie) con peso percentuale reale ──────────── */
+  /* ── Le 5 correnti (famiglie): valore assoluto, percentuale (presence) e
+   *    scala 1-7 (valore grafico normalizzato) sempre distinti e con familyKey
+   *    esplicito — non dedurre mai la famiglia dal colore. ──────────────── */
   const correnti = FAMILY_ORDER.map((familyName) => {
     const theme = FAMILY_THEME[familyName]
     const key = theme.key
@@ -656,8 +684,10 @@ export function buildReportData({
       nome: theme.corrente,
       label: theme.macro,
       colore: theme.dot,
+      valoreAssoluto: Number(totals[key]) || 0,
       peso,
       criterioPeso: 'attivazione',
+      scala1a7: scala1a7ByKey[key] ?? 1,
       descrizioneBreve,
       lessico,
       statiAnimo: lessico,
@@ -922,7 +952,7 @@ export function buildReportData({
       composizione: meta.composizione,
       composizioneSemplice: meta.composizioneSemplice,
       cosaIndica: meta.cosaIndica,
-      correntePrincipale: { nome: principale.nome, colore: principale.colore },
+      correntePrincipale: { nome: principale.nome, colore: principale.colore, familyKey: principale.key },
       datiRadar,
       criterioRadar: 'livello_relativo',
     }
@@ -1022,9 +1052,12 @@ export function buildReportData({
     portato,
     sottodisposizione: sottodisposizionePrevalente,
   })
+  // Scala 1-7 (stessa formula del radar realmente disegnato in "Grafici dei
+  // risultati", non la percentuale 0-100 di `peso`): vedi nota su scala1a7ByKey sopra.
   const datiRadar = correnti.map((c) => ({
     corrente: c.nome,
-    valore: Number(c.peso) || 0,
+    familyKey: c.familyKey,
+    valore: c.scala1a7,
   }))
   const sintesiLead = buildSintesiLead({
     profilo,
