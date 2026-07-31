@@ -56,7 +56,11 @@ test('mantiene tutte le famiglie e associa punti e presenza alla famiglia corret
   assert.equal(report.correnti.find((item) => item.familyKey === 'grigio').peso, 0)
   assert.deepEqual(
     report.sintesi.datiRadar,
-    report.correnti.map((item) => ({ corrente: item.nome, valore: item.peso })),
+    report.correnti.map((item) => ({
+      corrente: item.nome,
+      familyKey: item.familyKey,
+      valore: item.scala1a7,
+    })),
   )
 })
 
