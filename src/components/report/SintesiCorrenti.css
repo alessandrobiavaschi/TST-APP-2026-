@@ -1600,17 +1600,246 @@
 }
 
 /* Hover & Active States for Interactive Family Rows */
+.sintesi-correnti__row {
+  border-left: 3px solid transparent !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
 .sintesi-correnti__row:hover {
-  background-color: rgba(255, 255, 255, 0.04);
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  transform: translateX(4px);
 }
 .sintesi-correnti__row--active {
-  background-color: rgba(255, 255, 255, 0.08) !important;
-  border-left: 2px solid var(--sc-accent, #3b82f6);
+  background-color: rgba(255, 255, 255, 0.09) !important;
+  border-left: 3px solid var(--sc-accent, #3b82f6) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
+.sintesi-mobile-bar-row {
+  border-left: 3px solid transparent !important;
+  transition: all 0.2s ease !important;
+}
 .sintesi-mobile-bar-row:hover {
-  background-color: rgba(255, 255, 255, 0.04);
+  background-color: rgba(255, 255, 255, 0.04) !important;
 }
 .sintesi-mobile-bar-row--active {
-  background-color: rgba(255, 255, 255, 0.08) !important;
+  background-color: rgba(255, 255, 255, 0.09) !important;
+  border-left: 3px solid var(--sc-accent, #3b82f6) !important;
+}
+
+/* Dominant Nature Badge */
+.sintesi-correnti__dominant-badge {
+  display: inline-block;
+  font-family: var(--font-mono) !important;
+  font-size: 0.58rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.1em !important;
+  color: var(--sc-accent, #3b82f6);
+  background: color-mix(in srgb, var(--sc-accent, #3b82f6) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--sc-accent, #3b82f6) 30%, transparent);
+  padding: 1px 6px;
+  border-radius: 4px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+/* Subcategories Progress Bar (Desktop & Mobile) */
+.sintesi-correnti__subcurrent {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 6px !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border-radius: 8px !important;
+  padding: 10px 14px !important;
+}
+.sintesi-correnti__subcurrent-info {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+.sintesi-correnti__subcurrent-track {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 2px;
+}
+.sintesi-correnti__subcurrent-fill {
+  height: 100%;
+  border-radius: 2px;
+}
+
+.sintesi-mobile-subcurrent-card {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 6px !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border-radius: 8px !important;
+  padding: 10px 14px !important;
+  margin-bottom: 8px !important;
+}
+.sintesi-mobile-subcurrent-info {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+.sintesi-mobile-subcurrent-name {
+  flex-grow: 1;
+  font-size: 0.85rem !important;
+  color: rgba(255, 255, 255, 0.82) !important;
+}
+.sintesi-mobile-subcurrent-val {
+  font-family: var(--font-mono) !important;
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+  color: var(--text-primary) !important;
+}
+.sintesi-mobile-subcurrent-track {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 2px;
+}
+.sintesi-mobile-subcurrent-fill {
+  height: 100%;
+  border-radius: 2px;
+}
+
+/* Precision Diagnostics Panel Overhaul */
+.sintesi-correnti__detail-panel {
+  margin-top: 1.5rem !important;
+  padding: 1.5rem !important;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.6) 0%, rgba(30, 41, 59, 0.3) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 12px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  text-align: left !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25) !important;
+}
+
+.detail-panel__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 0.75rem;
+}
+.detail-panel__status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.detail-panel__title {
+  margin: 0;
+  font-family: var(--font-display) !important;
+  font-size: 0.9rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.05em;
+  color: #f8fafc !important;
+  flex-grow: 1;
+}
+.detail-panel__subtitle-mono {
+  font-family: var(--font-mono) !important;
+  font-size: 0.58rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.15em;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.detail-panel__metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 1.25rem;
+}
+.detail-panel__metric-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.detail-panel__metric-label {
+  font-family: var(--font-mono) !important;
+  font-size: 0.58rem !important;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.45);
+}
+.detail-panel__metric-value {
+  font-size: 1.35rem !important;
+  font-weight: 800 !important;
+  color: var(--panel-accent, #fff) !important;
+  line-height: 1;
+}
+.detail-panel__metric-val-max {
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.detail-panel__desc-block {
+  background: rgba(255, 255, 255, 0.015);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 1.25rem;
+  border-left: 2px solid rgba(255, 255, 255, 0.15);
+}
+.detail-panel__desc-lead {
+  margin: 0 0 8px 0 !important;
+  font-size: 0.88rem !important;
+  line-height: 1.55 !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+.detail-panel__desc-body {
+  margin: 0 !important;
+  font-size: 0.82rem !important;
+  line-height: 1.6 !important;
+  color: rgba(226, 232, 240, 0.72) !important;
+}
+.detail-panel__desc-note {
+  margin: 8px 0 0 0 !important;
+  font-size: 0.76rem !important;
+  font-style: italic !important;
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Formulas inside Calculation Disclosure */
+.formula-header {
+  display: block;
+  font-family: var(--font-mono) !important;
+  font-size: 0.58rem !important;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--panel-accent, #3b82f6);
+  margin-bottom: 6px;
+}
+.formula-code {
+  display: block;
+  font-family: var(--font-mono) !important;
+  font-size: 0.7rem !important;
+  background: rgba(0, 0, 0, 0.4) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  padding: 8px 12px !important;
+  border-radius: 6px !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+  margin-bottom: 8px !important;
+  white-space: pre-wrap !important;
+}
+.formula-explanation {
+  font-size: 0.76rem !important;
+  line-height: 1.5 !important;
+  color: rgba(255, 255, 255, 0.45) !important;
+  margin: 0 !important;
 }

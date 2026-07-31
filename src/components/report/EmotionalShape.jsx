@@ -34,28 +34,55 @@ function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value))
 }
 
-export default function EmotionalShape({ familiesData = [], height = 'clamp(440px, 42vw, 560px)' }) {
+export default function EmotionalShape({
+  familiesData = [],
+  height = 'clamp(440px, 42vw, 560px)',
+  activeFamilyKey = null,
+  onFamilySelect = null,
+  onFamilyHover = null,
+}) {
   const [hoveredFamily, setHoveredFamily] = useState(null)
   const [isHoveredChart, setIsHoveredChart] = useState(false)
-  const [selectedFamily, setSelectedFamily] = useState(null)
+  const [localSelectedFamily, setLocalSelectedFamily] = useState(null)
 
   useEffect(() => {
+    if (activeFamilyKey) return undefined
     const handleDocumentClick = () => {
-      setSelectedFamily(null)
+      setLocalSelectedFamily(null)
     }
     document.addEventListener('click', handleDocumentClick)
     return () => {
       document.removeEventListener('click', handleDocumentClick)
     }
-  }, [])
+  }, [activeFamilyKey])
+
+  const selectedFamily = activeFamilyKey
+    ? (activeFamilyKey.charAt(0).toUpperCase() + activeFamilyKey.slice(1).toLowerCase())
+    : localSelectedFamily
+
+  const handleFamilySelect = (familyKey) => {
+    if (onFamilySelect) {
+      onFamilySelect(familyKey.toLowerCase())
+    } else {
+      setLocalSelectedFamily(prev => prev === familyKey ? null : familyKey)
+    }
+  }
+
+  const handleFamilyHover = (familyKey) => {
+    setHoveredFamily(familyKey)
+    if (onFamilyHover) {
+      onFamilyHover(familyKey ? familyKey.toLowerCase() : null)
+    }
+  }
 
   const maxScore = Math.max(...familiesData.map((f) => Number(f.peso) || 0), 1)
-  const activeFamilyKey = selectedFamily || hoveredFamily
-  const activeFamilyData = familiesData.find((f) => (f.family || 'Verde') === activeFamilyKey)
+  const activeFamilyKeyResolved = selectedFamily || hoveredFamily
+  const activeFamilyData = familiesData.find((f) => (f.family || 'Verde') === activeFamilyKeyResolved)
   const activeScore = activeFamilyData
     ? Math.max(1 + (Number(activeFamilyData.peso) || 0) / maxScore * 6, MIN_VISIBLE_TAGLIA)
     : null
-  const activeColor = activeFamilyKey ? (FAMILY_PARAMS[activeFamilyKey] || FAMILY_PARAMS.Verde).color : null
+  const activeColor = activeFamilyKeyResolved ? (FAMILY_PARAMS[activeFamilyKeyResolved] || FAMILY_PARAMS.Verde).color : null
+
 
   return (
     <div
@@ -185,11 +212,11 @@ export default function EmotionalShape({ familiesData = [], height = 'clamp(440p
                 
                 {/* Ellisse principale nitida */}
                 <motion.ellipse
-                  onMouseEnter={() => setHoveredFamily(familyKey)}
-                  onMouseLeave={() => setHoveredFamily(null)}
+                  onMouseEnter={() => handleFamilyHover(familyKey)}
+                  onMouseLeave={() => handleFamilyHover(null)}
                   onClick={(e) => {
                     e.stopPropagation()
-                    setSelectedFamily(prev => prev === familyKey ? null : familyKey)
+                    handleFamilySelect(familyKey)
                   }}
                   cx={cx} cy={cy} rx={rx} ry={ry}
                   fill={params.color}
@@ -210,11 +237,11 @@ export default function EmotionalShape({ familiesData = [], height = 'clamp(440p
                   transition={{ duration: 0.6, delay: 0.6 + idx * 0.1 }}
                 >
                   <text
-                    onMouseEnter={() => setHoveredFamily(familyKey)}
-                    onMouseLeave={() => setHoveredFamily(null)}
+                    onMouseEnter={() => handleFamilyHover(familyKey)}
+                    onMouseLeave={() => handleFamilyHover(null)}
                     onClick={(e) => {
                       e.stopPropagation()
-                      setSelectedFamily(prev => prev === familyKey ? null : familyKey)
+                      handleFamilySelect(familyKey)
                     }}
                     x={labelX}
                     y={ty}
@@ -240,11 +267,11 @@ export default function EmotionalShape({ familiesData = [], height = 'clamp(440p
         </g>
         
         {/* Lettura unica e fissa in alto: evita sovrapposizioni con le etichette dei petali */}
-        {activeFamilyKey ? (
+        {activeFamilyKeyResolved ? (
           <g style={{ pointerEvents: 'none' }}>
             <rect x="380" y="60" width="440" height="60" rx="16" fill="#070d1b" stroke={activeColor} strokeWidth="1.5" opacity="0.95" />
             <text x="600" y="90" fill="#f8fafc" fontSize="24" fontWeight="800" textAnchor="middle" dominantBaseline="central">
-              {NOMI_FAMIGLIE[activeFamilyKey] || activeFamilyKey}
+              {NOMI_FAMIGLIE[activeFamilyKeyResolved] || activeFamilyKeyResolved}
               <tspan fill={activeColor}> — {activeScore.toFixed(1)} / 7</tspan>
             </text>
           </g>
