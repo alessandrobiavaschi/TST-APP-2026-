@@ -6,7 +6,8 @@ Codex is the primary and sole implementation agent for the current mission.
 Do not require Claude Code, Antigravity, Google credits, external agents, or parallel delivery to continue the work.
 Codex may modify logic, content, UI, tests, and integration files when they are relevant to the requested task.
 Never work directly on `main` (or `master`).
-Do not deploy, delete remote resources, modify credentials or expose secrets.
+Deploy only when the user explicitly requests it and the exact target has been verified first.
+Do not delete remote resources, modify credentials or expose secrets.
 Work on `ai/codex` (or another user-approved feature branch), run the relevant checks, inspect the diff, and commit completed changes before declaring the task finished.
 
 ---

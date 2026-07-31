@@ -43,7 +43,7 @@ Claude Code e Antigravity non sono prerequisiti e non devono bloccare l'avanzame
 - [ ] I test rilevanti passano.
 - [ ] Codex completa e verifica tutte le aree necessarie.
 - [ ] Le modifiche completate sono documentate e committate.
-- [ ] Nessun deploy o modifica a credenziali e dati remoti.
+- [ ] Nessun deploy senza richiesta esplicita dell'utente; nessuna modifica a credenziali o dati remoti.
 
 ## Regole operative
 
@@ -55,3 +55,4 @@ Claude Code e Antigravity non sono prerequisiti e non devono bloccare l'avanzame
 6. Non modificare lockfile o configurazioni condivise senza necessità documentata.
 7. Per ogni intervento, modificare solo i file pertinenti e preservare il comportamento non coinvolto.
 8. Terminare con verifiche pertinenti, diff controllato, riepilogo tecnico e commit.
+9. Eseguire il deploy solo su richiesta esplicita dell'utente e dopo avere verificato progetto, configurazione e build.

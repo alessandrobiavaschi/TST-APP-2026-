@@ -4,6 +4,8 @@
 
 Su richiesta dell'utente, il progetto non dipende più da Claude Code, Antigravity o crediti Google per proseguire. `AGENTS.md` e `AI_TASK.md` assegnano ora a Codex la responsabilità end-to-end di logica, contenuti, UI, test e integrazione, mantenendo branch isolato, protezione delle credenziali, verifiche e commit.
 
+Il deploy è consentito soltanto dopo una richiesta esplicita dell'utente e la verifica preventiva del target e della build. Restano vietate modifiche alle credenziali e cancellazioni di risorse remote.
+
 ## Sintesi
 
 Codex ha aggiunto test contrattuali per i dati quantitativi e lessicali consumati dalla Galassia, senza modificare componenti React, stili, contenuti o logica scientifica.
@@ -28,7 +30,7 @@ La verifica indipendente di `repo_scout` e `change_reviewer` ha inoltre identifi
 - Branch: `ai/codex`.
 - Nessuna modifica alla UI o al calcolo TST.
 - Nessun lockfile o file di configurazione modificato.
-- Nessun deploy.
+- Nessun deploy eseguito durante il precedente intervento sui test.
 - Runner esistente `node:test` e caricamento dei moduli reali tramite Vite SSR; nessuna duplicazione delle formule scientifiche nei test.
 
 ## Verifiche eseguite
