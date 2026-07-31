@@ -1,6 +1,70 @@
 # HANDOFF — Claude Code
 
-## Round 2 — fix su segnalazione Codex (corrente)
+## Round 3 — Galassia Lessicale 2.0 (corrente)
+
+### Task
+Nuova missione distribuita in `AI_TASK.md` (commit `a857bed`, dopo l'integrazione completa del ciclo precedente): trasformare la Galassia lessicale in un sistema analitico interattivo — campo di forze lessicale, costellazioni semantiche, lessico stabile e situazionale, contrasti lessicali, firma personale, tracciabilità musica-parola — senza modificare il calcolo scientifico del test. Ruolo Claude: architettura e flusso dati, business logic, calcoli e trasformazioni, contenuti, contratti tra moduli; niente redesign visivo.
+
+Ho chiesto conferma sulla presenza di una specifica dettagliata: l'utente ha confermato che `AI_TASK.md` è il riferimento completo e ha vietato di "proporre liberamente" il significato delle sei funzioni, autorizzando però a segnalare esplicitamente le parti non sostenute dai dati reali invece di inventarle. Ho quindi analizzato tutte le strutture lessicali già esistenti nel codice (non solo il testo di `AI_TASK.md`) e ancorato ogni funzione a dati reali già presenti, senza inventare relazioni.
+
+### Dati reali usati per ciascuna delle 6 funzioni
+
+1. **Lessico stabile** → `FAMIGLIE_LESSICO` (`src/content/statiAnimoLessico.js`): vocabolario teorico per famiglia (`vocabolarioForme`, `vocabolarioAggettivi`), identico per ogni utente. Nessuna modifica: solo consolidato in un unico output con provenienza esplicita (`fonte: 'teoria'`).
+2. **Lessico situazionale** → `extractParoleDalTest` (già esistente in `buildReportData.js`): le parole realmente emerse dalle risposte DIZIONARIO_2 (file 29–42) di questo utente. Esteso con `fonte: 'test'`.
+3. **Tracciabilità musica-parola** → stessa funzione: `fileKeys` (nuovo campo) conserva l'elenco dei `File_NN` da cui ciascuna parola è realmente emersa — dato già calcolato internamente al loop ma prima scartato prima di restituire il risultato.
+4. **Campo di forze lessicale** → nuovo, in `src/utils/galassiaLessicoViewModel.js`: somma vettoriale delle direzioni statiche già definite per famiglia in `config/dispositions.ts` (`directionVector`, `polarity` — costanti di design preesistenti, non toccate), scalate per il peso reale (`reportData.correnti[].peso`, 0-100 → 0-1) di questo profilo. **Esplicitamente documentato come metafora visiva per la Galassia, non un nuovo indicatore scientifico.**
+5. **Contrasti lessicali** → riusa `CONTRASTING_PAIRS` e `detectContrastingPresence`, già in produzione per i "Quattro Rapporti" (ora esportati da `buildReportData.js`, additivo), applicati a `correnti[].scala1a7` — un'unica policy di soglia di "contrasto" in tutto il report, non una seconda inventata. Le parole illustrative usano il lessico situazionale se disponibile, altrimenti il lessico stabile (mai una parola inventata) — entrambe le fonti sono etichettate esplicitamente.
+6. **Firma personale** → nuovo: codice deterministico (non crittografico) composto da famiglia dominante + sottodisposizione + le 3 famiglie meglio classificate, tutti campi già calcolati in `reportData`. Stesso input produce sempre lo stesso codice (verificato con test).
+7. **Costellazioni semantiche** → riusa `SEMANTIC_CONCEPTS`/`getPrimarySemanticConceptIdForColor` (`config/semanticConcepts.ts`, concetti già esistenti, nessuno nuovo inventato), incrociati con le sottocorrenti realmente valorizzate dell'utente (`relatedRawKeys ∩ sottocorrenti con valore > 0`).
+
+### File nuovi/modificati
+- **Nuovo:** `src/utils/galassiaLessicoViewModel.js` — modulo puro, singolo punto d'ingresso `buildLessicoAnaliticoViewModel(...)`, nessun effetto collaterale, nessuna chiamata a `testLogic.js` che alteri punteggi. Contratto di output documentato per intero nell'header del file (regole, soglie, ordinamenti, pareggi, fallback, come richiesto).
+- **Modificato:** `src/utils/buildReportData.js` — `extractParoleDalTest` arricchita con `fileKeys`/`fonte` (additivo); `CONTRASTING_PAIRS`/`detectContrastingPresence` resi `export` (nessun cambio di comportamento, solo visibilità).
+- **Nuovo:** `test/galassiaLessicoViewModel.test.js` — 9 test mirati sulle regole documentate (vedi sotto).
+
+### Regole, soglie, ordinamenti, pareggi e fallback documentati
+- **lessicoSituazionale**: ordine per `count` decrescente; a parità, vince la parola incontrata prima nel test (file più basso tra 29-42) — stable sort su ordine di inserimento, testato esplicitamente.
+- **campoDiForze**: magnitudine = `peso` (share-of-whole, 0-100 → 0-1); direzione = costante statica per famiglia; risultante = somma vettoriale; a tutti-zero la risultante è `{0,0,0}` deterministico (non `NaN`, non un vettore casuale) — testato.
+- **contrastiLessicali**: soglia identica a `detectContrastingPresence` (gap ≤ 1 su scala 1-7, minore comunque ≥ 4); fallback parole: situazionali → stabili → nessuna (mai inventata) — testato in entrambi i rami.
+- **firmaPersonale**: composizione deterministica, segmenti vuoti omessi (`.filter(Boolean)`) — testato con chiamata doppia sullo stesso input.
+- **costellazioniSemantiche**: una famiglia senza concetto primario assegnato resta fuori dall'elenco invece di essere associata a un concetto non pertinente — testato (Rosso/Grigio assenti).
+
+### Gap segnalati esplicitamente (non inventati, presenti anche in `_gap` a runtime)
+1. Il grafo concetto→concetto (`SEMANTIC_CONCEPTS[*].relatedConcepts`) è vuoto per tutti i concetti in `semanticConcepts.ts`: non esiste ancora una vera rete di "costellazioni" tra concetti, solo la relazione concetto→correnti-utente.
+2. Rosso e Grigio non hanno un concetto semantico primario assegnato (`PRIMARY_SEMANTIC_CONCEPT_BY_COLOR: null`).
+3. Non esiste alcuna struttura di tipo thesaurus/antonimi tra parole: il "contrasto lessicale" è dati reali a livello di coppia di famiglie, non una vera opposizione parola-per-parola.
+4. Le direzioni/polarità del campo di forze sono costanti di design già presenti in `dispositions.ts`, non derivate empiricamente: il campo di forze è una metafora visiva, va presentato come tale in UI, non come una nuova metrica scientifica del TST.
+5. Il lessico situazionale copre solo le risposte DIZIONARIO_2 (file 29-42, aggettivi complessi), non DIZIONARIO_1 (file 5-28, 43-45, 47-50, 52-57, 59-72, reazioni brevi tipo "Mi dà gioia"): stessa scelta di perimetro già in uso da `paroleEmerse`/`statiAnimo` esistenti, non una nuova limitazione introdotta qui — segnalata per trasparenza, non corretta perché ampliarla è una decisione di prodotto (che tipo di "parola" mostrare) non presa unilateralmente.
+
+### Comandi eseguiti e risultati
+- `npm run lint` → pulito.
+- `npm test` → 21/21 (12 preesistenti invariati + 9 nuovi).
+- `npm run build` → completata con successo, 1221 moduli. Il nuovo modulo non è ancora importato da nessun componente (nessun consumatore ancora), quindi non compare come chunk separato — atteso, verrà collegato da Antigravity.
+
+### Istruzioni per l'integrazione (Antigravity)
+`buildLessicoAnaliticoViewModel` non è ancora chiamato da nessun componente — è un contratto pronto, analogo a come `buildCorrentDataFromRecord` (`galassiaData.js`) viene già invocato separatamente da `buildReportData`. Esempio di wiring in `GalassiaView.jsx`/`ReportShell.jsx`:
+
+```js
+import { buildLessicoAnaliticoViewModel } from '../../utils/galassiaLessicoViewModel.js'
+
+const lessicoAnalitico = buildLessicoAnaliticoViewModel({
+  rawRecord: record.raw,
+  correnti: reportData.correnti,
+  correntiByPeso: reportData.correntiByPeso,
+  sottocorrenti: reportData.sottocorrenti,
+  dominantColorName: reportData.profilo.famiglia,
+  sottodisposizionePrevalente: reportData.sottodisposizionePrevalente,
+})
+```
+
+Nessuna modifica a componenti/CSS/layout è stata fatta da questo lato: il redesign visivo (come mostrare campo di forze, costellazioni, contrasti, firma) resta interamente di competenza Antigravity. Consultare sempre `vm._gap` prima di presentare come "certe" le parti segnalate come non sostenute dai dati.
+
+### Comportamento atteso nel browser
+Nessuno finché Antigravity non collega il nuovo modulo: nessun file di componente, stile o pagina è stato toccato in questo round.
+
+---
+
+## Round 2 — fix su segnalazione Codex
 
 ### Task
 Codex, dopo aver eseguito i test, ha segnalato 8 problemi di contratto dati e coerenza tra viste sulla sezione "Grafici dei risultati". Istruzione: verificare e risolvere nella ownership Claude (`src/testLogic.js`, `src/utils/buildReportData.js`, `src/utils/reportRecordUtils.js`, `src/content_report.json`, `src/content/`), senza toccare layout/CSS, poi documentare il contratto dati finale ed eseguire test/build.
