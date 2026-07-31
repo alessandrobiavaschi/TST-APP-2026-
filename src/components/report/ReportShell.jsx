@@ -156,6 +156,7 @@ export default function ReportShell({
     colorTotals = {},
     approfondimento = { sezioniData: [], sezioniTest: null },
     rawRecord = {},
+    sottodisposizionePrevalente = '',
   } = hasReportData ? reportData : {}
 
   const correnteColore = profilo?.colore || '#4ade80'
@@ -470,7 +471,7 @@ export default function ReportShell({
                             totalScores={colorTotals}
                             sottocorrenti={sottocorrenti}
                             onOpenGlossary={openGlossary}
-                            sottodisposizione={rawRecord?.Sottodisposizione_Prevalente || ''}
+                            sottodisposizione={sottodisposizionePrevalente}
                             portato={portato}
                             stepPrefix="1"
                           />

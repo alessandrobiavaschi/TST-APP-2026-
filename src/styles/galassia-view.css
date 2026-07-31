@@ -5662,3 +5662,19 @@
     padding-top: 0;
   }
 }
+
+/* Visible high-contrast focus rings for keyboard navigation in GalassiaView */
+.galassia-view__map-control:focus-visible,
+.galassia-view__mode-tab:focus-visible,
+.galassia-view__guide-toggle:focus-visible,
+.galassia-view__guide-star:focus-visible,
+.galassia-view__constellation-hit:focus-visible,
+.galassia-view__constellation-core:focus-visible,
+.galassia-parole-family:focus-visible,
+.galassia-parole-sub:focus-visible,
+.galassia-parole-word:focus-visible,
+.galassia-view__planet-wrap button:focus-visible {
+  outline: 2px dashed #3b82f6 !important;
+  outline-offset: 4px !important;
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.6) !important;
+}

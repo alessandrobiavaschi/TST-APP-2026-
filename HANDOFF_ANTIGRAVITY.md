@@ -34,12 +34,22 @@ This document summarizes the changes, features, and implementation details for t
 7. **Logical Family Assignments**:
    - Refactored `assignFamilies` to map families directly via known logical identifiers (`familyName`, `familyKey`, or known names), completely avoiding color deduction when logical identifiers are present.
 
+8. **Claude Data Contract Consumption & Empty States**:
+   - Integrated `ReportShell.jsx` to pass `sottodisposizionePrevalente` from `reportData` instead of raw record.
+   - Updated `buildTotalScoreRadarData` in `SintesiCorrenti.jsx` to directly consume and map `valoreAssoluto` (raw points) and `scala1a7` (normalized scale score) from the `correnti` array prop produced by Claude, with legacy calculation fallbacks.
+   - Handled non-measurable subcategories (`misurabile === false` like `GRIGIO_2_Intellettuale_Saggio`), displaying `"N.D."` with zero-width progress fills.
+   - Checked `isEmptyState` in `GalassiaView.jsx` (when all weights/percentages are 0 or empty) to display a clean, beautifully-styled themed fallback panel explaining the status, instead of showing the static fake demo data of `EXAMPLE_CORRENT_DATA`.
+
+9. **Visible Focus Rings Overrides**:
+   - Added custom CSS classes (`parole-stati-animo__family-btn`, `parole-stati-animo__word-pill`, `parole-stati-animo__close-btn`) to `ParoleStatiAnimo.jsx` button controls.
+   - Appended focus-visible outline overrides (`outline: 2px dashed #3b82f6` with offset) to both `SintesiCorrenti.css` and `galassia-view.css` to make all map controls, tabs, guide star links, and sub-node buttons visually recognizable on focus by keyboard.
+
 ---
 
 ### Verification and Validation Results
 
 - **Linter**: Executed `npm run lint` in the `TST 2026 cursor-antigravity` directory. Passed with zero errors or warnings.
-- **Production Build**: Executed `npm run build` in the worktree. Compiled successfully in **4.35s** with all assets bundled correctly (`dist/assets/SintesiCorrenti-O5BGYxX_.css`, `dist/assets/SintesiCorrenti-CMf592Vt.js`, etc.).
+- **Production Build**: Executed `npm run build` in the worktree. Compiled successfully in **4.73s** with all assets bundled correctly (`dist/assets/SintesiCorrenti-Ez84joug.js`, `dist/assets/GalassiaView-guN1_P0x.js`, etc.).
 - **Code Cleanliness**: No smart quotes used. Kept comment documentation intact.
 
 ---
@@ -48,4 +58,8 @@ This document summarizes the changes, features, and implementation details for t
 - [SintesiCorrenti.jsx](file:///Users/alessandrobiavaschi/Downloads/TST%202026%20cursor-antigravity/src/components/report/SintesiCorrenti.jsx)
 - [SintesiCorrenti.css](file:///Users/alessandrobiavaschi/Downloads/TST%202026%20cursor-antigravity/src/components/report/SintesiCorrenti.css)
 - [EmotionalShape.jsx](file:///Users/alessandrobiavaschi/Downloads/TST%202026%20cursor-antigravity/src/components/report/EmotionalShape.jsx)
+- [ReportShell.jsx](file:///Users/alessandrobiavaschi/Downloads/TST%202026%20cursor-antigravity/src/components/report/ReportShell.jsx)
+- [ParoleStatiAnimo.jsx](file:///Users/alessandrobiavaschi/Downloads/TST%202026%20cursor-antigravity/src/components/report/ParoleStatiAnimo.jsx)
+- [GalassiaView.jsx](file:///Users/alessandrobiavaschi/Downloads/TST%202026%20cursor-antigravity/src/components/report/GalassiaView.jsx)
+- [galassia-view.css](file:///Users/alessandrobiavaschi/Downloads/TST%202026%20cursor-antigravity/src/styles/galassia-view.css)
 - [HANDOFF_ANTIGRAVITY.md](file:///Users/alessandrobiavaschi/Downloads/TST%202026%20cursor-antigravity/HANDOFF_ANTIGRAVITY.md)

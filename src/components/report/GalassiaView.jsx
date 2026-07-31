@@ -3537,6 +3537,45 @@ export default function GalassiaView({
   const constellationNodes = constellationLayout.nodes
   const constellationSize = constellationLayout.constellationSize
 
+  const isEmptyState = useMemo(() => {
+    return !correntData || correntData.length === 0 || correntData.every(d => Number(d.peso) === 0)
+  }, [correntData])
+
+  if (isEmptyState) {
+    return (
+      <div
+        className="galassia-view"
+        style={{
+          backgroundColor: '#020817',
+          color: '#94a3b8',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: 500,
+          padding: '2rem',
+          textAlign: 'center',
+          fontFamily: 'var(--font-body)',
+        }}
+      >
+        <div style={{
+          background: 'rgba(255,255,255,0.02)',
+          border: '1px dashed rgba(255,255,255,0.12)',
+          padding: '40px',
+          borderRadius: '16px',
+          maxWidth: '480px'
+        }}>
+          <h3 style={{ fontSize: '1.25rem', color: '#f8fafc', fontWeight: 600, marginBottom: '12px' }}>
+            Galassia Lessicale non disponibile
+          </h3>
+          <p style={{ fontSize: '0.9rem', lineHeight: 1.6, opacity: 0.8 }}>
+            Non sono presenti dati di test validi per questo report. Completa il test d'ascolto per sbloccare la mappa delle costellazioni emotive e dei tuoi contrasti lessicali.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div
       ref={containerRef}

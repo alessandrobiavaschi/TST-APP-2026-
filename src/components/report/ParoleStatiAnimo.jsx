@@ -183,6 +183,7 @@ export default function ParoleStatiAnimo({
               <button
                 key={k}
                 type="button"
+                className="parole-stati-animo__family-btn"
                 aria-pressed={isSelected}
                 onClick={() => handleFamilyChange(k)}
                 style={{
@@ -254,6 +255,7 @@ export default function ParoleStatiAnimo({
             >
               <button
                 type="button"
+                className="parole-stati-animo__close-btn"
                 aria-label="Chiudi definizione"
                 onClick={() => setSelectedWord(null)}
                 style={{
@@ -393,6 +395,7 @@ function WordPill({ word, isSelected, prefersReducedMotion, onClick }) {
   return (
     <motion.button
       type="button"
+      className="parole-stati-animo__word-pill"
       layout
       initial={prefersReducedMotion ? {} : { opacity: 0, y: 4 }}
       animate={{
