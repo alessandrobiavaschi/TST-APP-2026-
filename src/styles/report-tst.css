@@ -391,7 +391,7 @@
   }
 
   .report-tst-layout {
-    padding-bottom: 80px !important; /* Spazio per la bottom bar */
+    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)) !important;
   }
 
   /* ── Bottom Navigation Mobile ── */
@@ -427,6 +427,12 @@
     gap: 0 !important;
     max-width: 100% !important;
     position: relative !important;
+  }
+
+  .navbar-tst__mobile-tabs {
+    display: grid;
+    grid-column: 1 / 4;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .navbar-tst__tab-btn {
@@ -493,6 +499,10 @@
     height: 1px !important;
     background: rgba(255, 255, 255, 0.1) !important;
     margin: 4px 0 !important;
+  }
+
+  .report-tst-galassia-layer {
+    bottom: calc(56px + env(safe-area-inset-bottom, 0px));
   }
 
   .navbar-tst__bar {
@@ -1004,7 +1014,7 @@
   display: grid;
   width: 100%;
   margin: 0 auto;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   align-items: start;
   box-sizing: border-box;
   max-width: 1680px;
@@ -1031,6 +1041,9 @@
 /* ── Mobile / tablet: Horizontal scrollable pills ─────────────── */
 .report-section-controller--mobile {
   grid-column: 1 / -1;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
   position: sticky;
   top: calc(var(--app-header-offset, 0px) + var(--navbar-tst-height));
   z-index: 49;
@@ -1584,7 +1597,12 @@
 .report-section-open__inner {
   padding: 0;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 24px;
+}
+
+.report-section-open__inner > * {
+  min-width: 0;
 }
 
 /* ── Indice degli approfondimenti finali ───────────────────────────── */
@@ -2312,6 +2330,12 @@
 
 .report-sezione-tip {
   flex-shrink: 0;
+}
+
+.report-sezione-trigger-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
 }
 
 .report-tst .report-tst-approfondimento .report-sezione-item {
@@ -5424,5 +5448,351 @@
 @media (min-width: 1200px) {
   .report-tst .quattro-rapporti-main {
     grid-template-columns: 55fr 1px 45fr !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .sintesi-correnti__total-radar-chart .recharts-label-list,
+  .quattro-rapporti-radar .recharts-label-list {
+    display: none;
+  }
+}
+
+/* Mobile QA consolidation: keep the report inside the viewport without
+   changing the desktop composition or the report's data/content. */
+@media (max-width: 768px) {
+  .report-tst > .report-tst-report--covered {
+    z-index: auto !important;
+  }
+
+  .report-tst-galassia-layer {
+    bottom: calc(56px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .app-shell--report .report-scientific-scope {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    margin-top: var(--app-header-offset, 52px);
+    padding: 16px 48px 16px 16px;
+    box-sizing: border-box;
+  }
+
+  .app-shell--report,
+  .app-shell--report main,
+  .report-tst,
+  .report-tst-report,
+  .report-tst-layout,
+  .report-tst-layout__main,
+  .report-tst-body__groups,
+  .report-section-open,
+  .report-section-open__inner,
+  .report-section-group,
+  .report-section-group__panel,
+  .report-section-group__inner,
+  .sintesi-correnti,
+  .sintesi-correnti--mobile,
+  .quattro-rapporti-section,
+  .quattro-rapporti-section__inner,
+  .report-tst-profilo,
+  .report-tst-profilo .pe-container,
+  .report-tst-portato,
+  .report-tst-portato__inner {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .app-shell--report .report-tst,
+  .report-tst-report,
+  .report-tst-layout__main,
+  .report-tst-body__groups,
+  .report-section-open,
+  .report-section-open__inner {
+    overflow-x: clip;
+  }
+
+  .report-tst-layout {
+    grid-template-columns: minmax(0, 1fr) !important;
+    padding: 24px 16px 80px !important;
+  }
+
+  .report-section-controller--mobile {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    padding: 8px 0 !important;
+    overflow: hidden !important;
+  }
+
+  .report-section-controller__mobile-scroll-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    max-height: none !important;
+    padding-inline: 8px;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+  }
+
+  .report-section-controller__mobile-steps {
+    width: max-content !important;
+    max-width: none !important;
+    min-width: 100% !important;
+    flex-direction: row !important;
+  }
+
+  .report-section-controller__section-li--mobile,
+  .report-section-controller__section--mobile {
+    width: auto !important;
+    max-width: none !important;
+    min-width: 0 !important;
+  }
+
+  .report-section-controller__section--mobile {
+    min-height: 44px !important;
+    padding: 8px 14px !important;
+    font-size: 12px !important;
+  }
+
+  .report-tst-hero__content {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    min-height: min(64svh, 560px) !important;
+    height: auto !important;
+    padding: 24px 16px 32px !important;
+  }
+
+  .report-tst-hero__content h1 {
+    max-width: 100% !important;
+    font-size: clamp(2.5rem, 12vw, 4rem) !important;
+    line-height: 1.05 !important;
+    overflow-wrap: anywhere;
+  }
+
+  .report-tst p,
+  .report-tst li,
+  .report-tst dd,
+  .report-tst blockquote,
+  .app-shell--report .report-scientific-scope__text {
+    font-size: 16px !important;
+    line-height: 1.6 !important;
+  }
+
+  .report-tst .section-number--sm,
+  .report-tst [class*='eyebrow'],
+  .report-tst [class*='kicker'],
+  .report-tst [class*='rank'],
+  .report-tst [class*='badge'],
+  .report-tst [class*='metric-label'],
+  .report-tst [class*='subtitle-mono'],
+  .report-tst [class*='percent-label'],
+  .report-tst small,
+  .report-tst .sintesi-correnti__chip,
+  .report-tst .parole-stati-animo-stato-chip {
+    font-size: 12px !important;
+    line-height: 1.5 !important;
+  }
+
+  .report-tst .profilo-chapter-nav__num,
+  .report-tst .report-info-tip__trigger,
+  .report-tst .emotional-integrations__pane-tag,
+  .report-tst .emotional-integrations__relation-code,
+  .report-tst .emotional-integrations__map-tag,
+  .report-tst .emotional-integrations__tab-num,
+  .report-tst .parole-stati-animo__family-btn,
+  .report-tst .report-operator-legend-label,
+  .report-tst .recharts-polar-radius-axis-tick text,
+  .report-tst .emotional-integrations__matrix text,
+  .report-tst .emotional-integrations svg text {
+    font-size: 12px !important;
+    line-height: 1.5 !important;
+  }
+
+  .report-tst .report-info-tip__trigger--icon {
+    width: 40px !important;
+    height: 40px !important;
+    margin-left: 0 !important;
+  }
+
+  .report-tst .report-info-tip__bubble {
+    width: min(280px, calc(100vw - 32px));
+    max-width: calc(100vw - 32px);
+  }
+
+  .report-tst .report-sezione-tip .report-info-tip__bubble {
+    right: 0;
+    left: auto;
+  }
+
+  .sintesi-correnti__answer-card,
+  .sintesi-correnti__answer-subcurrents-list,
+  .sintesi-correnti__criteria-grid,
+  .sintesi-correnti__chips,
+  .sintesi-correnti__radar,
+  .sintesi-correnti__side-metrics,
+  .sintesi-correnti__narrative,
+  .sintesi-correnti__visual,
+  .sintesi-correnti__key-facts,
+  .detail-panel__metrics-grid,
+  .quattro-rapporti-tabs,
+  .quattro-rapporti-main,
+  .report-tst-portato__grid,
+  .report-final-views,
+  .fm-combination__copy,
+  .fm-summary__grid,
+  .report-tst .emotional-integrations__method,
+  .report-tst .emotional-integrations__solar-grid,
+  .report-tst .emotional-integrations__relations-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .report-tst-portato__card {
+    grid-row: auto !important;
+    grid-template-rows: none !important;
+    min-width: 0 !important;
+  }
+
+  .report-tst .hero-screen__restituzione-label {
+    font-size: 16px !important;
+    line-height: 1.5 !important;
+  }
+
+  .report-tst .profilo-chapter-nav__num,
+  .report-tst .emotional-integrations__map-tag,
+  .report-tst .emotional-integrations__pane-tag,
+  .report-tst .emotional-integrations__relation-code,
+  .report-tst .emotional-integrations__tab-num,
+  .report-tst .report-operator-legend-label {
+    font-size: 12px !important;
+  }
+
+  .report-tst .recharts-polar-radius-axis-tick text,
+  .report-tst .recharts-polar-radius-axis-tick tspan,
+  .report-tst .recharts-label-list text,
+  .report-tst .recharts-label-list tspan,
+  .report-tst .emotional-integrations__map-svg text,
+  .report-tst .emotional-integrations__map-node text {
+    font-size: 12px !important;
+  }
+
+  .sintesi-mobile-radar-container,
+  .sintesi-mobile-radar-container .sintesi-correnti__total-radar,
+  .sintesi-mobile-radar-container .sintesi-correnti__total-radar-chart,
+  .sintesi-mobile-radar-container .recharts-responsive-container,
+  .quattro-rapporti-radar,
+  .quattro-rapporti-radar-wrap,
+  .quattro-rapporti-radar .recharts-responsive-container,
+  .emotional-shape-container,
+  .emotional-shape-container svg {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .sintesi-mobile-radar-container .sintesi-correnti__total-radar-chart,
+  .sintesi-mobile-radar-container .recharts-responsive-container,
+  .quattro-rapporti-radar .recharts-responsive-container,
+  .emotional-shape-container,
+  .report-operator-chart-canvas,
+  .report-operator-chart-canvas .recharts-responsive-container {
+    height: 340px !important;
+    min-height: 340px !important;
+    max-height: 360px !important;
+  }
+
+  .sintesi-mobile-bar-row-info {
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+
+  .sintesi-mobile-bar-row-left,
+  .sintesi-mobile-bar-name {
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .sintesi-mobile-bar-name {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    overflow-wrap: anywhere;
+  }
+
+  .sintesi-mobile-bar-subname,
+  .sintesi-correnti__dominant-badge {
+    display: block !important;
+    width: fit-content !important;
+    max-width: 100% !important;
+    margin: 4px 0 0 !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+  }
+
+  .report-tst .report-tst-approfondimento,
+  .report-tst .report-tst-approfondimento .report-operator-section,
+  .report-operator-chart-block,
+  .report-operator-chart-canvas {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .report-tst .report-tst-approfondimento,
+  .report-tst .report-tst-approfondimento .report-operator-section {
+    padding-inline: 16px !important;
+  }
+
+  .report-tst-profilo {
+    padding: 32px 0 !important;
+  }
+
+  .report-tst-profilo .pe-container {
+    padding-inline: 16px !important;
+  }
+
+  .profilo-chapter-nav {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin-inline: 0 !important;
+  }
+
+  .profilo-chapter-nav__btn {
+    width: auto !important;
+    min-width: min(15rem, calc(100vw - 48px)) !important;
+    max-width: calc(100vw - 48px) !important;
+    min-height: 48px !important;
+    white-space: normal !important;
+  }
+
+  .profilo-chapter-nav__label {
+    min-width: 0 !important;
+    overflow-wrap: anywhere;
+  }
+
+  .profilo-chapter-block,
+  .profilo-chapter-block__panel {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+  }
+
+  .profilo-chapter-block {
+    margin-bottom: 16px !important;
+  }
+
+  .quattro-rapporti-divider {
+    display: none !important;
+  }
+
+  .quattro-rapporti-radar,
+  .quattro-rapporti-divider {
+    min-height: 0 !important;
   }
 }

@@ -14,6 +14,32 @@ import { buildReportData } from '../utils/buildReportData.js'
 import { getMergedReportBlock } from '../reportContentMerged.js'
 import '../styles/report-tst.css'
 
+const QA_MOBILE_REPORT_RECORD = {
+  id: 'qa-mobile-report',
+  raw: {
+    Nome: 'QA',
+    Cognome: 'Mobile',
+    Data_Nascita: '1990-01-01',
+    BLU_1_Depressiva: 8,
+    BLU_2_Lunare: 5,
+    BLU_3_Nostalgia: 9,
+    BLU_4_Solare: 7,
+    ROSSO_1_Assertivita: 18,
+    ROSSO_2_Dubbio_Collera: 8,
+    VERDE_1_Calma: 14,
+    GIALLO_1_Gioia_Entusiasmo: 32,
+    GIALLO_2_Volitivo_Passionale: 8,
+    GRIGIO_1_Distaccato_Nichilista: 6,
+    GRIGIO_2_Intellettuale_Saggio: 0,
+    PE_Simpatia: 52,
+    PE_Antipatia: 18,
+    PE_Indifferenza: 9,
+    Disposizione_Prevalente: 'Entusiasmo',
+    Sottodisposizione_Prevalente: 'Gioia / Entusiasmo',
+    Portato_Esperienziale_Prevalente: 'Simpatia',
+  },
+}
+
 function ReportPage() {
   const location = useLocation()
   const navigate = useNavigate()
@@ -32,7 +58,10 @@ function ReportPage() {
       return null
     }
   }, [routedRecord])
-  const record = routedRecord || persistedRecord
+  const qaRecord = import.meta.env.DEV && new URLSearchParams(window.location.search).get('qa-mobile') === '1'
+    ? QA_MOBILE_REPORT_RECORD
+    : null
+  const record = routedRecord || persistedRecord || qaRecord
   const fromSubmit = Boolean(location.state?.fromSubmit)
   const skipReportTransition = Boolean(location.state?.skipReportTransition)
   const playSubmitTransition = fromSubmit && !skipReportTransition

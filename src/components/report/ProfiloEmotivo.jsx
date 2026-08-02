@@ -17,12 +17,6 @@ const CHAPTER_NAV_LABELS = {
   risorse: 'Risorse',
   ombre: 'Ombre',
 }
-const MOBILE_CHAPTER_NAV_LABELS = {
-  natura: 'Natura',
-  racconto: 'Racconto',
-  risorse: 'Risorse',
-  ombre: 'Ombre',
-}
 const HEADER_COLOR_FALLBACK = '#4ade80'
 
 function PanelBody({ display }) {
@@ -106,15 +100,6 @@ export default function ProfiloEmotivo({
 }) {
   const reduceMotion = useReducedMotion()
   const [activeChapter, setActiveChapter] = useState('natura')
-  const [isMobileViewport, setIsMobileViewport] = useState(false)
-
-  useEffect(() => {
-    const media = window.matchMedia('(max-width: 768px)')
-    setIsMobileViewport(media.matches)
-    const listener = (e) => setIsMobileViewport(e.matches)
-    media.addEventListener('change', listener)
-    return () => media.removeEventListener('change', listener)
-  }, [])
   const chapterContentRef = useRef(null)
   const shouldCenterChapterRef = useRef(false)
   const personalizedTitles = useMemo(() => getPersonalizedTitles(famiglia), [famiglia])
@@ -216,17 +201,18 @@ export default function ProfiloEmotivo({
         />
 
         {/* Sintesi breve; l'approfondimento e distribuito nei quattro capitoli. */}
-        <div className="profilo-family-summary-card" style={{ maxWidth: '860px', margin: '0 auto 2.5rem', width: '100%', boxSizing: 'border-box' }}>
-          <p className="profilo-family-summary-card__brief" style={{
-            fontSize: '1.05rem',
-            lineHeight: '1.6',
-            color: 'rgba(255, 255, 255, 0.9)',
-            marginBottom: '1rem'
-          }}>
-            {profilo.fraseChiave}
-          </p>
-
-        </div>
+        {profilo.fraseChiave ? (
+          <div className="profilo-family-summary-card" style={{ maxWidth: '860px', margin: '0 auto 2.5rem', width: '100%', boxSizing: 'border-box' }}>
+            <p className="profilo-family-summary-card__brief" style={{
+              fontSize: '1.05rem',
+              lineHeight: '1.6',
+              color: 'rgba(255, 255, 255, 0.9)',
+              marginBottom: '1rem'
+            }}>
+              {profilo.fraseChiave}
+            </p>
+          </div>
+        ) : null}
 
         <nav className="profilo-chapter-nav" aria-label="Capitoli del profilo emotivo">
           {list.map((sezione, index) => {
@@ -241,9 +227,7 @@ export default function ProfiloEmotivo({
               >
                 <span className="profilo-chapter-nav__num">{index + 1}</span>
                 <span className="profilo-chapter-nav__label">
-                  {isMobileViewport
-                    ? (MOBILE_CHAPTER_NAV_LABELS[sezione.id] || CHAPTER_NAV_LABELS[sezione.id] || sezione.titolo)
-                    : (personalizedTitles[sezione.id] || CHAPTER_NAV_LABELS[sezione.id] || sezione.titolo)}
+                  {personalizedTitles[sezione.id] || CHAPTER_NAV_LABELS[sezione.id] || sezione.titolo}
                 </span>
               </button>
             )

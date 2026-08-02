@@ -232,7 +232,12 @@ export default function OperatorSection({
       <div className="report-operator-chart-block">
         <p className="report-operator-chart-caption">{APPROFONDIMENTO_UI.chartCaption}</p>
         <div className="report-operator-chart-canvas">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer
+            width="100%"
+            height="100%"
+            minWidth={0}
+            initialDimension={{ width: 320, height: 340 }}
+          >
             <BarChart data={chartData} margin={{ top: 16, right: 16, bottom: 16, left: 8 }}>
               <XAxis dataKey="nome" stroke="#64748b" tick={{ fontSize: 12 }} />
               <YAxis stroke="#64748b" tick={{ fontSize: 12 }} />

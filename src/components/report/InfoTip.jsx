@@ -35,7 +35,13 @@ export default function InfoTip({
           className="report-info-tip__trigger report-info-tip__trigger--icon"
           aria-expanded={open}
           aria-describedby={open ? tipId : undefined}
-          onClick={toggle}
+          onClick={(event) => {
+            event.stopPropagation()
+            toggle()
+          }}
+          onKeyDown={(event) => {
+            event.stopPropagation()
+          }}
           onBlur={close}
         >
           <span aria-hidden="true">i</span>

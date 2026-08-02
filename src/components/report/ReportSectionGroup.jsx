@@ -48,8 +48,12 @@ export default function ReportSectionGroup({
         inert={!isOpen}
       >
         <div className="report-section-group__inner">
-          {intro ? <p className="report-section-group__intro">{intro}</p> : null}
-          {children}
+          {isOpen ? (
+            <>
+              {intro ? <p className="report-section-group__intro">{intro}</p> : null}
+              {children}
+            </>
+          ) : null}
         </div>
       </div>
     </section>

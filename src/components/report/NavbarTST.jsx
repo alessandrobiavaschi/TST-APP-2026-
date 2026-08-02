@@ -53,6 +53,7 @@ export default function NavbarTST({
   const [isMobile, setIsMobile] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef(null)
+  const menuButtonRef = useRef(null)
 
   useEffect(() => {
     if (typeof window === 'undefined') return undefined
@@ -66,12 +67,25 @@ export default function NavbarTST({
   useEffect(() => {
     if (!menuOpen) return undefined
     const handleOutsideClick = (e) => {
+      if (menuButtonRef.current?.contains(e.target)) return
       if (menuRef.current && !menuRef.current.contains(e.target)) {
         setMenuOpen(false)
       }
     }
+    const handleEscape = (e) => {
+      if (e.key !== 'Escape') return
+      setMenuOpen(false)
+      menuButtonRef.current?.focus()
+    }
+    window.requestAnimationFrame(() => {
+      menuRef.current?.querySelector('[role="menuitem"]')?.focus()
+    })
     document.addEventListener('mousedown', handleOutsideClick)
-    return () => document.removeEventListener('mousedown', handleOutsideClick)
+    document.addEventListener('keydown', handleEscape)
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick)
+      document.removeEventListener('keydown', handleEscape)
+    }
   }, [menuOpen])
 
   const naturaResult = formatNatureResult(profilo?.natura || correnteDominante)
@@ -83,7 +97,7 @@ export default function NavbarTST({
     const mobileTabs = [
       { id: 'report', label: 'Report' },
       { id: 'galassia', label: 'Galassia' },
-      { id: 'for-musicians', label: 'Musicisti' },
+      { id: 'for-musicians', label: 'For Musicians' },
     ]
 
     return (
@@ -92,28 +106,32 @@ export default function NavbarTST({
         data-force-visible={forceVisible ? 'true' : 'false'}
       >
         <div className="navbar-tst__bar navbar-tst__bar--mobile">
-          {mobileTabs.map((tab) => {
-            const active = modalita === tab.id
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                role="tab"
-                aria-selected={active}
-                onClick={() => {
-                  setMenuOpen(false)
-                  onModalitaChange?.(tab.id)
-                }}
-                className="navbar-tst__tab-btn"
-                data-active={active ? 'true' : 'false'}
-              >
-                <span className="navbar-tst__tab-label">{tab.label}</span>
-              </button>
-            )
-          })}
+          <div role="tablist" aria-label={NAVBAR_UI.modalitaAria} className="navbar-tst__mobile-tabs">
+            {mobileTabs.map((tab) => {
+              const active = modalita === tab.id
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  tabIndex={active ? 0 : -1}
+                  onClick={() => {
+                    setMenuOpen(false)
+                    onModalitaChange?.(tab.id)
+                  }}
+                  className="navbar-tst__tab-btn"
+                  data-active={active ? 'true' : 'false'}
+                >
+                  <span className="navbar-tst__tab-label">{tab.label}</span>
+                </button>
+              )
+            })}
+          </div>
 
           {/* Menu button */}
           <button
+            ref={menuButtonRef}
             type="button"
             className="navbar-tst__tab-btn"
             data-active={menuOpen ? 'true' : 'false'}
@@ -148,29 +166,6 @@ export default function NavbarTST({
                 }}
               >
                 Guida &amp; Aiuto
-              </button>
-              <div className="navbar-tst__popover-divider" role="separator" />
-              <button
-                type="button"
-                role="menuitem"
-                className="navbar-tst__popover-item"
-                onClick={() => {
-                  setMenuOpen(false)
-                  window.location.assign('/home')
-                }}
-              >
-                Home
-              </button>
-              <button
-                type="button"
-                role="menuitem"
-                className="navbar-tst__popover-item"
-                onClick={() => {
-                  setMenuOpen(false)
-                  window.location.assign('/risultati')
-                }}
-              >
-                Archivio Test
               </button>
             </div>
           )}

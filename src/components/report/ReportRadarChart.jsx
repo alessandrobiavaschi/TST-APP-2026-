@@ -70,7 +70,7 @@ export function ReportRadarAxisTick({ x, y, payload, textAnchor, cx, cy }) {
       y={nudgedY}
       textAnchor={textAnchor}
       fill="#e2e8f0"
-      fontSize={isMobile ? 10 : 13}
+      fontSize={isMobile ? 12 : 13}
       fontFamily="'Public Sans', system-ui, -apple-system, sans-serif"
       dominantBaseline="central"
     >
@@ -114,8 +114,11 @@ export default function ReportRadarChart({
   }))
 
   const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768
-  const finalHeight = isMobile ? Math.min(height, 260) : height
-  const finalOuterRadius = isMobile ? '60%' : outerRadius
+  const finalHeight = isMobile ? Math.min(360, Math.max(320, height)) : height
+  const finalOuterRadius = isMobile ? '66%' : outerRadius
+  const chartMargin = isMobile
+    ? { top: 18, right: 12, bottom: 18, left: 12 }
+    : { top: 10, right: 30, bottom: 10, left: 30 }
 
   if (!radarData.length) return null
 
@@ -133,20 +136,26 @@ export default function ReportRadarChart({
       className={className}
       role="img"
       aria-label={ariaLabel}
-      style={{ width: '100%', minHeight: finalHeight, cursor: onFamilySelect ? 'pointer' : 'default' }}
+      style={{ width: '100%', maxWidth: '100%', minWidth: 0, minHeight: finalHeight, cursor: onFamilySelect ? 'pointer' : 'default' }}
     >
       {scaleLabel ? (
         <p className="report-radar-chart__scale" aria-hidden="true">
           {scaleLabel}
         </p>
       ) : null}
-      <ResponsiveContainer width="100%" height={finalHeight} debounce={100}>
+      <ResponsiveContainer
+        width="100%"
+        height={finalHeight}
+        minWidth={0}
+        initialDimension={{ width: 320, height: finalHeight }}
+        debounce={100}
+      >
         <RadarChart
           data={radarData}
           outerRadius={finalOuterRadius}
           cx="50%"
           cy="50%"
-          margin={{ top: 10, right: 30, bottom: 10, left: 30 }}
+          margin={chartMargin}
           onClick={handleChartClick}
         >
           <PolarGrid stroke="#334155" strokeOpacity={0.5} />
@@ -156,7 +165,7 @@ export default function ReportRadarChart({
             <PolarRadiusAxis
               angle={90}
               domain={domain}
-              tick={{ fill: '#64748b', fontSize: 10 }}
+              tick={{ fill: '#64748b', fontSize: isMobile ? 12 : 10 }}
               axisLine={false}
             />
           ) : null}
@@ -167,7 +176,7 @@ export default function ReportRadarChart({
             fill={strokeColor}
             fillOpacity={0.15}
             dot={{ r: 5, fill: strokeColor, stroke: strokeColor }}
-            label={{ fill: '#f8fafc', fontSize: 11, fontWeight: 700, dy: -6 }}
+            label={{ fill: '#f8fafc', fontSize: 12, fontWeight: 700, dy: -6 }}
             isAnimationActive={!reduceMotion}
             animationDuration={400}
           />

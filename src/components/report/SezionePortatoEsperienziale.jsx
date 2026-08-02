@@ -52,7 +52,6 @@ export default function SezionePortatoEsperienziale({
 
   return (
     <section
-      id="report-tst-portato"
       className="report-tst-portato report-tst-section-anchor"
       aria-labelledby="report-tst-portato-heading"
     >

@@ -42,27 +42,28 @@ export default function ReportAccordion({ sezioniTest }) {
               className={`report-sezione-item ${isOpen ? 'report-sezione-item--open' : ''}`}
               style={{ '--sezione-accent': accent }}
             >
-              <button
-                type="button"
-                className="report-sezione-trigger"
-                onClick={() => setOpenKey(isOpen ? null : nomeSezione)}
-                aria-expanded={isOpen}
-                aria-controls={id}
-                id={`${id}-button`}
-              >
-                <span className="report-sezione-name">
-                  {nomeSezione}
+              <div className="report-sezione-trigger-row">
+                <button
+                  type="button"
+                  className="report-sezione-trigger"
+                  onClick={() => setOpenKey(isOpen ? null : nomeSezione)}
+                  aria-expanded={isOpen}
+                  aria-controls={id}
+                  id={`${id}-button`}
+                >
+                  <span className="report-sezione-name">{nomeSezione}</span>
+                  <span className="report-sezione-chevron" aria-hidden>
+                    {isOpen ? '−' : '+'}
+                  </span>
+                </button>
+                <span className="report-sezione-tip">
                   <InfoTip
                     variant="button"
                     term={nomeSezione}
                     tip={APPROFONDIMENTO_UI.areaTips[nomeSezione]}
-                    className="report-sezione-tip"
                   />
                 </span>
-                <span className="report-sezione-chevron" aria-hidden>
-                  {isOpen ? '−' : '+'}
-                </span>
-              </button>
+              </div>
               <div
                 id={id}
                 role="region"

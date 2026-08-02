@@ -45,14 +45,14 @@ function hexToRgba(hex, alpha) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`
 }
 
-function AxisTick({ x, y, payload, textAnchor, index, onSelect }) {
+function AxisTick({ x, y, payload, textAnchor, index, onSelect, isMobile }) {
   return (
     <text
       x={x}
       y={y}
       textAnchor={textAnchor}
       fill="#e2e8f0"
-      fontSize={13}
+      fontSize={isMobile ? 12 : 13}
       fontFamily="'Public Sans', system-ui, -apple-system, sans-serif"
       dominantBaseline="central"
       role="button"
@@ -90,8 +90,17 @@ export default function QuattroRapporti({
   const reduceMotion = useReducedMotion()
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [selectedFamilyIndex, setSelectedFamilyIndex] = useState(0)
+  const [isMobileViewport, setIsMobileViewport] = useState(false)
   const rapportiMainRef = useRef(null)
   const shouldCenterRapportoRef = useRef(false)
+
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 768px)')
+    const updateViewport = () => setIsMobileViewport(media.matches)
+    updateViewport()
+    media.addEventListener('change', updateViewport)
+    return () => media.removeEventListener('change', updateViewport)
+  }, [])
 
   const activeIndex =
     rapporti.length > 0
@@ -222,17 +231,23 @@ export default function QuattroRapporti({
                   : 'Radar dei rapporti'
               }
             >
-              <ResponsiveContainer width="100%" height={320} debounce={100}>
-                <RadarChart data={radarData} outerRadius="72%" onClick={handleRadarClick}>
+              <ResponsiveContainer
+                width="100%"
+                height={isMobileViewport ? 340 : 320}
+                minWidth={0}
+                initialDimension={{ width: 320, height: isMobileViewport ? 340 : 320 }}
+                debounce={100}
+              >
+                <RadarChart data={radarData} outerRadius={isMobileViewport ? '56%' : '72%'} onClick={handleRadarClick}>
                   <PolarGrid stroke="#334155" strokeOpacity={0.5} />
                   <PolarAngleAxis
                     dataKey="corrente"
-                    tick={<AxisTick onSelect={setSelectedFamilyIndex} />}
+                    tick={<AxisTick onSelect={setSelectedFamilyIndex} isMobile={isMobileViewport} />}
                   />
                   <PolarRadiusAxis
                     angle={90}
                     domain={[0, 7]}
-                    tick={{ fill: '#64748b', fontSize: 10 }}
+                    tick={{ fill: '#64748b', fontSize: isMobileViewport ? 12 : 10 }}
                     axisLine={false}
                   />
                   <Radar
@@ -242,7 +257,7 @@ export default function QuattroRapporti({
                     fill={activeColor}
                     fillOpacity={0.15}
                     dot={{ r: 5, fill: activeColor, stroke: activeColor }}
-                    label={{ fill: '#e2e8f0', fontSize: 11, fontWeight: 700, dy: -6 }}
+                    label={{ fill: '#e2e8f0', fontSize: 12, fontWeight: 700, dy: -6 }}
                     isAnimationActive={!reduceMotion}
                     animationDuration={400}
                   />
