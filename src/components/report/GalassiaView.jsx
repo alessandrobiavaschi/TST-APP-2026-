@@ -2703,6 +2703,7 @@ export default function GalassiaView({
   famiglieLessico = {},
   rapporti = [],
   portato = {},
+  lessicoAnalitico = null,
 }) {
   const data = useMemo(
     () => (Array.isArray(correntData) && correntData.length ? correntData : EXAMPLE_CORRENT_DATA),
@@ -3710,6 +3711,7 @@ export default function GalassiaView({
         <LessicoAtlasView
           paroleEmerse={paroleEmerse}
           isMobile={isMobile}
+          viewModel={lessicoAnalitico}
         />
       ) : !isMobile ? (
         <div
