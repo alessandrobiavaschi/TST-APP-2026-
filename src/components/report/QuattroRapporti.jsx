@@ -242,6 +242,7 @@ export default function QuattroRapporti({
                     fill={activeColor}
                     fillOpacity={0.15}
                     dot={{ r: 5, fill: activeColor, stroke: activeColor }}
+                    label={{ fill: '#e2e8f0', fontSize: 11, fontWeight: 700, dy: -6 }}
                     isAnimationActive={!reduceMotion}
                     animationDuration={400}
                   />

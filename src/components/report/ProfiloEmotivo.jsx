@@ -17,6 +17,12 @@ const CHAPTER_NAV_LABELS = {
   risorse: 'Risorse',
   ombre: 'Ombre',
 }
+const MOBILE_CHAPTER_NAV_LABELS = {
+  natura: 'Natura',
+  racconto: 'Racconto',
+  risorse: 'Risorse',
+  ombre: 'Ombre',
+}
 const HEADER_COLOR_FALLBACK = '#4ade80'
 
 function PanelBody({ display }) {
@@ -100,6 +106,15 @@ export default function ProfiloEmotivo({
 }) {
   const reduceMotion = useReducedMotion()
   const [activeChapter, setActiveChapter] = useState('natura')
+  const [isMobileViewport, setIsMobileViewport] = useState(false)
+
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 768px)')
+    setIsMobileViewport(media.matches)
+    const listener = (e) => setIsMobileViewport(e.matches)
+    media.addEventListener('change', listener)
+    return () => media.removeEventListener('change', listener)
+  }, [])
   const chapterContentRef = useRef(null)
   const shouldCenterChapterRef = useRef(false)
   const personalizedTitles = useMemo(() => getPersonalizedTitles(famiglia), [famiglia])
@@ -226,7 +241,9 @@ export default function ProfiloEmotivo({
               >
                 <span className="profilo-chapter-nav__num">{index + 1}</span>
                 <span className="profilo-chapter-nav__label">
-                  {personalizedTitles[sezione.id] || CHAPTER_NAV_LABELS[sezione.id] || sezione.titolo}
+                  {isMobileViewport
+                    ? (MOBILE_CHAPTER_NAV_LABELS[sezione.id] || CHAPTER_NAV_LABELS[sezione.id] || sezione.titolo)
+                    : (personalizedTitles[sezione.id] || CHAPTER_NAV_LABELS[sezione.id] || sezione.titolo)}
                 </span>
               </button>
             )

@@ -43,6 +43,35 @@ Here is how each of the six requested sections was realized in the UI:
 
 ---
 
+### Update: Mobile Responsive Overhaul (5 Key Fixes)
+
+We completed a comprehensive layout sweep of the mobile report interface to ensure visual excellence, premium typography scaling, touch target accessibility, and correct viewport scroll bounds:
+
+1. **Mobile page shell alignment (`fix/mobile-shell`)**:
+   - Fixed `.app-header` on mobile to an explicit height of `52px` (matching `--app-header-offset`).
+   - Adjusted `.app-header-inner` to fill the container height with `box-sizing: border-box`, preventing layout shift and header overlapping during navigation.
+
+2. **Mobile typography clamps (`fix/mobile-typography`)**:
+   - Replaced fixed titles and subtitle sizes (like `.sintesi-mobile-title` and `.profilo-panel__title`) with fluid `clamp()` values (e.g. `clamp(1.4rem, 6vw, 1.8rem) !important` for main titles) to ensure titles fit neatly in 1-2 lines on narrow screens.
+
+3. **Touch targets and menu drawer scroll locking (`fix/mobile-navigation`)**:
+   - Expanded the mobile drawer hamburger toggle button target size to `40px` by `40px` (up from `36px`), adjusting grid columns in `.app-header-inner` to `44px 1fr 44px`.
+   - Expanded the drawer close button `.app-mobile-drawer-close` target size to `40px` by `40px`.
+   - Raised `.navbar-tst__switch-btn` tab button heights to `40px` on mobile (up from `32px`) to meet touch targets.
+   - Disabled flex stretching (`flex: initial !important`) on the left/right parts of `navbar-tst` on mobile, giving the central tab selector breathing room to avoid compression.
+   - Implemented a `useEffect` in `App.jsx` to lock body scroll (`overflow: hidden`) whenever the mobile navigation drawer is active.
+
+4. **Mobile chart constraints and vertical padding (`fix/mobile-charts`)**:
+   - Set Recharts Radar charts to scale down dynamically on mobile (`height={260}` and `outerRadius="60%"`).
+   - Decreased radar axis tick font sizes to `10` and tick offsets to `8` to prevent labels from overflowing.
+   - Wired dynamic heights in `SintesiCorrenti.jsx` to render `EmotionalShape` (petal chart) at a height of `300` on mobile viewports instead of default clamps, eliminating blank vertical gaps.
+
+5. **Compact horizontal tab navigation (`fix/mobile-nature-section`)**:
+   - Added matchMedia hooks in `ProfiloEmotivo.jsx` to detect mobile viewports.
+   - Rendered compact button labels ("Natura", "Racconto", "Risorse", "Ombre") on the horizontal tab bar on mobile, while keeping the full rich titles ("Memoria, Esperienza, Essere Musica" etc.) inside the `<h3>` headers of the content cards, preventing horizontal scroll compression.
+
+---
+
 ### Layout & Responsiveness (Desktop, Tablet, Mobile)
 
 - **Desktop & Tablet Layout**:
@@ -67,4 +96,4 @@ Here is how each of the six requested sections was realized in the UI:
 - **Linter & Tests**:
   - `npm run lint` executed and verified: **0 errors or warnings**.
   - `npm test` executed and verified: **24/24 unit tests passed** (including the new view model test cases).
-  - `npm run build` executed and verified: ** Vite compiled all assets successfully in 5.49s**.
+  - `npm run build` executed and verified: **Vite compiled all assets successfully in 4.64s**.
