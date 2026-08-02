@@ -73,10 +73,20 @@ function ReportLoader({ correnti }) {
   )
 }
 
+const MOBILE_REPORT_MEDIA_QUERY = '(max-width: 768px)'
+
+function isMobileReportViewport() {
+  return typeof window !== 'undefined'
+    && typeof window.matchMedia === 'function'
+    && window.matchMedia(MOBILE_REPORT_MEDIA_QUERY).matches
+}
+
 /* ── Hash sync helpers ──────────────────────────────────────────────── */
 function readModalitaFromHash() {
   if (typeof window === 'undefined') return 'report'
-  if (window.location.hash === '#galassia') return 'galassia'
+  if (window.location.hash === '#galassia') {
+    return isMobileReportViewport() ? 'report' : 'galassia'
+  }
   if (window.location.hash === '#for-musicians') return 'for-musicians'
   return 'report'
 }
@@ -107,6 +117,7 @@ export default function ReportShell({
   const [galassiaEverOpened, setGalassiaEverOpened] = useState(
     () => readModalitaFromHash() === 'galassia',
   )
+  const [isMobileViewport, setIsMobileViewport] = useState(isMobileReportViewport)
   const [helpOpen, setHelpOpen] = useState(false)
   const [glossaryOpen, setGlossaryOpen] = useState(false)
   const [glossaryFocusId, setGlossaryFocusId] = useState(null)
@@ -115,6 +126,25 @@ export default function ReportShell({
   const [groupOpen, setGroupOpen] = useState(getDefaultGroupOpenState)
   const heroRef = useRef(null)
   const progressBarRef = useRef(null)
+
+  useEffect(() => {
+    if (typeof window.matchMedia !== 'function') return undefined
+    const mediaQuery = window.matchMedia(MOBILE_REPORT_MEDIA_QUERY)
+    const handleViewportChange = (event) => setIsMobileViewport(event.matches)
+    setIsMobileViewport(mediaQuery.matches)
+    mediaQuery.addEventListener('change', handleViewportChange)
+    return () => mediaQuery.removeEventListener('change', handleViewportChange)
+  }, [])
+
+  useEffect(() => {
+    if (!isMobileViewport || modalita !== 'galassia') return
+    setModalita('report')
+    try {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search)
+    } catch {
+      window.location.hash = ''
+    }
+  }, [isMobileViewport, modalita])
 
   useEffect(() => {
     if (modalita !== 'report') return undefined
@@ -267,6 +297,7 @@ export default function ReportShell({
   }, [])
 
   const changeModalita = (next) => {
+    if (next === 'galassia' && isMobileViewport) return
     if (next === modalita) return
     if (next === 'galassia') setGalassiaEverOpened(true)
     setModalita(next)
@@ -591,16 +622,18 @@ export default function ReportShell({
                   </section>
 
                   <section className="report-final-views" aria-label="Altre letture del report">
-                    <button
-                      type="button"
-                      className="report-final-view-card"
-                      onClick={() => changeModalita('galassia')}
-                    >
-                      <span className="report-final-view-card__title">Galassia</span>
-                      <span className="report-final-view-card__subtitle">
-                        Lettura interattiva del report
-                      </span>
-                    </button>
+                    {!isMobileViewport ? (
+                      <button
+                        type="button"
+                        className="report-final-view-card"
+                        onClick={() => changeModalita('galassia')}
+                      >
+                        <span className="report-final-view-card__title">Galassia</span>
+                        <span className="report-final-view-card__subtitle">
+                          Lettura interattiva del report
+                        </span>
+                      </button>
+                    ) : null}
                     <button
                       type="button"
                       className="report-final-view-card"
@@ -627,7 +660,7 @@ export default function ReportShell({
             </div>
       </main>
 
-      {galassiaEverOpened ? (
+      {galassiaEverOpened && !isMobileViewport ? (
         <div
           className={`report-tst-galassia-layer${modalita === 'galassia' ? ' is-open' : ''}`}
           role="dialog"

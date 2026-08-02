@@ -21,3 +21,7 @@ I dettagli tecnici sono in `MOBILE_IMPLEMENTATION_REPORT.md`; la matrice, la che
 Integrare il commit finale di `ai/codex` solo dopo revisione. Non è stato eseguito alcun push e non è stato effettuato alcun merge su `ai/integration`.
 
 Il file `.firebase/hosting.ZGlzdA.cache`, rigenerato localmente dalla build, resta volutamente fuori dal commit.
+
+## Disattivazione temporanea Galassia mobile
+
+Sotto i 768px la Galassia non è esposta nella bottom navigation o nelle card finali. Anche il deep-link `#galassia` viene ricondotto al report e il layer non viene montato. Desktop invariato.

@@ -85,3 +85,7 @@ Le parti valide sono state mantenute. Non sono stati rimossi CSS legacy o conten
 ## Problemi residui
 
 Nessun problema bloccante rilevato. Lo scorrimento orizzontale interno dei gruppi di tab/pillole è intenzionale e non produce overflow del documento. Gli sfondi decorativi in modalità cover possono eccedere geometricamente il contenitore, ma restano mascherati e non aumentano la larghezza della pagina.
+
+## Disattivazione temporanea Galassia mobile
+
+La Galassia è temporaneamente disabilitata fino a 768px: non compare nella bottom navigation o nelle card finali, il deep-link `#galassia` viene ricondotto al report e il layer non viene montato. La versione desktop resta invariata.

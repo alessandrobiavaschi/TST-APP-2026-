@@ -15,7 +15,7 @@
 | Viewport | Documento | Testi/elementi | Grafici | Navigazione/layout | Esito |
 | --- | --- | --- | --- | --- | --- |
 | 320x568 | `scrollWidth 320 = clientWidth 320` | Nessun nodo visibile oltre viewport o testo tagliato | Responsive, altezza 340px, valori statici | Metriche e Portato a una colonna; bottom nav libera | **PASS** |
-| 375x667 | `375 = 375` | Nessun nodo visibile oltre viewport o testo tagliato | Responsive, valori statici | Quattro azioni mobile, contenuto non coperto | **PASS** |
+| 375x667 | `375 = 375` | Nessun nodo visibile oltre viewport o testo tagliato | Responsive, valori statici | Tre azioni mobile, contenuto non coperto | **PASS** |
 | 390x844 | `390 = 390` | Font mobile almeno 12px | Responsive e touch | Tab Natura completi e scorrevoli | **PASS** |
 | 430x932 | `430 = 430` | Nessun clipping | Responsive e touch | Nessun vuoto rigido in Natura | **PASS** |
 | 768x1024 | `768 = 768` | Nessun clipping | Responsive | Griglie e metriche impilate | **PASS** |
@@ -54,7 +54,7 @@
 - Ispezione overflow documento, bounding box visibili, clipping testuale, font mobile e ID duplicati.
 - Rendering Recharts con dimensioni non nulle e label statiche mobile.
 - Apertura/chiusura accordion, attributi ARIA e tooltip al tap.
-- Navigazione Report/Galassia e menu mobile con Escape e ripristino focus.
+- Navigazione Report/For Musicians e menu mobile con Escape e ripristino focus; Galassia temporaneamente assente su mobile.
 - Verifica bottom nav in fondo al documento e sopra la Galassia.
 - Verifica console error/warning dopo nuova apertura della pagina.
 - Verifica desktop 1440x900 e contratto automatico dell'ordine dei macro-blocchi.

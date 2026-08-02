@@ -65,8 +65,17 @@ test('i grafici restano responsive e mostrano valori statici su touch', async ()
 
 test('la navigazione mobile espone tablist e gestione tastiera del menu', async () => {
   const navbar = await readSource('src/components/report/NavbarTST.jsx')
+  const reportShell = await readSource('src/components/report/ReportShell.jsx')
+  const mobileTabsBlock = navbar.slice(
+    navbar.indexOf('const mobileTabs = ['),
+    navbar.indexOf('return (', navbar.indexOf('const mobileTabs = [')),
+  )
   assert.match(navbar, /role="tablist"/)
   assert.match(navbar, /role="tab"/)
   assert.match(navbar, /e\.key !== 'Escape'/)
   assert.match(navbar, /menuButtonRef\.current\?\.focus\(\)/)
+  assert.doesNotMatch(mobileTabsBlock, /galassia/i)
+  assert.match(navbar, /const desktopTabs = \[[\s\S]*galassia/)
+  assert.match(reportShell, /next === 'galassia' && isMobileViewport/)
+  assert.match(reportShell, /galassiaEverOpened && !isMobileViewport/)
 })
