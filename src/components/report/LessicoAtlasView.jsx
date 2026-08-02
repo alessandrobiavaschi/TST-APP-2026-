@@ -203,6 +203,12 @@ const CAMERA_RESET = { x: 0, y: 0, scale: 1 }
 
 // ─── Dictionary panel ─────────────────────────────────────────────────────────
 function DictionaryPanel({ word, onClose, onSelectWord, viewModel, placement }) {
+  const closeButtonRef = useRef(null)
+
+  useEffect(() => {
+    closeButtonRef.current?.focus()
+  }, [word?.id])
+
   if (!word) return null
   const meta = FAMILY_META[word.familyId]
 
@@ -212,6 +218,7 @@ function DictionaryPanel({ word, onClose, onSelectWord, viewModel, placement }) 
 
   return (
     <aside
+      id="lessico-dictionary-popover"
       className={`lessico-dict${placement ? ` lessico-dict--inline lessico-dict--${placement.side}` : ''}`}
       style={placement?.style}
       aria-label="Dizionario emotivo"
@@ -220,6 +227,7 @@ function DictionaryPanel({ word, onClose, onSelectWord, viewModel, placement }) 
         <header className="lessico-dict__head">
           <p className="lessico-dict__kicker">Dizionario emotivo</p>
           <button
+            ref={closeButtonRef}
             type="button"
             className="lessico-dict__close"
             onClick={onClose}
@@ -667,6 +675,7 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
   const cameraAnimTimerRef = useRef(null)
   const cameraRafRef = useRef(0)
   const searchInputRef = useRef(null)
+  const wordButtonRefs = useRef(new Map())
 
   const normalizedSearch = searchQuery.trim().toLowerCase()
 
@@ -752,6 +761,9 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
 
   // ── Wheel (trackpad pinch + scroll pan) ───────────────────────────────────
   const handleWheel = useCallback((event) => {
+    const target = event.target instanceof Element ? event.target : null
+    if (target?.closest('.lessico-dict')) return
+
     event.preventDefault()
     const vp = layerRef.current
     if (!vp) return
@@ -842,6 +854,7 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
   // ── Pointer drag (mouse pan) ───────────────────────────────────────────────
   const handlePointerDown = useCallback((e) => {
     const target = e.target instanceof Element ? e.target : null
+    if (target?.closest('.lessico-dict')) return
     const isControl = Boolean(target?.closest('.lessico-atlas__controls, .lessico-dict, .lessico-atlas__zoom-controls, .lessico-atlas__word'))
 
     pointersRef.current.set(e.pointerId, { pointerId: e.pointerId, clientX: e.clientX, clientY: e.clientY })
@@ -916,13 +929,19 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
     }
   }, [])
 
+  const closeDictionary = useCallback(() => {
+    const trigger = selectedWord ? wordButtonRefs.current.get(selectedWord.id) : null
+    setSelectedWord(null)
+    if (trigger) window.requestAnimationFrame(() => trigger.focus())
+  }, [selectedWord])
+
   // ── Keyboard shortcuts ─────────────────────────────────────────────────────
   useEffect(() => {
     const onKey = (e) => {
       const tag = e.target?.tagName
       if (tag === 'INPUT' || tag === 'TEXTAREA') return
       if (e.key === 'Escape') {
-        if (selectedWord) { setSelectedWord(null); return }
+        if (selectedWord) { closeDictionary(); return }
         if (showSearch) { setShowSearch(false); setSearchQuery(''); return }
         resetCamera()
       }
@@ -933,7 +952,7 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [selectedWord, showSearch, resetCamera, zoomStep])
+  }, [selectedWord, showSearch, resetCamera, zoomStep, closeDictionary])
 
   // ── Search focus ───────────────────────────────────────────────────────────
   useEffect(() => {
@@ -1071,6 +1090,10 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
               const pos = getAtlasPoint(word)
               return (
                 <button
+                  ref={(node) => {
+                    if (node) wordButtonRefs.current.set(word.id, node)
+                    else wordButtonRefs.current.delete(word.id)
+                  }}
                   key={word.id}
                   type="button"
                   className={`lessico-atlas__word${isSelected ? ' is-selected' : ''}${isEmerged ? ' is-emerged' : ''}${isHovered ? ' is-hovered' : ''}`}
@@ -1089,6 +1112,8 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
                   onMouseEnter={() => setHoveredWordId(word.id)}
                   onMouseLeave={() => setHoveredWordId(null)}
                   onClick={() => setSelectedWord(word)}
+                  aria-expanded={isSelected || undefined}
+                  aria-controls={isSelected ? 'lessico-dictionary-popover' : undefined}
                 >
                   {word.nome}
                 </button>
@@ -1099,7 +1124,7 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
           {selectedWord && (
             <DictionaryPanel
               word={selectedWord}
-              onClose={() => setSelectedWord(null)}
+              onClose={closeDictionary}
               onSelectWord={setSelectedWord}
               viewModel={viewModel}
               placement={{
@@ -1165,7 +1190,7 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
       {selectedWord && isMobile ? (
         <DictionaryPanel
           word={selectedWord}
-          onClose={() => setSelectedWord(null)}
+          onClose={closeDictionary}
           onSelectWord={setSelectedWord}
           viewModel={viewModel}
         />
