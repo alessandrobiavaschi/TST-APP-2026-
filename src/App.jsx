@@ -304,6 +304,15 @@ function App() {
   }, [mobileNavOpen])
 
   useEffect(() => {
+    if (!mobileNavOpen) return undefined
+    const originalOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = originalOverflow
+    }
+  }, [mobileNavOpen])
+
+  useEffect(() => {
     try {
       const storedConsent = window.localStorage.getItem('tst_gdpr_consent')
       if (storedConsent === 'necessary' || storedConsent === 'all') {

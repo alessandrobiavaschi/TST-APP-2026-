@@ -744,11 +744,11 @@ export default function SintesiCorrenti({
               <p className="sintesi-correnti__radar-caption">
                 Scala 1-7 distribuita sui vertici del grafico radar delle cinque famiglie.
               </p>
-              <p className="sintesi-correnti__radar-hint">Passa il cursore sui vertici per i punteggi esatti.</p>
+              <p className="sintesi-correnti__radar-hint">Tocca i vertici per i punteggi esatti.</p>
               <ReportRadarChart
                 data={totalScoreRadarData}
                 color={accentColor}
-                height={300}
+                height={340}
                 outerRadius="72%"
                 domain={[1, 7]}
                 className="sintesi-correnti__total-radar-chart"
@@ -761,6 +761,7 @@ export default function SintesiCorrenti({
             </div>
             <EmotionalShape 
               familiesData={ordered}
+              height={isMobileViewport ? 300 : 'clamp(440px, 42vw, 560px)'}
               activeFamilyKey={hoveredFamilyKey || activeDetailFamily?.familyKey}
               onFamilySelect={(key) => {
                 const radarItem = totalScoreRadarData.find(d => d.familyKey === key)

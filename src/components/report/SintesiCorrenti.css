@@ -1378,14 +1378,14 @@
   }
   .sintesi-mobile-title {
     margin: 0 0 0.5rem 0 !important;
-    font-size: 2rem !important;
+    font-size: clamp(1.4rem, 6vw, 1.8rem) !important;
     font-weight: 850 !important;
     font-family: var(--font-body, system-ui, sans-serif);
     line-height: 1.15;
   }
   .sintesi-mobile-subtitle {
     margin: 0 0 0.5rem 0 !important;
-    font-size: 1.35rem !important;
+    font-size: clamp(1.1rem, 5vw, 1.25rem) !important;
     font-weight: 800 !important;
     color: #f8fafc !important;
   }
@@ -1417,7 +1417,7 @@
   }
   .sintesi-mobile-section-title {
     margin: 0 0 0.5rem 0 !important;
-    font-size: 1.22rem !important;
+    font-size: clamp(1.05rem, 4.5vw, 1.18rem) !important;
     font-weight: 800 !important;
     color: #f8fafc !important;
   }
