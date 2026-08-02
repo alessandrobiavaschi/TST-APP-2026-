@@ -9,12 +9,12 @@ L'implementazione Antigravity è stata auditata integralmente. Le parti valide s
 ## Verifica
 
 - Lint: PASS
-- Test: PASS, 37/37
+- Test: PASS, 43/43 (inclusi contratti mobile/desktop e scoring golden)
 - Build: PASS
 - Browser: PASS a 320x568, 375x667, 390x844, 430x932, 768x1024 e 1440x900
 - Console: pulita
 
-I dettagli tecnici sono in `MOBILE_IMPLEMENTATION_REPORT.md`; la matrice visuale è in `MOBILE_QA_REPORT.md`.
+I dettagli tecnici sono in `MOBILE_IMPLEMENTATION_REPORT.md`; la matrice, la checklist completa e i problemi trovati/corretti/residui sono in `MOBILE_QA_REPORT.md`. La fixture DEV usata per la verifica browser è stata rimossa dal codice finale.
 
 ## Integrazione
 

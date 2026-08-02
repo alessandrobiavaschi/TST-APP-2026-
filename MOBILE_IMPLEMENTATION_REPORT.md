@@ -25,8 +25,9 @@ Le parti valide sono state mantenute. Non sono stati rimossi CSS legacy o conten
 - `src/components/report/ReportSectionGroup.jsx`
 - `src/components/report/SezionePortatoEsperienziale.jsx`
 - `src/components/report/SintesiCorrenti.css`
-- `src/pages/ReportPage.jsx`
 - `src/styles/report-tst.css`
+- `test/mobileReportContracts.test.js`
+- `test/scoringRegression.test.js`
 - `MOBILE_IMPLEMENTATION_REPORT.md`
 - `MOBILE_QA_REPORT.md`
 - `HANDOFF_CODEX.md`
@@ -49,7 +50,7 @@ Le parti valide sono state mantenute. Non sono stati rimossi CSS legacy o conten
 - Eliminato un `id` duplicato nella sezione Portato Esperienziale.
 - Eliminato il nesting di pulsanti nell'accordion, preservando un vero pulsante accessibile per l'InfoTip.
 - Montati i contenuti dei gruppi del report quando aperti, evitando misure Recharts su container nascosti.
-- Aggiunto un fixture solo DEV attivabile con `?qa-mobile=1`, senza introdurre route o azioni di produzione.
+- Aggiunti contratti automatici per breakpoint, overflow, grafici, navigazione, struttura desktop e punteggi. La fixture browser temporanea è stata rimossa prima del commit finale.
 
 ## Problemi corretti
 
@@ -67,7 +68,7 @@ Le parti valide sono state mantenute. Non sono stati rimossi CSS legacy o conten
 ## Verifiche
 
 - `npm run lint`: PASS
-- `npm test`: PASS — 37/37
+- `npm test`: PASS — 43/43
 - `npm run build`: PASS — 1225 moduli trasformati
 - Console browser: PASS — nessun errore o warning React/Recharts
 - Verifica desktop 1440x900: PASS
