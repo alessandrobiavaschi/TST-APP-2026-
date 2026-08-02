@@ -5,12 +5,9 @@ const GOLDEN_ANGLE = 2.399963229728653
 const CAMERA_MIN_SCALE = 0.82
 const CAMERA_MAX_SCALE = 4.8
 const CAMERA_ZOOM_STEP = 1.25
-const WORD_FOCUS_SCALE = 2.15
-const SELECTED_WORD_FOCUS_SIZE = 'clamp(68px, 6.8vw, 128px)'
 const WHEEL_ZOOM_INTENSITY_PX = 0.0022
 const WHEEL_ZOOM_INTENSITY_LINE = 0.072
 const PINCH_DAMPING = 0.46
-const DICTIONARY_PANEL_WIDTH = 320
 
 function seededRnd(n) {
   const x = Math.sin(n * 127.1 + 311.7) * 43758.5453123
@@ -205,7 +202,7 @@ const FAMILY_LIST = FAMILY_ORDER.map((id) => ({ id, ...FAMILY_META[id] }))
 const CAMERA_RESET = { x: 0, y: 0, scale: 1 }
 
 // ─── Dictionary panel ─────────────────────────────────────────────────────────
-function DictionaryPanel({ word, onClose, onSelectWord, viewModel }) {
+function DictionaryPanel({ word, onClose, onSelectWord, viewModel, placement }) {
   if (!word) return null
   const meta = FAMILY_META[word.familyId]
 
@@ -214,7 +211,11 @@ function DictionaryPanel({ word, onClose, onSelectWord, viewModel }) {
   )
 
   return (
-    <aside className="lessico-dict" aria-label="Dizionario emotivo">
+    <aside
+      className={`lessico-dict${placement ? ` lessico-dict--inline lessico-dict--${placement.side}` : ''}`}
+      style={placement?.style}
+      aria-label="Dizionario emotivo"
+    >
       <div className="lessico-dict__bezel" style={{ '--dict-color': word.familyColor }}>
         <header className="lessico-dict__head">
           <p className="lessico-dict__kicker">Dizionario emotivo</p>
@@ -651,6 +652,7 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
   const [showSearch, setShowSearch] = useState(false)
   const [expandedMobileFamily, setExpandedMobileFamily] = useState(null)
   const [camera, setCamera] = useState(CAMERA_RESET)
+  const [viewportSize, setViewportSize] = useState({ w: 0, h: 0 })
   const [cameraAnimating, setCameraAnimating] = useState(false)
   const [showDashboard, setShowDashboard] = useState(true)
 
@@ -732,18 +734,6 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
     }, w, h)
   }, [])
 
-  const centerCameraOnPoint = useCallback((point, scale, w, h, hasSidePanel = false) => {
-    const clamped = clamp(scale, CAMERA_MIN_SCALE, CAMERA_MAX_SCALE)
-    const visibleWidth = hasSidePanel ? Math.max(w - DICTIONARY_PANEL_WIDTH, w * 0.55) : w
-    const targetX = (point.x / 100) * w
-    const targetY = (point.y / 100) * h
-    return clampCameraToViewport({
-      x: visibleWidth / 2 - targetX * clamped,
-      y: h / 2 - targetY * clamped,
-      scale: clamped,
-    }, w, h)
-  }, [])
-
   const zoomStep = useCallback((direction) => {
     const vp = layerRef.current
     if (!vp) return
@@ -752,17 +742,13 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
     const origin = { x: rect.width / 2, y: rect.height / 2 }
     const factor = direction > 0 ? CAMERA_ZOOM_STEP : 1 / CAMERA_ZOOM_STEP
     beginCameraAnimation()
-    applyCamera((prev) =>
-      selectedWord
-        ? centerCameraOnPoint(selectedWord, prev.scale * factor, rect.width, rect.height, true)
-        : zoomAt(
-            prev.scale * factor,
-            origin,
-            rect.width,
-            rect.height,
-          ),
-    )
-  }, [applyCamera, beginCameraAnimation, centerCameraOnPoint, selectedWord, zoomAt])
+    applyCamera((prev) => zoomAt(
+      prev.scale * factor,
+      origin,
+      rect.width,
+      rect.height,
+    ))
+  }, [applyCamera, beginCameraAnimation, zoomAt])
 
   // ── Wheel (trackpad pinch + scroll pan) ───────────────────────────────────
   const handleWheel = useCallback((event) => {
@@ -778,9 +764,7 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
     if (isPinch) {
       const intensity = event.deltaMode === 1 ? WHEEL_ZOOM_INTENSITY_LINE : WHEEL_ZOOM_INTENSITY_PX
       applyCamera((prev) =>
-        selectedWord
-          ? centerCameraOnPoint(selectedWord, prev.scale * Math.exp(-event.deltaY * intensity), rect.width, rect.height, true)
-          : zoomAt(prev.scale * Math.exp(-event.deltaY * intensity), origin, rect.width, rect.height),
+        zoomAt(prev.scale * Math.exp(-event.deltaY * intensity), origin, rect.width, rect.height),
       )
     } else {
       event.stopPropagation()
@@ -790,7 +774,7 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
         scale: prev.scale,
       }))
     }
-  }, [applyCamera, centerCameraOnPoint, selectedWord, zoomAt])
+  }, [applyCamera, zoomAt])
 
   // Register wheel with passive:false so preventDefault works
   useEffect(() => {
@@ -799,6 +783,22 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
     layer.addEventListener('wheel', handleWheel, { passive: false })
     return () => layer.removeEventListener('wheel', handleWheel)
   }, [handleWheel])
+
+  useEffect(() => {
+    const layer = layerRef.current
+    if (!layer || typeof ResizeObserver === 'undefined') return undefined
+
+    const updateSize = () => {
+      const rect = layer.getBoundingClientRect()
+      const next = { w: rect.width || 1, h: rect.height || 1 }
+      viewportSizeRef.current = next
+      setViewportSize(next)
+    }
+    const observer = new ResizeObserver(updateSize)
+    updateSize()
+    observer.observe(layer)
+    return () => observer.disconnect()
+  }, [isMobile])
 
   // ── WebKit gesture (Safari two-finger pinch) ───────────────────────────────
   useEffect(() => {
@@ -946,21 +946,12 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
     if (cameraRafRef.current) cancelAnimationFrame(cameraRafRef.current)
   }, [])
 
-  // ── Auto focus on selected word ────────────────────────────────────────────
-  useEffect(() => {
-    if (selectedWord && layerRef.current) {
-      const rect = layerRef.current.getBoundingClientRect()
-      beginCameraAnimation()
-      applyCamera(centerCameraOnPoint(selectedWord, 2.2, rect.width, rect.height, true))
-    }
-  }, [selectedWord, centerCameraOnPoint, applyCamera, beginCameraAnimation])
-
   const handleSearchToggle = useCallback(() => {
     setShowSearch((prev) => { if (prev) setSearchQuery(''); return !prev })
   }, [])
 
   return (
-    <div className={`lessico-atlas${selectedWord ? ' lessico-atlas--panel-open lessico-atlas--word-focus' : ''}${isMobile ? ' lessico-atlas--mobile' : ''}`}>
+    <div className={`lessico-atlas${isMobile ? ' lessico-atlas--mobile' : ''}`}>
 
       {/* Controls bar — below the chrome header */}
       <div className="lessico-atlas__controls">
@@ -1078,7 +1069,6 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
               const isHovered = hoveredWordId === word.id
               const isEmerged = emergedSet.has(word.nome.toLowerCase())
               const pos = getAtlasPoint(word)
-              const focusDimmed = Boolean(selectedWord && !isSelected)
               return (
                 <button
                   key={word.id}
@@ -1087,11 +1077,13 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
                   style={{
                     left: `${pos.x}%`,
                     top: `${pos.y}%`,
-                    fontSize: isSelected ? SELECTED_WORD_FOCUS_SIZE : `${word.fontSize * wordFontScale}px`,
+                    fontSize: isSelected
+                      ? `${clamp(word.fontSize * 1.75, 28, 42) * wordFontScale}px`
+                      : `${word.fontSize * wordFontScale}px`,
                     fontWeight: word.fontWeight,
                     '--word-color': word.color,
                     color: word.color,
-                    opacity: focusDimmed ? Math.min(opacity, 0.07) : opacity,
+                    opacity,
                     zIndex: isSelected ? 120 : isHovered ? 50 : word.tier === 'big' ? 20 : word.tier === 'medium' ? 15 : 10,
                   }}
                   onMouseEnter={() => setHoveredWordId(word.id)}
@@ -1103,6 +1095,24 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
               )
             })}
           </div>
+
+          {selectedWord && (
+            <DictionaryPanel
+              word={selectedWord}
+              onClose={() => setSelectedWord(null)}
+              onSelectWord={setSelectedWord}
+              viewModel={viewModel}
+              placement={{
+                side: camera.x + (selectedWord.x / 100) * viewportSize.w * camera.scale > viewportSize.w * 0.62
+                  ? 'left'
+                  : 'right',
+                style: {
+                  '--dict-anchor-x': `calc(${selectedWord.x * camera.scale}% + ${camera.x}px)`,
+                  '--dict-anchor-y': `calc(${selectedWord.y * camera.scale}% + ${camera.y}px)`,
+                },
+              }}
+            />
+          )}
         </div>
       ) : (
         /* ── Mobile: vertical card stack ────────────────────────────────── */
@@ -1152,7 +1162,7 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
       )}
 
       {/* Dictionary panel */}
-      {selectedWord ? (
+      {selectedWord && isMobile ? (
         <DictionaryPanel
           word={selectedWord}
           onClose={() => setSelectedWord(null)}

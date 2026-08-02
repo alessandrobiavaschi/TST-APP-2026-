@@ -1,4 +1,49 @@
 # HANDOFF - ANTIGRAVITY
+
+## Update: inline lexical dictionary bubble
+
+### Summary
+
+The desktop word-selection interaction in `LessicoAtlasView` is now contextual rather than disruptive:
+
+- clicking a word preserves the current camera position and zoom;
+- the selected word grows moderately at its original atlas coordinates;
+- the rest of the galaxy remains fully visible, with no global overlay, blur, or forced opacity reduction;
+- the dictionary appears as a compact, scrollable speech-bubble card beside the selected word and automatically chooses the left or right side according to the word's on-screen position;
+- close and nearby-word buttons are preserved, and selecting a nearby word moves the bubble to that word without recentering the galaxy;
+- mobile retains the existing compact bottom-sheet behavior.
+
+No scoring, report data, Firestore, credentials, or lexical view-model logic was changed. The existing full-height Analisi Lessicale dashboard remains available when no word is selected; the selected-word dictionary itself is no longer a full-height right panel.
+
+### Changed files
+
+- `src/components/report/LessicoAtlasView.jsx`
+- `src/styles/galassia-view.css`
+- `HANDOFF_ANTIGRAVITY.md`
+
+### Decisions and assumptions
+
+- "Original location" means selection does not mutate camera state. Subsequent explicit zoom/pan controls continue to work normally around their ordinary origin.
+- The selected label uses a bounded 1.75x enlargement (28-42px before camera compensation), avoiding the previous 68-128px centered treatment.
+- The card is capped at 320px wide and 388px high, with internal scrolling for long dictionary content. Edge clamping keeps it inside the atlas viewport.
+- The desktop analysis dashboard was not removed because the request specifically targets the disruptive dictionary behavior after selecting a word.
+
+### Verification
+
+- `npm run lint` - passed, 0 errors and 0 warnings.
+- `npm test` - passed, 24/24 tests.
+- `npm run build` - passed, Vite production build completed in 4.52s.
+- `git diff --check` - passed.
+- Local browser smoke check at `http://127.0.0.1:5174/risultati/report` - application loaded with no console warnings/errors. The browser session had no persisted report record, so the route correctly displayed `Report non disponibile`; a live Galassia screenshot could not be produced without fabricating session data.
+
+### Integration
+
+Cherry-pick the Antigravity commit listed in the completion message. No dependency, lockfile, environment, or migration changes are required.
+
+### Unresolved problems
+
+- None in the implementation. A final screenshot walkthrough should be performed in a session containing a completed report record.
+
 ## Lexical Galaxy 2.0 & Interactive Results Overhaul
 
 This document outlines the final implementation details and architectural enhancements for the "Galassia Lessicale 2.0" (Lexical Galaxy 2.0) and "Grafici dei risultati" section overhaul of the TST Emotional Report.

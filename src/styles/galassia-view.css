@@ -4934,20 +4934,6 @@
   z-index: 10;
 }
 
-.lessico-atlas--panel-open .lessico-atlas__canvas {
-  margin-right: 0;
-}
-
-.lessico-atlas--word-focus::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 8;
-  pointer-events: none;
-  background:
-    radial-gradient(ellipse 42% 26% at 50% 50%, rgba(2, 6, 23, 0.18) 0%, rgba(2, 6, 23, 0.72) 68%, rgba(2, 6, 23, 0.84) 100%);
-}
-
 /* ── Sfondo nebulose ────────────────────────────────────────────────────────── */
 
 .lessico-atlas__bg {
@@ -5196,24 +5182,24 @@
 
 .lessico-atlas__word.is-selected {
   opacity: 1 !important;
-  max-width: min(68vw, 920px);
-  padding: 0.18em 0.34em 0.22em;
+  max-width: min(34vw, 440px);
+  padding: 0.16em 0.32em 0.2em;
   border: 1px solid color-mix(in srgb, var(--word-color) 54%, rgba(226, 232, 240, 0.2));
   border-radius: 8px;
   background:
     linear-gradient(180deg, rgba(2, 6, 23, 0.94), rgba(15, 23, 42, 0.88));
   color: color-mix(in srgb, var(--word-color) 82%, #ffffff 18%) !important;
-  line-height: 1.02;
+  line-height: 1.08;
   text-shadow:
     0 1px 0 rgba(255, 255, 255, 0.16),
-    0 0 18px color-mix(in srgb, var(--word-color) 58%, transparent);
+    0 0 14px color-mix(in srgb, var(--word-color) 52%, transparent);
   transform: translate(-50%, -50%);
   z-index: 220 !important;
   text-decoration: none;
   box-shadow:
     0 0 0 1px rgba(2, 6, 23, 0.75),
-    0 16px 44px rgba(0, 0, 0, 0.46),
-    0 0 34px color-mix(in srgb, var(--word-color) 24%, transparent);
+    0 10px 28px rgba(0, 0, 0, 0.4),
+    0 0 24px color-mix(in srgb, var(--word-color) 22%, transparent);
   white-space: normal;
   overflow-wrap: anywhere;
 }
@@ -5223,19 +5209,6 @@
   text-shadow:
     0 0 14px var(--word-color),
     0 0 4px rgba(255, 255, 255, 0.3);
-}
-
-.lessico-atlas--word-focus .lessico-atlas__nebula {
-  opacity: 0.04 !important;
-}
-
-.lessico-atlas--word-focus .lessico-atlas__zone-label {
-  opacity: 0.025 !important;
-}
-
-.lessico-atlas--word-focus .lessico-atlas__word:not(.is-selected) {
-  filter: blur(0.5px);
-  text-shadow: none;
 }
 
 /* ── Dizionario pannello laterale ───────────────────────────────────────────── */
@@ -5260,6 +5233,82 @@
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   overflow: hidden;
+}
+
+.lessico-dict--inline {
+  position: absolute;
+  top: clamp(12px, calc(var(--dict-anchor-y) - 112px), calc(100% - 400px));
+  right: auto;
+  bottom: auto;
+  width: min(320px, calc(100% - 24px));
+  max-height: min(388px, calc(100% - 24px));
+  z-index: 240;
+  filter: drop-shadow(0 18px 32px rgba(0, 0, 0, 0.48));
+}
+
+.lessico-dict--inline.lessico-dict--right {
+  left: min(calc(100% - 332px), calc(var(--dict-anchor-x) + 34px));
+}
+
+.lessico-dict--inline.lessico-dict--left {
+  left: max(12px, calc(var(--dict-anchor-x) - 354px));
+}
+
+.lessico-dict--inline::before {
+  content: '';
+  position: absolute;
+  top: 96px;
+  width: 12px;
+  height: 12px;
+  background: rgba(2, 6, 23, 0.94);
+  border: solid color-mix(in srgb, var(--dict-color) 38%, rgba(71, 85, 105, 0.72));
+  transform: rotate(45deg);
+  z-index: 1;
+}
+
+.lessico-dict--inline.lessico-dict--right::before {
+  left: -6px;
+  border-width: 0 0 1px 1px;
+}
+
+.lessico-dict--inline.lessico-dict--left::before {
+  right: -6px;
+  border-width: 1px 1px 0 0;
+}
+
+.lessico-dict--inline .lessico-dict__bezel {
+  position: relative;
+  z-index: 2;
+  height: auto;
+  max-height: inherit;
+  border: 1px solid color-mix(in srgb, var(--dict-color) 38%, rgba(71, 85, 105, 0.72));
+  border-radius: 12px;
+  background: rgba(2, 6, 23, 0.94);
+  box-shadow: 0 0 24px color-mix(in srgb, var(--dict-color) 14%, transparent);
+}
+
+.lessico-dict--inline .lessico-dict__head {
+  padding: 0.62rem 0.72rem 0.5rem;
+}
+
+.lessico-dict--inline .lessico-dict__body {
+  padding: 0.72rem;
+  gap: 0.72rem;
+}
+
+.lessico-dict--inline .lessico-dict__word {
+  font-size: 1.25rem;
+}
+
+.lessico-dict--inline .lessico-dict__meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.48rem 0.72rem;
+}
+
+.lessico-dict--inline .lessico-dict__meta dd,
+.lessico-dict--inline .lessico-dict__def p {
+  font-size: 0.74rem;
 }
 
 .lessico-dict__head {
