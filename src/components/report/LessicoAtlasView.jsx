@@ -1169,7 +1169,7 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
           onSelectWord={setSelectedWord}
           viewModel={viewModel}
         />
-      ) : !isMobile && showDashboard && viewModel ? (
+      ) : !selectedWord && !isMobile && showDashboard && viewModel ? (
         <aside className="lessico-dict" aria-label="Analisi lessicale">
           <div className="lessico-dict__bezel" style={{ '--dict-color': '#3b82f6', width: '340px' }}>
             <header className="lessico-dict__head" style={{ borderBottomColor: 'rgba(59, 130, 246, 0.2)' }}>

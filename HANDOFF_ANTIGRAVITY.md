@@ -10,10 +10,11 @@ The desktop word-selection interaction in `LessicoAtlasView` is now contextual r
 - the selected word grows moderately at its original atlas coordinates;
 - the rest of the galaxy remains fully visible, with no global overlay, blur, or forced opacity reduction;
 - the dictionary appears as a compact, scrollable speech-bubble card beside the selected word and automatically chooses the left or right side according to the word's on-screen position;
+- the full-height Analisi Lessicale dashboard is suppressed while a word is selected and returns after the bubble is closed, if it was enabled;
 - close and nearby-word buttons are preserved, and selecting a nearby word moves the bubble to that word without recentering the galaxy;
 - mobile retains the existing compact bottom-sheet behavior.
 
-No scoring, report data, Firestore, credentials, or lexical view-model logic was changed. The existing full-height Analisi Lessicale dashboard remains available when no word is selected; the selected-word dictionary itself is no longer a full-height right panel.
+No scoring, report data, Firestore, credentials, or lexical view-model logic was changed. The existing full-height Analisi Lessicale dashboard remains available only when no word is selected; the selected-word dictionary itself is no longer a full-height right panel.
 
 ### Changed files
 
