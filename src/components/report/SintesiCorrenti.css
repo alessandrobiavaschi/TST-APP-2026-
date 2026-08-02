@@ -1863,3 +1863,17 @@
 .sintesi-mobile-subcurrent-fill {
   min-width: 3px !important;
 }
+
+/* ParoleStatiAnimo focus outlines for accessibility */
+.parole-stati-animo__family-btn:focus-visible {
+  outline: 2px solid var(--sc-accent, #3b82f6) !important;
+  outline-offset: 3px !important;
+}
+.parole-stati-animo__word-pill:focus-visible {
+  outline: 2px solid var(--sc-accent, #3b82f6) !important;
+  outline-offset: 2px !important;
+}
+.parole-stati-animo__close-btn:focus-visible {
+  outline: 2px solid #cbd5e1 !important;
+  outline-offset: 2px !important;
+}
