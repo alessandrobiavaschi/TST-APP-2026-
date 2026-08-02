@@ -323,7 +323,7 @@ function lowerInitial(value) {
  * Se entrambe le famiglie di una coppia sono alte e il gap è piccolo,
  * il profilo va descritto come "compresenza" non come "equilibrio".
  */
-const CONTRASTING_PAIRS = [
+export const CONTRASTING_PAIRS = [
   ['blu', 'rosso'],   // Malinconia vs Volitiva
   ['giallo', 'grigio'], // Entusiasmo vs Anaffettiva
   ['verde', 'rosso'], // Flemma vs Volitiva
@@ -335,7 +335,7 @@ const CONTRASTING_PAIRS = [
  * @param {object} levels — es. { blu: 7, rosso: 6, verde: 2, giallo: 3, grigio: 2 }
  * @returns {{ isContrasting: boolean, pairKeys: string[] }|null}
  */
-function detectContrastingPresence(levels = {}) {
+export function detectContrastingPresence(levels = {}) {
   for (const [keyA, keyB] of CONTRASTING_PAIRS) {
     const a = Number(levels[keyA]) || 0
     const b = Number(levels[keyB]) || 0
@@ -574,7 +574,25 @@ function buildActionRelationshipText({ volitiveLevel, levels }) {
 }
 
 /**
- * Parole nominali emerse dalle risposte DIZIONARIO_2 (file 29–42).
+ * Parole nominali emerse dalle risposte DIZIONARIO_2 (file 29–42) — lessico
+ * "situazionale": a differenza del lessico teorico/stabile (FAMIGLIE_LESSICO),
+ * queste parole dipendono dalle risposte reali di questo utente.
+ *
+ * Ordinamento: `count` decrescente. A parità di `count`, l'ordine risultante
+ * (stable sort su Map in ordine di inserimento) segue l'ordine di prima
+ * comparsa nel test, cioè il file con numero più basso tra 29 e 42.
+ *
+ * `fileKeys` conserva la tracciabilità verifica bile parola → file audio
+ * (es. `['File_31']`), inclusa quando la stessa parola emerge da più file.
+ *
+ * Identità/deduplica: ogni parola è identificata da `parola + correnteKey`
+ * specifico (es. `BLU_4_Solare`), non dal nome corrente di famiglia — che può
+ * essere omonimo di una sotto-corrente di un'altra famiglia (es. il nome
+ * corrente della famiglia Giallo è "Solare", che collide per assonanza con
+ * la sotto-corrente `BLU_4_Solare`). Cosi' non esiste ambiguità di
+ * attribuzione anche se due sotto-correnti diverse producessero la stessa
+ * parola.
+ *
  * @param {object} rawRecord
  */
 export function extractParoleDalTest(rawRecord = {}) {
@@ -607,8 +625,16 @@ export function extractParoleDalTest(rawRecord = {}) {
         const raw = part.trim()
         if (!raw || raw.toLowerCase() === 'mi è indifferente') return
         const parola = titleCaseStato(raw)
-        const id = `${parola}|${theme.corrente}`
+        // Identità univoca: parola + correnteKey specifico (es. BLU_4_Solare),
+        // non il nome corrente di famiglia (es. "Lunare" per Blu, "Solare" per
+        // Giallo — nomi che collidono per assonanza con le sotto-correnti
+        // BLU_2_Lunare/BLU_4_Solare). Cosi' due sotto-correnti diverse che
+        // producessero per caso la stessa parola non vengono mai fuse sotto
+        // un'unica provenienza ambigua.
+        const id = `${parola}|${correnteKey}`
         const prev = byKey.get(id)
+        const fileKeys = prev?.fileKeys ? [...prev.fileKeys] : []
+        if (!fileKeys.includes(fileKey)) fileKeys.push(fileKey)
         byKey.set(id, {
           parola,
           corrente: theme.corrente,
@@ -617,7 +643,9 @@ export function extractParoleDalTest(rawRecord = {}) {
           familyName,
           correnteKey,
           count: (prev?.count || 0) + 1,
+          fileKeys,
           peso: 'emersa',
+          fonte: 'test',
         })
       })
   }

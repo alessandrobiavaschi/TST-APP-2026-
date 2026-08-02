@@ -22,6 +22,7 @@ import EmotionalIntegrations from './EmotionalIntegrations.jsx'
 import SectionDivider from './SectionDivider'
 import FioreCorrenti from './FioreCorrenti'
 import { buildCorrentDataFromRecord } from '../../utils/galassiaData.js'
+import { buildLessicoAnaliticoViewModel } from '../../utils/galassiaLessicoViewModel.js'
 import { REPORT_NAV_UI, REPORT_SHELL_UI } from './reportUiCopy.js'
 
 // Il flat-config ESLint del repo non rileva l'uso di `motion` via JSX member.
@@ -156,6 +157,7 @@ export default function ReportShell({
     colorTotals = {},
     approfondimento = { sezioniData: [], sezioniTest: null },
     rawRecord = {},
+    sottodisposizionePrevalente = '',
   } = hasReportData ? reportData : {}
 
   const correnteColore = profilo?.colore || '#4ade80'
@@ -176,6 +178,18 @@ export default function ReportShell({
     () => buildCorrentDataFromRecord(rawRecord || {}),
     [rawRecord],
   )
+
+  const lessicoAnalitico = useMemo(() => {
+    if (!hasReportData) return null
+    return buildLessicoAnaliticoViewModel({
+      rawRecord,
+      correnti,
+      correntiByPeso: reportData.correntiByPeso || [],
+      sottocorrenti,
+      dominantColorName: profilo?.famiglia || '',
+      sottodisposizionePrevalente,
+    })
+  }, [hasReportData, rawRecord, correnti, reportData.correntiByPeso, sottocorrenti, profilo?.famiglia, sottodisposizionePrevalente])
 
   // Liste leggere per i componenti (nome/colore/peso).
   const correntiLite = useMemo(
@@ -470,7 +484,7 @@ export default function ReportShell({
                             totalScores={colorTotals}
                             sottocorrenti={sottocorrenti}
                             onOpenGlossary={openGlossary}
-                            sottodisposizione={rawRecord?.Sottodisposizione_Prevalente || ''}
+                            sottodisposizione={sottodisposizionePrevalente}
                             portato={portato}
                             stepPrefix="1"
                           />
@@ -632,6 +646,7 @@ export default function ReportShell({
                 rapporti={rapporti}
                 portato={portato}
                 onOpenGlossary={openGlossary}
+                lessicoAnalitico={lessicoAnalitico}
               />
             </Suspense>
           </div>

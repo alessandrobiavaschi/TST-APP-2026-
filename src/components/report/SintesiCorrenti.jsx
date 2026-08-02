@@ -214,6 +214,38 @@ function pctAttivazione(peso) {
 }
 
 function buildTotalScoreRadarData(totalScores = {}, correnti = [], assignedFamilies = []) {
+  // Consuma direttamente il contratto dati di Claude se presente
+  const hasContractValues = correnti.some(c => c && 'valoreAssoluto' in c && 'scala1a7' in c)
+
+  if (hasContractValues) {
+    const sumRaw = correnti.reduce((acc, c) => acc + (Number(c.valoreAssoluto) || 0), 0)
+    const max = Math.max(...correnti.map(c => Number(c.valoreAssoluto) || 0), 0)
+    const familyLabels = {
+      blu: 'Lunare',
+      giallo: 'Solare',
+      rosso: 'Marziale',
+      verde: 'Flemmatica',
+      grigio: 'Anaffettiva',
+    }
+    return TOTAL_SCORE_RADAR_AXES.map((axis) => {
+      const c = correnti.find(item => String(item.familyKey || '').toLowerCase() === axis.key.toLowerCase())
+      const rawValue = c ? (Number(c.valoreAssoluto) || 0) : 0
+      const valore = c ? (Number(c.scala1a7) || 0) : 1
+      const distributionPercent = c ? (Number(c.peso) || 0) : 0
+      return {
+        corrente: axis.corrente,
+        valore,
+        rawValue,
+        totalRawPoints: sumRaw,
+        maxRawPoints: max,
+        familyKey: axis.key,
+        familyLabel: familyLabels[axis.key] || axis.corrente,
+        distributionPercent,
+      }
+    })
+  }
+
+  // Fallback se i campi del contratto dati mancano
   const valuesByKey = {
     blu: Number(totalScores.blu) || 0,
     rosso: Number(totalScores.rosso) || 0,
@@ -681,8 +713,8 @@ export default function SintesiCorrenti({
                       style={{ backgroundColor: sub.colore }}
                     />
                     <span className="sintesi-mobile-subcurrent-name">{sottocorrenteDisplayName(sub.nome)}</span>
-                    <span className="sintesi-mobile-subcurrent-val">
-                      {pctAttivazione(sub.percentuale)}
+                    <span className="sintesi-mobile-subcurrent-val" title={sub.misurabile !== false ? REPORT_CRITERION.attivazione : "Non misurabile nel test"}>
+                      {sub.misurabile !== false ? pctAttivazione(sub.percentuale) : 'N.D.'}
                     </span>
                   </div>
                   <div className="sintesi-mobile-subcurrent-track">
@@ -690,7 +722,7 @@ export default function SintesiCorrenti({
                       className="sintesi-mobile-subcurrent-fill"
                       style={{ backgroundColor: sub.colore }}
                       initial={prefersReducedMotion ? false : { width: '0%' }}
-                      whileInView={{ width: `${Math.min(100, Math.max(0, sub.percentuale))}%` }}
+                      whileInView={{ width: `${sub.misurabile !== false ? Math.min(100, Math.max(0, sub.percentuale)) : 0}%` }}
                       viewport={viewport}
                       transition={{ duration: 0.5, ease: "easeOut" }}
                     />
@@ -961,8 +993,8 @@ export default function SintesiCorrenti({
                             aria-hidden="true"
                           />
                           <span className="sintesi-correnti__subcurrent-name">{sottocorrenteDisplayName(sub.nome)}</span>
-                          <span className="sintesi-correnti__subcurrent-value" title={REPORT_CRITERION.attivazione}>
-                            {pctAttivazione(sub.percentuale)}
+                          <span className="sintesi-correnti__subcurrent-value" title={sub.misurabile !== false ? REPORT_CRITERION.attivazione : "Non misurabile nel test"}>
+                            {sub.misurabile !== false ? pctAttivazione(sub.percentuale) : 'N.D.'}
                           </span>
                         </div>
                         <div className="sintesi-correnti__subcurrent-track">
@@ -970,7 +1002,7 @@ export default function SintesiCorrenti({
                             className="sintesi-correnti__subcurrent-fill"
                             style={{ backgroundColor: sub.colore }}
                             initial={prefersReducedMotion ? false : { width: '0%' }}
-                            whileInView={{ width: `${Math.min(100, Math.max(0, sub.percentuale))}%` }}
+                            whileInView={{ width: `${sub.misurabile !== false ? Math.min(100, Math.max(0, sub.percentuale)) : 0}%` }}
                             viewport={viewport}
                             transition={{ duration: 0.5, ease: "easeOut" }}
                           />

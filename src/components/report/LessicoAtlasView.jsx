@@ -102,6 +102,18 @@ const FAMILY_ORDER = [
   'agnostica_anaffettiva',
 ]
 
+const VIEW_MODEL_FAMILIES = [
+  { familyKey: 'blu', familyName: 'Blu', familyId: 'malinconica_nostalgica' },
+  { familyKey: 'rosso', familyName: 'Rosso', familyId: 'collerico_volitiva' },
+  { familyKey: 'verde', familyName: 'Verde', familyId: 'flemmatica' },
+  { familyKey: 'giallo', familyName: 'Giallo', familyId: 'entusiasmo' },
+  { familyKey: 'grigio', familyName: 'Grigio', familyId: 'agnostica_anaffettiva' },
+]
+
+const ATLAS_FAMILY_ID_BY_KEY = Object.fromEntries(
+  VIEW_MODEL_FAMILIES.map(({ familyKey, familyId }) => [familyKey, familyId]),
+)
+
 // ─── Build word atlas (static, computed once) ────────────────────────────────
 function buildAtlasWords() {
   const all = []
@@ -205,9 +217,16 @@ const FAMILY_LIST = FAMILY_ORDER.map((id) => ({ id, ...FAMILY_META[id] }))
 const CAMERA_RESET = { x: 0, y: 0, scale: 1 }
 
 // ─── Dictionary panel ─────────────────────────────────────────────────────────
-function DictionaryPanel({ word, onClose, onSelectWord }) {
+function DictionaryPanel({ word, onClose, onSelectWord, viewModel }) {
   if (!word) return null
   const meta = FAMILY_META[word.familyId]
+
+  const dynamicWordInfo = viewModel?.lessicoSituazionale?.find(
+    (p) =>
+      p.parola.toLowerCase() === word.nome.toLowerCase()
+      && ATLAS_FAMILY_ID_BY_KEY[p.familyKey] === word.familyId
+      && p.correnteKey === word.subcurrentId,
+  )
 
   return (
     <aside className="lessico-dict" aria-label="Dizionario emotivo">
@@ -249,6 +268,32 @@ function DictionaryPanel({ word, onClose, onSelectWord }) {
                 <dd>{word.subcurrentInterval}</dd>
               </div>
             )}
+            <div>
+              <dt>Fonte Lessico</dt>
+              <dd style={{ color: dynamicWordInfo ? '#22c55e' : '#cbd5e1', fontWeight: 600 }}>
+                {dynamicWordInfo ? 'Situazionale (dal test)' : 'Stabile (teoria)'}
+              </dd>
+            </div>
+            {dynamicWordInfo?.fileKeys && dynamicWordInfo.fileKeys.length > 0 && (
+              <div>
+                <dt>Tracce collegate</dt>
+                <dd style={{ color: '#60a5fa' }}>
+                  {dynamicWordInfo.fileKeys.map((f) => `Traccia ${f.replace('File_', '')}`).join(', ')}
+                </dd>
+              </div>
+            )}
+            {dynamicWordInfo && (
+              <>
+                <div>
+                  <dt>Corrente TST</dt>
+                  <dd style={{ fontSize: '0.85rem' }}>{dynamicWordInfo.correnteKey}</dd>
+                </div>
+                <div>
+                  <dt>Famiglia Key</dt>
+                  <dd>{dynamicWordInfo.familyKey}</dd>
+                </div>
+              </>
+            )}
           </dl>
           {word.subcurrentDescription && (
             <div className="lessico-dict__def">
@@ -262,7 +307,10 @@ function DictionaryPanel({ word, onClose, onSelectWord }) {
               <div className="lessico-dict__nearby-list">
                 {word.nearbyWords.map((nome) => {
                   const w = ATLAS_WORDS.find(
-                    (v) => v.nome === nome && v.familyId === word.familyId,
+                    (v) =>
+                      v.nome === nome
+                      && v.familyId === word.familyId
+                      && v.subcurrentId === word.subcurrentId,
                   )
                   return (
                     <button
@@ -385,8 +433,242 @@ function MobileAtlasCard({ fam, isExpanded, onToggle, onSelectWord, searchQuery 
   )
 }
 
+// ─── Analisi Dashboard 2.0 ────────────────────────────────────────────────────
+function AnalisiDashboard({ viewModel, onSelectWord }) {
+  if (!viewModel) return null
+
+  const {
+    datiDisponibili,
+    lessicoStabile = {},
+    lessicoSituazionale = [],
+    campoDiForze = {},
+    contrastiLessicali = [],
+    firmaPersonale = {},
+    costellazioniSemantiche = [],
+    _gap = [],
+  } = viewModel
+  const costellazioniAttive = costellazioniSemantiche.filter(
+    (costellazione) => costellazione.correntiUtenteCollegate?.length > 0,
+  )
+
+  return (
+    <div className="lessico-dashboard">
+      {/* 1. FIRMA PERSONALE */}
+      <div className="lessico-dashboard__section">
+        <h3 className="lessico-dashboard__title">1. Firma Personale</h3>
+        {!datiDisponibili ? (
+          <p className="lessico-dashboard__empty">Firma non disponibile (test non completato).</p>
+        ) : (
+          <div className="lessico-dashboard__firma">
+            <div className="lessico-dashboard__code-wrap">
+              <code className="lessico-dashboard__code">{firmaPersonale.codice}</code>
+            </div>
+            <ul className="lessico-dashboard__list text-xs opacity-90 mt-2 space-y-1">
+              <li>• Natura Prevalente: <strong>{firmaPersonale.componenti.dominante}</strong></li>
+              {firmaPersonale.componenti.sottodisposizione && (
+                <li>• Sotto-disposizione: <strong>{firmaPersonale.componenti.sottodisposizione}</strong></li>
+              )}
+              <li>• Top 3 Famiglie: <strong>{firmaPersonale.componenti.rankingFamiglie.slice(0, 3).join(' · ')}</strong></li>
+            </ul>
+          </div>
+        )}
+      </div>
+
+      {/* 2. CAMPO DI FORZE LESSICALE */}
+      <div className="lessico-dashboard__section">
+        <h3 className="lessico-dashboard__title">2. Campo di Forze</h3>
+        {!datiDisponibili ? (
+          <p className="lessico-dashboard__empty">Campo di forze non disponibile.</p>
+        ) : (
+          <div className="lessico-dashboard__forze">
+            <div className="lessico-dashboard__vettore-risultante">
+              <span className="text-xs uppercase tracking-wider opacity-60">Vettore risultante</span>
+              <div className="flex space-x-3 font-mono text-sm mt-1">
+                <span>X: <strong>{campoDiForze.risultante.x.toFixed(2)}</strong></span>
+                <span>Y: <strong>{campoDiForze.risultante.y.toFixed(2)}</strong></span>
+                <span>Z: <strong>{campoDiForze.risultante.z.toFixed(2)}</strong></span>
+              </div>
+              <p className="text-xs opacity-75 mt-1">
+                Magnitudine: <strong>{campoDiForze.magnitudineRisultante.toFixed(2)}</strong>
+              </p>
+            </div>
+            {campoDiForze.polaritaDominante && (
+              <p className="text-xs mt-2">
+                Polarità Dominante: <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30 uppercase">{campoDiForze.polaritaDominante}</span>
+              </p>
+            )}
+            <details className="lessico-dashboard__details mt-2">
+              <summary className="text-xs cursor-pointer select-none text-slate-400 hover:text-slate-200">
+                Mostra vettori per famiglia
+              </summary>
+              <div className="space-y-1 mt-1 text-[11px] font-mono opacity-80 pl-2 border-l border-slate-700">
+                {campoDiForze.perFamiglia.map((fam) => {
+                  const m = FAMILY_META[ATLAS_FAMILY_ID_BY_KEY[fam.familyKey]]
+                  return (
+                    <div key={fam.familyKey} className="flex justify-between">
+                      <span style={{ color: m?.baseColor }}>{fam.familyName}</span>
+                      <span>[{fam.vettore.x.toFixed(2)}, {fam.vettore.y.toFixed(2)}, {fam.vettore.z.toFixed(2)}]</span>
+                    </div>
+                  )
+                })}
+              </div>
+            </details>
+          </div>
+        )}
+      </div>
+
+      {/* 3. COSTELLAZIONI SEMANTICHE */}
+      <div className="lessico-dashboard__section">
+        <h3 className="lessico-dashboard__title">3. Costellazioni Semantiche</h3>
+        {costellazioniAttive.length === 0 ? (
+          <p className="lessico-dashboard__empty">Nessuna costellazione semantica attiva.</p>
+        ) : (
+          <div className="space-y-3">
+            {costellazioniAttive.map((c) => {
+              const activeCount = c.correntiUtenteCollegate.length
+              return (
+                <div key={c.conceptId} className="p-2 rounded bg-slate-950/40 border border-slate-800/60">
+                  <div className="flex justify-between items-center">
+                    <strong className="text-xs text-blue-300">{c.label}</strong>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-900 text-slate-400">
+                      {activeCount} {activeCount === 1 ? 'connessione' : 'connessioni'}
+                    </span>
+                  </div>
+                  {c.correntiUtenteCollegate.length > 0 ? (
+                    <div className="mt-1.5 space-y-1">
+                      {c.correntiUtenteCollegate.map((s) => (
+                        <div key={s.rawKey} className="flex justify-between items-center text-[10px] opacity-80">
+                          <span>{s.nome}</span>
+                          <span className="font-mono text-blue-400">{s.percentuale}%</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-[10px] opacity-50 mt-1 italic">Nessuna corrente collegata attiva</p>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* 4. LESSICO STABILE E SITUAZIONALE */}
+      <div className="lessico-dashboard__section">
+        <h3 className="lessico-dashboard__title">4. Lessico Stabile e Situazionale</h3>
+        <div className="space-y-3">
+          {/* Situazionale */}
+          <div>
+            <span className="text-[11px] uppercase tracking-wider opacity-60 block mb-1">Situazionale (dal test)</span>
+            {!datiDisponibili || lessicoSituazionale.length === 0 ? (
+              <p className="lessico-dashboard__empty">Nessuna parola emersa dal test.</p>
+            ) : (
+              <div className="flex flex-wrap gap-1.5">
+                {lessicoSituazionale.map((p) => {
+                  const familyId = ATLAS_FAMILY_ID_BY_KEY[p.familyKey]
+                  const match = ATLAS_WORDS.find(
+                    (w) =>
+                      w.nome.toLowerCase() === p.parola.toLowerCase()
+                      && w.familyId === familyId
+                      && w.subcurrentId === p.correnteKey,
+                  )
+                  const fColor = FAMILY_META[familyId]?.baseColor || '#fff'
+                  return (
+                    <button
+                      key={`${p.parola}-${p.correnteKey}`}
+                      type="button"
+                      className="lessico-dashboard__pill lessico-dashboard__pill--situational"
+                      style={{
+                        borderColor: `${fColor}33`,
+                        '--hover-border': fColor,
+                      }}
+                      onClick={() => match && onSelectWord(match)}
+                      title={`Parola: ${p.parola}. Clicca per selezionare. (${p.count} risposte, file: ${p.fileKeys.join(', ')})`}
+                    >
+                      <span>{p.parola}</span>
+                      <small className="ml-1 opacity-60 font-mono text-[9px]">{p.count}</small>
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Stabile (Teoria) */}
+          <div>
+            <span className="text-[11px] uppercase tracking-wider opacity-60 block mb-1">Stabile (teorico di riferimento)</span>
+            <details className="lessico-dashboard__details">
+              <summary className="text-xs cursor-pointer select-none text-slate-400 hover:text-slate-200">
+                Mostra dizionario teorico
+              </summary>
+              <div className="space-y-2 mt-1.5">
+                {VIEW_MODEL_FAMILIES.map(({ familyId, familyName }) => {
+                  const stabile = lessicoStabile[familyName]
+                  const meta = FAMILY_META[familyId]
+                  const forms = stabile?.vocabolarioAggettivi || []
+                  return (
+                    <div key={familyId} className="text-[11px]">
+                      <strong style={{ color: meta?.baseColor }}>{familyName}</strong>
+                      <p className="opacity-80 mt-0.5 leading-relaxed">{forms.slice(0, 10).join(', ')}...</p>
+                    </div>
+                  )
+                })}
+              </div>
+            </details>
+          </div>
+        </div>
+      </div>
+
+      {/* 5. CONTRASTI LESSICALI */}
+      <div className="lessico-dashboard__section">
+        <h3 className="lessico-dashboard__title">5. Contrasti Lessicali</h3>
+        {!datiDisponibili || contrastiLessicali.length === 0 ? (
+          <p className="lessico-dashboard__empty">Contrasti lessicali non disponibili.</p>
+        ) : (
+          <div className="space-y-2">
+            {contrastiLessicali.map((c, idx) => (
+              <div key={idx} className={`p-2 rounded bg-slate-950/30 border ${c.isContrastante ? 'border-amber-500/20 bg-amber-500/5' : 'border-slate-800/40 opacity-80'}`}>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs font-semibold">{c.coppia[0]} <span className="opacity-40">vs</span> {c.coppia[1]}</span>
+                  <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold uppercase ${c.isContrastante ? 'bg-amber-500/20 text-amber-300' : 'bg-slate-900 text-slate-500'}`}>
+                    {c.isContrastante ? 'Attivo' : 'Silente'}
+                  </span>
+                </div>
+                <div className="mt-1.5 grid grid-cols-2 gap-2 text-[10px]">
+                  <div>
+                    <span className="opacity-60 block font-semibold">{c.coppia[0]}</span>
+                    <span className="block italic opacity-95">{c.paroleA.slice(0, 3).join(', ') || 'Nessuna'}</span>
+                    <span className="text-[9px] opacity-40 font-mono">fonte: {c.fonteParoleA}</span>
+                  </div>
+                  <div>
+                    <span className="opacity-60 block font-semibold">{c.coppia[1]}</span>
+                    <span className="block italic opacity-95">{c.paroleB.slice(0, 3).join(', ') || 'Nessuna'}</span>
+                    <span className="text-[9px] opacity-40 font-mono">fonte: {c.fonteParoleB}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* 6. GAP E COMPORTAMENTO GAP ONESTO */}
+      {_gap && _gap.length > 0 && (
+        <div className="lessico-dashboard__section lessico-dashboard__section--gap">
+          <h3 className="lessico-dashboard__title opacity-50">Limiti dei dati & Gap</h3>
+          <ul className="space-y-1 pl-3 list-disc text-[10px] opacity-60 leading-normal">
+            {_gap.map((g, idx) => (
+              <li key={idx}>{g}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
-export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false }) {
+export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, viewModel = null }) {
   const [selectedWord, setSelectedWord] = useState(null)
   const [hoveredWordId, setHoveredWordId] = useState(null)
   const [filterFamily, setFilterFamily] = useState(null)
@@ -395,6 +677,7 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false }
   const [expandedMobileFamily, setExpandedMobileFamily] = useState(null)
   const [camera, setCamera] = useState(CAMERA_RESET)
   const [cameraAnimating, setCameraAnimating] = useState(false)
+  const [showDashboard, setShowDashboard] = useState(true)
 
   const canvasRef = useRef(null)
   const layerRef = useRef(null)
@@ -410,13 +693,22 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false }
 
   const normalizedSearch = searchQuery.trim().toLowerCase()
 
-  const emergedSet = React.useMemo(() => {
-    const s = new Set()
+  const emergedWords = React.useMemo(() => {
+    const precise = new Set()
+    const fallback = new Set()
     for (const p of paroleEmerse || []) {
       const nome = typeof p === 'string' ? p : (p?.parola || p?.nome || '')
-      if (nome) s.add(nome.toLowerCase())
+      if (!nome) continue
+      const normalizedName = nome.toLowerCase()
+      const familyId = typeof p === 'string' ? '' : ATLAS_FAMILY_ID_BY_KEY[p?.familyKey]
+      const correnteKey = typeof p === 'string' ? '' : p?.correnteKey
+      if (familyId && correnteKey) {
+        precise.add(`${familyId}|${correnteKey}|${normalizedName}`)
+      } else {
+        fallback.add(normalizedName)
+      }
     }
-    return s
+    return { precise, fallback }
   }, [paroleEmerse])
 
   const getWordOpacity = useCallback(
@@ -688,6 +980,15 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false }
     if (cameraRafRef.current) cancelAnimationFrame(cameraRafRef.current)
   }, [])
 
+  // ── Auto focus on selected word ────────────────────────────────────────────
+  useEffect(() => {
+    if (selectedWord && layerRef.current) {
+      const rect = layerRef.current.getBoundingClientRect()
+      beginCameraAnimation()
+      applyCamera(centerCameraOnPoint(selectedWord, 2.2, rect.width, rect.height, true))
+    }
+  }, [selectedWord, centerCameraOnPoint, applyCamera, beginCameraAnimation])
+
   const handleSearchToggle = useCallback(() => {
     setShowSearch((prev) => { if (prev) setSearchQuery(''); return !prev })
   }, [])
@@ -708,8 +1009,31 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false }
           </div>
         )}
 
-        {/* Search */}
-        <div className="lessico-atlas__search-wrap">
+        {/* Search & Analisi Toggle */}
+        <div className="lessico-atlas__search-wrap" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          {viewModel && !isMobile && (
+            <button
+              type="button"
+              className="lessico-atlas__search-btn"
+              style={{
+                width: 'auto',
+                padding: '0 12px',
+                fontSize: '0.75rem',
+                borderRadius: '9999px',
+                whiteSpace: 'nowrap',
+                height: '32px',
+                backgroundColor: showDashboard ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
+                borderColor: showDashboard ? '#3b82f6' : 'rgba(255,255,255,0.2)',
+                color: showDashboard ? '#60a5fa' : '#cbd5e1',
+                borderWidth: '1px',
+              }}
+              onClick={() => setShowDashboard((prev) => !prev)}
+              aria-label={showDashboard ? 'Nascondi dashboard analisi' : 'Mostra dashboard analisi lessicale'}
+              aria-pressed={showDashboard ? 'true' : 'false'}
+            >
+              {showDashboard ? 'Nascondi Analisi' : 'Analisi Lessicale'}
+            </button>
+          )}
           {showSearch && (
             <input
               ref={searchInputRef}
@@ -786,13 +1110,18 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false }
               const opacity = getWordOpacity(word)
               const isSelected = selectedWord?.id === word.id
               const isHovered = hoveredWordId === word.id
-              const isEmerged = emergedSet.has(word.nome.toLowerCase())
+              const normalizedName = word.nome.toLowerCase()
+              const isEmerged =
+                emergedWords.precise.has(`${word.familyId}|${word.subcurrentId}|${normalizedName}`)
+                || emergedWords.fallback.has(normalizedName)
+              const isFilteredOut = opacity === 0.05
               const pos = getAtlasPoint(word)
               const focusDimmed = Boolean(selectedWord && !isSelected)
               return (
                 <button
                   key={word.id}
                   type="button"
+                  tabIndex={isFilteredOut ? -1 : 0}
                   className={`lessico-atlas__word${isSelected ? ' is-selected' : ''}${isEmerged ? ' is-emerged' : ''}${isHovered ? ' is-hovered' : ''}`}
                   style={{
                     left: `${pos.x}%`,
@@ -817,6 +1146,37 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false }
       ) : (
         /* ── Mobile: vertical card stack ────────────────────────────────── */
         <div className="lessico-atlas__mobile-stack">
+          {viewModel && (
+            <div
+              className={`lessico-mobile-card${expandedMobileFamily === 'dashboard' ? ' is-expanded' : ''}`}
+              style={{ '--card-color': '#3b82f6' }}
+            >
+              <button
+                type="button"
+                className="lessico-mobile-card__header"
+                onClick={() => setExpandedMobileFamily((prev) => (prev === 'dashboard' ? null : 'dashboard'))}
+                aria-expanded={expandedMobileFamily === 'dashboard'}
+              >
+                <span className="lessico-mobile-card__dot" style={{ backgroundColor: '#3b82f6' }} aria-hidden />
+                <strong className="lessico-mobile-card__title">Analisi Lessicale 2.0</strong>
+                <span className="lessico-mobile-card__count">
+                  {viewModel.datiDisponibili ? 'Firma & Forze' : 'Vuoto'}
+                </span>
+                <span className="lessico-mobile-card__chevron" aria-hidden>{expandedMobileFamily === 'dashboard' ? '▲' : '▼'}</span>
+              </button>
+              {expandedMobileFamily === 'dashboard' && (
+                <div className="lessico-mobile-card__body" style={{ padding: '1rem' }}>
+                  <AnalisiDashboard
+                    viewModel={viewModel}
+                    onSelectWord={(w) => {
+                      setSelectedWord(w)
+                      setExpandedMobileFamily(null)
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+          )}
           {FAMILY_LIST.map((fam) => (
             <MobileAtlasCard
               key={fam.id}
@@ -836,7 +1196,30 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false }
           word={selectedWord}
           onClose={() => setSelectedWord(null)}
           onSelectWord={setSelectedWord}
+          viewModel={viewModel}
         />
+      ) : !isMobile && showDashboard && viewModel ? (
+        <aside className="lessico-dict" aria-label="Analisi lessicale">
+          <div className="lessico-dict__bezel" style={{ '--dict-color': '#3b82f6', width: '340px' }}>
+            <header className="lessico-dict__head" style={{ borderBottomColor: 'rgba(59, 130, 246, 0.2)' }}>
+              <p className="lessico-dict__kicker" style={{ color: '#60a5fa' }}>Analisi Lessicale 2.0</p>
+              <button
+                type="button"
+                className="lessico-dict__close"
+                onClick={() => setShowDashboard(false)}
+                aria-label="Nascondi analisi lessicale"
+              >
+                ✕
+              </button>
+            </header>
+            <div className="lessico-dict__body" style={{ padding: '1rem', overflowY: 'auto' }}>
+              <AnalisiDashboard
+                viewModel={viewModel}
+                onSelectWord={(w) => setSelectedWord(w)}
+              />
+            </div>
+          </div>
+        </aside>
       ) : null}
     </div>
   )
