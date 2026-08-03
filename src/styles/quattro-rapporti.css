@@ -130,6 +130,67 @@
   color: rgba(100, 116, 139, 0.9);
 }
 
+.quattro-rapporti-ranking {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.quattro-rapporti-ranking__summary {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.quattro-rapporti-ranking__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 0.5rem;
+}
+
+.quattro-rapporti-ranking__item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.15rem 0.5rem;
+  min-width: 0;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.035);
+  color: rgba(255, 255, 255, 0.78);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.quattro-rapporti-ranking__item:hover,
+.quattro-rapporti-ranking__item--selected {
+  border-color: color-mix(in srgb, var(--qr-family-color) 65%, white 10%);
+  background: color-mix(in srgb, var(--qr-family-color) 12%, transparent);
+}
+
+.quattro-rapporti-ranking__item:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+.quattro-rapporti-ranking__item span,
+.quattro-rapporti-ranking__item strong {
+  font-size: 0.8rem;
+}
+
+.quattro-rapporti-ranking__item strong {
+  color: var(--qr-family-color, #ffffff);
+}
+
+.quattro-rapporti-ranking__item small {
+  grid-column: 1 / -1;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.67rem;
+}
+
 .quattro-rapporti-divider {
   align-self: stretch;
   width: 1px;
@@ -271,6 +332,10 @@
   .quattro-rapporti-divider {
     min-height: 0;
   }
+
+  .quattro-rapporti-radar .recharts-polar-angle-axis-tick-value {
+    font-size: 11px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -293,6 +358,64 @@
 .quattro-rapporti-radar-detail strong {
   color: var(--qr-accent);
   font-size: 1rem;
+}
+
+.quattro-rapporti-radar-detail__heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.65rem;
+}
+
+.quattro-rapporti-radar-detail__heading span {
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 0.78rem;
+}
+
+.quattro-rapporti-radar-detail__value {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.quattro-rapporti-shades {
+  display: grid;
+  gap: 0.45rem;
+  margin-top: 0.35rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.quattro-rapporti-shades p,
+.quattro-rapporti-shades ul {
+  margin: 0;
+}
+
+.quattro-rapporti-shades p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.quattro-rapporti-shades ul {
+  display: grid;
+  gap: 0.3rem;
+  padding: 0;
+  list-style: none;
+}
+
+.quattro-rapporti-shades li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.quattro-rapporti-shades li strong {
+  font-size: 0.88rem;
+}
+
+.quattro-rapporti-shades small {
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.45;
 }
 
 .quattro-rapporti-radar-detail small {

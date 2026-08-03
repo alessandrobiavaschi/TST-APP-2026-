@@ -410,7 +410,7 @@ function buildNaturaBaseText({ dispositionLabel, dominantLevel, levels }) {
     : `Il test rivela anche la presenza delle altre disposizioni e, nonostante una tendenza temperamentale ${famiglia}, indica ${equilibrio}.`
 
   return [
-    `Il test conferma la tua appartenenza alla famiglia ${famiglia}: timbro, melodia e armonia convergono nel riconoscere questa natura emotiva di base.`,
+    `Il test conferma la tua appartenenza alla famiglia ${famiglia}: timbro, intervalli e armonia convergono nel riconoscere questa natura emotiva di base.`,
     `Questa parte rivela quanta sintonia hai con la famiglia ${famiglia}: nel tuo caso emerge una ${appartenenza}.`,
     terzoperiodo,
   ].join(' ')
@@ -816,9 +816,9 @@ export function buildReportData({
     {
       id: 'natura',
       nome: 'La tua Natura di Base',
-      composizione: 'Timbro + Melodia + conferma Armonia',
+      composizione: 'Timbro + Intervalli + Armonia',
       composizioneSemplice:
-        'Questa parte mette insieme il tuo modo spontaneo di sentire, il modo in cui ti orienti nelle relazioni e una conferma del tuo equilibrio emotivo.',
+        'Questa parte somma i punti ottenuti nelle risposte su Timbro, Intervalli e Armonia, separatamente per ciascuna famiglia emotiva.',
       definizione:
         'Il suolo emotivo di fondo: Terra sonora (Timbro), Luce sonora (Intervalli) e Calore sonoro (Armonia). Mostra l’impronta che tendi ad abitare al di là delle situazioni.',
       cosaIndica:
@@ -861,7 +861,7 @@ export function buildReportData({
 
   const radarFamilies = FAMILY_ORDER.map((familyName) => {
     const theme = FAMILY_THEME[familyName]
-    return { familyName, key: theme.key, nome: theme.corrente, colore: theme.dot }
+    return { familyName, key: theme.key, nome: theme.family, colore: theme.dot }
   })
 
   const rapporti = RAPPORTI_META.map((meta) => {
@@ -875,6 +875,7 @@ export function buildReportData({
         corrente: f.nome,
         familyKey: f.key,
         familyLabel: f.familyName,
+        colore: f.colore,
         valore: Number(levels?.[f.key]) || 0,
         rawValue,
         totalRawPoints: rawSum,
@@ -882,6 +883,35 @@ export function buildReportData({
         distributionPercent: rawSum > 0 ? Number(((rawValue / rawSum) * 100).toFixed(1)) : 0,
       }
     })
+    const graduatoria = [...datiRadar].sort((a, b) => {
+      if (b.valore !== a.valore) return b.valore - a.valore
+      if (b.rawValue !== a.rawValue) return b.rawValue - a.rawValue
+      return radarFamilies.findIndex((family) => family.key === a.familyKey) -
+        radarFamilies.findIndex((family) => family.key === b.familyKey)
+    })
+    const topLevel = graduatoria[0]?.valore || 0
+    const topLevelFamilies = graduatoria.filter(
+      (item) => item.rawValue > 0 && item.valore === topLevel,
+    )
+    const topRawPoints = graduatoria[0]?.rawValue || 0
+    const topRawFamilies = graduatoria.filter(
+      (item) => item.rawValue > 0 && item.rawValue === topRawPoints,
+    )
+    const famiglieInEvidenza = graduatoria.filter(
+      (item) => item.rawValue > 0 && item.valore >= 5 && topLevel - item.valore <= 2,
+    )
+    const profiloComposto = topLevelFamilies.length > 1 || famiglieInEvidenza.length > 1
+    const formatFamilyLevels = (items) =>
+      items.map((item) => `${item.corrente} ${item.valore}/7`).join(', ')
+    const esitoComposizione = rawSum <= 0
+      ? 'Dati insufficienti per descrivere la composizione di questa lente.'
+      : topRawFamilies.length > 1
+        ? `Prevalenza a pari punti: ${formatFamilyLevels(topRawFamilies)}.`
+        : topLevelFamilies.length > 1
+          ? `Più famiglie raggiungono 7/7 dopo la normalizzazione: ${formatFamilyLevels(topLevelFamilies)}.`
+          : profiloComposto
+            ? `Profilo composto: ${formatFamilyLevels(famiglieInEvidenza)}.`
+            : `Prevalenza netta: ${formatFamilyLevels(graduatoria.slice(0, 1))}.`
     const localPrincipale = radarFamilies.reduce(
       (best, f) => {
         const v = Number(levels?.[f.key]) || 0
@@ -982,6 +1012,12 @@ export function buildReportData({
       cosaIndica: meta.cosaIndica,
       correntePrincipale: { nome: principale.nome, colore: principale.colore, familyKey: principale.key },
       datiRadar,
+      graduatoria,
+      topLevelFamilies,
+      topRawFamilies,
+      famiglieInEvidenza,
+      profiloComposto,
+      esitoComposizione,
       criterioRadar: 'livello_relativo',
     }
   })

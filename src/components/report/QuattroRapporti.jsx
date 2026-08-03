@@ -21,6 +21,20 @@ import {
 import '../../styles/quattro-rapporti.css'
 
 const FALLBACK_COLOR = '#94a3b8'
+const FAMILY_THEME_BY_KEY = Object.fromEntries(
+  Object.values(FAMILY_THEME).map((theme) => [theme.key, theme]),
+)
+
+function normalizeFamilyDatum(datum = {}) {
+  const familyTheme = FAMILY_THEME_BY_KEY[datum.familyKey]
+  return {
+    ...datum,
+    // I confronti mostrano famiglie distinte. Le nature (per esempio Lunare
+    // o Solare) appartengono al livello di dettaglio della singola famiglia.
+    corrente: familyTheme?.family || datum.corrente,
+  }
+}
+
 const RAPPORTI_LENS_BY_ID = (RAPPORTI_UI.lensCards || []).reduce((acc, item) => {
   acc[item.id] = item
   return acc
@@ -60,7 +74,9 @@ function AxisTick({ x, y, payload, textAnchor, index, onSelect }) {
       style={{ cursor: 'pointer' }}
       onClick={() => onSelect?.(index)}
       onKeyDown={(event) => {
-        if (event.key === 'Enter' || event.key === ' ') onSelect?.(index)
+        if (event.key !== 'Enter' && event.key !== ' ') return
+        event.preventDefault()
+        onSelect?.(index)
       }}
     >
       {payload?.value}
@@ -68,28 +84,64 @@ function AxisTick({ x, y, payload, textAnchor, index, onSelect }) {
   )
 }
 
+function RadarPoint({ cx, cy, payload, index, selectedFamilyKey, onSelect }) {
+  if (!Number.isFinite(cx) || !Number.isFinite(cy) || !payload) return null
+  const selected = payload.familyKey === selectedFamilyKey
+  const label = `${payload.corrente}: ${payload.valore} su 7. Seleziona per i dettagli.`
+  return (
+    <g
+      role="button"
+      tabIndex="0"
+      aria-label={label}
+      style={{ cursor: 'pointer' }}
+      onClick={(event) => {
+        event.stopPropagation()
+        onSelect?.(payload.familyKey, index)
+      }}
+      onKeyDown={(event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return
+        event.preventDefault()
+        onSelect?.(payload.familyKey, index)
+      }}
+    >
+      <title>{label}</title>
+      <circle cx={cx} cy={cy} r="14" fill="transparent" />
+      <circle
+        cx={cx}
+        cy={cy}
+        r={selected ? 7 : 5}
+        fill={payload.colore || FALLBACK_COLOR}
+        stroke={selected ? '#ffffff' : payload.colore || FALLBACK_COLOR}
+        strokeWidth={selected ? 2.5 : 1.5}
+        pointerEvents="none"
+      />
+    </g>
+  )
+}
+
 function buildRapportiTitle(profilo = {}) {
   const family = profilo?.famiglia || 'Verde'
-  const names = {
-    Blu: 'Malinconico-Nostalgica',
-    Rosso: 'Volitivo-Collerica',
-    Verde: 'Calma Flemmatica',
-    Giallo: 'Sanguigno-Entusiasta',
-    Grigio: 'Anaffettiva-Nichilista',
+  const families = {
+    Blu: { famiglia: 'Malinconica', natura: 'Lunare' },
+    Rosso: { famiglia: 'Marziale', natura: 'Volitivo-collerica' },
+    Verde: { famiglia: 'Flemmatica', natura: 'Contemplativa' },
+    Giallo: { famiglia: 'Entusiasta', natura: 'Solare' },
+    Grigio: { famiglia: 'Razionale', natura: 'Intellettuale-Razionale' },
   }
-  const nomeNatura = names[family] || names.Verde
-  return `Il quadro dei rapporti della natura ${nomeNatura}`
+  const labels = families[family] || families.Verde
+  return `Il quadro dei rapporti della famiglia ${labels.famiglia}, natura ${labels.natura}`
 }
 
 export default function QuattroRapporti({
   rapporti = [],
   coloriCorrenti = {},
   profilo = {},
+  sottocorrenti = [],
   step = '2',
 }) {
   const reduceMotion = useReducedMotion()
   const [selectedIndex, setSelectedIndex] = useState(0)
-  const [selectedFamilyIndex, setSelectedFamilyIndex] = useState(0)
+  const [selectedFamilyByRapporto, setSelectedFamilyByRapporto] = useState({})
   const rapportiMainRef = useRef(null)
   const shouldCenterRapportoRef = useRef(false)
 
@@ -106,18 +158,27 @@ export default function QuattroRapporti({
 
   const radarData = useMemo(() => {
     if (!active?.datiRadar) return []
-    return active.datiRadar.map((d) => ({
-      ...d,
-      valore: typeof d.valore === 'number' ? d.valore : 0,
+    return active.datiRadar.map((datum) => ({
+      ...normalizeFamilyDatum(datum),
+      valore: typeof datum.valore === 'number' ? datum.valore : 0,
     }))
   }, [active])
 
-  const selectedFamily = radarData[selectedFamilyIndex] || radarData[0] || null
+  const selectedFamilyKey =
+    selectedFamilyByRapporto[active?.id] || active?.correntePrincipale?.familyKey || radarData[0]?.familyKey
+  const selectedFamily =
+    radarData.find((item) => item.familyKey === selectedFamilyKey) || radarData[0] || null
+  const selectedTheme = FAMILY_THEME_BY_KEY[selectedFamily?.familyKey]
+  const selectedShades = sottocorrenti.filter(
+    (item) => item.familyKey === selectedFamily?.familyKey && item.misurabile !== false,
+  )
+  const ranking = active?.graduatoria?.length
+    ? active.graduatoria.map(normalizeFamilyDatum)
+    : [...radarData].sort((a, b) => b.valore - a.valore || b.rawValue - a.rawValue)
 
-  const handleRadarClick = (state) => {
-    if (typeof state?.activeTooltipIndex === 'number') {
-      setSelectedFamilyIndex(state.activeTooltipIndex)
-    }
+  const selectFamily = (familyKey) => {
+    if (!active?.id || !familyKey) return
+    setSelectedFamilyByRapporto((current) => ({ ...current, [active.id]: familyKey }))
   }
 
   const fadeDuration = reduceMotion ? 0 : 0.15
@@ -215,7 +276,7 @@ export default function QuattroRapporti({
           <div className="quattro-rapporti-radar-wrap">
             <div
               className="quattro-rapporti-radar"
-              role="img"
+              role="group"
               aria-label={
                 active
                   ? `Radar del rapporto ${active.nome}: ${RAPPORTI_UI.radarCaption}`
@@ -223,11 +284,15 @@ export default function QuattroRapporti({
               }
             >
               <ResponsiveContainer width="100%" height={320} debounce={100}>
-                <RadarChart data={radarData} outerRadius="72%" onClick={handleRadarClick}>
+                <RadarChart data={radarData} outerRadius="64%">
                   <PolarGrid stroke="#334155" strokeOpacity={0.5} />
                   <PolarAngleAxis
                     dataKey="corrente"
-                    tick={<AxisTick onSelect={setSelectedFamilyIndex} />}
+                    tick={(
+                      <AxisTick
+                        onSelect={(index) => selectFamily(radarData[index]?.familyKey)}
+                      />
+                    )}
                   />
                   <PolarRadiusAxis
                     angle={90}
@@ -241,7 +306,12 @@ export default function QuattroRapporti({
                     strokeWidth={2.5}
                     fill={activeColor}
                     fillOpacity={0.15}
-                    dot={{ r: 5, fill: activeColor, stroke: activeColor }}
+                    dot={(
+                      <RadarPoint
+                        selectedFamilyKey={selectedFamilyKey}
+                        onSelect={selectFamily}
+                      />
+                    )}
                     isAnimationActive={!reduceMotion}
                     animationDuration={400}
                   />
@@ -251,9 +321,67 @@ export default function QuattroRapporti({
                 <p className="quattro-rapporti-radar-caption">{RAPPORTI_UI.radarCaption}</p>
                 <p className="quattro-rapporti-radar-scale">{RAPPORTI_UI.radarScaleNote}</p>
               </div>
+              {ranking.length ? (
+                <div className="quattro-rapporti-ranking" aria-label="Classifica completa delle famiglie in questa lente">
+                  <p className="quattro-rapporti-ranking__summary">
+                    {active.esitoComposizione || 'Confronta tutti i valori della lente.'}
+                  </p>
+                  <div className="quattro-rapporti-ranking__list">
+                    {ranking.map((item, index) => {
+                      const sameGraphLevel = index > 0 && item.valore === ranking[index - 1].valore
+                      const tied = sameGraphLevel && item.rawValue === ranking[index - 1].rawValue
+                      return (
+                        <button
+                          key={item.familyKey}
+                          type="button"
+                          className={`quattro-rapporti-ranking__item${item.familyKey === selectedFamilyKey ? ' quattro-rapporti-ranking__item--selected' : ''}`}
+                          style={{ '--qr-family-color': item.colore || FALLBACK_COLOR }}
+                          aria-pressed={item.familyKey === selectedFamilyKey}
+                          onClick={() => selectFamily(item.familyKey)}
+                        >
+                          <span>
+                            {item.corrente}
+                            {tied ? ' · pari punti' : sameGraphLevel ? ' · stesso livello grafico' : ''}
+                          </span>
+                          <strong>{item.valore}/7</strong>
+                          <small>
+                            {item.rawValue} punti · {item.distributionPercent}% della lente
+                          </small>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              ) : null}
               {selectedFamily ? (
                 <div className="quattro-rapporti-radar-detail" aria-live="polite">
-                  <strong>{selectedFamily.corrente}</strong>
+                  <div className="quattro-rapporti-radar-detail__heading">
+                    <strong>{selectedFamily.corrente}</strong>
+                    {selectedTheme?.characteristic ? (
+                      <span>natura {selectedTheme.characteristic.toLowerCase()}</span>
+                    ) : null}
+                  </div>
+                  <p className="quattro-rapporti-radar-detail__value">
+                    {selectedFamily.valore}/7 · {selectedFamily.distributionPercent ?? 0}% dei punti di questa lente
+                  </p>
+                  {selectedShades.length ? (
+                    <div className="quattro-rapporti-shades">
+                      <p>Sfumature della famiglia nel profilo complessivo</p>
+                      <ul>
+                        {selectedShades.map((shade) => (
+                          <li key={shade.rawKey}>
+                            <span>{shade.nome}</span>
+                            <strong>{shade.percentuale}%</strong>
+                          </li>
+                        ))}
+                      </ul>
+                      <small>
+                        Queste percentuali non appartengono alla singola lente: indicano l'attivazione
+                        complessiva di ogni sfumatura sul suo massimo teorico. Sono indipendenti e non
+                        devono sommare a 100%.
+                      </small>
+                    </div>
+                  ) : null}
                   <CalculationDisclosure>
                     <div className="calculation-disclosure__method">
                       <p>{active.composizioneSemplice}</p>
@@ -264,14 +392,22 @@ export default function QuattroRapporti({
                       <p><strong>Presenza in questo rapporto:</strong> {selectedFamily.distributionPercent ?? 0}%</p>
                       <p><strong>Valore nel grafico:</strong> {selectedFamily.valore} su 7</p>
                     </div>
-                    <p className="calculation-disclosure__formula">
-                      Il valore nel grafico è su una scala 1–7 interna a questo rapporto, non una
-                      percentuale di attivazione. La presenza è la quota di questi{' '}
-                      {selectedFamily.rawValue ?? 0} punti sui{' '}
-                      {selectedFamily.totalRawPoints ?? 0} punti ottenuti dalle cinque famiglie in
-                      questo rapporto. Nel grafico, la famiglia con più punti vale 7; le altre
-                      ricevono un valore proporzionato ai suoi {selectedFamily.maxRawPoints ?? 0} punti.
-                    </p>
+                    {selectedFamily.maxRawPoints > 0 ? (
+                      <p className="calculation-disclosure__formula">
+                        Formula: {selectedFamily.rawValue ?? 0} ÷ {selectedFamily.maxRawPoints} × 7,
+                        arrotondata all'intero più vicino. La famiglia con più punti vale quindi 7;
+                        le altre sono proporzionate allo stesso massimo. Il{' '}
+                        {selectedFamily.distributionPercent ?? 0}% indica invece la quota di{' '}
+                        {selectedFamily.rawValue ?? 0} punti sui {selectedFamily.totalRawPoints ?? 0}{' '}
+                        complessivi della lente. Più famiglie possono raggiungere 7 per effetto
+                        dell'arrotondamento: i punti grezzi permettono di distinguere un vero pari merito.
+                        Un 7, un 6 e un 5 restano tutti visibili e descrivono un profilo composto.
+                      </p>
+                    ) : (
+                      <p className="calculation-disclosure__formula">
+                        Non ci sono punti sufficienti per calcolare questa lente.
+                      </p>
+                    )}
                   </CalculationDisclosure>
                 </div>
               ) : null}

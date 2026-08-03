@@ -109,6 +109,16 @@ test('separa punti ottenuti, quota percentuale e valore normalizzato nei radar',
 
   assert.equal(radar.length, 5)
   assert.deepEqual(
+    Object.fromEntries(radar.map((item) => [item.familyKey, item.corrente])),
+    {
+      verde: 'Flemmatica',
+      rosso: 'Marziale',
+      blu: 'Malinconica',
+      giallo: 'Entusiasta',
+      grigio: 'Razionale',
+    },
+  )
+  assert.deepEqual(
     {
       rawValue: blu.rawValue,
       totalRawPoints: blu.totalRawPoints,
@@ -125,6 +135,30 @@ test('separa punti ottenuti, quota percentuale e valore normalizzato nei radar',
     },
     { rawValue: 0, distributionPercent: 0, normalizedValue: 1 },
   )
+})
+
+test('descrive profili composti, graduatorie e pari merito senza perdere le sfumature', () => {
+  const report = buildReportData({
+    record: { raw: {} },
+    dominantColorName: 'Rosso',
+    rapportiTotals: {
+      natura: { rosso: 14, blu: 12, giallo: 10, verde: 2, grigio: 2 },
+      se: { rosso: 9, blu: 9, giallo: 4, verde: 1, grigio: 1 },
+    },
+    rapportiLevels: {
+      natura: { rosso: 7, blu: 6, giallo: 5, verde: 1, grigio: 1 },
+      se: { rosso: 7, blu: 7, giallo: 3, verde: 1, grigio: 1 },
+    },
+  })
+
+  const natura = report.rapporti.find((item) => item.id === 'natura')
+  const se = report.rapporti.find((item) => item.id === 'se')
+
+  assert.equal(natura.profiloComposto, true)
+  assert.deepEqual(natura.famiglieInEvidenza.map((item) => item.valore), [7, 6, 5])
+  assert.match(natura.esitoComposizione, /Marziale 7\/7, Malinconica 6\/7, Entusiasta 5\/7/)
+  assert.deepEqual(se.graduatoria.slice(0, 2).map((item) => item.valore), [7, 7])
+  assert.match(se.esitoComposizione, /Prevalenza a pari punti/)
 })
 
 test('le sottocategorie restano nella famiglia corretta e usano i massimi teorici', () => {

@@ -145,8 +145,9 @@ export const RAPPORTI_UI = {
     'Il numero 1–7 non è un voto sulla persona: indica quanto la famiglia emotiva più forte domina dentro quella lente.',
   tablistAria: 'Seleziona rapporto',
   correntePrincipaleLabel: 'Famiglia più alta in questa lente',
-  radarCaption: 'Livello relativo per famiglia · scala 1–7',
-  radarScaleNote: 'Scala 1–7 · confronto interno a questa lente',
+  radarCaption:
+    'Cinque famiglie distinte: Malinconica, Marziale, Flemmatica, Entusiasta e Razionale · seleziona un vertice o una riga',
+  radarScaleNote: '7 = famiglia più alta nella lente; gli altri valori sono proporzionati allo stesso massimo',
   scaleBannerTitle: 'Come leggere i grafici',
   scaleBanner:
     'Qui i grafici usano una scala 1–7 (confronto interno a ciascun rapporto), non le percentuali di attivazione della Sintesi.',

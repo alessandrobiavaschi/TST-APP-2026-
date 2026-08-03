@@ -507,6 +507,7 @@ export default function ReportShell({
                             rapporti={rapporti}
                             coloriCorrenti={coloriCorrenti}
                             profilo={profilo}
+                            sottocorrenti={sottocorrenti}
                             step="1.4"
                           />
                         </Suspense>
