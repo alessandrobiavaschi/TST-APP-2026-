@@ -4,6 +4,9 @@ import test from 'node:test'
 import {
   buildNaturaNarrative,
   NATURA_NARRATIVE_STATUS,
+  NATURA_RELATION_RULES,
+  resolvePrevalenceDescriptor,
+  resolveTensionDescriptor,
 } from '../src/utils/buildNaturaNarrative.js'
 
 const FAMILY_CASES = [
@@ -27,8 +30,8 @@ test('applica la formula editoriale a tutte le famiglie con maiuscole standard',
     const text = result.paragraphs.join(' ')
 
     assert.equal(result.status, NATURA_NARRATIVE_STATUS.CLEAR)
-    assert.match(text, new RegExp(`famiglia ${family}`))
-    assert.match(text, new RegExp(`natura ${nature}`))
+    assert.equal(result.paragraphs[0], `Il test conferma la tua appartenenza alla famiglia ${family}.`)
+    assert.equal(result.paragraphs[1], `La lettura delle diverse aree del test converge nel riconoscere come ${nature} la tua natura emotiva di base.`)
     assert.doesNotMatch(text, /profonda appartenenza|buona armonia/i)
   })
 })
@@ -51,9 +54,69 @@ test('racconta tutte le componenti di un profilo 7 6 5 e solo le tensioni codifi
   assert.match(text, /famiglia Marziale/)
   assert.match(text, /componente Flemmatica/)
   assert.match(text, /componente Entusiasta/)
-  assert.match(text, /mette in dialogo iniziativa e pausa/)
-  assert.match(text, /Si affianca alla componente Marziale/)
+  assert.match(text, /tensione significativa/)
+  assert.match(text, /spinta all'azione con il bisogno di pausa/)
+  assert.match(text, /slancio e volontà condividono un orientamento dinamico/)
   assert.doesNotMatch(text, /in accordo|buona armonia/i)
+})
+
+test('gradua la prevalenza sulla distanza percentuale tra prima e seconda famiglia', () => {
+  assert.equal(resolvePrevalenceDescriptor(10), 'certa')
+  assert.equal(resolvePrevalenceDescriptor(20), 'discreta')
+  assert.equal(resolvePrevalenceDescriptor(30), 'chiara')
+  assert.equal(resolvePrevalenceDescriptor(40), 'marcata')
+  assert.equal(resolvePrevalenceDescriptor(41), 'netta')
+
+  const close = buildNaturaNarrative({
+    dominantFamilyKey: 'rosso',
+    ranking: [
+      radarItem('rosso', 31, 31, 7),
+      radarItem('blu', 23, 23, 5),
+      radarItem('giallo', 23, 23, 5),
+    ],
+  })
+  const distant = buildNaturaNarrative({
+    dominantFamilyKey: 'rosso',
+    ranking: [
+      radarItem('rosso', 50, 50, 7),
+      radarItem('blu', 15, 15, 2),
+    ],
+  })
+
+  assert.match(close.paragraphs.join(' '), /una certa prevalenza.*8 punti percentuali/i)
+  assert.match(distant.paragraphs.join(' '), /una marcata prevalenza.*35 punti percentuali/i)
+})
+
+test('la percentuale gradua la tensione solo dopo aver verificato la coppia teorica', () => {
+  assert.equal(resolveTensionDescriptor(10), 'leggera')
+  assert.equal(resolveTensionDescriptor(20), 'moderata')
+  assert.equal(resolveTensionDescriptor(30), 'significativa')
+  assert.equal(resolveTensionDescriptor(40), 'marcata')
+  assert.equal(resolveTensionDescriptor(41), 'molto intensa')
+  assert.equal(NATURA_RELATION_RULES['blu|verde'].kind, 'modulation')
+  assert.equal(NATURA_RELATION_RULES['rosso|verde'].kind, 'tension')
+  assert.equal(NATURA_RELATION_RULES['giallo|verde'].kind, 'tension')
+
+  const malinconicaConFlemma = buildNaturaNarrative({
+    dominantFamilyKey: 'blu',
+    ranking: [
+      radarItem('blu', 60, 60, 7),
+      radarItem('verde', 30, 30, 5),
+      radarItem('rosso', 10, 10, 1),
+    ],
+  })
+  const marzialeConFlemma = buildNaturaNarrative({
+    dominantFamilyKey: 'rosso',
+    ranking: [
+      radarItem('rosso', 70, 70, 7),
+      radarItem('verde', 10, 10, 2),
+      radarItem('blu', 20, 20, 3),
+    ],
+  })
+
+  assert.match(malinconicaConFlemma.paragraphs.join(' '), /calma accompagna l'interiorità senza opporvisi/i)
+  assert.doesNotMatch(malinconicaConFlemma.paragraphs.join(' '), /componente Flemmatica.*tensione/i)
+  assert.match(marzialeConFlemma.paragraphs.join(' '), /tensione leggera.*componente Flemmatica.*10%/i)
 })
 
 test('distingue il pari livello grafico dal vero pari punti', () => {
@@ -76,6 +139,8 @@ test('distingue il pari livello grafico dal vero pari punti', () => {
   assert.match(roundedTie.paragraphs.join(' '), /per effetto dell'arrotondamento/)
   assert.equal(trueTie.status, NATURA_NARRATIVE_STATUS.TRUE_TIE)
   assert.match(trueTie.paragraphs.join(' '), /14 punti ciascuna/)
+  assert.match(trueTie.paragraphs[0], /appartenenza condivisa.*Marziale.*Flemmatica/i)
+  assert.doesNotMatch(trueTie.paragraphs.join(' '), /conferma la tua appartenenza alla famiglia/i)
 })
 
 test('racconta le sfumature come attivazioni complessive indipendenti', () => {

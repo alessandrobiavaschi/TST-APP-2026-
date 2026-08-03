@@ -17,13 +17,68 @@ const FAMILY_CONTRIBUTION_BY_KEY = {
   rosso: 'introduce fermezza e capacità di realizzazione, sostenendo il passaggio dall\'intenzione all\'azione',
   verde: 'introduce calma e moderazione, regolando l\'impulso e dando spazio alla pausa',
   giallo: 'introduce slancio, curiosità e apertura, rendendo il profilo più mobile e proiettivo',
-  grigio: 'introduce lucidità e distanza osservativa, moderando la reattività e sostenendo il discernimento',
+  grigio: 'introduce distanza osservativa e controllo, attenuando la reattività emotiva',
 }
 
-const TENSION_RELATION_BY_PAIR = {
-  'blu|rosso': 'mette in dialogo riflessione interiore e azione',
-  'giallo|grigio': 'mette in dialogo slancio e distanza osservativa',
-  'rosso|verde': 'mette in dialogo iniziativa e pausa',
+export const NATURA_RELATION_RULES = Object.freeze({
+  'blu|verde': {
+    kind: 'modulation',
+    copy: 'la calma accompagna l\'interiorità senza opporvisi e può moderare un\'introspezione troppo intensa',
+  },
+  'rosso|verde': {
+    kind: 'tension',
+    copy: 'mette in tensione la spinta all\'azione con il bisogno di pausa e moderazione',
+  },
+  'giallo|verde': {
+    kind: 'tension',
+    copy: 'mette in tensione il movimento e l\'eccitazione con il bisogno di quiete',
+  },
+  'blu|rosso': {
+    kind: 'modulation',
+    copy: 'la riflessione e la sensibilità compensano la fermezza orientata all\'azione',
+  },
+  'giallo|rosso': {
+    kind: 'affinity',
+    copy: 'slancio e volontà condividono un orientamento dinamico verso il fare',
+  },
+  'blu|giallo': {
+    kind: 'modulation',
+    copy: 'l\'apertura verso l\'esterno si alterna alla riflessione interiore',
+  },
+  'giallo|grigio': {
+    kind: 'tension',
+    copy: 'mette in tensione lo slancio vitale con il raffreddamento e la distanza osservativa',
+  },
+  'grigio|rosso': {
+    kind: 'tension',
+    copy: 'mette in tensione la calda volontà con il distacco razionale',
+  },
+  'blu|grigio': {
+    kind: 'attenuation',
+    copy: 'la distanza razionale può attenuare l\'intensità dell\'esperienza interiore',
+  },
+  'grigio|verde': {
+    kind: 'attenuation',
+    copy: 'la distanza razionale può attenuare la qualità affettiva della calma',
+  },
+})
+
+export function resolvePrevalenceDescriptor(gapPercent = 0) {
+  const gap = Math.max(0, Number(gapPercent) || 0)
+  if (gap <= 10) return 'certa'
+  if (gap <= 20) return 'discreta'
+  if (gap <= 30) return 'chiara'
+  if (gap <= 40) return 'marcata'
+  return 'netta'
+}
+
+export function resolveTensionDescriptor(oppositePercent = 0) {
+  const percent = Math.max(0, Number(oppositePercent) || 0)
+  if (percent <= 10) return 'leggera'
+  if (percent <= 20) return 'moderata'
+  if (percent <= 30) return 'significativa'
+  if (percent <= 40) return 'marcata'
+  return 'molto intensa'
 }
 
 function sentenceCase(value) {
@@ -114,37 +169,65 @@ export function buildNaturaNarrative({
   else if (topLevelFamilies.length > 1) status = NATURA_NARRATIVE_STATUS.ROUNDED_TIE
   else if (highlightedFamilies.length > 1) status = NATURA_NARRATIVE_STATUS.COMPOSITE
 
-  const sourceLabel = formatItalianList(sourceAreas)
   const profileCopy = familyCopy(profileFamily.familyKey)
   const leaderCopy = familyCopy(leader.familyKey)
-  const firstParagraph = profileFamily.familyKey === leader.familyKey
-    ? `Le risposte nelle aree ${sourceLabel} convergono nel rilevare una prevalenza della famiglia ${profileCopy.family}, associata alla natura ${profileCopy.nature}.`
-    : `Nel profilo complessivo prevale la famiglia ${profileCopy.family}, associata alla natura ${profileCopy.nature}; nella lente composta da ${sourceLabel}, tuttavia, il valore più alto appartiene alla famiglia ${leaderCopy.family}.`
+  const familyParagraph = status === NATURA_NARRATIVE_STATUS.TRUE_TIE
+    ? `Il test rileva un'appartenenza condivisa alle famiglie ${formatItalianList(topRawFamilies.map((item) => familyCopy(item.familyKey).family))}.`
+    : `Il test conferma la tua appartenenza alla famiglia ${profileCopy.family}.`
+  const natureParagraph = status === NATURA_NARRATIVE_STATUS.TRUE_TIE
+    ? `La lettura delle diverse aree del test converge nel riconoscere una natura emotiva di base composta, in cui coesistono le nature ${formatItalianList(topRawFamilies.map((item) => familyCopy(item.familyKey).nature))}.`
+    : `La lettura delle diverse aree del test converge nel riconoscere come ${profileCopy.nature} la tua natura emotiva di base.`
 
   let resultParagraph
   if (status === NATURA_NARRATIVE_STATUS.TRUE_TIE) {
     const tied = formatItalianList(topRawFamilies.map((item) => familyCopy(item.familyKey).family))
-    resultParagraph = `${tied} condividono la prevalenza con ${leader.rawValue} punti ciascuna. Il risultato descrive una prevalenza congiunta, non una sola famiglia dominante.`
-  } else if (status === NATURA_NARRATIVE_STATUS.ROUNDED_TIE) {
-    const sameLevel = formatItalianList(topLevelFamilies.map((item) => familyCopy(item.familyKey).family))
-    resultParagraph = `${sameLevel} raggiungono lo stesso livello grafico di ${leader.valore}/7 per effetto dell'arrotondamento. I punti grezzi mantengono al primo posto la famiglia ${leaderCopy.family}, con ${leader.rawValue} punti e il ${formatPercent(leader.distributionPercent)}% dei punti della lente.`
+    resultParagraph = `La lente rileva una prevalenza condivisa tra ${tied}, con ${leader.rawValue} punti ciascuna: non attribuisce quindi il primato a una sola famiglia.`
   } else {
-    resultParagraph = `La famiglia ${leaderCopy.family} raccoglie ${leader.rawValue} punti, pari al ${formatPercent(leader.distributionPercent)}% dei punti della lente, e occupa il primo posto nel confronto interno con un livello relativo di ${leader.valore}/7.`
+    const runnerUp = ranked[1]
+    const gap = Math.max(
+      0,
+      (Number(leader.distributionPercent) || 0) - (Number(runnerUp?.distributionPercent) || 0),
+    )
+    const descriptor = resolvePrevalenceDescriptor(gap)
+    const roundedTieCopy = status === NATURA_NARRATIVE_STATUS.ROUNDED_TIE
+      ? ` Pur raggiungendo lo stesso livello grafico di ${leader.valore}/7 per effetto dell'arrotondamento, i punti grezzi mantengono al primo posto la famiglia ${leaderCopy.family}.`
+      : ''
+    resultParagraph = `La lente rivela una ${descriptor} prevalenza rispetto alle altre disposizioni temperamentali: la distanza tra la famiglia ${leaderCopy.family} e la seconda famiglia è di ${formatPercent(gap)} punti percentuali.${roundedTieCopy}`
   }
 
   const secondaryFamilies = highlightedFamilies.filter(
     (item) => item.familyKey !== leader.familyKey,
   )
-  const relations = []
+  const relatedFamilies = ranked
+    .filter((item) => item.familyKey !== leader.familyKey)
+    .map((item) => ({
+      ...item,
+      rule: NATURA_RELATION_RULES[pairKey(leader.familyKey, item.familyKey)] || null,
+    }))
+  const tensionFamilies = relatedFamilies.filter(({ rule }) => rule?.kind === 'tension')
+  const strongestTension = tensionFamilies.sort(
+    (a, b) => (Number(b.distributionPercent) || 0) - (Number(a.distributionPercent) || 0),
+  )[0]
+  const relations = relatedFamilies
+    .filter(({ rule }) => rule)
+    .map((item) => ({ from: leader.familyKey, to: item.familyKey, kind: item.rule.kind }))
+
+  const relationParagraph = strongestTension
+    ? (() => {
+        const copy = familyCopy(strongestTension.familyKey)
+        const intensity = resolveTensionDescriptor(strongestTension.distributionPercent)
+        return `Il profilo presenta anche una tensione ${intensity} con la natura di base, legata alla presenza della componente ${copy.family} al ${formatPercent(strongestTension.distributionPercent)}%.`
+      })()
+    : 'Le componenti secondarie si affiancano alla natura di base e ne ampliano le sfumature senza configurare una relazione di opposizione.'
+
   const contributionSentences = secondaryFamilies.map((item) => {
     const copy = familyCopy(item.familyKey)
-    const relation = TENSION_RELATION_BY_PAIR[pairKey(leader.familyKey, item.familyKey)]
-    if (relation) relations.push({ from: leader.familyKey, to: item.familyKey, kind: 'tension' })
+    const relation = NATURA_RELATION_RULES[pairKey(leader.familyKey, item.familyKey)]
     const contribution = FAMILY_CONTRIBUTION_BY_KEY[item.familyKey] || 'aggiunge una diversa modulazione emotiva al profilo'
     const relationText = relation
-      ? ` Nel dialogo con la componente ${leaderCopy.family}, ${relation}.`
+      ? ` Nel dialogo con la componente ${leaderCopy.family}, ${relation.copy}.`
       : ` Si affianca alla componente ${leaderCopy.family} senza annullarne la prevalenza.`
-    return `La componente ${copy.family} rappresenta il ${formatPercent(item.distributionPercent)}% dei punti della lente e ${contribution}.${relationText}`
+    return `La componente ${copy.family}, associata alla natura ${copy.nature}, rappresenta il ${formatPercent(item.distributionPercent)}% dei punti della lente e ${contribution}.${relationText}`
   })
 
   const compositionParagraph = contributionSentences.length
@@ -158,8 +241,10 @@ export function buildNaturaNarrative({
   return {
     status,
     paragraphs: [
-      firstParagraph,
+      familyParagraph,
+      natureParagraph,
       resultParagraph,
+      relationParagraph,
       compositionParagraph,
       closingParagraph,
       shadesParagraph,

@@ -464,7 +464,20 @@ export default function QuattroRapporti({
                     <p className="quattro-rapporti-read__label">
                       Lettura del risultato
                     </p>
-                    <p className="quattro-rapporti-read__text">{active.definizione}</p>
+                    {Array.isArray(active.definizioneParagrafi) && active.definizioneParagrafi.length ? (
+                      <div className="quattro-rapporti-read__narrative">
+                        {active.definizioneParagrafi.map((paragraph, paragraphIndex) => (
+                          <p
+                            key={`${active.id}-narrative-${paragraphIndex}`}
+                            className={`quattro-rapporti-read__text${paragraphIndex === 0 ? ' quattro-rapporti-read__text--lead' : ''}`}
+                          >
+                            {paragraph}
+                          </p>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="quattro-rapporti-read__text">{active.definizione}</p>
+                    )}
                   </div>
                 </motion.div>
               )}

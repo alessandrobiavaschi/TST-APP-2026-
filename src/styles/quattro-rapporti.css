@@ -312,6 +312,17 @@
   color: rgba(255, 255, 255, 0.82);
 }
 
+.quattro-rapporti-read__narrative {
+  display: grid;
+  gap: var(--space-sm, 1rem);
+  max-width: 65ch;
+}
+
+.quattro-rapporti-read__text--lead {
+  color: rgba(255, 255, 255, 0.94);
+  font-weight: 720;
+}
+
 @supports not (color: color-mix(in srgb, red 10%, transparent)) {
   .quattro-rapporti-tab--selected {
     background: rgba(255, 255, 255, 0.06);

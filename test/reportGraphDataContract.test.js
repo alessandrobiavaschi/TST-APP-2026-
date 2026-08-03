@@ -176,9 +176,9 @@ test('la lettura della Natura usa la prevalente della lente e racconta le second
   const natura = report.rapporti.find((item) => item.id === 'natura')
 
   assert.equal(natura.correntePrincipale.nome, 'Flemmatica')
-  assert.match(natura.definizioneParagrafi[0], /famiglia Flemmatica.*natura Contemplativa/i)
-  assert.match(natura.definizione, /componente Marziale rappresenta/i)
-  assert.doesNotMatch(natura.definizione, /volitivo|colleric/i)
+  assert.match(natura.definizioneParagrafi[0], /appartenenza alla famiglia Flemmatica/i)
+  assert.match(natura.definizioneParagrafi[1], /come Contemplativa.*natura emotiva di base/i)
+  assert.match(natura.definizione, /componente Marziale, associata alla natura Volitivo-collerica/i)
 })
 
 test('le sottocategorie restano nella famiglia corretta e usano i massimi teorici', () => {
