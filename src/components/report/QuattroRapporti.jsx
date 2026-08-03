@@ -17,6 +17,7 @@ import {
   PolarAngleAxis,
   PolarRadiusAxis,
   Radar,
+  Tooltip,
 } from 'recharts'
 import '../../styles/quattro-rapporti.css'
 
@@ -72,6 +73,25 @@ function AxisTick({ x, y, payload, textAnchor }) {
     >
       {payload?.value}
     </text>
+  )
+}
+
+function RadarTooltipContent({ active, payload }) {
+  if (!active || !payload?.length) return null
+  const item = payload[0]?.payload
+  if (!item) return null
+
+  return (
+    <div
+      className="quattro-rapporti-radar-tooltip"
+      style={{ '--qr-tooltip-color': item.colore || FALLBACK_COLOR }}
+    >
+      <span className="quattro-rapporti-radar-tooltip__family">{item.corrente}</span>
+      <strong className="quattro-rapporti-radar-tooltip__value">{item.valore}/7</strong>
+      <small>
+        {item.rawValue ?? 0} punti · {item.distributionPercent ?? 0}% della lente
+      </small>
+    </div>
   )
 }
 
@@ -288,6 +308,11 @@ export default function QuattroRapporti({
                     tick={{ fill: '#64748b', fontSize: 10 }}
                     axisLine={false}
                   />
+                  <Tooltip
+                    content={<RadarTooltipContent />}
+                    cursor={false}
+                    wrapperStyle={{ pointerEvents: 'none', zIndex: 4 }}
+                  />
                   <Radar
                     dataKey="valore"
                     stroke={hexToRgba(activeColor, 0.9)}
@@ -308,6 +333,9 @@ export default function QuattroRapporti({
               <div className="quattro-rapporti-radar-guide">
                 <p className="quattro-rapporti-radar-caption">{RAPPORTI_UI.radarCaption}</p>
                 <p className="quattro-rapporti-radar-scale">{RAPPORTI_UI.radarScaleNote}</p>
+                <p className="quattro-rapporti-radar-hint">
+                  Passa sugli spigoli per vedere i valori esatti. Seleziona uno spigolo per approfondire.
+                </p>
               </div>
               {ranking.length ? (
                 <div className="quattro-rapporti-ranking" aria-label="Classifica completa delle famiglie in questa lente">

@@ -218,6 +218,39 @@ Integrare il commit dedicato senza includere le altre modifiche non committate g
 
 ---
 
+## Tooltip sugli spigoli dei Quattro Rapporti — 2026-08-03
+
+### Sintesi
+
+I cinque vertici dei radar dei Quattro Rapporti mostrano ora un tooltip immediato al passaggio del mouse con famiglia, valore in scala 1–7, punti grezzi e percentuale della lente. Click, Invio e barra spaziatrice continuano a selezionare la famiglia e ad aggiornare il dettaglio esteso.
+
+### File modificati
+
+- `src/components/report/QuattroRapporti.jsx`
+- `src/styles/quattro-rapporti.css`
+- `HANDOFF_CODEX.md`
+
+### Decisioni e assunzioni
+
+- Riutilizzato il sistema `Tooltip` di Recharts, mantenendo le hit-area accessibili già presenti sui vertici.
+- Il tooltip non intercetta il puntatore e non altera click o navigazione da tastiera.
+- Aggiunta sotto il radar un'istruzione breve per rendere evidente l'interazione.
+- Punteggi, scala, graduatoria e calcolo scientifico restano invariati.
+
+### Verifiche
+
+- `npm test`: 51 test superati, 0 falliti.
+- `npm run lint -- --quiet`: superato, 0 errori.
+- `npm run build`: superato, 1227 moduli trasformati.
+- `git diff --check`: superato.
+- Browser locale: lo stato vuoto della route report è corretto; l'hover popolato non è riproducibile senza il record di sessione mostrato nello screenshot.
+
+### Integrazione
+
+Integrare il commit dedicato senza includere le altre modifiche non committate già presenti nel worktree.
+
+---
+
 ## Contenimento etichette nei grafici — 2026-08-03
 
 ### Sintesi

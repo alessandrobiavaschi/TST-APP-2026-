@@ -130,6 +130,43 @@
   color: rgba(100, 116, 139, 0.9);
 }
 
+.quattro-rapporti-radar-hint {
+  margin: 0.45rem 0 0;
+  font-size: 0.7rem;
+  line-height: 1.4;
+  color: rgba(226, 232, 240, 0.58);
+}
+
+.quattro-rapporti-radar-tooltip {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.15rem 0.75rem;
+  min-width: 10rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--qr-tooltip-color) 55%, #334155);
+  border-radius: 8px;
+  background: rgba(7, 13, 27, 0.96);
+  box-shadow: 0 0.6rem 1.5rem rgba(0, 0, 0, 0.34);
+  font-family: var(--font-body);
+}
+
+.quattro-rapporti-radar-tooltip__family {
+  color: #f8fafc;
+  font-size: 0.78rem;
+  font-weight: 750;
+}
+
+.quattro-rapporti-radar-tooltip__value {
+  color: var(--qr-tooltip-color, #f8fafc);
+  font-size: 0.86rem;
+}
+
+.quattro-rapporti-radar-tooltip small {
+  grid-column: 1 / -1;
+  color: rgba(226, 232, 240, 0.62);
+  font-size: 0.67rem;
+}
+
 .quattro-rapporti-ranking {
   display: grid;
   gap: 0.75rem;
