@@ -44,10 +44,10 @@ const FAMILY_LAYOUT = {
 }
 
 const FAMILY_PRESENCE_LABELS = {
-  verde: { title: 'Calma', detail: 'flemmatica' },
+  verde: { title: 'Flemmaticità', detail: 'flemmatica' },
   giallo: { title: 'Entusiasmo', detail: 'gioiosità' },
-  rosso: { title: 'Volitività', detail: 'collerica' },
-  grigio: { title: 'Anaffettività', detail: 'nichilista' },
+  rosso: { title: 'Marzialità', detail: 'collerica' },
+  grigio: { title: 'Intellettualità-Razionalità', detail: 'nichilista' },
   blu: { title: 'Malinconia', detail: 'nostalgica / lunare-solare' },
 }
 

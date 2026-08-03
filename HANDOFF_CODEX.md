@@ -100,3 +100,32 @@ Verifiche mobile a 390 × 844:
 ## Istruzioni d'integrazione
 
 La branch `ai/integration` è pronta per review. Prima di portarla su `master`, verificare che il worktree non includa la modifica locale estranea a `src/content/famigliaApprofondimento.js`, quindi usare un merge non distruttivo e rieseguire `npm test`, `npm run lint` e `npm run build` sull'albero risultante.
+
+---
+
+## Aggiornamento terminologia famiglie — 2026-08-03
+
+### Sintesi
+
+Nel grafico "Ordine delle famiglie per presenza" le etichette visibili adottano la nomenclatura richiesta: `Malinconia`, `Marzialità`, `Entusiasmo`, `Flemmaticità` e `Intellettualità-Razionalità`. Su mobile le etichette lunghe possono andare a capo invece di essere troncate.
+
+### File modificati
+
+- `src/components/report/SintesiCorrenti.jsx`
+- `src/components/report/SintesiCorrenti.css`
+- `HANDOFF_CODEX.md`
+
+### Decisioni e assunzioni
+
+- Punteggi, ordinamento, colori, sottotipi e logica scientifica sono invariati.
+- Il commit include soltanto le etichette richieste e il relativo adattamento mobile; le modifiche concorrenti già presenti nel worktree restano escluse.
+
+### Verifiche
+
+- `npm run build`: superato, 1224 moduli trasformati.
+- `npm test`: 25 test superati e 8 falliti per l'errore concorrente preesistente `famiglia is not defined` in `src/utils/buildReportData.js`.
+- `npm run lint`: fallito per 21 errori concorrenti preesistenti in `src/content/reportRestitution.js`.
+
+### Integrazione
+
+Integrare il commit di questo aggiornamento senza includere le altre modifiche non committate presenti nel worktree. Dopo la risoluzione degli errori concorrenti indicati sopra, rieseguire test e lint.

@@ -1473,9 +1473,8 @@
   .sintesi-mobile-bar-name {
     font-size: 0.94rem !important;
     color: #f1f5f9 !important;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
   .sintesi-mobile-bar-subname {
     color: #64748b !important;
