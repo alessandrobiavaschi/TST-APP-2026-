@@ -37,6 +37,11 @@ function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value))
 }
 
+function formatScaleScore(score) {
+  const roundedScore = Math.round((Number(score) || 0) * 10) / 10
+  return Number.isInteger(roundedScore) ? String(roundedScore) : roundedScore.toFixed(1)
+}
+
 function getContainedLabelX(x, align, label) {
   const estimatedWidth = Math.max(100, label.length * 17)
 
@@ -226,7 +231,7 @@ export default function EmotionalShape({
                 key={`text-${familyKey}`}
                 tabIndex={0}
                 role="button"
-                aria-label={`Petalo ${NOMI_FAMIGLIE[familyKey] || familyKey}, valore normalizzato in scala ${activeScore ? activeScore.toFixed(1) : 0} su 7`}
+                aria-label={`Petalo ${familyLabel}, valore normalizzato ${formatScaleScore(normalizedTaglia)} su 7`}
                 onFocus={() => handleFamilyHover(familyKey)}
                 onBlur={() => handleFamilyHover(null)}
                 onKeyDown={(e) => {
@@ -311,10 +316,40 @@ export default function EmotionalShape({
         {/* Lettura unica e fissa in alto: evita sovrapposizioni con le etichette dei petali */}
         {activeFamilyKeyResolved ? (
           <g style={{ pointerEvents: 'none' }}>
-            <rect x="380" y="60" width="440" height="60" rx="16" fill="#070d1b" stroke={activeColor} strokeWidth="1.5" opacity="0.95" />
-            <text x="600" y="90" fill="#f8fafc" fontSize="24" fontWeight="800" textAnchor="middle" dominantBaseline="central">
+            <rect
+              x="420"
+              y="56"
+              width="360"
+              height="68"
+              rx="18"
+              fill="#070d1b"
+              stroke="#334155"
+              strokeWidth="1.5"
+              opacity="0.96"
+            />
+            <circle cx="454" cy="90" r="6" fill={activeColor} />
+            <text
+              x="474"
+              y="90"
+              fill="#f8fafc"
+              fontSize="22"
+              fontWeight="750"
+              textAnchor="start"
+              dominantBaseline="central"
+            >
               {NOMI_FAMIGLIE[activeFamilyKeyResolved] || activeFamilyKeyResolved}
-              <tspan fill={activeColor}> — {activeScore.toFixed(1)} / 7 (Scala 1-7)</tspan>
+            </text>
+            <line x1="650" y1="72" x2="650" y2="108" stroke="#334155" strokeWidth="1.5" />
+            <text
+              x="748"
+              y="90"
+              fill={activeColor}
+              fontSize="27"
+              fontWeight="850"
+              textAnchor="end"
+              dominantBaseline="central"
+            >
+              {formatScaleScore(activeScore)}<tspan fill="#94a3b8" fontSize="18" fontWeight="650">/7</tspan>
             </text>
           </g>
         ) : (

@@ -245,6 +245,14 @@ Le etichette laterali del radar e del grafico a petali restano ora contenute nei
 - `git diff --check`: superato.
 - Browser locale: la route report senza record mostra correttamente lo stato vuoto; il profilo mostrato nello screenshot non è riproducibile senza dati di sessione.
 
+### Aggiornamento indicatore delle ellissi
+
+- Il badge selezionato è stato ridotto e reso neutro: punto colore, nome famiglia, separatore e valore compatto `7/7`.
+- Rimossa la ripetizione `(Scala 1-7)`, già spiegata dalla didascalia del grafico.
+- I valori decimali restano disponibili quando significativi, per esempio `6.4/7`; gli interi non mostrano più `.0`.
+- L'etichetta accessibile di ogni petalo usa ora il punteggio della relativa ellisse anziché il valore della selezione attiva.
+- Verifiche successive: 51 test superati, lint e build completati senza errori.
+
 ### Integrazione
 
 Integrare il commit dedicato senza includere le altre modifiche non committate già presenti nel worktree.
