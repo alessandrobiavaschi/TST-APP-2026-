@@ -164,6 +164,16 @@ export function buildOtherNarrative({ dominantFamilyKey = '', ranking = [] } = {
     enthusiasmPercent: enthusiasm.distributionPercent,
   })
   const relation = relationBetween('giallo', dominantFamilyKey)
+  const sameFamily = dominantFamilyKey === 'giallo'
+  const signedDifference = Number((
+    (Number(dominant.distributionPercent) || 0) -
+    (Number(enthusiasm.distributionPercent) || 0)
+  ).toFixed(1))
+  const comparisonCopy = signedDifference > 0
+    ? `La distanza a sfavore dell'Entusiasmo è di ${formatPercent(signedDifference)} punti percentuali.`
+    : signedDifference < 0
+      ? `L'Entusiasmo supera la componente ${dominantCopy.family} di ${formatPercent(Math.abs(signedDifference))} punti percentuali.`
+      : `Le due componenti hanno la stessa presenza percentuale.`
 
   const intros = {
     rosso: 'La tua famiglia emotiva presenta come elemento caratteristico una certa competitività nel rapporto con gli altri.',
@@ -179,16 +189,22 @@ export function buildOtherNarrative({ dominantFamilyKey = '', ranking = [] } = {
     paragraphs: [
       `${intros[dominantFamilyKey] || `La tua natura ${dominantCopy.nature} definisce il modo spontaneo in cui incontri gli altri.`} Questa lente osserva però quanto la corrente dell'Entusiasmo sia presente nel tuo profilo.`,
       `L'Entusiasmo è un fattore determinante: sostiene il coraggio di incontrare persone ed esperienze nuove e favorisce atteggiamenti di apertura, ascolto e comprensione delle diversità altrui.`,
-      `Nel tuo profilo raggiunge il ${formatPercent(enthusiasm.distributionPercent)}%, mentre la componente ${dominantCopy.family} raggiunge il ${formatPercent(dominant.distributionPercent)}%. La distanza a sfavore dell'Entusiasmo è di ${formatPercent(result.deficit)} punti percentuali.`,
-      `La relazione tra ${dominantCopy.family} ed Entusiasta è di ${relation.label}: ${relation.copy}. Il risultato del test rivela una ${result.adjective} propensione all'ascolto del prossimo e a instaurare rapporti fondati sulla fiducia.`,
+      sameFamily
+        ? `Nel tuo profilo la famiglia di base e il fattore relazionale coincidono: la componente Entusiasta raggiunge il ${formatPercent(enthusiasm.distributionPercent)}%.`
+        : `Nel tuo profilo l'Entusiasmo raggiunge il ${formatPercent(enthusiasm.distributionPercent)}%, mentre la componente ${dominantCopy.family} raggiunge il ${formatPercent(dominant.distributionPercent)}%. ${comparisonCopy}`,
+      sameFamily
+        ? `Questa coincidenza rafforza la continuità tra natura di base e apertura relazionale. Il risultato del test rivela una ${result.adjective} propensione all'ascolto del prossimo e a instaurare rapporti fondati sulla fiducia.`
+        : `La relazione tra ${dominantCopy.family} ed Entusiasta è di ${relation.label}: ${relation.copy}. Il risultato del test rivela una ${result.adjective} propensione all'ascolto del prossimo e a instaurare rapporti fondati sulla fiducia.`,
     ],
     metrics: {
       enthusiasmPercent: enthusiasm.distributionPercent,
       dominantPercent: dominant.distributionPercent,
       deficit: result.deficit,
+      signedDifference,
       dominantFamilyKey,
       relationKind: relation.kind,
       grade: result.grade,
+      sameFamily,
     },
   }
 }
@@ -208,7 +224,7 @@ const ACTION_CONTEXT_BY_FAMILY = {
   },
   giallo: {
     relation: 'affinità dinamica',
-    copy: 'La natura Gioioso-sanguinico condivide con la componente Marziale il piacere del movimento, dello slancio e dell’iniziativa. L’Entusiasmo apre nuove possibilità, mentre la Volitività sostiene la decisione e la capacità di portarle a compimento.',
+    copy: 'La natura di tipo Gioioso-sanguinico condivide con la componente Marziale il piacere del movimento, dello slancio e dell’iniziativa. L’Entusiasmo apre nuove possibilità, mentre la Volitività sostiene la decisione e la capacità di portarle a compimento.',
   },
   grigio: {
     relation: 'tensione',

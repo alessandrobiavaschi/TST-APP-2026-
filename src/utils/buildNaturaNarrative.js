@@ -97,7 +97,11 @@ function sentenceCase(value) {
 
 function formatPercent(value) {
   const numeric = Number(value) || 0
-  return String(numeric).replace('.', ',')
+  return String(Number(numeric.toFixed(1))).replace('.', ',')
+}
+
+function percentGap(first = 0, second = 0) {
+  return Number(Math.max(0, (Number(first) || 0) - (Number(second) || 0)).toFixed(1))
 }
 
 function formatItalianList(items = []) {
@@ -193,10 +197,7 @@ export function buildNaturaNarrative({
     resultParagraph = `La lente rileva una prevalenza condivisa tra ${tied}, con ${leader.rawValue} punti ciascuna: non attribuisce quindi il primato a una sola famiglia.`
   } else {
     const runnerUp = ranked[1]
-    const gap = Math.max(
-      0,
-      (Number(leader.distributionPercent) || 0) - (Number(runnerUp?.distributionPercent) || 0),
-    )
+    const gap = percentGap(leader.distributionPercent, runnerUp?.distributionPercent)
     const descriptor = resolvePrevalenceDescriptor(gap)
     const roundedTieCopy = status === NATURA_NARRATIVE_STATUS.ROUNDED_TIE
       ? ` Pur raggiungendo lo stesso livello grafico di ${leader.valore}/7 per effetto dell'arrotondamento, i punti grezzi mantengono al primo posto la famiglia ${leaderCopy.family}.`
@@ -209,7 +210,7 @@ export function buildNaturaNarrative({
   )
   const runnerUp = ranked[1]
   const harmonyGap = runnerUp
-    ? Math.abs((Number(leader.distributionPercent) || 0) - (Number(runnerUp.distributionPercent) || 0))
+    ? percentGap(leader.distributionPercent, runnerUp.distributionPercent)
     : 100
   const harmonyParagraph = runnerUp
     ? `La distanza di ${formatPercent(harmonyGap)} punti percentuali tra le due componenti principali indica ${resolveHarmonyDescriptor(harmonyGap)} nella composizione del profilo.`
@@ -234,7 +235,9 @@ export function buildNaturaNarrative({
         const intensity = resolveTensionDescriptor(strongestTension.distributionPercent)
         return `Il profilo presenta anche una tensione ${intensity} con la natura di base, legata alla presenza della componente ${copy.family} al ${formatPercent(strongestTension.distributionPercent)}%.`
       })()
-    : 'Le componenti secondarie si affiancano alla natura di base e ne ampliano le sfumature senza configurare una relazione di opposizione.'
+    : ranked.length === 1
+      ? 'In questa lente non emergono altre componenti misurate accanto alla natura di base.'
+      : 'Le componenti secondarie si affiancano alla natura di base e ne ampliano le sfumature senza configurare una relazione di opposizione.'
 
   const contributionSentences = secondaryFamilies.map((item) => {
     const copy = familyCopy(item.familyKey)
@@ -248,11 +251,21 @@ export function buildNaturaNarrative({
 
   const compositionParagraph = contributionSentences.length
     ? contributionSentences.join(' ')
-    : 'Le altre famiglie restano presenti con valori più distanti e non modificano la prevalenza rilevata in questa lente.'
+    : ranked.length === 1
+      ? 'Il risultato della lente è concentrato interamente sulla famiglia prevalente; nessun’altra famiglia ha ottenuto punti in questa misurazione.'
+      : 'Le altre famiglie restano presenti con valori più distanti e non modificano la prevalenza rilevata in questa lente.'
   const closingParagraph = contributionSentences.length
     ? 'La compresenza non indica una contraddizione: descrive orientamenti che possono alternarsi o combinarsi in modo diverso a seconda delle situazioni.'
-    : `Il profilo di questa lente resta concentrato intorno alla famiglia ${leaderCopy.family}, pur senza escludere le altre componenti.`
-  const shadesParagraph = buildShadesParagraph(shades, profileFamily.familyKey)
+    : ranked.length === 1
+      ? `Il profilo di questa lente resta quindi concentrato sulla famiglia ${leaderCopy.family}.`
+      : `Il profilo di questa lente resta concentrato intorno alla famiglia ${leaderCopy.family}, pur senza escludere le altre componenti.`
+  const shadeFamilyKeys = status === NATURA_NARRATIVE_STATUS.TRUE_TIE
+    ? topRawFamilies.map((item) => item.familyKey)
+    : [profileFamily.familyKey]
+  const shadesParagraph = shadeFamilyKeys
+    .map((familyKey) => buildShadesParagraph(shades, familyKey))
+    .filter(Boolean)
+    .join(' ')
 
   return {
     status,

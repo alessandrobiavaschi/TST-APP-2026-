@@ -21,6 +21,8 @@ const SUBCURRENT_FAMILY_BY_KEY = {
 let vite
 let buildReportData
 let theoreticalMaxBySubcurrent
+let computeRapportiTotalsFromRaw
+let normalizeLevels
 
 before(async () => {
   vite = await createServer({
@@ -30,8 +32,11 @@ before(async () => {
   })
   const reportModule = await vite.ssrLoadModule('/src/utils/buildReportData.js')
   const scoringModule = await vite.ssrLoadModule('/src/testLogic.js')
+  const recordUtilsModule = await vite.ssrLoadModule('/src/utils/reportRecordUtils.js')
   buildReportData = reportModule.buildReportData
   theoreticalMaxBySubcurrent = scoringModule.THEORETICAL_MAX_SCORE_BY_CORRENTE_KEY
+  computeRapportiTotalsFromRaw = recordUtilsModule.computeRapportiTotalsFromRaw
+  normalizeLevels = recordUtilsModule.normalizeLevels
 })
 
 after(async () => {
@@ -181,6 +186,61 @@ test('la lettura della Natura usa la prevalente della lente e racconta le second
   assert.match(natura.definizione, /componente Marziale, associata alla natura Volitivo-collerica/i)
 })
 
+test('Sé Altro e Agire usano la famiglia risultante dalla Natura classica', () => {
+  const naturaTotals = { verde: 12, rosso: 8, blu: 6, giallo: 3, grigio: 2 }
+  const lensTotals = { rosso: 9, blu: 7, giallo: 5, verde: 3, grigio: 1 }
+  const report = buildReportData({
+    record: { raw: {} },
+    totalsByKey: { rosso: 40, verde: 20, blu: 15, giallo: 15, grigio: 10 },
+    dominantColorName: 'Rosso',
+    rapportiTotals: {
+      natura: naturaTotals,
+      se: lensTotals,
+      altro: lensTotals,
+      agire: lensTotals,
+    },
+    rapportiLevels: {
+      natura: normalizeLevels(naturaTotals),
+      se: normalizeLevels(lensTotals),
+      altro: normalizeLevels(lensTotals),
+      agire: normalizeLevels(lensTotals),
+    },
+  })
+
+  const natura = report.rapporti.find((item) => item.id === 'natura')
+  const se = report.rapporti.find((item) => item.id === 'se')
+  const altro = report.rapporti.find((item) => item.id === 'altro')
+  const agire = report.rapporti.find((item) => item.id === 'agire')
+
+  assert.equal(natura.correntePrincipale.familyKey, 'verde')
+  assert.equal(se.correntePrincipale.familyKey, 'verde')
+  assert.equal(se.narrativaRapporto.metrics.dominantFamilyKey, 'verde')
+  assert.equal(altro.narrativaRapporto.metrics.dominantFamilyKey, 'verde')
+  assert.equal(agire.narrativaRapporto.metrics.dominantFamilyKey, 'verde')
+  assert.match(se.definizione, /Malinconica e Flemmatica.*modulazione/i)
+  assert.match(altro.definizione, /Flemmatica ed Entusiasta.*tensione/i)
+  assert.match(agire.definizione, /natura Contemplativa.*tensione/i)
+})
+
+test('un pari livello grafico mantiene la famiglia con più punti grezzi', () => {
+  const report = buildReportData({
+    record: { raw: {} },
+    dominantColorName: 'Verde',
+    rapportiTotals: {
+      natura: { rosso: 14, verde: 13, blu: 0, giallo: 0, grigio: 0 },
+    },
+    rapportiLevels: {
+      natura: { rosso: 7, verde: 7, blu: 1, giallo: 1, grigio: 1 },
+    },
+  })
+  const natura = report.rapporti.find((item) => item.id === 'natura')
+
+  assert.equal(natura.correntePrincipale.nome, 'Marziale')
+  assert.match(natura.definizioneParagrafi[0], /famiglia Marziale/i)
+  assert.match(natura.definizioneParagrafi[1], /Volitivo-collerica/i)
+  assert.match(natura.definizione, /punti grezzi mantengono al primo posto la famiglia Marziale/i)
+})
+
 test('tutti i quattro rapporti espongono una lettura strutturata coerente con i propri dati', () => {
   const totals = {
     rosso: 31,
@@ -221,6 +281,42 @@ test('tutti i quattro rapporti espongono una lettura strutturata coerente con i 
   assert.match(se.definizione, /Malinconica raggiunge il 23%.*Marziale.*31%/i)
   assert.match(altro.definizione, /Entusiasmo.*23%.*Marziale.*31%.*8 punti percentuali/i)
   assert.match(agire.definizione, /Marziale raggiunge il 31%.*buona propensione all'azione/i)
+})
+
+test('le narrative consumano le quote delle combinazioni classiche ricostruite dal raw', () => {
+  const raw = {
+    File_05: 'Mi dà gioia',
+    File_29: 'Saldo - sicuro - volitivo',
+    File_43: 'Mi rilassa',
+    File_52: 'Mi fa riflettere / mi porta a ricordare',
+    File_59: 'Mi è indifferente',
+  }
+  const rapportiTotals = computeRapportiTotalsFromRaw(raw)
+  const rapportiLevels = Object.fromEntries(
+    Object.entries(rapportiTotals).map(([key, totals]) => [key, normalizeLevels(totals)]),
+  )
+  const report = buildReportData({
+    record: { raw },
+    totalsByKey: { blu: 1, rosso: 3, verde: 2, giallo: 1, grigio: 1 },
+    dominantColorName: 'Rosso',
+    rapportiTotals,
+    rapportiLevels,
+  })
+
+  const natura = report.rapporti.find((item) => item.id === 'natura')
+  const se = report.rapporti.find((item) => item.id === 'se')
+  const altro = report.rapporti.find((item) => item.id === 'altro')
+  const agire = report.rapporti.find((item) => item.id === 'agire')
+
+  assert.deepEqual(
+    Object.fromEntries(natura.datiRadar.map((item) => [item.familyKey, item.rawValue])),
+    rapportiTotals.natura,
+  )
+  assert.equal(se.narrativaRapporto.metrics.awarenessPercent, 50)
+  assert.equal(se.narrativaRapporto.metrics.harmonyPercent, 50)
+  assert.equal(altro.narrativaRapporto.metrics.enthusiasmPercent, 50)
+  assert.equal(altro.narrativaRapporto.metrics.dominantPercent, 0)
+  assert.equal(agire.narrativaRapporto.metrics.martialPercent, 0)
 })
 
 test('le sottocategorie restano nella famiglia corretta e usano i massimi teorici', () => {

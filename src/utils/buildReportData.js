@@ -656,6 +656,16 @@ export function buildReportData({
     const theme = FAMILY_THEME[familyName]
     return { familyName, key: theme.key, nome: theme.family, colore: theme.dot }
   })
+  const naturaRawTotals = rapportiTotals?.natura || {}
+  const naturaRawMax = Math.max(
+    ...radarFamilies.map((family) => Number(naturaRawTotals[family.key]) || 0),
+    0,
+  )
+  const naturaBaseFamilyKey = naturaRawMax > 0
+    ? radarFamilies.find(
+        (family) => (Number(naturaRawTotals[family.key]) || 0) === naturaRawMax,
+      )?.key || domTheme.key
+    : domTheme.key
 
   const rapporti = RAPPORTI_META.map((meta) => {
     const levels = rapportiLevels?.[meta.id] || {}
@@ -719,6 +729,13 @@ export function buildReportData({
       colore: domTheme.dot,
       valore: Number(levels?.[domTheme.key]) || 0,
     }
+    const naturaBaseTheme = radarFamilies.find(
+      (family) => family.key === naturaBaseFamilyKey,
+    ) || radarFamilies[0]
+    const naturaBaseFamily = {
+      ...naturaBaseTheme,
+      valore: Number(levels?.[naturaBaseFamilyKey]) || 0,
+    }
     const enthusiasmTheme = FAMILY_THEME.Giallo
     const enthusiasmFamily = {
       familyName: 'Giallo',
@@ -739,18 +756,24 @@ export function buildReportData({
     const isSe = meta.id === 'se'
     const isAltro = meta.id === 'altro'
     const isAgire = meta.id === 'agire'
-    const naturaFamily = localPrincipale.valore > 0 ? localPrincipale : dominantFamily
-    const usesDominantFamily = isSe
+    const naturaLeader = graduatoria[0]
+    const naturaFamily = (naturaLeader?.rawValue || 0) > 0
+      ? {
+          ...naturaLeader,
+          key: naturaLeader.familyKey,
+          nome: naturaLeader.corrente,
+        }
+      : dominantFamily
+    const usesNaturaBaseFamily = isSe
     const principale = isAltro
       ? enthusiasmFamily
       : isAgire
         ? volitiveFamily
         : isNatura
           ? naturaFamily
-        : usesDominantFamily
-          ? dominantFamily
+        : usesNaturaBaseFamily
+          ? naturaBaseFamily
           : localPrincipale
-    const dominantColorKey = (domTheme.key || '').toLowerCase()
     const relationshipNarrative = isNatura
       ? buildNaturaNarrative({
           dominantFamilyKey: naturaFamily.key,
@@ -758,11 +781,11 @@ export function buildReportData({
           shades: sottocorrenti,
         })
       : isSe
-        ? buildSelfNarrative({ dominantFamilyKey: dominantColorKey, ranking: graduatoria })
+        ? buildSelfNarrative({ dominantFamilyKey: naturaBaseFamilyKey, ranking: graduatoria })
         : isAltro
-          ? buildOtherNarrative({ dominantFamilyKey: dominantColorKey, ranking: graduatoria })
+          ? buildOtherNarrative({ dominantFamilyKey: naturaBaseFamilyKey, ranking: graduatoria })
           : isAgire
-            ? buildActionNarrative({ dominantFamilyKey: dominantColorKey, ranking: graduatoria })
+            ? buildActionNarrative({ dominantFamilyKey: naturaBaseFamilyKey, ranking: graduatoria })
             : null
     const definizioneParagrafi = relationshipNarrative?.paragraphs || [meta.definizione]
     const definizione = definizioneParagrafi.join(' ')

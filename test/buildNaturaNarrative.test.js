@@ -101,6 +101,13 @@ test('gradua l armonia sulla distanza tra le due componenti principali', () => {
     ranking: [radarItem('rosso', 31, 31, 7), radarItem('giallo', 23, 23, 5)],
   })
   assert.match(result.paragraphs.join(' '), /distanza di 8 punti percentuali.*eccellente armonia/i)
+
+  const decimalResult = buildNaturaNarrative({
+    dominantFamilyKey: 'rosso',
+    ranking: [radarItem('rosso', 14, 51.9, 7), radarItem('verde', 13, 48.1, 7)],
+  })
+  assert.match(decimalResult.paragraphs.join(' '), /3,8 punti percentuali/)
+  assert.doesNotMatch(decimalResult.paragraphs.join(' '), /999999/)
 })
 
 test('la percentuale gradua la tensione solo dopo aver verificato la coppia teorica', () => {
@@ -174,6 +181,36 @@ test('racconta le sfumature come attivazioni complessive indipendenti', () => {
   assert.match(text, /Dubbio \/ Collera raggiunge il 18%/)
   assert.match(text, /non appartengono alla singola lente/)
   assert.match(text, /non devono sommare a 100%/)
+})
+
+test('un profilo al 100% non inventa componenti secondarie', () => {
+  const result = buildNaturaNarrative({
+    dominantFamilyKey: 'rosso',
+    ranking: [radarItem('rosso', 10, 100, 7)],
+  })
+  const text = result.paragraphs.join(' ')
+
+  assert.match(text, /non emergono altre componenti misurate/i)
+  assert.match(text, /nessun’altra famiglia ha ottenuto punti/i)
+  assert.doesNotMatch(text, /altre famiglie restano presenti|senza escludere le altre/i)
+})
+
+test('un vero pari merito racconta le sfumature di entrambe le famiglie', () => {
+  const result = buildNaturaNarrative({
+    dominantFamilyKey: 'rosso',
+    ranking: [
+      radarItem('rosso', 14, 50, 7),
+      radarItem('verde', 14, 50, 7),
+    ],
+    shades: [
+      { familyKey: 'rosso', nome: 'Assertività', percentuale: 25, misurabile: true },
+      { familyKey: 'verde', nome: 'Calma', percentuale: 32, misurabile: true },
+    ],
+  })
+  const text = result.paragraphs.join(' ')
+
+  assert.match(text, /Assertività raggiunge il 25%/)
+  assert.match(text, /Calma raggiunge il 32%/)
 })
 
 test('uno stato vuoto non attribuisce appartenenza o prevalenza', () => {

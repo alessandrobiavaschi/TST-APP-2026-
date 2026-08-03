@@ -72,6 +72,39 @@ test('Altro applica un limite quando l Entusiasmo assoluto è debole', () => {
   assert.equal(resolveRelationalOpenness({ dominantPercent: 31, enthusiasmPercent: 23 }).grade, 4)
 })
 
+test('Altro distingue uno svantaggio da un vantaggio dell Entusiasmo', () => {
+  const result = buildOtherNarrative({
+    dominantFamilyKey: 'rosso',
+    ranking: [item('rosso', 25), item('giallo', 40), item('blu', 20)],
+  })
+  const text = result.paragraphs.join(' ')
+
+  assert.equal(result.metrics.signedDifference, -15)
+  assert.match(text, /Entusiasmo supera la componente Marziale di 15 punti percentuali/i)
+  assert.doesNotMatch(text, /a sfavore dell'Entusiasmo/i)
+})
+
+test('Altro applica la matrice a tutte le famiglie e gestisce la coincidenza Entusiasta', () => {
+  const expected = [
+    ['blu', 'modulation'],
+    ['rosso', 'affinity'],
+    ['verde', 'tension'],
+    ['grigio', 'tension'],
+  ]
+  expected.forEach(([dominantFamilyKey, relationKind]) => {
+    const result = buildOtherNarrative({ dominantFamilyKey, ranking: marzialeProfile })
+    assert.equal(result.metrics.relationKind, relationKind)
+  })
+
+  const entusiasta = buildOtherNarrative({
+    dominantFamilyKey: 'giallo',
+    ranking: [item('giallo', 42), item('rosso', 25), item('blu', 18)],
+  })
+  assert.equal(entusiasta.metrics.sameFamily, true)
+  assert.match(entusiasta.paragraphs.join(' '), /famiglia di base e il fattore relazionale coincidono/i)
+  assert.doesNotMatch(entusiasta.paragraphs.join(' '), /Entusiasta ed Entusiasta/i)
+})
+
 test('Agire applica le soglie percentuali concordate per la componente Marziale', () => {
   assert.equal(resolveActionPropensity(9).adjective, 'molto bassa')
   assert.equal(resolveActionPropensity(10).adjective, 'parziale')
@@ -92,7 +125,7 @@ test('Agire modula il testo secondo tutte le famiglie di base', () => {
   const cases = [
     ['blu', /natura Lunare.*compensando/i],
     ['verde', /natura Contemplativa.*tensione/i],
-    ['giallo', /natura Gioioso-sanguinico.*nuove possibilità/i],
+    ['giallo', /natura di tipo Gioioso-sanguinico.*nuove possibilità/i],
     ['grigio', /natura Intellettuale-razionale.*calcolo e controllo/i],
   ]
 

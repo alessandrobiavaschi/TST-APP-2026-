@@ -16,10 +16,15 @@ Lo scoring scientifico e la scala radar 1–7 non sono stati modificati.
 - intensità: quota della componente in tensione, soglie 10/20/30/40;
 - armonia editoriale: distanza tra le due componenti principali;
 - pari punti e pari livello grafico restano distinti;
+- nei pari livello arrotondati, il primato segue i punti grezzi;
+- nei veri pari merito, le sfumature di tutte le famiglie co-dominanti vengono raccontate;
+- un profilo concentrato al 100% non dichiara componenti secondarie inesistenti;
 - famiglia, natura e sottocorrenti sono presentate su livelli separati.
 
 ### Rapporto con te stesso
 
+- la famiglia di base è sempre quella risultante dalla formula classica della
+  Natura, anche quando differisce dalla prevalenza globale delle 72 risposte;
 - osservazione interiore: quota Malinconica in Intervalli + Melodia;
 - armonia con la natura: quota della famiglia dominante nella stessa lente;
 - le due misure sono raccontate separatamente e non vengono mediate;
@@ -28,8 +33,11 @@ Lo scoring scientifico e la scala radar 1–7 non sono stati modificati.
 
 ### Rapporto con l'Altro
 
+- il confronto usa la famiglia risultante dalla Natura classica;
 - fattore di apertura: quota Entusiasta in Timbro + Melodia;
 - confronto: deficit `max(famiglia dominante - Entusiasta, 0)`;
+- quando l'Entusiasmo supera la famiglia dominante, il testo racconta il vantaggio
+  reale anziché definirlo una distanza a sfavore;
 - meno di 10 punti: ottima integrazione; fino a 20 buona; fino a 30 discreta;
   oltre 30 parziale;
 - Entusiasmo sotto il 10% limita comunque l'esito a `parziale`, sotto il 20%
@@ -39,6 +47,7 @@ Lo scoring scientifico e la scala radar 1–7 non sono stati modificati.
 
 ### Rapporto con l'Agire
 
+- il contesto qualitativo usa la famiglia risultante dalla Natura classica;
 - fattore determinante: quota Marziale in Ritmo + Melodia;
 - <10 molto bassa; 10–19 parziale; 20–29 discreta; 30–39 buona;
   40–49 spiccata; >=50 eccezionalmente alta;
@@ -62,7 +71,11 @@ espongono inoltre `definizioneParagrafi` e `narrativaRapporto`; il componente
 
 ## Verifiche
 
-- test automatici su soglie, famiglie, relazioni, stati vuoti e contratto UI;
+- test di regressione raw-to-report sulle formule classiche: Natura = Timbro +
+  Intervalli + Armonia; Sé = Intervalli + Melodia; Altro = Timbro + Melodia;
+  Agire = Ritmo + Melodia;
+- test automatici su soglie, famiglie, relazioni, pari merito, stati vuoti e
+  contratto UI;
 - lint;
 - build Vite;
 - controllo browser locale su layout compatto e desktop 1440×900;
