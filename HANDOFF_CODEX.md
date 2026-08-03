@@ -377,3 +377,27 @@ La descrizione introduttiva della famiglia Marziale usa ora la formulazione rich
 ### Integrazione
 
 Integrare il commit dedicato senza includere le altre modifiche non committate già presenti nel worktree.
+
+## Titolo sezione 1.3 senza famiglia — 2026-08-03
+
+### Sintesi
+
+Il titolo della sezione 1.3 mostra ora soltanto "La tua natura emotiva di appartenenza", senza aggiungere tra parentesi il nome della famiglia. Il contenuto descrittivo e la tassonomia del report restano invariati.
+
+### File modificati
+
+- `src/components/report/ProfiloEmotivo.jsx`
+- `HANDOFF_CODEX.md`
+
+### Decisioni e assunzioni
+
+- La richiesta riguarda esclusivamente il titolo visibile della sezione 1.3 mostrato nello screenshot.
+- Le occorrenze di "famiglia Marziale" nel testo descrittivo e nelle altre sezioni non sono state rimosse.
+
+### Verifica e integrazione
+
+- `npm test`: superato, 69 test su 69.
+- `npm run lint`: superato.
+- `npm run build`: superato.
+- Comportamento atteso: l'intestazione 1.3 è "La tua natura emotiva di appartenenza" per ogni profilo, senza suffisso della famiglia.
+- Problemi irrisolti: nessuno relativo a questa correzione.
