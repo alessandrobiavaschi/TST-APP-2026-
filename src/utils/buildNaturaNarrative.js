@@ -34,7 +34,7 @@ export const NATURA_RELATION_RULES = Object.freeze({
     copy: 'mette in tensione il movimento e l\'eccitazione con il bisogno di quiete',
   },
   'blu|rosso': {
-    kind: 'modulation',
+    kind: 'compensation',
     copy: 'la riflessione e la sensibilità compensano la fermezza orientata all\'azione',
   },
   'giallo|rosso': {
@@ -79,6 +79,15 @@ export function resolveTensionDescriptor(oppositePercent = 0) {
   if (percent <= 30) return 'significativa'
   if (percent <= 40) return 'marcata'
   return 'molto intensa'
+}
+
+export function resolveHarmonyDescriptor(gapPercent = 0) {
+  const gap = Math.max(0, Number(gapPercent) || 0)
+  if (gap < 10) return 'un\'eccellente armonia'
+  if (gap <= 20) return 'una buona armonia'
+  if (gap <= 30) return 'un\'armonia fragile'
+  if (gap <= 40) return 'una scarsa armonia'
+  return 'un\'armonia molto scarsa'
 }
 
 function sentenceCase(value) {
@@ -198,6 +207,13 @@ export function buildNaturaNarrative({
   const secondaryFamilies = highlightedFamilies.filter(
     (item) => item.familyKey !== leader.familyKey,
   )
+  const runnerUp = ranked[1]
+  const harmonyGap = runnerUp
+    ? Math.abs((Number(leader.distributionPercent) || 0) - (Number(runnerUp.distributionPercent) || 0))
+    : 100
+  const harmonyParagraph = runnerUp
+    ? `La distanza di ${formatPercent(harmonyGap)} punti percentuali tra le due componenti principali indica ${resolveHarmonyDescriptor(harmonyGap)} nella composizione del profilo.`
+    : ''
   const relatedFamilies = ranked
     .filter((item) => item.familyKey !== leader.familyKey)
     .map((item) => ({
@@ -245,6 +261,7 @@ export function buildNaturaNarrative({
       natureParagraph,
       resultParagraph,
       relationParagraph,
+      harmonyParagraph,
       compositionParagraph,
       closingParagraph,
       shadesParagraph,

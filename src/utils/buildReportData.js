@@ -77,6 +77,11 @@ import {
   buildNaturaNarrative,
   NATURA_NARRATIVE_STATUS,
 } from './buildNaturaNarrative.js'
+import {
+  buildActionNarrative,
+  buildOtherNarrative,
+  buildSelfNarrative,
+} from './buildFourRelationsNarrative.js'
 
 const PESO_RANK_LABEL = ['dominante', 'secondaria', 'minore', 'marginale', 'marginale']
 
@@ -320,12 +325,6 @@ function titleCaseStato(word) {
   return t.charAt(0).toUpperCase() + t.slice(1).toLowerCase()
 }
 
-function lowerInitial(value) {
-  const t = String(value || '').trim()
-  if (!t) return ''
-  return t.charAt(0).toLowerCase() + t.slice(1).toLowerCase()
-}
-
 /**
  * Coppie emotivamente contrastanti (secondo il modello TST).
  * Se entrambe le famiglie di una coppia sono alte e il gap è piccolo,
@@ -365,163 +364,6 @@ function resolveNaturaLevelLabel(status) {
   if (status === NATURA_NARRATIVE_STATUS.ROUNDED_TIE) return 'Valori ravvicinati — profilo composito'
   if (status === NATURA_NARRATIVE_STATUS.COMPOSITE) return 'Profilo composito — compresenza emotiva'
   return 'Prevalenza riconoscibile'
-}
-
-/**
- * Restituisce il levelLabel da mostrare nel tag visivo della Prospettiva 2.
- */
-function resolveSelfLevelLabel(dominantLevel, levels = {}) {
-  const contrasting = detectContrastingPresence(levels)
-  const v = Number(dominantLevel) || 0
-
-  if (contrasting) return 'Profilo complesso — consapevolezza articolata'
-  if (v >= 6) return 'Eccellente capacità di vivere in armonia con la natura'
-  if (v >= 5) return 'Buona capacità di vivere in armonia con la natura'
-  if (v >= 4) return 'Discreta capacità di vivere in armonia con la natura'
-  return 'Tendenza parziale a vivere in armonia con la natura'
-}
-
-function resolveSelfHarmonyLabel(value) {
-  const v = Number(value) || 0
-  if (v >= 6) return 'una eccellente capacità di vivere in armonia con la tua natura'
-  if (v >= 5) return 'una buona capacità di vivere in armonia con la tua natura'
-  if (v >= 4) return 'una discreta capacità di vivere in armonia con la tua natura'
-  return 'una tendenza parziale a vivere in armonia con la tua natura'
-}
-
-function buildSelfRelationshipText({ dispositionLabel, dominantLevel, levels }) {
-  const famiglia = lowerInitial(dispositionLabel)
-  const armonia = resolveSelfHarmonyLabel(dominantLevel)
-  const contrasting = detectContrastingPresence(levels)
-
-  const chiusura = contrasting
-    ? `Il test rivela ${armonia}. La presenza di componenti in tensione tra loro suggerisce un profilo ricco e articolato: la comprensione di sé richiede di riconoscere questa complessità come risorsa, non come contraddizione.`
-    : `Il test rivela ${armonia}.`
-
-  return [
-    `Questa lente osserva la consapevolezza della tua natura di base: più è alto il rapporto con la tua natura emotiva, più cresce la possibilità di guardarla con lucidità.`,
-    `Se la tua appartenenza è ${famiglia}, il test indica quanto puoi osservare questa qualità mentre la vivi, riconoscendone movimenti, bisogni e sfumature.`,
-    chiusura,
-  ].join(' ')
-}
-
-/**
- * Restituisce il levelLabel da mostrare nel tag visivo della Prospettiva 3.
- */
-function resolveOtherLevelLabel(enthusiasmLevel, levels = {}) {
-  const v = Number(enthusiasmLevel) || 0
-  const volitiveLevel = Number(levels['rosso']) || 0
-  const melancoliaLevel = Number(levels['blu']) || 0
-  const flemmaLevel = Number(levels['verde']) || 0
-
-  if (v >= 6) return `Eccellente propensione all'ascolto del prossimo`
-  if (v >= 5) return `Buona propensione all'ascolto del prossimo`
-  if (v >= 4) return `Discreta propensione all'ascolto del prossimo`
-  // Entusiasmo basso: distingui
-  if (volitiveLevel >= 5) return `Tendenza alla competitività nel rapporto con l'altro`
-  if (melancoliaLevel >= 5 || flemmaLevel >= 5) return `Tendenza alla prudenza e alla riservatezza nel rapporto con l'altro`
-  return `Tendenza alla prudenza nel rapporto con l'altro`
-}
-
-function resolveOtherRelationshipLabel(enthusiasmLevel, levels = {}) {
-  const v = Number(enthusiasmLevel) || 0
-  const volitiveLevel = Number(levels['rosso']) || 0
-  const melancoliaLevel = Number(levels['blu']) || 0
-  const flemmaLevel = Number(levels['verde']) || 0
-
-  if (v >= 6) {
-    return `una eccellente propensione all'ascolto del prossimo e a relazionarsi con esso con fiducia`
-  }
-  if (v >= 5) {
-    return `una buona propensione all'ascolto del prossimo e a relazionarsi con esso con fiducia`
-  }
-  if (v >= 4) {
-    return `una discreta propensione all'ascolto del prossimo e a relazionarsi con esso con fiducia`
-  }
-  // Entusiasmo basso — distingui in base al contesto
-  if (volitiveLevel >= 5) return 'una tendenza a entrare in conflitto con gli altri'
-  if (melancoliaLevel >= 5) return `una tendenza alla riservatezza e all'introspezione nel rapporto con l'altro, più che al conflitto`
-  if (flemmaLevel >= 5) return `una tendenza alla prudenza e all'attesa nel rapporto con l'altro`
-  return `una tendenza alla prudenza nel rapporto con l'altro`
-}
-
-function buildOtherRelationshipIntro(dominantColorName, dispositionLabel) {
-  const famiglia = lowerInitial(dispositionLabel)
-
-  if (dominantColorName === 'Blu') {
-    return `Nonostante la tendenza della natura malinconico - nostalgica a trovare un intimo piacere nello stare in sé stessi, questa lente osserva quanto l'entusiasmo apra il rapporto con l'altro.`
-  }
-  if (dominantColorName === 'Giallo') {
-    return `La tendenza della tua natura entusiasta prevede una naturale apertura al rapporto con gli altri: questa lente osserva quanto questa disponibilità sia fiduciosa e disponibile all'ascolto.`
-  }
-  if (dominantColorName === 'Rosso') {
-    return `La tua famiglia emotiva ha come elemento caratteristico una certa competitività nel rapporto con gli altri: questa lente osserva quanto l'entusiasmo ammorbidisca il contatto e lo renda più fiducioso.`
-  }
-  if (dominantColorName === 'Verde') {
-    return `La tua natura flemmatica tende a osservare, attendere e mantenere una posizione prudente nel rapporto con l'altro: questa lente osserva quanto l'entusiasmo attivi apertura e partecipazione.`
-  }
-  if (dominantColorName === 'Grigio') {
-    return `La tua natura anaffettiva tende a osservare l'esperienza emotiva con maggiore distanza e controllo: questa lente osserva quanto l'entusiasmo apra comunque un canale di contatto con gli altri.`
-  }
-  return `A partire dalla tua natura ${famiglia}, questa lente osserva quanto l'entusiasmo sostenga il rapporto con gli altri e favorisca ascolto, apertura e fiducia.`
-}
-
-function buildOtherRelationshipText({ dominantColorName, dispositionLabel, enthusiasmLevel, levels }) {
-  const esito = resolveOtherRelationshipLabel(enthusiasmLevel, levels)
-  return [
-    buildOtherRelationshipIntro(dominantColorName, dispositionLabel),
-    `In questo caso è l'entusiasmo a contare di più: più è alto questo valore, maggiore è la possibilità di un rapporto aperto, fiducioso e disponibile verso gli altri.`,
-    `Il risultato del test rivela ${esito}.`,
-  ].join(' ')
-}
-
-/**
- * Restituisce il levelLabel da mostrare nel tag visivo della Prospettiva 4.
- */
-function resolveActionLevelLabel(volitiveLevel, levels = {}) {
-  const v = Number(volitiveLevel) || 0
-  const flemmaLevel = Number(levels['verde']) || 0
-  const melancoliaLevel = Number(levels['blu']) || 0
-
-  if (v >= 6) return `Eccellente propensione all'azione`
-  if (v >= 5) return `Buona propensione all'azione`
-  if (v >= 4) return `Discreta propensione all'azione`
-  if (flemmaLevel >= 5) return `Propensione all'azione orientata alla prudenza e all'attesa`
-  if (melancoliaLevel >= 5) return `Propensione all'azione frenata dalla riflessione interiore`
-  return 'Tendenza a non agire in modo immediato'
-}
-
-function resolveActionRelationshipLabel(volitiveLevel, levels = {}) {
-  const v = Number(volitiveLevel) || 0
-  const flemmaLevel = Number(levels['verde']) || 0
-  const melancoliaLevel = Number(levels['blu']) || 0
-
-  if (v >= 6) return `una eccellente propensione all'azione`
-  if (v >= 5) return `una buona propensione all'azione`
-  if (v >= 4) return `una discreta propensione all'azione`
-  // Volitività bassa — distingui in base al contesto
-  if (flemmaLevel >= 5) return `una propensione all'azione orientata alla prudenza e all'attesa: l'energia si manifesta con calma e senza urgenza`
-  if (melancoliaLevel >= 5) return `una propensione all'azione meno immediata, frenata da una tendenza all'introversione e alla riflessione interiore`
-  return 'una tendenza a non agire in modo immediato'
-}
-
-function buildActionRelationshipText({ volitiveLevel, levels }) {
-  const esito = resolveActionRelationshipLabel(volitiveLevel, levels)
-  const flemmaLevel = Number(levels?.['verde']) || 0
-  const melancoliaLevel = Number(levels?.['blu']) || 0
-  const v = Number(volitiveLevel) || 0
-
-  let contestoExtra = ''
-  if (v < 4 && flemmaLevel >= 5) {
-    contestoExtra = ` La componente flemmatica suggerisce che l'energia è presente ma si esprime con calma, senza necessità di urgenza o pressione.`
-  } else if (v < 4 && melancoliaLevel >= 5) {
-    contestoExtra = ` La componente malinconico - nostalgica suggerisce che l'azione tende a passare attraverso la riflessione e l'elaborazione interiore prima di manifestarsi.`
-  }
-
-  return [
-    `Questa lente osserva il rapporto con l'agire: quanto più è alta la volitività, tanto più forte e incisiva tende a essere l'azione che si compie nella vita.`,
-    `Il test rivela ${esito}.${contestoExtra}`,
-  ].join(' ')
 }
 
 /**
@@ -909,45 +751,24 @@ export function buildReportData({
           ? dominantFamily
           : localPrincipale
     const dominantColorKey = (domTheme.key || '').toLowerCase()
-    const naturaNarrative = isNatura
+    const relationshipNarrative = isNatura
       ? buildNaturaNarrative({
           dominantFamilyKey: naturaFamily.key,
           ranking: graduatoria,
           shades: sottocorrenti,
         })
-      : null
-    const definizione = isNatura
-      ? naturaNarrative.paragraphs.join(' ')
       : isSe
-        ? buildSelfRelationshipText({
-            dispositionLabel: profilo.disposizione || domTheme.disposition,
-            dominantLevel: dominantFamily.valore,
-            levels,
-            dominantColorKey,
-          })
+        ? buildSelfNarrative({ dominantFamilyKey: dominantColorKey, ranking: graduatoria })
         : isAltro
-          ? buildOtherRelationshipText({
-              dominantColorName,
-              dispositionLabel: profilo.disposizione || domTheme.disposition,
-              enthusiasmLevel: enthusiasmFamily.valore,
-              levels,
-            })
+          ? buildOtherNarrative({ dominantFamilyKey: dominantColorKey, ranking: graduatoria })
           : isAgire
-            ? buildActionRelationshipText({
-                volitiveLevel: volitiveFamily.valore,
-                levels,
-              })
-      : meta.definizione
-
+            ? buildActionNarrative({ dominantFamilyKey: dominantColorKey, ranking: graduatoria })
+            : null
+    const definizioneParagrafi = relationshipNarrative?.paragraphs || [meta.definizione]
+    const definizione = definizioneParagrafi.join(' ')
     const levelLabel = isNatura
-      ? resolveNaturaLevelLabel(naturaNarrative.status)
-      : isSe
-        ? resolveSelfLevelLabel(dominantFamily.valore, levels, dominantColorKey)
-        : isAltro
-          ? resolveOtherLevelLabel(enthusiasmFamily.valore, levels)
-          : isAgire
-            ? resolveActionLevelLabel(volitiveFamily.valore, levels)
-          : ''
+      ? resolveNaturaLevelLabel(relationshipNarrative.status)
+      : relationshipNarrative?.levelLabel || ''
 
     return {
       id: meta.id,
@@ -963,8 +784,9 @@ export function buildReportData({
           : '',
       levelLabel,
       definizione,
-      definizioneParagrafi: naturaNarrative?.paragraphs || null,
-      narrativaNatura: naturaNarrative,
+      definizioneParagrafi,
+      narrativaNatura: isNatura ? relationshipNarrative : null,
+      narrativaRapporto: relationshipNarrative,
       composizione: meta.composizione,
       composizioneSemplice: meta.composizioneSemplice,
       cosaIndica: meta.cosaIndica,

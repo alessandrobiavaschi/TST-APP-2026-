@@ -5,6 +5,7 @@ import {
   buildNaturaNarrative,
   NATURA_NARRATIVE_STATUS,
   NATURA_RELATION_RULES,
+  resolveHarmonyDescriptor,
   resolvePrevalenceDescriptor,
   resolveTensionDescriptor,
 } from '../src/utils/buildNaturaNarrative.js'
@@ -85,6 +86,21 @@ test('gradua la prevalenza sulla distanza percentuale tra prima e seconda famigl
 
   assert.match(close.paragraphs.join(' '), /una certa prevalenza.*8 punti percentuali/i)
   assert.match(distant.paragraphs.join(' '), /una marcata prevalenza.*35 punti percentuali/i)
+})
+
+test('gradua l armonia sulla distanza tra le due componenti principali', () => {
+  assert.equal(resolveHarmonyDescriptor(9), "un'eccellente armonia")
+  assert.equal(resolveHarmonyDescriptor(10), 'una buona armonia')
+  assert.equal(resolveHarmonyDescriptor(20), 'una buona armonia')
+  assert.equal(resolveHarmonyDescriptor(21), "un'armonia fragile")
+  assert.equal(resolveHarmonyDescriptor(31), 'una scarsa armonia')
+  assert.equal(resolveHarmonyDescriptor(41), "un'armonia molto scarsa")
+
+  const result = buildNaturaNarrative({
+    dominantFamilyKey: 'rosso',
+    ranking: [radarItem('rosso', 31, 31, 7), radarItem('giallo', 23, 23, 5)],
+  })
+  assert.match(result.paragraphs.join(' '), /distanza di 8 punti percentuali.*eccellente armonia/i)
 })
 
 test('la percentuale gradua la tensione solo dopo aver verificato la coppia teorica', () => {

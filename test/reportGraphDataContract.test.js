@@ -181,6 +181,48 @@ test('la lettura della Natura usa la prevalente della lente e racconta le second
   assert.match(natura.definizione, /componente Marziale, associata alla natura Volitivo-collerica/i)
 })
 
+test('tutti i quattro rapporti espongono una lettura strutturata coerente con i propri dati', () => {
+  const totals = {
+    rosso: 31,
+    blu: 23,
+    giallo: 23,
+    verde: 13,
+    grigio: 10,
+  }
+  const levels = { rosso: 7, blu: 5, giallo: 5, verde: 3, grigio: 2 }
+  const report = buildReportData({
+    record: { raw: {} },
+    dominantColorName: 'Rosso',
+    rapportiTotals: {
+      natura: totals,
+      se: totals,
+      altro: totals,
+      agire: totals,
+    },
+    rapportiLevels: {
+      natura: levels,
+      se: levels,
+      altro: levels,
+      agire: levels,
+    },
+  })
+
+  assert.deepEqual(report.rapporti.map((item) => item.id), ['natura', 'se', 'altro', 'agire'])
+  report.rapporti.forEach((item) => {
+    assert.ok(Array.isArray(item.definizioneParagrafi))
+    assert.ok(item.definizioneParagrafi.length >= 3)
+    assert.equal(item.definizione, item.definizioneParagrafi.join(' '))
+    assert.notEqual(item.narrativaRapporto.status, 'empty')
+  })
+
+  const se = report.rapporti.find((item) => item.id === 'se')
+  const altro = report.rapporti.find((item) => item.id === 'altro')
+  const agire = report.rapporti.find((item) => item.id === 'agire')
+  assert.match(se.definizione, /Malinconica raggiunge il 23%.*Marziale.*31%/i)
+  assert.match(altro.definizione, /Entusiasmo.*23%.*Marziale.*31%.*8 punti percentuali/i)
+  assert.match(agire.definizione, /Marziale raggiunge il 31%.*buona propensione all'azione/i)
+})
+
 test('le sottocategorie restano nella famiglia corretta e usano i massimi teorici', () => {
   const raw = Object.fromEntries(
     Object.keys(SUBCURRENT_FAMILY_BY_KEY).map((key) => [
