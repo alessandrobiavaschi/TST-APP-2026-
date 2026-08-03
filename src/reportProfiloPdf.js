@@ -128,7 +128,7 @@ export const PROFILE_PDF_BLOCKS = {
   },
   Giallo: {
     restituzione_caratteri_estesi:
-      'Nella famiglia Entusiasta, la natura Gioioso-Sanguinico esprime il piacere del movimento, della curiosità, della scoperta del nuovo e dell’estroversione. Guarda al futuro attraverso slancio vitale, partecipazione e ricerca di bagliori di bellezza.',
+      'Nella famiglia Entusiasta, la natura Solare esprime il piacere del movimento, della curiosità, della scoperta del nuovo e dell’estroversione. Guarda al futuro attraverso slancio vitale, partecipazione e ricerca di bagliori di bellezza.',
     natura_paragrafi: [
       'Da Sud verso Nord soffiano venti caldi: interiormente diventano il flusso dell’Entusiasmo — colore Giallo, continente dell’Entusiasmo — con orientamento al futuro.',
       'Nel pre-infantile il bambino accumula energia da spendere; ritmo e ripetizione guidano un apprendimento rapidissimo. La soddisfazione per i successi, anche piccoli, accende l’Entusiasmo come area affettiva strutturata.',
