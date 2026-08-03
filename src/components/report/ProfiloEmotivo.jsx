@@ -6,7 +6,10 @@ import SectionNumber from './SectionNumber.jsx'
 import { PROFILO_CHAPTER_EVENT, chapterAnchorId } from './profiloChapterNav.js'
 import { scrollElementToReportCenter } from './reportSectionNavUtils.js'
 import { getPersonalizedTitles } from '../../config/reportFamilyTheme.js'
-import { buildProfileSectionTitle } from '../../utils/reportTitleUtils.js'
+import {
+  buildFamilyProfileSectionTitle,
+  resolveProfileFamilyLabel,
+} from '../../utils/reportTitleUtils.js'
 import { PROFILO_UI } from './reportUiCopy.js'
 
 void motion
@@ -196,7 +199,10 @@ export default function ProfiloEmotivo({
         <ReportPassageHeader
           step={`${stepPrefix}.3`}
           eyebrow={PROFILO_UI.eyebrow}
-          title={buildProfileSectionTitle(PROFILO_UI.title, profilo.disposizione)}
+          title={buildFamilyProfileSectionTitle(
+            PROFILO_UI.title,
+            resolveProfileFamilyLabel(profilo, famiglia),
+          )}
           accentColor={headerColor}
           titleId="pe-section-title"
         />

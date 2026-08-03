@@ -15,3 +15,17 @@ export function buildProfileSectionTitle(baseTitle, disposition = '') {
   if (!dispositionLabel) return title
   return `${title} (${dispositionLabel})`
 }
+
+export function buildFamilyProfileSectionTitle(baseTitle, family = '') {
+  const title = String(baseTitle || '').trim()
+  const familyLabel = formatReportDisposition(family)
+
+  if (!familyLabel) return title
+  return `${title} (Famiglia ${familyLabel})`
+}
+
+export function resolveProfileFamilyLabel(profilo = {}, fallbackFamily = '') {
+  return String(
+    profilo.correnteDominante || profilo.famigliaLabel || fallbackFamily || '',
+  ).trim()
+}

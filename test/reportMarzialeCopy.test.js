@@ -5,8 +5,8 @@ import test from 'node:test'
 import { PROFILE_PDF_BLOCKS } from '../src/reportProfiloPdf.js'
 import { getProfiloPanelDisplay } from '../src/utils/profiloDisplayCopy.js'
 
-const EXPECTED_OPENING =
-  'Nella famiglia Marziale emerge il piacere Volitivo Collerico del fare, di realizzare ciò che si desidera, di governarsi e mettersi alla prova.'
+const EXPECTED_COPY =
+  'Nella famiglia Marziale emerge il piacere del fare, di realizzare ciò che si desidera, di governarsi e mettersi alla prova. Le sottocategorie Volitiva e Collerica prediligono assertività, costanza, sincerità e impegno nel qui e ora, con orientamento al presente.'
 
 test('mantiene coerente la descrizione Marziale tra report, fallback e PDF', () => {
   const contentReport = JSON.parse(
@@ -17,7 +17,7 @@ test('mantiene coerente la descrizione Marziale tra report, fallback e PDF', () 
     famiglia: 'Rosso',
   })
 
-  assert.ok(contentReport.Rosso.restituzione_caratteri_estesi.startsWith(EXPECTED_OPENING))
-  assert.ok(PROFILE_PDF_BLOCKS.Rosso.restituzione_caratteri_estesi.startsWith(EXPECTED_OPENING))
-  assert.ok(fallback.blocks[0]?.text.startsWith(EXPECTED_OPENING))
+  assert.equal(contentReport.Rosso.restituzione_caratteri_estesi, EXPECTED_COPY)
+  assert.equal(PROFILE_PDF_BLOCKS.Rosso.restituzione_caratteri_estesi, EXPECTED_COPY)
+  assert.equal(fallback.blocks[0]?.text, EXPECTED_COPY)
 })

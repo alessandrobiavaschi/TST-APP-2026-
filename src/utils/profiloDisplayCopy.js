@@ -143,14 +143,14 @@ const DISPLAY_BY_FAMILY = {
   Rosso: {
     natura: {
       inSintesi:
-        'Nella famiglia Marziale emerge il piacere Volitivo Collerico del fare, di realizzare ciò che si desidera, di governarsi e mettersi alla prova.',
+        'Nella famiglia Marziale emerge il piacere del fare, di realizzare ciò che si desidera, di governarsi e mettersi alla prova. Le sottocategorie Volitiva e Collerica prediligono assertività, costanza, sincerità e impegno nel qui e ora, con orientamento al presente.',
       corpo: [],
     },
   },
   Giallo: {
     natura: {
       inSintesi:
-        'Nella famiglia Entusiasta, la natura Solare esprime il piacere del movimento, della curiosità, della scoperta del nuovo e dell’estroversione.',
+        'Nella famiglia Entusiasta, la natura Gioioso-Sanguinico esprime il piacere del movimento, della curiosità, della scoperta del nuovo e dell’estroversione.',
       corpo: [],
     },
   },

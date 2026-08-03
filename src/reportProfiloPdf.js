@@ -44,7 +44,7 @@ export const PROFILE_PDF_BLOCKS = {
   },
   Rosso: {
     restituzione_caratteri_estesi:
-      'Nella famiglia Marziale emerge il piacere Volitivo Collerico del fare, di realizzare ciò che si desidera, di governarsi e mettersi alla prova. Predilige assertività, costanza, sincerità e impegno nel qui e ora, con orientamento al presente.',
+      'Nella famiglia Marziale emerge il piacere del fare, di realizzare ciò che si desidera, di governarsi e mettersi alla prova. Le sottocategorie Volitiva e Collerica prediligono assertività, costanza, sincerità e impegno nel qui e ora, con orientamento al presente.',
     natura_paragrafi: [
       'Da Est verso Ovest soffiano i venti che seguono l’azione vitale sul percorso del Sole. Sul piano emotivo diventano il flusso Volitivo — colore Rosso, intervallo di quarta —: il piacere del fare, impulso che agisce nel presente.',
       'Nel rapporto con te stesso, chi ama agire sente l’Io come alleato: responsabilità, prove da superare, sicurezza nel qui e ora. Sport e Musica condividono la sincerità dell’emozione autentica; dopo l’adolescenza quel finalizzatore sei tu, governatore di te stesso.',
@@ -128,7 +128,7 @@ export const PROFILE_PDF_BLOCKS = {
   },
   Giallo: {
     restituzione_caratteri_estesi:
-      'Nella famiglia Entusiasta, la natura Solare esprime il piacere del movimento, della curiosità, della scoperta del nuovo e dell’estroversione. Guarda al futuro attraverso slancio vitale, partecipazione e ricerca di bagliori di bellezza.',
+      'Nella famiglia Entusiasta, la natura Gioioso-Sanguinico esprime il piacere del movimento, della curiosità, della scoperta del nuovo e dell’estroversione. Guarda al futuro attraverso slancio vitale, partecipazione e ricerca di bagliori di bellezza.',
     natura_paragrafi: [
       'Da Sud verso Nord soffiano venti caldi: interiormente diventano il flusso dell’Entusiasmo — colore Giallo, continente dell’Entusiasmo — con orientamento al futuro.',
       'Nel pre-infantile il bambino accumula energia da spendere; ritmo e ripetizione guidano un apprendimento rapidissimo. La soddisfazione per i successi, anche piccoli, accende l’Entusiasmo come area affettiva strutturata.',
