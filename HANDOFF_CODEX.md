@@ -218,6 +218,33 @@ Integrare il commit dedicato senza includere le altre modifiche non committate g
 
 ---
 
+## Rimozione etichetta duplicata nei Quattro Rapporti — 2026-08-03
+
+### Sintesi
+
+Rimossa la dicitura della famiglia, per esempio `Flemmatica`, dal pannello di dettaglio sotto il radar dei Quattro Rapporti. L'etichetta sull'asse del grafico resta visibile e continua a identificare la famiglia.
+
+### File modificati
+
+- `src/components/report/QuattroRapporti.jsx`
+- `src/styles/quattro-rapporti.css`
+- `HANDOFF_CODEX.md`
+
+### Decisioni e assunzioni
+
+- La richiesta è stata interpretata come rimozione del titolo duplicato nel box sotto il radar, non dell'etichetta necessaria sull'asse.
+- Punteggi, selezione, dettaglio numerico, grafico e logica scientifica non sono stati modificati.
+- Le altre modifiche già presenti nel worktree sono state preservate ed escluse dal commit.
+
+### Verifiche
+
+- `npm test`: 42 test superati, 0 falliti.
+- `npm run lint`: superato, 0 errori.
+- `npm run build`: superato, 1225 moduli trasformati.
+- `git diff --check`: superato per i file della modifica.
+
+---
+
 ## Copy del piacere Marziale — 2026-08-03
 
 ### Sintesi

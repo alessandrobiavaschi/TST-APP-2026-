@@ -349,12 +349,6 @@ export default function QuattroRapporti({
                     '--qr-selected-color': selectedFamily.colore || selectedTheme?.dot || activeColor,
                   }}
                 >
-                  <div className="quattro-rapporti-radar-detail__heading">
-                    <strong>{selectedFamily.corrente}</strong>
-                    {selectedTheme?.characteristic ? (
-                      <span>natura {selectedTheme.characteristic.toLowerCase()}</span>
-                    ) : null}
-                  </div>
                   <p className="quattro-rapporti-radar-detail__value">
                     {selectedFamily.valore}/7 · {selectedFamily.distributionPercent ?? 0}% dei punti di questa lente
                   </p>
