@@ -51,8 +51,8 @@
   },
   "Blu": {
     "restituzione_natura": "NATURA LUNARE",
-    "restituzione_caratteri": "MALINCONICO NOSTALGICA",
-    "restituzione_caratteri_estesi": "Nella natura Lunare emerge il piacere di stare con sé stessi, di osservarsi interiormente e di riflettere su ciò che si è vissuto. Le caratteristiche malinconica e nostalgica prediligono riflessività e percezione emotiva profonda — con orientamento al passato.",
+    "restituzione_caratteri": "LUNARE",
+    "restituzione_caratteri_estesi": "Nella famiglia Malinconica, la natura Lunare esprime il piacere di stare con sé stessi, di osservarsi interiormente e di riflettere su ciò che si è vissuto, con orientamento al passato.",
     "restituzione_dimensione": "passato",
     "descrizione_estesa": "Il sorgere della malinconia si avverte nell’adolescenza: attorno ai nove-dieci anni una «seconda nascita» affettiva, luce riflessa della Luna rispetto al Sole dell’età adulta.\nQuattro sotto-correnti articolano la famiglia: Depressiva, Lunare, Nostalgica e Solare.",
     "risorse": "In questa corrente il piacere dell’introspezione orienta l’energia verso senso, profondità e autenticità.\n- La solitudine scelta può essere spazio di ascolto interiore, non punizione.\n- La nostalgia, nella forma di saudade, può trasformare la perdita in ricordo e riconoscenza.\n- La malinconia solare apre una breccia verso fiducia e compassione mantenendo la delicatezza lunare.",
@@ -147,9 +147,9 @@
     ]
   },
   "Rosso": {
-    "restituzione_natura": "NATURA MARZIALE",
-    "restituzione_caratteri": "VOLITIVO COLLERICA",
-    "restituzione_caratteri_estesi": "Nella famiglia Marziale emerge il piacere Volitivo Collerico del fare, di realizzare ciò che si desidera, di governarsi e mettersi alla prova. Le caratteristiche volitiva e collerica prediligono assertività, costanza, sincerità e impegno nel qui e ora — con orientamento al presente.",
+    "restituzione_natura": "NATURA VOLITIVO-COLLERICA",
+    "restituzione_caratteri": "VOLITIVO-COLLERICA",
+    "restituzione_caratteri_estesi": "Nella famiglia Marziale emerge il piacere Volitivo Collerico del fare, di realizzare ciò che si desidera, di governarsi e mettersi alla prova. Predilige assertività, costanza, sincerità e impegno nel qui e ora, con orientamento al presente.",
     "restituzione_dimensione": "presente",
     "descrizione_estesa": "L’energia dell’Io matura e si mostra pienamente intorno al ventesimo anno: governatore di sé e delle disposizioni diventate carattere. I «gregari» — le altre correnti — contano sulla saldezza e sulla volontà di realizzare il futuro desiderato.\nNel temperamento volitivo-collerico convivono due sotto-correnti: l’Assertività volitiva (Rosso, quarta) con stabilità, schiettezza, coraggio; il Dubbio e la Collera (Amaranto, quarta eccedente) con incertezza e rabbia quando il dialogo si inceppa.",
     "risorse": "In questa corrente l’Io maturo diventa finalizzatore: costanza e responsabilità possono nutrire i «gregari» affettivi senza schiacciarli.\n- Stabilità, saldezza, schiettezza e coraggio sostengono un agire chiaro nel presente.\n- La saggezza nasce quando non si prende troppo sul serio il «gran governatore»: un po’ di ironia etica evita che la volontà irrigidisca il sentire.\n- La Volontà come energia primaria si lega al Rosso e al coraggio di mettersi alla prova.",
@@ -207,9 +207,9 @@
     ]
   },
   "Verde": {
-    "restituzione_natura": "NATURA FLEMMATICA",
+    "restituzione_natura": "NATURA CONTEMPLATIVA",
     "restituzione_caratteri": "CONTEMPLATIVA",
-    "restituzione_caratteri_estesi": "Nella natura Flemmatica emerge il piacere della lentezza, del silenzio, della calma, del riposo e della contemplazione. La caratteristica contemplativa predilige il certo, la ripetitività e l’assenza di eccitazione — con orientamento all’«oblio sospeso», il tempo della bonaccia interiore.",
+    "restituzione_caratteri_estesi": "Nella famiglia Flemmatica, la natura Contemplativa esprime il piacere della lentezza, del silenzio, della calma, del riposo e della contemplazione. Predilige il certo, la ripetitività e l’assenza di eccitazione, con orientamento all’«oblio sospeso», il tempo della bonaccia interiore.",
     "restituzione_dimensione": "oblio sospeso",
     "descrizione_estesa": "Il primo periodo d’esistenza lascia la traccia di un piacere impresso nel carattere: tranquillità e moderazione «come il pane» nella vita quotidiana.\nLa Calma flemmatica si lega agli intervalli di quinta. Gli stati d’animo vanno dal rilassato, calmo, contemplativo fino ad annoiato, pigro, oziante — due versanti della stessa qualità di riposo. La Flemma smussa eccessi di collera, entusiasmo o introspezione troppo intensa.",
     "risorse": "In questa corrente la calma regola il ritmo interno ed esterno e offre spazio per recuperare stabilità.\n- Predisposizione a creare climi di protezione e silenzio in cui le cose maturano senza fretta.\n- Moderazione, prudenza e gentilezza gratuita nella ricerca di armonia relazionale.\n- Funzione equilibratrice che smussa gli eccessi delle altre correnti emotive.",
@@ -247,8 +247,8 @@
   },
   "Giallo": {
     "restituzione_natura": "NATURA SOLARE",
-    "restituzione_caratteri": "SANGUINICO ENTUSIASTA",
-    "restituzione_caratteri_estesi": "Nella natura Solare emerge il piacere del movimento, della curiosità, della scoperta del nuovo e dell’estroversione. Le caratteristiche sanguigna ed entusiasta guardano al futuro: slancio vitale, partecipazione e ricerca di bagliori di bellezza.",
+    "restituzione_caratteri": "SOLARE",
+    "restituzione_caratteri_estesi": "Nella famiglia Entusiasta, la natura Solare esprime il piacere del movimento, della curiosità, della scoperta del nuovo e dell’estroversione. Guarda al futuro attraverso slancio vitale, partecipazione e ricerca di bagliori di bellezza.",
     "restituzione_dimensione": "futuro",
     "descrizione_estesa": "Nel pre-infantile la curiosità è piacere da esercitare: registra gesti e li associa agli effetti, guidato dal ritmo. La soddisfazione per ciò che si è riusciti a fare accende l’Entusiasmo come continente interiore.\nConvivono la Gioia e l’Entusiasmo (stati da Gioioso a Irrefrenabile) e l’Entusiasmo volitivo passionale (Innamorato, Appassionato, Ardente). I climi dell’Entusiasmo sono antidoto all’apatia e al gelo intellettuale.",
     "risorse": "In questa corrente la gioia del movimento spinge a esplorare il mondo con slancio diretto.\n- Capacità di contagiare gli altri con entusiasmo, facilitando aggregazione e creatività condivisa.\n- Predisposizione a percepire e valorizzare ciò che è nuovo, brillante e vitale.\n- Antidoto contro apatia, gelo intellettuale e indifferenza, portando luce e calore.",
@@ -289,9 +289,9 @@
     ]
   },
   "Grigio": {
-    "restituzione_natura": "NATURA ANAFFETTIVA",
-    "restituzione_caratteri": "AGNOSTICO ANAFFETTIVA",
-    "restituzione_caratteri_estesi": "Nella natura Anaffettiva emerge il piacere del calcolo, della dubbiosità di origine intellettuale e dell’oggettività fisica. Le caratteristiche agnostica e anaffettiva agiscono in modo trasversale sulle altre quattro aree del temperamento: possono raffreddare l’affetto o, nel versante evoluto, orientare l’intelletto verso saggezza e dedizione.",
+    "restituzione_natura": "NATURA INTELLETTUALE-RAZIONALE",
+    "restituzione_caratteri": "INTELLETTUALE-RAZIONALE",
+    "restituzione_caratteri_estesi": "Nella famiglia Razionale, la natura Intellettuale-Razionale esprime il piacere del calcolo, della dubbiosità di origine intellettuale e dell’oggettività fisica. Agisce in modo trasversale sulle altre quattro famiglie: può raffreddare l’affetto o, nel versante evoluto, orientare l’intelletto verso saggezza e dedizione.",
     "restituzione_dimensione": "trasversale",
     "descrizione_estesa": "La corrente agnostico-anaffettiva si è sedimentata come area autonoma dagli anni Settanta, tra visione religiosa profonda e laicismo che evita di farsi toccare in profondità.\nGli stati d’animo collegati oscillano dall’anaffettivo, apatico, lucido, indifferente fino a saggio, dedito, devoto, beato e illuminato — distanza prudenziale da un lato e possibile saggezza etica dall’altro.",
     "risorse": "In questa corrente la lucidità e il calcolo possono diventare risorse quando non congelano l’umanità.\n- Analisi e oggettivazione permettono di vedere fatti al di là delle reazioni emotive immediate.\n- Nel versante evolutivo affiorano saggezza, devozione e dedizione costruite con pazienza interiore.\n- La Musica può promuovere un’«ecologia dei sentimenti», insegnando alla ragione a custodire la varietà delle nature temperamentali.",

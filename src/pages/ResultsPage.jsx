@@ -96,22 +96,22 @@ function buildResultRecord(docId, data) {
   }
 }
 
-/* Ordine: Blu, Rosso, Giallo, Verde, Grigio – etichette = le 5 disposizioni (non "Lunare", che è sottosezione Blu) */
+/* Ordine: Blu, Rosso, Giallo, Verde, Grigio – etichette = le 5 famiglie emotive. */
 const RADAR_FAMIGLIE = [
-  { subject: 'Malinconia', key: 'blu', color: '#3b82f6' },
-  { subject: 'Volitività', key: 'rosso', color: '#ef4444' },
-  { subject: 'Entusiasmo', key: 'giallo', color: '#eab308' },
-  { subject: 'Calma', key: 'verde', color: '#22c55e' },
-  { subject: 'Anaffettività', key: 'grigio', color: '#6b7280' },
+  { subject: 'Malinconica', key: 'blu', color: '#3b82f6' },
+  { subject: 'Marziale', key: 'rosso', color: '#ef4444' },
+  { subject: 'Entusiasta', key: 'giallo', color: '#eab308' },
+  { subject: 'Flemmatica', key: 'verde', color: '#22c55e' },
+  { subject: 'Razionale', key: 'grigio', color: '#6b7280' },
 ]
 
 /** Etichette colonne matrice risultati: le 5 macro-aree cromatiche del punteggio. */
 const MATRICE_HEADERS = [
-  { key: 'blu', label: 'Malinconia' },
-  { key: 'rosso', label: 'Volitività' },
-  { key: 'verde', label: 'Calma' },
-  { key: 'giallo', label: 'Entusiasmo' },
-  { key: 'grigio', label: 'Anaffettività' },
+  { key: 'blu', label: 'Malinconica' },
+  { key: 'rosso', label: 'Marziale' },
+  { key: 'verde', label: 'Flemmatica' },
+  { key: 'giallo', label: 'Entusiasta' },
+  { key: 'grigio', label: 'Razionale' },
 ]
 
 const SOTTOCORRENTE_KEYS_BY_FAMILY = {
@@ -218,11 +218,24 @@ function IconDelete({ title, onClick, className = '' }) {
 }
 
 const DISPOSIZIONI_SIGNIFICATO = {
-  Malinconia: 'Introspettivo, orientato alla riflessione, alla memoria e al passato.',
-  Volitività: 'Energia volitiva, orientata all’azione, alla prova e all’assertività nel presente.',
-  Entusiasmo: 'Gioia del movimento, curiosità, entusiasmo verso ciò che è nuovo.',
-  Calma: 'Calma profonda, bisogno di riposo, protezione e spazi di silenzio.',
-  Anaffettività: 'Sguardo analitico, razionale, che tende a osservare e misurare prima di sentire.',
+  Malinconica: 'Famiglia introspettiva, orientata alla riflessione, alla memoria e al passato.',
+  Marziale: 'Famiglia orientata all’azione, alla prova e all’assertività nel presente.',
+  Entusiasta: 'Famiglia legata al movimento, alla curiosità e a ciò che è nuovo.',
+  Flemmatica: 'Famiglia legata alla calma, al riposo, alla protezione e agli spazi di silenzio.',
+  Razionale: 'Famiglia analitica, che tende a osservare e misurare prima di sentire.',
+}
+
+const FAMILY_DISPLAY_BY_STORED_DISPOSITION = {
+  malinconia: 'Malinconica',
+  volitivita: 'Marziale',
+  calma: 'Flemmatica',
+  entusiasmo: 'Entusiasta',
+  anaffettivita: 'Razionale',
+}
+
+function displayFamilyFromStoredDisposition(value) {
+  const key = normalizeSottocorrenteLabel(value)
+  return FAMILY_DISPLAY_BY_STORED_DISPOSITION[key] || String(value || '').trim()
 }
 
 const NORMALIZZAZIONE_SPIEGAZIONE =
@@ -232,10 +245,11 @@ function getDispColor(val) {
   if (!val) return '#94a3b8'
   const v = val.toLowerCase()
   if (v.includes('malinconia')) return '#3b82f6'
-  if (v.includes('volitiv')) return '#ef4444'
-  if (v.includes('calma')) return '#22c55e'
-  if (v.includes('entusiasmo')) return '#eab308'
-  if (v.includes('anaffettiv')) return '#6b7280'
+  if (v.includes('malinconic')) return '#3b82f6'
+  if (v.includes('volitiv') || v.includes('marzial')) return '#ef4444'
+  if (v.includes('calma') || v.includes('flemmatic')) return '#22c55e'
+  if (v.includes('entusiasm')) return '#eab308'
+  if (v.includes('anaffettiv') || v.includes('razional')) return '#6b7280'
   return '#94a3b8'
 }
 
@@ -245,7 +259,7 @@ function DisposizioneBadge({ value }) {
   return (
     <span className="disp-badge" style={{ '--badge-color': color }}>
       <span className="disp-badge-dot" aria-hidden="true" />
-      {value}
+      {displayFamilyFromStoredDisposition(value)}
     </span>
   )
 }
@@ -663,7 +677,7 @@ export function FioreVisivo({ levels, totals, chartHeight = 280, dispositionAcce
               </div>
             ))}
           </div>
-          <p className="fiore-legend-hint">Ogni petalo rappresenta una disposizione; la lunghezza indica il livello 1–7 (più è lungo, più la risonanza in quell&apos;area).</p>
+          <p className="fiore-legend-hint">Ogni petalo rappresenta una famiglia; la lunghezza indica il livello 1–7 (più è lungo, più la risonanza in quell&apos;area).</p>
         </div>
       )}
     </div>
@@ -1355,7 +1369,7 @@ function ResultsPage() {
                 </div>
               </div>
               <div className="filter-field">
-                <label>Disposizione prevalente</label>
+                <label>Famiglia prevalente</label>
                 <select
                   value={dispFilter}
                   onChange={(e) => setDispFilter(e.target.value)}
@@ -1363,13 +1377,13 @@ function ResultsPage() {
                   <option value="">Tutte</option>
                   {filterOptions.disposizioni.map((option) => (
                     <option key={option} value={option}>
-                      {option}
+                      {displayFamilyFromStoredDisposition(option)}
                     </option>
                   ))}
                 </select>
               </div>
               <div className="filter-field">
-                <label>Sottodisposizione prevalente</label>
+                <label>Sfumatura prevalente</label>
                 <select
                   value={sottodispFilter}
                   onChange={(e) => setSottodispFilter(e.target.value)}
@@ -1507,8 +1521,8 @@ function ResultsPage() {
                     <th>Strumento</th>
                     <th>Data</th>
                     <th>Stato</th>
-                    <th>Disposizione prevalente</th>
-                    <th>Sottodisposizione prevalente</th>
+                    <th>Famiglia prevalente</th>
+                    <th>Sfumatura prevalente</th>
                     <th>Portato esp. prevalente</th>
                     <th>Archivio</th>
                     {MATRICE_HEADERS.map((h) => (

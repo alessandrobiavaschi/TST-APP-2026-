@@ -28,11 +28,11 @@ const FAMILY_REF = {
 const FAMILY_ORDER = ['Verde', 'Blu', 'Rosso', 'Giallo', 'Grigio']
 
 const TOTAL_SCORE_RADAR_AXES = [
-  { key: 'verde', corrente: 'Calma' },
-  { key: 'rosso', corrente: 'Volitività' },
-  { key: 'blu', corrente: 'Malinconia' },
-  { key: 'giallo', corrente: 'Entusiasmo' },
-  { key: 'grigio', corrente: 'Anaffettività' },
+  { key: 'verde', corrente: 'Flemmatica' },
+  { key: 'rosso', corrente: 'Marziale' },
+  { key: 'blu', corrente: 'Malinconica' },
+  { key: 'giallo', corrente: 'Entusiasta' },
+  { key: 'grigio', corrente: 'Razionale' },
 ]
 
 const FAMILY_LAYOUT = {
@@ -44,18 +44,18 @@ const FAMILY_LAYOUT = {
 }
 
 const FAMILY_PRESENCE_LABELS = {
-  verde: { title: 'Flemmaticità', detail: 'flemmatica' },
-  giallo: { title: 'Entusiasmo', detail: 'gioiosità' },
-  rosso: { title: 'Marzialità', detail: 'collerica' },
-  grigio: { title: 'Intellettualità-Razionalità', detail: 'nichilista' },
-  blu: { title: 'Malinconia', detail: 'nostalgica / lunare-solare' },
+  verde: { title: 'Flemmatica', detail: 'natura contemplativa' },
+  giallo: { title: 'Entusiasta', detail: 'natura solare' },
+  rosso: { title: 'Marziale', detail: 'natura volitivo-collerica' },
+  grigio: { title: 'Razionale', detail: 'natura intellettuale-razionale' },
+  blu: { title: 'Malinconica', detail: 'natura lunare' },
 }
 
 // Fonti: docs/fonti-scientifiche/_estratto/MATRICE_TRACCIABILITA.md e
 // docs/fonti-scientifiche/_estratto/STATI_D_ANIMO_IN_4_FAMIGLIE_salvataggio_automatico.txt.
 const BRIEF_SUMMARY_BY_FAMILY = {
   Blu: {
-    family: 'Lunare',
+    family: 'Malinconica',
     fundamentalPleasure:
       "il piacere di stare con sé stessi, dell’introversione, dell’osservarsi interiormente e del riflettere su ciò che si è vissuto",
     qualities: "caratteristiche emotive lunari, solari e nostalgiche",
@@ -74,7 +74,7 @@ const BRIEF_SUMMARY_BY_FAMILY = {
     defaultQuality: "Lunare",
   },
   Giallo: {
-    family: 'Solare',
+    family: 'Entusiasta',
     fundamentalPleasure:
       "il piacere del movimento, della curiosità, della scoperta del nuovo e dell’apertura verso il mondo",
     qualities: "caratteristiche emotive legate alla gioia, all’entusiasmo, alla curiosità e alla solarità",
@@ -116,7 +116,7 @@ const BRIEF_SUMMARY_BY_FAMILY = {
     defaultQuality: 'Contemplativa',
   },
   Grigio: {
-    family: 'Anaffettiva',
+    family: 'Razionale',
     fundamentalPleasure:
       "il piacere del calcolo, della dubbiosità di origine intellettuale, dell’oggettività e della distanza affettiva",
     qualities:
@@ -221,11 +221,11 @@ function buildTotalScoreRadarData(totalScores = {}, correnti = [], assignedFamil
     const sumRaw = correnti.reduce((acc, c) => acc + (Number(c.valoreAssoluto) || 0), 0)
     const max = Math.max(...correnti.map(c => Number(c.valoreAssoluto) || 0), 0)
     const familyLabels = {
-      blu: 'Lunare',
-      giallo: 'Solare',
+      blu: 'Malinconica',
+      giallo: 'Entusiasta',
       rosso: 'Marziale',
       verde: 'Flemmatica',
-      grigio: 'Anaffettiva',
+      grigio: 'Razionale',
     }
     return TOTAL_SCORE_RADAR_AXES.map((axis) => {
       const c = correnti.find(item => String(item.familyKey || '').toLowerCase() === axis.key.toLowerCase())
@@ -274,11 +274,11 @@ function buildTotalScoreRadarData(totalScores = {}, correnti = [], assignedFamil
     const valore = max > 0 ? Math.min(7, Math.max(1, Math.round((rawValue / max) * 7))) : 1
     const distributionPercent = sumRaw > 0 ? Number(((rawValue / sumRaw) * 100).toFixed(1)) : 0
     const familyLabels = {
-      blu: 'Lunare',
-      giallo: 'Solare',
+      blu: 'Malinconica',
+      giallo: 'Entusiasta',
       rosso: 'Marziale',
       verde: 'Flemmatica',
-      grigio: 'Anaffettiva',
+      grigio: 'Razionale',
     }
     return {
       corrente: axis.corrente,
@@ -347,7 +347,7 @@ function familyPresenceLabel(item = {}, fallbackFamily = '') {
 function familySectionIntro(dominantFamilyFullLabel) {
   return [
     'Nel tuo test visivo sono riportate tutte e cinque le componenti emotive.',
-    `Nonostante dai risultati emerga una prevalenza della natura ${dominantFamilyFullLabel}, le altre nature rimangono comunque presenti e contribuiscono, con intensità differenti, alla costruzione della tua identità emotiva.`,
+    `Dai risultati emerge una prevalenza della famiglia ${dominantFamilyFullLabel}; le altre famiglie rimangono comunque presenti e contribuiscono, con intensità differenti, alla costruzione della tua identità emotiva.`,
     'Verifica, attraverso i grafici, come le diverse componenti si relazionano tra loro.',
   ]
 }
@@ -602,12 +602,12 @@ export default function SintesiCorrenti({
         <div className="sintesi-editorial-card">
           <div className="sintesi-editorial-text">
             <p className="sintesi-editorial-body sintesi-editorial-body--lead">
-              La tua natura emotiva di appartenenza è{' '}
+              La tua famiglia emotiva prevalente è{' '}
               <strong className="sintesi-editorial-highlight">{briefSummary.introFamily}</strong> e la sua caratteristica emotiva
-              (sottofamiglia) prevalente è <strong className="sintesi-editorial-highlight">{briefSummary.introQuality}</strong>.
+              (natura) prevalente è <strong className="sintesi-editorial-highlight">{briefSummary.introQuality}</strong>.
             </p>
             <p className="sintesi-editorial-body">
-              Questa natura emotiva è una delle 5 forze emotive comuni a tutti.
+              Questa famiglia emotiva è una delle 5 forze emotive comuni a tutti.
             </p>
             {briefSummary.paragraphs.map((paragraph) => (
               <p key={paragraph} className="sintesi-editorial-body">
@@ -798,12 +798,12 @@ export default function SintesiCorrenti({
         <div className="sintesi-editorial-card">
           <div className="sintesi-editorial-text">
             <p className="sintesi-editorial-body sintesi-editorial-body--lead">
-              La tua natura emotiva di appartenenza è{' '}
+              La tua famiglia emotiva prevalente è{' '}
               <strong className="sintesi-editorial-highlight">{briefSummary.introFamily}</strong> e la sua caratteristica emotiva
-              (sottofamiglia) prevalente è <strong className="sintesi-editorial-highlight">{briefSummary.introQuality}</strong>.
+              (natura) prevalente è <strong className="sintesi-editorial-highlight">{briefSummary.introQuality}</strong>.
             </p>
             <p className="sintesi-editorial-body">
-              Questa natura emotiva è una delle 5 forze emotive comuni a tutti.
+              Questa famiglia emotiva è una delle 5 forze emotive comuni a tutti.
             </p>
             {briefSummary.paragraphs.map((paragraph) => (
               <p key={paragraph} className="sintesi-editorial-body">

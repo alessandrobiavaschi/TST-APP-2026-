@@ -73,8 +73,9 @@ export default function NavbarTST({
     { id: 'for-musicians', label: 'For Musicians' },
   ]
   const naturaResult = formatNatureResult(profilo?.natura || correnteDominante)
-  const caratteristicaResult = formatCharacteristicResult(profilo?.disposizione)
-  const correnteTitle = ['natura', naturaResult, caratteristicaResult].filter(Boolean).join(' · ')
+  const famigliaResult = toDisplayCase(profilo?.famigliaLabel || correnteDominante)
+  const caratteristicaResult = formatCharacteristicResult(profilo?.disposizione || naturaResult)
+  const correnteTitle = ['famiglia', famigliaResult, caratteristicaResult].filter(Boolean).join(' · ')
 
   return (
     <header
@@ -134,11 +135,11 @@ export default function NavbarTST({
 
         {/* ── Destra: corrente + scarica + aiuto ──────────────────── */}
         <div className="navbar-tst__right">
-          {naturaResult || caratteristicaResult ? (
+          {famigliaResult || caratteristicaResult ? (
             <span className="navbar-tst__corrente" title={correnteTitle}>
-              <span className="navbar-tst__corrente-label">natura</span>
-              {naturaResult ? (
-                <span className="navbar-tst__corrente-family">{naturaResult}</span>
+              <span className="navbar-tst__corrente-label">famiglia</span>
+              {famigliaResult ? (
+                <span className="navbar-tst__corrente-family">{famigliaResult}</span>
               ) : null}
               {caratteristicaResult ? (
                 <span className="navbar-tst__corrente-name">{caratteristicaResult}</span>

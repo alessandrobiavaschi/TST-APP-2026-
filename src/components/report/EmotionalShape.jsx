@@ -13,11 +13,11 @@ const FAMILY_PARAMS = {
 }
 
 const NOMI_FAMIGLIE = {
-  Giallo: 'Entusiasmo',
-  Grigio: 'Anaffettività',
-  Blu: 'Malinconia',
-  Verde: 'Calma',
-  Rosso: 'Volitività'
+  Giallo: 'Entusiasta',
+  Grigio: 'Razionale',
+  Blu: 'Malinconica',
+  Verde: 'Flemmatica',
+  Rosso: 'Marziale'
 }
 
 const CENTER_X = 600

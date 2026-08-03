@@ -1,0 +1,33 @@
+import assert from 'node:assert/strict'
+import test from 'node:test'
+
+import { FAMILY_THEME } from '../src/config/reportFamilyTheme.js'
+import reportContent from '../src/content_report.json' with { type: 'json' }
+
+const EXPECTED_TAXONOMY = {
+  Blu: ['Malinconica', 'LUNARE'],
+  Rosso: ['Marziale', 'VOLITIVO-COLLERICA'],
+  Verde: ['Flemmatica', 'CONTEMPLATIVA'],
+  Giallo: ['Entusiasta', 'SOLARE'],
+  Grigio: ['Razionale', 'INTELLETTUALE-RAZIONALE'],
+}
+
+test('separa le cinque famiglie dalle rispettive nature emotive', () => {
+  assert.deepEqual(
+    Object.fromEntries(
+      Object.entries(FAMILY_THEME).map(([color, theme]) => [
+        color,
+        [theme.family, theme.characteristic],
+      ]),
+    ),
+    EXPECTED_TAXONOMY,
+  )
+})
+
+test('mantiene allineati tema e vocabolario narrativo del report', () => {
+  Object.entries(EXPECTED_TAXONOMY).forEach(([color, [family, characteristic]]) => {
+    assert.equal(FAMILY_THEME[color].corrente, family)
+    assert.equal(reportContent[color].restituzione_caratteri, characteristic)
+    assert.match(reportContent[color].restituzione_caratteri_estesi, new RegExp(`famiglia ${family}`, 'i'))
+  })
+})

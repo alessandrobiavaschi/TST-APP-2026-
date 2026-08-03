@@ -36,7 +36,7 @@ export const GALAXY_THEORY_INTRO: string[] = [
 export const GALAXY_THEORY_BY_DISPOSITION: Record<string, GalaxyTheoryFamily> = {
   malinconica_nostalgica: {
     dispositionId: 'malinconica_nostalgica',
-    familyLabel: 'Famiglia 1 - Corrente malinconica e nostalgica',
+    familyLabel: 'Famiglia Malinconica - natura Lunare',
     coreDescription: `Vento che soffia da Ovest a Est, in profondità: l'azione riflessa della Luna sul nostro spazio interiore. La Malinconia non è tristezza, è luce riflessa che illumina ciò che si è vissuto. Sorge nell'adolescenza (verso i 13-14 anni), quando la Musica diventa "balsamo che guarisce la solitudine". La Nostalgia è il suo risvolto: dolore della mancanza, ma anche calore del ricordo.`,
     selfRelation: `Forza centripeta che ci porta dentro noi stessi: piacere di stare in disparte, di osservarsi, di riflettere. Il malinconico puro non ha paura della solitudine, anzi vi sta bene; meno volentieri si butta in imprese fisiche estreme o danze forsennate.`,
     musicNotes: `Predilige timbri medi e medio-bassi, scuri e corposi: archi (violoncelli, contrabbassi), oboi e clarinetti, chitarre acustiche. Tempo Andante 60-100 bpm, modi minori, intervalli di terza e settima minore. Cerca la sincerità interpretativa, odia il dilettantismo.`,
@@ -167,7 +167,7 @@ export const GALAXY_THEORY_BY_DISPOSITION: Record<string, GalaxyTheoryFamily> = 
   },
   collerico_volitiva: {
     dispositionId: 'collerico_volitiva',
-    familyLabel: 'Famiglia 2 - Corrente collerico volitiva',
+    familyLabel: 'Famiglia Marziale - natura Volitivo-collerica',
     coreDescription: `Vento che soffia da Est a Ovest, seguendo il percorso del Sole: la forza dell'Io che vuole realizzare nel presente. È la corrente del finalizzatore — come il bomber che chiude la partita o il capitano del ciclismo che vince con l'aiuto dei gregari. "Io sono il padrone del mio destino" (Henley/Mandela). In polo positivo: saldezza, coraggio, decisione. In polo negativo: dubbio cronico, ambiguità, ira.`,
     selfRelation: `Energia orizzontale, che agisce nel presente. L'Io diventa "governatore" attorno ai vent'anni; verso i trenta può attraversare il "deserto" o "periodo del Verme", quando i sentimenti si inabissano come fiume carsico, prima di riemergere più impetuosi. Da qui nasce la possibilità della saggezza, fatta di ironia e di equilibrio fra governatore e gregari interiori.`,
     musicNotes: `Timbri medi, centrali, incisivi: percussioni (tamburi, timpani, rullanti), trombe, sax, viole, pianoforte, batteria. Tempi forti e costanti, Rock 90-130 bpm. Ama unisoni potenti (l'inizio della Quinta di Beethoven), scale dure (seconda), improvvisazione — ma da ascoltatore, perché come musicista è organizzato e fatica a "lasciarsi andare".`,
@@ -246,7 +246,7 @@ export const GALAXY_THEORY_BY_DISPOSITION: Record<string, GalaxyTheoryFamily> = 
   },
   flemmatica: {
     dispositionId: 'flemmatica',
-    familyLabel: 'Famiglia 3 - Corrente flemmatica',
+    familyLabel: 'Famiglia Flemmatica - natura Contemplativa',
     coreDescription: `Vento gentile e contemplativo che nasce nel centro della Rosa dei venti, come stare nell'occhio del ciclone: bonaccia, leggerezza del non-movimento, calma. Si forma nel periodo neonatale, quando le tre attività essenziali sono dormire, mangiare, sognare. Ippocrate la chiamava "flegma": un terreno verde in cui il sentire dorme della grossa, come accade per le piante.`,
     selfRelation: `Il flemmatico ama riposare e contemplare; non cerca tanto la riflessione su di sé, quanto un clima di calma e di equilibrio affettivo. Difficile incontrarlo in gare di snowboard — più facile nello sci di fondo. Quando la gentilezza è gratuita è qualità etica; quando è programmata per evitare conflitti, scivola in pigrizia.`,
     musicNotes: `Timbri scuri e quieti, medio-bassi: corni, fagotti, controfagotto, flauto in sol, clarini, marimba, arpa, chitarra classica. Adagio/Andante fino a 70 bpm; armonie sospese con poche terze, niente bruschi cambi di tonalità. Predilige Easy Listening e cadenze etniche tonali (es. musica irlandese).`,
@@ -292,7 +292,7 @@ export const GALAXY_THEORY_BY_DISPOSITION: Record<string, GalaxyTheoryFamily> = 
   },
   entusiasmo: {
     dispositionId: 'entusiasmo',
-    familyLabel: 'Famiglia 4 - Corrente dell’entusiasmo',
+    familyLabel: 'Famiglia Entusiasta - natura Solare',
     coreDescription: `Venti caldi che soffiano da Sud a Nord, pervasi di solarità. Si forma nel periodo pre-infantile e infantile, premiando ogni piccolo successo della curiosità: i bambini imparano in fretta proprio perché hanno poco da elaborare emotivamente. È l'antidoto al gelo del Dubbio e all'apatia che porta al nichilismo.`,
     selfRelation: `Forza centrifuga che esce verso il mondo: si abbraccia ciò che è nuovo (persone, natura, oggetti, attività). La gioia è il primo motore; quando l'energia matura, prende anche la forma più profonda della passione — adesione totale a una persona, un'idea, un'esperienza.`,
     musicNotes: `Timbri medio-alti, alti, brillanti: percussioni di ogni tipo (tamburelli, maracas), piatti, vibrafono, celesta, trombe, violini, canto. Tempi Allegro, ritmo accentuato e ripetitivo, modi maggiori, melodie chiare e riconoscibili. "Subisce in modo speciale il fascino del ritmo".`,
@@ -354,7 +354,7 @@ export const GALAXY_THEORY_BY_DISPOSITION: Record<string, GalaxyTheoryFamily> = 
   },
   agnostica_anaffettiva: {
     dispositionId: 'agnostica_anaffettiva',
-    familyLabel: 'Famiglia 5 - Corrente agnostica anaffettiva',
+    familyLabel: 'Famiglia Razionale - natura Intellettuale-Razionale',
     coreDescription: `Venti gelidi che soffiano da Nord a Sud, l'unica corrente trasversale che getta la sua ombra sulle altre quattro famiglie. Si è sedimentata come temperamento dagli anni Settanta: laicismo intellettuale anaffettivo, tempo della distrazione, uso compulsivo della tecnologia. Distacco e calcolo invece di passione.`,
     selfRelation: `Variabile della Volitività ma senza calore: una "cometa scura" che raggela l'affettivo. Tutto viene osservato senza vero interesse, con un piacere astratto, intellettuale, di tipo numerico-matematico. È però anche la soglia da cui può nascere la saggezza: quando l'intelletto si orienta eticamente, diventa "ecologia dei sentimenti" e senso del Noi.`,
     musicNotes: `Si associa all'intervallo di Ottava, polo del raffreddamento affettivo. La Musica, in questo periodo di massima anaffettività, lavora silenziosamente alla costruzione di un domani: aiuta a sviluppare sensibilità ed equilibrio, fa maturare le qualità interiori che riemergeranno dopo il deserto.`,

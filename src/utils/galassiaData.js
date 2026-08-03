@@ -139,7 +139,7 @@ export const EXAMPLE_CORRENT_DATA = [
   },
   {
     id: 'collerico_volitiva',
-    nome: 'Collerico / Volitiva',
+    nome: 'Marziale',
     familyKey: 'rosso',
     colore: '#ef4444',
     peso: 41,
@@ -167,7 +167,7 @@ export const EXAMPLE_CORRENT_DATA = [
   },
   {
     id: 'malinconica_nostalgica',
-    nome: 'Malinconica / Nostalgica',
+    nome: 'Malinconica',
     familyKey: 'blu',
     colore: '#3b82f6',
     peso: 28,
@@ -211,7 +211,7 @@ export const EXAMPLE_CORRENT_DATA = [
   },
   {
     id: 'entusiasmo',
-    nome: 'Entusiasmo',
+    nome: 'Entusiasta',
     familyKey: 'giallo',
     colore: '#eab308',
     peso: 9,
@@ -239,7 +239,7 @@ export const EXAMPLE_CORRENT_DATA = [
   },
   {
     id: 'agnostica_anaffettiva',
-    nome: 'Agnostica / Anaffettiva',
+    nome: 'Razionale',
     familyKey: 'grigio',
     colore: '#9ca3af',
     peso: 1,

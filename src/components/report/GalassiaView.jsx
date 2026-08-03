@@ -445,11 +445,11 @@ function computeGalassiaZoomLayout({
 }
 
 const GALASSIA_AXIS = [
-  { className: 'galassia-view__axis-label--north', title: 'Nord', text: 'Entusiasmo' },
-  { className: 'galassia-view__axis-label--west', title: 'Ovest', text: 'Malinconia' },
-  { className: 'galassia-view__axis-label--east', title: 'Est', text: 'Volitività' },
-  { className: 'galassia-view__axis-label--center', title: 'Centro', text: 'Calma' },
-  { className: 'galassia-view__axis-label--south', title: 'Sud', text: 'Anaffettività' },
+  { className: 'galassia-view__axis-label--north', title: 'Nord', text: 'Entusiasta' },
+  { className: 'galassia-view__axis-label--west', title: 'Ovest', text: 'Malinconica' },
+  { className: 'galassia-view__axis-label--east', title: 'Est', text: 'Marziale' },
+  { className: 'galassia-view__axis-label--center', title: 'Centro', text: 'Flemmatica' },
+  { className: 'galassia-view__axis-label--south', title: 'Sud', text: 'Razionale' },
 ]
 
 const FAMILY_KEY_BY_DISPOSITION = {
@@ -461,11 +461,11 @@ const FAMILY_KEY_BY_DISPOSITION = {
 }
 
 const CORRENTE_NAME_BY_FAMILY = {
-  blu: 'Malinconia',
-  rosso: 'Volitività',
-  verde: 'Calma',
-  giallo: 'Entusiasmo',
-  grigio: 'Anaffettività',
+  blu: 'Malinconica',
+  rosso: 'Marziale',
+  verde: 'Flemmatica',
+  giallo: 'Entusiasta',
+  grigio: 'Razionale',
 }
 
 const RELATION_TONE_COPY = {
@@ -519,6 +519,11 @@ const PORTATO_CARD_BY_KEY = Object.fromEntries(
 )
 
 const CORRENTE_COLOR_BY_NAME = {
+  Malinconica: '#3b82f6',
+  Marziale: '#ef4444',
+  Flemmatica: '#22c55e',
+  Entusiasta: '#eab308',
+  Razionale: '#94a3b8',
   Malinconia: '#3b82f6',
   Volitività: '#ef4444',
   Calma: '#22c55e',
@@ -573,6 +578,8 @@ const FAMILY_KEY_ALIASES = {
   anaffettivita: 'grigio',
   anaffettiva: 'grigio',
   agnostica: 'grigio',
+  razionale: 'grigio',
+  intellettualerazionale: 'grigio',
 }
 
 const LESSICO_RELATIONS_BY_FAMILY = {
@@ -929,7 +936,7 @@ function buildModeIdlePanel(mode, { dominant, portato, deepReading } = {}) {
           id: 'settori',
           label: 'Pianeta',
           areas: 'Famiglia emotiva',
-          meaning: 'Il cerchio rappresenta una disposizione, come Entusiasmo o Calma.',
+          meaning: 'Il cerchio rappresenta una famiglia, come Entusiasta o Flemmatica.',
         },
         {
           id: 'conteggio',

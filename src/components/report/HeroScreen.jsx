@@ -4,6 +4,7 @@ import { HERO_UI } from './reportUiCopy.js'
 import { scrollToReportSection } from './reportSectionNavUtils.js'
 import { getFlowerStillByColor } from '../../colorAssets.js'
 import { computeColorTotals, getDominantColorInfo } from '../../utils/reportRecordUtils.js'
+import { FAMILY_NAME_BY_KEY, FAMILY_THEME } from '../../config/reportFamilyTheme.js'
 
 // Il setup ESLint del progetto non riconosce l'uso di `motion.X` nel JSX come
 // riferimento alla variabile (stessa convenzione di HeroSummary.jsx).
@@ -18,7 +19,8 @@ void motion
  * automaticamente per ogni profilo.
  *
  * Props:
- *  - naturaName: string            es. "NATURA FLEMMATICA"
+ *  - familyName: string            es. "Marziale"
+ *  - naturaName: string            es. "NATURA VOLITIVO-COLLERICA"
  *  - disposizione: string          es. "CONTEMPLATIVA"
  *  - userName: string              nome e cognome della persona
  *  - correnteColore: string        hex colore dominante (es. "#16a34a")
@@ -93,7 +95,8 @@ const EDGE_COLOR = '#020817'
 /* ------------------------------------------------------------------ */
 
 export default function HeroScreen({
-  naturaName = 'NATURA FLEMMATICA',
+  familyName = '',
+  naturaName = 'NATURA CONTEMPLATIVA',
   _disposizione = 'CONTEMPLATIVA',
   _userName = '',
   correnteColore = '#16a34a',
@@ -153,6 +156,9 @@ export default function HeroScreen({
         }
 
   const naturaText = toTitleCase(String(naturaName || '').replace(/^NATURA\s+/i, ''))
+  const familyText = toTitleCase(
+    familyName || FAMILY_THEME[FAMILY_NAME_BY_KEY[colorKey]]?.family || 'Flemmatica',
+  )
 
   const handleSummaryClick = (event) => {
     const targetId = 'prima-sintesi-risultato'
@@ -226,8 +232,11 @@ export default function HeroScreen({
               textShadow: '0 2px 24px rgba(0, 0, 0, 0.75)',
             }}
           >
-            <span className="hero-screen__sintesi-bridge">La tua natura emotiva prevalente è</span>
-            <strong className="hero-screen__sintesi-family">{naturaText}</strong>
+            <span className="hero-screen__sintesi-bridge">La tua famiglia emotiva prevalente è</span>
+            <strong className="hero-screen__sintesi-family">{familyText}</strong>
+            <span className="hero-screen__sintesi-bridge">
+              Caratteristica emotiva (natura): {naturaText}
+            </span>
           </motion.h1>
           <motion.div {...fade(0.45, 8)} className="hero-screen__cta-sintesi">
             <a
