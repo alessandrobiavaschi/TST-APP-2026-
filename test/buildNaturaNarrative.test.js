@@ -6,7 +6,7 @@ import {
   NATURA_NARRATIVE_STATUS,
   NATURA_RELATION_RULES,
   resolveHarmonyDescriptor,
-  resolvePrevalenceDescriptor,
+  resolveInfluenceDescriptor,
   resolveTensionDescriptor,
 } from '../src/utils/buildNaturaNarrative.js'
 
@@ -31,7 +31,7 @@ test('applica la formula editoriale a tutte le famiglie con maiuscole standard',
     const text = result.paragraphs.join(' ')
 
     assert.equal(result.status, NATURA_NARRATIVE_STATUS.CLEAR)
-    assert.equal(result.paragraphs[0], `Il test conferma la tua appartenenza alla famiglia ${family}.`)
+    assert.equal(result.paragraphs[0], `Nel tuo risultato, la famiglia ${family} ottiene il punteggio più alto ed è quindi la famiglia prevalente.`)
     assert.equal(result.paragraphs[1], `La lettura delle diverse aree del test converge nel riconoscere come ${nature} la tua natura emotiva di base.`)
     assert.equal(result.frontParagraphs.length, 2)
     assert.match(result.frontParagraphs[0], new RegExp(`famiglia ${family}`))
@@ -55,20 +55,19 @@ test('racconta tutte le componenti di un profilo 7 6 5 e solo le tensioni codifi
   assert.equal(result.status, NATURA_NARRATIVE_STATUS.COMPOSITE)
   assert.deepEqual(result.highlightedFamilies, ['rosso', 'verde', 'giallo'])
   assert.match(text, /famiglia Marziale/)
-  assert.match(text, /componente Flemmatica/)
-  assert.match(text, /componente Entusiasta/)
+  assert.match(text, /componente.*Flemmatica/)
+  assert.match(text, /componente.*Entusiasta/)
   assert.match(text, /tensione significativa/)
   assert.match(text, /spinta all'azione con il bisogno di pausa/)
   assert.match(text, /slancio e volontà condividono un orientamento dinamico/)
   assert.doesNotMatch(text, /in accordo|buona armonia/i)
 })
 
-test('gradua la prevalenza sulla distanza percentuale tra prima e seconda famiglia', () => {
-  assert.equal(resolvePrevalenceDescriptor(10), 'certa')
-  assert.equal(resolvePrevalenceDescriptor(20), 'discreta')
-  assert.equal(resolvePrevalenceDescriptor(30), 'chiara')
-  assert.equal(resolvePrevalenceDescriptor(40), 'marcata')
-  assert.equal(resolvePrevalenceDescriptor(41), 'netta')
+test('gradua al contrario l influenza delle famiglie successive rispetto alla prevalente', () => {
+  assert.equal(resolveInfluenceDescriptor(10), 'netta')
+  assert.equal(resolveInfluenceDescriptor(20), 'marcata')
+  assert.equal(resolveInfluenceDescriptor(30), 'lieve')
+  assert.equal(resolveInfluenceDescriptor(31), 'residuale')
 
   const close = buildNaturaNarrative({
     dominantFamilyKey: 'rosso',
@@ -86,8 +85,29 @@ test('gradua la prevalenza sulla distanza percentuale tra prima e seconda famigl
     ],
   })
 
-  assert.match(close.paragraphs.join(' '), /una certa prevalenza.*8 punti percentuali/i)
-  assert.match(distant.paragraphs.join(' '), /una marcata prevalenza.*35 punti percentuali/i)
+  assert.match(close.paragraphs.join(' '), /distanza di 8 punti percentuali.*influenza netta/i)
+  assert.match(distant.paragraphs.join(' '), /distanza di 35 punti percentuali.*influenza residuale/i)
+  assert.doesNotMatch(close.paragraphs.join(' '), /certa prevalenza|netta prevalenza/i)
+})
+
+test('nel caso CSV mostra seconda e terza per graduatoria senza sostituirle con la tensione più forte', () => {
+  const result = buildNaturaNarrative({
+    dominantFamilyKey: 'rosso',
+    ranking: [
+      radarItem('rosso', 19, 33.9, 7),
+      radarItem('blu', 15, 26.8, 6),
+      radarItem('giallo', 12, 21.4, 4),
+      radarItem('verde', 7, 12.5, 3),
+      radarItem('grigio', 3, 5.4, 1),
+    ],
+  })
+
+  assert.equal(result.frontParagraphs.length, 3)
+  assert.match(result.frontParagraphs[1], /seconda componente.*Malinconica.*7,1 punti percentuali.*influenza netta.*compensazione/i)
+  assert.match(result.frontParagraphs[2], /terza componente.*Entusiasta.*12,5 punti percentuali.*influenza marcata.*affinità/i)
+  assert.doesNotMatch(result.frontParagraphs.join(' '), /Flemmatica/i)
+  assert.match(result.paragraphs.join(' '), /quarta componente.*Flemmatica.*influenza lieve.*tensione/i)
+  assert.match(result.paragraphs.join(' '), /quinta componente.*Razionale.*influenza lieve.*tensione/i)
 })
 
 test('gradua l armonia sulla distanza tra le due componenti principali', () => {
@@ -141,7 +161,7 @@ test('la percentuale gradua la tensione solo dopo aver verificato la coppia teor
 
   assert.match(malinconicaConFlemma.paragraphs.join(' '), /calma accompagna l'interiorità senza opporvisi/i)
   assert.doesNotMatch(malinconicaConFlemma.paragraphs.join(' '), /componente Flemmatica.*tensione/i)
-  assert.match(marzialeConFlemma.paragraphs.join(' '), /tensione leggera.*componente Flemmatica.*10%/i)
+  assert.match(marzialeConFlemma.paragraphs.join(' '), /componente.*Flemmatica.*10%.*tensione leggera/i)
 })
 
 test('distingue il pari livello grafico dal vero pari punti', () => {
@@ -164,8 +184,8 @@ test('distingue il pari livello grafico dal vero pari punti', () => {
   assert.match(roundedTie.paragraphs.join(' '), /per effetto dell'arrotondamento/)
   assert.equal(trueTie.status, NATURA_NARRATIVE_STATUS.TRUE_TIE)
   assert.match(trueTie.paragraphs.join(' '), /14 punti ciascuna/)
-  assert.match(trueTie.paragraphs[0], /appartenenza condivisa.*Marziale.*Flemmatica/i)
-  assert.doesNotMatch(trueTie.paragraphs.join(' '), /conferma la tua appartenenza alla famiglia/i)
+  assert.match(trueTie.paragraphs[0], /famiglie Marziale e Flemmatica.*stesso punteggio più alto/i)
+  assert.doesNotMatch(trueTie.paragraphs.join(' '), /appartenenza alla famiglia/i)
 })
 
 test('racconta le sfumature come attivazioni complessive indipendenti', () => {
@@ -213,6 +233,45 @@ test('un vero pari merito racconta le sfumature di entrambe le famiglie', () => 
 
   assert.match(text, /Assertività raggiunge il 25%/)
   assert.match(text, /Calma raggiunge il 32%/)
+})
+
+test('un vero pari merito non degrada la famiglia a pari punti a influenza secondaria', () => {
+  const result = buildNaturaNarrative({
+    dominantFamilyKey: 'rosso',
+    ranking: [
+      radarItem('rosso', 14, 40, 7),
+      radarItem('verde', 14, 40, 7),
+      radarItem('blu', 7, 20, 4),
+    ],
+  })
+
+  assert.doesNotMatch(result.frontParagraphs.join(' '), /seconda componente.*Flemmatica/i)
+  assert.match(result.frontParagraphs.join(' '), /terza componente.*Malinconica.*influenza marcata/i)
+})
+
+test('un vero pari merito senza altre famiglie non nega la componente condivisa', () => {
+  const result = buildNaturaNarrative({
+    dominantFamilyKey: 'rosso',
+    ranking: [
+      radarItem('rosso', 14, 50, 7),
+      radarItem('verde', 14, 50, 7),
+    ],
+  })
+  const text = result.paragraphs.join(' ')
+
+  assert.equal(result.frontParagraphs.length, 1)
+  assert.match(text, /risultato resta condiviso tra le famiglie Marziale e Flemmatica/i)
+  assert.doesNotMatch(text, /nessun’altra famiglia ha ottenuto punti|senza altre componenti misurate/i)
+})
+
+test('la graduatoria prevale su una chiave dominante esterna incoerente', () => {
+  const result = buildNaturaNarrative({
+    dominantFamilyKey: 'verde',
+    ranking: [radarItem('rosso', 19, 60, 7), radarItem('verde', 12, 40, 4)],
+  })
+
+  assert.match(result.frontParagraphs[0], /famiglia Marziale.*punteggio più alto.*Volitivo-collerica/i)
+  assert.doesNotMatch(result.frontParagraphs[0], /famiglia Flemmatica.*punteggio più alto/i)
 })
 
 test('uno stato vuoto non attribuisce appartenenza o prevalenza', () => {

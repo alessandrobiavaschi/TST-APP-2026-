@@ -401,3 +401,59 @@ Il titolo della sezione 1.3 mostra ora soltanto "La tua natura emotiva di appart
 - `npm run build`: superato.
 - Comportamento atteso: l'intestazione 1.3 è "La tua natura emotiva di appartenenza" per ogni profilo, senza suffisso della famiglia.
 - Problemi irrisolti: nessuno relativo a questa correzione.
+
+---
+
+## Influenze nella Natura di Base — 2026-08-03
+
+### Sintesi
+
+La Natura di Base distingue ora una sola famiglia prevalente, cioè quella con
+il punteggio più alto, dalle famiglie successive che influenzano il risultato.
+La scala dell'influenza è inversa rispetto alla distanza dalla prevalente:
+0–10 punti `netta`, fino a 20 `marcata`, fino a 30 `lieve`, oltre 30
+`residuale`.
+
+Il riepilogo visibile segue la graduatoria e racconta seconda e terza famiglia,
+ciascuna con percentuale, distanza, intensità dell'influenza e rapporto teorico
+con la natura di base. Le famiglie successive conservano lo stesso dettaglio
+nel contratto narrativo e una tensione non può più sostituire impropriamente la
+vera seconda o terza componente.
+
+### Caso CSV verificato
+
+- Marziale: 19 punti, 33,9%, famiglia prevalente;
+- Malinconica: 15 punti, 26,8%, distanza 7,1, influenza netta,
+  compensazione;
+- Entusiasta: 12 punti, 21,4%, distanza 12,5, influenza marcata, affinità;
+- Flemmatica: 7 punti, 12,5%, distanza 21,4, influenza lieve, tensione;
+- Razionale: 3 punti, 5,4%, distanza 28,5, influenza lieve, tensione.
+
+### File modificati
+
+- `src/utils/buildNaturaNarrative.js`
+- `src/utils/buildReportData.js`
+- `test/buildNaturaNarrative.test.js`
+- `test/reportGraphDataContract.test.js`
+- `HANDOFF_CODEX.md`
+
+### Decisioni e assunzioni
+
+- Il valore oltre 30 punti non era specificato nella richiesta ed è stato
+  chiamato `residuale` per completare la scala senza attribuire una prevalenza
+  alle famiglie secondarie.
+- La matrice di affinità, modulazione, compensazione, attenuazione e tensione è
+  invariata; cambia soltanto il modo in cui viene applicata alla graduatoria e
+  raccontata alla persona.
+- Scoring, risposte, aggregazioni della lente, normalizzazione 1–7, grafici e
+  Firestore non sono stati modificati.
+- Le modifiche locali preesistenti nel worktree sono state preservate ed
+  escluse dal commit.
+
+### Verifiche
+
+- test mirati Natura e contratto grafico: 29 superati, 0 falliti;
+- `npm test`: 75 superati, 0 falliti;
+- `npm run lint`: superato, 0 errori;
+- `npm run build`: superato, 1227 moduli trasformati;
+- `git diff --check`: superato.

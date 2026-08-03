@@ -181,9 +181,26 @@ test('la lettura della Natura usa la prevalente della lente e racconta le second
   const natura = report.rapporti.find((item) => item.id === 'natura')
 
   assert.equal(natura.correntePrincipale.nome, 'Flemmatica')
-  assert.match(natura.definizioneParagrafi[0], /appartenenza alla famiglia Flemmatica/i)
+  assert.match(natura.definizioneParagrafi[0], /famiglia Flemmatica.*punteggio più alto.*famiglia prevalente/i)
   assert.match(natura.definizioneParagrafi[1], /come Contemplativa.*natura emotiva di base/i)
-  assert.match(natura.definizione, /componente Marziale, associata alla natura Volitivo-collerica/i)
+  assert.match(natura.definizione, /seconda componente.*Marziale.*influenza marcata.*tensione significativa/i)
+})
+
+test('il contratto Natura espone seconda e terza del caso CSV nel riepilogo visibile', () => {
+  const naturaTotals = { rosso: 19, blu: 15, giallo: 12, verde: 7, grigio: 3 }
+  const report = buildReportData({
+    record: { raw: {} },
+    dominantColorName: 'Rosso',
+    rapportiTotals: { natura: naturaTotals },
+    rapportiLevels: { natura: normalizeLevels(naturaTotals) },
+  })
+  const natura = report.rapporti.find((item) => item.id === 'natura')
+
+  assert.equal(natura.correntePrincipale.nome, 'Marziale')
+  assert.equal(natura.sintesiBreveParagrafi.length, 3)
+  assert.match(natura.sintesiBreveParagrafi[1], /Malinconica.*influenza netta.*compensazione/i)
+  assert.match(natura.sintesiBreveParagrafi[2], /Entusiasta.*influenza marcata.*affinità/i)
+  assert.doesNotMatch(natura.sintesiBreveParagrafi.join(' '), /Flemmatica/i)
 })
 
 test('Sé Altro e Agire usano la famiglia risultante dalla Natura classica', () => {

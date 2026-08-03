@@ -714,7 +714,7 @@ export function buildReportData({
           ? `Più famiglie raggiungono 7/7 dopo la normalizzazione: ${formatFamilyLevels(topLevelFamilies)}.`
           : profiloComposto
             ? `Profilo composto: ${formatFamilyLevels(famiglieInEvidenza)}.`
-            : `Prevalenza netta: ${formatFamilyLevels(graduatoria.slice(0, 1))}.`
+            : `Famiglia prevalente: ${formatFamilyLevels(graduatoria.slice(0, 1))}.`
     const localPrincipale = radarFamilies.reduce(
       (best, f) => {
         const v = Number(levels?.[f.key]) || 0
