@@ -4,6 +4,10 @@ import test from 'node:test'
 import { FAMILY_THEME } from '../src/config/reportFamilyTheme.js'
 import reportContent from '../src/content_report.json' with { type: 'json' }
 import { getRelationalCorpusForDominant } from '../src/content/relational/index.js'
+import {
+  MALINCONICA_NOSTALGICA_LABEL,
+  formatSubcategoryLabel,
+} from '../src/utils/reportTaxonomy.js'
 
 const EXPECTED_TAXONOMY = {
   Blu: ['Malinconica', 'LUNARE'],
@@ -39,4 +43,10 @@ test('riconosce la natura Gioioso-Sanguinico mantenendo la compatibilità con il
     getRelationalCorpusForDominant('Solare').corpusKey,
   )
   assert.notEqual(FAMILY_THEME.Giallo.characteristic, 'SOLARE')
+})
+
+test('presenta Nostalgico come sottocategoria Solare o Lunare senza rompere i valori storici', () => {
+  assert.equal(formatSubcategoryLabel('Nostalgica'), MALINCONICA_NOSTALGICA_LABEL)
+  assert.equal(formatSubcategoryLabel('Nostalgia'), MALINCONICA_NOSTALGICA_LABEL)
+  assert.match(reportContent.Blu.descrizione_estesa, /Nostalgico \(solare o lunare\)/i)
 })

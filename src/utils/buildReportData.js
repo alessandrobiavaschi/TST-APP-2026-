@@ -60,6 +60,7 @@ import {
 } from '../config/reportFamilyTheme'
 import { PROFILE_PDF_BLOCKS } from '../reportProfiloPdf.js'
 import { getFamigliaApprofondimento } from '../content/famigliaApprofondimento.js'
+import { MALINCONICA_NOSTALGICA_LABEL, formatSubcategoryLabel } from './reportTaxonomy.js'
 import { buildIntegrativeParagraphs, buildSintesiLead, buildSintesiKeyFacts, buildSintesiLeadExtended } from '../content/reportRestitution.js'
 import {
   FAMIGLIE_LESSICO,
@@ -96,7 +97,7 @@ const SOTTOCORRENTE_META = [
 const SOTTOCORRENTE_LABEL_BY_RAW_KEY = {
   BLU_1_Depressiva: 'Depressiva',
   BLU_2_Lunare: 'Lunare',
-  BLU_3_Nostalgia: 'Nostalgica',
+  BLU_3_Nostalgia: MALINCONICA_NOSTALGICA_LABEL,
   BLU_4_Solare: 'Solare',
   ROSSO_1_Assertivita: 'Assertività',
   ROSSO_2_Dubbio_Collera: 'Dubbio / Collera',
@@ -203,10 +204,15 @@ function resolveSottodisposizionePrevalente(rawRecord = {}, dominantColorName) {
       key,
       SOTTOCORRENTE_LABEL_BY_RAW_KEY[key],
       rawKeyToLabel(key),
+      ...(key === 'BLU_3_Nostalgia' ? ['Nostalgia', 'Nostalgica'] : []),
     ]
     return aliases.some((alias) => normalizeSottocorrenteLabel(alias) === savedNormalized)
   })
-  if (savedKeyInFamily) return SOTTOCORRENTE_LABEL_BY_RAW_KEY[savedKeyInFamily] || rawKeyToLabel(savedKeyInFamily)
+  if (savedKeyInFamily) {
+    return formatSubcategoryLabel(
+      SOTTOCORRENTE_LABEL_BY_RAW_KEY[savedKeyInFamily] || rawKeyToLabel(savedKeyInFamily),
+    )
+  }
 
   let bestKey = ''
   let bestValue = -Infinity
@@ -219,7 +225,7 @@ function resolveSottodisposizionePrevalente(rawRecord = {}, dominantColorName) {
   })
 
   if (!bestKey || bestValue <= 0) return ''
-  return SOTTOCORRENTE_LABEL_BY_RAW_KEY[bestKey] || rawKeyToLabel(bestKey)
+  return formatSubcategoryLabel(SOTTOCORRENTE_LABEL_BY_RAW_KEY[bestKey] || rawKeyToLabel(bestKey))
 }
 
 function parseCsvCodes(value) {

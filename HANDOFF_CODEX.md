@@ -218,6 +218,33 @@ Integrare il commit dedicato senza includere le altre modifiche non committate g
 
 ---
 
+## Sottocategoria Nostalgico — 2026-08-03
+
+### Sintesi
+
+La tassonomia visibile della famiglia Malinconica presenta ora `Nostalgico (Solare o Lunare)` come sottocategoria. Le chiavi scientifiche BLU, i punteggi e i valori storici persistiti restano invariati.
+
+### Compatibilità
+
+- `Nostalgia`, `Nostalgica` e `Nostalgico` vengono normalizzati nella nuova etichetta soltanto in visualizzazione.
+- `BLU_3_Nostalgia` non è stato rinominato.
+- Malinconia lunare e Malinconia solare restano correnti analitiche distinte; non vengono confuse con la sottocategoria Nostalgico.
+
+### Superfici aggiornate
+
+- report e PDF;
+- sintesi delle correnti;
+- Galassia e corpus teorico;
+- archivio risultati desktop e mobile;
+- glossario e approfondimento della famiglia;
+- test di regressione tassonomico.
+
+### Integrazione
+
+Integrare il commit dedicato senza includere le altre modifiche concorrenti già presenti nel worktree.
+
+---
+
 ## Rimozione etichetta duplicata nei Quattro Rapporti — 2026-08-03
 
 ### Sintesi

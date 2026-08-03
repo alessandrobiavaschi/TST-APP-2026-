@@ -91,6 +91,10 @@ test('la Galassia vuota conserva cinque famiglie e undici sottocorrenti univoche
   subcurrents.forEach((sub) => {
     assert.equal(sub.familyKey, EXPECTED_SUBCURRENT_FAMILY[sub.id], sub.id)
   })
+  assert.equal(
+    subcurrents.find((sub) => sub.id === 'BLU_3_Nostalgia')?.nome,
+    'Nostalgico (Solare o Lunare)',
+  )
 })
 
 test('record storici numerici o serializzati producono la stessa Galassia', () => {

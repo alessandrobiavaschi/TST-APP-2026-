@@ -178,7 +178,7 @@ export const PROFILE_PDF_BLOCKS = {
     ].join('\n'),
     descrizione_estesa: [
       'Il sorgere della malinconia si avverte nell’adolescenza: attorno ai nove-dieci anni una «seconda nascita» affettiva, luce riflessa della Luna rispetto al Sole dell’età adulta.',
-      'Quattro sotto-correnti articolano la famiglia: Depressiva, Lunare, Nostalgica e Solare.',
+      'Le correnti BLU articolano la famiglia in Malinconia depressiva, Malinconia lunare, sottocategoria Nostalgico (solare o lunare) e Malinconia solare.',
       'Nell’ascolto questa natura è sensibile all’identità del timbro: archi, doppie ance, frequenze medie e medio-basse, suoni corposi e scuri, pianoforte pastoso o arpa possono favorire un contatto intimo con il mondo interno.',
       'Il piacere musicale passa dalla melodia, dagli intervalli e dalle tonalità capaci di muovere memoria e sentimento. Cerca musica profonda, testi poetici o umanistici, ritmi non invasivi, cambi armonici che permettano di sostare e riflettere senza essere spinti fuori da sé.',
     ].join('\n'),

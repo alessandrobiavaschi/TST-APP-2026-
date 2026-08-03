@@ -117,7 +117,7 @@ export const GLOSSARY = [
     id: 'sotto-corrente',
     term: 'Sotto-corrente',
     oneLine: 'Sfumatura più fine dentro una corrente.',
-    explain: 'Articola il profilo oltre la famiglia principale (es. nostalgico dentro la malinconia).',
+    explain: 'Articola il profilo oltre la famiglia principale: nella famiglia Malinconica, per esempio, la sottocategoria Nostalgico può essere Solare o Lunare.',
     usefulFor:
       'Le sfumature affinano la lettura: due persone con la stessa famiglia dominante possono differire nella sotto-corrente prevalente.',
     tags: ['galassia'],

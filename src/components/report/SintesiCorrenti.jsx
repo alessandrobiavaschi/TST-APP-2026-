@@ -65,7 +65,7 @@ const BRIEF_SUMMARY_BY_FAMILY = {
       Solare:
         "una caratteristica Lunare e una Solare. Quella Solare apre verso il mondo, portando speranza, serenità e fiducia nel futuro",
       Nostalgica:
-        "una caratteristica riflessiva e una nostalgica. Quella Nostalgica porta a elaborare il passato attraverso il rimpianto o, nel suo volto più luminoso, attraverso la riconoscenza verso ciò che si è vissuto",
+        "una sottocategoria Nostalgico, che può essere Lunare o Solare. La forma Lunare elabora il passato attraverso il rimpianto; quella Solare attraverso la riconoscenza verso ciò che si è vissuto",
       Depressiva:
         "una caratteristica introspettiva e una depressiva. Quella Depressiva opera nel chiuso dell’interiorità, scandagliandone gli aspetti più scuri",
     },
@@ -567,7 +567,7 @@ export default function SintesiCorrenti({
 
   const sottocorrenteDisplayName = (nome) => {
     if (nome === 'Lunare') return 'Caratteristica Lunare'
-    if (nome === 'Nostalgia') return 'Nostalgica'
+    if (nome === 'Nostalgia' || nome === 'Nostalgica' || nome === 'Nostalgico') return 'Nostalgico (Solare o Lunare)'
     return nome
   }
 
@@ -698,7 +698,7 @@ export default function SintesiCorrenti({
         {summarySottocorrenti.length > 0 ? (
           <div className="sintesi-mobile-subcurrents">
             <h3 className="sintesi-mobile-section-title">
-              Sottocategorie di {dominantPresenceLabel.title.toLowerCase()}
+              Correnti della famiglia {dominantPresenceLabel.title.toLowerCase()}
             </h3>
             <p className="sintesi-mobile-explanation">
               All’interno di questa famiglia, il test evidenzia le caratteristiche emotive specifiche che
@@ -974,7 +974,7 @@ export default function SintesiCorrenti({
                 <div className="sintesi-correnti__subcurrents">
                   <div className="sintesi-correnti__subcurrents-head">
                     <span className="sintesi-correnti__subcurrents-title">
-                      Sottocategorie di {dominantPresenceLabel.title.toLowerCase()}
+                      Correnti della famiglia {dominantPresenceLabel.title.toLowerCase()}
                     </span>
                     <span className="sintesi-correnti__subcurrents-count">
                       {familySottocorrenti.length}

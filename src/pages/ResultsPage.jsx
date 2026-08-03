@@ -29,6 +29,7 @@ import {
   downloadCsvSingleRecord,
 } from '../utils/reportRecordUtils.js'
 import { parseMatriceCsv } from '../utils/matriceCsv.js'
+import { MALINCONICA_NOSTALGICA_LABEL, formatSubcategoryLabel } from '../utils/reportTaxonomy.js'
 
 export function computeAgeFromBirthDate(dateValue) {
   if (!dateValue) return null
@@ -125,7 +126,7 @@ const SOTTOCORRENTE_KEYS_BY_FAMILY = {
 const SOTTOCORRENTE_LABEL_BY_KEY = {
   BLU_1_Depressiva: 'Depressiva',
   BLU_2_Lunare: 'Lunare',
-  BLU_3_Nostalgia: 'Nostalgica',
+  BLU_3_Nostalgia: MALINCONICA_NOSTALGICA_LABEL,
   BLU_4_Solare: 'Solare',
   ROSSO_1_Assertivita: 'Assertività',
   ROSSO_2_Dubbio_Collera: 'Dubbio / Collera',
@@ -159,14 +160,17 @@ function getResolvedSottodisposizione(raw = {}) {
   const disposizioneKey = normalizeSottocorrenteLabel(raw.Disposizione_Prevalente)
   const familyKey = DISPOSIZIONE_TO_FAMILY_KEY[disposizioneKey]
   const candidateKeys = SOTTOCORRENTE_KEYS_BY_FAMILY[familyKey] || []
-  if (candidateKeys.length === 0) return String(raw.Sottodisposizione_Prevalente || '').trim()
+  if (candidateKeys.length === 0) return formatSubcategoryLabel(raw.Sottodisposizione_Prevalente)
 
   const savedNormalized = normalizeSottocorrenteLabel(raw.Sottodisposizione_Prevalente)
   const savedKeyInFamily = candidateKeys.find((key) => {
     const label = SOTTOCORRENTE_LABEL_BY_KEY[key] || key
-    return [key, label].some((alias) => normalizeSottocorrenteLabel(alias) === savedNormalized)
+    const aliases = [key, label, ...(key === 'BLU_3_Nostalgia' ? ['Nostalgia', 'Nostalgica'] : [])]
+    return aliases.some((alias) => normalizeSottocorrenteLabel(alias) === savedNormalized)
   })
-  if (savedKeyInFamily) return SOTTOCORRENTE_LABEL_BY_KEY[savedKeyInFamily] || savedKeyInFamily
+  if (savedKeyInFamily) {
+    return formatSubcategoryLabel(SOTTOCORRENTE_LABEL_BY_KEY[savedKeyInFamily] || savedKeyInFamily)
+  }
 
   let bestKey = ''
   let bestValue = -Infinity
@@ -178,7 +182,7 @@ function getResolvedSottodisposizione(raw = {}) {
     }
   })
   if (!bestKey || bestValue <= 0) return ''
-  return SOTTOCORRENTE_LABEL_BY_KEY[bestKey] || bestKey
+  return formatSubcategoryLabel(SOTTOCORRENTE_LABEL_BY_KEY[bestKey] || bestKey)
 }
 
 function IconEdit({ title, onClick, className = '' }) {

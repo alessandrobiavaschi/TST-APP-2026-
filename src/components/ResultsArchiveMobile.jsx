@@ -1,4 +1,5 @@
 import React from 'react'
+import { formatSubcategoryLabel } from '../utils/reportTaxonomy.js'
 
 const RADAR_FAMIGLIE = [
   { subject: 'Malinconica', key: 'blu', color: '#3b82f6' },
@@ -401,7 +402,7 @@ function ResultsArchiveMobile({
                       </div>
                       <div>
                         <dt>Sfumatura</dt>
-                        <dd>{r.raw.Sottodisposizione_Prevalente || '—'}</dd>
+                        <dd>{formatSubcategoryLabel(r.raw.Sottodisposizione_Prevalente) || '—'}</dd>
                       </div>
                       <div>
                         <dt>Portato esp.</dt>

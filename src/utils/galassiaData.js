@@ -29,6 +29,7 @@
  */
 
 import { computeColorTotals, computeRelativePercentages } from './reportRecordUtils.js'
+import { MALINCONICA_NOSTALGICA_LABEL } from './reportTaxonomy.js'
 import { DISPOSITIONS } from '../config/dispositions'
 import { RAW_DOC_VISUAL } from '../config/galaxyDocBridge'
 import {
@@ -40,6 +41,7 @@ const clamp01 = (value) => Math.min(1, Math.max(0, value))
 
 /** Da chiave grezza a etichetta leggibile, es. 'ROSSO_2_Dubbio_Collera' -> 'Dubbio Collera'. */
 function rawKeyToLabel(rawKey) {
+  if (rawKey === 'BLU_3_Nostalgia') return MALINCONICA_NOSTALGICA_LABEL
   const base = String(rawKey).split('_').slice(2).join(' ').replaceAll('_', ' ').trim() || String(rawKey)
   return base.replace(/\b\w/g, (c) => c.toUpperCase())
 }
@@ -193,7 +195,7 @@ export const EXAMPLE_CORRENT_DATA = [
       },
       {
         id: 'BLU_3_Nostalgia',
-        nome: 'Nostalgica',
+        nome: MALINCONICA_NOSTALGICA_LABEL,
         colore: '#1d4ed8',
         peso: 18,
         descrizione: 'Settima min/Mag · Blu reale (saudade)',
