@@ -103,6 +103,52 @@ La branch `ai/integration` è pronta per review. Prima di portarla su `master`, 
 
 ---
 
+## Aggiornamento 2026-08-03 — Tassonomia famiglia/natura
+
+### Sintesi
+
+Il vocabolario esposto dal test e dai report distingue ora esplicitamente la famiglia emotiva dalla sua caratteristica emotiva (natura). La tassonomia canonica adottata è:
+
+| Chiave interna | Famiglia | Caratteristica emotiva (natura) |
+|---|---|---|
+| Blu | Malinconica | Lunare |
+| Rosso | Marziale | Volitivo-collerica |
+| Verde | Flemmatica | Contemplativa |
+| Giallo | Entusiasta | Solare |
+| Grigio | Razionale | Intellettuale-Razionale |
+
+Le chiavi colore, le 11 correnti, il calcolo dei punteggi e i valori storici Firestore (`Malinconia`, `Volitività`, `Calma`, `Entusiasmo`, `Anaffettività`) non sono stati modificati. Nell'archivio i valori storici vengono soltanto tradotti nelle etichette di famiglia al momento della visualizzazione.
+
+### Superfici aggiornate
+
+- tema e contratto dati del report;
+- hero, navbar, sintesi, quattro rapporti, legende e diagrammi;
+- Galassia e Atlante lessicale;
+- dizionario degli stati d'animo e contenuti musicali;
+- archivio risultati desktop/mobile;
+- glossario, testi narrativi e fallback;
+- alias del corpus relazionale;
+- test contrattuale per tutte e cinque le coppie famiglia/natura.
+
+### Decisioni e assunzioni
+
+- L'elenco ricevuto dichiarava cinque famiglie ma conteneva anche `Intellettuale-Razionale`; per coerenza con le cinque chiavi scientifiche, `Razionale` è stata trattata come quinta famiglia e `Intellettuale-Razionale` come sua natura.
+- L'eccezione alle ownership di `AI_TASK.md` è limitata ai contenuti tassonomici richiesti esplicitamente dall'utente; scoring e logica scientifica non sono stati riscritti.
+- Le modifiche locali preesistenti su Quattro Rapporti, relativi CSS/copy e il vocabolo `Svampito` sono state preservate nel worktree ma escluse dal commit tassonomico. L'adattamento dei nomi famiglia dentro Quattro Rapporti resta accorpato a quel lavoro concorrente.
+
+### Verifiche
+
+```text
+npm test       # 39 passati, 0 falliti
+npm run lint   # 0 errori
+npm run build  # Vite: 1225 moduli trasformati
+git diff --check
+```
+
+Nessun deploy, push, modifica a credenziali, lockfile o risorsa remota.
+
+---
+
 ## Aggiornamento terminologia famiglie — 2026-08-03
 
 ### Sintesi
