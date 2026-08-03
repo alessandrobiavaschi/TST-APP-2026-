@@ -23,7 +23,7 @@ La sezione del profilo distingue ora esplicitamente la famiglia emotiva dalle su
 
 ## Verifiche
 
-- `npm test`: 40 test superati, 0 falliti.
+- `npm test`: 41 test superati, 0 falliti.
 - `npm run lint`: superato, 0 errori.
 - `npm run build`: superato, 1225 moduli trasformati.
 - `git diff --check`: superato.
