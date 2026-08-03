@@ -60,6 +60,7 @@ import {
 } from '../config/reportFamilyTheme'
 import { PROFILE_PDF_BLOCKS } from '../reportProfiloPdf.js'
 import { getFamigliaApprofondimento } from '../content/famigliaApprofondimento.js'
+import { MALINCONICA_NOSTALGICA_LABEL, formatSubcategoryLabel } from './reportTaxonomy.js'
 import { buildIntegrativeParagraphs, buildSintesiLead, buildSintesiKeyFacts, buildSintesiLeadExtended } from '../content/reportRestitution.js'
 import {
   FAMIGLIE_LESSICO,
@@ -72,6 +73,10 @@ import {
   THEORETICAL_MAX_SCORE_BY_CORRENTE_KEY,
 } from '../testLogic.js'
 import { RAW_DOC_VISUAL } from '../config/galaxyDocBridge.ts'
+import {
+  buildNaturaNarrative,
+  NATURA_NARRATIVE_STATUS,
+} from './buildNaturaNarrative.js'
 
 const PESO_RANK_LABEL = ['dominante', 'secondaria', 'minore', 'marginale', 'marginale']
 
@@ -92,7 +97,7 @@ const SOTTOCORRENTE_META = [
 const SOTTOCORRENTE_LABEL_BY_RAW_KEY = {
   BLU_1_Depressiva: 'Depressiva',
   BLU_2_Lunare: 'Lunare',
-  BLU_3_Nostalgia: 'Nostalgica',
+  BLU_3_Nostalgia: MALINCONICA_NOSTALGICA_LABEL,
   BLU_4_Solare: 'Solare',
   ROSSO_1_Assertivita: 'Assertività',
   ROSSO_2_Dubbio_Collera: 'Dubbio / Collera',
@@ -199,11 +204,14 @@ function resolveSottodisposizionePrevalente(rawRecord = {}, dominantColorName) {
       key,
       SOTTOCORRENTE_LABEL_BY_RAW_KEY[key],
       rawKeyToLabel(key),
+      ...(key === 'BLU_3_Nostalgia' ? ['Nostalgia', 'Nostalgica'] : []),
     ]
     return aliases.some((alias) => normalizeSottocorrenteLabel(alias) === savedNormalized)
   })
   if (savedKeyInFamily) {
-    return SOTTOCORRENTE_LABEL_BY_RAW_KEY[savedKeyInFamily] || rawKeyToLabel(savedKeyInFamily)
+    return formatSubcategoryLabel(
+      SOTTOCORRENTE_LABEL_BY_RAW_KEY[savedKeyInFamily] || rawKeyToLabel(savedKeyInFamily),
+    )
   }
 
   let bestKey = ''
@@ -217,7 +225,7 @@ function resolveSottodisposizionePrevalente(rawRecord = {}, dominantColorName) {
   })
 
   if (!bestKey || bestValue <= 0) return ''
-  return SOTTOCORRENTE_LABEL_BY_RAW_KEY[bestKey] || rawKeyToLabel(bestKey)
+  return formatSubcategoryLabel(SOTTOCORRENTE_LABEL_BY_RAW_KEY[bestKey] || rawKeyToLabel(bestKey))
 }
 
 function parseCsvCodes(value) {
@@ -349,71 +357,14 @@ export function detectContrastingPresence(levels = {}) {
 }
 
 /**
- * Calcola il gap tra il valore dominante e il secondo valore più alto.
- * @param {object} levels
- * @param {string} dominantKey — chiave famiglia dominante (es. 'blu')
- */
-function resolveNaturaBelongingLabel(value) {
-  const v = Number(value) || 0
-  if (v >= 6) return 'profonda appartenenza'
-  if (v >= 5) return 'empatica appartenenza'
-  if (v >= 4) return 'simpatia'
-  return 'tendenza'
-}
-
-/**
  * Restituisce il levelLabel da mostrare nel tag visivo della Prospettiva 1.
  */
-function resolveNaturaLevelLabel(levels = {}) {
-  const contrasting = detectContrastingPresence(levels)
-  if (contrasting) return 'Profilo composito — compresenza emotiva'
-
-  const values = Object.values(levels).map((v) => Number(v) || 0).filter((v) => v > 0)
-  if (!values.length) return 'Equilibrio discreto'
-
-  const spread = Math.max(...values) - Math.min(...values)
-  if (spread <= 1) return 'Eccellente equilibrio emotivo'
-  if (spread <= 2) return 'Buon equilibrio emotivo'
-  if (spread <= 3) return 'Discreto equilibrio emotivo'
-  return 'Aderenza alla tua famiglia emotiva: alta'
-}
-
-function resolveNaturaBalanceLabel(levels = {}) {
-  const contrasting = detectContrastingPresence(levels)
-  if (contrasting) {
-    return 'una compresenza di componenti in tensione, che conferisce profondità ma anche complessità al profilo emotivo'
-  }
-
-  const values = Object.values(levels)
-    .map((value) => Number(value) || 0)
-    .filter((value) => value > 0)
-
-  if (!values.length) {
-    return 'un discreto equilibrio emotivo'
-  }
-
-  const spread = Math.max(...values) - Math.min(...values)
-  if (spread <= 1) return 'un eccellente equilibrio emotivo'
-  if (spread <= 2) return 'un buon equilibrio emotivo'
-  if (spread <= 3) return 'un discreto equilibrio emotivo'
-  return 'una tendenza ad avere uno sguardo poco lucido sullo stato emotivo'
-}
-
-function buildNaturaBaseText({ dispositionLabel, dominantLevel, levels }) {
-  const famiglia = lowerInitial(dispositionLabel)
-  const appartenenza = resolveNaturaBelongingLabel(dominantLevel)
-  const equilibrio = resolveNaturaBalanceLabel(levels)
-  const contrasting = detectContrastingPresence(levels)
-
-  const terzoperiodo = contrasting
-    ? `Il test rivela anche la presenza delle altre disposizioni e, in questo profilo, indica ${equilibrio}.`
-    : `Il test rivela anche la presenza delle altre disposizioni e, nonostante una tendenza temperamentale ${famiglia}, indica ${equilibrio}.`
-
-  return [
-    `Il test conferma la tua appartenenza alla famiglia ${famiglia}: timbro, intervalli e armonia convergono nel riconoscere questa natura emotiva di base.`,
-    `Questa parte rivela quanta sintonia hai con la famiglia ${famiglia}: nel tuo caso emerge una ${appartenenza}.`,
-    terzoperiodo,
-  ].join(' ')
+function resolveNaturaLevelLabel(status) {
+  if (status === NATURA_NARRATIVE_STATUS.EMPTY) return 'Dati insufficienti'
+  if (status === NATURA_NARRATIVE_STATUS.TRUE_TIE) return 'Prevalenza condivisa — profilo composito'
+  if (status === NATURA_NARRATIVE_STATUS.ROUNDED_TIE) return 'Valori ravvicinati — profilo composito'
+  if (status === NATURA_NARRATIVE_STATUS.COMPOSITE) return 'Profilo composito — compresenza emotiva'
+  return 'Prevalenza riconoscibile'
 }
 
 /**
@@ -507,10 +458,10 @@ function buildOtherRelationshipIntro(dominantColorName, dispositionLabel) {
     return `La tua famiglia emotiva ha come elemento caratteristico una certa competitività nel rapporto con gli altri: questa lente osserva quanto l'entusiasmo ammorbidisca il contatto e lo renda più fiducioso.`
   }
   if (dominantColorName === 'Verde') {
-    return `La tua natura flemmatica tende a osservare, attendere e mantenere una posizione prudente nel rapporto con l'altro: questa lente osserva quanto l'entusiasmo attivi apertura e partecipazione.`
+    return `La tua natura contemplativa tende a osservare, attendere e mantenere una posizione prudente nel rapporto con l'altro: questa lente osserva quanto l'entusiasmo attivi apertura e partecipazione.`
   }
   if (dominantColorName === 'Grigio') {
-    return `La tua natura anaffettiva tende a osservare l'esperienza emotiva con maggiore distanza e controllo: questa lente osserva quanto l'entusiasmo apra comunque un canale di contatto con gli altri.`
+    return `La tua natura intellettuale-razionale tende a osservare l'esperienza emotiva con maggiore distanza e controllo: questa lente osserva quanto l'entusiasmo apra comunque un canale di contatto con gli altri.`
   }
   return `A partire dalla tua natura ${famiglia}, questa lente osserva quanto l'entusiasmo sostenga il rapporto con gli altri e favorisca ascolto, apertura e fiducia.`
 }
@@ -946,22 +897,27 @@ export function buildReportData({
     const isSe = meta.id === 'se'
     const isAltro = meta.id === 'altro'
     const isAgire = meta.id === 'agire'
-    const usesDominantFamily = isNatura || isSe
+    const naturaFamily = localPrincipale.valore > 0 ? localPrincipale : dominantFamily
+    const usesDominantFamily = isSe
     const principale = isAltro
       ? enthusiasmFamily
       : isAgire
         ? volitiveFamily
+        : isNatura
+          ? naturaFamily
         : usesDominantFamily
           ? dominantFamily
           : localPrincipale
     const dominantColorKey = (domTheme.key || '').toLowerCase()
-    const definizione = isNatura
-      ? buildNaturaBaseText({
-          dispositionLabel: profilo.disposizione || domTheme.disposition,
-          dominantLevel: dominantFamily.valore,
-          levels,
-          dominantColorKey,
+    const naturaNarrative = isNatura
+      ? buildNaturaNarrative({
+          dominantFamilyKey: naturaFamily.key,
+          ranking: graduatoria,
+          shades: sottocorrenti,
         })
+      : null
+    const definizione = isNatura
+      ? naturaNarrative.paragraphs.join(' ')
       : isSe
         ? buildSelfRelationshipText({
             dispositionLabel: profilo.disposizione || domTheme.disposition,
@@ -984,7 +940,7 @@ export function buildReportData({
       : meta.definizione
 
     const levelLabel = isNatura
-      ? resolveNaturaLevelLabel(levels, dominantColorKey)
+      ? resolveNaturaLevelLabel(naturaNarrative.status)
       : isSe
         ? resolveSelfLevelLabel(dominantFamily.valore, levels, dominantColorKey)
         : isAltro
@@ -1007,6 +963,8 @@ export function buildReportData({
           : '',
       levelLabel,
       definizione,
+      definizioneParagrafi: naturaNarrative?.paragraphs || null,
+      narrativaNatura: naturaNarrative,
       composizione: meta.composizione,
       composizioneSemplice: meta.composizioneSemplice,
       cosaIndica: meta.cosaIndica,

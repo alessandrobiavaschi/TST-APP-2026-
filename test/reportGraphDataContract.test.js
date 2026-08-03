@@ -161,6 +161,26 @@ test('descrive profili composti, graduatorie e pari merito senza perdere le sfum
   assert.match(se.esitoComposizione, /Prevalenza a pari punti/)
 })
 
+test('la lettura della Natura usa la prevalente della lente e racconta le secondarie', () => {
+  const report = buildReportData({
+    record: { raw: {} },
+    dominantColorName: 'Rosso',
+    rapportiTotals: {
+      natura: { verde: 12, rosso: 8, blu: 6, giallo: 3, grigio: 2 },
+    },
+    rapportiLevels: {
+      natura: { verde: 7, rosso: 5, blu: 4, giallo: 2, grigio: 1 },
+    },
+  })
+
+  const natura = report.rapporti.find((item) => item.id === 'natura')
+
+  assert.equal(natura.correntePrincipale.nome, 'Flemmatica')
+  assert.match(natura.definizioneParagrafi[0], /famiglia Flemmatica.*natura Contemplativa/i)
+  assert.match(natura.definizione, /componente Marziale rappresenta/i)
+  assert.doesNotMatch(natura.definizione, /volitivo|colleric/i)
+})
+
 test('le sottocategorie restano nella famiglia corretta e usano i massimi teorici', () => {
   const raw = Object.fromEntries(
     Object.keys(SUBCURRENT_FAMILY_BY_KEY).map((key) => [
