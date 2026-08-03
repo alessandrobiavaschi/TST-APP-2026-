@@ -28,10 +28,29 @@ const LABEL_MIN_X = 60
 const LABEL_MAX_X = 1140
 const LABEL_MIN_Y = 60
 const LABEL_MAX_Y = 1140
+const LABEL_EDGE_PADDING = 24
+const SVG_MIN_X = 40
+const SVG_MAX_X = 1160
 const MIN_VISIBLE_TAGLIA = 1
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value))
+}
+
+function getContainedLabelX(x, align, label) {
+  const estimatedWidth = Math.max(100, label.length * 17)
+
+  if (align === 'end') {
+    return clamp(x, SVG_MIN_X + LABEL_EDGE_PADDING + estimatedWidth, SVG_MAX_X - LABEL_EDGE_PADDING)
+  }
+  if (align === 'start') {
+    return clamp(x, SVG_MIN_X + LABEL_EDGE_PADDING, SVG_MAX_X - LABEL_EDGE_PADDING - estimatedWidth)
+  }
+  return clamp(
+    x,
+    SVG_MIN_X + LABEL_EDGE_PADDING + estimatedWidth / 2,
+    SVG_MAX_X - LABEL_EDGE_PADDING - estimatedWidth / 2,
+  )
 }
 
 export default function EmotionalShape({
@@ -193,7 +212,12 @@ export default function EmotionalShape({
               align = 'start'
               tOffsetX = -30
             }
-            const labelX = clamp(tx + tOffsetX, LABEL_MIN_X, LABEL_MAX_X)
+            const familyLabel = NOMI_FAMIGLIE[familyKey] || familyKey
+            const labelX = getContainedLabelX(
+              clamp(tx + tOffsetX, LABEL_MIN_X, LABEL_MAX_X),
+              align,
+              familyLabel,
+            )
             const transition = prefersReducedMotion ? { duration: 0 } : { duration: 1.0, ease: "easeOut", delay: idx * 0.1 }
             const labelTransition = prefersReducedMotion ? { duration: 0 } : { duration: 0.6, delay: 0.6 + idx * 0.1 }
             
@@ -275,7 +299,7 @@ export default function EmotionalShape({
                     style={{ cursor: 'pointer' }}
                   >
                     <tspan x={labelX} dy="0" style={{ transition: 'fill 0.2s', fill: isHighlighted ? params.color : '#F8FAFC' }}>
-                      {NOMI_FAMIGLIE[familyKey] || familyKey}
+                      {familyLabel}
                     </tspan>
                   </text>
                 </motion.g>

@@ -50,6 +50,7 @@ function RadarTooltipContent({ active, payload, domain }) {
 export function ReportRadarAxisTick({ x, y, payload, textAnchor, cx, cy }) {
   let nudgedX = x
   let nudgedY = y
+  let safeTextAnchor = textAnchor
 
   if (typeof cx === 'number' && typeof cy === 'number') {
     const dx = x - cx
@@ -57,8 +58,19 @@ export function ReportRadarAxisTick({ x, y, payload, textAnchor, cx, cy }) {
     const dist = Math.sqrt(dx * dx + dy * dy)
     if (dist > 0) {
       const nudgeAmount = 12
-      nudgedX = x + (dx / dist) * nudgeAmount
-      nudgedY = y + (dy / dist) * nudgeAmount
+      const horizontalDirection = dx / dist
+
+      // Keep lateral labels inside the SVG. Recharts normally anchors them
+      // outwards, so longer Italian names can be clipped by the chart panel.
+      if (horizontalDirection < -0.35) {
+        nudgedX = x + nudgeAmount
+        safeTextAnchor = 'start'
+      } else if (horizontalDirection > 0.35) {
+        nudgedX = x - nudgeAmount
+        safeTextAnchor = 'end'
+      } else {
+        nudgedY = y + (dy / dist) * nudgeAmount
+      }
     }
   }
 
@@ -66,7 +78,7 @@ export function ReportRadarAxisTick({ x, y, payload, textAnchor, cx, cy }) {
     <text
       x={nudgedX}
       y={nudgedY}
-      textAnchor={textAnchor}
+      textAnchor={safeTextAnchor}
       fill="#e2e8f0"
       fontSize={13}
       fontFamily="'Public Sans', system-ui, -apple-system, sans-serif"

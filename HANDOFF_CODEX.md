@@ -218,6 +218,39 @@ Integrare il commit dedicato senza includere le altre modifiche non committate g
 
 ---
 
+## Contenimento etichette nei grafici — 2026-08-03
+
+### Sintesi
+
+Le etichette laterali del radar e del grafico a petali restano ora contenute nei rispettivi canvas. La correzione evita il taglio iniziale di parole lunghe come `Anaffettività` e `Volitività`/`Marziale` senza modificare punteggi o scale.
+
+### File modificati
+
+- `src/components/report/ReportRadarChart.jsx`
+- `src/components/report/EmotionalShape.jsx`
+- `HANDOFF_CODEX.md`
+
+### Decisioni e assunzioni
+
+- Nel radar, le etichette laterali vengono ancorate verso l'interno dell'SVG.
+- Nel grafico a petali, il clamp considera anche una stima conservativa della larghezza della parola e il padding del viewBox.
+- Dati, normalizzazione 1–7, petali, poligono e interazioni restano invariati.
+- Le modifiche concorrenti già presenti nel worktree sono state preservate ed escluse dal commit.
+
+### Verifiche
+
+- `npm test`: 51 test superati, 0 falliti.
+- `npm run lint -- --quiet`: superato, 0 errori.
+- `npm run build`: superato, 1227 moduli trasformati.
+- `git diff --check`: superato.
+- Browser locale: la route report senza record mostra correttamente lo stato vuoto; il profilo mostrato nello screenshot non è riproducibile senza dati di sessione.
+
+### Integrazione
+
+Integrare il commit dedicato senza includere le altre modifiche non committate già presenti nel worktree.
+
+---
+
 ## Sottocategoria Nostalgico — 2026-08-03
 
 ### Sintesi
