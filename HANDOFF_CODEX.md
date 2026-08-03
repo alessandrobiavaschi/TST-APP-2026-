@@ -129,3 +129,42 @@ Nel grafico "Ordine delle famiglie per presenza" le etichette visibili adottano 
 ### Integrazione
 
 Integrare il commit di questo aggiornamento senza includere le altre modifiche non committate presenti nel worktree. Dopo la risoluzione degli errori concorrenti indicati sopra, rieseguire test e lint.
+
+---
+
+## Titolo natura con caratteristica — 2026-08-03
+
+### Sintesi
+
+Il titolo della sezione "La tua natura emotiva di appartenenza" mostra ora tra parentesi la caratteristica emotiva del profilo, per esempio `Volitivo-Collerica`. Se il dato non è disponibile, il titolo resta invariato e non mostra parentesi vuote.
+
+### File modificati
+
+- `src/components/report/ProfiloEmotivo.jsx`
+- `src/utils/reportTitleUtils.js`
+- `test/reportTitleUtils.test.js`
+- `HANDOFF_CODEX.md`
+
+### Decisioni e assunzioni
+
+- La dicitura proviene da `profilo.disposizione`, già costruita dal contratto dati del report.
+- La normalizzazione è solo presentazionale: il valore scientifico e lo scoring non cambiano.
+- Il formatter rimuove l'eventuale prefisso duplicato `NATURA`, applica una grafia leggibile e gestisce valori assenti.
+- Layout, navigazione, contenuti dei capitoli e modifiche concorrenti nel worktree non sono stati alterati.
+
+### Verifiche
+
+- `npm test`: 37 test superati, 0 falliti.
+- `npm run lint`: superato, 0 errori.
+- `npm run build`: superato, 1225 moduli trasformati.
+- Test dedicati: titolo con disposizione e fallback senza parentesi vuote.
+
+### Comportamento atteso
+
+- Desktop e mobile: il titolo usa gli stili e il wrapping già gestiti da `ReportPassageHeader`.
+- Profilo Rosso: `La tua natura emotiva di appartenenza (Volitivo-Collerica)`.
+- Dato mancante: `La tua natura emotiva di appartenenza`.
+
+### Integrazione
+
+Integrare il commit dedicato senza includere le altre modifiche non committate già presenti nel worktree.
