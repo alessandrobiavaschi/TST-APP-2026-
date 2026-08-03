@@ -77,6 +77,14 @@ espongono inoltre `definizioneParagrafi` e `narrativaRapporto`; il componente
   pannello `Approfondisci la lettura`;
 - radar, classifica e calcoli non vengono modificati.
 
+## Informativa dati della sintesi
+
+- la descrizione duplicata della famiglia non appare più nel pannello dei dati;
+- risonanza, scala 1-7 e punteggio grezzo sono visibili soltanto in `Come leggere
+  dati e punteggi`;
+- nel sottomenu `Come si calcolano questi dati?` la formula distingue risonanza
+  (quota sul totale) e scala grafica (confronto rispetto al punteggio più alto).
+
 ## Verifiche
 
 - test di regressione raw-to-report sulle formule classiche: Natura = Timbro +

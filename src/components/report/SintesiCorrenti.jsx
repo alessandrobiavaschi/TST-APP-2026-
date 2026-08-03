@@ -468,80 +468,42 @@ export default function SintesiCorrenti({
     const activeKey = hoveredFamilyKey || activeDetailFamily.familyKey
     const activeItem = totalScoreRadarData.find(d => d.familyKey === activeKey) || activeDetailFamily
     const accent = colors[activeItem.familyKey] || '#94a3b8'
-    const activeCapitalized = activeItem.familyKey ? (activeItem.familyKey.charAt(0).toUpperCase() + activeItem.familyKey.slice(1).toLowerCase()) : 'Verde'
-    const activeBriefSummary = BRIEF_SUMMARY_BY_FAMILY[activeCapitalized] || BRIEF_SUMMARY_BY_FAMILY.Verde
-
-    // Quality resolved for active family
-    const resolvedQuality = resolveBriefQuality({
-      familyName: activeCapitalized,
-      sottodisposizione,
-      correnteDominante
-    })
-    const qualitiesText = activeBriefSummary.qualitiesByQuality?.[resolvedQuality] ?? activeBriefSummary.qualities
-
     return (
-      <div 
-        className="sintesi-correnti__detail-panel" 
-        style={{
-          '--panel-accent': accent,
-          borderLeft: `4px solid ${accent}`
-        }}
-      >
-        <div className="detail-panel__header">
-          <span className="detail-panel__status-dot" style={{ backgroundColor: accent }} />
-          <h4 className="detail-panel__title">
-            ANALISI DETTAGLIATA: {activeBriefSummary.family.toUpperCase()}
-          </h4>
-          <span className="detail-panel__subtitle-mono">METRICS & PROFILE COHERENCE</span>
-        </div>
-
-        {/* 3-Column Stats Dashboard */}
-        <div className="detail-panel__metrics-grid">
-          <div className="detail-panel__metric-card">
-            <span className="detail-panel__metric-label">Risonanza (% del profilo)</span>
-            <span className="detail-panel__metric-value">{activeItem.distributionPercent}%</span>
-          </div>
-          <div className="detail-panel__metric-card">
-            <span className="detail-panel__metric-label">Scala Normalizzata (1-7)</span>
-            <span className="detail-panel__metric-value">{activeItem.valore} <span className="detail-panel__metric-val-max">/ 7</span></span>
-          </div>
-          <div className="detail-panel__metric-card">
-            <span className="detail-panel__metric-label">Punteggio Grezzo (punti)</span>
-            <span className="detail-panel__metric-value">{activeItem.rawValue} <span className="detail-panel__metric-val-max">pt</span></span>
-          </div>
-        </div>
-
-        {/* Scientific Explanation Block */}
-        <div className="detail-panel__desc-block">
-          <p className="detail-panel__desc-lead">
-            La famiglia <strong>{activeBriefSummary.family}</strong> rappresenta {activeBriefSummary.fundamentalPleasure}.
-          </p>
-          <p className="detail-panel__desc-body">
-            Al suo interno si distinguono {qualitiesText}. L'energia emotiva viene prevalentemente orientata verso <strong>{activeBriefSummary.orientation}</strong>.
-          </p>
-          {activeBriefSummary.note && (
-            <p className="detail-panel__desc-note">
-              * {activeBriefSummary.note}
-            </p>
-          )}
-        </div>
-
-        <CalculationDisclosure>
+      <div className="sintesi-correnti__information" style={{ '--panel-accent': accent }}>
+        <CalculationDisclosure label="Come leggere dati e punteggi">
           <p className="calculation-disclosure__intro">
-            Ogni risposta del test assegna punti a una corrente emotiva. Sommiamo poi i
-            punti delle correnti che appartengono alla stessa famiglia. Alcuni passaggi
-            del test hanno un peso maggiore, come previsto dal metodo.
+            Qui trovi i valori della famiglia selezionata e il modo in cui vengono letti nel report.
           </p>
-          <div className="calculation-disclosure__formula">
-            <span className="formula-header">FORMULA DI RISONANZA & NORMALIZZAZIONE</span>
-            <code className="formula-code">
-              Risonanza = (Punti Grezzi / Punti Totali) * 100
-              Scale_Value = (Punti Grezzi / Punteggio Massimo) * 7
-            </code>
-            <p className="formula-explanation">
-              <strong>Nota Metodologica:</strong> La Risonanza (%) e il Valore in Scala (1-7) sono metriche distinte. La risonanza indica la quota di attivazione percentuale di ciascuna famiglia rispetto all'intero profilo emotivo (fette di una torta, somma = 100%). Il valore normalizzato (1-7) normalizza invece i punteggi ponendo la famiglia dominante al massimo (7/7) e proporzionando le altre per rendere l'intensità visivamente confrontabile.
-            </p>
+          <div className="detail-panel__metrics-grid">
+            <div className="detail-panel__metric-card">
+              <span className="detail-panel__metric-label">Risonanza nel profilo</span>
+              <span className="detail-panel__metric-value">{activeItem.distributionPercent}%</span>
+            </div>
+            <div className="detail-panel__metric-card">
+              <span className="detail-panel__metric-label">Scala del grafico</span>
+              <span className="detail-panel__metric-value">{activeItem.valore} <span className="detail-panel__metric-val-max">/ 7</span></span>
+            </div>
+            <div className="detail-panel__metric-card">
+              <span className="detail-panel__metric-label">Punti ottenuti</span>
+              <span className="detail-panel__metric-value">{activeItem.rawValue} <span className="detail-panel__metric-val-max">pt</span></span>
+            </div>
           </div>
+          <details className="sintesi-correnti__calculation-menu">
+            <summary>Come si calcolano questi dati?</summary>
+            <div className="calculation-disclosure__formula">
+              <span className="formula-header">DALLE RISPOSTE AI VALORI DEL GRAFICO</span>
+              <p className="formula-explanation">
+                Ogni risposta assegna punti a una corrente emotiva; i punti delle correnti della stessa famiglia vengono poi sommati. Alcuni passaggi del test hanno un peso maggiore, come previsto dal metodo.
+              </p>
+              <code className="formula-code">
+                Risonanza = (Punti della famiglia / Punti totali) * 100
+                Scala = (Punti della famiglia / Punteggio più alto del profilo) * 7
+              </code>
+              <p className="formula-explanation">
+                La risonanza mostra quanto una famiglia è presente nell'insieme del profilo: le cinque percentuali sommano a 100%. La scala 1-7 serve invece a confrontare visivamente le famiglie: quella con più punti vale 7 e le altre sono proporzionate a quel valore.
+              </p>
+            </div>
+          </details>
         </CalculationDisclosure>
       </div>
     )
