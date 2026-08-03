@@ -166,9 +166,9 @@ export const FAMIGLIA_APPROFONDIMENTO = {
   },
 
   Giallo: {
-    nome: 'Entusiastica',
+    nome: 'Entusiasta',
     natura: [
-      'Ciò che contraddistingue il temperamento gioioso entusiasta è il piacere del movimento, della curiosità, della scoperta del nuovo, dell’estroversione.',
+      'Ciò che contraddistingue la natura gioioso-sanguinica è il piacere del movimento, della curiosità, della scoperta del nuovo, dell’estroversione.',
       'Da Sud verso Nord soffiano venti caldi: un flusso emotivo gioioso pervaso di solarità e di calore. Quel flusso si chiama Entusiasmo. Nel suo espandersi in un carattere in formazione, offre quello che di emotivo nasce dal nostro interiore Continente dell’Entusiasmo.',
       'L’esperienza affettiva che si vive con le forze dell’entusiasmo si manifesta con il piacere di uscire da sé stessi per abbracciare tutto ciò che è nuovo, che è fuori da noi: persone, natura, oggetti, le più svariate attività.',
       'È a questa tendenza che si agganciano le correnti musicali, orientando l’energia emotiva verso un moto centrifugo: un movimento che va verso il fuori, si disperde nel mondo e lo abbraccia, risvegliando e appagando la gioia di sentire questa propensione nel proprio carattere.',

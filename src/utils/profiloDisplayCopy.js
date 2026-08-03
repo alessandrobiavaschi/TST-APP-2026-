@@ -150,7 +150,7 @@ const DISPLAY_BY_FAMILY = {
   Giallo: {
     natura: {
       inSintesi:
-        'Nella famiglia Entusiasta, la natura Solare esprime il piacere del movimento, della curiosità, della scoperta del nuovo e dell’estroversione.',
+        'Nella famiglia Entusiasta, la natura Gioioso-Sanguinico esprime il piacere del movimento, della curiosità, della scoperta del nuovo e dell’estroversione.',
       corpo: [],
     },
   },

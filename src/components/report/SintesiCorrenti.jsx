@@ -45,7 +45,7 @@ const FAMILY_LAYOUT = {
 
 const FAMILY_PRESENCE_LABELS = {
   verde: { title: 'Flemmatica', detail: 'natura contemplativa' },
-  giallo: { title: 'Entusiasta', detail: 'natura solare' },
+  giallo: { title: 'Entusiasta', detail: 'natura Gioioso-Sanguinico' },
   rosso: { title: 'Marziale', detail: 'natura volitivo-collerica' },
   grigio: { title: 'Razionale', detail: 'natura intellettuale-razionale' },
   blu: { title: 'Malinconica', detail: 'natura lunare' },
@@ -80,15 +80,15 @@ const BRIEF_SUMMARY_BY_FAMILY = {
     qualities: "caratteristiche emotive legate alla gioia, all’entusiasmo, alla curiosità e alla solarità",
     qualitiesByQuality: {
       Solare:
-        "una caratteristica Solare e una Passionale. Quella Solare si esprime con vivacità, positività e un moto naturale verso il fuori e verso gli altri",
-      "Gioioso-entusiasta":
-        "una caratteristica Solare e una Passionale. Quella Solare si esprime con vivacità, positività e un moto naturale verso il fuori e verso gli altri",
+        "una caratteristica Gioioso-Sanguinico e una Passionale. Quella Gioioso-Sanguinico si esprime con vivacità, positività e un moto naturale verso il fuori e verso gli altri",
+      "Gioioso-Sanguinico":
+        "una caratteristica Gioioso-Sanguinico e una Passionale. Quella Gioioso-Sanguinico si esprime con vivacità, positività e un moto naturale verso il fuori e verso gli altri",
       Passionale:
-        "una caratteristica Solare e una Passionale. Quella Passionale si esprime con intensità affettiva, trasporto e un profondo senso di fusione con ciò che si ama",
+        "una caratteristica Gioioso-Sanguinico e una Passionale. Quella Passionale si esprime con intensità affettiva, trasporto e un profondo senso di fusione con ciò che si ama",
     },
     orientation: "il fuori, gli altri, la relazione, la natura, le attività e le possibilità",
     note: "",
-    defaultQuality: "Solare",
+    defaultQuality: "Gioioso-Sanguinico",
   },
   Rosso: {
     family: 'Marziale',
@@ -299,11 +299,11 @@ function resolveBriefQuality({ familyName, sottodisposizione, correnteDominante 
   if (haystack.includes('nostalg')) return 'Nostalgica'
   if (haystack.includes('depress')) return 'Depressiva'
   if (haystack.includes('lunare')) return 'Lunare'
-  if (haystack.includes('solare')) return 'Solare'
+  if (haystack.includes('solare')) return familyName === 'Giallo' ? 'Gioioso-Sanguinico' : 'Solare'
   if (haystack.includes('assert') || haystack.includes('marziale')) return 'Assertiva'
   if (haystack.includes('dubbio') || haystack.includes('collera')) return 'Dubbio-collerica'
   if (haystack.includes('flemm') || haystack.includes('contemplat')) return 'Contemplativa'
-  if (haystack.includes('gioia') || haystack.includes('entusiasm')) return 'Gioioso-entusiasta'
+  if (haystack.includes('gioia') || haystack.includes('entusiasm') || haystack.includes('sanguin')) return 'Gioioso-Sanguinico'
   if (haystack.includes('passion')) return 'Passionale'
   if (haystack.includes('saggio') || haystack.includes('intellett')) return 'Intellettuale-saggia'
   if (haystack.includes('distacc')) return 'Distaccata'

@@ -8,7 +8,7 @@ export const CORPUS_SCHEMA_ASSI_ORIENTAMENTO = [
   'Blu (famiglia Malinconica, natura Lunare): riflessività, malinconia descrittiva, nostalgia (orientamento introspettivo).',
   'Rosso (famiglia Marziale, natura Volitivo-collerica): assertività, decisione, oscillazione dubbio/collera descrittiva (orientamento all’azione).',
   'Verde (famiglia flemmatica nel modello): calma, regolazione, contemplazione (orientamento omeostatico).',
-  'Giallo (famiglia Entusiasta, natura Solare): curiosità, slancio, partecipazione (orientamento esplorativo).',
+  'Giallo (famiglia Entusiasta, natura Gioioso-Sanguinico): curiosità, slancio, partecipazione (orientamento esplorativo).',
   'Grigio (famiglia Razionale, natura Intellettuale-Razionale): distacco osservativo vs saggezza riflessiva (orientamento cognitivo-analitico).',
 ] as const
 

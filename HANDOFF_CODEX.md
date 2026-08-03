@@ -114,7 +114,7 @@ Il vocabolario esposto dal test e dai report distingue ora esplicitamente la fam
 | Blu | Malinconica | Lunare |
 | Rosso | Marziale | Volitivo-collerica |
 | Verde | Flemmatica | Contemplativa |
-| Giallo | Entusiasta | Solare |
+| Giallo | Entusiasta | Gioioso-Sanguinico |
 | Grigio | Razionale | Intellettuale-Razionale |
 
 Le chiavi colore, le 11 correnti, il calcolo dei punteggi e i valori storici Firestore (`Malinconia`, `Volitività`, `Calma`, `Entusiasmo`, `Anaffettività`) non sono stati modificati. Nell'archivio i valori storici vengono soltanto tradotti nelle etichette di famiglia al momento della visualizzazione.
@@ -133,6 +133,7 @@ Le chiavi colore, le 11 correnti, il calcolo dei punteggi e i valori storici Fir
 ### Decisioni e assunzioni
 
 - L'elenco ricevuto dichiarava cinque famiglie ma conteneva anche `Intellettuale-Razionale`; per coerenza con le cinque chiavi scientifiche, `Razionale` è stata trattata come quinta famiglia e `Intellettuale-Razionale` come sua natura.
+- Su indicazione editoriale successiva, la natura canonica della famiglia `Entusiasta` è `Gioioso-Sanguinico`; `Solare` resta esclusivamente una caratteristica/corrente specifica nei contesti in cui è nominata come tale.
 - L'eccezione alle ownership di `AI_TASK.md` è limitata ai contenuti tassonomici richiesti esplicitamente dall'utente; scoring e logica scientifica non sono stati riscritti.
 - Le modifiche locali preesistenti su Quattro Rapporti, relativi CSS/copy e il vocabolo `Svampito` sono state preservate nel worktree ma escluse dal commit tassonomico. L'adattamento dei nomi famiglia dentro Quattro Rapporti resta accorpato a quel lavoro concorrente.
 

@@ -46,6 +46,8 @@ export const DOMINANT_TO_RELATIONS_KEY = {
   rosso: 'assertivo',
   Solare: 'entusiasta',
   solare: 'entusiasta',
+  'Gioioso-Sanguinico': 'entusiasta',
+  'gioioso-sanguinico': 'entusiasta',
   Entusiasta: 'entusiasta',
   entusiasta: 'entusiasta',
   Entusiasmo: 'entusiasta',

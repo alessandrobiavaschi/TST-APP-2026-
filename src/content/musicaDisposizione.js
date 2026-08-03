@@ -175,7 +175,7 @@ export const MUSICISTI_SCHEDE = {
   Giallo: {
     label: 'Entusiasta',
     profiloEmotivo:
-      'Ciò che contraddistingue il temperamento gioioso entusiasta è il piacere del movimento, della curiosità, della scoperta del nuovo, dell’estroversione.',
+      'Ciò che contraddistingue la natura gioioso-sanguinica è il piacere del movimento, della curiosità, della scoperta del nuovo, dell’estroversione.',
     cosaCerca:
       'La famiglia entusiastica tende a cercare energia, movimento, luce e partecipazione immediata. La musica diventa spesso una spinta vitale: qualcosa che accende il corpo, porta fuori da sé e invita a cantare, ballare o condividere.',
     piaceriAscolto:

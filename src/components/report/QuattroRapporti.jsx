@@ -117,7 +117,7 @@ function buildRapportiTitle(profilo = {}) {
     Blu: { famiglia: 'Malinconica', natura: 'Lunare' },
     Rosso: { famiglia: 'Marziale', natura: 'Volitivo-collerica' },
     Verde: { famiglia: 'Flemmatica', natura: 'Contemplativa' },
-    Giallo: { famiglia: 'Entusiasta', natura: 'Solare' },
+    Giallo: { famiglia: 'Entusiasta', natura: 'Gioioso-Sanguinico' },
     Grigio: { famiglia: 'Razionale', natura: 'Intellettuale-Razionale' },
   }
   const labels = families[family] || families.Verde

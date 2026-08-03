@@ -292,7 +292,7 @@ export const GALAXY_THEORY_BY_DISPOSITION: Record<string, GalaxyTheoryFamily> = 
   },
   entusiasmo: {
     dispositionId: 'entusiasmo',
-    familyLabel: 'Famiglia Entusiasta - natura Solare',
+    familyLabel: 'Famiglia Entusiasta - natura Gioioso-Sanguinico',
     coreDescription: `Venti caldi che soffiano da Sud a Nord, pervasi di solarità. Si forma nel periodo pre-infantile e infantile, premiando ogni piccolo successo della curiosità: i bambini imparano in fretta proprio perché hanno poco da elaborare emotivamente. È l'antidoto al gelo del Dubbio e all'apatia che porta al nichilismo.`,
     selfRelation: `Forza centrifuga che esce verso il mondo: si abbraccia ciò che è nuovo (persone, natura, oggetti, attività). La gioia è il primo motore; quando l'energia matura, prende anche la forma più profonda della passione — adesione totale a una persona, un'idea, un'esperienza.`,
     musicNotes: `Timbri medio-alti, alti, brillanti: percussioni di ogni tipo (tamburelli, maracas), piatti, vibrafono, celesta, trombe, violini, canto. Tempi Allegro, ritmo accentuato e ripetitivo, modi maggiori, melodie chiare e riconoscibili. "Subisce in modo speciale il fascino del ritmo".`,

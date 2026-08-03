@@ -127,7 +127,7 @@ export const GLOSSARY = [
     term: 'Natura',
     oneLine: 'Caratteristica emotiva con cui si esprime la famiglia prevalente.',
     explain:
-      'Specifica la famiglia prevalente: Lunare per la Malinconica, Volitivo-collerica per la Marziale, Contemplativa per la Flemmatica, Solare per l’Entusiasta e Intellettuale-Razionale per la Razionale.',
+      'Specifica la famiglia prevalente: Lunare per la Malinconica, Volitivo-collerica per la Marziale, Contemplativa per la Flemmatica, Gioioso-Sanguinico per l’Entusiasta e Intellettuale-Razionale per la Razionale.',
     usefulFor: 'Adatta ritmo, profondità e tipo di stimolo (movimento vs riflessione).',
     tags: ['profilo'],
   },

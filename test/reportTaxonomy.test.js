@@ -3,12 +3,13 @@ import test from 'node:test'
 
 import { FAMILY_THEME } from '../src/config/reportFamilyTheme.js'
 import reportContent from '../src/content_report.json' with { type: 'json' }
+import { getRelationalCorpusForDominant } from '../src/content/relational/index.js'
 
 const EXPECTED_TAXONOMY = {
   Blu: ['Malinconica', 'LUNARE'],
   Rosso: ['Marziale', 'VOLITIVO-COLLERICA'],
   Verde: ['Flemmatica', 'CONTEMPLATIVA'],
-  Giallo: ['Entusiasta', 'SOLARE'],
+  Giallo: ['Entusiasta', 'GIOIOSO-SANGUINICO'],
   Grigio: ['Razionale', 'INTELLETTUALE-RAZIONALE'],
 }
 
@@ -30,4 +31,12 @@ test('mantiene allineati tema e vocabolario narrativo del report', () => {
     assert.equal(reportContent[color].restituzione_caratteri, characteristic)
     assert.match(reportContent[color].restituzione_caratteri_estesi, new RegExp(`famiglia ${family}`, 'i'))
   })
+})
+
+test('riconosce la natura Gioioso-Sanguinico mantenendo la compatibilità con il legacy Solare', () => {
+  assert.equal(
+    getRelationalCorpusForDominant('Gioioso-Sanguinico').corpusKey,
+    getRelationalCorpusForDominant('Solare').corpusKey,
+  )
+  assert.notEqual(FAMILY_THEME.Giallo.characteristic, 'SOLARE')
 })
