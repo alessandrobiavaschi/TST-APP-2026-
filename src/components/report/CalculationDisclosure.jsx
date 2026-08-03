@@ -1,7 +1,11 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import './CalculationDisclosure.css'
 
-export default function CalculationDisclosure({ children, className = '' }) {
+export default function CalculationDisclosure({
+  children,
+  className = '',
+  label = 'Come si ottengono questi numeri?',
+}) {
   const [open, setOpen] = useState(false)
   const rootRef = useRef(null)
   const contentId = useId()
@@ -33,7 +37,7 @@ export default function CalculationDisclosure({ children, className = '' }) {
         aria-controls={contentId}
         onClick={() => setOpen((current) => !current)}
       >
-        Come si ottengono questi numeri?
+        {label}
         <span className="calculation-disclosure__trigger-icon" aria-hidden="true" />
       </button>
       {open ? (

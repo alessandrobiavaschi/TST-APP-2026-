@@ -164,6 +164,9 @@ export function buildNaturaNarrative({
       paragraphs: [
         `Le risposte nelle aree ${formatItalianList(sourceAreas)} non sono sufficienti per descrivere la natura emotiva di base.`,
       ],
+      frontParagraphs: [
+        `Le risposte nelle aree ${formatItalianList(sourceAreas)} non sono sufficienti per descrivere la natura emotiva di base.`,
+      ],
       highlightedFamilies: [],
       relations: [],
     }
@@ -266,6 +269,15 @@ export function buildNaturaNarrative({
     .map((familyKey) => buildShadesParagraph(shades, familyKey))
     .filter(Boolean)
     .join(' ')
+  const frontRelationParagraph = strongestTension
+    ? (() => {
+        const copy = familyCopy(strongestTension.familyKey)
+        const rule = strongestTension.rule
+        return `Accanto alla natura ${profileCopy.nature} emerge anche la componente ${copy.family}: ${rule?.copy || 'aggiunge una sfumatura diversa al profilo'}. Questa compresenza rende il profilo più articolato.`
+      })()
+    : ranked.length === 1
+      ? `In questa lente emerge con chiarezza la famiglia ${profileCopy.family}, senza altre componenti misurate.`
+      : `Le altre componenti si affiancano alla natura ${profileCopy.nature} e ne ampliano le sfumature, senza togliere forza alla sua prevalenza.`
 
   return {
     status,
@@ -279,6 +291,10 @@ export function buildNaturaNarrative({
       closingParagraph,
       shadesParagraph,
     ].filter(Boolean),
+    frontParagraphs: [
+      `${familyParagraph} ${natureParagraph}`,
+      frontRelationParagraph,
+    ],
     highlightedFamilies: highlightedFamilies.map((item) => item.familyKey),
     relations,
   }

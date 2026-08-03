@@ -355,6 +355,25 @@
   max-width: 65ch;
 }
 
+.quattro-rapporti-read__detail-disclosure {
+  max-width: 65ch;
+}
+
+.quattro-rapporti-read__detail-disclosure .calculation-disclosure__content {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.quattro-rapporti-read__detail-narrative {
+  display: grid;
+  gap: var(--space-sm, 1rem);
+}
+
+.quattro-rapporti-read__detail-narrative p {
+  margin: 0;
+}
+
 .quattro-rapporti-read__text--lead {
   color: rgba(255, 255, 255, 0.94);
   font-weight: 720;

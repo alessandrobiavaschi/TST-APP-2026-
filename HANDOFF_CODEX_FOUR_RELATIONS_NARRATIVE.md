@@ -69,6 +69,14 @@ Lo scoring scientifico e la scala radar 1–7 non sono stati modificati.
 espongono inoltre `definizioneParagrafi` e `narrativaRapporto`; il componente
 `QuattroRapporti` usa il supporto a paragrafi già esistente.
 
+## Lettura sul front
+
+- ogni rapporto espone `sintesiBreveParagrafi`: due paragrafi rivolti alla
+  persona, senza punteggi, scarti o formule;
+- `definizioneParagrafi` conserva la lettura completa e resta disponibile nel
+  pannello `Approfondisci la lettura`;
+- radar, classifica e calcoli non vengono modificati.
+
 ## Verifiche
 
 - test di regressione raw-to-report sulle formule classiche: Natura = Timbro +

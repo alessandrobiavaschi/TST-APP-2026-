@@ -492,11 +492,11 @@ export default function QuattroRapporti({
                     <p className="quattro-rapporti-read__label">
                       Lettura del risultato
                     </p>
-                    {Array.isArray(active.definizioneParagrafi) && active.definizioneParagrafi.length ? (
+                    {Array.isArray(active.sintesiBreveParagrafi) && active.sintesiBreveParagrafi.length ? (
                       <div className="quattro-rapporti-read__narrative">
-                        {active.definizioneParagrafi.map((paragraph, paragraphIndex) => (
+                        {active.sintesiBreveParagrafi.map((paragraph, paragraphIndex) => (
                           <p
-                            key={`${active.id}-narrative-${paragraphIndex}`}
+                            key={`${active.id}-summary-${paragraphIndex}`}
                             className={`quattro-rapporti-read__text${paragraphIndex === 0 ? ' quattro-rapporti-read__text--lead' : ''}`}
                           >
                             {paragraph}
@@ -506,6 +506,19 @@ export default function QuattroRapporti({
                     ) : (
                       <p className="quattro-rapporti-read__text">{active.definizione}</p>
                     )}
+                    {Array.isArray(active.definizioneParagrafi) && active.definizioneParagrafi.length ? (
+                      <CalculationDisclosure
+                        key={`${active.id}-reading-details`}
+                        className="quattro-rapporti-read__detail-disclosure"
+                        label="Approfondisci la lettura"
+                      >
+                        <div className="quattro-rapporti-read__detail-narrative">
+                          {active.definizioneParagrafi.map((paragraph, paragraphIndex) => (
+                            <p key={`${active.id}-detail-${paragraphIndex}`}>{paragraph}</p>
+                          ))}
+                        </div>
+                      </CalculationDisclosure>
+                    ) : null}
                   </div>
                 </motion.div>
               )}

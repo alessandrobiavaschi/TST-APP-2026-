@@ -84,6 +84,7 @@ function emptyNarrative(copy) {
     status: 'empty',
     levelLabel: 'Dati insufficienti',
     paragraphs: [copy],
+    frontParagraphs: [copy],
     metrics: {},
   }
 }
@@ -134,6 +135,10 @@ export function buildSelfNarrative({ dominantFamilyKey = '', ranking = [] } = {}
   return {
     status: 'ready',
     levelLabel: `Consapevolezza ${awareness} · armonia ${harmony}`,
+    frontParagraphs: [
+      'Questa lente osserva quanto riesci a riconoscere e ad abitare ciò che senti, in rapporto alla tua natura di base.',
+      `La componente Malinconica sostiene la capacità di osservarti interiormente. Nel tuo profilo emerge ${feminineIndefinite(awareness)} capacità di ascolto di sé e ${feminineIndefinite(harmony)} propensione a vivere in armonia con la tua natura ${dominantCopy.nature}.`,
+    ],
     paragraphs: [
       'Questa lente osserva la consapevolezza della tua natura di base. Nel definire il rapporto con te stesso svolge un ruolo determinante la corrente Malinconica, ovvero la capacità di sentire viva e operante la forza prevalente nella propria interiorità.',
       `Nel tuo profilo la componente Malinconica raggiunge il ${formatPercent(melancholic.distributionPercent)}%: il risultato indica ${feminineIndefinite(awareness)} propensione a osservare e riconoscere ciò che vivi interiormente.`,
@@ -186,6 +191,10 @@ export function buildOtherNarrative({ dominantFamilyKey = '', ranking = [] } = {
   return {
     status: 'ready',
     levelLabel: result.badge,
+    frontParagraphs: [
+      'Questa lente osserva come incontri gli altri e quanto spazio trovano apertura, ascolto e fiducia nella relazione.',
+      `L'Entusiasmo sostiene il coraggio di avvicinarti a persone ed esperienze nuove. Nel tuo profilo, la relazione con la componente ${dominantCopy.family} è di ${relation.label}: il test rivela una ${result.adjective} propensione all'ascolto e alla fiducia.`,
+    ],
     paragraphs: [
       `${intros[dominantFamilyKey] || `La tua natura ${dominantCopy.nature} definisce il modo spontaneo in cui incontri gli altri.`} Questa lente osserva però quanto la corrente dell'Entusiasmo sia presente nel tuo profilo.`,
       `L'Entusiasmo è un fattore determinante: sostiene il coraggio di incontrare persone ed esperienze nuove e favorisce atteggiamenti di apertura, ascolto e comprensione delle diversità altrui.`,
@@ -245,6 +254,10 @@ export function buildActionNarrative({ dominantFamilyKey = '', ranking = [] } = 
   return {
     status: 'ready',
     levelLabel: result.badge,
+    frontParagraphs: [
+      `Questa lente osserva come il tuo sentire diventa azione. ${context.copy}`,
+      `Il test rivela una ${result.adjective} propensione all'azione.`,
+    ],
     paragraphs: [
       `Questa lente osserva il rapporto con l'Agire. ${context.copy}`,
       `La componente Marziale raggiunge il ${formatPercent(martial.distributionPercent)}%. Quanto più è alta la Volitività, tanto più forti e incisive tendono a essere le azioni che si compiono nella vita.`,

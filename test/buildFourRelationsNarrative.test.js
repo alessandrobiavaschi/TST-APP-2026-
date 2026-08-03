@@ -31,6 +31,7 @@ test('Sé separa osservazione Malinconica e armonia con la famiglia dominante', 
   assert.equal(result.metrics.awarenessPercent, 23)
   assert.equal(result.metrics.harmonyPercent, 31)
   assert.equal(result.metrics.relationKind, 'compensation')
+  assert.equal(result.frontParagraphs.length, 2)
   assert.match(result.levelLabel, /Consapevolezza discreta.*armonia buona/i)
   assert.match(text, /Malinconica raggiunge il 23%/)
   assert.match(text, /Marziale.*raggiunge il 31%/)
@@ -58,6 +59,7 @@ test('Altro legge insieme presenza Entusiasta e distanza dalla famiglia dominant
   assert.equal(close.metrics.deficit, 8)
   assert.equal(close.metrics.grade, 4)
   assert.match(close.levelLabel, /Ottima propensione/)
+  assert.equal(close.frontParagraphs.length, 2)
   assert.match(close.paragraphs.join(' '), /Entusiasmo.*23%.*Marziale.*31%.*8 punti percentuali/i)
   assert.match(close.paragraphs.join(' '), /affinità dinamica/i)
 
@@ -116,6 +118,7 @@ test('Agire applica le soglie percentuali concordate per la componente Marziale'
   const result = buildActionNarrative({ dominantFamilyKey: 'rosso', ranking: marzialeProfile })
   const text = result.paragraphs.join(' ')
   assert.match(result.levelLabel, /Buona propensione all'azione/)
+  assert.equal(result.frontParagraphs.length, 2)
   assert.match(text, /natura Volitivo-collerica ha un rapporto simbiotico con la volontà/)
   assert.match(text, /Marziale raggiunge il 31%/)
   assert.match(text, /buona propensione all'azione/)

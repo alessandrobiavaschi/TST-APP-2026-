@@ -788,6 +788,9 @@ export function buildReportData({
             ? buildActionNarrative({ dominantFamilyKey: naturaBaseFamilyKey, ranking: graduatoria })
             : null
     const definizioneParagrafi = relationshipNarrative?.paragraphs || [meta.definizione]
+    const sintesiBreveParagrafi = relationshipNarrative?.frontParagraphs?.length
+      ? relationshipNarrative.frontParagraphs
+      : definizioneParagrafi.slice(0, 2)
     const definizione = definizioneParagrafi.join(' ')
     const levelLabel = isNatura
       ? resolveNaturaLevelLabel(relationshipNarrative.status)
@@ -808,6 +811,7 @@ export function buildReportData({
       levelLabel,
       definizione,
       definizioneParagrafi,
+      sintesiBreveParagrafi,
       narrativaNatura: isNatura ? relationshipNarrative : null,
       narrativaRapporto: relationshipNarrative,
       composizione: meta.composizione,

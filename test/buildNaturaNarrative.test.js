@@ -33,6 +33,8 @@ test('applica la formula editoriale a tutte le famiglie con maiuscole standard',
     assert.equal(result.status, NATURA_NARRATIVE_STATUS.CLEAR)
     assert.equal(result.paragraphs[0], `Il test conferma la tua appartenenza alla famiglia ${family}.`)
     assert.equal(result.paragraphs[1], `La lettura delle diverse aree del test converge nel riconoscere come ${nature} la tua natura emotiva di base.`)
+    assert.equal(result.frontParagraphs.length, 2)
+    assert.match(result.frontParagraphs[0], new RegExp(`famiglia ${family}`))
     assert.doesNotMatch(text, /profonda appartenenza|buona armonia/i)
   })
 })

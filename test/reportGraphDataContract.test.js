@@ -271,6 +271,9 @@ test('tutti i quattro rapporti espongono una lettura strutturata coerente con i 
   report.rapporti.forEach((item) => {
     assert.ok(Array.isArray(item.definizioneParagrafi))
     assert.ok(item.definizioneParagrafi.length >= 3)
+    assert.ok(Array.isArray(item.sintesiBreveParagrafi))
+    assert.ok(item.sintesiBreveParagrafi.length >= 1)
+    assert.ok(item.sintesiBreveParagrafi.length < item.definizioneParagrafi.length)
     assert.equal(item.definizione, item.definizioneParagrafi.join(' '))
     assert.notEqual(item.narrativaRapporto.status, 'empty')
   })
