@@ -108,10 +108,10 @@ export const GALAXY_THEORY_BY_DISPOSITION: Record<string, GalaxyTheoryFamily> = 
       },
       {
         rawKey: 'BLU_3_Nostalgia',
-        title: 'Nostalgico (Solare o Lunare)',
+        title: 'Nostalgica (Solare o Lunare)',
         interval: 'Settima minore e maggiore',
         color: 'Blu reale',
-        description: `Nel modello TST questa sottocategoria descrive il rapporto con i ricordi e con ciò che si sente perduto o lontano. La forma lunare porta verso il rimpianto; quella solare verso la riconoscenza per ciò che si è vissuto. Non indica tristezza in senso clinico, bensì una memoria affettiva intensa.`,
+        description: `Nel modello TST questa natura descrive il rapporto con i ricordi e con ciò che si sente perduto o lontano. La forma lunare porta verso il rimpianto; quella solare verso la riconoscenza per ciò che si è vissuto. Non indica tristezza in senso clinico, bensì una memoria affettiva intensa.`,
         states: [
           'Nostalgico',
           'Doloroso evocativo',

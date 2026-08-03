@@ -45,8 +45,8 @@ test('riconosce la natura Gioioso-Sanguinico mantenendo la compatibilità con il
   assert.notEqual(FAMILY_THEME.Giallo.characteristic, 'SOLARE')
 })
 
-test('presenta Nostalgico come sottocategoria Solare o Lunare senza rompere i valori storici', () => {
+test('presenta la natura Nostalgica come Solare o Lunare senza rompere i valori storici', () => {
   assert.equal(formatSubcategoryLabel('Nostalgica'), MALINCONICA_NOSTALGICA_LABEL)
   assert.equal(formatSubcategoryLabel('Nostalgia'), MALINCONICA_NOSTALGICA_LABEL)
-  assert.match(reportContent.Blu.descrizione_estesa, /Nostalgico \(solare o lunare\)/i)
+  assert.match(reportContent.Blu.descrizione_estesa, /natura Nostalgica \(solare o lunare\)/i)
 })

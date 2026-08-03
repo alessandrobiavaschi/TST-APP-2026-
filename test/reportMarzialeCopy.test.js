@@ -6,7 +6,7 @@ import { PROFILE_PDF_BLOCKS } from '../src/reportProfiloPdf.js'
 import { getProfiloPanelDisplay } from '../src/utils/profiloDisplayCopy.js'
 
 const EXPECTED_COPY =
-  'Nella famiglia Marziale emerge il piacere del fare, di realizzare ciò che si desidera, di governarsi e mettersi alla prova. Le sottocategorie Volitiva e Collerica prediligono assertività, costanza, sincerità e impegno nel qui e ora, con orientamento al presente.'
+  'Nella famiglia Marziale emerge il piacere del fare, di realizzare ciò che si desidera, di governarsi e mettersi alla prova. Le nature Volitiva e Collerica prediligono assertività, costanza, sincerità e impegno nel qui e ora, con orientamento al presente.'
 
 test('mantiene coerente la descrizione Marziale tra report, fallback e PDF', () => {
   const contentReport = JSON.parse(

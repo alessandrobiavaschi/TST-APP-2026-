@@ -24,7 +24,7 @@ test('normalizza le diciture salvate ed evita parentesi vuote', () => {
   assert.equal(buildProfileSectionTitle('Titolo'), 'Titolo')
 })
 
-test('distingue la famiglia dalle sottocategorie nel titolo del profilo', () => {
+test('distingue la famiglia dalla natura nel titolo del profilo', () => {
   assert.equal(
     buildFamilyProfileSectionTitle(
       'La tua natura emotiva di appartenenza',

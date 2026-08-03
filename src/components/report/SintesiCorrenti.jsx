@@ -65,7 +65,7 @@ const BRIEF_SUMMARY_BY_FAMILY = {
       Solare:
         "una caratteristica Lunare e una Solare. Quella Solare apre verso il mondo, portando speranza, serenità e fiducia nel futuro",
       Nostalgica:
-        "una sottocategoria Nostalgico, che può essere Lunare o Solare. La forma Lunare elabora il passato attraverso il rimpianto; quella Solare attraverso la riconoscenza verso ciò che si è vissuto",
+        "una natura Nostalgica, che può essere Lunare o Solare. La forma Lunare elabora il passato attraverso il rimpianto; quella Solare attraverso la riconoscenza verso ciò che si è vissuto",
       Depressiva:
         "una caratteristica introspettiva e una depressiva. Quella Depressiva opera nel chiuso dell’interiorità, scandagliandone gli aspetti più scuri",
     },
@@ -529,7 +529,7 @@ export default function SintesiCorrenti({
 
   const sottocorrenteDisplayName = (nome) => {
     if (nome === 'Lunare') return 'Caratteristica Lunare'
-    if (nome === 'Nostalgia' || nome === 'Nostalgica' || nome === 'Nostalgico') return 'Nostalgico (Solare o Lunare)'
+    if (nome === 'Nostalgia' || nome === 'Nostalgica' || nome === 'Nostalgico') return 'Nostalgica (Solare o Lunare)'
     return nome
   }
 

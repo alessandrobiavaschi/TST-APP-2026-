@@ -44,7 +44,7 @@ export const PROFILE_PDF_BLOCKS = {
   },
   Rosso: {
     restituzione_caratteri_estesi:
-      'Nella famiglia Marziale emerge il piacere del fare, di realizzare ciò che si desidera, di governarsi e mettersi alla prova. Le sottocategorie Volitiva e Collerica prediligono assertività, costanza, sincerità e impegno nel qui e ora, con orientamento al presente.',
+      'Nella famiglia Marziale emerge il piacere del fare, di realizzare ciò che si desidera, di governarsi e mettersi alla prova. Le nature Volitiva e Collerica prediligono assertività, costanza, sincerità e impegno nel qui e ora, con orientamento al presente.',
     natura_paragrafi: [
       'Da Est verso Ovest soffiano i venti che seguono l’azione vitale sul percorso del Sole. Sul piano emotivo diventano il flusso Volitivo — colore Rosso, intervallo di quarta —: il piacere del fare, impulso che agisce nel presente.',
       'Nel rapporto con te stesso, chi ama agire sente l’Io come alleato: responsabilità, prove da superare, sicurezza nel qui e ora. Sport e Musica condividono la sincerità dell’emozione autentica; dopo l’adolescenza quel finalizzatore sei tu, governatore di te stesso.',
@@ -178,7 +178,7 @@ export const PROFILE_PDF_BLOCKS = {
     ].join('\n'),
     descrizione_estesa: [
       'Il sorgere della malinconia si avverte nell’adolescenza: attorno ai nove-dieci anni una «seconda nascita» affettiva, luce riflessa della Luna rispetto al Sole dell’età adulta.',
-      'Le correnti BLU articolano la famiglia in Malinconia depressiva, Malinconia lunare, sottocategoria Nostalgico (solare o lunare) e Malinconia solare.',
+      'Le correnti BLU articolano la famiglia in Malinconia depressiva, Malinconia lunare, natura Nostalgica (solare o lunare) e Malinconia solare.',
       'Nell’ascolto questa natura è sensibile all’identità del timbro: archi, doppie ance, frequenze medie e medio-basse, suoni corposi e scuri, pianoforte pastoso o arpa possono favorire un contatto intimo con il mondo interno.',
       'Il piacere musicale passa dalla melodia, dagli intervalli e dalle tonalità capaci di muovere memoria e sentimento. Cerca musica profonda, testi poetici o umanistici, ritmi non invasivi, cambi armonici che permettano di sostare e riflettere senza essere spinti fuori da sé.',
     ].join('\n'),
