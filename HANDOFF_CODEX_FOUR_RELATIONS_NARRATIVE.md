@@ -71,11 +71,14 @@ espongono inoltre `definizioneParagrafi` e `narrativaRapporto`; il componente
 
 ## Lettura sul front
 
-- ogni rapporto espone `sintesiBreveParagrafi`: due paragrafi rivolti alla
-  persona, senza punteggi, scarti o formule;
-- `definizioneParagrafi` conserva la lettura completa e resta disponibile nel
-  pannello `Approfondisci la lettura`;
-- radar, classifica e calcoli non vengono modificati.
+- ogni rapporto espone soltanto il proprio risultato e due paragrafi rivolti
+  alla persona, senza grafico, punti, percentuali, classifica o sfumature;
+- il pulsante `?` apre una guida modale a due pagine: la prima riassume le
+  formule classiche (Natura = Timbro + Intervalli + Armonia; Sé = Intervalli +
+  Melodia; Altro = Timbro + Melodia; Agire = Ritmo + Melodia), la seconda la
+  mappa delle relazioni qualitative tra famiglie;
+- tutti i dati tecnici restano nel contratto `rapporti` per le altre viste del
+  report (per esempio Galassia), ma non sono più renderizzati in questa pagina.
 
 ## Informativa dati della sintesi
 
@@ -96,6 +99,8 @@ espongono inoltre `definizioneParagrafi` e `narrativaRapporto`; il componente
 - build Vite;
 - controllo browser locale su layout compatto e desktop 1440×900;
 - fixture temporanea rimossa al termine della verifica.
+- dopo la semplificazione del front: 69 test automatici, lint, build Vite e
+  `git diff --check` superati.
 
 ## Deploy
 
