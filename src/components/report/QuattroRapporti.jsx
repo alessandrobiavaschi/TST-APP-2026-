@@ -59,7 +59,7 @@ function hexToRgba(hex, alpha) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`
 }
 
-function AxisTick({ x, y, payload, textAnchor, index, onSelect }) {
+function AxisTick({ x, y, payload, textAnchor }) {
   return (
     <text
       x={x}
@@ -69,15 +69,6 @@ function AxisTick({ x, y, payload, textAnchor, index, onSelect }) {
       fontSize={13}
       fontFamily="'Public Sans', system-ui, -apple-system, sans-serif"
       dominantBaseline="central"
-      role="button"
-      tabIndex="0"
-      style={{ cursor: 'pointer' }}
-      onClick={() => onSelect?.(index)}
-      onKeyDown={(event) => {
-        if (event.key !== 'Enter' && event.key !== ' ') return
-        event.preventDefault()
-        onSelect?.(index)
-      }}
     >
       {payload?.value}
     </text>
@@ -93,6 +84,7 @@ function RadarPoint({ cx, cy, payload, index, selectedFamilyKey, onSelect }) {
       role="button"
       tabIndex="0"
       aria-label={label}
+      aria-pressed={selected}
       style={{ cursor: 'pointer' }}
       onClick={(event) => {
         event.stopPropagation()
@@ -288,11 +280,7 @@ export default function QuattroRapporti({
                   <PolarGrid stroke="#334155" strokeOpacity={0.5} />
                   <PolarAngleAxis
                     dataKey="corrente"
-                    tick={(
-                      <AxisTick
-                        onSelect={(index) => selectFamily(radarData[index]?.familyKey)}
-                      />
-                    )}
+                    tick={<AxisTick />}
                   />
                   <PolarRadiusAxis
                     angle={90}
@@ -354,7 +342,13 @@ export default function QuattroRapporti({
                 </div>
               ) : null}
               {selectedFamily ? (
-                <div className="quattro-rapporti-radar-detail" aria-live="polite">
+                <div
+                  className="quattro-rapporti-radar-detail"
+                  aria-live="polite"
+                  style={{
+                    '--qr-selected-color': selectedFamily.colore || selectedTheme?.dot || activeColor,
+                  }}
+                >
                   <div className="quattro-rapporti-radar-detail__heading">
                     <strong>{selectedFamily.corrente}</strong>
                     {selectedTheme?.characteristic ? (
@@ -392,7 +386,7 @@ export default function QuattroRapporti({
                       <p><strong>Presenza in questo rapporto:</strong> {selectedFamily.distributionPercent ?? 0}%</p>
                       <p><strong>Valore nel grafico:</strong> {selectedFamily.valore} su 7</p>
                     </div>
-                    {selectedFamily.maxRawPoints > 0 ? (
+                    {selectedFamily.maxRawPoints > 0 && selectedFamily.rawValue > 0 ? (
                       <p className="calculation-disclosure__formula">
                         Formula: {selectedFamily.rawValue ?? 0} ÷ {selectedFamily.maxRawPoints} × 7,
                         arrotondata all'intero più vicino. La famiglia con più punti vale quindi 7;
@@ -402,6 +396,12 @@ export default function QuattroRapporti({
                         complessivi della lente. Più famiglie possono raggiungere 7 per effetto
                         dell'arrotondamento: i punti grezzi permettono di distinguere un vero pari merito.
                         Un 7, un 6 e un 5 restano tutti visibili e descrivono un profilo composto.
+                      </p>
+                    ) : selectedFamily.maxRawPoints > 0 ? (
+                      <p className="calculation-disclosure__formula">
+                        Questa famiglia ha ottenuto 0 punti e rappresenta lo 0% della lente. Per la
+                        sola leggibilità del poligono, il radar mostra il minimo visuale 1/7: non è
+                        un punto ottenuto né una presenza misurata.
                       </p>
                     ) : (
                       <p className="calculation-disclosure__formula">

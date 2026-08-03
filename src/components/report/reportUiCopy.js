@@ -147,7 +147,8 @@ export const RAPPORTI_UI = {
   correntePrincipaleLabel: 'Famiglia più alta in questa lente',
   radarCaption:
     'Cinque famiglie distinte: Malinconica, Marziale, Flemmatica, Entusiasta e Razionale · seleziona un vertice o una riga',
-  radarScaleNote: '7 = famiglia più alta nella lente; gli altri valori sono proporzionati allo stesso massimo',
+  radarScaleNote:
+    '7 = famiglia più alta nella lente; gli altri valori sono proporzionati allo stesso massimo; 0 punti è mostrato come minimo visuale 1/7',
   scaleBannerTitle: 'Come leggere i grafici',
   scaleBanner:
     'Qui i grafici usano una scala 1–7 (confronto interno a ciascun rapporto), non le percentuali di attivazione della Sintesi.',

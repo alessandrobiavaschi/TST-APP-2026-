@@ -348,16 +348,26 @@
   gap: 0.35rem;
   margin-top: 1rem;
   padding: 1rem;
-  border: 1px solid color-mix(in srgb, var(--qr-accent) 38%, transparent);
+  border: 1px solid color-mix(in srgb, var(--qr-selected-color, var(--qr-accent)) 38%, transparent);
   border-radius: 0.75rem;
-  background: color-mix(in srgb, var(--qr-accent) 10%, transparent);
+  background: color-mix(in srgb, var(--qr-selected-color, var(--qr-accent)) 10%, transparent);
   color: rgba(255, 255, 255, 0.82);
   font-size: 0.88rem;
 }
 
 .quattro-rapporti-radar-detail strong {
-  color: var(--qr-accent);
+  color: var(--qr-selected-color, var(--qr-accent));
   font-size: 1rem;
+}
+
+.quattro-rapporti-radar g[role='button']:focus-visible {
+  outline: none;
+}
+
+.quattro-rapporti-radar g[role='button']:focus-visible circle:last-child {
+  stroke: #ffffff;
+  stroke-width: 3;
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.8));
 }
 
 .quattro-rapporti-radar-detail__heading {
