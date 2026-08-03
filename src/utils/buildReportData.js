@@ -60,7 +60,6 @@ import {
 } from '../config/reportFamilyTheme'
 import { PROFILE_PDF_BLOCKS } from '../reportProfiloPdf.js'
 import { getFamigliaApprofondimento } from '../content/famigliaApprofondimento.js'
-import { MALINCONICA_NOSTALGICA_LABEL, formatSubcategoryLabel } from './reportTaxonomy.js'
 import { buildIntegrativeParagraphs, buildSintesiLead, buildSintesiKeyFacts, buildSintesiLeadExtended } from '../content/reportRestitution.js'
 import {
   FAMIGLIE_LESSICO,
@@ -97,7 +96,7 @@ const SOTTOCORRENTE_META = [
 const SOTTOCORRENTE_LABEL_BY_RAW_KEY = {
   BLU_1_Depressiva: 'Depressiva',
   BLU_2_Lunare: 'Lunare',
-  BLU_3_Nostalgia: MALINCONICA_NOSTALGICA_LABEL,
+  BLU_3_Nostalgia: 'Nostalgica',
   BLU_4_Solare: 'Solare',
   ROSSO_1_Assertivita: 'Assertività',
   ROSSO_2_Dubbio_Collera: 'Dubbio / Collera',
@@ -204,15 +203,10 @@ function resolveSottodisposizionePrevalente(rawRecord = {}, dominantColorName) {
       key,
       SOTTOCORRENTE_LABEL_BY_RAW_KEY[key],
       rawKeyToLabel(key),
-      ...(key === 'BLU_3_Nostalgia' ? ['Nostalgia', 'Nostalgica'] : []),
     ]
     return aliases.some((alias) => normalizeSottocorrenteLabel(alias) === savedNormalized)
   })
-  if (savedKeyInFamily) {
-    return formatSubcategoryLabel(
-      SOTTOCORRENTE_LABEL_BY_RAW_KEY[savedKeyInFamily] || rawKeyToLabel(savedKeyInFamily),
-    )
-  }
+  if (savedKeyInFamily) return SOTTOCORRENTE_LABEL_BY_RAW_KEY[savedKeyInFamily] || rawKeyToLabel(savedKeyInFamily)
 
   let bestKey = ''
   let bestValue = -Infinity
@@ -225,7 +219,7 @@ function resolveSottodisposizionePrevalente(rawRecord = {}, dominantColorName) {
   })
 
   if (!bestKey || bestValue <= 0) return ''
-  return formatSubcategoryLabel(SOTTOCORRENTE_LABEL_BY_RAW_KEY[bestKey] || rawKeyToLabel(bestKey))
+  return SOTTOCORRENTE_LABEL_BY_RAW_KEY[bestKey] || rawKeyToLabel(bestKey)
 }
 
 function parseCsvCodes(value) {
@@ -458,10 +452,10 @@ function buildOtherRelationshipIntro(dominantColorName, dispositionLabel) {
     return `La tua famiglia emotiva ha come elemento caratteristico una certa competitività nel rapporto con gli altri: questa lente osserva quanto l'entusiasmo ammorbidisca il contatto e lo renda più fiducioso.`
   }
   if (dominantColorName === 'Verde') {
-    return `La tua natura contemplativa tende a osservare, attendere e mantenere una posizione prudente nel rapporto con l'altro: questa lente osserva quanto l'entusiasmo attivi apertura e partecipazione.`
+    return `La tua natura flemmatica tende a osservare, attendere e mantenere una posizione prudente nel rapporto con l'altro: questa lente osserva quanto l'entusiasmo attivi apertura e partecipazione.`
   }
   if (dominantColorName === 'Grigio') {
-    return `La tua natura intellettuale-razionale tende a osservare l'esperienza emotiva con maggiore distanza e controllo: questa lente osserva quanto l'entusiasmo apra comunque un canale di contatto con gli altri.`
+    return `La tua natura anaffettiva tende a osservare l'esperienza emotiva con maggiore distanza e controllo: questa lente osserva quanto l'entusiasmo apra comunque un canale di contatto con gli altri.`
   }
   return `A partire dalla tua natura ${famiglia}, questa lente osserva quanto l'entusiasmo sostenga il rapporto con gli altri e favorisca ascolto, apertura e fiducia.`
 }
