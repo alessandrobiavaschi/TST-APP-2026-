@@ -6,7 +6,7 @@
  *
  * I colori sono soltanto una convenzione visiva per le 5 famiglie emotive.
  * `family` è il nome della famiglia; `characteristic`/`nature` descrivono
- * la caratteristica emotiva (natura). Non invertire questi due livelli.
+ * la natura (caratteristica emotiva). Non invertire questi due livelli.
  *
  * Per i nomi natura/disposizione si riusano, dove disponibili, le diciture
  * ufficiali già presenti nel repository (content_report.json / HeroSummary).

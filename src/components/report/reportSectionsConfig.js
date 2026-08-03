@@ -35,7 +35,7 @@ export const REPORT_SECTIONS = [
 
   // 1. Risultati del test
   { id: 'report-group-profilo-generale', label: 'Risultati del test', groupId: 'report-group-profilo-generale' },
-  { id: 'report-tst-sintesi', label: 'Caratteristica emotiva', navStep: '1.1', groupId: 'report-group-profilo-generale', isSub: true },
+  { id: 'report-tst-sintesi', label: 'Natura (caratteristica emotiva)', navStep: '1.1', groupId: 'report-group-profilo-generale', isSub: true },
   { id: 'report-tst-grafici', label: 'Grafici dei risultati', navStep: '1.2', groupId: 'report-group-profilo-generale', isSub: true },
   { id: 'report-tst-famiglia', label: 'La tua natura emotiva di appartenenza', navStep: '1.3', groupId: 'report-group-profilo-generale', isSub: true },
   { id: 'report-chapter-natura', label: 'Natura', groupId: 'report-group-profilo-generale', isSub: true, isSubSub: true },

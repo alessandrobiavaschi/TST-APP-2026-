@@ -235,7 +235,7 @@ export default function HeroScreen({
             <span className="hero-screen__sintesi-bridge">La tua famiglia emotiva prevalente è</span>
             <strong className="hero-screen__sintesi-family">{familyText}</strong>
             <span className="hero-screen__sintesi-bridge">
-              Caratteristica emotiva (natura): {naturaText}
+              Natura (caratteristica emotiva): {naturaText}
             </span>
           </motion.h1>
           <motion.div {...fade(0.45, 8)} className="hero-screen__cta-sintesi">

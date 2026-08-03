@@ -58,7 +58,7 @@ const BRIEF_SUMMARY_BY_FAMILY = {
     family: 'Malinconica',
     fundamentalPleasure:
       "il piacere di stare con sé stessi, dell’introversione, dell’osservarsi interiormente e del riflettere su ciò che si è vissuto",
-    qualities: "caratteristiche emotive lunari, solari e nostalgiche",
+    qualities: "nature (caratteristiche emotive) lunari, solari e nostalgiche",
     qualitiesByQuality: {
       Lunare:
         "una caratteristica Lunare e una Solare. Quella Lunare opera nel chiuso dell’interiorità, su una visione riflessa dell’esperienza emotiva",
@@ -77,7 +77,7 @@ const BRIEF_SUMMARY_BY_FAMILY = {
     family: 'Entusiasta',
     fundamentalPleasure:
       "il piacere del movimento, della curiosità, della scoperta del nuovo e dell’apertura verso il mondo",
-    qualities: "caratteristiche emotive legate alla gioia, all’entusiasmo, alla curiosità e alla solarità",
+    qualities: "nature (caratteristiche emotive) legate alla gioia, all’entusiasmo, alla curiosità e alla solarità",
     qualitiesByQuality: {
       Solare:
         "una caratteristica Gioioso-Sanguinico e una Passionale. Quella Gioioso-Sanguinico si esprime con vivacità, positività e un moto naturale verso il fuori e verso gli altri",
@@ -94,7 +94,7 @@ const BRIEF_SUMMARY_BY_FAMILY = {
     family: 'Marziale',
     fundamentalPleasure:
       "il piacere del fare, del realizzare ciò che si desidera, del governarsi e del mettersi alla prova",
-    qualities: "caratteristiche emotive legate all’assertività volitiva, al dubbio e alla collera",
+    qualities: "nature (caratteristiche emotive) legate all’assertività volitiva, al dubbio e alla collera",
     qualitiesByQuality: {
       Assertiva:
         "una caratteristica Assertiva e una del Dubbio. Quella Assertiva si esprime con fermezza, determinazione e volontà di concretizzare nel presente",
@@ -109,7 +109,7 @@ const BRIEF_SUMMARY_BY_FAMILY = {
     family: 'Flemmatica',
     fundamentalPleasure: "il piacere della lentezza, del riposo, della calma e della contemplazione",
     qualities:
-      "caratteristiche emotive legate alla pace interiore, alla moderazione, alla prudenza e all’osservazione contemplativa",
+      "nature (caratteristiche emotive) legate alla pace interiore, alla moderazione, alla prudenza e all’osservazione contemplativa",
     orientation:
       "la calma interiore — non per riflettere su sé stessi, ma per trovare quiete ed equilibrio affettivo",
     note: "",
@@ -120,7 +120,7 @@ const BRIEF_SUMMARY_BY_FAMILY = {
     fundamentalPleasure:
       "il piacere del calcolo, della dubbiosità di origine intellettuale, dell’oggettività e della distanza affettiva",
     qualities:
-      "caratteristiche emotive legate all’anaffettività, al distacco, al nichilismo e alla dimensione intellettuale",
+      "nature (caratteristiche emotive) legate all’anaffettività, al distacco, al nichilismo e alla dimensione intellettuale",
     qualitiesByQuality: {
       Anaffettiva:
         "una caratteristica Anaffettiva e una della Saggezza. Quella Anaffettiva agisce con gelido distacco intellettuale, osservando ogni cosa senza lasciarsi coinvolgere dalla sfera sentimentale",
@@ -565,8 +565,8 @@ export default function SintesiCorrenti({
           <div className="sintesi-editorial-text">
             <p className="sintesi-editorial-body sintesi-editorial-body--lead">
               La tua famiglia emotiva prevalente è{' '}
-              <strong className="sintesi-editorial-highlight">{briefSummary.introFamily}</strong> e la sua caratteristica emotiva
-              (natura) prevalente è <strong className="sintesi-editorial-highlight">{briefSummary.introQuality}</strong>.
+              <strong className="sintesi-editorial-highlight">{briefSummary.introFamily}</strong> e la sua natura
+              (caratteristica emotiva) prevalente è <strong className="sintesi-editorial-highlight">{briefSummary.introQuality}</strong>.
             </p>
             <p className="sintesi-editorial-body">
               Questa famiglia emotiva è una delle 5 forze emotive comuni a tutti.
@@ -663,7 +663,7 @@ export default function SintesiCorrenti({
               Correnti della famiglia {dominantPresenceLabel.title.toLowerCase()}
             </h3>
             <p className="sintesi-mobile-explanation">
-              All’interno di questa famiglia, il test evidenzia le caratteristiche emotive specifiche che
+              All’interno di questa famiglia, il test evidenzia le nature (caratteristiche emotive) specifiche che
               contribuiscono a definire meglio la tua appartenenza.
             </p>
             <ul className="sintesi-mobile-subcurrents-list">
@@ -761,8 +761,8 @@ export default function SintesiCorrenti({
           <div className="sintesi-editorial-text">
             <p className="sintesi-editorial-body sintesi-editorial-body--lead">
               La tua famiglia emotiva prevalente è{' '}
-              <strong className="sintesi-editorial-highlight">{briefSummary.introFamily}</strong> e la sua caratteristica emotiva
-              (natura) prevalente è <strong className="sintesi-editorial-highlight">{briefSummary.introQuality}</strong>.
+              <strong className="sintesi-editorial-highlight">{briefSummary.introFamily}</strong> e la sua natura
+              (caratteristica emotiva) prevalente è <strong className="sintesi-editorial-highlight">{briefSummary.introQuality}</strong>.
             </p>
             <p className="sintesi-editorial-body">
               Questa famiglia emotiva è una delle 5 forze emotive comuni a tutti.
@@ -943,7 +943,7 @@ export default function SintesiCorrenti({
                     </span>
                   </div>
                   <p className="sintesi-correnti__subcurrents-caption">
-                    Caratteristiche emotive specifiche che definiscono meglio la famiglia prevalente.
+                    Nature (caratteristiche emotive) specifiche che definiscono meglio la famiglia prevalente.
                   </p>
                   <ul className="sintesi-correnti__subcurrents-list">
                     {familySottocorrenti.map((sub) => (

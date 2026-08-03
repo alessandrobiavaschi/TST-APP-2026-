@@ -14,7 +14,7 @@ export const CONTEXT = {
   title: 'Come leggere questo profilo',
   body: [
     'Il TST non misura competenze musicali. Legge come hai reagito agli stimoli sonori: avvicinamento, rifiuto, distacco e famiglie emotive più presenti.',
-    'La prima cosa da guardare è la famiglia prevalente. Subito dopo vengono la natura o caratteristica emotiva, il portato esperienziale e le parole emerse dalle risposte.',
+    'La prima cosa da guardare è la famiglia prevalente. Subito dopo vengono la natura (caratteristica emotiva), il portato esperienziale e le parole emerse dalle risposte.',
     'Leggi il report come una fotografia del test, non come una definizione fissa della persona. Ogni sezione aggiunge un livello: sintesi, profilo, rapporti, portato, lessico e approfondimenti.',
   ],
   pills: [],
@@ -105,10 +105,10 @@ export const GLOSSARY = [
   },
   {
     id: 'corrente-emotiva',
-    term: 'Caratteristica emotiva',
+    term: 'Natura (caratteristica emotiva)',
     oneLine: 'Natura che specifica come si esprime una famiglia emotiva.',
     explain:
-      'La famiglia è una delle cinque categorie del modello; la caratteristica emotiva, chiamata anche natura, ne descrive la qualità. Per esempio: famiglia Marziale, natura Volitivo-collerica.',
+      'La famiglia è una delle cinque categorie del modello; la natura (caratteristica emotiva) ne descrive la qualità. Per esempio: famiglia Marziale, natura Volitivo-collerica.',
     usefulFor:
       'Leggi sempre i due livelli insieme: famiglia Flemmatica e natura Contemplativa.',
     tags: ['sintesi'],
@@ -125,7 +125,7 @@ export const GLOSSARY = [
   {
     id: 'natura',
     term: 'Natura',
-    oneLine: 'Caratteristica emotiva con cui si esprime la famiglia prevalente.',
+    oneLine: 'Natura (caratteristica emotiva) con cui si esprime la famiglia prevalente.',
     explain:
       'Specifica la famiglia prevalente: Lunare per la Malinconica, Volitivo-collerica per la Marziale, Contemplativa per la Flemmatica, Gioioso-Sanguinico per l’Entusiasta e Intellettuale-Razionale per la Razionale.',
     usefulFor: 'Adatta ritmo, profondità e tipo di stimolo (movimento vs riflessione).',
@@ -441,7 +441,7 @@ export function buildProfiloThreadLine({ profilo = {}, domTheme = {}, famiglia =
 
   const parti = []
   if (famigliaLabel) parti.push(`Famiglia prevalente: ${famigliaLabel}.`)
-  if (natura) parti.push(`Caratteristica emotiva (natura): ${natura}.`)
+  if (natura) parti.push(`Natura (caratteristica emotiva): ${natura}.`)
   return parti.join(' ')
 }
 
@@ -473,7 +473,7 @@ export function buildSintesiKeyFacts({
   if (natura) {
     facts.push({
       id: 'natura',
-      label: 'Caratteristica emotiva (natura)',
+      label: 'Natura (caratteristica emotiva)',
       value: natura,
       method: 'Profilo della famiglia prevalente',
     })
