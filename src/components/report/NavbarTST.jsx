@@ -74,9 +74,6 @@ export default function NavbarTST({
     return () => document.removeEventListener('mousedown', handleOutsideClick)
   }, [menuOpen])
 
-  const naturaResult = formatNatureResult(profilo?.natura || correnteDominante)
-  const caratteristicaResult = formatCharacteristicResult(profilo?.disposizione)
-  const correnteTitle = ['natura', naturaResult, caratteristicaResult].filter(Boolean).join(' · ')
 
   // ── Render Mobile: Bottom Navigation Bar ───────────────────────────
   if (isMobile) {
