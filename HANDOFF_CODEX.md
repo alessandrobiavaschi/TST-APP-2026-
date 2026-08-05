@@ -243,6 +243,51 @@ I cinque vertici dei radar dei Quattro Rapporti mostrano ora un tooltip immediat
 - `npm run lint -- --quiet`: superato, 0 errori.
 - `npm run build`: superato, 1227 moduli trasformati.
 - `git diff --check`: superato.
+
+---
+
+## Avanzamento con "Nessuna" nei primi ascolti — 2026-08-05
+
+### Sintesi
+
+La risposta `Nessuna delle 4` nei file 1–4 registra il delta di indifferenza e
+porta allo step successivo usando il numero del file appena risposto. Lo stato
+di navigazione viene aggiornato soltanto se l'utente si trova ancora su quello
+stesso file, evitando che aggiornamenti concorrenti rendano inerte il click.
+
+### File modificati
+
+- `src/pages/NewTestPage.jsx`
+- `src/utils/testAnswerNavigation.js`
+- `test/testAnswerNavigation.test.js`
+- `HANDOFF_CODEX.md`
+
+### Decisioni e assunzioni
+
+- Lo scoring esistente resta invariato: `nessuna` vale `GRIGIO_1 +1` e
+  `PE_Indifferenza +1` nei primi quattro ascolti.
+- Non sono stati modificati layout, testi, Firebase, credenziali o lockfile.
+- Le modifiche locali concorrenti nell'area report sono state preservate ed
+  escluse dal commit.
+
+### Verifiche
+
+- test dedicato: 3 superati, 0 falliti, incluso il contratto di wiring del
+  bottone verso l'avanzamento atomico;
+- QA browser locale: dal Passo 1 il click su `Nessuna delle 4` porta al Passo 2,
+  senza errori o warning console;
+- `npm run lint`: superato;
+- `npm run build`: superato, 1228 moduli trasformati;
+- `npm test`: 76 superati e 1 fallito per una modifica concorrente non inclusa
+  in `src/components/report/HeroScreen.jsx` (aspettativa terminologica del
+  report);
+- `git diff --check`: superato per i file della correzione.
+
+### Integrazione
+
+Integrare il commit dedicato senza includere le modifiche report già presenti
+nel worktree. Dopo l'integrazione con quel lavoro concorrente, rieseguire la
+suite completa per verificare anche il test terminologico del report.
 - Browser locale: lo stato vuoto della route report è corretto; l'hover popolato non è riproducibile senza il record di sessione mostrato nello screenshot.
 
 ### Integrazione

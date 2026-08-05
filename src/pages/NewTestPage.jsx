@@ -19,6 +19,7 @@ import { useAuth } from '../AuthContext.jsx'
 import { useAdaptiveFlow } from '../hooks/useAdaptiveFlow.js'
 import { getFlowerStillByColor } from '../colorAssets.js'
 import { compactTestRecord, computeTestResultFields } from '../utils/testRecordProcessing.js'
+import { getNextFileAfterAnswer } from '../utils/testAnswerNavigation.js'
 import '../styles/nuovo-test-flow.css'
 
 const STATO_ANIMO_OPTIONS = [
@@ -653,9 +654,7 @@ function NewTestPage() {
       },
     }))
 
-    if (fileNumber < TOTAL_STEPS) {
-      proceedToNextStep()
-    }
+    proceedToNextStep(fileNumber)
   }
 
   const handleBack = () => {
@@ -679,13 +678,14 @@ function NewTestPage() {
     setIsReviewingTestSteps(false)
   }
 
-  const proceedToNextStep = () => {
+  const proceedToNextStep = (expectedFile = currentFile) => {
     if (isProcessingNext) return
-    if (currentFile >= 72) return
+    const nextFile = getNextFileAfterAnswer(expectedFile, TOTAL_STEPS)
+    if (nextFile === expectedFile) return
     stopAudio()
     stopPreviewAudio()
     uiSounds?.playTestTransition?.()
-    setCurrentFile((prev) => prev + 1)
+    setCurrentFile((activeFile) => (activeFile === expectedFile ? nextFile : activeFile))
   }
 
   const handleNextStep = () => {
