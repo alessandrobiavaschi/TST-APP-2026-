@@ -41,7 +41,7 @@ function clampCameraToViewport(camera, width = 0, height = 0) {
 const FAMILY_META = {
   malinconica_nostalgica: {
     id: 'malinconica_nostalgica',
-    label: 'Malinconia',
+    label: 'Malinconica',
     colors: ['#818cf8', '#6366f1', '#7c3aed', '#a5b4fc', '#4338ca', '#c084fc'],
     baseColor: '#6366f1',
     nebula: 'rgba(67, 56, 202, 0.18)',
@@ -51,7 +51,7 @@ const FAMILY_META = {
   },
   collerico_volitiva: {
     id: 'collerico_volitiva',
-    label: 'Volitività',
+    label: 'Marziale',
     colors: ['#f87171', '#ef4444', '#dc2626', '#fb7185', '#be123c', '#c026d3'],
     baseColor: '#ef4444',
     nebula: 'rgba(153, 27, 27, 0.18)',
@@ -61,7 +61,7 @@ const FAMILY_META = {
   },
   flemmatica: {
     id: 'flemmatica',
-    label: 'Calma',
+    label: 'Flemmatica',
     colors: ['#4ade80', '#22c55e', '#16a34a', '#34d399', '#0d9488', '#2dd4bf'],
     baseColor: '#22c55e',
     nebula: 'rgba(22, 101, 52, 0.18)',
@@ -71,7 +71,7 @@ const FAMILY_META = {
   },
   entusiasmo: {
     id: 'entusiasmo',
-    label: 'Entusiasmo',
+    label: 'Entusiasta',
     colors: ['#fbbf24', '#f59e0b', '#d97706', '#fcd34d', '#f97316', '#fb923c'],
     baseColor: '#f59e0b',
     nebula: 'rgba(146, 64, 14, 0.18)',
@@ -81,7 +81,7 @@ const FAMILY_META = {
   },
   agnostica_anaffettiva: {
     id: 'agnostica_anaffettiva',
-    label: 'Anaffettività',
+    label: 'Razionale',
     colors: ['#94a3b8', '#64748b', '#cbd5e1', '#9ca3af', '#475569', '#e2e8f0'],
     baseColor: '#94a3b8',
     nebula: 'rgba(71, 85, 105, 0.18)',
@@ -98,6 +98,18 @@ const FAMILY_ORDER = [
   'entusiasmo',
   'agnostica_anaffettiva',
 ]
+
+const VIEW_MODEL_FAMILIES = [
+  { familyKey: 'blu', familyName: 'Blu', familyId: 'malinconica_nostalgica' },
+  { familyKey: 'rosso', familyName: 'Rosso', familyId: 'collerico_volitiva' },
+  { familyKey: 'verde', familyName: 'Verde', familyId: 'flemmatica' },
+  { familyKey: 'giallo', familyName: 'Giallo', familyId: 'entusiasmo' },
+  { familyKey: 'grigio', familyName: 'Grigio', familyId: 'agnostica_anaffettiva' },
+]
+
+const ATLAS_FAMILY_ID_BY_KEY = Object.fromEntries(
+  VIEW_MODEL_FAMILIES.map(({ familyKey, familyId }) => [familyKey, familyId]),
+)
 
 // ─── Build word atlas (static, computed once) ────────────────────────────────
 function buildAtlasWords() {
@@ -213,7 +225,10 @@ function DictionaryPanel({ word, onClose, onSelectWord, viewModel, placement }) 
   const meta = FAMILY_META[word.familyId]
 
   const dynamicWordInfo = viewModel?.lessicoSituazionale?.find(
-    (p) => p.parola.toLowerCase() === word.nome.toLowerCase()
+    (p) =>
+      p.parola.toLowerCase() === word.nome.toLowerCase()
+      && ATLAS_FAMILY_ID_BY_KEY[p.familyKey] === word.familyId
+      && p.correnteKey === word.subcurrentId,
   )
 
   return (
@@ -301,7 +316,10 @@ function DictionaryPanel({ word, onClose, onSelectWord, viewModel, placement }) 
               <div className="lessico-dict__nearby-list">
                 {word.nearbyWords.map((nome) => {
                   const w = ATLAS_WORDS.find(
-                    (v) => v.nome === nome && v.familyId === word.familyId,
+                    (v) =>
+                      v.nome === nome
+                      && v.familyId === word.familyId
+                      && v.subcurrentId === word.subcurrentId,
                   )
                   return (
                     <button
@@ -438,6 +456,9 @@ function AnalisiDashboard({ viewModel, onSelectWord }) {
     costellazioniSemantiche = [],
     _gap = [],
   } = viewModel
+  const costellazioniAttive = costellazioniSemantiche.filter(
+    (costellazione) => costellazione.correntiUtenteCollegate?.length > 0,
+  )
 
   return (
     <div className="lessico-dashboard">
@@ -491,7 +512,7 @@ function AnalisiDashboard({ viewModel, onSelectWord }) {
               </summary>
               <div className="space-y-1 mt-1 text-[11px] font-mono opacity-80 pl-2 border-l border-slate-700">
                 {campoDiForze.perFamiglia.map((fam) => {
-                  const m = FAMILY_META[fam.familyName]
+                  const m = FAMILY_META[ATLAS_FAMILY_ID_BY_KEY[fam.familyKey]]
                   return (
                     <div key={fam.familyKey} className="flex justify-between">
                       <span style={{ color: m?.baseColor }}>{fam.familyName}</span>
@@ -508,11 +529,11 @@ function AnalisiDashboard({ viewModel, onSelectWord }) {
       {/* 3. COSTELLAZIONI SEMANTICHE */}
       <div className="lessico-dashboard__section">
         <h3 className="lessico-dashboard__title">3. Costellazioni Semantiche</h3>
-        {costellazioniSemantiche.length === 0 ? (
+        {costellazioniAttive.length === 0 ? (
           <p className="lessico-dashboard__empty">Nessuna costellazione semantica attiva.</p>
         ) : (
           <div className="space-y-3">
-            {costellazioniSemantiche.map((c) => {
+            {costellazioniAttive.map((c) => {
               const activeCount = c.correntiUtenteCollegate.length
               return (
                 <div key={c.conceptId} className="p-2 rounded bg-slate-950/40 border border-slate-800/60">
@@ -553,10 +574,14 @@ function AnalisiDashboard({ viewModel, onSelectWord }) {
             ) : (
               <div className="flex flex-wrap gap-1.5">
                 {lessicoSituazionale.map((p) => {
+                  const familyId = ATLAS_FAMILY_ID_BY_KEY[p.familyKey]
                   const match = ATLAS_WORDS.find(
-                    (w) => w.nome.toLowerCase() === p.parola.toLowerCase() && w.familyId === p.familyName
+                    (w) =>
+                      w.nome.toLowerCase() === p.parola.toLowerCase()
+                      && w.familyId === familyId
+                      && w.subcurrentId === p.correnteKey,
                   )
-                  const fColor = FAMILY_META[p.familyName]?.baseColor || '#fff'
+                  const fColor = FAMILY_META[familyId]?.baseColor || '#fff'
                   return (
                     <button
                       key={`${p.parola}-${p.correnteKey}`}
@@ -586,13 +611,13 @@ function AnalisiDashboard({ viewModel, onSelectWord }) {
                 Mostra dizionario teorico
               </summary>
               <div className="space-y-2 mt-1.5">
-                {FAMILY_ORDER.map((famName) => {
-                  const stabile = lessicoStabile[famName]
-                  const meta = FAMILY_META[famName]
+                {VIEW_MODEL_FAMILIES.map(({ familyId, familyName }) => {
+                  const stabile = lessicoStabile[familyName]
+                  const meta = FAMILY_META[familyId]
                   const forms = stabile?.vocabolarioAggettivi || []
                   return (
-                    <div key={famName} className="text-[11px]">
-                      <strong style={{ color: meta?.baseColor }}>{famName}</strong>
+                    <div key={familyId} className="text-[11px]">
+                      <strong style={{ color: meta?.baseColor }}>{familyName}</strong>
                       <p className="opacity-80 mt-0.5 leading-relaxed">{forms.slice(0, 10).join(', ')}...</p>
                     </div>
                   )
@@ -679,13 +704,22 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
 
   const normalizedSearch = searchQuery.trim().toLowerCase()
 
-  const emergedSet = React.useMemo(() => {
-    const s = new Set()
+  const emergedWords = React.useMemo(() => {
+    const precise = new Set()
+    const fallback = new Set()
     for (const p of paroleEmerse || []) {
       const nome = typeof p === 'string' ? p : (p?.parola || p?.nome || '')
-      if (nome) s.add(nome.toLowerCase())
+      if (!nome) continue
+      const normalizedName = nome.toLowerCase()
+      const familyId = typeof p === 'string' ? '' : ATLAS_FAMILY_ID_BY_KEY[p?.familyKey]
+      const correnteKey = typeof p === 'string' ? '' : p?.correnteKey
+      if (familyId && correnteKey) {
+        precise.add(`${familyId}|${correnteKey}|${normalizedName}`)
+      } else {
+        fallback.add(normalizedName)
+      }
     }
-    return s
+    return { precise, fallback }
   }, [paroleEmerse])
 
   const getWordOpacity = useCallback(
@@ -1086,7 +1120,11 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
               const opacity = getWordOpacity(word)
               const isSelected = selectedWord?.id === word.id
               const isHovered = hoveredWordId === word.id
-              const isEmerged = emergedSet.has(word.nome.toLowerCase())
+              const normalizedName = word.nome.toLowerCase()
+              const isEmerged =
+                emergedWords.precise.has(`${word.familyId}|${word.subcurrentId}|${normalizedName}`)
+                || emergedWords.fallback.has(normalizedName)
+              const isFilteredOut = opacity === 0.05
               const pos = getAtlasPoint(word)
               return (
                 <button
@@ -1096,6 +1134,7 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
                   }}
                   key={word.id}
                   type="button"
+                  tabIndex={isFilteredOut ? -1 : 0}
                   className={`lessico-atlas__word${isSelected ? ' is-selected' : ''}${isEmerged ? ' is-emerged' : ''}${isHovered ? ' is-hovered' : ''}`}
                   style={{
                     left: `${pos.x}%`,

@@ -1,11 +1,11 @@
 import React, { useId, useMemo } from 'react'
 
 const RADAR_FAMIGLIE = [
-  { subject: 'Malinconia', key: 'blu', color: '#3b82f6' },
-  { subject: 'Volitività', key: 'rosso', color: '#ef4444' },
-  { subject: 'Entusiasmo', key: 'giallo', color: '#eab308' },
-  { subject: 'Calma', key: 'verde', color: '#22c55e' },
-  { subject: 'Anaffettività', key: 'grigio', color: '#6b7280' },
+  { subject: 'Malinconica', key: 'blu', color: '#3b82f6' },
+  { subject: 'Marziale', key: 'rosso', color: '#ef4444' },
+  { subject: 'Entusiasta', key: 'giallo', color: '#eab308' },
+  { subject: 'Flemmatica', key: 'verde', color: '#22c55e' },
+  { subject: 'Razionale', key: 'grigio', color: '#6b7280' },
 ]
 
 function mixHexWith(hex, target, amount = 0.5) {

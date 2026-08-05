@@ -29,6 +29,7 @@
  */
 
 import { computeColorTotals, computeRelativePercentages } from './reportRecordUtils.js'
+import { MALINCONICA_NOSTALGICA_LABEL } from './reportTaxonomy.js'
 import { DISPOSITIONS } from '../config/dispositions'
 import { RAW_DOC_VISUAL } from '../config/galaxyDocBridge'
 import {
@@ -40,6 +41,7 @@ const clamp01 = (value) => Math.min(1, Math.max(0, value))
 
 /** Da chiave grezza a etichetta leggibile, es. 'ROSSO_2_Dubbio_Collera' -> 'Dubbio Collera'. */
 function rawKeyToLabel(rawKey) {
+  if (rawKey === 'BLU_3_Nostalgia') return MALINCONICA_NOSTALGICA_LABEL
   const base = String(rawKey).split('_').slice(2).join(' ').replaceAll('_', ' ').trim() || String(rawKey)
   return base.replace(/\b\w/g, (c) => c.toUpperCase())
 }
@@ -139,7 +141,7 @@ export const EXAMPLE_CORRENT_DATA = [
   },
   {
     id: 'collerico_volitiva',
-    nome: 'Collerico / Volitiva',
+    nome: 'Marziale',
     familyKey: 'rosso',
     colore: '#ef4444',
     peso: 41,
@@ -167,7 +169,7 @@ export const EXAMPLE_CORRENT_DATA = [
   },
   {
     id: 'malinconica_nostalgica',
-    nome: 'Malinconica / Nostalgica',
+    nome: 'Malinconica',
     familyKey: 'blu',
     colore: '#3b82f6',
     peso: 28,
@@ -193,7 +195,7 @@ export const EXAMPLE_CORRENT_DATA = [
       },
       {
         id: 'BLU_3_Nostalgia',
-        nome: 'Nostalgica',
+        nome: MALINCONICA_NOSTALGICA_LABEL,
         colore: '#1d4ed8',
         peso: 18,
         descrizione: 'Settima min/Mag · Blu reale (saudade)',
@@ -211,7 +213,7 @@ export const EXAMPLE_CORRENT_DATA = [
   },
   {
     id: 'entusiasmo',
-    nome: 'Entusiasmo',
+    nome: 'Entusiasta',
     familyKey: 'giallo',
     colore: '#eab308',
     peso: 9,
@@ -239,7 +241,7 @@ export const EXAMPLE_CORRENT_DATA = [
   },
   {
     id: 'agnostica_anaffettiva',
-    nome: 'Agnostica / Anaffettiva',
+    nome: 'Razionale',
     familyKey: 'grigio',
     colore: '#9ca3af',
     peso: 1,

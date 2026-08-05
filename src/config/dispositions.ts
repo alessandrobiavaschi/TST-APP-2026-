@@ -2,7 +2,7 @@ export const DISPOSITIONS = [
   {
     dispositionId: 'malinconica_nostalgica',
     colorKey: 'blu',
-    label: 'Malinconica / Nostalgica',
+    label: 'Malinconica',
     colorHex: '#3b82f6',
     polarity: 'centripeta',
     directionVector: { x: -0.8, y: 0.12, z: -0.9 },
@@ -16,7 +16,7 @@ export const DISPOSITIONS = [
   {
     dispositionId: 'collerico_volitiva',
     colorKey: 'rosso',
-    label: 'Collerico / Volitiva',
+    label: 'Marziale',
     colorHex: '#ef4444',
     polarity: 'centrifuga',
     directionVector: { x: 0.95, y: -0.15, z: 0.35 },
@@ -44,7 +44,7 @@ export const DISPOSITIONS = [
   {
     dispositionId: 'entusiasmo',
     colorKey: 'giallo',
-    label: 'Entusiasmo',
+    label: 'Entusiasta',
     colorHex: '#eab308',
     polarity: 'centrifuga',
     directionVector: { x: 0.45, y: -0.55, z: 0.95 },
@@ -58,7 +58,7 @@ export const DISPOSITIONS = [
   {
     dispositionId: 'agnostica_anaffettiva',
     colorKey: 'grigio',
-    label: 'Agnostica / Anaffettiva',
+    label: 'Razionale',
     colorHex: '#9ca3af',
     polarity: 'trasversale',
     directionVector: { x: -0.55, y: -0.35, z: 0.7 },

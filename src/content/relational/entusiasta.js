@@ -1,5 +1,5 @@
 /**
- * Relazioni dal punto di vista entusiasta/solare — fonte: Il Pianeta della Musica (FM)
+ * Relazioni dal punto di vista Entusiasta/Gioioso-Sanguinico — fonte: Il Pianeta della Musica (FM)
  */
 import { RELATION_ACCENTS, TIP_LABEL } from './shared.js'
 

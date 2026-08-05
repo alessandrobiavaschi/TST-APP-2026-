@@ -29,6 +29,7 @@ import {
   downloadCsvSingleRecord,
 } from '../utils/reportRecordUtils.js'
 import { parseMatriceCsv } from '../utils/matriceCsv.js'
+import { MALINCONICA_NOSTALGICA_LABEL, formatSubcategoryLabel } from '../utils/reportTaxonomy.js'
 
 export function computeAgeFromBirthDate(dateValue) {
   if (!dateValue) return null
@@ -96,22 +97,22 @@ function buildResultRecord(docId, data) {
   }
 }
 
-/* Ordine: Blu, Rosso, Giallo, Verde, Grigio – etichette = le 5 disposizioni (non "Lunare", che è sottosezione Blu) */
+/* Ordine: Blu, Rosso, Giallo, Verde, Grigio – etichette = le 5 famiglie emotive. */
 const RADAR_FAMIGLIE = [
-  { subject: 'Malinconia', key: 'blu', color: '#3b82f6' },
-  { subject: 'Volitività', key: 'rosso', color: '#ef4444' },
-  { subject: 'Entusiasmo', key: 'giallo', color: '#eab308' },
-  { subject: 'Calma', key: 'verde', color: '#22c55e' },
-  { subject: 'Anaffettività', key: 'grigio', color: '#6b7280' },
+  { subject: 'Malinconica', key: 'blu', color: '#3b82f6' },
+  { subject: 'Marziale', key: 'rosso', color: '#ef4444' },
+  { subject: 'Entusiasta', key: 'giallo', color: '#eab308' },
+  { subject: 'Flemmatica', key: 'verde', color: '#22c55e' },
+  { subject: 'Razionale', key: 'grigio', color: '#6b7280' },
 ]
 
 /** Etichette colonne matrice risultati: le 5 macro-aree cromatiche del punteggio. */
 const MATRICE_HEADERS = [
-  { key: 'blu', label: 'Malinconia' },
-  { key: 'rosso', label: 'Volitività' },
-  { key: 'verde', label: 'Calma' },
-  { key: 'giallo', label: 'Entusiasmo' },
-  { key: 'grigio', label: 'Anaffettività' },
+  { key: 'blu', label: 'Malinconica' },
+  { key: 'rosso', label: 'Marziale' },
+  { key: 'verde', label: 'Flemmatica' },
+  { key: 'giallo', label: 'Entusiasta' },
+  { key: 'grigio', label: 'Razionale' },
 ]
 
 const SOTTOCORRENTE_KEYS_BY_FAMILY = {
@@ -125,7 +126,7 @@ const SOTTOCORRENTE_KEYS_BY_FAMILY = {
 const SOTTOCORRENTE_LABEL_BY_KEY = {
   BLU_1_Depressiva: 'Depressiva',
   BLU_2_Lunare: 'Lunare',
-  BLU_3_Nostalgia: 'Nostalgica',
+  BLU_3_Nostalgia: MALINCONICA_NOSTALGICA_LABEL,
   BLU_4_Solare: 'Solare',
   ROSSO_1_Assertivita: 'Assertività',
   ROSSO_2_Dubbio_Collera: 'Dubbio / Collera',
@@ -159,14 +160,17 @@ function getResolvedSottodisposizione(raw = {}) {
   const disposizioneKey = normalizeSottocorrenteLabel(raw.Disposizione_Prevalente)
   const familyKey = DISPOSIZIONE_TO_FAMILY_KEY[disposizioneKey]
   const candidateKeys = SOTTOCORRENTE_KEYS_BY_FAMILY[familyKey] || []
-  if (candidateKeys.length === 0) return String(raw.Sottodisposizione_Prevalente || '').trim()
+  if (candidateKeys.length === 0) return formatSubcategoryLabel(raw.Sottodisposizione_Prevalente)
 
   const savedNormalized = normalizeSottocorrenteLabel(raw.Sottodisposizione_Prevalente)
   const savedKeyInFamily = candidateKeys.find((key) => {
     const label = SOTTOCORRENTE_LABEL_BY_KEY[key] || key
-    return [key, label].some((alias) => normalizeSottocorrenteLabel(alias) === savedNormalized)
+    const aliases = [key, label, ...(key === 'BLU_3_Nostalgia' ? ['Nostalgia', 'Nostalgica'] : [])]
+    return aliases.some((alias) => normalizeSottocorrenteLabel(alias) === savedNormalized)
   })
-  if (savedKeyInFamily) return SOTTOCORRENTE_LABEL_BY_KEY[savedKeyInFamily] || savedKeyInFamily
+  if (savedKeyInFamily) {
+    return formatSubcategoryLabel(SOTTOCORRENTE_LABEL_BY_KEY[savedKeyInFamily] || savedKeyInFamily)
+  }
 
   let bestKey = ''
   let bestValue = -Infinity
@@ -178,7 +182,7 @@ function getResolvedSottodisposizione(raw = {}) {
     }
   })
   if (!bestKey || bestValue <= 0) return ''
-  return SOTTOCORRENTE_LABEL_BY_KEY[bestKey] || bestKey
+  return formatSubcategoryLabel(SOTTOCORRENTE_LABEL_BY_KEY[bestKey] || bestKey)
 }
 
 function IconEdit({ title, onClick, className = '' }) {
@@ -218,11 +222,24 @@ function IconDelete({ title, onClick, className = '' }) {
 }
 
 const DISPOSIZIONI_SIGNIFICATO = {
-  Malinconia: 'Introspettivo, orientato alla riflessione, alla memoria e al passato.',
-  Volitività: 'Energia volitiva, orientata all’azione, alla prova e all’assertività nel presente.',
-  Entusiasmo: 'Gioia del movimento, curiosità, entusiasmo verso ciò che è nuovo.',
-  Calma: 'Calma profonda, bisogno di riposo, protezione e spazi di silenzio.',
-  Anaffettività: 'Sguardo analitico, razionale, che tende a osservare e misurare prima di sentire.',
+  Malinconica: 'Famiglia introspettiva, orientata alla riflessione, alla memoria e al passato.',
+  Marziale: 'Famiglia orientata all’azione, alla prova e all’assertività nel presente.',
+  Entusiasta: 'Famiglia legata al movimento, alla curiosità e a ciò che è nuovo.',
+  Flemmatica: 'Famiglia legata alla calma, al riposo, alla protezione e agli spazi di silenzio.',
+  Razionale: 'Famiglia analitica, che tende a osservare e misurare prima di sentire.',
+}
+
+const FAMILY_DISPLAY_BY_STORED_DISPOSITION = {
+  malinconia: 'Malinconica',
+  volitivita: 'Marziale',
+  calma: 'Flemmatica',
+  entusiasmo: 'Entusiasta',
+  anaffettivita: 'Razionale',
+}
+
+function displayFamilyFromStoredDisposition(value) {
+  const key = normalizeSottocorrenteLabel(value)
+  return FAMILY_DISPLAY_BY_STORED_DISPOSITION[key] || String(value || '').trim()
 }
 
 const NORMALIZZAZIONE_SPIEGAZIONE =
@@ -232,10 +249,11 @@ function getDispColor(val) {
   if (!val) return '#94a3b8'
   const v = val.toLowerCase()
   if (v.includes('malinconia')) return '#3b82f6'
-  if (v.includes('volitiv')) return '#ef4444'
-  if (v.includes('calma')) return '#22c55e'
-  if (v.includes('entusiasmo')) return '#eab308'
-  if (v.includes('anaffettiv')) return '#6b7280'
+  if (v.includes('malinconic')) return '#3b82f6'
+  if (v.includes('volitiv') || v.includes('marzial')) return '#ef4444'
+  if (v.includes('calma') || v.includes('flemmatic')) return '#22c55e'
+  if (v.includes('entusiasm')) return '#eab308'
+  if (v.includes('anaffettiv') || v.includes('razional')) return '#6b7280'
   return '#94a3b8'
 }
 
@@ -245,7 +263,7 @@ function DisposizioneBadge({ value }) {
   return (
     <span className="disp-badge" style={{ '--badge-color': color }}>
       <span className="disp-badge-dot" aria-hidden="true" />
-      {value}
+      {displayFamilyFromStoredDisposition(value)}
     </span>
   )
 }
@@ -663,7 +681,7 @@ export function FioreVisivo({ levels, totals, chartHeight = 280, dispositionAcce
               </div>
             ))}
           </div>
-          <p className="fiore-legend-hint">Ogni petalo rappresenta una disposizione; la lunghezza indica il livello 1–7 (più è lungo, più la risonanza in quell&apos;area).</p>
+          <p className="fiore-legend-hint">Ogni petalo rappresenta una famiglia; la lunghezza indica il livello 1–7 (più è lungo, più la risonanza in quell&apos;area).</p>
         </div>
       )}
     </div>
@@ -1355,7 +1373,7 @@ function ResultsPage() {
                 </div>
               </div>
               <div className="filter-field">
-                <label>Disposizione prevalente</label>
+                <label>Famiglia prevalente</label>
                 <select
                   value={dispFilter}
                   onChange={(e) => setDispFilter(e.target.value)}
@@ -1363,13 +1381,13 @@ function ResultsPage() {
                   <option value="">Tutte</option>
                   {filterOptions.disposizioni.map((option) => (
                     <option key={option} value={option}>
-                      {option}
+                      {displayFamilyFromStoredDisposition(option)}
                     </option>
                   ))}
                 </select>
               </div>
               <div className="filter-field">
-                <label>Sottodisposizione prevalente</label>
+                <label>Sfumatura prevalente</label>
                 <select
                   value={sottodispFilter}
                   onChange={(e) => setSottodispFilter(e.target.value)}
@@ -1507,8 +1525,8 @@ function ResultsPage() {
                     <th>Strumento</th>
                     <th>Data</th>
                     <th>Stato</th>
-                    <th>Disposizione prevalente</th>
-                    <th>Sottodisposizione prevalente</th>
+                    <th>Famiglia prevalente</th>
+                    <th>Sfumatura prevalente</th>
                     <th>Portato esp. prevalente</th>
                     <th>Archivio</th>
                     {MATRICE_HEADERS.map((h) => (

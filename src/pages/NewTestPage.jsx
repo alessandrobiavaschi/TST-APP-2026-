@@ -19,6 +19,7 @@ import { useAuth } from '../AuthContext.jsx'
 import { useAdaptiveFlow } from '../hooks/useAdaptiveFlow.js'
 import { getFlowerStillByColor } from '../colorAssets.js'
 import { compactTestRecord, computeTestResultFields } from '../utils/testRecordProcessing.js'
+import { getNextFileAfterAnswer } from '../utils/testAnswerNavigation.js'
 import '../styles/nuovo-test-flow.css'
 
 const STATO_ANIMO_OPTIONS = [
@@ -139,10 +140,10 @@ function getQuestionTitleForFile(fileNumber) {
     return 'B) Ascolta le combinazioni di due suoni e scegli un solo aggettivo tra quelli proposti.'
   }
   if (fileNumber === 41) {
-    return 'B-bis) Prima riconferma: riascolta e conferma in modo istintivo.'
+    return 'B) Prima riconferma: riascolta e conferma in modo istintivo.'
   }
   if (fileNumber === 42) {
-    return 'B-ter) Seconda riconferma: riascolta e conferma in modo istintivo.'
+    return 'B) Seconda riconferma: riascolta e conferma in modo istintivo.'
   }
   if (fileNumber === 43 || fileNumber === 44 || fileNumber === 45) {
     return 'C1a) Ascolta i groove e scegli la sensazione che meglio descrive la tua percezione musicale.'
@@ -209,6 +210,8 @@ function NewTestPage() {
   const [audioDuration, setAudioDuration] = useState(0)
   const [showExitConfirm, setShowExitConfirm] = useState(false)
   const [showDraftSubmitConfirm, setShowDraftSubmitConfirm] = useState(false)
+  const [pendingReplayFile, setPendingReplayFile] = useState(null)
+  const [replayFile, setReplayFile] = useState(null)
   const [showAreasHelp, setShowAreasHelp] = useState(false)
   const [isThresholdFocusActive, setIsThresholdFocusActive] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -237,7 +240,8 @@ function NewTestPage() {
 
   // Sample da /audio in locale, oppure da VITE_AUDIO_BASE_URL (streaming, senza MP3 nel deploy).
   const audioSrc = buildTestAudioUrl(currentFile)
-  const audioSourceIssue = getAudioSourceIssue(audioSrc)
+  const playerAudioSrc = replayFile ? buildTestAudioUrl(replayFile) : audioSrc
+  const audioSourceIssue = getAudioSourceIssue(playerAudioSrc)
   const currentFileKey = `File_${String(currentFile).padStart(2, '0')}`
   const isCurrentStepAnswered = Boolean((testRecord[currentFileKey] || '').trim())
   const canGoNext = currentFile < TOTAL_STEPS
@@ -304,6 +308,8 @@ function NewTestPage() {
     setAudioCurrentTime(0)
     setAudioProgress(0)
     setIsAudioBusy(false)
+    setReplayFile(null)
+    setPendingReplayFile(null)
   }
 
   const stopPreviewAudio = () => {
@@ -315,7 +321,7 @@ function NewTestPage() {
   }
 
   const explainPlayError = (error) => {
-    const issue = getAudioSourceIssue(audioSrc)
+    const issue = getAudioSourceIssue(playerAudioSrc)
     const normalized = String(error?.name || '').toLowerCase()
     if (issue) return issue
     if (normalized.includes('notallowed')) {
@@ -352,24 +358,39 @@ function NewTestPage() {
     }
   }
 
-  const playReferenceAudio = async (fileNumber) => {
+  // Il riascolto passa dal disclaimer di conferma e riusa il player principale (nessun player separato).
+  const requestReplay = (fileNumber) => {
     if (!fileNumber) return
     uiSounds?.playTestTap?.()
-    stopAudio()
-    stopPreviewAudio()
-    setAudioError(null)
-    try {
-      const preview = new Audio(buildTestAudioUrl(fileNumber))
-      preview.preload = 'auto'
-      previewAudioRef.current = preview
-      const playPromise = preview.play()
-      if (playPromise && typeof playPromise.then === 'function') {
-        await playPromise
-      }
-    } catch (error) {
-      setAudioError(explainPlayError(error))
-    }
+    setPendingReplayFile(fileNumber)
   }
+
+  const cancelReplay = () => {
+    uiSounds?.playTestGhostTap?.()
+    setPendingReplayFile(null)
+  }
+
+  const confirmReplay = () => {
+    uiSounds?.playTestTap?.()
+    setAudioError(null)
+    setAudioProgress(0)
+    setAudioDuration(0)
+    setAudioCurrentTime(0)
+    setReplayFile(pendingReplayFile)
+    setPendingReplayFile(null)
+  }
+
+  useEffect(() => {
+    if (!replayFile) return
+    const audio = audioRef.current
+    if (!audio) return
+    audio.pause()
+    audio.currentTime = 0
+    audio.playbackRate = 1
+    audio.load()
+    playCurrentAudio({ restart: true })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [replayFile])
 
   const seekAudioFromEvent = (event) => {
     const audio = audioRef.current
@@ -653,9 +674,7 @@ function NewTestPage() {
       },
     }))
 
-    if (fileNumber < TOTAL_STEPS) {
-      proceedToNextStep()
-    }
+    proceedToNextStep(fileNumber)
   }
 
   const handleBack = () => {
@@ -679,13 +698,14 @@ function NewTestPage() {
     setIsReviewingTestSteps(false)
   }
 
-  const proceedToNextStep = () => {
+  const proceedToNextStep = (expectedFile = currentFile) => {
     if (isProcessingNext) return
-    if (currentFile >= 72) return
+    const nextFile = getNextFileAfterAnswer(expectedFile, TOTAL_STEPS)
+    if (nextFile === expectedFile) return
     stopAudio()
     stopPreviewAudio()
     uiSounds?.playTestTransition?.()
-    setCurrentFile((prev) => prev + 1)
+    setCurrentFile((activeFile) => (activeFile === expectedFile ? nextFile : activeFile))
   }
 
   const handleNextStep = () => {
@@ -1003,13 +1023,10 @@ function NewTestPage() {
           <button
             type="button"
             className="nav-button secondary"
-            onClick={() => playReferenceAudio(referenceFile)}
+            onClick={() => requestReplay(referenceFile)}
           >
             Riascolta file {referenceFile}
           </button>
-          <p className="answers-c-bis-note">
-            Questa riconferma rafforza il peso della scelta nel profilo finale.
-          </p>
           <div className="answers-grid answers-grid--dense">
             {Object.keys(DIZIONARIO_2).map((label) => (
               <button
@@ -1396,7 +1413,7 @@ function NewTestPage() {
                         setNeuroChoiceStage('passive')
                       }}
                       onError={() => {
-                        const issue = getAudioSourceIssue(audioSrc)
+                        const issue = getAudioSourceIssue(playerAudioSrc)
                         setAudioError(
                           issue ||
                             'File audio non disponibile. In dev: imposta VITE_AUDIO_BASE_URL nel .env oppure copia 1.mp3…72.mp3 in public/audio/, poi riavvia npm run dev.',
@@ -1440,7 +1457,7 @@ function NewTestPage() {
                         }, timings.choiceRecallMs)
                       }}
                     >
-                      <source src={audioSrc} type="audio/mpeg" />
+                      <source src={playerAudioSrc} type="audio/mpeg" />
                     </audio>
                     <div
                       className="player-progress"
@@ -1517,7 +1534,12 @@ function NewTestPage() {
                           {audioError || audioSourceIssue}
                         </p>
                       )}
-                      {!audioError && !audioSourceIssue && navigationHint && (
+                      {!audioError && !audioSourceIssue && replayFile && (
+                        <p className="player-hint">
+                          Stai riascoltando il file {replayFile}, già presentato durante il test.
+                        </p>
+                      )}
+                      {!audioError && !audioSourceIssue && !replayFile && navigationHint && (
                         <p className="player-hint">
                           {navigationHint}
                         </p>
@@ -1980,6 +2002,44 @@ function NewTestPage() {
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? 'Salvataggio...' : 'Consegna bozza'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+          {pendingReplayFile && (
+            <div
+              className="test-exit-modal-backdrop"
+              role="presentation"
+              onClick={cancelReplay}
+            >
+              <div
+                className="test-exit-modal"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="test-replay-modal-title"
+                onClick={(event) => event.stopPropagation()}
+              >
+                <h3 id="test-replay-modal-title" className="test-exit-modal-title">
+                  Riascolto di un suono già presentato
+                </h3>
+                <p className="test-exit-modal-text">
+                  Stai per ascoltare nuovamente un suono già presentato durante il test. Premi Conferma per procedere.
+                </p>
+                <div className="test-exit-modal-actions">
+                  <button
+                    type="button"
+                    className="nav-button exit-confirm-continue"
+                    onClick={confirmReplay}
+                  >
+                    Conferma
+                  </button>
+                  <button
+                    type="button"
+                    className="nav-button secondary"
+                    onClick={cancelReplay}
+                  >
+                    Annulla
                   </button>
                 </div>
               </div>

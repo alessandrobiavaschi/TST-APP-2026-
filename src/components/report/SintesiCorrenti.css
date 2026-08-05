@@ -1473,9 +1473,8 @@
   .sintesi-mobile-bar-name {
     font-size: 0.94rem !important;
     color: #f1f5f9 !important;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
   .sintesi-mobile-bar-subname {
     color: #64748b !important;
@@ -1713,47 +1712,12 @@
   border-radius: 2px;
 }
 
-/* Precision Diagnostics Panel Overhaul */
-.sintesi-correnti__detail-panel {
+/* Informativa sui dati della famiglia selezionata */
+.sintesi-correnti__information {
   margin-top: 1.5rem !important;
-  padding: 1.5rem !important;
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.6) 0%, rgba(30, 41, 59, 0.3) 100%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 12px !important;
   width: 100% !important;
   box-sizing: border-box !important;
   text-align: left !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25) !important;
-}
-
-.detail-panel__header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 1.25rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding-bottom: 0.75rem;
-}
-.detail-panel__status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-}
-.detail-panel__title {
-  margin: 0;
-  font-family: var(--font-display) !important;
-  font-size: 0.9rem !important;
-  font-weight: 700 !important;
-  letter-spacing: 0.05em;
-  color: #f8fafc !important;
-  flex-grow: 1;
-}
-.detail-panel__subtitle-mono {
-  font-family: var(--font-mono) !important;
-  font-size: 0.58rem !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.15em;
-  color: rgba(255, 255, 255, 0.4);
 }
 
 .detail-panel__metrics-grid {
@@ -1791,33 +1755,24 @@
   color: rgba(255, 255, 255, 0.4) !important;
 }
 
-.detail-panel__desc-block {
-  background: rgba(255, 255, 255, 0.015);
-  border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 1.25rem;
-  border-left: 2px solid rgba(255, 255, 255, 0.15);
-}
-.detail-panel__desc-lead {
-  margin: 0 0 8px 0 !important;
-  font-size: 0.88rem !important;
-  line-height: 1.55 !important;
-  color: rgba(255, 255, 255, 0.9) !important;
-}
-.detail-panel__desc-body {
-  margin: 0 !important;
-  font-size: 0.82rem !important;
-  line-height: 1.6 !important;
-  color: rgba(226, 232, 240, 0.72) !important;
-}
-.detail-panel__desc-note {
-  margin: 8px 0 0 0 !important;
-  font-size: 0.76rem !important;
-  font-style: italic !important;
-  color: rgba(255, 255, 255, 0.4) !important;
+.sintesi-correnti__calculation-menu {
+  margin-top: 0.9rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Formulas inside Calculation Disclosure */
+.sintesi-correnti__calculation-menu summary {
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.sintesi-correnti__calculation-menu[open] summary {
+  margin-bottom: 0.75rem;
+}
+
+/* Formule dentro l'informativa */
 .formula-header {
   display: block;
   font-family: var(--font-mono) !important;

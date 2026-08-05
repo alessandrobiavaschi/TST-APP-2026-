@@ -13,11 +13,11 @@ const FAMILY_PARAMS = {
 }
 
 const NOMI_FAMIGLIE = {
-  Giallo: 'Entusiasmo',
-  Grigio: 'Anaffettività',
-  Blu: 'Malinconia',
-  Verde: 'Calma',
-  Rosso: 'Volitività'
+  Giallo: 'Entusiasta',
+  Grigio: 'Razionale',
+  Blu: 'Malinconica',
+  Verde: 'Flemmatica',
+  Rosso: 'Marziale'
 }
 
 const CENTER_X = 600
@@ -28,10 +28,34 @@ const LABEL_MIN_X = 60
 const LABEL_MAX_X = 1140
 const LABEL_MIN_Y = 60
 const LABEL_MAX_Y = 1140
+const LABEL_EDGE_PADDING = 24
+const SVG_MIN_X = 40
+const SVG_MAX_X = 1160
 const MIN_VISIBLE_TAGLIA = 1
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value))
+}
+
+function formatScaleScore(score) {
+  const roundedScore = Math.round((Number(score) || 0) * 10) / 10
+  return Number.isInteger(roundedScore) ? String(roundedScore) : roundedScore.toFixed(1)
+}
+
+function getContainedLabelX(x, align, label) {
+  const estimatedWidth = Math.max(100, label.length * 17)
+
+  if (align === 'end') {
+    return clamp(x, SVG_MIN_X + LABEL_EDGE_PADDING + estimatedWidth, SVG_MAX_X - LABEL_EDGE_PADDING)
+  }
+  if (align === 'start') {
+    return clamp(x, SVG_MIN_X + LABEL_EDGE_PADDING, SVG_MAX_X - LABEL_EDGE_PADDING - estimatedWidth)
+  }
+  return clamp(
+    x,
+    SVG_MIN_X + LABEL_EDGE_PADDING + estimatedWidth / 2,
+    SVG_MAX_X - LABEL_EDGE_PADDING - estimatedWidth / 2,
+  )
 }
 
 export default function EmotionalShape({
@@ -310,7 +334,12 @@ export default function EmotionalShape({
               align = 'start'
               tOffsetX = -30
             }
-            const labelX = clamp(tx + tOffsetX, LABEL_MIN_X, LABEL_MAX_X)
+            const familyLabel = NOMI_FAMIGLIE[familyKey] || familyKey
+            const labelX = getContainedLabelX(
+              clamp(tx + tOffsetX, LABEL_MIN_X, LABEL_MAX_X),
+              align,
+              familyLabel,
+            )
             const transition = prefersReducedMotion ? { duration: 0 } : { duration: 1.0, ease: "easeOut", delay: idx * 0.1 }
             const labelTransition = prefersReducedMotion ? { duration: 0 } : { duration: 0.6, delay: 0.6 + idx * 0.1 }
             
@@ -319,7 +348,7 @@ export default function EmotionalShape({
                 key={`text-${familyKey}`}
                 tabIndex={0}
                 role="button"
-                aria-label={`Petalo ${NOMI_FAMIGLIE[familyKey] || familyKey}, valore normalizzato in scala ${activeScore ? activeScore.toFixed(1) : 0} su 7`}
+                aria-label={`Petalo ${familyLabel}, valore normalizzato ${formatScaleScore(normalizedTaglia)} su 7`}
                 onFocus={() => handleFamilyHover(familyKey)}
                 onBlur={() => handleFamilyHover(null)}
                 onKeyDown={(e) => {
@@ -392,7 +421,7 @@ export default function EmotionalShape({
                     style={{ cursor: 'pointer' }}
                   >
                     <tspan x={labelX} dy="0" style={{ transition: 'fill 0.2s', fill: isHighlighted ? params.color : '#F8FAFC' }}>
-                      {NOMI_FAMIGLIE[familyKey] || familyKey}
+                      {familyLabel}
                     </tspan>
                   </text>
                 </motion.g>
@@ -402,15 +431,58 @@ export default function EmotionalShape({
         </g>
         
         {/* Lettura unica e fissa in alto: evita sovrapposizioni con le etichette dei petali */}
-        {activeFamilyKeyResolved ? (
-          <g style={{ pointerEvents: 'none' }}>
-            <rect x="380" y="60" width="440" height="60" rx="16" fill="#070d1b" stroke={activeColor} strokeWidth="1.5" opacity="0.95" />
-            <text x="600" y="90" fill="#f8fafc" fontSize="24" fontWeight="800" textAnchor="middle" dominantBaseline="central">
-              {NOMI_FAMIGLIE[activeFamilyKeyResolved] || activeFamilyKeyResolved}
-              <tspan fill={activeColor}> — {activeScore.toFixed(1)} / 7 (Scala 1-7)</tspan>
-            </text>
-          </g>
-        ) : (
+        {activeFamilyKeyResolved ? (() => {
+          const activeFamilyName = NOMI_FAMIGLIE[activeFamilyKeyResolved] || activeFamilyKeyResolved
+          const BOX_LEFT_PAD = 54 // bordo sinistro box -> inizio testo nome (include pallino)
+          const BOX_RIGHT_SCORE_WIDTH = 130 // divisore -> bordo destro box (spazio fisso per il punteggio)
+          const BOX_MIN_NAME_AREA = 176 // spazio minimo nome (comportamento originale)
+          const DIVIDER_GAP = 24 // margine tra fine testo nome e divisore
+          const estimatedNameWidth = Math.max(80, activeFamilyName.length * 13)
+          const nameAreaWidth = Math.max(BOX_MIN_NAME_AREA, estimatedNameWidth + DIVIDER_GAP)
+          const boxWidth = BOX_LEFT_PAD + nameAreaWidth + BOX_RIGHT_SCORE_WIDTH
+          const boxX = CENTER_X - boxWidth / 2
+          const dividerX = boxX + BOX_LEFT_PAD + nameAreaWidth
+
+          return (
+            <g style={{ pointerEvents: 'none' }}>
+              <rect
+                x={boxX}
+                y="56"
+                width={boxWidth}
+                height="68"
+                rx="18"
+                fill="#070d1b"
+                stroke="#334155"
+                strokeWidth="1.5"
+                opacity="0.96"
+              />
+              <circle cx={boxX + 34} cy="90" r="6" fill={activeColor} />
+              <text
+                x={boxX + BOX_LEFT_PAD}
+                y="90"
+                fill="#f8fafc"
+                fontSize="22"
+                fontWeight="750"
+                textAnchor="start"
+                dominantBaseline="central"
+              >
+                {activeFamilyName}
+              </text>
+              <line x1={dividerX} y1="72" x2={dividerX} y2="108" stroke="#334155" strokeWidth="1.5" />
+              <text
+                x={boxX + boxWidth - 32}
+                y="90"
+                fill={activeColor}
+                fontSize="27"
+                fontWeight="850"
+                textAnchor="end"
+                dominantBaseline="central"
+              >
+                {formatScaleScore(activeScore)}<tspan fill="#94a3b8" fontSize="18" fontWeight="650">/7</tspan>
+              </text>
+            </g>
+          )
+        })() : (
           <text x="600" y="90" fill="#94a3b8" fontSize="18" fontWeight="600" textAnchor="middle" opacity="0.8">
             Passa il cursore o premi Tab sui petali per i punteggi in scala normalizzata 1-7
           </text>

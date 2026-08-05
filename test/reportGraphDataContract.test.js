@@ -21,6 +21,8 @@ const SUBCURRENT_FAMILY_BY_KEY = {
 let vite
 let buildReportData
 let theoreticalMaxBySubcurrent
+let computeRapportiTotalsFromRaw
+let normalizeLevels
 
 before(async () => {
   vite = await createServer({
@@ -30,8 +32,11 @@ before(async () => {
   })
   const reportModule = await vite.ssrLoadModule('/src/utils/buildReportData.js')
   const scoringModule = await vite.ssrLoadModule('/src/testLogic.js')
+  const recordUtilsModule = await vite.ssrLoadModule('/src/utils/reportRecordUtils.js')
   buildReportData = reportModule.buildReportData
   theoreticalMaxBySubcurrent = scoringModule.THEORETICAL_MAX_SCORE_BY_CORRENTE_KEY
+  computeRapportiTotalsFromRaw = recordUtilsModule.computeRapportiTotalsFromRaw
+  normalizeLevels = recordUtilsModule.normalizeLevels
 })
 
 after(async () => {
@@ -109,6 +114,16 @@ test('separa punti ottenuti, quota percentuale e valore normalizzato nei radar',
 
   assert.equal(radar.length, 5)
   assert.deepEqual(
+    Object.fromEntries(radar.map((item) => [item.familyKey, item.corrente])),
+    {
+      verde: 'Flemmatica',
+      rosso: 'Marziale',
+      blu: 'Malinconica',
+      giallo: 'Entusiasta',
+      grigio: 'Razionale',
+    },
+  )
+  assert.deepEqual(
     {
       rawValue: blu.rawValue,
       totalRawPoints: blu.totalRawPoints,
@@ -125,6 +140,203 @@ test('separa punti ottenuti, quota percentuale e valore normalizzato nei radar',
     },
     { rawValue: 0, distributionPercent: 0, normalizedValue: 1 },
   )
+})
+
+test('descrive profili composti, graduatorie e pari merito senza perdere le sfumature', () => {
+  const report = buildReportData({
+    record: { raw: {} },
+    dominantColorName: 'Rosso',
+    rapportiTotals: {
+      natura: { rosso: 14, blu: 12, giallo: 10, verde: 2, grigio: 2 },
+      se: { rosso: 9, blu: 9, giallo: 4, verde: 1, grigio: 1 },
+    },
+    rapportiLevels: {
+      natura: { rosso: 7, blu: 6, giallo: 5, verde: 1, grigio: 1 },
+      se: { rosso: 7, blu: 7, giallo: 3, verde: 1, grigio: 1 },
+    },
+  })
+
+  const natura = report.rapporti.find((item) => item.id === 'natura')
+  const se = report.rapporti.find((item) => item.id === 'se')
+
+  assert.equal(natura.profiloComposto, true)
+  assert.deepEqual(natura.famiglieInEvidenza.map((item) => item.valore), [7, 6, 5])
+  assert.match(natura.esitoComposizione, /Marziale 7\/7, Malinconica 6\/7, Entusiasta 5\/7/)
+  assert.deepEqual(se.graduatoria.slice(0, 2).map((item) => item.valore), [7, 7])
+  assert.match(se.esitoComposizione, /Prevalenza a pari punti/)
+})
+
+test('la lettura della Natura usa la prevalente della lente e racconta le secondarie', () => {
+  const report = buildReportData({
+    record: { raw: {} },
+    dominantColorName: 'Rosso',
+    rapportiTotals: {
+      natura: { verde: 12, rosso: 8, blu: 6, giallo: 3, grigio: 2 },
+    },
+    rapportiLevels: {
+      natura: { verde: 7, rosso: 5, blu: 4, giallo: 2, grigio: 1 },
+    },
+  })
+
+  const natura = report.rapporti.find((item) => item.id === 'natura')
+
+  assert.equal(natura.correntePrincipale.nome, 'Flemmatica')
+  assert.match(natura.definizioneParagrafi[0], /famiglia Flemmatica.*punteggio più alto.*famiglia prevalente/i)
+  assert.match(natura.definizioneParagrafi[1], /come Contemplativa.*natura emotiva di base/i)
+  assert.match(natura.definizione, /seconda componente.*Marziale.*influenza discreta.*tensione significativa/i)
+})
+
+test('il contratto Natura espone seconda e terza del caso CSV nel riepilogo visibile', () => {
+  const naturaTotals = { rosso: 19, blu: 15, giallo: 12, verde: 7, grigio: 3 }
+  const report = buildReportData({
+    record: { raw: {} },
+    dominantColorName: 'Rosso',
+    rapportiTotals: { natura: naturaTotals },
+    rapportiLevels: { natura: normalizeLevels(naturaTotals) },
+  })
+  const natura = report.rapporti.find((item) => item.id === 'natura')
+
+  assert.equal(natura.correntePrincipale.nome, 'Marziale')
+  assert.equal(natura.sintesiBreveParagrafi.length, 3)
+  assert.match(natura.sintesiBreveParagrafi[1], /Malinconica.*influenza marcata.*compensazione/i)
+  assert.match(natura.sintesiBreveParagrafi[2], /Entusiasta.*influenza discreta.*affinità/i)
+  assert.doesNotMatch(natura.sintesiBreveParagrafi.join(' '), /Flemmatica/i)
+})
+
+test('Sé Altro e Agire usano la famiglia risultante dalla Natura classica', () => {
+  const naturaTotals = { verde: 12, rosso: 8, blu: 6, giallo: 3, grigio: 2 }
+  const lensTotals = { rosso: 9, blu: 7, giallo: 5, verde: 3, grigio: 1 }
+  const report = buildReportData({
+    record: { raw: {} },
+    totalsByKey: { rosso: 40, verde: 20, blu: 15, giallo: 15, grigio: 10 },
+    dominantColorName: 'Rosso',
+    rapportiTotals: {
+      natura: naturaTotals,
+      se: lensTotals,
+      altro: lensTotals,
+      agire: lensTotals,
+    },
+    rapportiLevels: {
+      natura: normalizeLevels(naturaTotals),
+      se: normalizeLevels(lensTotals),
+      altro: normalizeLevels(lensTotals),
+      agire: normalizeLevels(lensTotals),
+    },
+  })
+
+  const natura = report.rapporti.find((item) => item.id === 'natura')
+  const se = report.rapporti.find((item) => item.id === 'se')
+  const altro = report.rapporti.find((item) => item.id === 'altro')
+  const agire = report.rapporti.find((item) => item.id === 'agire')
+
+  assert.equal(natura.correntePrincipale.familyKey, 'verde')
+  assert.equal(se.correntePrincipale.familyKey, 'verde')
+  assert.equal(se.narrativaRapporto.metrics.dominantFamilyKey, 'verde')
+  assert.equal(altro.narrativaRapporto.metrics.dominantFamilyKey, 'verde')
+  assert.equal(agire.narrativaRapporto.metrics.dominantFamilyKey, 'verde')
+  assert.match(se.definizione, /Malinconica e Flemmatica.*modulazione/i)
+  assert.match(altro.definizione, /Flemmatica ed Entusiasta.*tensione/i)
+  assert.match(agire.definizione, /natura Contemplativa.*tensione/i)
+})
+
+test('un pari livello grafico mantiene la famiglia con più punti grezzi', () => {
+  const report = buildReportData({
+    record: { raw: {} },
+    dominantColorName: 'Verde',
+    rapportiTotals: {
+      natura: { rosso: 14, verde: 13, blu: 0, giallo: 0, grigio: 0 },
+    },
+    rapportiLevels: {
+      natura: { rosso: 7, verde: 7, blu: 1, giallo: 1, grigio: 1 },
+    },
+  })
+  const natura = report.rapporti.find((item) => item.id === 'natura')
+
+  assert.equal(natura.correntePrincipale.nome, 'Marziale')
+  assert.match(natura.definizioneParagrafi[0], /famiglia Marziale/i)
+  assert.match(natura.definizioneParagrafi[1], /Volitivo-collerica/i)
+  assert.match(natura.definizione, /punti grezzi mantengono al primo posto la famiglia Marziale/i)
+})
+
+test('tutti i quattro rapporti espongono una lettura strutturata coerente con i propri dati', () => {
+  const totals = {
+    rosso: 31,
+    blu: 23,
+    giallo: 23,
+    verde: 13,
+    grigio: 10,
+  }
+  const levels = { rosso: 7, blu: 5, giallo: 5, verde: 3, grigio: 2 }
+  const report = buildReportData({
+    record: { raw: {} },
+    dominantColorName: 'Rosso',
+    rapportiTotals: {
+      natura: totals,
+      se: totals,
+      altro: totals,
+      agire: totals,
+    },
+    rapportiLevels: {
+      natura: levels,
+      se: levels,
+      altro: levels,
+      agire: levels,
+    },
+  })
+
+  assert.deepEqual(report.rapporti.map((item) => item.id), ['natura', 'se', 'altro', 'agire'])
+  report.rapporti.forEach((item) => {
+    assert.ok(Array.isArray(item.definizioneParagrafi))
+    assert.ok(item.definizioneParagrafi.length >= 3)
+    assert.ok(Array.isArray(item.sintesiBreveParagrafi))
+    assert.ok(item.sintesiBreveParagrafi.length >= 1)
+    assert.ok(item.sintesiBreveParagrafi.length < item.definizioneParagrafi.length)
+    assert.equal(item.definizione, item.definizioneParagrafi.join(' '))
+    assert.notEqual(item.narrativaRapporto.status, 'empty')
+  })
+
+  const se = report.rapporti.find((item) => item.id === 'se')
+  const altro = report.rapporti.find((item) => item.id === 'altro')
+  const agire = report.rapporti.find((item) => item.id === 'agire')
+  assert.match(se.definizione, /Malinconica raggiunge il 23%.*Marziale.*31%/i)
+  assert.match(altro.definizione, /Entusiasmo.*23%.*Marziale.*31%.*8 punti percentuali/i)
+  assert.match(agire.definizione, /Marziale raggiunge il 31%.*buona propensione all'azione/i)
+})
+
+test('le narrative consumano le quote delle combinazioni classiche ricostruite dal raw', () => {
+  const raw = {
+    File_05: 'Mi dà gioia',
+    File_29: 'Saldo - sicuro - volitivo',
+    File_43: 'Mi rilassa',
+    File_52: 'Mi fa riflettere / mi porta a ricordare',
+    File_59: 'Mi è indifferente',
+  }
+  const rapportiTotals = computeRapportiTotalsFromRaw(raw)
+  const rapportiLevels = Object.fromEntries(
+    Object.entries(rapportiTotals).map(([key, totals]) => [key, normalizeLevels(totals)]),
+  )
+  const report = buildReportData({
+    record: { raw },
+    totalsByKey: { blu: 1, rosso: 3, verde: 2, giallo: 1, grigio: 1 },
+    dominantColorName: 'Rosso',
+    rapportiTotals,
+    rapportiLevels,
+  })
+
+  const natura = report.rapporti.find((item) => item.id === 'natura')
+  const se = report.rapporti.find((item) => item.id === 'se')
+  const altro = report.rapporti.find((item) => item.id === 'altro')
+  const agire = report.rapporti.find((item) => item.id === 'agire')
+
+  assert.deepEqual(
+    Object.fromEntries(natura.datiRadar.map((item) => [item.familyKey, item.rawValue])),
+    rapportiTotals.natura,
+  )
+  assert.equal(se.narrativaRapporto.metrics.awarenessPercent, 50)
+  assert.equal(se.narrativaRapporto.metrics.harmonyPercent, 50)
+  assert.equal(altro.narrativaRapporto.metrics.enthusiasmPercent, 50)
+  assert.equal(altro.narrativaRapporto.metrics.dominantPercent, 0)
+  assert.equal(agire.narrativaRapporto.metrics.martialPercent, 0)
 })
 
 test('le sottocategorie restano nella famiglia corretta e usano i massimi teorici', () => {

@@ -5837,6 +5837,14 @@
   outline-offset: 2px !important;
 }
 
+.lessico-atlas button:focus-visible,
+.lessico-atlas input:focus-visible,
+.lessico-atlas summary:focus-visible {
+  outline: 2px dashed #3b82f6 !important;
+  outline-offset: 4px !important;
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.6) !important;
+}
+
 .lessico-dashboard__pill:active {
   transform: translateY(0);
 }

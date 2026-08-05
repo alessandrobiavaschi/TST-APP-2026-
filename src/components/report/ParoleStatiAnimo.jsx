@@ -6,11 +6,11 @@ import ReportPassageHeader from './ReportPassageHeader.jsx'
 void motion
 
 const FAMILY_DISPLAY_NAMES = {
-  Blu: 'Malinconia',
-  Rosso: 'Volitività',
-  Verde: 'Calma',
-  Giallo: 'Entusiasmo',
-  Grigio: 'Anaffettività',
+  Blu: 'Malinconica',
+  Rosso: 'Marziale',
+  Verde: 'Flemmatica',
+  Giallo: 'Entusiasta',
+  Grigio: 'Razionale',
 }
 
 const FAMILY_COLORS = {

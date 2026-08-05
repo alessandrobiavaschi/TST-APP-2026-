@@ -24,11 +24,11 @@ const BAR_COLORS = {
 }
 
 const OPERATOR_LEGEND_ORDER = [
-  { key: 'Grigio', label: 'Anaffettività' },
-  { key: 'Verde', label: 'Calma' },
-  { key: 'Giallo', label: 'Entusiasmo' },
-  { key: 'Blu', label: 'Malinconia' },
-  { key: 'Rosso', label: 'Volitività' },
+  { key: 'Grigio', label: 'Razionale' },
+  { key: 'Verde', label: 'Flemmatica' },
+  { key: 'Giallo', label: 'Entusiasta' },
+  { key: 'Blu', label: 'Malinconica' },
+  { key: 'Rosso', label: 'Marziale' },
 ]
 
 function OperatorLegend() {
