@@ -314,45 +314,58 @@ export default function EmotionalShape({
         </g>
         
         {/* Lettura unica e fissa in alto: evita sovrapposizioni con le etichette dei petali */}
-        {activeFamilyKeyResolved ? (
-          <g style={{ pointerEvents: 'none' }}>
-            <rect
-              x="420"
-              y="56"
-              width="360"
-              height="68"
-              rx="18"
-              fill="#070d1b"
-              stroke="#334155"
-              strokeWidth="1.5"
-              opacity="0.96"
-            />
-            <circle cx="454" cy="90" r="6" fill={activeColor} />
-            <text
-              x="474"
-              y="90"
-              fill="#f8fafc"
-              fontSize="22"
-              fontWeight="750"
-              textAnchor="start"
-              dominantBaseline="central"
-            >
-              {NOMI_FAMIGLIE[activeFamilyKeyResolved] || activeFamilyKeyResolved}
-            </text>
-            <line x1="650" y1="72" x2="650" y2="108" stroke="#334155" strokeWidth="1.5" />
-            <text
-              x="748"
-              y="90"
-              fill={activeColor}
-              fontSize="27"
-              fontWeight="850"
-              textAnchor="end"
-              dominantBaseline="central"
-            >
-              {formatScaleScore(activeScore)}<tspan fill="#94a3b8" fontSize="18" fontWeight="650">/7</tspan>
-            </text>
-          </g>
-        ) : (
+        {activeFamilyKeyResolved ? (() => {
+          const activeFamilyName = NOMI_FAMIGLIE[activeFamilyKeyResolved] || activeFamilyKeyResolved
+          const BOX_LEFT_PAD = 54 // bordo sinistro box -> inizio testo nome (include pallino)
+          const BOX_RIGHT_SCORE_WIDTH = 130 // divisore -> bordo destro box (spazio fisso per il punteggio)
+          const BOX_MIN_NAME_AREA = 176 // spazio minimo nome (comportamento originale)
+          const DIVIDER_GAP = 24 // margine tra fine testo nome e divisore
+          const estimatedNameWidth = Math.max(80, activeFamilyName.length * 13)
+          const nameAreaWidth = Math.max(BOX_MIN_NAME_AREA, estimatedNameWidth + DIVIDER_GAP)
+          const boxWidth = BOX_LEFT_PAD + nameAreaWidth + BOX_RIGHT_SCORE_WIDTH
+          const boxX = CENTER_X - boxWidth / 2
+          const dividerX = boxX + BOX_LEFT_PAD + nameAreaWidth
+
+          return (
+            <g style={{ pointerEvents: 'none' }}>
+              <rect
+                x={boxX}
+                y="56"
+                width={boxWidth}
+                height="68"
+                rx="18"
+                fill="#070d1b"
+                stroke="#334155"
+                strokeWidth="1.5"
+                opacity="0.96"
+              />
+              <circle cx={boxX + 34} cy="90" r="6" fill={activeColor} />
+              <text
+                x={boxX + BOX_LEFT_PAD}
+                y="90"
+                fill="#f8fafc"
+                fontSize="22"
+                fontWeight="750"
+                textAnchor="start"
+                dominantBaseline="central"
+              >
+                {activeFamilyName}
+              </text>
+              <line x1={dividerX} y1="72" x2={dividerX} y2="108" stroke="#334155" strokeWidth="1.5" />
+              <text
+                x={boxX + boxWidth - 32}
+                y="90"
+                fill={activeColor}
+                fontSize="27"
+                fontWeight="850"
+                textAnchor="end"
+                dominantBaseline="central"
+              >
+                {formatScaleScore(activeScore)}<tspan fill="#94a3b8" fontSize="18" fontWeight="650">/7</tspan>
+              </text>
+            </g>
+          )
+        })() : (
           <text x="600" y="90" fill="#94a3b8" fontSize="18" fontWeight="600" textAnchor="middle" opacity="0.8">
             Passa il cursore o premi Tab sui petali per i punteggi in scala normalizzata 1-7
           </text>

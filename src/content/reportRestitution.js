@@ -123,6 +123,16 @@ export const GLOSSARY = [
     tags: ['galassia'],
   },
   {
+    id: 'famiglia',
+    term: 'Famiglia',
+    oneLine: 'Una delle cinque categorie affettive di base del modello TST.',
+    explain:
+      'Il modello raggruppa le correnti emotive in cinque famiglie: Malinconica, Marziale, Flemmatica, Entusiasta e Razionale. La famiglia prevalente è quella con il peso maggiore nelle risposte di questo test.',
+    usefulFor:
+      'Parti dalla famiglia prevalente per orientarti nel profilo, poi leggi la natura per la sfumatura specifica con cui si esprime.',
+    tags: ['profilo'],
+  },
+  {
     id: 'natura',
     term: 'Natura',
     oneLine: 'Natura (caratteristica emotiva) con cui si esprime la famiglia prevalente.',

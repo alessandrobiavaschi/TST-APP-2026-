@@ -10,6 +10,8 @@
 - Assi e classifica mostrano sempre le cinque famiglie canoniche — Flemmatica, Marziale, Malinconica, Entusiasta e Razionale — anche con dati storici che espongono ancora Lunare, Solare o Anaffettiva.
 - Lunare, Solare e le altre nature compaiono soltanto nel dettaglio della famiglia selezionata; la didascalia chiarisce che ogni vertice è una famiglia distinta.
 - Il copy Natura è stato corretto in `Timbro + Intervalli + Armonia`, coerentemente con il calcolo esistente.
+- Il minimo visuale `1/7` usato quando una famiglia ha zero punti è dichiarato esplicitamente e non viene presentato come presenza misurata.
+- Il dettaglio segue il colore della famiglia selezionata; i vertici espongono stato premuto e focus da tastiera visibile, senza duplicare i tab stop sulle etichette degli assi.
 
 Il motore scientifico, `computeScoreDeltaForAnswer` e la normalizzazione esistente non sono stati modificati.
 

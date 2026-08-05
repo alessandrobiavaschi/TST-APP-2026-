@@ -11,7 +11,7 @@
 
 export const FAMIGLIA_APPROFONDIMENTO = {
   Blu: {
-    nome: 'Malinconica e Nostalgica',
+    nome: 'Malinconica',
     natura: [
       'Ciò che contraddistingue il temperamento malinconico è il piacere di stare con sé stessi, dell’introversione, di osservarsi interiormente, di riflettere su ciò che si è vissuto.',
       'Da Ovest a Est, in profondità, dal lato opposto da dove sorge il Sole, si fa sentire l’azione riflessa della Luna. Quel flusso vibrante ha un solo nome: Malinconia. Nel suo espandersi in un carattere in formazione, offre ciò che di emotivo nasce dal nostro interiore Continente della Malinconia.',
@@ -78,7 +78,7 @@ export const FAMIGLIA_APPROFONDIMENTO = {
   },
 
   Rosso: {
-    nome: 'Collerico-Volitiva',
+    nome: 'Marziale',
     natura: [
       'Ciò che contraddistingue il temperamento volitivo, collerico è il piacere del fare, realizzare ciò a cui si ambisce, il piacere di governarsi e governare, di mettersi alla prova.',
       'Da Est verso Ovest soffiano i venti che seguono l’azione vitale per eccellenza, che invitano a muoversi, venti che seguono il percorso del Sole. Una forza che spinge a vivere il piacere del fare: questo è il flusso Volitivo.',
@@ -157,7 +157,7 @@ export const FAMIGLIA_APPROFONDIMENTO = {
         nome: 'Calma flemmatica',
         descrizione:
           'Bonaccia, leggerezza del non movimento, calma: il flemmatico ama riposare e contemplare, indursi un clima di equilibrio affettivo. La traccia di questo piacere offre l’occasione di vivere pace, tranquillità, moderazione e prudenza. Quando la gentilezza che ne deriva non è più gratuita ma programmata per evitare ogni conflitto, scivola nel suo «meno nobile derivato»: la pigrizia.',
-        statiAnimo: ['Rilassato', 'Calmo', 'Gentile', 'Disteso', 'Pacato', 'Placido', 'Pacifico', 'Tranquillo', 'Estatico', 'Serafico', 'Contemplativo', 'Sognante', 'Equilibrato', 'Quieto', 'Tollerante', 'Mistico', 'Prudente', 'Meditativo', 'Ammirato', 'Annoiato', 'Pigro', 'Oziante', 'Indolente', 'Ignavo'],
+        statiAnimo: ['Rilassato', 'Calmo', 'Gentile', 'Disteso', 'Pacato', 'Placido', 'Pacifico', 'Tranquillo', 'Estatico', 'Serafico', 'Contemplativo', 'Sognante', 'Equilibrato', 'Quieto', 'Tollerante', 'Mistico', 'Prudente', 'Meditativo', 'Ammirato', 'Annoiato', 'Pigro', 'Oziante', 'Svampito', 'Indolente', 'Ignavo'],
         differenza: '«Quando è totalmente gratuita, la gentilezza rappresenta una qualità etica straordinaria»; quando invece «è programmata allo scopo di prevenire ogni conflitto: non si tratta allora di Flemma, ma di un suo meno nobile derivato, la pigrizia».',
       },
     ],
@@ -215,7 +215,7 @@ export const FAMIGLIA_APPROFONDIMENTO = {
   },
 
   Grigio: {
-    nome: 'Agnostico-Anaffettiva',
+    nome: 'Razionale',
     natura: [
       'Ciò che contraddistingue il temperamento agnostico anaffettivo è il piacere del calcolo, della dubbiosità di origine intellettuale, dell’oggettività fisica.',
       'Da Nord verso Sud soffiano venti gelidi: diventano un flusso emotivo che raffredda, raggela affettivamente. Possiamo chiamare questa corrente: agnostica anaffettiva.',

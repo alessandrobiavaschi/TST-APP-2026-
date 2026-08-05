@@ -183,7 +183,7 @@ test('la lettura della Natura usa la prevalente della lente e racconta le second
   assert.equal(natura.correntePrincipale.nome, 'Flemmatica')
   assert.match(natura.definizioneParagrafi[0], /famiglia Flemmatica.*punteggio più alto.*famiglia prevalente/i)
   assert.match(natura.definizioneParagrafi[1], /come Contemplativa.*natura emotiva di base/i)
-  assert.match(natura.definizione, /seconda componente.*Marziale.*influenza marcata.*tensione significativa/i)
+  assert.match(natura.definizione, /seconda componente.*Marziale.*influenza discreta.*tensione significativa/i)
 })
 
 test('il contratto Natura espone seconda e terza del caso CSV nel riepilogo visibile', () => {
@@ -198,8 +198,8 @@ test('il contratto Natura espone seconda e terza del caso CSV nel riepilogo visi
 
   assert.equal(natura.correntePrincipale.nome, 'Marziale')
   assert.equal(natura.sintesiBreveParagrafi.length, 3)
-  assert.match(natura.sintesiBreveParagrafi[1], /Malinconica.*influenza netta.*compensazione/i)
-  assert.match(natura.sintesiBreveParagrafi[2], /Entusiasta.*influenza marcata.*affinità/i)
+  assert.match(natura.sintesiBreveParagrafi[1], /Malinconica.*influenza marcata.*compensazione/i)
+  assert.match(natura.sintesiBreveParagrafi[2], /Entusiasta.*influenza discreta.*affinità/i)
   assert.doesNotMatch(natura.sintesiBreveParagrafi.join(' '), /Flemmatica/i)
 })
 

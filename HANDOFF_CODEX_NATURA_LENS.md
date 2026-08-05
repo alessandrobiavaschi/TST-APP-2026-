@@ -23,6 +23,8 @@ punti, le percentuali e i livelli 1–7 già calcolati dal report.
    `molto intensa`, con soglie 10/20/30/40.
 6. Racconta le componenti 7/6/5 e le sottocorrenti misurabili senza far credere
    che le percentuali delle sottocorrenti debbano sommare a 100.
+7. In caso di vero pari punti non assegna arbitrariamente una sola famiglia:
+   restituisce un'appartenenza e una natura di base condivise.
 
 ## Matrice teorica rilevante
 
@@ -37,6 +39,9 @@ punti, le percentuali e i livelli 1–7 già calcolati dal report.
 Le regole derivano dai testi canonici in `src/content/famigliaApprofondimento.js`
 e `src/content_report.json`. Le coppie non descritte come oppositive non vengono
 trasformate automaticamente in tensioni.
+
+La matrice vale per la restituzione della Natura. La Galassia conserva la propria
+nozione più ampia di contrasto lessicale, che ha una funzione differente.
 
 ## File della modifica
 

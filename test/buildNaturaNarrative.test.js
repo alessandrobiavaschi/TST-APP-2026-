@@ -57,17 +57,18 @@ test('racconta tutte le componenti di un profilo 7 6 5 e solo le tensioni codifi
   assert.match(text, /famiglia Marziale/)
   assert.match(text, /componente.*Flemmatica/)
   assert.match(text, /componente.*Entusiasta/)
-  assert.match(text, /tensione significativa/)
+  assert.match(text, /tensione intensa/)
   assert.match(text, /spinta all'azione con il bisogno di pausa/)
   assert.match(text, /slancio e volontà condividono un orientamento dinamico/)
   assert.doesNotMatch(text, /in accordo|buona armonia/i)
 })
 
 test('gradua al contrario l influenza delle famiglie successive rispetto alla prevalente', () => {
-  assert.equal(resolveInfluenceDescriptor(10), 'netta')
-  assert.equal(resolveInfluenceDescriptor(20), 'marcata')
-  assert.equal(resolveInfluenceDescriptor(30), 'lieve')
-  assert.equal(resolveInfluenceDescriptor(31), 'residuale')
+  assert.equal(resolveInfluenceDescriptor(10), 'marcata')
+  assert.equal(resolveInfluenceDescriptor(15), 'discreta')
+  assert.equal(resolveInfluenceDescriptor(25), 'moderata')
+  assert.equal(resolveInfluenceDescriptor(35), 'leggera')
+  assert.equal(resolveInfluenceDescriptor(36), 'blanda')
 
   const close = buildNaturaNarrative({
     dominantFamilyKey: 'rosso',
@@ -85,8 +86,8 @@ test('gradua al contrario l influenza delle famiglie successive rispetto alla pr
     ],
   })
 
-  assert.match(close.paragraphs.join(' '), /distanza di 8 punti percentuali.*influenza netta/i)
-  assert.match(distant.paragraphs.join(' '), /distanza di 35 punti percentuali.*influenza residuale/i)
+  assert.match(close.paragraphs.join(' '), /distanza di 8 punti percentuali.*influenza marcata/i)
+  assert.match(distant.paragraphs.join(' '), /distanza di 35 punti percentuali.*influenza leggera/i)
   assert.doesNotMatch(close.paragraphs.join(' '), /certa prevalenza|netta prevalenza/i)
 })
 
@@ -103,26 +104,25 @@ test('nel caso CSV mostra seconda e terza per graduatoria senza sostituirle con 
   })
 
   assert.equal(result.frontParagraphs.length, 3)
-  assert.match(result.frontParagraphs[1], /seconda componente.*Malinconica.*7,1 punti percentuali.*influenza netta.*compensazione/i)
-  assert.match(result.frontParagraphs[2], /terza componente.*Entusiasta.*12,5 punti percentuali.*influenza marcata.*affinità/i)
+  assert.match(result.frontParagraphs[1], /seconda componente.*Malinconica.*7,1 punti percentuali.*influenza marcata.*compensazione/i)
+  assert.match(result.frontParagraphs[2], /terza componente.*Entusiasta.*12,5 punti percentuali.*influenza discreta.*affinità/i)
   assert.doesNotMatch(result.frontParagraphs.join(' '), /Flemmatica/i)
-  assert.match(result.paragraphs.join(' '), /quarta componente.*Flemmatica.*influenza lieve.*tensione/i)
-  assert.match(result.paragraphs.join(' '), /quinta componente.*Razionale.*influenza lieve.*tensione/i)
+  assert.match(result.paragraphs.join(' '), /quarta componente.*Flemmatica.*influenza moderata.*tensione/i)
+  assert.match(result.paragraphs.join(' '), /quinta componente.*Razionale.*influenza leggera.*tensione/i)
 })
 
-test('gradua l armonia sulla distanza tra le due componenti principali', () => {
-  assert.equal(resolveHarmonyDescriptor(9), "un'eccellente armonia")
-  assert.equal(resolveHarmonyDescriptor(10), 'una buona armonia')
-  assert.equal(resolveHarmonyDescriptor(20), 'una buona armonia')
-  assert.equal(resolveHarmonyDescriptor(21), "un'armonia fragile")
-  assert.equal(resolveHarmonyDescriptor(31), 'una scarsa armonia')
-  assert.equal(resolveHarmonyDescriptor(41), "un'armonia molto scarsa")
+test('gradua l armonia sulla distanza media tra la principale e le famiglie misurate', () => {
+  assert.equal(resolveHarmonyDescriptor(10), "un'eccellente armonia")
+  assert.equal(resolveHarmonyDescriptor(15), 'una buona armonia')
+  assert.equal(resolveHarmonyDescriptor(25), 'una discreta armonia')
+  assert.equal(resolveHarmonyDescriptor(35), 'una leggera armonia')
+  assert.equal(resolveHarmonyDescriptor(36), 'poca armonia')
 
   const result = buildNaturaNarrative({
     dominantFamilyKey: 'rosso',
     ranking: [radarItem('rosso', 31, 31, 7), radarItem('giallo', 23, 23, 5)],
   })
-  assert.match(result.paragraphs.join(' '), /distanza di 8 punti percentuali.*eccellente armonia/i)
+  assert.match(result.paragraphs.join(' '), /distanza media di 8 punti percentuali.*eccellente armonia/i)
 
   const decimalResult = buildNaturaNarrative({
     dominantFamilyKey: 'rosso',
@@ -130,14 +130,27 @@ test('gradua l armonia sulla distanza tra le due componenti principali', () => {
   })
   assert.match(decimalResult.paragraphs.join(' '), /3,8 punti percentuali/)
   assert.doesNotMatch(decimalResult.paragraphs.join(' '), /999999/)
+
+  const multiFamily = buildNaturaNarrative({
+    dominantFamilyKey: 'rosso',
+    ranking: [
+      radarItem('rosso', 50, 50, 7),
+      radarItem('blu', 30, 30, 5),
+      radarItem('verde', 20, 20, 3),
+    ],
+  })
+  assert.match(
+    multiFamily.paragraphs.join(' '),
+    /distanza media di 25 punti percentuali.*discreta armonia/i,
+  )
 })
 
 test('la percentuale gradua la tensione solo dopo aver verificato la coppia teorica', () => {
-  assert.equal(resolveTensionDescriptor(10), 'leggera')
-  assert.equal(resolveTensionDescriptor(20), 'moderata')
-  assert.equal(resolveTensionDescriptor(30), 'significativa')
-  assert.equal(resolveTensionDescriptor(40), 'marcata')
-  assert.equal(resolveTensionDescriptor(41), 'molto intensa')
+  assert.equal(resolveTensionDescriptor(10), 'intensa')
+  assert.equal(resolveTensionDescriptor(15), 'significativa')
+  assert.equal(resolveTensionDescriptor(25), 'moderata')
+  assert.equal(resolveTensionDescriptor(35), 'leggera')
+  assert.equal(resolveTensionDescriptor(36), 'blanda')
   assert.equal(NATURA_RELATION_RULES['blu|verde'].kind, 'modulation')
   assert.equal(NATURA_RELATION_RULES['rosso|verde'].kind, 'tension')
   assert.equal(NATURA_RELATION_RULES['giallo|verde'].kind, 'tension')
@@ -161,7 +174,7 @@ test('la percentuale gradua la tensione solo dopo aver verificato la coppia teor
 
   assert.match(malinconicaConFlemma.paragraphs.join(' '), /calma accompagna l'interiorità senza opporvisi/i)
   assert.doesNotMatch(malinconicaConFlemma.paragraphs.join(' '), /componente Flemmatica.*tensione/i)
-  assert.match(marzialeConFlemma.paragraphs.join(' '), /componente.*Flemmatica.*10%.*tensione leggera/i)
+  assert.match(marzialeConFlemma.paragraphs.join(' '), /componente.*Flemmatica.*10%.*tensione blanda/i)
 })
 
 test('distingue il pari livello grafico dal vero pari punti', () => {
@@ -246,7 +259,7 @@ test('un vero pari merito non degrada la famiglia a pari punti a influenza secon
   })
 
   assert.doesNotMatch(result.frontParagraphs.join(' '), /seconda componente.*Flemmatica/i)
-  assert.match(result.frontParagraphs.join(' '), /terza componente.*Malinconica.*influenza marcata/i)
+  assert.match(result.frontParagraphs.join(' '), /terza componente.*Malinconica.*influenza moderata/i)
 })
 
 test('un vero pari merito senza altre famiglie non nega la componente condivisa', () => {

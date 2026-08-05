@@ -57,28 +57,29 @@ export const NATURA_RELATION_RULES = Object.freeze({
 
 export function resolveInfluenceDescriptor(gapPercent = 0) {
   const gap = Math.max(0, Number(gapPercent) || 0)
-  if (gap <= 10) return 'netta'
-  if (gap <= 20) return 'marcata'
-  if (gap <= 30) return 'lieve'
-  return 'residuale'
+  if (gap <= 10) return 'marcata'
+  if (gap <= 15) return 'discreta'
+  if (gap <= 25) return 'moderata'
+  if (gap <= 35) return 'leggera'
+  return 'blanda'
 }
 
-export function resolveTensionDescriptor(oppositePercent = 0) {
-  const percent = Math.max(0, Number(oppositePercent) || 0)
-  if (percent <= 10) return 'leggera'
-  if (percent <= 20) return 'moderata'
-  if (percent <= 30) return 'significativa'
-  if (percent <= 40) return 'marcata'
-  return 'molto intensa'
+export function resolveTensionDescriptor(gapPercent = 0) {
+  const gap = Math.max(0, Number(gapPercent) || 0)
+  if (gap <= 10) return 'intensa'
+  if (gap <= 15) return 'significativa'
+  if (gap <= 25) return 'moderata'
+  if (gap <= 35) return 'leggera'
+  return 'blanda'
 }
 
 export function resolveHarmonyDescriptor(gapPercent = 0) {
   const gap = Math.max(0, Number(gapPercent) || 0)
-  if (gap < 10) return 'un\'eccellente armonia'
-  if (gap <= 20) return 'una buona armonia'
-  if (gap <= 30) return 'un\'armonia fragile'
-  if (gap <= 40) return 'una scarsa armonia'
-  return 'un\'armonia molto scarsa'
+  if (gap <= 10) return 'un\'eccellente armonia'
+  if (gap <= 15) return 'una buona armonia'
+  if (gap <= 25) return 'una discreta armonia'
+  if (gap <= 35) return 'una leggera armonia'
+  return 'poca armonia'
 }
 
 function sentenceCase(value) {
@@ -130,7 +131,7 @@ function buildInfluenceParagraph(item, leader, position) {
   const rule = NATURA_RELATION_RULES[pairKey(leader.familyKey, item.familyKey)]
   const relationLabel = RELATION_LABEL_BY_KIND[rule?.kind] || 'integrazione'
   const tensionDetail = rule?.kind === 'tension'
-    ? ` ${resolveTensionDescriptor(item.distributionPercent)} rispetto alla sua presenza percentuale`
+    ? ` ${resolveTensionDescriptor(gap)} in base alla distanza dalla componente principale`
     : ''
   const ordinal = ['prima', 'seconda', 'terza', 'quarta', 'quinta'][position - 1] || `${position}ª`
   const relationCopy = rule?.copy || 'aggiunge una diversa modulazione emotiva al profilo'
@@ -227,12 +228,18 @@ export function buildNaturaNarrative({
   const influenceParagraphs = influenceFamilies.map((item) =>
     buildInfluenceParagraph(item, leader, ranked.findIndex((candidate) => candidate.familyKey === item.familyKey) + 1),
   )
-  const runnerUp = ranked[1]
-  const harmonyGap = runnerUp
-    ? percentGap(leader.distributionPercent, runnerUp.distributionPercent)
-    : 100
-  const harmonyParagraph = runnerUp
-    ? `La distanza di ${formatPercent(harmonyGap)} punti percentuali tra le due componenti principali indica ${resolveHarmonyDescriptor(harmonyGap)} nella composizione del profilo.`
+  const harmonyGap = influenceFamilies.length
+    ? Number(
+        (
+          influenceFamilies.reduce(
+            (sum, item) => sum + percentGap(leader.distributionPercent, item.distributionPercent),
+            0,
+          ) / influenceFamilies.length
+        ).toFixed(1),
+      )
+    : null
+  const harmonyParagraph = harmonyGap !== null
+    ? `La distanza media di ${formatPercent(harmonyGap)} punti percentuali tra la famiglia ${leaderCopy.family} e le altre componenti misurate indica ${resolveHarmonyDescriptor(harmonyGap)} nella composizione del profilo.`
     : ''
   const relatedFamilies = ranked
     .filter((item) => item.familyKey !== leader.familyKey)

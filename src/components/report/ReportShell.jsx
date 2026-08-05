@@ -433,6 +433,7 @@ export default function ReportShell({
                 correnti={correntiLite}
                 rawRecord={rawRecord}
                 portato={portato}
+                onOpenGlossary={openGlossary}
               />
             </div>
 

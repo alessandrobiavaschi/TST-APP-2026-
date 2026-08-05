@@ -105,6 +105,7 @@ export default function HeroScreen({
   _correnti = [],
   rawRecord = {},
   _portato = {},
+  onOpenGlossary,
 }) {
   const reduceMotion = useReducedMotion()
 
@@ -232,10 +233,27 @@ export default function HeroScreen({
               textShadow: '0 2px 24px rgba(0, 0, 0, 0.75)',
             }}
           >
-            <span className="hero-screen__sintesi-bridge">La tua famiglia emotiva prevalente è</span>
+            <span className="hero-screen__sintesi-bridge">
+              La tua{' '}
+              <button
+                type="button"
+                className="hero-screen__glossary-term"
+                onClick={() => onOpenGlossary?.('famiglia')}
+              >
+                famiglia
+              </button>{' '}
+              emotiva prevalente è
+            </span>
             <strong className="hero-screen__sintesi-family">{familyText}</strong>
             <span className="hero-screen__sintesi-bridge">
-              Natura (caratteristica emotiva): {naturaText}
+              <button
+                type="button"
+                className="hero-screen__glossary-term"
+                onClick={() => onOpenGlossary?.('natura')}
+              >
+                Natura
+              </button>{' '}
+              (caratteristica emotiva): {naturaText}
             </span>
           </motion.h1>
           <motion.div {...fade(0.45, 8)} className="hero-screen__cta-sintesi">
@@ -296,6 +314,24 @@ export default function HeroScreen({
           color: color-mix(in srgb, var(--corrente-chiara, #fde68a) 78%, #ffffff);
           font-weight: 420;
           margin-bottom: 0.1em;
+        }
+        .hero-screen__glossary-term {
+          font: inherit;
+          color: inherit;
+          background: none;
+          border: none;
+          padding: 0;
+          cursor: pointer;
+          text-decoration: underline;
+          text-decoration-style: dotted;
+          text-underline-offset: 0.15em;
+        }
+        .hero-screen__glossary-term:hover {
+          filter: brightness(1.15);
+        }
+        .hero-screen__glossary-term:focus-visible {
+          outline: 2px solid rgba(255, 255, 255, 0.85);
+          outline-offset: 3px;
         }
         .hero-screen__cta-sintesi {
           margin-top: clamp(1.4rem, 3vh, 2rem);
