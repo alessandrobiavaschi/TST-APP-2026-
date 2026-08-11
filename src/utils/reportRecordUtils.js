@@ -161,27 +161,35 @@ export function computeColorTotals(record = {}) {
   return { blu, rosso, verde, giallo, grigio }
 }
 
-export function computeRelativePercentages(totals = {}) {
-  const keys = ['verde', 'blu', 'rosso', 'giallo', 'grigio']
-  const values = keys.map(k => Number(totals?.[k]) || 0)
-  const sum = values.reduce((a, b) => a + b, 0)
+export function allocateRoundedPercentages(values = []) {
+  const safeValues = values.map((value) => {
+    const numericValue = Number(value)
+    return Number.isFinite(numericValue) && numericValue > 0 ? numericValue : 0
+  })
+  const sum = safeValues.reduce((a, b) => a + b, 0)
   if (sum <= 0) {
-    return { verde: 0, blu: 0, rosso: 0, giallo: 0, grigio: 0 }
+    return safeValues.map(() => 0)
   }
 
-  // Calculate raw percentages
-  const pctRaw = values.map(v => (v / sum) * 100)
+  const pctRaw = safeValues.map(v => (v / sum) * 100)
   const pctRounded = pctRaw.map(p => Math.floor(p))
-  let roundedSum = pctRounded.reduce((a, b) => a + b, 0)
+  const roundedSum = pctRounded.reduce((a, b) => a + b, 0)
 
-  // Distribute the remainder (100 - roundedSum) to the keys with the largest fractional parts
   const remainders = pctRaw.map((p, idx) => ({ idx, frac: p - pctRounded[idx] }))
-  remainders.sort((a, b) => b.frac - a.frac)
+  remainders.sort((a, b) => b.frac - a.frac || a.idx - b.idx)
 
-  let diff = 100 - roundedSum
+  const diff = 100 - roundedSum
   for (let i = 0; i < diff; i++) {
     pctRounded[remainders[i].idx] += 1
   }
+
+  return pctRounded
+}
+
+export function computeRelativePercentages(totals = {}) {
+  const keys = ['verde', 'blu', 'rosso', 'giallo', 'grigio']
+  const values = keys.map(k => Number(totals?.[k]) || 0)
+  const pctRounded = allocateRoundedPercentages(values)
 
   const result = {}
   keys.forEach((k, idx) => {

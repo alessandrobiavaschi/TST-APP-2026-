@@ -51,7 +51,13 @@
  */
 
 import reportContent from '../content_report.json'
-import { computeColorTotals, computeSezioniTotalsFromRaw, computeRelativePercentages, normalizeLevels } from './reportRecordUtils.js'
+import {
+  allocateRoundedPercentages,
+  computeColorTotals,
+  computeSezioniTotalsFromRaw,
+  computeRelativePercentages,
+  normalizeLevels,
+} from './reportRecordUtils.js'
 import { THEORETICAL_MAX_COLOR_TOTALS } from '../testLogic.js'
 import {
   FAMILY_ORDER,
@@ -1069,12 +1075,13 @@ export function buildReportData({
   const portatoSum = punteggi.simpatia + punteggi.antipatia + punteggi.indifferenza
   let prevalente = ''
   if (portatoSum > 0) {
-    const best = PORTATO_ORDER.reduce((acc, key) => {
-      const v = punteggi[key.toLowerCase()] ?? 0
-      if (!acc || v > acc.valore) return { key, valore: v }
-      return acc
-    }, null)
-    prevalente = best?.key || ''
+    const rankedValues = PORTATO_ORDER
+      .map((key, index) => ({ key, index, value: punteggi[key.toLowerCase()] ?? 0 }))
+      .sort((a, b) => b.value - a.value || a.index - b.index)
+    const leadShare = (rankedValues[0].value - rankedValues[1].value) / portatoSum
+    prevalente = leadShare > PORTATO_PRESENTATION_THRESHOLDS.nearShare
+      ? rankedValues[0].key
+      : ''
   }
   const portatoContent = reportContent?.portato_esperienziale || {}
   const prevalenteLabel = prevalente ? PORTATO_PRESENTATION_LABELS[prevalente] || prevalente : ''
@@ -1089,22 +1096,24 @@ export function buildReportData({
     : ''
   const definizioneBreveByKey = {
     Simpatia: 'Sintonia e coinvolgimento verso gli stimoli ascoltati.',
-    Antipatia: 'Distonia, rifiuto o fastidio verso parte del materiale ascoltato.',
+    Antipatia: 'Distonia, attrito o rifiuto verso parte del materiale ascoltato.',
     Indifferenza: 'Distanza, neutralità o scarso coinvolgimento verso gli stimoli.',
   }
   const quoteNormalizzate = Object.fromEntries(PORTATO_ORDER.map((key) => {
     const valore = punteggi[key.toLowerCase()] ?? 0
     return [key, portatoSum > 0 ? valore / portatoSum : 0]
   }))
-  const dimensioni = PORTATO_ORDER.map((key) => {
+  const percentualiPortato = allocateRoundedPercentages(
+    PORTATO_ORDER.map((key) => punteggi[key.toLowerCase()] ?? 0),
+  )
+  const dimensioni = PORTATO_ORDER.map((key, index) => {
     const valore = punteggi[key.toLowerCase()] ?? 0
     const quotaNormalizzata = quoteNormalizzate[key]
-    const percentuale = Math.round(quotaNormalizzata * 100)
     return {
       key,
       label: PORTATO_PRESENTATION_LABELS[key],
       valore,
-      percentuale,
+      percentuale: percentualiPortato[index],
       quotaNormalizzata,
       criterioValore: 'prevalenza',
       criterioPercentuale: 'quota',
@@ -1132,7 +1141,7 @@ export function buildReportData({
     },
     dimensioni,
     hasData: portatoSum > 0,
-    criterioPrevalente: 'prevalenza',
+    criterioPrevalente: 'prevalenza_univoca',
   }
   if (!portato.hasData) fallbacks.push('portato: punteggi PE assenti o tutti a zero.')
 

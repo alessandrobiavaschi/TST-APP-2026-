@@ -40,3 +40,58 @@ Verifica specifica:
 - browser locale: route verificata; il contenuto import richiede autenticazione, quindi non è stato possibile aprire il dialog nella sessione di test non autenticata
 
 File modificati: `src/App.css`, `src/pages/ResultsPage.jsx`, `HANDOFF_CODEX.md`.
+
+## Pad triangolare Sintonia / Distonia / Distanza
+
+### Stato
+
+Implementazione integrata e verificata nel worktree isolato
+`/Users/alessandrobiavaschi/Downloads/TST 2026 cursor-portato`, branch
+`codex/portato-pad-final`. Il branch parte dai due contributi dedicati:
+
+- `f3b6f29` — contratto dati, terminologia e sintesi interpretativa;
+- `bf04de3` — componente triangolare, responsive e accessibilità.
+
+Il worktree `ai/codex` è stato lasciato intatto quando un'altra integrazione ha
+avviato un cherry-pick concorrente su file non pertinenti alla funzione.
+
+### Comportamento
+
+- Le chiavi persistite `Simpatia`, `Antipatia` e `Indifferenza` e lo scoring non
+  cambiano; le etichette visibili diventano Sintonia, Distonia e Distanza.
+- Il puck usa quote non arrotondate e coordinate baricentriche. I valori
+  arrotondati sono usati solo per le percentuali mostrate.
+- La frase interpretativa è circoscritta all'ascolto svolto e gestisce
+  prevalenza, quote vicine, parità e dati assenti.
+- Con punteggi tutti a zero non vengono mostrati triangolo, puck o risultati
+  fittizi.
+- Il grafico espone una sintesi testuale completa a tecnologie assistive; colori,
+  etichette e forme dei marker forniscono codifiche ridondanti.
+
+### File della funzione
+
+- `src/utils/buildReportData.js`
+- `src/utils/reportRecordUtils.js`
+- `src/utils/portatoPadViewData.js`
+- `src/components/report/reportUiCopy.js`
+- `src/components/report/SezionePortatoEsperienziale.jsx`
+- `src/content_report.json`
+- `src/styles/report-tst.css`
+- `test/reportGraphDataContract.test.js`
+- `test/portatoPadUiContract.test.js`
+
+### Verifiche
+
+- `npm test`: PASS, 54/54.
+- `npm run lint`: PASS, zero errori e warning.
+- `npm run build`: PASS, 1225 moduli trasformati.
+- `git diff --check`: PASS.
+- Browser reale: PASS a 1440×1000 e 390×844.
+- Larghezza documento uguale al viewport su entrambe le risoluzioni; nessun
+  overflow orizzontale.
+- Fixture e route DEV usate per il collaudo rimosse dal codice finale.
+
+### Integrazione
+
+Integrare il commit finale del branch `codex/portato-pad-final`. Non sono stati
+eseguiti deploy, push, modifiche a credenziali o dati remoti.

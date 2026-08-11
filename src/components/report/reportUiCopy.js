@@ -386,7 +386,7 @@ export const GALASSIA_PORTATO_UI = {
       id: 'Antipatia',
       label: 'Distonia',
       areas: 'Rifiuto · Fastidio',
-      metaphor: 'Distanza dal suono',
+      metaphor: 'Attrito con il suono',
       meaning:
         'Repulsione, irritazione, chiusura: il materiale sonoro tocca corde di rifiuto; energia presente ma orientata all’allontanamento.',
     },

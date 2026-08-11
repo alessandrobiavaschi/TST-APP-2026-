@@ -2,56 +2,15 @@ import React, { useMemo } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { PORTATO_UI } from './reportUiCopy.js'
 import ReportPassageHeader from './ReportPassageHeader.jsx'
+import {
+  buildPortatoInterpretation,
+  buildPortatoViewData,
+} from '../../utils/portatoPadViewData.js'
 
 void motion
 
-const DIMENSION_UI = {
-  Simpatia: { label: PORTATO_UI.labels?.Simpatia || 'Sintonia', className: 'sintonia' },
-  Antipatia: { label: PORTATO_UI.labels?.Antipatia || 'Distonia', className: 'distonia' },
-  Indifferenza: { label: PORTATO_UI.labels?.Indifferenza || 'Distanza', className: 'distanza' },
-}
-
-const TRIANGLE_VERTICES = {
-  Simpatia: { x: 8, y: 8 },
-  Antipatia: { x: 92, y: 8 },
-  Indifferenza: { x: 50, y: 92 },
-}
-
-function toNonNegativeNumber(value) {
-  const number = Number(value)
-  return Number.isFinite(number) && number > 0 ? number : 0
-}
-
-function clamp(value, min, max) {
-  return Math.min(Math.max(value, min), max)
-}
-
 function formatPoints(value) {
   return `${value} ${value === 1 ? 'punto' : 'punti'}`
-}
-
-function readContractShare(shares, key) {
-  if (!shares || typeof shares !== 'object') return null
-  const aliases = {
-    Simpatia: ['Simpatia', 'simpatia', 'Sintonia', 'sintonia'],
-    Antipatia: ['Antipatia', 'antipatia', 'Distonia', 'distonia'],
-    Indifferenza: ['Indifferenza', 'indifferenza', 'Distanza', 'distanza'],
-  }
-  const match = aliases[key].find((alias) => shares[alias] != null)
-  if (!match) return null
-  const value = Number(shares[match])
-  if (!Number.isFinite(value) || value < 0) return null
-  return value > 1 ? value / 100 : value
-}
-
-function buildInterpretation(dimensions) {
-  const sorted = [...dimensions].sort((a, b) => b.share - a.share)
-  const spread = sorted[0].share - sorted[2].share
-  if (spread <= 0.05) {
-    return 'Durante questo ascolto sintonia, distonia e distanza si sono distribuite in modo equilibrato: il contenuto musicale ha generato risposte diverse, senza un unico orientamento netto.'
-  }
-
-  return `Durante questo ascolto ha prevalso la ${sorted[0].ui.label.toLowerCase()} con il contenuto musicale; la ${sorted[1].ui.label.toLowerCase()} è emersa in misura secondaria, mentre la ${sorted[2].ui.label.toLowerCase()} è rimasta più contenuta.`
 }
 
 /**
@@ -66,71 +25,13 @@ export default function SezionePortatoEsperienziale({
   const reduceMotion = useReducedMotion()
   const accent = correnteColore || '#4ade80'
 
-  const viewData = useMemo(() => {
-    const sourceDimensions = Array.isArray(portato?.dimensioni) ? portato.dimensioni : []
-    const sourceByKey = new Map(sourceDimensions.map((dimension) => [dimension?.key, dimension]))
-    const rawDimensions = Object.keys(DIMENSION_UI).map((key) => ({
-      key,
-      ui: DIMENSION_UI[key],
-      value: toNonNegativeNumber(sourceByKey.get(key)?.valore ?? portato?.[key.toLowerCase()]),
-    }))
-    const total = rawDimensions.reduce((sum, dimension) => sum + dimension.value, 0)
-    const contractShares = portato?.quoteNormalizzate || portato?.pad?.quote ||
-      portato?.pad?.quotes || portato?.normalizedShares || portato?.shares
-    const contractValues = rawDimensions.map((dimension) =>
-      readContractShare(contractShares, dimension.key) ??
-        (() => {
-          const value = Number(sourceByKey.get(dimension.key)?.quotaNormalizzata)
-          return Number.isFinite(value) && value >= 0 ? value : null
-        })(),
-    )
-    const contractTotal = contractValues.every((value) => value != null)
-      ? contractValues.reduce((sum, value) => sum + value, 0)
-      : 0
-
-    const dimensions = rawDimensions.map((dimension, index) => {
-      const share = contractTotal > 0
-        ? contractValues[index] / contractTotal
-        : total > 0
-          ? dimension.value / total
-          : 0
-      return {
-        ...dimension,
-        share,
-        percentage: Math.round(share * 100),
-      }
-    })
-
-    const contractPoint = portato?.pad?.punto || portato?.puntoTriangolo ||
-      portato?.trianglePoint || portato?.point
-    const pointX = Number(contractPoint?.x)
-    const pointY = Number(contractPoint?.y)
-    const hasContractPoint = Number.isFinite(pointX) && Number.isFinite(pointY)
-    const normalizedContractPoint = hasContractPoint
-      ? {
-          x: pointX <= 1 ? 8 + clamp(pointX, 0, 1) * 84 : clamp(pointX, 8, 92),
-          y: pointY <= 1 ? 8 + clamp(pointY, 0, 1) * 84 : clamp(pointY, 8, 92),
-        }
-      : null
-    const barycentricPoint = total > 0 || contractTotal > 0
-      ? dimensions.reduce(
-          (point, dimension) => ({
-            x: point.x + TRIANGLE_VERTICES[dimension.key].x * dimension.share,
-            y: point.y + TRIANGLE_VERTICES[dimension.key].y * dimension.share,
-          }),
-          { x: 0, y: 0 },
-        )
-      : null
-
-    return {
-      dimensions,
-      hasData: portato?.hasData === false ? false : total > 0 || contractTotal > 0,
-      point: normalizedContractPoint || barycentricPoint,
-    }
-  }, [portato])
+  const viewData = useMemo(
+    () => buildPortatoViewData(portato, PORTATO_UI.labels),
+    [portato],
+  )
 
   const interpretation = portato?.sintesiInterpretativa || portato?.interpretation ||
-    (viewData.hasData ? buildInterpretation(viewData.dimensions) : '')
+    (viewData.hasData ? buildPortatoInterpretation(viewData.dimensions) : '')
   const chartSummary = viewData.dimensions
     .map((dimension) => `${dimension.ui.label}: ${formatPoints(dimension.value)}, ${dimension.percentage} per cento`)
     .join('; ')
@@ -191,9 +92,9 @@ export default function SezionePortatoEsperienziale({
                 <div className="report-tst-portato__field" />
                 <svg className="report-tst-portato__mesh" viewBox="0 0 100 100" preserveAspectRatio="none">
                   <polygon points="8,8 92,8 50,92" />
-                  <line x1="50" y1="64" x2="8" y2="8" />
-                  <line x1="50" y1="64" x2="92" y2="8" />
-                  <line x1="50" y1="64" x2="50" y2="92" />
+                  <line x1="50" y1="36" x2="8" y2="8" />
+                  <line x1="50" y1="36" x2="92" y2="8" />
+                  <line x1="50" y1="36" x2="50" y2="92" />
                 </svg>
                 <span
                   className="report-tst-portato__puck"
