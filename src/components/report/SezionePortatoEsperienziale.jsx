@@ -5,27 +5,58 @@ import ReportPassageHeader from './ReportPassageHeader.jsx'
 
 void motion
 
-const PORTATO_ACCENT = {
-  Simpatia: '#4ade80',
-  Antipatia: '#64748b',
-  Indifferenza: '#94a3b8',
+const DIMENSION_UI = {
+  Simpatia: { label: PORTATO_UI.labels?.Simpatia || 'Sintonia', className: 'sintonia' },
+  Antipatia: { label: PORTATO_UI.labels?.Antipatia || 'Distonia', className: 'distonia' },
+  Indifferenza: { label: PORTATO_UI.labels?.Indifferenza || 'Distanza', className: 'distanza' },
 }
 
-function formatValore(n) {
-  const v = Number(n)
-  if (!Number.isFinite(v) || v <= 0) return '—'
-  return String(v)
+const TRIANGLE_VERTICES = {
+  Simpatia: { x: 8, y: 8 },
+  Antipatia: { x: 92, y: 8 },
+  Indifferenza: { x: 50, y: 92 },
+}
+
+function toNonNegativeNumber(value) {
+  const number = Number(value)
+  return Number.isFinite(number) && number > 0 ? number : 0
+}
+
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max)
+}
+
+function formatPoints(value) {
+  return `${value} ${value === 1 ? 'punto' : 'punti'}`
+}
+
+function readContractShare(shares, key) {
+  if (!shares || typeof shares !== 'object') return null
+  const aliases = {
+    Simpatia: ['Simpatia', 'simpatia', 'Sintonia', 'sintonia'],
+    Antipatia: ['Antipatia', 'antipatia', 'Distonia', 'distonia'],
+    Indifferenza: ['Indifferenza', 'indifferenza', 'Distanza', 'distanza'],
+  }
+  const match = aliases[key].find((alias) => shares[alias] != null)
+  if (!match) return null
+  const value = Number(shares[match])
+  if (!Number.isFinite(value) || value < 0) return null
+  return value > 1 ? value / 100 : value
+}
+
+function buildInterpretation(dimensions) {
+  const sorted = [...dimensions].sort((a, b) => b.share - a.share)
+  const spread = sorted[0].share - sorted[2].share
+  if (spread <= 0.05) {
+    return 'Durante questo ascolto sintonia, distonia e distanza si sono distribuite in modo equilibrato: il contenuto musicale ha generato risposte diverse, senza un unico orientamento netto.'
+  }
+
+  return `Durante questo ascolto ha prevalso la ${sorted[0].ui.label.toLowerCase()} con il contenuto musicale; la ${sorted[1].ui.label.toLowerCase()} è emersa in misura secondaria, mentre la ${sorted[2].ui.label.toLowerCase()} è rimasta più contenuta.`
 }
 
 /**
- * SezionePortatoEsperienziale — Blocco C (portato esperienziale) nel Report TST.
- *
- * Presenta Simpatia, Antipatia e Indifferenza con punteggi, barre proporzionali,
- * prevalenza e testi da content_report (nessun nuovo scoring).
- *
- * Props:
- *   portato: oggetto da buildReportData.portato
- *   correnteColore: hex accento UI (corrente dominante)
+ * Presenta i tre punteggi PE in un unico campo triangolare. Le chiavi dati
+ * storiche restano invariate; Sintonia, Distonia e Distanza sono sole etichette UI.
  */
 export default function SezionePortatoEsperienziale({
   portato,
@@ -33,22 +64,79 @@ export default function SezionePortatoEsperienziale({
   step = '3',
 }) {
   const reduceMotion = useReducedMotion()
-  const dimensioni = useMemo(
-    () => (Array.isArray(portato?.dimensioni) ? portato.dimensioni : []),
-    [portato],
-  )
-  const hasData = Boolean(portato?.hasData)
-  const prevalente = portato?.prevalente || ''
   const accent = correnteColore || '#4ade80'
 
-  const maxValore = useMemo(() => {
-    if (!dimensioni.length) return 0
-    return Math.max(...dimensioni.map((d) => Number(d.valore) || 0), 0)
-  }, [dimensioni])
+  const viewData = useMemo(() => {
+    const sourceDimensions = Array.isArray(portato?.dimensioni) ? portato.dimensioni : []
+    const sourceByKey = new Map(sourceDimensions.map((dimension) => [dimension?.key, dimension]))
+    const rawDimensions = Object.keys(DIMENSION_UI).map((key) => ({
+      key,
+      ui: DIMENSION_UI[key],
+      value: toNonNegativeNumber(sourceByKey.get(key)?.valore ?? portato?.[key.toLowerCase()]),
+    }))
+    const total = rawDimensions.reduce((sum, dimension) => sum + dimension.value, 0)
+    const contractShares = portato?.quoteNormalizzate || portato?.pad?.quote ||
+      portato?.pad?.quotes || portato?.normalizedShares || portato?.shares
+    const contractValues = rawDimensions.map((dimension) =>
+      readContractShare(contractShares, dimension.key) ??
+        (() => {
+          const value = Number(sourceByKey.get(dimension.key)?.quotaNormalizzata)
+          return Number.isFinite(value) && value >= 0 ? value : null
+        })(),
+    )
+    const contractTotal = contractValues.every((value) => value != null)
+      ? contractValues.reduce((sum, value) => sum + value, 0)
+      : 0
 
+    const dimensions = rawDimensions.map((dimension, index) => {
+      const share = contractTotal > 0
+        ? contractValues[index] / contractTotal
+        : total > 0
+          ? dimension.value / total
+          : 0
+      return {
+        ...dimension,
+        share,
+        percentage: Math.round(share * 100),
+      }
+    })
+
+    const contractPoint = portato?.pad?.punto || portato?.puntoTriangolo ||
+      portato?.trianglePoint || portato?.point
+    const pointX = Number(contractPoint?.x)
+    const pointY = Number(contractPoint?.y)
+    const hasContractPoint = Number.isFinite(pointX) && Number.isFinite(pointY)
+    const normalizedContractPoint = hasContractPoint
+      ? {
+          x: pointX <= 1 ? 8 + clamp(pointX, 0, 1) * 84 : clamp(pointX, 8, 92),
+          y: pointY <= 1 ? 8 + clamp(pointY, 0, 1) * 84 : clamp(pointY, 8, 92),
+        }
+      : null
+    const barycentricPoint = total > 0 || contractTotal > 0
+      ? dimensions.reduce(
+          (point, dimension) => ({
+            x: point.x + TRIANGLE_VERTICES[dimension.key].x * dimension.share,
+            y: point.y + TRIANGLE_VERTICES[dimension.key].y * dimension.share,
+          }),
+          { x: 0, y: 0 },
+        )
+      : null
+
+    return {
+      dimensions,
+      hasData: portato?.hasData === false ? false : total > 0 || contractTotal > 0,
+      point: normalizedContractPoint || barycentricPoint,
+    }
+  }, [portato])
+
+  const interpretation = portato?.sintesiInterpretativa || portato?.interpretation ||
+    (viewData.hasData ? buildInterpretation(viewData.dimensions) : '')
+  const chartSummary = viewData.dimensions
+    .map((dimension) => `${dimension.ui.label}: ${formatPoints(dimension.value)}, ${dimension.percentage} per cento`)
+    .join('; ')
   const sectionVariants = reduceMotion
     ? { hidden: { opacity: 1 }, visible: { opacity: 1 } }
-    : { hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0 } }
+    : { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }
 
   return (
     <section
@@ -67,113 +155,99 @@ export default function SezionePortatoEsperienziale({
           titleId="report-tst-portato-heading"
         />
 
-        {prevalente && hasData ? (
+        {viewData.hasData ? (
           <motion.p
-            className="report-tst-portato__prevalente-pill"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-60px' }}
-            variants={sectionVariants}
-            transition={{ duration: 0.4, ease: 'easeOut', delay: 0.05 }}
-          >
-            <span className="report-tst-portato__prevalente-label">{PORTATO_UI.prevalenteLabel}</span>
-            <span className="report-tst-portato__prevalente-value">
-              {portato.prevalenteLabel || prevalente}
-            </span>
-          </motion.p>
-        ) : null}
-
-        <motion.div
-          className="report-tst-portato__grid"
-          role="list"
-          aria-label={PORTATO_UI.gridAria}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-60px' }}
-          variants={sectionVariants}
-          transition={{ duration: 0.45, ease: 'easeOut', delay: 0.08 }}
-        >
-          {dimensioni.map((dim, i) => {
-            const isPrevalente = dim.key === prevalente && hasData
-            const barColor = PORTATO_ACCENT[dim.key] || accent
-            const valore = Number(dim.valore) || 0
-            const barWidth =
-              maxValore > 0 ? Math.round((valore / maxValore) * 100) : 0
-            return (
-              <article
-                key={dim.key}
-                role="listitem"
-                className={`report-tst-portato__card${isPrevalente ? ' report-tst-portato__card--prevalente' : ''}`}
-              >
-                <div className="report-tst-portato__card-top">
-                  <p className="report-tst-portato__dim-label">{dim.label}</p>
-                  {isPrevalente ? (
-                    <span className="report-tst-portato__badge" title={PORTATO_UI.prevalenteLabel}>
-                      {PORTATO_UI.badgePrevalente}
-                    </span>
-                  ) : null}
-                </div>
-                <p
-                  className="report-tst-portato__valore"
-                  aria-label={`${dim.label}: ${hasData && valore > 0 ? valore : 'non disponibile'}`}
-                >
-                  {formatValore(valore)}
-                </p>
-                {hasData && valore > 0 ? (
-                  <p className="report-tst-portato__percent">
-                    <span className="report-tst-portato__percent-label">{PORTATO_UI.quotaLabel}</span>
-                    <span aria-hidden="true">{dim.percentuale}%</span>
-                    <span className="sr-only">
-                      {PORTATO_UI.quotaLabel}: {dim.percentuale} per cento
-                    </span>
-                  </p>
-                ) : (
-                  <p className="report-tst-portato__percent report-tst-portato__percent--ghost" aria-hidden="true">
-                    —
-                  </p>
-                )}
-                <div
-                  className="report-tst-portato__bar-track"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <motion.div
-                    className="report-tst-portato__bar-fill"
-                    style={{ backgroundColor: barColor }}
-                    initial={{ width: 0 }}
-                    whileInView={{ width: `${barWidth}%` }}
-                    viewport={{ once: true }}
-                    transition={
-                      reduceMotion
-                        ? { duration: 0 }
-                        : { duration: 0.6, ease: 'easeOut', delay: i * 0.06 }
-                    }
-                  />
-                </div>
-                <p className="report-tst-portato__def">{dim.definizioneBreve}</p>
-              </article>
-            )
-          })}
-        </motion.div>
-
-        {portato?.descrizione ? (
-          <motion.div
-            className="report-tst-portato__narrative"
+            className="report-tst-portato__interpretation"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-40px' }}
             variants={sectionVariants}
-            transition={{ duration: 0.45, ease: 'easeOut', delay: 0.12 }}
+            transition={{ duration: reduceMotion ? 0 : 0.4, ease: 'easeOut' }}
           >
-            <p className="report-tst-portato__narrative-text">{portato.descrizione}</p>
-          </motion.div>
+            {interpretation}
+          </motion.p>
         ) : (
-          <p className="report-tst-portato__empty">
-            {hasData
-              ? 'Restituzione testuale non disponibile per questo profilo.'
-              : 'Punteggi portato esperienziale non disponibili per questo test.'}
+          <p className="report-tst-portato__empty" role="status">
+            I dati di sintonia, distonia e distanza non sono disponibili per questo ascolto.
           </p>
         )}
+
+        {viewData.hasData ? (
+          <>
+            <motion.figure
+              className="report-tst-portato__figure"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: '-40px' }}
+              variants={sectionVariants}
+              transition={{ duration: reduceMotion ? 0 : 0.45, ease: 'easeOut', delay: 0.05 }}
+              aria-labelledby="report-tst-portato-map-title"
+              aria-describedby="report-tst-portato-map-summary"
+            >
+              <figcaption id="report-tst-portato-map-title" className="sr-only">
+                {PORTATO_UI.padAria || "Orientamento dell'ascolto tra sintonia, distonia e distanza"}
+              </figcaption>
+              <p id="report-tst-portato-map-summary" className="sr-only">{chartSummary}</p>
+              <div className="report-tst-portato__pad" aria-hidden="true">
+                <div className="report-tst-portato__field" />
+                <svg className="report-tst-portato__mesh" viewBox="0 0 100 100" preserveAspectRatio="none">
+                  <polygon points="8,8 92,8 50,92" />
+                  <line x1="50" y1="64" x2="8" y2="8" />
+                  <line x1="50" y1="64" x2="92" y2="8" />
+                  <line x1="50" y1="64" x2="50" y2="92" />
+                </svg>
+                <span
+                  className="report-tst-portato__puck"
+                  style={{ '--puck-x': `${viewData.point.x}%`, '--puck-y': `${viewData.point.y}%` }}
+                />
+                {!reduceMotion && (
+                  <>
+                    <span
+                      className="report-tst-portato__puck-ripple report-tst-portato__puck-ripple--1"
+                      style={{ '--puck-x': `${viewData.point.x}%`, '--puck-y': `${viewData.point.y}%` }}
+                    />
+                    <span
+                      className="report-tst-portato__puck-ripple report-tst-portato__puck-ripple--2"
+                      style={{ '--puck-x': `${viewData.point.x}%`, '--puck-y': `${viewData.point.y}%` }}
+                    />
+                  </>
+                )}
+                {viewData.dimensions.map((dimension) => (
+                  <span
+                    key={dimension.key}
+                    className={`report-tst-portato__vertex report-tst-portato__vertex--${dimension.ui.className}`}
+                  >
+                    {dimension.ui.label}
+                  </span>
+                ))}
+              </div>
+            </motion.figure>
+
+            <ul className="report-tst-portato__results" aria-label="Risultati dell'orientamento all'ascolto">
+              {viewData.dimensions.map((dimension) => (
+                <li
+                  key={dimension.key}
+                  className={`report-tst-portato__result report-tst-portato__result--${dimension.ui.className}`}
+                >
+                  <span className="report-tst-portato__result-marker" aria-hidden="true" />
+                  <span className="report-tst-portato__result-label">{dimension.ui.label}</span>
+                  <span className="report-tst-portato__result-value">
+                    {dimension.value} <span>{dimension.value === 1 ? 'punto' : 'punti'}</span>
+                  </span>
+                  <span className="report-tst-portato__result-percent">
+                    {dimension.percentage}%
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : null}
+
+        {viewData.hasData && portato?.descrizione ? (
+          <div className="report-tst-portato__narrative">
+            <p className="report-tst-portato__narrative-text">{portato.descrizione}</p>
+          </div>
+        ) : null}
       </div>
     </section>
   )
