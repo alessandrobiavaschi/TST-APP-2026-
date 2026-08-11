@@ -65,3 +65,44 @@ We successfully integrated the concurrent integration branch `codex/mobile-repor
 - **ESLint & Linter**: Run `npm run lint` and verified that **0 errors and 0 warnings** were returned. Refactored and cleaned up all unused imports and dead codes.
 - **Production Build**: Run `npm run build` and verified that Vite compiled all chunks and stylesheets successfully in **under 5 seconds** (`dist/` compiled cleanly).
 - **Responsive Layout**: Validated layouts on mobile (360px–420px), tablet (768px), and desktop (1200px+). Viewport bounds, responsive typography clamps, scroll locks, and accessibility outlines are all fully preserved.
+
+---
+
+### 5. Triangular Portato Pad — Sintonia / Distonia / Distanza
+
+#### Summary
+
+- Replaced the three large portato result cards with one triangular color-field pad.
+- The UI renames only the visible concepts: `Simpatia` → **Sintonia**, `Antipatia` → **Distonia**, `Indifferenza` → **Distanza**. Internal PE keys and scoring are unchanged.
+- The interpretation sentence is shown before the pad; compact raw points and percentages follow it.
+- The white puck consumes the canonical barycentric `portato.pad.punto`; it falls back to a local barycentric projection from the three raw values when logic data is not yet integrated.
+- Canonical logic inputs supported: `portato.sintesiInterpretativa`, `portato.quoteNormalizzate`, `dimensione.quotaNormalizzata`, and `portato.pad.punto`. Older raw `portato.dimensioni` remains a safe fallback.
+- The explicit `hasData: false` state renders only an availability message. It never renders a zeroed triangle, puck, or result list.
+
+#### Files changed for this feature
+
+- `src/components/report/SezionePortatoEsperienziale.jsx`
+- Portato-only rules in `src/styles/report-tst.css`
+- `HANDOFF_ANTIGRAVITY.md`
+
+#### Accessibility and responsive decisions
+
+- The field is decorative and hidden from assistive technology; the figure exposes a concise title plus the exact points and percentages in text.
+- Labels and three different marker shapes accompany color, so color is not the only encoding.
+- Reduced-motion users receive no entrance translation or duration.
+- At 640px and below, results stack in one column and the pad becomes taller for readable vertex labels.
+
+#### Verification performed
+
+- `npx eslint src/components/report/SezionePortatoEsperienziale.jsx` — passed.
+- `npm run lint` passed before the concurrent room/navigation edits appeared. The final rerun is blocked by an unrelated unstaged `ReportShell.jsx:276` `react-hooks/immutability` error (`changeModalita` is used before its declaration); this feature does not modify that file.
+- `npm run build` — passed (Vite production build).
+- Browser check at 1440×1000 and 390×844 using the sample 61 / 17 / 1 — puck correctly biased toward Sintonia.
+- Mobile DOM measurements: viewport/client width 390px, document scroll width 390px; no horizontal overflow.
+- QA screenshots were captured locally at `/tmp/portato-pad-desktop.png` and `/tmp/portato-pad-mobile.png`; no preview-only route or fixture is included in the commit.
+
+#### Integration notes
+
+- Merge the logic contract before or alongside this commit to receive the approved scientific sentence. Without it, the component creates a conservative, listening-specific sentence from the same three shares.
+- `PORTATO_UI.labels` and `PORTATO_UI.padAria` are consumed when present, with backwards-compatible UI fallbacks.
+- No unresolved feature issue. Concurrent unrelated edits in report rooms, hero, musicians view, test flow, and the untracked mobile implementation report were deliberately left untouched and unstaged.
