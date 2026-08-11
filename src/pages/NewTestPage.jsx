@@ -203,7 +203,7 @@ function NewTestPage() {
       return false
     }
   })
-  const [showIntro, setShowIntro] = useState(true)
+  const [showIntro, setShowIntro] = useState(() => !location.state?.startAtProfile)
   const [profilingDone, setProfilingDone] = useState(false)
   const [audioError, setAudioError] = useState(null)
   const [audioProgress, setAudioProgress] = useState(0)

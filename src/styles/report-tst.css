@@ -5194,7 +5194,7 @@
 }
 
 .report-tst
-  > :not(.report-tst-cosmic-bg):not(.report-page-wrapper__stars):not(.report-page-wrapper__video):not(.report-page-wrapper__vignette):not(.report-tst-galassia-layer):not(.report-tst-musicians-layer) {
+  > :not(.report-tst-cosmic-bg):not(.report-page-wrapper__stars):not(.report-page-wrapper__video):not(.report-page-wrapper__vignette):not(.report-tst-galassia-layer):not(.report-tst-musicians-layer):not(.report-tst-detail-layer) {
   position: relative;
   z-index: 3;
 }
@@ -5477,5 +5477,174 @@
 @media (min-width: 1200px) {
   .report-tst .quattro-rapporti-main {
     grid-template-columns: 55fr 1px 45fr !important;
+  }
+}
+
+/* =====================================================================
+   ESPERIENZA A STANZE — scroll nativo, ambienti verticali fullscreen
+   ===================================================================== */
+.report-tst-hero-wrap,
+.hero-screen,
+.report-tst-hero__content {
+  min-height: calc(100svh - var(--app-header-offset, 56px));
+}
+
+.report-room {
+  position: relative;
+  display: grid;
+  align-content: center;
+  min-height: calc(100svh - var(--report-sticky-offset));
+  padding-block: var(--space-lg);
+  scroll-margin-top: var(--report-sticky-offset);
+  transform-origin: center top;
+}
+
+.report-room::before {
+  content: '';
+  position: absolute;
+  inset: var(--space-sm) calc(-1 * var(--space-sm));
+  z-index: -1;
+  border-radius: var(--report-card-radius);
+  background:
+    radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--corrente-primaria) 8%, transparent), transparent 58%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.018), transparent 24%, transparent 76%, rgba(0, 0, 0, 0.14));
+  pointer-events: none;
+}
+
+.report-room--overview {
+  align-content: start;
+}
+
+.report-room--overview .report-section-open__inner,
+.report-room--narrative .report-section-open__inner {
+  width: 100%;
+}
+
+.report-detail-entry {
+  text-align: center;
+}
+
+.report-detail-entry__content {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-md);
+  max-width: 52rem;
+  margin-inline: auto;
+}
+
+.report-detail-entry__button {
+  min-height: 48px;
+  padding: var(--space-sm) var(--space-md);
+}
+
+.report-final-views.report-room {
+  align-content: center;
+  margin-top: 0;
+  padding-top: var(--space-lg);
+}
+
+.report-tst-detail-layer {
+  position: fixed;
+  inset: calc(var(--app-header-offset, 56px) + var(--navbar-tst-height, 56px)) 0 0;
+  z-index: 45;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background:
+    radial-gradient(circle at 15% 8%, color-mix(in srgb, var(--corrente-primaria) 10%, transparent), transparent 38rem),
+    linear-gradient(180deg, rgba(8, 9, 13, 0.98), var(--report-bg));
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(var(--space-md));
+  transition: opacity 0.36s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.36s ease;
+}
+
+.report-tst-detail-layer.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.report-tst-detail-layer__inner {
+  width: min(1080px, calc(100% - (2 * var(--space-md))));
+  margin-inline: auto;
+  padding-block: var(--space-lg);
+}
+
+.report-tst-detail-layer__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.report-tst-detail-layer__back {
+  flex: 0 0 auto;
+  min-height: 48px;
+}
+
+.for-musicians-view__section {
+  min-height: calc(100svh - var(--report-sticky-offset));
+  padding-block: var(--space-lg);
+}
+
+.for-musicians-view__back {
+  min-height: 48px;
+  margin-bottom: var(--space-md);
+}
+
+@media (max-width: 760px) {
+  .report-tst-hero-wrap,
+  .hero-screen,
+  .report-tst-hero__content {
+    min-height: calc(100svh - var(--app-header-offset, 56px));
+  }
+
+  .hero-screen__cta-sintesi {
+    width: 100%;
+  }
+
+  .hero-screen__cta-sintesi-link {
+    width: min(100%, 22rem);
+  }
+
+  .report-room {
+    min-height: calc(100svh - var(--app-header-offset, 56px) - var(--navbar-tst-height, 64px));
+    padding-block: var(--space-md);
+  }
+
+  .report-tst-detail-layer__inner {
+    width: calc(100% - (2 * var(--space-sm)));
+    padding-block: var(--space-md);
+  }
+
+  .report-tst-detail-layer__header {
+    flex-direction: column;
+    margin-bottom: var(--space-md);
+  }
+
+  .report-tst-detail-layer__back {
+    width: 100%;
+  }
+
+  .for-musicians-view {
+    width: calc(100% - (2 * var(--space-sm)));
+    padding: var(--space-md) 0 var(--space-lg);
+  }
+
+  .for-musicians-view__section {
+    min-height: auto;
+    padding-block: var(--space-md);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .report-room,
+  .report-tst-detail-layer {
+    transform: none !important;
+    transition: none !important;
   }
 }

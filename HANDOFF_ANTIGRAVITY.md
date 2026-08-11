@@ -106,3 +106,48 @@ We successfully integrated the concurrent integration branch `codex/mobile-repor
 - Merge the logic contract before or alongside this commit to receive the approved scientific sentence. Without it, the component creates a conservative, listening-specific sentence from the same three shares.
 - `PORTATO_UI.labels` and `PORTATO_UI.padAria` are consumed when present, with backwards-compatible UI fallbacks.
 - No unresolved feature issue. Concurrent unrelated edits in report rooms, hero, musicians view, test flow, and the untracked mobile implementation report were deliberately left untouched and unstaged.
+
+---
+
+### 6. Fullscreen report experience a stanze
+
+#### Summary
+
+- The existing report content is reorganized into a fullscreen home, overview, narrative rooms, and separate Detail and For Musicians layers. No score calculation, report data contract, narrative source, or feature flag was changed.
+- `HeroScreen` keeps the existing identity result and now exposes the two requested actions: **Leggi il tuo report** and **Nuovo test**.
+- **Leggi il tuo report** scrolls naturally to the overview. **Nuovo test** reuses `/nuovo-test` with `{ state: { startAtProfile: true } }`; `NewTestPage` only uses that state to skip its introduction and show the existing profile form.
+- `SintesiCorrenti`, `ProfiloEmotivo`, and `QuattroRapporti` remain unchanged and are placed in distinct vertical rooms through the presentational `ReportRoom` wrapper.
+- Detail content is removed from the main path and mounted once in an accessible dialog-like side layer. It supports a visible return action, Escape, body scroll locking, hash deep-linking through `#dettaglio`, and focus entry/restoration.
+- `ApprofondimentoSezioni` is removed from Detail and rendered exactly once inside `ForMusiciansView`, together with the existing `SezioneMusica`. For Musicians now has its own visible return action, Escape support, `#for-musicians` preservation, and focus management.
+- Room motion uses one restrained vertical/depth transition, leaves scrolling native, and is disabled by `prefers-reduced-motion` / Framer Motion's reduced-motion preference.
+
+#### Files changed
+
+- `src/components/report/ReportShell.jsx`
+- `src/components/report/HeroScreen.jsx`
+- `src/components/report/ForMusiciansView.jsx`
+- `src/components/report/ReportRoom.jsx` (new, presentational only)
+- `src/pages/NewTestPage.jsx` (one state-aware initialization)
+- Room/layer rules in `src/styles/report-tst.css`
+- `HANDOFF_ANTIGRAVITY.md`
+
+#### Decisions and assumptions
+
+- No nested route was introduced because the app routes by exact pathname; the existing hash-based alternate-view architecture is reused.
+- Fullscreen is treated as the minimum visual environment, never as a fixed-height clipping constraint. Long sections continue growing and scrolling naturally.
+- The previous Detail lead was omitted because it described Aree sonore after that content moved to For Musicians; report content itself was not rewritten.
+- The untracked `MOBILE_IMPLEMENTATION_REPORT.md` is preserved and excluded from this commit.
+
+#### Verification
+
+- `npm run lint` — passed with 0 errors and 0 warnings.
+- `npm test` — 78/78 tests passed.
+- `npm run build` — passed with Vite production output.
+- `git diff --check` — passed for the owned files.
+- In-app browser smoke check at desktop and 390×844: report fallback and new-test page render without console errors or horizontal navigation regressions. A full visual walkthrough of populated report rooms could not be performed because the local browser session had no authenticated report data; the production build and static contracts cover the new views.
+
+#### Integration instructions and expected behavior
+
+- Cherry-pick the Antigravity commit after the data/content branches. No migration or route change is required.
+- Opening a report starts at the existing identity hero. The primary action enters the overview; natural scrolling crosses the narrative rooms. The Detail and For Musicians actions open independent full-height layers while retaining report state underneath. Their return buttons and Escape restore the report and keyboard focus.
+- No unresolved implementation issue remains. Populated-report visual QA is the only recommended integration follow-up when a local authenticated result is available.

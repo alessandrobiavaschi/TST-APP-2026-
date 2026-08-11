@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { HERO_UI } from './reportUiCopy.js'
-import { scrollToReportSection } from './reportSectionNavUtils.js'
 import { getFlowerStillByColor } from '../../colorAssets.js'
 import { computeColorTotals, getDominantColorInfo } from '../../utils/reportRecordUtils.js'
 import { FAMILY_NAME_BY_KEY, FAMILY_THEME } from '../../config/reportFamilyTheme.js'
@@ -106,6 +105,8 @@ export default function HeroScreen({
   rawRecord = {},
   _portato = {},
   onOpenGlossary,
+  onReadReport,
+  onNewTest,
 }) {
   const reduceMotion = useReducedMotion()
 
@@ -160,19 +161,6 @@ export default function HeroScreen({
   const familyText = toTitleCase(
     familyName || FAMILY_THEME[FAMILY_NAME_BY_KEY[colorKey]]?.family || 'Flemmatica',
   )
-
-  const handleSummaryClick = (event) => {
-    const targetId = 'prima-sintesi-risultato'
-    const target = document.getElementById(targetId)
-
-    if (!target) return
-
-    event.preventDefault()
-    window.history.pushState(null, '', `#${targetId}`)
-    // La prima sintesi appartiene al gruppo "Risultati del test": partendo
-    // dall'intestazione del gruppo, il titolo non resta sotto il chrome sticky.
-    scrollToReportSection('report-group-profilo-generale', { reduceMotion })
-  }
 
   const gradientStyle = {
     backgroundImage: `
@@ -257,13 +245,20 @@ export default function HeroScreen({
             </span>
           </motion.h1>
           <motion.div {...fade(0.45, 8)} className="hero-screen__cta-sintesi">
-            <a
-              href="#prima-sintesi-risultato"
+            <button
+              type="button"
               className="nav-button primary hero-screen__cta-sintesi-link"
-              onClick={handleSummaryClick}
+              onClick={onReadReport}
             >
-              Leggi la prima sintesi del risultato del test
-            </a>
+              Leggi il tuo report
+            </button>
+            <button
+              type="button"
+              className="nav-button secondary hero-screen__cta-sintesi-link"
+              onClick={onNewTest}
+            >
+              Nuovo test
+            </button>
           </motion.div>
         </div>
       </div>
@@ -334,6 +329,10 @@ export default function HeroScreen({
           outline-offset: 3px;
         }
         .hero-screen__cta-sintesi {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: var(--space-sm, 16px);
           margin-top: clamp(1.4rem, 3vh, 2rem);
         }
         .hero-screen__cta-sintesi-link {
@@ -350,6 +349,10 @@ export default function HeroScreen({
           background: color-mix(in srgb, var(--corrente, #7c3aed) 72%, rgba(15, 23, 42, 0.42));
           box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
           transition: transform 0.2s, filter 0.2s, box-shadow 0.2s;
+        }
+        .hero-screen__cta-sintesi-link.secondary {
+          background: rgba(2, 8, 23, 0.52);
+          border-color: rgba(255, 255, 255, 0.45);
         }
         .hero-screen__cta-sintesi-link:hover {
           color: #ffffff;
