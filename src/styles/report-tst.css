@@ -565,7 +565,7 @@
     max-width: calc(100vw - 32px);
   }
 
-  .report-tst-portato__grid {
+  .report-tst-portato__results {
     grid-template-columns: 1fr;
   }
 }
@@ -3820,126 +3820,160 @@
   font-weight: 500;
   color: var(--text-primary);
 }
-.report-tst-portato__prevalente-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  margin: var(--space-sm) 0 var(--space-md);
-  padding: 8px 16px;
-  border-radius: 999px;
-  border: 1px solid var(--report-surface-card-border);
-  background: var(--report-surface-card);
+.report-tst-portato__interpretation {
+  font-family: var(--font-body);
+  font-size: var(--text-body-lg);
+  line-height: 1.65;
+  color: var(--text-primary);
+  max-width: 65ch;
+  margin: var(--space-md) 0;
 }
-.report-tst-portato__prevalente-label {
-  font-family: var(--font-mono);
-  font-size: var(--text-label);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+.report-tst-portato__figure {
+  width: min(100%, 820px);
+  margin: var(--space-md) auto;
+}
+.report-tst-portato__pad {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1.55;
+  isolation: isolate;
+}
+.report-tst-portato__field {
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(8% 8%, 92% 8%, 50% 92%);
+  background:
+    radial-gradient(circle at 8% 8%, rgba(50, 231, 150, 0.98), transparent 64%),
+    radial-gradient(circle at 92% 8%, rgba(151, 119, 255, 0.96), transparent 64%),
+    radial-gradient(circle at 50% 92%, rgba(91, 137, 173, 0.98), transparent 68%),
+    #182032;
+  box-shadow: inset 0 0 80px rgba(4, 8, 18, 0.34);
+  filter: saturate(0.88);
+}
+.report-tst-portato__field::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 54%, rgba(255, 255, 255, 0.13), transparent 34%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 52%);
+}
+.report-tst-portato__mesh {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.24);
+  stroke-width: 0.35;
+  vector-effect: non-scaling-stroke;
+}
+.report-tst-portato__mesh polygon {
+  stroke: rgba(255, 255, 255, 0.5);
+  stroke-width: 0.55;
+}
+.report-tst-portato__puck {
+  position: absolute;
+  z-index: 2;
+  left: var(--puck-x);
+  top: var(--puck-y);
+  width: 22px;
+  height: 22px;
+  border: 4px solid #fff;
+  border-radius: 50%;
+  background: rgba(7, 12, 24, 0.78);
+  box-shadow:
+    0 0 0 3px rgba(7, 12, 24, 0.54),
+    0 0 28px rgba(255, 255, 255, 0.62);
+  transform: translate(-50%, -50%);
+}
+.report-tst-portato__vertex {
+  position: absolute;
+  z-index: 3;
+  padding: 5px 9px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 999px;
+  background: rgba(7, 12, 24, 0.74);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  box-shadow: 0 6px 18px rgba(3, 7, 18, 0.24);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.report-tst-portato__vertex--sintonia {
+  left: 8%;
+  top: 8%;
+  transform: translate(-12%, -50%);
+}
+.report-tst-portato__vertex--distonia {
+  right: 8%;
+  top: 8%;
+  transform: translate(12%, -50%);
+}
+.report-tst-portato__vertex--distanza {
+  left: 50%;
+  bottom: 8%;
+  transform: translate(-50%, 50%);
+}
+.report-tst-portato__results {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-sm);
+  margin: 0 0 var(--space-md);
+  padding: 0;
+  list-style: none;
+}
+.report-tst-portato__result {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--space-xs);
+  min-width: 0;
+  padding: var(--space-sm) 0;
+  border-top: 1px solid var(--report-surface-card-border);
+}
+.report-tst-portato__result-marker {
+  width: 10px;
+  height: 10px;
+  background: #32e796;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+}
+.report-tst-portato__result--distonia .report-tst-portato__result-marker {
+  background: #9777ff;
+  border-radius: 2px;
+  transform: rotate(45deg);
+}
+.report-tst-portato__result--distanza .report-tst-portato__result-marker {
+  background: #5b89ad;
+  border-radius: 2px;
+}
+.report-tst-portato__result-label {
+  overflow: hidden;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-weight: 600;
+  text-overflow: ellipsis;
+}
+.report-tst-portato__result-value {
+  grid-column: 2;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+}
+.report-tst-portato__result-value span {
   color: var(--text-tertiary);
 }
-.report-tst-portato__prevalente-value {
-  font-family: var(--font-body);
-  font-weight: 500;
-  font-size: var(--text-body);
+.report-tst-portato__result-percent {
+  grid-column: 3;
+  grid-row: 1 / span 2;
   color: var(--text-primary);
-}
-.report-tst-portato__grid {
-  display: grid;
-  column-gap: var(--space-md);
-  row-gap: var(--space-sm);
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  grid-template-rows: auto auto auto auto auto;
-  align-items: start;
-  margin-bottom: var(--space-md);
-}
-.report-tst-portato__card {
-  position: relative;
-  overflow: hidden;
-  display: grid;
-  grid-template-rows: subgrid;
-  grid-row: span 5;
-  padding: var(--space-md) !important;
-  border-left: 4px solid transparent !important;
-  border-radius: var(--report-card-radius) !important;
-}
-
-.report-tst .report-tst-portato__card.report-tst-portato__card--prevalente {
-  border-color: var(--qr-accent, #4ade80) !important;
-  border-left: 4px solid var(--qr-accent, #4ade80) !important;
-  box-shadow: 0 4px 20px color-mix(in srgb, var(--qr-accent, #4ade80) 15%, transparent) !important;
-}
-.report-tst .report-tst-portato__card--prevalente:hover {
-  border-color: var(--qr-accent, #4ade80) !important;
-  background: var(--report-surface-hover) !important;
-}
-.report-tst-portato__card-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-xs);
-}
-.report-tst-portato__dim-label {
-  font-family: var(--font-body);
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: var(--report-text);
-  margin: 0;
-}
-.report-tst-portato__badge {
   font-family: var(--font-mono);
-  font-size: 0.65rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--qr-accent, #4ade80);
-  border: 1px solid color-mix(in srgb, var(--qr-accent, #4ade80) 40%, transparent);
-  background: color-mix(in srgb, var(--qr-accent, #4ade80) 8%, transparent);
-  border-radius: 999px;
-  padding: 3px 8px;
-  flex-shrink: 0;
-  white-space: nowrap;
-}
-.report-tst-portato__valore {
-  font-family: var(--font-display);
-  font-size: 3rem;
-  font-weight: 500;
-  line-height: 1;
-  color: var(--report-text);
-  margin: 0;
-}
-.report-tst-portato__percent {
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
-  color: var(--report-text-muted);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin: 0;
-}
-.report-tst-portato__percent--ghost {
-  color: var(--report-text-muted);
-  opacity: 0.35;
-  font-size: 0.9rem;
-}
-.report-tst-portato__bar-track {
-  height: 6px;
-  border-radius: 3px;
-  background: var(--report-surface-muted);
-  overflow: hidden;
-  margin: 6px 0;
-}
-.report-tst-portato__bar-fill {
-  height: 100%;
-  border-radius: 3px;
-  min-width: 0;
-}
-.report-tst-portato__def {
-  font-family: var(--font-body);
-  font-size: 0.875rem;
-  line-height: 1.6;
-  color: var(--report-text-muted);
-  margin: 0;
-  opacity: 0.9;
+  font-size: 1.35rem;
+  font-variant-numeric: tabular-nums;
 }
 .report-tst-portato__narrative {
   border-top: 1px solid var(--report-surface-card-border);
@@ -3976,7 +4010,26 @@
   font-family: var(--font-body);
   font-size: var(--text-body);
   color: var(--text-ghost);
-  margin: var(--space-md) 0 0;
+  margin: var(--space-md) 0;
+}
+
+@media (max-width: 640px) {
+  .report-tst-portato__pad {
+    aspect-ratio: 1.05;
+  }
+  .report-tst-portato__vertex {
+    font-size: 0.68rem;
+  }
+  .report-tst-portato__results {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .report-tst-portato__result {
+    padding: var(--space-sm) 0;
+  }
+  .report-tst-portato__result-percent {
+    font-size: 1.2rem;
+  }
 }
 
 /* =====================================================================
