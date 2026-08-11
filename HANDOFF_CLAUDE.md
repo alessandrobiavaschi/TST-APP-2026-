@@ -1,5 +1,44 @@
 # HANDOFF — Claude Code
 
+## Round 5 — pad triangolare Sintonia / Distonia / Distanza
+
+### Sintesi
+Il portato esperienziale mantiene integralmente le chiavi e i punteggi interni (`Simpatia`, `Antipatia`, `Indifferenza`), ma ora espone un contratto di presentazione per il nuovo pad triangolare: etichette `Sintonia`, `Distonia`, `Distanza`, quote normalizzate non arrotondate, coordinate baricentriche e una sintesi interpretativa deterministica riferita esclusivamente a questo ascolto/test.
+
+### Contratto dati per l'integrazione UI
+- `portato.prevalente` resta la chiave interna storica; `portato.prevalenteLabel` usa la nuova etichetta di presentazione.
+- `portato.dimensioni[]` conserva `key`, `valore` e `percentuale`; `label` usa la nuova terminologia e `quotaNormalizzata` espone la quota 0–1 non arrotondata.
+- `portato.quoteNormalizzate` è `{ Simpatia, Antipatia, Indifferenza }`; con dati validi le tre quote sommano a 1, mentre nello stato vuoto sono tutte 0.
+- `portato.pad.vertici` usa coordinate normalizzate: Simpatia/Sintonia `{x:0,y:0}`, Antipatia/Distonia `{x:1,y:0}`, Indifferenza/Distanza `{x:0.5,y:1}`.
+- `portato.pad.punto` è la combinazione baricentrica delle quote non arrotondate. È `null` quando tutti i punteggi sono zero, per evitare un falso punto sul vertice Sintonia.
+- `portato.pad.quote` replica le stesse quote esatte per permettere alla UI di usare direttamente pesi baricentrici o coordinate.
+- `portato.sintesiInterpretativa` descrive tutte e tre le modalità in linguaggio semplice. Gestisce dominanza, parità/valori vicini e assenza completa di dati. Per `61/17/1` comunica sintonia dominante, una componente di distonia e distanza quasi assente.
+
+### Decisioni e assunzioni
+- I valori validi dello scoring restano invariati. La normalizzazione tratta valori non numerici, non finiti o negativi come zero solo nel contratto report, così uno storico malformato non genera quote o coordinate invalide.
+- La prevalenza presentata viene ricalcolata dagli stessi tre punteggi usati dal pad: un valore prevalente storico o upstream incoerente non può contraddire punto e sintesi. Con totale zero, prevalenza e narrative restano vuote.
+- Le percentuali mostrate restano arrotondate come prima; pad e sintesi derivano sempre dalle quote non arrotondate.
+- Le soglie editoriali sono raccolte in `PORTATO_PRESENTATION_THRESHOLDS` e non intervengono sullo scoring: quote distanti al massimo 8 punti percentuali sono presentate come molto vicine; una quota fino al 5% è descritta come quasi assente e fino al 15% come contenuta.
+- Nessun componente React o CSS è stato modificato. `PORTATO_UI` espone titolo, lead, labels, aria-label e nome del centro necessari al componente di Antigravity.
+
+### File modificati
+- `src/utils/buildReportData.js` — contratto pad, normalizzazione esatta, coordinate e sintesi interpretativa.
+- `src/components/report/reportUiCopy.js` — terminologia e copy del nuovo pad.
+- `src/content_report.json` — label e descrizioni del portato allineate alla terminologia di presentazione.
+- `test/reportGraphDataContract.test.js` — casi `61/17/1`, parità/quasi equilibrio, tutti-zero, prevalenza storica incoerente e invariante baricentrica.
+- `HANDOFF_CLAUDE.md` — questa sezione.
+
+### Verifica
+- `npm test` → 29/29 passati.
+- `npx eslint src/utils/buildReportData.js src/components/report/reportUiCopy.js test/reportGraphDataContract.test.js` → pulito.
+- `npm run build` → completata con successo, 1221 moduli trasformati.
+- `git diff --check` → pulito.
+
+### Integrazione e comportamento atteso
+Antigravity può leggere direttamente `portato.sintesiInterpretativa`, poi disegnare il punto con `portato.pad.punto` dentro il triangolo canonico e mostrare `portato.dimensioni` sotto al pad. Se `portato.hasData` è falso o `portato.pad.punto` è `null`, deve mostrare lo stato vuoto senza marcatore. I consumatori che continuano a usare `dimensioni[].percentuale` e `prevalente` restano compatibili; vedranno soltanto le nuove label di presentazione dove già leggono `label`/`prevalenteLabel`.
+
+---
+
 ## Round 4 — fix su 3 blocchi rilevati dai test di Codex (corrente)
 
 ### Task
