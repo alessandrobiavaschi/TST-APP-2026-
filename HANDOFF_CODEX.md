@@ -103,6 +103,40 @@ La branch `ai/integration` è pronta per review. Prima di portarla su `master`, 
 
 ---
 
+## Correzione crash apertura report — 2026-08-11
+
+### Sintesi
+
+Corretto il crash immediato di `/risultati/report`. La revisione UI già presente in `HeroScreen.jsx` aveva rimosso le utility colore, testo e texture ancora invocate durante il primo render. `darken` generava quindi un `ReferenceError`, intercettato dall'`AppErrorBoundary` come schermata generica "Si è verificato un errore".
+
+### File modificati
+
+- `src/components/report/HeroScreen.jsx`
+- `HANDOFF_CODEX.md`
+
+### Correzioni
+
+- ripristinate le utility `parseHex`, `mixToward`, `lighten`, `darken`, `rgba` e `toTitleCase`, con le costanti colore necessarie;
+- ripristinata la texture `NOISE_SVG` usata dall'hero;
+- corretta la prop `onOpenGlossary`, che era stata aliasata ma veniva ancora chiamata con il nome originale;
+- preservato il ridisegno dell'hero già presente nel worktree; scoring, Firestore e contenuti scientifici non sono stati modificati.
+
+### Verifiche
+
+- `npx eslint src/components/report/HeroScreen.jsx`: superato;
+- render SSR reale del componente tramite Vite + React: superato, CTA hero presente;
+- `npm run lint`: superato, 0 errori;
+- `npm run build`: superato, 1229 moduli trasformati;
+- browser locale su `/risultati/report` senza record: fallback corretto e nessun errore console;
+- `npm test`: 67 test superati, 11 falliti per aspettative narrative già incoerenti con le modifiche concorrenti a `buildFourRelationsNarrative` e `buildNaturaNarrative`;
+- `git diff --check`: segnala esclusivamente righe vuote finali preesistenti in `ReportShell.jsx` e `report-tst.css`.
+
+### Integrazione e limiti
+
+Il commit include soltanto `HeroScreen.jsx` e questo aggiornamento dell'handoff. Le numerose altre modifiche non committate già presenti nel worktree non sono state incluse. Non è stato eseguito alcun deploy, push o intervento su credenziali e risorse remote.
+
+---
+
 ## Aggiornamento 2026-08-03 — Tassonomia famiglia/natura
 
 ### Sintesi
