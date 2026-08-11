@@ -71,7 +71,7 @@ function ReportPage() {
       // ignore
     }
     return (
-      <div className="page">
+      <div className="page report-page-empty">
         <section className="page-card">
           <h1 className="report-display-title">Report non disponibile</h1>
           <p className="results-empty-message">
@@ -192,7 +192,7 @@ function ReportPage() {
   } catch (err) {
     console.error('buildReportData failed:', err)
     return (
-      <div className="page">
+      <div className="page report-page-empty">
         <section className="page-card">
           <h1 className="report-display-title">Report non disponibile</h1>
           <p className="results-empty-message">

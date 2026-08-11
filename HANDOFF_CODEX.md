@@ -40,3 +40,35 @@ Verifica specifica:
 - browser locale: route verificata; il contenuto import richiede autenticazione, quindi non è stato possibile aprire il dialog nella sessione di test non autenticata
 
 File modificati: `src/App.css`, `src/pages/ResultsPage.jsx`, `HANDOFF_CODEX.md`.
+
+## Integrazione UX fullscreen a stanze
+
+Integrato in modo selettivo il commit Antigravity `29588cb63b1fc81480cc26a28f7cf92c1e570ad6`, senza includere gli altri lavori concorrenti presenti sulla branch UI.
+
+### Risultato
+
+- `HeroScreen` è la home fullscreen con le CTA "Leggi il tuo report" e "Nuovo test".
+- `SintesiCorrenti`, `ProfiloEmotivo` e `QuattroRapporti` sono distribuiti in stanze verticali tramite il contenitore presentazionale `ReportRoom`.
+- Dettaglio e Musicians sono layer separati con hash dedicato, ritorno esplicito, chiusura con Escape e ripristino del focus.
+- `ApprofondimentoSezioni` è renderizzato una sola volta, dentro Musicians insieme a `SezioneMusica`.
+- `/nuovo-test` riusa il flusso esistente e salta soltanto l'intro quando riceve `location.state.startAtProfile`.
+- Scoring, `buildReportData`, contenuti del report e condizioni di rendering non sono stati modificati.
+
+### Robustezza e test Codex
+
+- Aggiunto `test/reportRoomExperience.test.js`: contratti per CTA/routing, stanze, reduced motion, accessibilità/ritorno dei layer e unicità di Aree sonore.
+- Corretto lo stato vuoto del report su mobile: il titolo non viene più coperto dall'header fisso.
+- `npm test`: PASS, 53/53.
+- `npm run lint`: PASS.
+- `npm run build`: PASS.
+- Browser locale: PASS a 1440x900 e 390x844, senza overflow orizzontale né warning/errori console; su mobile il titolo dello stato vuoto parte a 80px con header alto 52px.
+- Il report popolato non era disponibile nella sessione browser non autenticata; la struttura popolata è coperta da build e contratti automatici, ma resta consigliato uno smoke finale con un record reale prima del merge in produzione.
+
+### File di questa consegna
+
+- `HANDOFF_CODEX.md`
+- `src/pages/ReportPage.jsx`
+- `src/styles/report-tst.css`
+- `test/reportRoomExperience.test.js`
+
+Il file `.firebase/hosting.ZGlzdA.cache`, rigenerato dalla build e già sporco all'avvio, resta escluso dal commit.

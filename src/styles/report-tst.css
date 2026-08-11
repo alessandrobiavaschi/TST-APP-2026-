@@ -385,6 +385,11 @@
   .app-shell--report {
     --app-header-offset: 52px;
   }
+
+  .app-shell--report .report-page-empty {
+    padding-top: calc(var(--app-header-offset) + var(--space-sm));
+  }
+
   .report-tst {
     --navbar-tst-height: 0px;
     --report-section-nav-height: 52px;
