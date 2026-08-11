@@ -218,6 +218,7 @@ function NewTestPage() {
   const [isAudioBusy, setIsAudioBusy] = useState(false)
   const [isChoicesVisible, setIsChoicesVisible] = useState(true)
   const [isProcessingNext] = useState(false)
+  const [isPlaying, setIsPlaying] = useState(false)
   const [isAnalyzingResult, setIsAnalyzingResult] = useState(false)
   const [analysisProgress, setAnalysisProgress] = useState(0)
   const [analysisMessageIndex, setAnalysisMessageIndex] = useState(0)
@@ -1362,13 +1363,14 @@ function NewTestPage() {
           style={adaptiveUiVars}
           data-adaptive-rhythm={rhythm}
         >
+          <div className={`test-stage-rhythm-aura ${isPlaying ? 'is-playing' : ''}`} />
           {(!testCompleted || isReviewingTestSteps) && (
             <div
               className={`test-stage-live test-step-transition ${isProcessingNext ? 'is-processing' : ''}`}
               style={adaptiveTransitionStyle}
               data-adaptive-rhythm={rhythm}
             >
-              <div className="test-stage-main-card">
+              <div className="test-stage-main-card" key={currentFile}>
                 <header className="test-stage-progress-block" aria-label="Avanzamento test">
                   <div className="test-stage-topbar">
                     <p className="test-stage-step-label" aria-live="polite">
@@ -1397,7 +1399,9 @@ function NewTestPage() {
                       style={{
                         width: `${Math.min(100, Math.max(0, (currentFile / TOTAL_STEPS) * 100)).toFixed(3)}%`,
                       }}
-                    />
+                    >
+                      <span className="stepper-progress-laser" />
+                    </div>
                   </div>
                 </header>
                 {!testCompleted && (
@@ -1411,6 +1415,10 @@ function NewTestPage() {
                       playsInline
                       onPlay={() => {
                         setNeuroChoiceStage('passive')
+                        setIsPlaying(true)
+                      }}
+                      onPause={() => {
+                        setIsPlaying(false)
                       }}
                       onError={() => {
                         const issue = getAudioSourceIssue(playerAudioSrc)
@@ -1441,6 +1449,7 @@ function NewTestPage() {
                         }
                       }}
                       onEnded={() => {
+                        setIsPlaying(false)
                         trackAudioEnd()
                         const audio = audioRef.current
                         setAudioCurrentTime(audio?.duration || 0)
@@ -1477,6 +1486,14 @@ function NewTestPage() {
                     <div className="player-progress-times" aria-hidden="true">
                       <span>{formatAudioTime(audioCurrentTime)}</span>
                       <span>{formatAudioTime(audioDuration)}</span>
+                    </div>
+                    {/* Visualizzatore Onda Audio Fluida (Wow Effect 1) */}
+                    <div className={`player-wave-visualizer ${isPlaying ? 'is-playing' : ''}`} aria-hidden="true">
+                      <span className="wave-bar wave-bar--1" />
+                      <span className="wave-bar wave-bar--2" />
+                      <span className="wave-bar wave-bar--3" />
+                      <span className="wave-bar wave-bar--4" />
+                      <span className="wave-bar wave-bar--5" />
                     </div>
                     <div className="player-controls">
                       <button

@@ -940,3 +940,196 @@
     transition: none;
   }
 }
+
+/* =====================================================================
+   WOW EFFECTS - NEW TEST FLOW ENHANCEMENTS
+   ===================================================================== */
+
+/* Wow Effect 1: Fluid Audio Wave Visualizer */
+.player-wave-visualizer {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 5px;
+  height: 24px;
+  margin: 0.65rem auto;
+  opacity: 0.35;
+  transition: opacity 0.35s ease;
+  width: fit-content;
+}
+.player-wave-visualizer.is-playing {
+  opacity: 1;
+}
+.player-wave-visualizer .wave-bar {
+  width: 3px;
+  height: 4px;
+  background: var(--tst-session-accent, #0f766e);
+  border-radius: 1.5px;
+  transform-origin: bottom center;
+}
+.player-wave-visualizer.is-playing .wave-bar {
+  animation: wave-bar-bounce 1s ease-in-out infinite alternate;
+  background: var(--tst-session-accent, #0f766e);
+  box-shadow: 0 0 8px rgba(15, 118, 110, 0.4);
+}
+.player-wave-visualizer .wave-bar--1 { height: 6px; }
+.player-wave-visualizer .wave-bar--2 { height: 10px; }
+.player-wave-visualizer .wave-bar--3 { height: 5px; }
+.player-wave-visualizer .wave-bar--4 { height: 8px; }
+.player-wave-visualizer .wave-bar--5 { height: 6px; }
+
+.player-wave-visualizer.is-playing .wave-bar--1 { animation-delay: 0.1s; animation-duration: 0.85s; }
+.player-wave-visualizer.is-playing .wave-bar--2 { animation-delay: 0.3s; animation-duration: 1.1s; }
+.player-wave-visualizer.is-playing .wave-bar--3 { animation-delay: 0.18s; animation-duration: 0.75s; }
+.player-wave-visualizer.is-playing .wave-bar--4 { animation-delay: 0.38s; animation-duration: 1.0s; }
+.player-wave-visualizer.is-playing .wave-bar--5 { animation-delay: 0.15s; animation-duration: 0.9s; }
+
+@keyframes wave-bar-bounce {
+  0% {
+    transform: scaleY(0.4);
+  }
+  100% {
+    transform: scaleY(1.7);
+  }
+}
+
+/* Wow Effect 2: Progress Laser Sparkle */
+.stepper-progress-bar {
+  position: relative;
+}
+.stepper-progress-laser {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 100%;
+  min-height: 8px;
+  background: #ffffff;
+  border-radius: 999px;
+  box-shadow: 
+    0 0 8px #ffffff,
+    0 0 16px var(--tst-session-accent, #0f766e),
+    0 0 24px var(--tst-session-accent, #0f766e);
+  filter: blur(0.5px);
+  animation: laser-sparkle-glow 1s ease-in-out infinite alternate;
+}
+@keyframes laser-sparkle-glow {
+  0% {
+    opacity: 0.75;
+    transform: translateY(-50%) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(-50%) scale(1.3);
+  }
+}
+
+/* Wow Effect 3: Adaptive Orbit Glow (Rhythm Aura) */
+.test-stage-rhythm-aura {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 50%, rgba(15, 118, 110, 0.03) 0%, transparent 70%);
+  opacity: 0.35;
+  transition: opacity 0.8s ease;
+  border-radius: inherit;
+}
+.test-stage-rhythm-aura.is-playing {
+  opacity: 1;
+  animation: rhythm-breath var(--rhythm-tempo, 2.5s) ease-in-out infinite alternate;
+}
+
+[data-adaptive-rhythm="timbro"] {
+  --rhythm-tempo: 2.2s;
+}
+[data-adaptive-rhythm="intervalli"] {
+  --rhythm-tempo: 2.6s;
+}
+[data-adaptive-rhythm="ritmo"] {
+  --rhythm-tempo: 1.1s; /* fast pulse */
+}
+[data-adaptive-rhythm="melodia"] {
+  --rhythm-tempo: 2.8s;
+}
+[data-adaptive-rhythm="armonia"] {
+  --rhythm-tempo: 3.6s; /* slow breath */
+}
+
+@keyframes rhythm-breath {
+  0% {
+    transform: scale(0.96);
+    background: radial-gradient(circle at 50% 50%, rgba(15, 118, 110, 0.05) 0%, transparent 60%);
+  }
+  100% {
+    transform: scale(1.08);
+    background: radial-gradient(circle at 50% 50%, rgba(15, 118, 110, 0.16) 0%, transparent 70%);
+  }
+}
+
+/* Wow Effect 4: Answer Button Ripple and Glow */
+.answer-button {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.22s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.22s ease, border-color 0.22s ease, background-color 0.22s ease;
+}
+.answer-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(15, 118, 110, 0.18);
+  border-color: rgba(15, 118, 110, 0.45);
+}
+.answer-button-selected {
+  border-color: var(--tst-session-accent, #0f766e) !important;
+  background-color: var(--tst-session-accent-soft, #dcf7f1) !important;
+  color: var(--tst-session-accent, #0f766e) !important;
+  font-weight: 600;
+  box-shadow: 0 0 16px rgba(15, 118, 110, 0.38) !important;
+  transform: scale(1.025);
+}
+.answer-button-selected::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 2px solid var(--tst-session-accent, #0f766e);
+  animation: answer-select-pulse-effect 1.4s ease-out infinite;
+  pointer-events: none;
+}
+@keyframes answer-select-pulse-effect {
+  0% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.22);
+    opacity: 0;
+  }
+}
+
+/* Wow Effect 5: Smooth Card Entry slide transition */
+.test-stage-main-card {
+  animation: test-card-slide-in 0.48s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform, opacity;
+}
+@keyframes test-card-slide-in {
+  0% {
+    opacity: 0;
+    transform: translateY(16px) scale(0.975);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .player-wave-visualizer.is-playing .wave-bar,
+  .stepper-progress-laser,
+  .test-stage-rhythm-aura.is-playing,
+  .answer-button-selected::after,
+  .test-stage-main-card {
+    animation: none !important;
+    transform: none !important;
+  }
+}
