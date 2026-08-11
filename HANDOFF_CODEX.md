@@ -72,3 +72,35 @@ Integrato in modo selettivo il commit Antigravity `29588cb63b1fc81480cc26a28f7cf
 - `test/reportRoomExperience.test.js`
 
 Il file `.firebase/hosting.ZGlzdA.cache`, rigenerato dalla build e già sporco all'avvio, resta escluso dal commit.
+
+## Robustezza zoom e dettaglio Galassia lessicale
+
+### Risultato
+
+- Lo zoom del Lessico non scala più il canvas che contiene i testi: ogni parola viene proiettata in coordinate schermo e ridisegnata alla dimensione corretta, evitando la rasterizzazione/pixelatura.
+- Distanza e dimensione delle parole crescono progressivamente con lo zoom; la distanza segue la scala lineare della camera, mentre il font usa una crescita smorzata per restare leggibile senza invadere la mappa.
+- Un `ResizeObserver` riallinea la proiezione quando cambia il viewport.
+- La parola selezionata non diventa più un badge gigante: resta su una riga, senza blocco, sfondo o a-capo forzato.
+- Il dizionario è ora una scheda flottante responsive con titolo leggibile, corpo sans-serif, righe informative e accento limitato. I codici interni `correnteKey` e `familyKey` non sono più mostrati.
+- Il dettaglio espone semantica di dialog non modale e porta il focus sul controllo di chiusura; `Escape` continua a chiuderlo.
+
+### File modificati
+
+- `src/components/report/LessicoAtlasView.jsx`
+- `src/styles/galassia-view.css`
+- `src/utils/lessicoAtlasCamera.js`
+- `test/lessicoAtlasCamera.test.js`
+- `HANDOFF_CODEX.md`
+
+### Verifica
+
+- `npm test`: PASS, 55/55 (inclusi i 2 nuovi test della camera lessicale).
+- `npm run lint`: PASS.
+- `npm run build`: PASS.
+- Browser desktop: PASS; dopo due step la parola campione cresce da 23 px a 31,7 px e la distanza tra punti cresce con la scala. Il pannello misura circa 397 px, resta interno al viewport e la parola selezionata mantiene `white-space: nowrap` senza sfondo.
+- Browser mobile 390x844: PASS; dettaglio a bottom sheet a piena larghezza, titolo e metadati integri, nessun taglio visivo osservato.
+- L'anteprima DEV con dati di esempio è stata rimossa dal codice finale.
+
+### Assunzioni e integrazione
+
+La modifica riguarda solo la presentazione e l'interazione di `LessicoAtlasView`; scoring, contenuti scientifici e contratti dati non sono stati modificati. Integrare il commit Codex dopo i contributi logica/UI oppure risolvere soltanto eventuali conflitti nel blocco `.lessico-*` del foglio `galassia-view.css`. Il file `.firebase/hosting.ZGlzdA.cache` resta escluso dal commit.
