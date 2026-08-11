@@ -1,4 +1,5 @@
 import React, { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import VideoBackground0311 from '../VideoBackground0311.jsx'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import HeroScreen from './HeroScreen'
@@ -21,6 +22,7 @@ import ParoleStatiAnimo from './ParoleStatiAnimo'
 import EmotionalIntegrations from './EmotionalIntegrations.jsx'
 import SectionDivider from './SectionDivider'
 import FioreCorrenti from './FioreCorrenti'
+import ReportRoom from './ReportRoom.jsx'
 import { buildCorrentDataFromRecord } from '../../utils/galassiaData.js'
 import { buildLessicoAnaliticoViewModel } from '../../utils/galassiaLessicoViewModel.js'
 import { REPORT_NAV_UI, REPORT_SHELL_UI } from './reportUiCopy.js'
@@ -35,7 +37,6 @@ const GalassiaView = lazy(() => import('./GalassiaView'))
 const ForMusiciansView = lazy(() => import('./ForMusiciansView.jsx'))
 const QuattroRapporti = lazy(() => import('./QuattroRapporti'))
 const SintesiCorrenti = lazy(() => import('./SintesiCorrenti'))
-const ApprofondimentoSezioni = lazy(() => import('./ApprofondimentoSezioni'))
 
 /* ── Fallback Suspense: 3 dot pulsanti del colore corrente ──────────── */
 function DotsSpinner({ color = '#4ade80' }) {
@@ -88,6 +89,7 @@ function readModalitaFromHash() {
     return isMobileReportViewport() ? 'report' : 'galassia'
   }
   if (window.location.hash === '#for-musicians') return 'for-musicians'
+  if (window.location.hash === '#dettaglio') return 'dettaglio'
   return 'report'
 }
 
@@ -112,6 +114,8 @@ export default function ReportShell({
   onNavigateArchive,
   onRilleggiIntroduzione,
 }) {
+  const navigate = useNavigate()
+  const reduceMotion = useReducedMotion()
   const [modalita, setModalita] = useState(readModalitaFromHash)
   /** Monta Galassia al primo accesso e la tiene in DOM (overlay) per preservare stato e scroll del report. */
   const [galassiaEverOpened, setGalassiaEverOpened] = useState(
@@ -126,6 +130,11 @@ export default function ReportShell({
   const [groupOpen, setGroupOpen] = useState(getDefaultGroupOpenState)
   const heroRef = useRef(null)
   const progressBarRef = useRef(null)
+  const detailEntryButtonRef = useRef(null)
+  const detailBackButtonRef = useRef(null)
+  const musiciansEntryButtonRef = useRef(null)
+  const musiciansBackButtonRef = useRef(null)
+  const previousModalitaRef = useRef(modalita)
 
   useEffect(() => {
     if (typeof window.matchMedia !== 'function') return undefined
@@ -198,7 +207,8 @@ export default function ReportShell({
     () => reportGroups.filter(
       (group) => group.id !== 'report-group-hero'
         && group.id !== 'report-group-profilo-generale'
-        && group.id !== 'report-tst-rapporti',
+        && group.id !== 'report-tst-rapporti'
+        && group.id !== 'report-group-approfondimento',
     ),
     [reportGroups],
   )
@@ -260,8 +270,8 @@ export default function ReportShell({
     const requestedMode = readModalitaFromHash()
     resetReportViewport()
     setModalita(requestedMode)
-    if (requestedMode === 'galassia') {
-      setGalassiaEverOpened(true)
+    if (requestedMode !== 'report') {
+      if (requestedMode === 'galassia') setGalassiaEverOpened(true)
       return
     }
     try {
@@ -272,6 +282,23 @@ export default function ReportShell({
       window.location.hash = ''
     }
   }, [hasReportData, reportIdentityKey, resetReportViewport])
+
+  useEffect(() => {
+    const previousMode = previousModalitaRef.current
+    previousModalitaRef.current = modalita
+    if (previousMode === 'dettaglio' && modalita === 'report') {
+      requestAnimationFrame(() => detailEntryButtonRef.current?.focus())
+    }
+    if (previousMode === 'for-musicians' && modalita === 'report') {
+      requestAnimationFrame(() => musiciansEntryButtonRef.current?.focus())
+    }
+    if (modalita === 'dettaglio') {
+      requestAnimationFrame(() => detailBackButtonRef.current?.focus())
+    }
+    if (modalita === 'for-musicians') {
+      requestAnimationFrame(() => musiciansBackButtonRef.current?.focus())
+    }
+  }, [modalita])
 
   // Loader full-screen: si chiude appena la prima paint è pronta.
   useEffect(() => {
@@ -308,6 +335,15 @@ export default function ReportShell({
       window.location.hash = next === 'report' ? '' : next
     }
   }
+
+  useEffect(() => {
+    if (!isAlternateMode) return undefined
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') changeModalita('report')
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  })
 
   useEffect(() => {
     if (!isAlternateMode) return undefined
@@ -357,6 +393,14 @@ export default function ReportShell({
     },
     [groupOpen],
   )
+
+  const enterReport = useCallback(() => {
+    scrollToReportSection('report-group-profilo-generale', { reduceMotion })
+  }, [reduceMotion])
+
+  const startNewTest = useCallback(() => {
+    navigate('/nuovo-test', { state: { startAtProfile: true } })
+  }, [navigate])
 
   if (!hasReportData) {
     return (
@@ -464,6 +508,8 @@ export default function ReportShell({
                 correnti={correntiLite}
                 rawRecord={rawRecord}
                 portato={portato}
+                onReadReport={enterReport}
+                onNewTest={startNewTest}
               />
             </div>
 
@@ -493,10 +539,12 @@ export default function ReportShell({
               <div className="report-tst-layout__main">
                 <p className="report-tst-layout-hint sr-only">{REPORT_NAV_UI.layoutHint}</p>
                 <div className="report-tst-body__groups">
-
-                  {/* ── Risultati del test — sezione sempre aperta ────────── */}
-                  <section id="report-group-profilo-generale" className="report-section-open">
-                    <h2 className="report-section-open__title">Risultati del test</h2>
+                  <ReportRoom
+                    id="report-group-profilo-generale"
+                    className="report-section-open report-room--overview"
+                    labelledBy="report-overview-title"
+                  >
+                    <h2 id="report-overview-title" className="report-section-open__title">Risultati del test</h2>
                     <div className="report-section-open__inner">
                       <div id="report-tst-sintesi" className="report-tst-section-anchor">
                         <Suspense fallback={<DotsSpinner color={correnteColore} />}>
@@ -521,7 +569,11 @@ export default function ReportShell({
                           />
                         </Suspense>
                       </div>
-                      <SectionDivider />
+                    </div>
+                  </ReportRoom>
+
+                  <ReportRoom className="report-section-open report-room--narrative">
+                    <div className="report-section-open__inner">
                       <div id="report-tst-famiglia" className="report-tst-section-anchor">
                         <ProfiloEmotivo
                           sezioni={profiloEmotivo?.sezioni || []}
@@ -531,7 +583,11 @@ export default function ReportShell({
                           stepPrefix="1"
                         />
                       </div>
-                      <SectionDivider />
+                    </div>
+                  </ReportRoom>
+
+                  <ReportRoom className="report-section-open report-room--narrative">
+                    <div className="report-section-open__inner">
                       <div id="report-tst-rapporti" className="report-tst-section-anchor">
                         <Suspense fallback={<DotsSpinner color={correnteColore} />}>
                           <QuattroRapporti
@@ -543,85 +599,29 @@ export default function ReportShell({
                         </Suspense>
                       </div>
                     </div>
-                  </section>
+                  </ReportRoom>
 
-                  {/* ── Indice degli approfondimenti finali ───────────────── */}
-                  <section className="report-detail-navigation" aria-labelledby="report-detail-navigation-title">
-                    <header className="report-detail-navigation__header">
-                      <h2 id="report-detail-navigation-title" className="report-identity-detail-title">
+                  <ReportRoom
+                    className="report-detail-entry"
+                    labelledBy="report-detail-entry-title"
+                  >
+                    <div className="report-detail-entry__content">
+                      <h2 id="report-detail-entry-title" className="report-identity-detail-title">
                         Il dettaglio della tua identità emotiva
                       </h2>
-                      <p className="report-detail-navigation__lead">
-                        Scegli un capitolo per approfondire le correnti, il lessico emotivo o il rapporto con le aree sonore del test. Si apre un capitolo alla volta.
-                      </p>
-                    </header>
-
-                    <div className="report-detail-navigation__grid">
-                      {detailGroups.map((group, idx) => (
-                    <ReportSectionGroup
-                      key={group.id}
-                      id={group.id}
-                      title={group.title}
-                      intro={group.intro}
-                      stepLabel={String(idx + 1)}
-                      isOpen={Boolean(groupOpen[group.id])}
-                      onToggle={() => toggleDetailGroup(group.id)}
-                    >
-                      {group.id === 'report-group-forza-correnti' ? (
-                        <>
-                          <div id="report-tst-portato" className="report-tst-section-anchor">
-                            <SezionePortatoEsperienziale
-                              portato={portato}
-                              correnteColore={correnteColore}
-                            />
-                          </div>
-                          {SHOW_TRACCE_SECTION ? (
-                            <>
-                              <SectionDivider />
-                              <TracceReport correnteColore={correnteColore} />
-                            </>
-                          ) : null}
-                        </>
-                      ) : null}
-
-                      {group.id === 'report-group-educazione' ? (
-                        <div id="report-tst-parole" className="report-tst-section-anchor">
-                          <ParoleStatiAnimo
-                            correnti={correntiNomeColore}
-                            famiglieLessico={famiglieLessico}
-                            correnteDominante={profilo?.correnteDominante || ''}
-                            famiglia={profilo?.famiglia || ''}
-                          />
-                        </div>
-                      ) : null}
-
-                      {group.id === 'report-group-approfondimento' ? (
-                        <div id="report-tst-approfondimento" className="report-tst-section-anchor">
-                          <Suspense fallback={<DotsSpinner color={correnteColore} />}>
-                            <ApprofondimentoSezioni
-                              sezioniData={approfondimento?.sezioniData}
-                              sezioniTest={approfondimento?.sezioniTest}
-                              filtroMusicale={filtroMusicale}
-                              correnteColore={correnteColore}
-                            />
-                          </Suspense>
-                        </div>
-                      ) : null}
-
-                      {group.id === 'report-group-relazioni' && showEmotionalIntegrations ? (
-                        <EmotionalIntegrations
-                          correnti={correnti}
-                          rawRecord={rawRecord}
-                          profilo={profilo}
-                          onOpenGalassia={() => changeModalita('galassia')}
-                        />
-                      ) : null}
-                        </ReportSectionGroup>
-                      ))}
+                      <button
+                        ref={detailEntryButtonRef}
+                        type="button"
+                        className="nav-button primary report-detail-entry__button"
+                        onClick={() => changeModalita('dettaglio')}
+                      >
+                        Entra nel dettaglio
+                      </button>
                     </div>
-                  </section>
+                  </ReportRoom>
 
-                  <section className="report-final-views" aria-label="Altre letture del report">
+                  <ReportRoom as="div" className="report-final-views" labelledBy="report-final-views-title">
+                    <h2 id="report-final-views-title" className="sr-only">Altre letture del report</h2>
                     {!isMobileViewport ? (
                       <button
                         type="button"
@@ -635,6 +635,7 @@ export default function ReportShell({
                       </button>
                     ) : null}
                     <button
+                      ref={musiciansEntryButtonRef}
                       type="button"
                       className="report-final-view-card"
                       onClick={() => changeModalita('for-musicians')}
@@ -644,7 +645,7 @@ export default function ReportShell({
                         Approfondisci il tuo profilo da un punto di vista musicale
                       </span>
                     </button>
-                  </section>
+                  </ReportRoom>
                 </div>
 
                 {/* Azioni di chiusura */}
@@ -659,6 +660,84 @@ export default function ReportShell({
               </div>
             </div>
       </main>
+
+      <div
+        className={`report-tst-detail-layer${modalita === 'dettaglio' ? ' is-open' : ''}`}
+        role="dialog"
+        aria-modal={modalita === 'dettaglio'}
+        aria-labelledby="report-detail-layer-title"
+        aria-hidden={modalita !== 'dettaglio'}
+        inert={modalita !== 'dettaglio' ? true : undefined}
+      >
+        <div className="report-tst-detail-layer__inner">
+          <header className="report-tst-detail-layer__header">
+            <div>
+              <h1 id="report-detail-layer-title" className="report-identity-detail-title">
+                Il dettaglio della tua identità emotiva
+              </h1>
+            </div>
+            <button
+              ref={detailBackButtonRef}
+              type="button"
+              className="nav-button secondary report-tst-detail-layer__back"
+              onClick={() => changeModalita('report')}
+            >
+              Torna al report
+            </button>
+          </header>
+
+          <div className="report-detail-navigation__grid">
+            {detailGroups.map((group, idx) => (
+              <ReportSectionGroup
+                key={group.id}
+                id={group.id}
+                title={group.title}
+                intro={group.intro}
+                stepLabel={String(idx + 1)}
+                isOpen={Boolean(groupOpen[group.id])}
+                onToggle={() => toggleDetailGroup(group.id)}
+              >
+                {group.id === 'report-group-forza-correnti' ? (
+                  <>
+                    <div id="report-tst-portato" className="report-tst-section-anchor">
+                      <SezionePortatoEsperienziale
+                        portato={portato}
+                        correnteColore={correnteColore}
+                      />
+                    </div>
+                    {SHOW_TRACCE_SECTION ? (
+                      <>
+                        <SectionDivider />
+                        <TracceReport correnteColore={correnteColore} />
+                      </>
+                    ) : null}
+                  </>
+                ) : null}
+
+                {group.id === 'report-group-educazione' ? (
+                  <div id="report-tst-parole" className="report-tst-section-anchor">
+                    <ParoleStatiAnimo
+                      correnti={correntiNomeColore}
+                      famiglieLessico={famiglieLessico}
+                      correnteDominante={profilo?.correnteDominante || ''}
+                      famiglia={profilo?.famiglia || ''}
+                    />
+                  </div>
+                ) : null}
+
+                {group.id === 'report-group-relazioni' && showEmotionalIntegrations ? (
+                  <EmotionalIntegrations
+                    correnti={correnti}
+                    rawRecord={rawRecord}
+                    profilo={profilo}
+                    onOpenGalassia={() => changeModalita('galassia')}
+                  />
+                ) : null}
+              </ReportSectionGroup>
+            ))}
+          </div>
+        </div>
+      </div>
 
       {galassiaEverOpened && !isMobileViewport ? (
         <div
@@ -688,6 +767,8 @@ export default function ReportShell({
 
       <div
         className={`report-tst-musicians-layer${modalita === 'for-musicians' ? ' is-open' : ''}`}
+        role="dialog"
+        aria-modal={modalita === 'for-musicians'}
         aria-label="For Musicians: lettura musicale del profilo"
         aria-hidden={modalita !== 'for-musicians'}
         inert={modalita !== 'for-musicians' ? true : undefined}
@@ -701,6 +782,8 @@ export default function ReportShell({
             portato={portato}
             colorTotals={colorTotals}
             accentColor={correnteColore}
+            onBack={() => changeModalita('report')}
+            backButtonRef={musiciansBackButtonRef}
           />
         </Suspense>
       </div>
