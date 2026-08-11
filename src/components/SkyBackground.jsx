@@ -4,9 +4,12 @@ import { useSyncVideoToCanvas } from '../hooks/useSyncVideoToCanvas.js'
 import { useSkyTheme } from '../SkyThemeContext.jsx'
 import { getSkyVideo } from '../skyVideosConfig.js'
 
-const DEFAULT_CROSSFADE_DURATION_MS = 1600
-const LANDING_CROSSFADE_DURATION_MS = 400
-const PLAYBACK_RATE = 0.25
+const DEFAULT_CROSSFADE_DURATION_MS = 2400
+const LANDING_CROSSFADE_DURATION_MS = 1600
+// 0.5x mantiene il movimento contemplativo senza dimezzare troppo la cadenza
+// percepita dei sorgenti a 25/30 fps, come accadeva con 0.25x.
+const PLAYBACK_RATE = 0.5
+const CROSSFADE_EASING = 'cubic-bezier(0.4, 0, 0.2, 1)'
 const VIDEO_VISIBLE_OPACITY = 0.9
 
 function getCompositeKey(timeOfDay, weather) {
@@ -113,6 +116,7 @@ function SkyBackground() {
       videoEl.autoplay = true
       videoEl.loop = true
       videoEl.controls = false
+      videoEl.defaultPlaybackRate = PLAYBACK_RATE
       videoEl.playbackRate = PLAYBACK_RATE
       const p = videoEl.play()
       if (p && typeof p.catch === 'function') p.catch(() => {})
@@ -250,7 +254,7 @@ function SkyBackground() {
         aria-hidden="true"
         style={{
           opacity: configA ? opacityA : 0,
-          transition: `opacity ${crossfadeDurationMs}ms ease-in-out`,
+          transition: `opacity ${crossfadeDurationMs}ms ${CROSSFADE_EASING}`,
         }}
       />
       <canvas
@@ -259,7 +263,7 @@ function SkyBackground() {
         aria-hidden="true"
         style={{
           opacity: configB ? opacityB : 0,
-          transition: `opacity ${crossfadeDurationMs}ms ease-in-out`,
+          transition: `opacity ${crossfadeDurationMs}ms ${CROSSFADE_EASING}`,
         }}
       />
 

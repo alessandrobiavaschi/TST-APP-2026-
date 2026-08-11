@@ -104,3 +104,34 @@ Il file `.firebase/hosting.ZGlzdA.cache`, rigenerato dalla build e già sporco a
 ### Assunzioni e integrazione
 
 La modifica riguarda solo la presentazione e l'interazione di `LessicoAtlasView`; scoring, contenuti scientifici e contratti dati non sono stati modificati. Integrare il commit Codex dopo i contributi logica/UI oppure risolvere soltanto eventuali conflitti nel blocco `.lessico-*` del foglio `galassia-view.css`. Il file `.firebase/hosting.ZGlzdA.cache` resta escluso dal commit.
+
+## Cieli di sfondo lenti e morbidi
+
+### Risultato
+
+- Collegati i sette nuovi MP4 alle combinazioni coerenti di mattino, pomeriggio, tramonto e crepuscolo.
+- Velocità di riproduzione impostata a `0.5x` sia come valore predefinito sia come valore corrente. Rispetto al precedente `0.25x`, il movimento resta lento ma conserva una cadenza percepita più regolare sui sorgenti a 25/30 fps.
+- Crossfade portato a 2,4 secondi nelle pagine interne e 1,6 secondi sulla landing, con curva `cubic-bezier(0.4, 0, 0.2, 1)`.
+- Aggiunti contratti automatici che verificano presenza e uso di tutti i nuovi asset, velocità del player e parametri della dissolvenza.
+
+### File modificati
+
+- `src/components/SkyBackground.jsx`
+- `src/skyVideosConfig.js`
+- `test/skyBackgroundPlayback.test.js`
+- sette nuovi MP4 in `public/Video Background/`
+- `HANDOFF_CODEX.md`
+
+### Verifica
+
+- `node --test test/skyBackgroundPlayback.test.js`: PASS, 2/2.
+- `npm run lint`: PASS.
+- `npm run build`: PASS.
+- Browser sulla build di produzione, route `/info`: PASS. Due layer pronti e in play a `0.5x`, canvas attivo a opacità 0,9, transizione di 2,4 secondi e console pulita.
+- Il comando globale filtrato `npm test -- --test-name-pattern=...` ha eseguito comunque l'intera suite; è stato interrotto dopo 40 secondi per processi pendenti già presenti in tre file Galassia/report. I due test nuovi erano già passati e sono poi stati confermati isolatamente.
+
+### Assunzioni e integrazione
+
+I nuovi video sono stati assegnati in base al contenuto visivo dei frame: cumuliformi chiari nelle fasce diurne, toni dorati e rossi verso tramonto/crepuscolo, nube calda per `caldissimo`. Neve, notte e temporale mantengono gli asset esistenti. Gli MP4 non sono stati ricodificati: `ffmpeg` non è disponibile nell'ambiente, quindi gli originali aggiunti dall'utente sono conservati senza perdita di qualità.
+
+Integrare il commit di `ai/codex` senza includere `.firebase/hosting.ZGlzdA.cache`, che era già modificato all'avvio e rimane fuori dal commit.
