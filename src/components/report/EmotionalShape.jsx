@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
+import { useUiSounds } from '../../UiSoundProvider.jsx'
 
 void motion
 
@@ -65,6 +66,7 @@ export default function EmotionalShape({
   onFamilySelect = null,
   onFamilyHover = null,
 }) {
+  const uiSounds = useUiSounds()
   const [hoveredFamily, setHoveredFamily] = useState(null)
   const [isHoveredChart, setIsHoveredChart] = useState(false)
   const [localSelectedFamily, setLocalSelectedFamily] = useState(null)
@@ -86,6 +88,9 @@ export default function EmotionalShape({
     : localSelectedFamily
 
   const handleFamilySelect = (familyKey) => {
+    if (uiSounds?.enabled) {
+      uiSounds.playPrimaryTap()
+    }
     if (onFamilySelect) {
       onFamilySelect(familyKey.toLowerCase())
     } else {
@@ -94,6 +99,9 @@ export default function EmotionalShape({
   }
 
   const handleFamilyHover = (familyKey) => {
+    if (familyKey && uiSounds?.enabled) {
+      uiSounds.playSoftTap()
+    }
     setHoveredFamily(familyKey)
     if (onFamilyHover) {
       onFamilyHover(familyKey ? familyKey.toLowerCase() : null)
@@ -256,8 +264,15 @@ export default function EmotionalShape({
                   opacity={isHighlighted ? 0.9 : 0.6}
                   style={{ transformOrigin: `${cx}px ${cy}px` }}
                   initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: isHighlighted ? 0.7 : 0.4 }}
-                  transition={transition}
+                  animate={{
+                    scale: (isHighlighted && !prefersReducedMotion) ? [1, 1.04, 1] : 1,
+                    opacity: isHighlighted ? 0.7 : 0.4
+                  }}
+                  transition={
+                    (isHighlighted && !prefersReducedMotion)
+                      ? { repeat: Infinity, duration: 2.2, ease: 'easeInOut' }
+                      : transition
+                  }
                 />
                 
                 {/* Ellisse principale nitida */}
@@ -275,8 +290,16 @@ export default function EmotionalShape({
                   strokeWidth={1.5}
                   style={{ transformOrigin: `${cx}px ${cy}px`, cursor: 'pointer' }}
                   initial={{ scale: 0.8, opacity: 0, fillOpacity: 0 }}
-                  animate={{ scale: 1, opacity: 1, fillOpacity }}
-                  transition={transition}
+                  animate={{
+                    scale: (isHighlighted && !prefersReducedMotion) ? [1, 1.025, 1] : 1,
+                    opacity: 1,
+                    fillOpacity
+                  }}
+                  transition={
+                    (isHighlighted && !prefersReducedMotion)
+                      ? { repeat: Infinity, duration: 2.2, ease: 'easeInOut' }
+                      : transition
+                  }
                 />
                 </g>
                 

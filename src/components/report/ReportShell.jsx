@@ -2,6 +2,7 @@ import React, { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useStat
 import { useNavigate } from 'react-router-dom'
 import VideoBackground0311 from '../VideoBackground0311.jsx'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import { useSkyTheme } from '../../SkyThemeContext.jsx'
 import HeroScreen from './HeroScreen'
 import NavbarTST from './NavbarTST'
 import ReportSectionController from './ReportSectionController'
@@ -105,6 +106,10 @@ export default function ReportShell({
   onRilleggiIntroduzione,
 }) {
   const navigate = useNavigate()
+  const skyTheme = useSkyTheme()
+  const timeOfDay = skyTheme?.timeOfDay || 'morning'
+  const weather = skyTheme?.weather || 'sereno'
+  const visualProfile = skyTheme?.visualProfile || { tone: 'medium', warmth: 'neutral', intensity: 'normal' }
   const reduceMotion = useReducedMotion()
   const [modalita, setModalita] = useState(readModalitaFromHash)
   /** Monta Galassia al primo accesso e la tiene in DOM (overlay) per preservare stato e scroll del report. */
@@ -387,7 +392,16 @@ export default function ReportShell({
   return (
     <div
       className="report-tst"
-      style={{ '--corrente-primaria': correnteColore }}
+      data-time-of-day={timeOfDay}
+      data-weather={weather}
+      data-sky-tone={visualProfile.tone}
+      data-sky-warmth={visualProfile.warmth}
+      data-sky-intensity={visualProfile.intensity}
+      style={{
+        '--corrente-primaria': correnteColore,
+        '--corrente-primaria-chiara': profilo?.coloreChiara || correnteColore,
+        '--corrente-primaria-media': profilo?.coloreMedia || correnteColore,
+      }}
       lang="it"
     >
       <div className="report-tst-cosmic-bg" aria-hidden="true" />

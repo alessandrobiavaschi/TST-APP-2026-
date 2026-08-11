@@ -200,6 +200,18 @@ export default function SezionePortatoEsperienziale({
                   className="report-tst-portato__puck"
                   style={{ '--puck-x': `${viewData.point.x}%`, '--puck-y': `${viewData.point.y}%` }}
                 />
+                {!reduceMotion && (
+                  <>
+                    <span
+                      className="report-tst-portato__puck-ripple report-tst-portato__puck-ripple--1"
+                      style={{ '--puck-x': `${viewData.point.x}%`, '--puck-y': `${viewData.point.y}%` }}
+                    />
+                    <span
+                      className="report-tst-portato__puck-ripple report-tst-portato__puck-ripple--2"
+                      style={{ '--puck-x': `${viewData.point.x}%`, '--puck-y': `${viewData.point.y}%` }}
+                    />
+                  </>
+                )}
                 {viewData.dimensions.map((dimension) => (
                   <span
                     key={dimension.key}
