@@ -17,6 +17,12 @@ import {
   startLocalDeveloperSession,
 } from './localDeveloperAccess.js'
 import SkyBackground from './components/SkyBackground.jsx'
+import {
+  buildChunkRecoveryUrl,
+  CHUNK_RELOAD_STORAGE_KEY,
+  isRecoverableChunkLoadError,
+  shouldRetryChunkLoad,
+} from './utils/chunkLoadRecovery.js'
 import './styles/app-shell.css'
 import './App.css'
 import './styles/tst-mobile.css'
@@ -44,6 +50,19 @@ class AppErrorBoundary extends React.Component {
 
   componentDidCatch(error, errorInfo) {
     console.error('AppErrorBoundary:', error?.message, errorInfo?.componentStack)
+
+    if (!isRecoverableChunkLoadError(error)) return
+
+    try {
+      const now = Date.now()
+      const lastAttempt = window.sessionStorage.getItem(CHUNK_RELOAD_STORAGE_KEY)
+      if (!shouldRetryChunkLoad(lastAttempt, now)) return
+
+      window.sessionStorage.setItem(CHUNK_RELOAD_STORAGE_KEY, String(now))
+      window.location.replace(buildChunkRecoveryUrl(window.location.href, now))
+    } catch (recoveryError) {
+      console.warn('Recupero automatico del bundle non disponibile:', recoveryError)
+    }
   }
 
   render() {

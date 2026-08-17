@@ -1518,16 +1518,19 @@
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
+    flex-wrap: wrap !important;
     width: 100% !important;
   }
   .sintesi-mobile-bar-row-left {
     display: flex !important;
     align-items: center !important;
+    flex: 1 1 100%;
+    flex-wrap: wrap;
     gap: 0.55rem !important;
     min-width: 0;
   }
   .sintesi-mobile-bar-rank {
-    font-size: 0.72rem !important;
+    font-size: 12px !important;
     color: #64748b !important;
     font-family: var(--font-mono, monospace);
     font-weight: 700;
@@ -1548,12 +1551,16 @@
     color: #64748b !important;
     font-size: 0.82rem !important;
     font-weight: 500;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
   .sintesi-mobile-bar-pct {
     font-size: 0.94rem !important;
     font-weight: 800 !important;
     color: #f8fafc !important;
     font-family: var(--font-mono, monospace);
+    margin-left: auto;
   }
   .sintesi-mobile-bar-track {
     width: 100% !important;

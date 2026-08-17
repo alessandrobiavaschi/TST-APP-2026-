@@ -31,4 +31,3 @@ function LocalDeveloperPage({ section }) {
 }
 
 export default LocalDeveloperPage
-

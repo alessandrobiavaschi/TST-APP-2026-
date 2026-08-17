@@ -28,7 +28,6 @@ test('local developer access is limited to dev mode on loopback hosts', () => {
   assert.equal(isLocalDeveloperAccessAvailable({ isDev: false, hostname: '127.0.0.1' }), false)
   assert.equal(isLocalDeveloperAccessAvailable({ isDev: true, hostname: 'tst.example' }), false)
 })
-
 test('local developer session can be restored and cleared', () => {
   const storage = createMemoryStorage()
   assert.equal(restoreLocalDeveloperSession({ storage, available: true }), null)
@@ -47,4 +46,3 @@ test('local developer session cannot start outside the allowed environment', () 
     /solo sul server locale/,
   )
 })
-

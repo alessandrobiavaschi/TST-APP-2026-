@@ -1,5 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { useEffect, useId, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useLocation, useNavigate, Navigate } from 'react-router-dom'
 import { useAuth } from '../AuthContext.jsx'
 import { db } from '../firebaseConfig.js'
@@ -713,6 +714,7 @@ function ResultsPage() {
   const navigate = useNavigate()
   const filtersRef = useRef(null)
   const importFileInputRef = useRef(null)
+  const importTriggerRef = useRef(null)
 
   const [showImportModal, setShowImportModal] = useState(false)
   const [isImportDragActive, setIsImportDragActive] = useState(false)
@@ -769,6 +771,7 @@ function ResultsPage() {
       setTimeout(() => {
         setShowImportModal(false)
         setImportSuccess(null)
+        importTriggerRef.current?.focus()
       }, 1400)
     } catch (err) {
       console.error(err)
@@ -795,6 +798,7 @@ function ResultsPage() {
     if (importFileInputRef.current) {
       importFileInputRef.current.value = ''
     }
+    importTriggerRef.current?.focus()
   }
 
   const openReport = (record) => {
@@ -1424,6 +1428,7 @@ function ResultsPage() {
                 {selectedAreaId ? `Scarica matrice (${selectedAreaName})` : 'Scarica matrice (archivio totale)'}
               </button>
               <button
+                ref={importTriggerRef}
                 type="button"
                 className="nav-button primary"
                 onClick={() => setShowImportModal(true)}
@@ -1433,10 +1438,20 @@ function ResultsPage() {
             </div>
           </div>
 
-          {showImportModal && (
-            <div className="modal-overlay">
-              <div className="modal-content">
-                <h2>Importa Risultati</h2>
+          {showImportModal && createPortal(
+            <div
+              className="modal-overlay results-import-modal-overlay"
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') closeImportModal()
+              }}
+            >
+              <div
+                className="modal-content results-import-modal"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="results-import-modal-title"
+              >
+                <h2 id="results-import-modal-title">Importa Risultati</h2>
                 <div
                   className={`results-import-dropzone ${isImportDragActive ? 'results-import-dropzone--active' : ''}`}
                   onDragEnter={(e) => {
@@ -1479,6 +1494,7 @@ function ResultsPage() {
                     disabled={importing}
                   />
                   <button
+                    autoFocus
                     type="button"
                     className="nav-button primary"
                     onClick={() => importFileInputRef.current?.click()}
@@ -1497,7 +1513,8 @@ function ResultsPage() {
                   </button>
                 </div>
               </div>
-            </div>
+            </div>,
+            document.body,
           )}
 
           <div className="results-table-wrapper">

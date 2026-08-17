@@ -164,7 +164,6 @@ export default function SezionePortatoEsperienziale({
 
   return (
     <section
-      id="report-tst-portato"
       className="report-tst-portato report-tst-section-anchor"
       aria-labelledby="report-tst-portato-heading"
     >
@@ -307,6 +306,71 @@ export default function SezionePortatoEsperienziale({
             I dati di sintonia, distonia e distanza non sono disponibili per questo ascolto.
           </p>
         )}
+
+        {viewData.hasData ? (
+          <>
+            <motion.figure
+              className="report-tst-portato__figure"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: '-40px' }}
+              variants={sectionVariants}
+              transition={{ duration: reduceMotion ? 0 : 0.45, ease: 'easeOut', delay: 0.05 }}
+              aria-labelledby="report-tst-portato-map-title"
+              aria-describedby="report-tst-portato-map-summary"
+            >
+              <figcaption id="report-tst-portato-map-title" className="sr-only">
+                {PORTATO_UI.padAria || "Orientamento dell'ascolto tra sintonia, distonia e distanza"}
+              </figcaption>
+              <p id="report-tst-portato-map-summary" className="sr-only">{chartSummary}</p>
+              <div className="report-tst-portato__pad" aria-hidden="true">
+                <div className="report-tst-portato__field" />
+                <svg className="report-tst-portato__mesh" viewBox="0 0 100 100" preserveAspectRatio="none">
+                  <polygon points="8,8 92,8 50,92" />
+                  <line x1="50" y1="64" x2="8" y2="8" />
+                  <line x1="50" y1="64" x2="92" y2="8" />
+                  <line x1="50" y1="64" x2="50" y2="92" />
+                </svg>
+                <span
+                  className="report-tst-portato__puck"
+                  style={{ '--puck-x': `${viewData.point.x}%`, '--puck-y': `${viewData.point.y}%` }}
+                />
+                {viewData.dimensions.map((dimension) => (
+                  <span
+                    key={dimension.key}
+                    className={`report-tst-portato__vertex report-tst-portato__vertex--${dimension.ui.className}`}
+                  >
+                    {dimension.ui.label}
+                  </span>
+                ))}
+              </div>
+            </motion.figure>
+
+            <ul className="report-tst-portato__results" aria-label="Risultati dell'orientamento all'ascolto">
+              {viewData.dimensions.map((dimension) => (
+                <li
+                  key={dimension.key}
+                  className={`report-tst-portato__result report-tst-portato__result--${dimension.ui.className}`}
+                >
+                  <span className="report-tst-portato__result-marker" aria-hidden="true" />
+                  <span className="report-tst-portato__result-label">{dimension.ui.label}</span>
+                  <span className="report-tst-portato__result-value">
+                    {dimension.value} <span>{dimension.value === 1 ? 'punto' : 'punti'}</span>
+                  </span>
+                  <span className="report-tst-portato__result-percent">
+                    {dimension.percentage}%
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : null}
+
+        {viewData.hasData && portato?.descrizione ? (
+          <div className="report-tst-portato__narrative">
+            <p className="report-tst-portato__narrative-text">{portato.descrizione}</p>
+          </div>
+        ) : null}
       </div>
     </section>
   )

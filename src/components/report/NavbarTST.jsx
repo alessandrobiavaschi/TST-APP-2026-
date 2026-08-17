@@ -53,6 +53,7 @@ export default function NavbarTST({
   const [isMobile, setIsMobile] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef(null)
+  const menuButtonRef = useRef(null)
 
   useEffect(() => {
     if (typeof window === 'undefined') return undefined
@@ -66,20 +67,31 @@ export default function NavbarTST({
   useEffect(() => {
     if (!menuOpen) return undefined
     const handleOutsideClick = (e) => {
+      if (menuButtonRef.current?.contains(e.target)) return
       if (menuRef.current && !menuRef.current.contains(e.target)) {
         setMenuOpen(false)
       }
     }
+    const handleEscape = (e) => {
+      if (e.key !== 'Escape') return
+      setMenuOpen(false)
+      menuButtonRef.current?.focus()
+    }
+    window.requestAnimationFrame(() => {
+      menuRef.current?.querySelector('[role="menuitem"]')?.focus()
+    })
     document.addEventListener('mousedown', handleOutsideClick)
-    return () => document.removeEventListener('mousedown', handleOutsideClick)
+    document.addEventListener('keydown', handleEscape)
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick)
+      document.removeEventListener('keydown', handleEscape)
+    }
   }, [menuOpen])
-
 
   // ── Render Mobile: Bottom Navigation Bar ───────────────────────────
   if (isMobile) {
     const mobileTabs = [
       { id: 'report', label: 'Report' },
-      { id: 'galassia', label: 'Galassia' },
       { id: 'for-musicians', label: 'Musicisti' },
     ]
 
@@ -88,7 +100,7 @@ export default function NavbarTST({
         className="navbar-tst navbar-tst--mobile"
         data-force-visible={forceVisible ? 'true' : 'false'}
       >
-        <div className="navbar-tst__bar navbar-tst__bar--mobile">
+        <div className="navbar-tst__bar navbar-tst__bar--mobile" role="tablist" aria-label={NAVBAR_UI.modalitaAria}>
           {mobileTabs.map((tab) => {
             const active = modalita === tab.id
             return (
@@ -97,6 +109,7 @@ export default function NavbarTST({
                 type="button"
                 role="tab"
                 aria-selected={active}
+                tabIndex={active ? 0 : -1}
                 onClick={() => {
                   setMenuOpen(false)
                   onModalitaChange?.(tab.id)
@@ -111,6 +124,7 @@ export default function NavbarTST({
 
           {/* Menu button */}
           <button
+            ref={menuButtonRef}
             type="button"
             className="navbar-tst__tab-btn"
             data-active={menuOpen ? 'true' : 'false'}

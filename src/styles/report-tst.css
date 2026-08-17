@@ -385,13 +385,18 @@
   .app-shell--report {
     --app-header-offset: 52px;
   }
+
+  .app-shell--report .report-page-empty {
+    padding-top: calc(var(--app-header-offset) + var(--space-sm));
+  }
+
   .report-tst {
     --navbar-tst-height: 0px;
     --report-section-nav-height: 52px;
   }
 
   .report-tst-layout {
-    padding-bottom: 80px !important; /* Spazio per la bottom bar */
+    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)) !important;
   }
 
   /* ── Bottom Navigation Mobile ── */
@@ -1022,7 +1027,7 @@
   display: grid;
   width: 100%;
   margin: 0 auto;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   align-items: start;
   box-sizing: border-box;
   max-width: 1680px;
@@ -1049,6 +1054,9 @@
 /* ── Mobile / tablet: Horizontal scrollable pills ─────────────── */
 .report-section-controller--mobile {
   grid-column: 1 / -1;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
   position: sticky;
   top: calc(var(--app-header-offset, 0px) + var(--navbar-tst-height));
   z-index: 49;
@@ -1668,7 +1676,12 @@
 .report-section-open__inner {
   padding: 0;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 24px;
+}
+
+.report-section-open__inner > * {
+  min-width: 0;
 }
 
 /* ── Indice degli approfondimenti finali ───────────────────────────── */
@@ -2443,6 +2456,12 @@
 
 .report-sezione-tip {
   flex-shrink: 0;
+}
+
+.report-sezione-trigger-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
 }
 
 .report-tst .report-tst-approfondimento .report-sezione-item {
@@ -6100,7 +6119,7 @@
 }
 
 /* Override room background to consume dynamic glow */
-.report-room::before {
+.report-room-section::before {
   background: var(--sky-glow-gradient),
               linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent 24%, transparent 76%, rgba(0, 0, 0, 0.16)) !important;
 }

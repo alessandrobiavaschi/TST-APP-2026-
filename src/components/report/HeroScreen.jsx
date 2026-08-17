@@ -142,7 +142,6 @@ export default function HeroScreen({
     familyName || FAMILY_THEME[FAMILY_NAME_BY_KEY[colorKey]]?.family || 'Flemmatica',
   )
 
-
   const gradientStyle = {
     backgroundImage: `
       radial-gradient(circle at 50% 46%, ${rgba(colors.media, 0.12)} 0%, ${rgba(colors.mid, 0.42)} 42%, ${rgba(edgeColor, 0.82)} 84%),

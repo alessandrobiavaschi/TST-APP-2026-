@@ -5,7 +5,6 @@ const LOOPBACK_HOSTNAMES = new Set(['localhost', '127.0.0.1', '::1'])
 export function isLoopbackHostname(hostname) {
   return LOOPBACK_HOSTNAMES.has(String(hostname || '').trim().toLowerCase())
 }
-
 export function isLocalDeveloperAccessAvailable({
   isDev = Boolean(import.meta.env?.DEV),
   hostname = globalThis.location?.hostname || '',
@@ -61,4 +60,3 @@ export function clearLocalDeveloperSession({ storage = globalThis.sessionStorage
     // Nessuna azione necessaria se lo storage non e disponibile.
   }
 }
-

@@ -206,17 +206,18 @@ export default function ProfiloEmotivo({
         <p className="report-room-preview-lead">{PROFILO_UI.title}</p>
 
         {/* Sintesi breve; l'approfondimento e distribuito nei quattro capitoli. */}
-        <div className="profilo-family-summary-card" style={{ maxWidth: '860px', margin: '0 auto 2.5rem', width: '100%', boxSizing: 'border-box' }}>
-          <p className="profilo-family-summary-card__brief" style={{
-            fontSize: '1.05rem',
-            lineHeight: '1.6',
-            color: 'rgba(255, 255, 255, 0.9)',
-            marginBottom: '1rem'
-          }}>
-            {profilo.fraseChiave}
-          </p>
-
-        </div>
+        {profilo.fraseChiave ? (
+          <div className="profilo-family-summary-card" style={{ maxWidth: '860px', margin: '0 auto 2.5rem', width: '100%', boxSizing: 'border-box' }}>
+            <p className="profilo-family-summary-card__brief" style={{
+              fontSize: '1.05rem',
+              lineHeight: '1.6',
+              color: 'rgba(255, 255, 255, 0.9)',
+              marginBottom: '1rem'
+            }}>
+              {profilo.fraseChiave}
+            </p>
+          </div>
+        ) : null}
 
         <nav className="profilo-chapter-nav" aria-label="Capitoli del profilo emotivo">
           {list.map((sezione, index) => {

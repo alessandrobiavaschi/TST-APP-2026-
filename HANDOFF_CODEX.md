@@ -1,103 +1,138 @@
-# HANDOFF CODEX — Integrazione Galassia Lessicale 2.0
+# Handoff Codex — QA mobile report TST
 
-## Sintesi
+## Stato
 
-La consegna Claude + Antigravity è integrata su `ai/integration` senza modificare `master`. La branch contiene il view model deterministico, le sei sezioni UI, i test contrattuali Codex e un fix di compatibilità finale tra chiavi del view model e identificatori dell'atlante.
+Revisione mobile completata e verificata sul branch `ai/codex` nel worktree `/Users/alessandrobiavaschi/Downloads/TST 2026 cursor-codex`.
 
-Il calcolo scientifico del TST non è stato modificato.
+L'implementazione Antigravity è stata auditata integralmente. Le parti valide sono state mantenute; il rendering interrotto di `EmotionalShape`, gli override responsive incompleti e i problemi di navigazione, grafici, tipografia e sezione Natura sono stati corretti senza cambiare contenuti o scoring.
 
-## Storia integrata
+## Verifica
 
-- baseline: `master` a `a857bed`;
-- Claude: incluso dalla merge ancestry di `ai/antigravity` (`faabfe2`, `bbf4d91`);
-- Antigravity: `95c59f2`, integrato con merge commit `f60f528`;
-- Codex test contrattuali: `c151dd4`, applicato come `c85b81b`;
-- fix finali e questo handoff: commit successivo su `ai/integration`.
+- Lint: PASS
+- Test: PASS, 43/43 (inclusi contratti mobile/desktop e scoring golden)
+- Build: PASS
+- Browser: PASS a 320x568, 375x667, 390x844, 430x932, 768x1024 e 1440x900
+- Console: pulita
 
-I commit successivi presenti su `ai/codex` relativi a deploy, cache e modifica delle istruzioni non sono stati integrati perché estranei a questa missione.
+I dettagli tecnici sono in `MOBILE_IMPLEMENTATION_REPORT.md`; la matrice, la checklist completa e i problemi trovati/corretti/residui sono in `MOBILE_QA_REPORT.md`. La fixture DEV usata per la verifica browser è stata rimossa dal codice finale.
 
-## File della funzionalità integrata
+## Integrazione
 
-- `src/utils/galassiaLessicoViewModel.js`
-- `src/utils/buildReportData.js`
-- `src/components/report/GalassiaView.jsx`
+Integrare il commit finale di `ai/codex` solo dopo revisione. Non è stato eseguito alcun push e non è stato effettuato alcun merge su `ai/integration`.
+
+Il file `.firebase/hosting.ZGlzdA.cache`, rigenerato localmente dalla build, resta volutamente fuori dal commit.
+
+## Disattivazione temporanea Galassia mobile
+
+Sotto i 768px la Galassia non è esposta nella bottom navigation o nelle card finali. Anche il deep-link `#galassia` viene ricondotto al report e il layer non viene montato. Desktop invariato.
+
+## Correzione proporzioni import CSV
+
+Il dialog "Importa Risultati" ora usa un contenitore locale compatto, centrato e scrollabile: larghezza massima 640 px, altezza determinata dal contenuto e adattamento mobile sotto i 640 px. La dropzone è stata ridotta da 220 px a 170 px su desktop e 150 px su mobile. Il generico `.modal-content` e gli altri dialog non sono stati modificati.
+
+Il dialog viene montato sul `body`, così il posizionamento resta ancorato al viewport anche dentro la card con effetto vetro, e il suo livello resta sopra l'header desktop e mobile. Sono stati inoltre aggiunti il contratto accessibile `role="dialog"`, `aria-modal="true"`, il collegamento del titolo tramite `aria-labelledby`, il focus iniziale, la chiusura con Esc e il ripristino del focus sul pulsante Importa. Il flusso di selezione, drag and drop e importazione CSV è invariato.
+
+Verifica specifica:
+
+- `npm run lint`: PASS
+- `npm test`: PASS, 43/43
+- `npm run build`: PASS
+- browser locale: route verificata; il contenuto import richiede autenticazione, quindi non è stato possibile aprire il dialog nella sessione di test non autenticata
+
+File modificati: `src/App.css`, `src/pages/ResultsPage.jsx`, `HANDOFF_CODEX.md`.
+
+## Integrazione UX fullscreen a stanze
+
+Integrato in modo selettivo il commit Antigravity `29588cb63b1fc81480cc26a28f7cf92c1e570ad6`, senza includere gli altri lavori concorrenti presenti sulla branch UI.
+
+### Risultato
+
+- `HeroScreen` è la home fullscreen con le CTA "Leggi il tuo report" e "Nuovo test".
+- `SintesiCorrenti`, `ProfiloEmotivo` e `QuattroRapporti` sono distribuiti in stanze verticali tramite il contenitore presentazionale `ReportRoom`.
+- Dettaglio e Musicians sono layer separati con hash dedicato, ritorno esplicito, chiusura con Escape e ripristino del focus.
+- `ApprofondimentoSezioni` è renderizzato una sola volta, dentro Musicians insieme a `SezioneMusica`.
+- `/nuovo-test` riusa il flusso esistente e salta soltanto l'intro quando riceve `location.state.startAtProfile`.
+- Scoring, `buildReportData`, contenuti del report e condizioni di rendering non sono stati modificati.
+
+### Robustezza e test Codex
+
+- Aggiunto `test/reportRoomExperience.test.js`: contratti per CTA/routing, stanze, reduced motion, accessibilità/ritorno dei layer e unicità di Aree sonore.
+- Corretto lo stato vuoto del report su mobile: il titolo non viene più coperto dall'header fisso.
+- `npm test`: PASS, 53/53.
+- `npm run lint`: PASS.
+- `npm run build`: PASS.
+- Browser locale: PASS a 1440x900 e 390x844, senza overflow orizzontale né warning/errori console; su mobile il titolo dello stato vuoto parte a 80px con header alto 52px.
+- Il report popolato non era disponibile nella sessione browser non autenticata; la struttura popolata è coperta da build e contratti automatici, ma resta consigliato uno smoke finale con un record reale prima del merge in produzione.
+
+### File di questa consegna
+
+- `HANDOFF_CODEX.md`
+- `src/pages/ReportPage.jsx`
+- `src/styles/report-tst.css`
+- `test/reportRoomExperience.test.js`
+
+Il file `.firebase/hosting.ZGlzdA.cache`, rigenerato dalla build e già sporco all'avvio, resta escluso dal commit.
+
+## Robustezza zoom e dettaglio Galassia lessicale
+
+### Risultato
+
+- Lo zoom del Lessico non scala più il canvas che contiene i testi: ogni parola viene proiettata in coordinate schermo e ridisegnata alla dimensione corretta, evitando la rasterizzazione/pixelatura.
+- Distanza e dimensione delle parole crescono progressivamente con lo zoom; la distanza segue la scala lineare della camera, mentre il font usa una crescita smorzata per restare leggibile senza invadere la mappa.
+- Un `ResizeObserver` riallinea la proiezione quando cambia il viewport.
+- La parola selezionata non diventa più un badge gigante: resta su una riga, senza blocco, sfondo o a-capo forzato.
+- Il dizionario è ora una scheda flottante responsive con titolo leggibile, corpo sans-serif, righe informative e accento limitato. I codici interni `correnteKey` e `familyKey` non sono più mostrati.
+- Il dettaglio espone semantica di dialog non modale e porta il focus sul controllo di chiusura; `Escape` continua a chiuderlo.
+
+### File modificati
+
 - `src/components/report/LessicoAtlasView.jsx`
-- `src/components/report/ReportShell.jsx`
-- `src/components/report/ParoleStatiAnimo.jsx`
-- `src/components/report/SintesiCorrenti.jsx`
-- `src/components/report/SintesiCorrenti.css`
 - `src/styles/galassia-view.css`
-- `src/content/relational/anaffettivo.js`
-- `src/content/relational/assertivo.js`
-- `test/galassiaLessicoViewModel.test.js`
-- `test/galassiaDataContract.test.js`
-- `HANDOFF_CLAUDE.md`
-- `HANDOFF_ANTIGRAVITY.md`
+- `src/utils/lessicoAtlasCamera.js`
+- `test/lessicoAtlasCamera.test.js`
 - `HANDOFF_CODEX.md`
 
-## Correzioni Codex d'integrazione
+### Verifica
 
-- introdotta una mappa esplicita tra le chiavi scientifiche `blu/rosso/verde/giallo/grigio`, i nomi `Blu/Rosso/Verde/Giallo/Grigio` e gli ID visuali dell'atlante;
-- ripristinati click, selezione, colore e zoom delle pillole situazionali;
-- ripristinato il vocabolario stabile per tutte e cinque le famiglie;
-- resa non ambigua la tracciabilità tramite `parola + familyKey + correnteKey`;
-- resa non ambigua anche l'evidenziazione dei nodi emersi e la selezione delle parole vicine;
-- mostrate soltanto le costellazioni con correnti utente attive;
-- rimossi dal percorso Tab i nodi esclusi dai filtri;
-- applicato il focus visibile dashed blu a pulsanti, input e summary dell'atlante.
+- `npm test`: PASS, 55/55 (inclusi i 2 nuovi test della camera lessicale).
+- `npm run lint`: PASS.
+- `npm run build`: PASS.
+- Browser desktop: PASS; dopo due step la parola campione cresce da 23 px a 31,7 px e la distanza tra punti cresce con la scala. Il pannello misura circa 397 px, resta interno al viewport e la parola selezionata mantiene `white-space: nowrap` senza sfondo.
+- Browser mobile 390x844: PASS; dettaglio a bottom sheet a piena larghezza, titolo e metadati integri, nessun taglio visivo osservato.
+- L'anteprima DEV con dati di esempio è stata rimossa dal codice finale.
 
-## Verifiche eseguite
+### Assunzioni e integrazione
 
-```text
-npm test
-npm run lint
-npm run build
-git diff --check
-```
+La modifica riguarda solo la presentazione e l'interazione di `LessicoAtlasView`; scoring, contenuti scientifici e contratti dati non sono stati modificati. Integrare il commit Codex dopo i contributi logica/UI oppure risolvere soltanto eventuali conflitti nel blocco `.lessico-*` del foglio `galassia-view.css`. Il file `.firebase/hosting.ZGlzdA.cache` resta escluso dal commit.
 
-Esito:
+## Cieli di sfondo lenti e morbidi
 
-- test: 33 passati, 0 falliti;
-- lint: 0 errori;
-- build: Vite completata con 1224 moduli trasformati;
-- diff check: pulito;
-- typecheck: non disponibile, perché `package.json` non espone uno script dedicato.
+### Risultato
 
-## QA browser reale
+- Collegati i sette nuovi MP4 alle combinazioni coerenti di mattino, pomeriggio, tramonto e crepuscolo.
+- Velocità di riproduzione impostata a `0.5x` sia come valore predefinito sia come valore corrente. Rispetto al precedente `0.25x`, il movimento resta lento ma conserva una cadenza percepita più regolare sui sorgenti a 25/30 fps.
+- Crossfade portato a 2,4 secondi nelle pagine interne e 1,6 secondi sulla landing, con curva `cubic-bezier(0.4, 0, 0.2, 1)`.
+- Aggiunti contratti automatici che verificano presenza e uso di tutti i nuovi asset, velocità del player e parametri della dissolvenza.
 
-La route `/risultati/report` senza record mostra correttamente lo stato "Report non disponibile". Per raggiungere la Galassia popolata senza usare dati Firebase o credenziali è stato montato un harness locale temporaneo con lo stesso componente e un view model realistico; l'harness è stato rimosso prima del commit.
+### File modificati
 
-Verifiche desktop:
+- `src/components/SkyBackground.jsx`
+- `src/skyVideosConfig.js`
+- `test/skyBackgroundPlayback.test.js`
+- sette nuovi MP4 in `public/Video Background/`
+- `HANDOFF_CODEX.md`
 
-- le sei sezioni sono renderizzate;
-- le cinque famiglie del lessico stabile sono presenti;
-- le costellazioni senza correnti attive non vengono mostrate;
-- la pillola `Sereno` seleziona il nodo corretto e centra la camera a `scale(2.2)`;
-- il dizionario riporta `BLU_4_Solare`, famiglia `blu`, `Traccia 32` e `Traccia 35`;
-- il focus su `summary` risulta `2px dashed rgb(59, 130, 246)`.
+### Verifica
 
-Verifiche mobile a 390 × 844:
+- `node --test test/skyBackgroundPlayback.test.js`: PASS, 2/2.
+- `npm run lint`: PASS.
+- `npm run build`: PASS.
+- Browser sulla build di produzione, route `/info`: PASS. Due layer pronti e in play a `0.5x`, canvas attivo a opacità 0,9, transizione di 2,4 secondi e console pulita.
+- Il comando globale filtrato `npm test -- --test-name-pattern=...` ha eseguito comunque l'intera suite; è stato interrotto dopo 40 secondi per processi pendenti già presenti in tre file Galassia/report. I due test nuovi erano già passati e sono poi stati confermati isolatamente.
 
-- la dashboard è la prima scheda espandibile;
-- il pannello dizionario è un bottom sheet `position: fixed`;
-- la tracciabilità resta visibile;
-- nessun overflow orizzontale nella scheda o nel viewport.
+### Assunzioni e integrazione
 
-## Decisioni e assunzioni
-
-- `ai/integration` è il target finale; `master` resta invariato.
-- I mapping tra contratto e atlante sono adattamento UI, non ricalcolo dei dati.
-- Il file locale modificato `src/content/famigliaApprofondimento.js` è lavoro concorrente dell'utente: non è stato modificato, staged o incluso nei commit.
-- Nessun deploy, push, modifica di credenziali, lockfile o risorsa remota.
-
-## Limiti residui
-
-- Non è stato usato un record Firebase autenticato reale; la verifica popolata è stata eseguita sul componente reale con fixture deterministica locale.
-- Il progetto non dispone di un framework di test componenti, quindi le interazioni UI sono protette dalla QA browser e i contratti dati da `node:test`.
-- I limiti teorici già dichiarati dal view model restano intenzionalmente visibili: grafo concetto-concetto assente, Rosso/Grigio senza concetto primario e parole dei contrasti non garantite come antonimi diretti.
-- Alcuni stili specialistici dell'atlante introdotti dalla branch UI usano ancora valori locali invece della scala globale descritta in `CLAUDE.md`; non sono stati rifattorizzati durante il fix di compatibilità per evitare un ridisegno non richiesto.
-
-## Istruzioni d'integrazione
+I nuovi video sono stati assegnati in base al contenuto visivo dei frame: cumuliformi chiari nelle fasce diurne, toni dorati e rossi verso tramonto/crepuscolo, nube calda per `caldissimo`. Neve, notte e temporale mantengono gli asset esistenti. Gli MP4 non sono stati ricodificati: `ffmpeg` non è disponibile nell'ambiente, quindi gli originali aggiunti dall'utente sono conservati senza perdita di qualità.
 
 La branch `ai/integration` è pronta per review. Prima di portarla su `master`, verificare che il worktree non includa la modifica locale estranea a `src/content/famigliaApprofondimento.js`, quindi usare un merge non distruttivo e rieseguire `npm test`, `npm run lint` e `npm run build` sull'albero risultante.
 
@@ -277,6 +312,83 @@ I cinque vertici dei radar dei Quattro Rapporti mostrano ora un tooltip immediat
 - `npm run lint -- --quiet`: superato, 0 errori.
 - `npm run build`: superato, 1227 moduli trasformati.
 - `git diff --check`: superato.
+
+---
+
+## Integrazione redesign report a stanze — 2026-08-17
+
+### Sintesi
+
+Il branch `ai/codex`, fermo ai contributi dell'11/08, incorpora ora il checkpoint
+del redesign a stanze `489f8e3`. `ReportShell.jsx` orchestra le stanze inline e i
+layer separati tramite `RoomRevealContent.jsx`; i componenti precedenti
+`ReportSectionGroup.jsx` e `ReportRoom.jsx` sono stati eliminati e non è stato
+reintrodotto `ReportDetailTabs.jsx`.
+
+Le modifiche Codex precedenti sono state adattate al nuovo albero:
+
+- i sette nuovi video cielo e le transizioni lente restano attivi;
+- il player conserva il `playbackRate` configurabile per singolo cielo;
+- lo zoom e il dettaglio della Galassia lessicale restano integrati;
+- le CTA della hero puntano alla stanza overview e al nuovo test, saltando
+  l'introduzione quando richiesto;
+- i contratti mobile coprono safe area, bottom navigation e grafici responsive.
+- gli ID delle stanze corrispondono alle voci di `ReportSectionController`, così
+  scroll-spy, click e sblocco della navigazione restano operativi;
+- i layer separati trasferiscono il focus all'apertura e lo restituiscono al
+  trigger alla chiusura;
+- l'armocromia riceve i dati cielo sulla radice del report e colora i nuovi
+  selettori `.report-room-section`;
+- la Galassia resta esclusa sotto 768 px, coerentemente con navbar e deep-link.
+
+### File principali coinvolti
+
+- `src/components/report/ReportShell.jsx`
+- `src/components/report/RoomRevealContent.jsx`
+- `src/components/report/HeroScreen.jsx`
+- `src/components/report/NavbarTST.jsx`
+- `src/components/report/ReportSectionGroup.jsx` (rimosso)
+- `src/components/report/ReportRoom.jsx` (rimosso)
+- `src/components/SkyBackground.jsx`
+- `src/skyVideosConfig.js`
+- `src/components/report/LessicoAtlasView.jsx`
+- `src/utils/lessicoAtlasCamera.js`
+- `src/styles/report-tst.css`
+- `test/reportRoomExperience.test.js`
+- `test/skyBackgroundPlayback.test.js`
+- `test/lessicoAtlasCamera.test.js`
+- `test/mobileReportContracts.test.js`
+
+Il merge porta inoltre i file del checkpoint `489f8e3`; il presente handoff non
+li elenca singolarmente perché appartengono al redesign integrato.
+
+### Decisioni e assunzioni
+
+- Il commit `489f8e3`, registrato il 17/08, è il checkpoint Git che contiene il
+  redesign indicato come lavoro del 12/08.
+- Nei conflitti del report ha precedenza la struttura a stanze; le funzioni
+  Codex sono state riapplicate solo dove compatibili con quel contratto.
+- `.firebase/hosting.ZGlzdA.cache` è una modifica locale preesistente: è stata
+  preservata ed esclusa dal commit.
+- Nessun deploy, modifica credenziali o operazione su risorse remote.
+
+### Verifiche
+
+- `npm run lint`: superato, 0 errori.
+- `npm run build`: superato, 1232 moduli trasformati.
+- Test mirati report/sky/Galassia/mobile: 12 superati, 0 falliti.
+- Suite completa: 93 superati, 11 falliti. Gli 11 fallimenti provengono dai
+  nuovi test narrativi di `489f8e3` (`buildFourRelationsNarrative`,
+  `buildNaturaNarrative`, `reportGraphDataContract`) e descrivono divergenze di
+  copy/contratto già presenti nel checkpoint; non riguardano la migrazione a
+  stanze, il cielo o la Galassia e non sono stati risolti estendendo lo scope.
+
+### Comportamento atteso
+
+Il report apre la hero, prosegue nelle stanze 01–06 (più la stanza opzionale
+delle famiglie), applica la rivelazione progressiva con fallback reduced-motion
+e mantiene Aree sonore, Famiglie, Galassia e Musicians come layer separati e
+reversibili. Nessun import runtime punta ai componenti report rimossi.
 
 ---
 
