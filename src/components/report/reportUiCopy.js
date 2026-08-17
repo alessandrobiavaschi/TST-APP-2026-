@@ -241,13 +241,20 @@ export const RAPPORTI_UI = {
 
 export const PORTATO_UI = {
   eyebrow: 'Vissuto del test',
-  title: 'Forza delle tue correnti emotive',
+  title: 'La tua relazione con il contenuto musicale',
   lead:
-    "L’intensità di queste correnti racconta la tua sintonia con la comunicazione sonora durante il test: vicinanza, selettività o distanza.",
+    'Il punto combina sintonia, distonia e distanza emerse durante questo ascolto. Più si avvicina a un vertice, maggiore è il peso di quella modalità nel test.',
+  labels: {
+    Simpatia: 'Sintonia',
+    Antipatia: 'Distonia',
+    Indifferenza: 'Distanza',
+  },
+  padAria: 'Orientamento dell’ascolto tra sintonia, distonia e distanza',
+  padCenterLabel: 'Compresenza',
   prevalenteLabel: 'Prevalenza',
   quotaLabel: 'Quota',
   badgePrevalente: 'Prevalente',
-  gridAria: 'Punteggi portato esperienziale e quote',
+  gridAria: 'Punteggi di sintonia, distonia e distanza e relative quote',
 }
 
 export const PAROLE_UI = {
@@ -412,21 +419,21 @@ export const REPORT_SHELL_UI = {
 
 export const GALASSIA_PORTATO_UI = {
   intro:
-    'Il portato esperienziale descrive come hai vissuto l’ascolto nel test: attrazione (simpatia), rifiuto (antipatia) o distacco (indifferenza). Nel modello TST, ogni stimolo sonoro mette in moto il «calore» affettivo: per simpatia il flusso si aggancia al filtro personale, per antipatia si allontana, per indifferenza resta neutro.',
+    'Il portato esperienziale descrive come hai vissuto l’ascolto nel test: sintonia, distonia o distanza. Nel modello TST, ogni stimolo sonoro può entrare in risonanza, generare attrito oppure restare neutro.',
   scaleNote:
     'Le percentuali sono quote sul totale dei tre punteggi PE in questo test — non giudizi sulla persona, ma fotografia di come hai orientato le risposte.',
   tapHint: 'Tocca un mondo per la lettura di quella voce: definizione, quota e significato nel test.',
   prevalenteLabel: 'Voce prevalente',
   vitalitaLabel: 'Asse vitalità / depressione',
-  triadAria: 'Bilancio portato esperienziale: simpatia, antipatia, indifferenza',
-  axisAttrazione: 'Attrazione',
-  axisRifiuto: 'Rifiuto',
-  axisDistacco: 'Distacco',
+  triadAria: 'Bilancio portato esperienziale: sintonia, distonia, distanza',
+  axisAttrazione: 'Sintonia',
+  axisRifiuto: 'Distonia',
+  axisDistacco: 'Distanza',
   cosaIndicaLabel: 'Nel modello TST',
   cards: [
     {
       id: 'Simpatia',
-      label: 'Simpatia / Empatia',
+      label: 'Sintonia',
       areas: 'Calore · Risonanza',
       metaphor: 'Aggancio al suono',
       meaning:
@@ -434,7 +441,7 @@ export const GALASSIA_PORTATO_UI = {
     },
     {
       id: 'Antipatia',
-      label: 'Antipatia',
+      label: 'Distonia',
       areas: 'Rifiuto · Fastidio',
       metaphor: 'Distanza dal suono',
       meaning:
@@ -442,7 +449,7 @@ export const GALASSIA_PORTATO_UI = {
     },
     {
       id: 'Indifferenza',
-      label: 'Indifferenza / Nichilismo',
+      label: 'Distanza',
       areas: 'Neutro · Distacco',
       metaphor: 'Presa di distanza',
       meaning:
