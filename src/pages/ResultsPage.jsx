@@ -799,11 +799,6 @@ function ResultsPage() {
 
   const openReport = (record) => {
     if (!record) return
-    try {
-      window.sessionStorage.setItem('tst_last_report_record', JSON.stringify(record))
-    } catch (error) {
-      console.warn('Impossibile salvare il fallback report in sessionStorage:', error)
-    }
     navigate('/risultati/report', { state: { record } })
   }
 

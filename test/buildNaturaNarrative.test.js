@@ -91,7 +91,7 @@ test('gradua al contrario l influenza delle famiglie successive rispetto alla pr
   assert.doesNotMatch(close.paragraphs.join(' '), /certa prevalenza|netta prevalenza/i)
 })
 
-test('nel caso CSV mostra seconda e terza per graduatoria senza sostituirle con la tensione più forte', () => {
+test('il racconto in primo piano evidenzia la tensione reale, il dettaglio tecnico mantiene tutta la graduatoria', () => {
   const result = buildNaturaNarrative({
     dominantFamilyKey: 'rosso',
     ranking: [
@@ -104,9 +104,10 @@ test('nel caso CSV mostra seconda e terza per graduatoria senza sostituirle con 
   })
 
   assert.equal(result.frontParagraphs.length, 3)
-  assert.match(result.frontParagraphs[1], /seconda componente.*Malinconica.*7,1 punti percentuali.*influenza marcata.*compensazione/i)
-  assert.match(result.frontParagraphs[2], /terza componente.*Entusiasta.*12,5 punti percentuali.*influenza discreta.*affinità/i)
-  assert.doesNotMatch(result.frontParagraphs.join(' '), /Flemmatica/i)
+  assert.match(result.frontParagraphs[0], /appartenenza alla famiglia Marziale.*Volitivo-collerica/i)
+  assert.match(result.frontParagraphs[1], /tensione moderata.*natura Flemmatica.*mette in tensione la spinta all'azione/i)
+  assert.match(result.frontParagraphs[2], /discreta armonia tra le diverse componenti/i)
+  assert.doesNotMatch(result.frontParagraphs.join(' '), /%|punti percentuali/i)
   assert.match(result.paragraphs.join(' '), /quarta componente.*Flemmatica.*influenza moderata.*tensione/i)
   assert.match(result.paragraphs.join(' '), /quinta componente.*Razionale.*influenza leggera.*tensione/i)
 })
@@ -258,8 +259,9 @@ test('un vero pari merito non degrada la famiglia a pari punti a influenza secon
     ],
   })
 
-  assert.doesNotMatch(result.frontParagraphs.join(' '), /seconda componente.*Flemmatica/i)
-  assert.match(result.frontParagraphs.join(' '), /terza componente.*Malinconica.*influenza moderata/i)
+  assert.doesNotMatch(result.frontParagraphs.join(' '), /componente.*Flemmatica|Flemmatica.*influenza/i)
+  assert.match(result.frontParagraphs.join(' '), /famiglie Marziale e Flemmatica/i)
+  assert.match(result.frontParagraphs.join(' '), /discreta armonia/i)
 })
 
 test('un vero pari merito senza altre famiglie non nega la componente condivisa', () => {
@@ -272,9 +274,10 @@ test('un vero pari merito senza altre famiglie non nega la componente condivisa'
   })
   const text = result.paragraphs.join(' ')
 
-  assert.equal(result.frontParagraphs.length, 1)
+  assert.equal(result.frontParagraphs.length, 2)
   assert.match(text, /risultato resta condiviso tra le famiglie Marziale e Flemmatica/i)
   assert.doesNotMatch(text, /nessun’altra famiglia ha ottenuto punti|senza altre componenti misurate/i)
+  assert.match(result.frontParagraphs.join(' '), /pari peso delle famiglie al vertice/i)
 })
 
 test('la graduatoria prevale su una chiave dominante esterna incoerente', () => {
@@ -283,8 +286,8 @@ test('la graduatoria prevale su una chiave dominante esterna incoerente', () => 
     ranking: [radarItem('rosso', 19, 60, 7), radarItem('verde', 12, 40, 4)],
   })
 
-  assert.match(result.frontParagraphs[0], /famiglia Marziale.*punteggio più alto.*Volitivo-collerica/i)
-  assert.doesNotMatch(result.frontParagraphs[0], /famiglia Flemmatica.*punteggio più alto/i)
+  assert.match(result.frontParagraphs[0], /famiglia Marziale.*Volitivo-collerica.*prevalenza/i)
+  assert.doesNotMatch(result.frontParagraphs[0], /Flemmatica/i)
 })
 
 test('uno stato vuoto non attribuisce appartenenza o prevalenza', () => {

@@ -186,7 +186,7 @@ test('la lettura della Natura usa la prevalente della lente e racconta le second
   assert.match(natura.definizione, /seconda componente.*Marziale.*influenza discreta.*tensione significativa/i)
 })
 
-test('il contratto Natura espone seconda e terza del caso CSV nel riepilogo visibile', () => {
+test('il contratto Natura racconta la tensione reale nel riepilogo visibile del caso CSV', () => {
   const naturaTotals = { rosso: 19, blu: 15, giallo: 12, verde: 7, grigio: 3 }
   const report = buildReportData({
     record: { raw: {} },
@@ -198,9 +198,10 @@ test('il contratto Natura espone seconda e terza del caso CSV nel riepilogo visi
 
   assert.equal(natura.correntePrincipale.nome, 'Marziale')
   assert.equal(natura.sintesiBreveParagrafi.length, 3)
-  assert.match(natura.sintesiBreveParagrafi[1], /Malinconica.*influenza marcata.*compensazione/i)
-  assert.match(natura.sintesiBreveParagrafi[2], /Entusiasta.*influenza discreta.*affinità/i)
-  assert.doesNotMatch(natura.sintesiBreveParagrafi.join(' '), /Flemmatica/i)
+  assert.match(natura.sintesiBreveParagrafi[0], /Marziale.*Volitivo-collerica/i)
+  assert.match(natura.sintesiBreveParagrafi[1], /tensione moderata.*Flemmatica/i)
+  assert.match(natura.sintesiBreveParagrafi[2], /discreta armonia/i)
+  assert.doesNotMatch(natura.sintesiBreveParagrafi.join(' '), /%|punti percentuali/i)
 })
 
 test('Sé Altro e Agire usano la famiglia risultante dalla Natura classica', () => {
@@ -406,6 +407,159 @@ test('un record parziale conserva le famiglie assenti a zero senza produrre NaN'
   })
   assert.deepEqual(percentages, { verde: 0, rosso: 25, blu: 75, giallo: 0, grigio: 0 })
   assert.ok(report.correnti.every((item) => Number.isFinite(item.peso)))
+})
+
+test('il portato 61 17 1 espone quote esatte, coordinate e una sintesi semplice', () => {
+  const report = buildReportData({
+    record: {
+      raw: {
+        PE_Simpatia: 61,
+        PE_Antipatia: 17,
+        PE_Indifferenza: 1,
+      },
+    },
+  })
+
+  assert.deepEqual(
+    report.portato.dimensioni.map(({ key, label, valore, percentuale }) => ({
+      key,
+      label,
+      valore,
+      percentuale,
+    })),
+    [
+      { key: 'Simpatia', label: 'Sintonia', valore: 61, percentuale: 77 },
+      { key: 'Antipatia', label: 'Distonia', valore: 17, percentuale: 22 },
+      { key: 'Indifferenza', label: 'Distanza', valore: 1, percentuale: 1 },
+    ],
+  )
+  assert.equal(report.portato.prevalente, 'Simpatia')
+  assert.equal(report.portato.prevalenteLabel, 'Sintonia')
+  assert.equal(report.portato.quoteNormalizzate.Simpatia, 61 / 79)
+  assert.equal(report.portato.quoteNormalizzate.Antipatia, 17 / 79)
+  assert.equal(report.portato.quoteNormalizzate.Indifferenza, 1 / 79)
+  assert.equal(report.portato.pad.punto.x, 17 / 79 + 0.5 / 79)
+  assert.equal(report.portato.pad.punto.y, 1 / 79)
+  assert.match(report.portato.sintesiInterpretativa, /soprattutto sintonia/)
+  assert.match(report.portato.sintesiInterpretativa, /componente di distonia/)
+  assert.match(report.portato.sintesiInterpretativa, /distanza è rimasta quasi assente/)
+  assert.match(report.portato.sintesiInterpretativa, /In questo ascolto/)
+})
+
+test('parità e quasi equilibrio non forzano una prevalenza nella sintesi', () => {
+  const quasiBilanciato = buildReportData({
+    record: {
+      raw: {
+        PE_Simpatia: 34,
+        PE_Antipatia: 33,
+        PE_Indifferenza: 33,
+      },
+    },
+  })
+  const paritaInTesta = buildReportData({
+    record: {
+      raw: {
+        PE_Simpatia: 45,
+        PE_Antipatia: 45,
+        PE_Indifferenza: 10,
+      },
+    },
+  })
+
+  assert.match(quasiBilanciato.portato.sintesiInterpretativa, /emerse con quote molto vicine/)
+  assert.match(quasiBilanciato.portato.sintesiInterpretativa, /compresenza delle tre modalità/)
+  assert.match(quasiBilanciato.portato.sintesiInterpretativa, /senza una nettamente prevalente/)
+  assert.ok(quasiBilanciato.portato.sintesiInterpretativa.includes('sintonia'))
+  assert.ok(quasiBilanciato.portato.sintesiInterpretativa.includes('distonia'))
+  assert.ok(quasiBilanciato.portato.sintesiInterpretativa.includes('distanza'))
+  assert.match(paritaInTesta.portato.sintesiInterpretativa, /sintonia e distonia/)
+  assert.match(paritaInTesta.portato.sintesiInterpretativa, /intensità simile/)
+  assert.match(paritaInTesta.portato.sintesiInterpretativa, /distanza è emersa in misura contenuta/)
+})
+
+test('il portato tutto a zero resta uno stato vuoto senza un falso punto nel pad', () => {
+  const report = buildReportData({
+    record: {
+      raw: {
+        PE_Simpatia: 0,
+        PE_Antipatia: 0,
+        PE_Indifferenza: 0,
+      },
+    },
+    portatoEsperienziale: {
+      dominantKey: 'Simpatia',
+      description: 'Descrizione che non deve apparire senza punteggi.',
+      vitalityInterpretation: 'Interpretazione che non deve apparire senza punteggi.',
+      totals: { simpatia: 0, antipatia: 0, indifferenza: 0 },
+    },
+  })
+
+  assert.equal(report.portato.hasData, false)
+  assert.equal(report.portato.prevalente, '')
+  assert.equal(report.portato.prevalenteLabel, '')
+  assert.equal(report.portato.descrizione, '')
+  assert.equal(report.portato.vitalita, '')
+  assert.deepEqual(report.portato.quoteNormalizzate, {
+    Simpatia: 0,
+    Antipatia: 0,
+    Indifferenza: 0,
+  })
+  assert.equal(report.portato.pad.punto, null)
+  assert.match(report.portato.sintesiInterpretativa, /non ci sono dati sufficienti/)
+  assert.match(report.portato.sintesiInterpretativa, /Per questo ascolto/)
+})
+
+test('la prevalenza del portato viene riconciliata con i punteggi correnti', () => {
+  const report = buildReportData({
+    record: {
+      raw: {
+        PE_Simpatia: 1,
+        PE_Antipatia: 9,
+        PE_Indifferenza: 0,
+        Portato_Esperienziale_Prevalente: 'Simpatia',
+      },
+    },
+    portatoEsperienziale: {
+      dominantKey: 'Simpatia',
+      description: 'Descrizione obsoleta della sintonia.',
+      totals: { simpatia: 1, antipatia: 9, indifferenza: 0 },
+    },
+  })
+
+  assert.equal(report.portato.prevalente, 'Antipatia')
+  assert.equal(report.portato.prevalenteLabel, 'Distonia')
+  assert.doesNotMatch(report.portato.descrizione, /Descrizione obsoleta/)
+  assert.match(report.portato.sintesiInterpretativa, /soprattutto distonia/)
+  assert.deepEqual(report.portato.pad.punto, { x: 0.9, y: 0 })
+})
+
+test('le coordinate del pad sono la combinazione delle quote non arrotondate', () => {
+  const report = buildReportData({
+    record: {
+      raw: {
+        PE_Simpatia: 2,
+        PE_Antipatia: 3,
+        PE_Indifferenza: 5,
+      },
+    },
+  })
+  const { quoteNormalizzate, pad, dimensioni } = report.portato
+
+  assert.equal(Object.values(quoteNormalizzate).reduce((sum, quota) => sum + quota, 0), 1)
+  assert.deepEqual(pad.vertici, {
+    Simpatia: { x: 0, y: 0 },
+    Antipatia: { x: 1, y: 0 },
+    Indifferenza: { x: 0.5, y: 1 },
+  })
+  assert.deepEqual(pad.punto, { x: 0.55, y: 0.5 })
+  assert.deepEqual(
+    dimensioni.map(({ key, quotaNormalizzata }) => [key, quotaNormalizzata]),
+    [
+      ['Simpatia', 0.2],
+      ['Antipatia', 0.3],
+      ['Indifferenza', 0.5],
+    ],
+  )
 })
 
 test('i risultati storici derivano i totali dal record e rispettano la sottodisposizione salvata', () => {

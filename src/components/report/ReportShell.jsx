@@ -1,17 +1,17 @@
 import React, { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import VideoBackground0311 from '../VideoBackground0311.jsx'
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { useSkyTheme } from '../../SkyThemeContext.jsx'
+import VideoBackground0311 from '../VideoBackground0311.jsx'
+import {
+  AnimatePresence,
+  motion,
+  useReducedMotion,
+} from 'framer-motion'
 import HeroScreen from './HeroScreen'
 import NavbarTST from './NavbarTST'
 import ReportSectionController from './ReportSectionController'
-import ReportSectionGroup from './ReportSectionGroup'
-import {
-  getDefaultGroupOpenState,
-  getReportGroups,
-  SECTION_TO_GROUP,
-} from './reportSectionsConfig'
+import RoomRevealContent from './RoomRevealContent'
+import { REPORT_GROUPS, SECTION_TO_GROUP } from './reportSectionsConfig'
 import { SHOW_TRACCE_SECTION, shouldShowEmotionalIntegrations } from './reportFeatureFlags.js'
 import { resolveReportScrollTarget, scrollToReportSection } from './reportSectionNavUtils'
 import ReportHelpModal from './ReportHelpModal'
@@ -23,10 +23,10 @@ import ParoleStatiAnimo from './ParoleStatiAnimo'
 import EmotionalIntegrations from './EmotionalIntegrations.jsx'
 import SectionDivider from './SectionDivider'
 import FioreCorrenti from './FioreCorrenti'
-import ReportRoom from './ReportRoom.jsx'
 import { buildCorrentDataFromRecord } from '../../utils/galassiaData.js'
 import { buildLessicoAnaliticoViewModel } from '../../utils/galassiaLessicoViewModel.js'
-import { REPORT_NAV_UI, REPORT_SHELL_UI } from './reportUiCopy.js'
+import { REPORT_NAV_UI, REPORT_SHELL_UI, APPROFONDIMENTO_UI, SINTESI_UI } from './reportUiCopy.js'
+import { SECTION_INTROS } from '../../content/reportRestitution.js'
 
 // Il flat-config ESLint del repo non rileva l'uso di `motion` via JSX member.
 void motion
@@ -38,6 +38,7 @@ const GalassiaView = lazy(() => import('./GalassiaView'))
 const ForMusiciansView = lazy(() => import('./ForMusiciansView.jsx'))
 const QuattroRapporti = lazy(() => import('./QuattroRapporti'))
 const SintesiCorrenti = lazy(() => import('./SintesiCorrenti'))
+const ApprofondimentoSezioni = lazy(() => import('./ApprofondimentoSezioni'))
 
 /* ── Fallback Suspense: 3 dot pulsanti del colore corrente ──────────── */
 function DotsSpinner({ color = '#4ade80' }) {
@@ -80,23 +81,36 @@ function readModalitaFromHash() {
   if (typeof window === 'undefined') return 'report'
   if (window.location.hash === '#galassia') return 'galassia'
   if (window.location.hash === '#for-musicians') return 'for-musicians'
-  if (window.location.hash === '#dettaglio') return 'dettaglio'
+  if (window.location.hash === '#aree-sonore') return 'aree-sonore'
+  if (window.location.hash === '#famiglie') return 'famiglie'
   return 'report'
 }
+
+// Voci del percorso di lettura laterale che aprono una stanza di
+// approfondimento indipendente (invece di scrollare nel report principale).
+const ROOM_BY_GROUP = {
+  'report-group-approfondimento': 'aree-sonore',
+  'report-group-relazioni': 'famiglie',
+}
+// "Forza delle tue correnti emotive" e "Dizionario emotivo" non hanno una
+// stanza dedicata: il loro contenuto è già inline nelle stanze 04/05.
+const SCROLL_ANCHOR_BY_GROUP = {
+  'report-group-forza-correnti': 'report-tst-portato',
+  'report-group-educazione': 'report-tst-parole',
+}
+// report-group-profilo-generale è sempre "aperto" nel percorso principale:
+// nessuna stanza lo nasconde, quindi il suo target di scroll resta stabile.
+const STATIC_GROUP_OPEN = { 'report-group-profilo-generale': true }
+
+const AREE_SONORE_GROUP = REPORT_GROUPS.find((g) => g.id === 'report-group-approfondimento')
+const FAMIGLIE_GROUP = REPORT_GROUPS.find((g) => g.id === 'report-group-relazioni')
 
 /**
  * <ReportTST /> — ROOT della nuova esperienza report (post-CONTEXT).
  *
- * Evoluzione di `ReportShell`: orchestra hero, navbar, modalità Report/Galassia
- * (sincronizzate con l'hash dell'URL), modal "Come leggere", loader full-screen
- * e i componenti dettagliati data-driven da `reportData`.
- *
- * Tutti i dati arrivano da `reportData` (vedi utils/buildReportData.js): qui non
- * si esegue alcun nuovo scoring.
- *
- * Props:
- *   - reportData: struttura unica (vedi buildReportData)
- *   - onDownload, onNavigateHome, onNavigateArchive: callback azioni
+ * Evoluzione di `ReportShell`: orchestra hero, navbar, modalità Report/Galassia/Musicians/Dettaglio
+ * (sincronizzate con l'hash dell'URL), loader full-screen e i componenti dettagliati
+ * distribuiti in una sequenza verticale a stanze fullscreen.
  */
 export default function ReportShell({
   reportData,
@@ -111,7 +125,16 @@ export default function ReportShell({
   const weather = skyTheme?.weather || 'sereno'
   const visualProfile = skyTheme?.visualProfile || { tone: 'medium', warmth: 'neutral', intensity: 'normal' }
   const reduceMotion = useReducedMotion()
+
   const [modalita, setModalita] = useState(readModalitaFromHash)
+  
+  // Refs for accessibility focus restoration
+  const areeSonoreEntryBtnRef = useRef(null)
+  const famiglieEntryBtnRef = useRef(null)
+  const musiciansEntryBtnRef = useRef(null)
+  const musiciansBackButtonRef = useRef(null)
+  const galassiaEntryBtnRef = useRef(null)
+  const previousModalitaRef = useRef(modalita)
   /** Monta Galassia al primo accesso e la tiene in DOM (overlay) per preservare stato e scroll del report. */
   const [galassiaEverOpened, setGalassiaEverOpened] = useState(
     () => readModalitaFromHash() === 'galassia',
@@ -121,14 +144,10 @@ export default function ReportShell({
   const [glossaryFocusId, setGlossaryFocusId] = useState(null)
   const [loaded, setLoaded] = useState(false)
   const [scientificScopeOpen, setScientificScopeOpen] = useState(true)
-  const [groupOpen, setGroupOpen] = useState(getDefaultGroupOpenState)
+  const [rapportiSlideActive, setRapportiSlideActive] = useState(false)
   const heroRef = useRef(null)
   const progressBarRef = useRef(null)
-  const detailEntryButtonRef = useRef(null)
-  const detailBackButtonRef = useRef(null)
-  const musiciansEntryButtonRef = useRef(null)
-  const musiciansBackButtonRef = useRef(null)
-  const previousModalitaRef = useRef(modalita)
+  const rapportiAnchorRef = useRef(null)
 
   useEffect(() => {
     if (modalita !== 'report') return undefined
@@ -143,6 +162,18 @@ export default function ReportShell({
     return () => window.removeEventListener('scroll', handleScroll)
   }, [modalita])
 
+  useEffect(() => {
+    if (modalita !== 'report') return undefined
+    const el = rapportiAnchorRef.current
+    if (!el) return undefined
+    const observer = new IntersectionObserver(
+      ([entry]) => setRapportiSlideActive(entry.isIntersecting),
+      { rootMargin: '-96px 0px -96px 0px', threshold: 0 },
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [modalita])
+
   const openGlossary = useCallback((focusId = null) => {
     setGlossaryFocusId(focusId)
     setGlossaryOpen(true)
@@ -152,6 +183,45 @@ export default function ReportShell({
     setGlossaryOpen(false)
     setGlossaryFocusId(null)
   }, [])
+
+  useEffect(() => {
+    const previousMode = previousModalitaRef.current
+    previousModalitaRef.current = modalita
+    if (modalita === 'report') {
+      if (previousMode === 'aree-sonore') {
+        requestAnimationFrame(() => areeSonoreEntryBtnRef.current?.focus())
+      } else if (previousMode === 'famiglie') {
+        requestAnimationFrame(() => famiglieEntryBtnRef.current?.focus())
+      } else if (previousMode === 'for-musicians') {
+        requestAnimationFrame(() => musiciansEntryBtnRef.current?.focus())
+      } else if (previousMode === 'galassia') {
+        requestAnimationFrame(() => galassiaEntryBtnRef.current?.focus())
+      }
+    } else if (modalita === 'for-musicians') {
+      requestAnimationFrame(() => musiciansBackButtonRef.current?.focus())
+    }
+  }, [modalita])
+
+  useEffect(() => {
+    if (modalita === 'report') return undefined
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') changeModalita('report')
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [modalita, changeModalita])
+
+  const enterReport = useCallback(() => {
+    const target = document.getElementById('stanza-overview')
+    if (target) {
+      target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' })
+      window.history.pushState(null, '', '#stanza-overview')
+    }
+  }, [reduceMotion])
+
+  const startNewTest = useCallback(() => {
+    navigate('/nuovo-test', { state: { startAtProfile: true } })
+  }, [navigate])
 
   const hasReportData = Boolean(reportData && typeof reportData === 'object')
   const {
@@ -177,18 +247,7 @@ export default function ReportShell({
   const correnteColore = profilo?.colore || '#4ade80'
   const isAlternateMode = modalita !== 'report'
   const showEmotionalIntegrations = shouldShowEmotionalIntegrations(profilo)
-  const reportGroups = useMemo(() => getReportGroups(profilo), [profilo])
-  const detailGroups = useMemo(
-    () => reportGroups.filter(
-      (group) => group.id !== 'report-group-hero'
-        && group.id !== 'report-group-profilo-generale'
-        && group.id !== 'report-tst-rapporti'
-        && group.id !== 'report-group-approfondimento',
-    ),
-    [reportGroups],
-  )
 
-  // Dati Galassia: costruiti dai punteggi reali (no scoring nuovo). Memoizzati.
   const correntData = useMemo(
     () => buildCorrentDataFromRecord(rawRecord || {}),
     [rawRecord],
@@ -206,7 +265,6 @@ export default function ReportShell({
     })
   }, [hasReportData, rawRecord, correnti, reportData.correntiByPeso, sottocorrenti, profilo?.famiglia, sottodisposizionePrevalente])
 
-  // Liste leggere per i componenti (nome/colore/peso).
   const correntiLite = useMemo(
     () => correnti.map((c) => ({ nome: c.nome, colore: c.colore, peso: c.peso })),
     [correnti],
@@ -239,14 +297,13 @@ export default function ReportShell({
     document.body.scrollTop = 0
   }, [])
 
-  // Ogni apertura report: hero in cima. Rispetta pero il deep-link #galassia.
   useEffect(() => {
     if (!hasReportData || !reportIdentityKey) return
     const requestedMode = readModalitaFromHash()
     resetReportViewport()
     setModalita(requestedMode)
-    if (requestedMode !== 'report') {
-      if (requestedMode === 'galassia') setGalassiaEverOpened(true)
+    if (requestedMode === 'galassia') {
+      setGalassiaEverOpened(true)
       return
     }
     try {
@@ -259,35 +316,15 @@ export default function ReportShell({
   }, [hasReportData, reportIdentityKey, resetReportViewport])
 
   useEffect(() => {
-    const previousMode = previousModalitaRef.current
-    previousModalitaRef.current = modalita
-    if (previousMode === 'dettaglio' && modalita === 'report') {
-      requestAnimationFrame(() => detailEntryButtonRef.current?.focus())
-    }
-    if (previousMode === 'for-musicians' && modalita === 'report') {
-      requestAnimationFrame(() => musiciansEntryButtonRef.current?.focus())
-    }
-    if (modalita === 'dettaglio') {
-      requestAnimationFrame(() => detailBackButtonRef.current?.focus())
-    }
-    if (modalita === 'for-musicians') {
-      requestAnimationFrame(() => musiciansBackButtonRef.current?.focus())
-    }
-  }, [modalita])
-
-  // Loader full-screen: si chiude appena la prima paint è pronta.
-  useEffect(() => {
     const t = window.setTimeout(() => setLoaded(true), 450)
     return () => window.clearTimeout(t)
   }, [])
 
-  // Dopo il loader il layout può spostare lo scroll: riallinea la hero.
   useEffect(() => {
     if (!loaded || !reportIdentityKey) return
     resetReportViewport()
   }, [loaded, reportIdentityKey, resetReportViewport])
 
-  // Sincronizzazione modalità ↔ hash dell'URL (deep-link a #galassia).
   useEffect(() => {
     const onHashChange = () => {
       const next = readModalitaFromHash()
@@ -298,26 +335,19 @@ export default function ReportShell({
     return () => window.removeEventListener('hashchange', onHashChange)
   }, [])
 
-  const changeModalita = (next) => {
-    if (next === modalita) return
-    if (next === 'galassia') setGalassiaEverOpened(true)
-    setModalita(next)
-    try {
-      const url = `${window.location.pathname}${window.location.search}#${next}`
-      window.history.replaceState(null, '', next === 'report' ? window.location.pathname + window.location.search : url)
-    } catch {
-      window.location.hash = next === 'report' ? '' : next
-    }
-  }
-
-  useEffect(() => {
-    if (!isAlternateMode) return undefined
-    const handleKeyDown = (event) => {
-      if (event.key === 'Escape') changeModalita('report')
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  })
+  const changeModalita = useCallback((next) => {
+    setModalita((current) => {
+      if (next === current) return current
+      if (next === 'galassia') setGalassiaEverOpened(true)
+      try {
+        const url = `${window.location.pathname}${window.location.search}#${next}`
+        window.history.replaceState(null, '', next === 'report' ? window.location.pathname + window.location.search : url)
+      } catch {
+        window.location.hash = next === 'report' ? '' : next
+      }
+      return next
+    })
+  }, [])
 
   useEffect(() => {
     if (!isAlternateMode) return undefined
@@ -328,53 +358,26 @@ export default function ReportShell({
     }
   }, [isAlternateMode])
 
-  const toggleDetailGroup = useCallback((groupId) => {
-    setGroupOpen((prev) => {
-      const next = { ...prev }
-      const shouldOpen = !prev[groupId]
-
-      detailGroups.forEach((group) => {
-        next[group.id] = shouldOpen && group.id === groupId
-      })
-
-      return next
-    })
-  }, [detailGroups])
-
   const handleNavigateSection = useCallback(
     (sectionId, { onScrollComplete } = {}) => {
-      const groupId = SECTION_TO_GROUP[sectionId]
-      const nextGroupOpen = groupId ? { ...groupOpen, [groupId]: true } : groupOpen
-      if (groupId && !groupOpen[groupId]) {
-        setGroupOpen((prev) => ({ ...prev, [groupId]: true }))
+      const groupId = SECTION_TO_GROUP[sectionId] || sectionId
+      const roomId = ROOM_BY_GROUP[groupId]
+      if (roomId) {
+        changeModalita(roomId)
+        onScrollComplete?.()
+        return
       }
-
-      const scroll = () => {
-        const targetId = resolveReportScrollTarget(sectionId, { groupOpen: nextGroupOpen })
-        scrollToReportSection(targetId, {
-          reduceMotion: true,
-          onLockChange: (locked) => {
-            if (!locked) onScrollComplete?.()
-          },
-        })
-      }
-
-      if (groupId && !groupOpen[groupId]) {
-        requestAnimationFrame(scroll)
-      } else {
-        scroll()
-      }
+      const targetId = SCROLL_ANCHOR_BY_GROUP[groupId]
+        || resolveReportScrollTarget(sectionId, { groupOpen: STATIC_GROUP_OPEN })
+      scrollToReportSection(targetId, {
+        reduceMotion: true,
+        onLockChange: (locked) => {
+          if (!locked) onScrollComplete?.()
+        },
+      })
     },
-    [groupOpen],
+    [changeModalita],
   )
-
-  const enterReport = useCallback(() => {
-    scrollToReportSection('report-group-profilo-generale', { reduceMotion })
-  }, [reduceMotion])
-
-  const startNewTest = useCallback(() => {
-    navigate('/nuovo-test', { state: { startAtProfile: true } })
-  }, [navigate])
 
   if (!hasReportData) {
     return (
@@ -404,10 +407,11 @@ export default function ReportShell({
       }}
       lang="it"
     >
-      <div className="report-tst-cosmic-bg" aria-hidden="true" />
-      <div className="report-page-wrapper__stars" aria-hidden="true" />
+      <div className="report-tst-scroll-bg" aria-hidden="true" />
+      <motion.div className="report-tst-cosmic-bg" aria-hidden="true" />
+      <motion.div className="report-page-wrapper__stars" aria-hidden="true" />
       <VideoBackground0311 showOverlay className="report-page-wrapper__video" />
-      <div className="report-page-wrapper__vignette" aria-hidden="true" />
+      <motion.div className="report-page-wrapper__vignette" aria-hidden="true" />
       <div className="report-xp-progress" aria-hidden="true">
         <div ref={progressBarRef} className="report-xp-progress-bar" style={{ width: '0%' }} />
       </div>
@@ -472,256 +476,362 @@ export default function ReportShell({
         className={`report-tst-report${isAlternateMode ? ' report-tst-report--covered' : ''}`}
         aria-label={REPORT_SHELL_UI.reportAria}
       >
-            <div
-              id="report-hero"
-              ref={heroRef}
-              className="report-tst-hero-wrap"
-              aria-hidden={isAlternateMode}
-              inert={isAlternateMode ? true : undefined}
-            >
-              <HeroScreen
-                naturaName={profilo?.natura}
-                disposizione={profilo?.disposizione}
-                userName={utente?.nome || ''}
-                fraseChiave={profilo?.fraseChiave}
-                correnteColore={correnteColore}
-                correnteColoreChiara={profilo?.coloreChiara}
-                correnteColoreMedia={profilo?.coloreMedia}
-                famigliaColore={profilo?.famiglia}
-                correnti={correntiLite}
-                rawRecord={rawRecord}
-                portato={portato}
-                onOpenGlossary={openGlossary}
-                onReadReport={enterReport}
-                onNewTest={startNewTest}
-              />
+        {/* ── STANZA 00: HOME FULLSCREEN ──────────────────────────────── */}
+        <div
+          id="report-hero"
+          ref={heroRef}
+          className="report-tst-hero-wrap report-room-section report-room-section--home"
+          aria-hidden={isAlternateMode}
+          inert={isAlternateMode ? true : undefined}
+        >
+          <HeroScreen
+            familyName={profilo?.correnteDominante}
+            naturaName={profilo?.natura}
+            disposizione={profilo?.disposizione}
+            userName={utente?.nome || ''}
+            fraseChiave={profilo?.fraseChiave}
+            correnteColore={correnteColore}
+            correnteColoreChiara={profilo?.coloreChiara}
+            correnteColoreMedia={profilo?.coloreMedia}
+            correnti={correntiLite}
+            rawRecord={rawRecord}
+            portato={portato}
+            onOpenGlossary={openGlossary}
+            onReadReport={enterReport}
+            onNewTest={startNewTest}
+          />
+        </div>
+
+        <NavbarTST
+          forceVisible={modalita !== 'report'}
+          modalita={modalita}
+          onModalitaChange={changeModalita}
+          userName={utente?.nome || ''}
+          correnteColore={correnteColore}
+          correnteDominante={profilo?.correnteDominante || ''}
+          profilo={profilo}
+          onDownload={onDownload}
+          onOpenHelp={() => setHelpOpen(true)}
+        />
+
+        <div
+          className={`report-tst-layout${rapportiSlideActive ? ' report-tst-layout--rapporti-slide' : ''}`}
+          aria-hidden={isAlternateMode}
+          inert={isAlternateMode ? true : undefined}
+        >
+          <ReportSectionController
+            profilo={profilo}
+            musicista={musicista}
+            onNavigate={handleNavigateSection}
+          />
+
+          <div className="report-tst-layout__main">
+            <p className="report-tst-layout-hint sr-only">{REPORT_NAV_UI.layoutHint}</p>
+            <div className="report-tst-body__groups report-rooms-container">
+
+              {/* ── STANZA 01: OVERVIEW FULLSCREEN (Sintesi + Grafici) ── */}
+              <section id="stanza-overview" className="report-room-section report-room-section--overview">
+                <header className="report-room-header">
+                  <span className="report-room-badge">01</span>
+                  <h2 id="sintesi-correnti-heading" className="report-room-title">{SINTESI_UI.title}</h2>
+                </header>
+                <RoomRevealContent id="report-tst-sintesi" className="report-tst-section-anchor">
+                  <Suspense fallback={<DotsSpinner color={correnteColore} />}>
+                    <SintesiCorrenti
+                      correnti={correnti}
+                      correnteDominante={profilo?.correnteDominante || ''}
+                      focus={profilo?.focus || ''}
+                      userName={utente?.nome || ''}
+                      correnteColore={correnteColore}
+                      famiglia={profilo?.famiglia || ''}
+                      sintesiLead={sintesi?.lead}
+                      sintesiKeyFacts={sintesi?.keyFacts}
+                      sintesiLeadExtended={sintesi?.leadExtended}
+                      sintesiParagrafi={sintesi?.paragrafi}
+                      datiRadar={sintesi?.datiRadar}
+                      totalScores={colorTotals}
+                      sottocorrenti={sottocorrenti}
+                      onOpenGlossary={openGlossary}
+                      sottodisposizione={sottodisposizionePrevalente}
+                      portato={portato}
+                      stepPrefix="1"
+                    />
+                  </Suspense>
+                </RoomRevealContent>
+              </section>
+
+              <SectionDivider />
+
+              {/* ── STANZA 02: IDENTITÀ EMOTIVA E NATURA ────────────────── */}
+              <section id="stanza-identita" className="report-room-section report-room-section--identita">
+                <header className="report-room-header">
+                  <span className="report-room-badge">02</span>
+                  <h2 id="pe-section-title" className="report-room-title">Identità Emotiva e Natura</h2>
+                </header>
+                <RoomRevealContent id="report-tst-famiglia" className="report-tst-section-anchor">
+                  <ProfiloEmotivo
+                    sezioni={profiloEmotivo?.sezioni || []}
+                    famiglia={profilo?.famiglia || ''}
+                    profilo={profilo}
+                    accentColor={correnteColore}
+                    stepPrefix="2"
+                  />
+                </RoomRevealContent>
+              </section>
+
+              <SectionDivider />
+
+              {/* ── STANZA 03: I QUATTRO RAPPORTI ───────────────────────── */}
+              <section id="stanza-rapporti" className="report-room-section report-room-section--rapporti">
+                <header className="report-room-header">
+                  <span className="report-room-badge">03</span>
+                  <h2 className="report-room-title">I Quattro Rapporti</h2>
+                </header>
+                <div id="report-tst-rapporti" ref={rapportiAnchorRef} className="report-tst-section-anchor">
+                  <RoomRevealContent>
+                    <Suspense fallback={<DotsSpinner color={correnteColore} />}>
+                      <QuattroRapporti
+                        rapporti={rapporti}
+                        coloriCorrenti={coloriCorrenti}
+                        profilo={profilo}
+                        sottocorrenti={sottocorrenti}
+                        step="3.4"
+                      />
+                    </Suspense>
+                  </RoomRevealContent>
+                </div>
+              </section>
+
+              <SectionDivider />
+
+              {/* ── STANZA 04: PORTATO ESPERIENZIALE E VITALITÀ ─────────── */}
+              <section id="stanza-portato" className="report-room-section report-room-section--portato">
+                <header className="report-room-header">
+                  <span className="report-room-badge">04</span>
+                  <h2 className="report-room-title">Portato Esperienziale e Vitalità</h2>
+                </header>
+                <RoomRevealContent id="report-tst-portato" className="report-tst-section-anchor">
+                  <SezionePortatoEsperienziale
+                    portato={portato}
+                    correnteColore={correnteColore}
+                  />
+                </RoomRevealContent>
+                {SHOW_TRACCE_SECTION ? (
+                  <>
+                    <SectionDivider />
+                    <TracceReport correnteColore={correnteColore} />
+                  </>
+                ) : null}
+              </section>
+
+              <SectionDivider />
+
+              {/* ── STANZA 05: LESSICO EMOTIVO E PAROLE ─────────────────── */}
+              <section id="stanza-lessico" className="report-room-section report-room-section--lessico">
+                <header className="report-room-header">
+                  <span className="report-room-badge">05</span>
+                  <h2 className="report-room-title">Lessico Emotivo e Parole</h2>
+                </header>
+                <RoomRevealContent id="report-tst-parole" className="report-tst-section-anchor">
+                  <ParoleStatiAnimo
+                    correnti={correntiNomeColore}
+                    famiglieLessico={famiglieLessico}
+                    correnteDominante={profilo?.correnteDominante || ''}
+                    famiglia={profilo?.famiglia || ''}
+                  />
+                </RoomRevealContent>
+              </section>
+
+              <SectionDivider />
+
+              {/* ── STANZA 06: AREE SONORE DEL TEST ─────────────────────── */}
+              <section id="stanza-aree-sonore" className="report-room-section report-room-section--preview">
+                <header className="report-room-header">
+                  <span className="report-room-badge">06</span>
+                  <h2 className="report-room-title">Aree sonore del test</h2>
+                </header>
+                <RoomRevealContent>
+                  <p className="report-room-preview-lead">{APPROFONDIMENTO_UI.lead}</p>
+                  <button
+                    ref={areeSonoreEntryBtnRef}
+                    type="button"
+                    className="report-room-preview-cta"
+                    onClick={() => changeModalita('aree-sonore')}
+                  >
+                    Apri Aree sonore
+                  </button>
+                </RoomRevealContent>
+              </section>
+
+              {showEmotionalIntegrations ? (
+                <>
+                  <SectionDivider />
+
+                  {/* ── STANZA 07: FAMIGLIE EMOTIVE IN RELAZIONE ────────────── */}
+                  <section id="stanza-famiglie-relazione" className="report-room-section report-room-section--preview">
+                    <header className="report-room-header">
+                      <span className="report-room-badge">07</span>
+                      <h2 className="report-room-title">Le cinque famiglie emotive in relazione tra loro</h2>
+                    </header>
+                    <RoomRevealContent>
+                      <p className="report-room-preview-lead">{SECTION_INTROS.mappa.intro}</p>
+                      <button
+                        ref={famiglieEntryBtnRef}
+                        type="button"
+                        className="report-room-preview-cta"
+                        onClick={() => changeModalita('famiglie')}
+                      >
+                        Apri Famiglie in relazione
+                      </button>
+                    </RoomRevealContent>
+                  </section>
+                </>
+              ) : null}
+
+              <SectionDivider />
+
+              <RoomRevealContent
+                as="section"
+                className="report-final-views"
+                aria-label="Altre letture del report"
+              >
+                <button
+                  ref={musiciansEntryBtnRef}
+                  type="button"
+                  className="report-final-view-card"
+                  onClick={() => changeModalita('for-musicians')}
+                >
+                  <span className="report-final-view-card__title">Musicians</span>
+                  <span className="report-final-view-card__subtitle">
+                    Aree sonore e lettura musicale
+                  </span>
+                </button>
+                <button
+                  ref={galassiaEntryBtnRef}
+                  type="button"
+                  className="report-final-view-card"
+                  onClick={() => changeModalita('galassia')}
+                >
+                  <span className="report-final-view-card__title">Galassia</span>
+                  <span className="report-final-view-card__subtitle">
+                    Vista interattiva tridimensionale
+                  </span>
+                </button>
+              </RoomRevealContent>
             </div>
 
-            <NavbarTST
-              forceVisible={modalita !== 'report'}
-              modalita={modalita}
-              onModalitaChange={changeModalita}
-              userName={utente?.nome || ''}
-              correnteColore={correnteColore}
-              correnteDominante={profilo?.correnteDominante || ''}
-              profilo={profilo}
-              onDownload={onDownload}
-              onOpenHelp={() => setHelpOpen(true)}
-            />
-
-            <div
-              className="report-tst-layout"
-              aria-hidden={isAlternateMode}
-              inert={isAlternateMode ? true : undefined}
-            >
-              <ReportSectionController
-                profilo={profilo}
-                musicista={musicista}
-                onNavigate={handleNavigateSection}
-              />
-
-              <div className="report-tst-layout__main">
-                <p className="report-tst-layout-hint sr-only">{REPORT_NAV_UI.layoutHint}</p>
-                <div className="report-tst-body__groups">
-                  <ReportRoom
-                    id="report-group-profilo-generale"
-                    className="report-section-open report-room--overview"
-                    labelledBy="report-overview-title"
-                  >
-                    <h2 id="report-overview-title" className="report-section-open__title">Risultati del test</h2>
-                    <div className="report-section-open__inner">
-                      <div id="report-tst-sintesi" className="report-tst-section-anchor">
-                        <Suspense fallback={<DotsSpinner color={correnteColore} />}>
-                          <SintesiCorrenti
-                            correnti={correnti}
-                            correnteDominante={profilo?.correnteDominante || ''}
-                            focus={profilo?.focus || ''}
-                            userName={utente?.nome || ''}
-                            correnteColore={correnteColore}
-                            famiglia={profilo?.famiglia || ''}
-                            sintesiLead={sintesi?.lead}
-                            sintesiKeyFacts={sintesi?.keyFacts}
-                            sintesiLeadExtended={sintesi?.leadExtended}
-                            sintesiParagrafi={sintesi?.paragrafi}
-                            datiRadar={sintesi?.datiRadar}
-                            totalScores={colorTotals}
-                            sottocorrenti={sottocorrenti}
-                            onOpenGlossary={openGlossary}
-                            sottodisposizione={sottodisposizionePrevalente}
-                            portato={portato}
-                            stepPrefix="1"
-                          />
-                        </Suspense>
-                      </div>
-                    </div>
-                  </ReportRoom>
-
-                  <ReportRoom className="report-section-open report-room--narrative">
-                    <div className="report-section-open__inner">
-                      <div id="report-tst-famiglia" className="report-tst-section-anchor">
-                        <ProfiloEmotivo
-                          sezioni={profiloEmotivo?.sezioni || []}
-                          famiglia={profilo?.famiglia || ''}
-                          profilo={profilo}
-                          accentColor={correnteColore}
-                          stepPrefix="1"
-                        />
-                      </div>
-                    </div>
-                  </ReportRoom>
-
-                  <ReportRoom className="report-section-open report-room--narrative">
-                    <div className="report-section-open__inner">
-                      <div id="report-tst-rapporti" className="report-tst-section-anchor">
-                        <Suspense fallback={<DotsSpinner color={correnteColore} />}>
-                          <QuattroRapporti
-                            rapporti={rapporti}
-                            coloriCorrenti={coloriCorrenti}
-                            profilo={profilo}
-                            sottocorrenti={sottocorrenti}
-                            step="1.4"
-                          />
-                        </Suspense>
-                      </div>
-                    </div>
-                  </ReportRoom>
-
-                  <ReportRoom
-                    className="report-detail-entry"
-                    labelledBy="report-detail-entry-title"
-                  >
-                    <div className="report-detail-entry__content">
-                      <h2 id="report-detail-entry-title" className="report-identity-detail-title">
-                        Il dettaglio della tua identità emotiva
-                      </h2>
-                      <button
-                        ref={detailEntryButtonRef}
-                        type="button"
-                        className="nav-button primary report-detail-entry__button"
-                        onClick={() => changeModalita('dettaglio')}
-                      >
-                        Entra nel dettaglio
-                      </button>
-                    </div>
-                  </ReportRoom>
-
-                  <ReportRoom as="div" className="report-final-views" labelledBy="report-final-views-title">
-                    <h2 id="report-final-views-title" className="sr-only">Altre letture del report</h2>
-                    <button
-                      type="button"
-                      className="report-final-view-card"
-                      onClick={() => changeModalita('galassia')}
-                    >
-                      <span className="report-final-view-card__title">Galassia</span>
-                      <span className="report-final-view-card__subtitle">
-                        Lettura interattiva del report
-                      </span>
-                    </button>
-                    <button
-                      ref={musiciansEntryButtonRef}
-                      type="button"
-                      className="report-final-view-card"
-                      onClick={() => changeModalita('for-musicians')}
-                    >
-                      <span className="report-final-view-card__title">For Musicians</span>
-                      <span className="report-final-view-card__subtitle">
-                        Approfondisci il tuo profilo da un punto di vista musicale
-                      </span>
-                    </button>
-                  </ReportRoom>
-                </div>
-
-                {/* Azioni di chiusura */}
-                <div className="report-tst-actions">
+            {/* Azioni di chiusura */}
+            <div className="report-tst-actions">
               <button type="button" onClick={onNavigateHome} className="report-tst-action-btn">
                 {REPORT_SHELL_UI.home}
               </button>
               <button type="button" onClick={onNavigateArchive} className="report-tst-action-btn">
                 {REPORT_SHELL_UI.archive}
               </button>
-                </div>
-              </div>
             </div>
+          </div>
+        </div>
       </main>
 
+      {/* ── STANZA SEPARATA: AREE SONORE ──────────────────────────────────── */}
       <div
-        className={`report-tst-detail-layer${modalita === 'dettaglio' ? ' is-open' : ''}`}
+        className={`report-tst-dettaglio-layer${modalita === 'aree-sonore' ? ' is-open' : ''}`}
         role="dialog"
-        aria-modal={modalita === 'dettaglio'}
-        aria-labelledby="report-detail-layer-title"
-        aria-hidden={modalita !== 'dettaglio'}
-        inert={modalita !== 'dettaglio' ? true : undefined}
+        aria-modal={modalita === 'aree-sonore'}
+        aria-label="Aree sonore del test"
+        aria-hidden={modalita !== 'aree-sonore'}
+        inert={modalita !== 'aree-sonore' ? true : undefined}
       >
-        <div className="report-tst-detail-layer__inner">
-          <header className="report-tst-detail-layer__header">
-            <div>
-              <h1 id="report-detail-layer-title" className="report-identity-detail-title">
-                Il dettaglio della tua identità emotiva
-              </h1>
-            </div>
+        <div className="report-tst-dettaglio-container">
+          <header className="report-dettaglio-header">
             <button
-              ref={detailBackButtonRef}
               type="button"
-              className="nav-button secondary report-tst-detail-layer__back"
+              className="report-dettaglio-back-btn"
               onClick={() => changeModalita('report')}
             >
-              Torna al report
+              ← Torna al report principale
             </button>
+            <p className="report-dettaglio-eyebrow">TST — Livello di Approfondimento</p>
+            <h1 className="report-dettaglio-title">{AREE_SONORE_GROUP?.title}</h1>
+            {AREE_SONORE_GROUP?.subtitle ? (
+              <p className="report-dettaglio-lead">{AREE_SONORE_GROUP.subtitle}</p>
+            ) : null}
           </header>
 
-          <div className="report-detail-navigation__grid">
-            {detailGroups.map((group, idx) => (
-              <ReportSectionGroup
-                key={group.id}
-                id={group.id}
-                title={group.title}
-                intro={group.intro}
-                stepLabel={String(idx + 1)}
-                isOpen={Boolean(groupOpen[group.id])}
-                onToggle={() => toggleDetailGroup(group.id)}
-              >
-                {group.id === 'report-group-forza-correnti' ? (
-                  <>
-                    <div id="report-tst-portato" className="report-tst-section-anchor">
-                      <SezionePortatoEsperienziale
-                        portato={portato}
-                        correnteColore={correnteColore}
-                      />
-                    </div>
-                    {SHOW_TRACCE_SECTION ? (
-                      <>
-                        <SectionDivider />
-                        <TracceReport correnteColore={correnteColore} />
-                      </>
-                    ) : null}
-                  </>
-                ) : null}
-
-                {group.id === 'report-group-educazione' ? (
-                  <div id="report-tst-parole" className="report-tst-section-anchor">
-                    <ParoleStatiAnimo
-                      correnti={correntiNomeColore}
-                      famiglieLessico={famiglieLessico}
-                      correnteDominante={profilo?.correnteDominante || ''}
-                      famiglia={profilo?.famiglia || ''}
-                    />
-                  </div>
-                ) : null}
-
-                {group.id === 'report-group-relazioni' && showEmotionalIntegrations ? (
-                  <EmotionalIntegrations
-                    correnti={correnti}
-                    rawRecord={rawRecord}
-                    profilo={profilo}
-                    onOpenGalassia={() => changeModalita('galassia')}
-                  />
-                ) : null}
-              </ReportSectionGroup>
-            ))}
+          <div className="report-detail-navigation__workspace">
+            <div id="report-tst-approfondimento-detail" className="report-tst-section-anchor">
+              <Suspense fallback={<DotsSpinner color={correnteColore} />}>
+                <ApprofondimentoSezioni
+                  sezioniData={approfondimento?.sezioniData}
+                  sezioniTest={approfondimento?.sezioniTest}
+                  filtroMusicale={filtroMusicale}
+                  correnteColore={correnteColore}
+                  plainLanguage
+                />
+              </Suspense>
+            </div>
           </div>
+
+          <footer className="report-dettaglio-footer">
+            <button
+              type="button"
+              className="report-dettaglio-back-btn report-dettaglio-back-btn--bottom"
+              onClick={() => changeModalita('report')}
+            >
+              ← Torna al report principale
+            </button>
+          </footer>
         </div>
       </div>
 
+      {/* ── STANZA SEPARATA: FAMIGLIE IN RELAZIONE ──────────────────────────── */}
+      {showEmotionalIntegrations ? (
+        <div
+          className={`report-tst-dettaglio-layer${modalita === 'famiglie' ? ' is-open' : ''}`}
+          role="dialog"
+          aria-modal={modalita === 'famiglie'}
+          aria-label="Le cinque famiglie emotive in relazione tra loro"
+          aria-hidden={modalita !== 'famiglie'}
+          inert={modalita !== 'famiglie' ? true : undefined}
+        >
+          <div className="report-tst-dettaglio-container">
+            <header className="report-dettaglio-header">
+              <button
+                type="button"
+                className="report-dettaglio-back-btn"
+                onClick={() => changeModalita('report')}
+              >
+                ← Torna al report principale
+              </button>
+              <p className="report-dettaglio-eyebrow">TST — Livello di Approfondimento</p>
+              <h1 className="report-dettaglio-title">{FAMIGLIE_GROUP?.title}</h1>
+              {SECTION_INTROS.mappa.intro ? (
+                <p className="report-dettaglio-lead">{SECTION_INTROS.mappa.intro}</p>
+              ) : null}
+            </header>
+
+            <div className="report-detail-navigation__workspace">
+              <EmotionalIntegrations
+                correnti={correnti}
+                rawRecord={rawRecord}
+                profilo={profilo}
+              />
+            </div>
+
+            <footer className="report-dettaglio-footer">
+              <button
+                type="button"
+                className="report-dettaglio-back-btn report-dettaglio-back-btn--bottom"
+                onClick={() => changeModalita('report')}
+              >
+                ← Torna al report principale
+              </button>
+            </footer>
+          </div>
+        </div>
+      ) : null}
+
+      {/* ── STANZA SEPARATA: GALASSIA ──────────────────────────────────────── */}
       {galassiaEverOpened ? (
         <div
           className={`report-tst-galassia-layer${modalita === 'galassia' ? ' is-open' : ''}`}
@@ -748,11 +858,10 @@ export default function ReportShell({
         </div>
       ) : null}
 
+      {/* ── STANZA SEPARATA: MUSICIANS ─────────────────────────────────────── */}
       <div
         className={`report-tst-musicians-layer${modalita === 'for-musicians' ? ' is-open' : ''}`}
-        role="dialog"
-        aria-modal={modalita === 'for-musicians'}
-        aria-label="For Musicians: lettura musicale del profilo"
+        aria-label="For Musicians: lettura musicale del profilo e Aree sonore"
         aria-hidden={modalita !== 'for-musicians'}
         inert={modalita !== 'for-musicians' ? true : undefined}
       >
@@ -765,7 +874,7 @@ export default function ReportShell({
             portato={portato}
             colorTotals={colorTotals}
             accentColor={correnteColore}
-            onBack={() => changeModalita('report')}
+            onClose={() => changeModalita('report')}
             backButtonRef={musiciansBackButtonRef}
           />
         </Suspense>
@@ -773,3 +882,4 @@ export default function ReportShell({
     </div>
   )
 }
+

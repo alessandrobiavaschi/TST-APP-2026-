@@ -108,9 +108,9 @@ export const APPROFONDIMENTO_AREAS = ['Timbro', 'Intervalli', 'Ritmo', 'Melodia'
 
 export const APPROFONDIMENTO_UI = {
   eyebrow: 'Approfondimento sonoro',
-  title: 'Aree sonore del test',
+  title: 'Aree sonore in relazione alle cinque famiglie',
   lead:
-    'Il test sonoro si articola in cinque aree. Qui vedi se le famiglie emotive restano omogenee o se emergono contrasti a seconda dello stimolo.',
+    'Durante il test hai ascoltato e risposto in diverse sezioni, ciascuna dedicata a un aspetto del linguaggio musicale. Qui vedi con più precisione come hai risposto sezione per sezione: quali famiglie emotive sono state più presenti, per un quadro più completo oltre al solo risultato finale.',
   chartPlainTitle: 'Come leggere il grafico',
   chartPlainSummary:
     'Ogni colonna è un’area del test. Le barre colorate mostrano quanto pesa ciascuna famiglia emotiva in quell’area: confronta le colonne per capire dove il profilo si accende di più.',
@@ -132,6 +132,61 @@ export const APPROFONDIMENTO_UI = {
   /** @deprecated Usare title/lead */
   intro:
     'Confronto immediato tra le cinque famiglie emotive in ogni area del test sonoro: Timbro, Intervalli, Ritmo, Melodia e Armonia.',
+}
+
+/**
+ * Etichette in linguaggio non tecnico per il report generale (mai nella scheda For Musicians,
+ * dove restano i nomi tecnici Timbro/Intervalli/Ritmo/Melodia/Armonia).
+ */
+export const AREA_PLAIN_LABEL = {
+  Timbro: 'Suono',
+  Intervalli: 'Distanze tra le note',
+  Ritmo: 'Tempo',
+  Melodia: 'Melodia',
+  Armonia: 'Accordi',
+}
+
+const AREA_PLAIN_COPY_OVERRIDES = {
+  Timbro: {
+    cosa_comprende:
+      'Questa sezione lavora sul colore del suono, sulla qualità e sulla «voce» degli strumenti e dei materiali sonori che incontri durante il test.',
+    rapporto_anima:
+      'Il suono ha un rapporto diretto con l’anima intesa come risonanza interiore: rivela come ti riconosci (o meno) in certe sonorità e come la tua parte più intima risponde al colore del suono.',
+  },
+  Intervalli: {
+    cosa_comprende:
+      'Questa sezione riguarda le distanze tra le note, le tensioni e i rilasci che la musica crea tra suono e suono.',
+    rapporto_anima:
+      'Le distanze tra le note toccano il rapporto con l’anima nel senso del dialogo con te stesso: rivelano come abiti lo spazio interiore tra tensione e quiete, tra domanda e risposta emotiva.',
+  },
+  Ritmo: {
+    cosa_comprende:
+      'Questa sezione lavora sulla pulsazione, sul tempo, sugli andamenti veloci o lenti e sulla spinta al movimento che la musica trasmette.',
+    rapporto_anima:
+      'Il tempo ha un rapporto con l’anima come slancio vitale: mostra come la tua parte più profonda si mette in moto o si placa, come stai nel fluire del tempo e nell’impulso ad agire.',
+  },
+  Armonia: {
+    cosa_comprende:
+      'Questa sezione lavora sugli accordi, sulla sovrapposizione dei suoni e sul clima che nasce dall’insieme delle voci musicali.',
+    cosa_rappresenta:
+      'Rappresenta la tua capacità di stare nell’insieme, nella complessità e nella contemplazione: come vivi gli spazi ampi, le trame ricche, il sostegno che gli accordi danno alla riflessione e al sogno.',
+    cosa_attiva:
+      'Attiva la dimensione contemplativa e di risonanza globale: non più la singola linea ma il «luogo» emotivo che gli accordi creano. È l’area che più si avvicina al silenzio interiore, alla calma e alla ricerca di senso.',
+    rapporto_anima:
+      'Gli accordi hanno un rapporto con l’anima come spazio di risonanza: rivelano come ti apri (o ti chiudi) al clima affettivo complesso, come abiti il silenzio e la pienezza dell’ascolto.',
+  },
+}
+
+/** Etichetta visibile di un'area: tecnica per i musicisti, in linguaggio comune nel report generale. */
+export function getAreaLabel(nomeSezione, plainLanguage) {
+  return plainLanguage ? AREA_PLAIN_LABEL[nomeSezione] || nomeSezione : nomeSezione
+}
+
+/** Testo dell'area: tecnico per i musicisti, riscritto in linguaggio comune nel report generale. */
+export function getAreaCopy(nomeSezione, sezione, plainLanguage) {
+  if (!plainLanguage || !sezione) return sezione
+  const overrides = AREA_PLAIN_COPY_OVERRIDES[nomeSezione]
+  return overrides ? { ...sezione, ...overrides } : sezione
 }
 
 export const RAPPORTI_UI = {
@@ -157,25 +212,25 @@ export const RAPPORTI_UI = {
       id: 'natura',
       question: 'Che tono emotivo hai di base?',
       plain: 'Il tuo equilibrio emotivo di base',
-      areasPlain: 'Timbro, Intervalli e Armonia',
+      areasPlain: 'Suono, Distanze tra le note e Accordi',
     },
     {
       id: 'se',
       question: 'Come stai in rapporto con te?',
       plain: 'Come riconosci ciò che senti',
-      areasPlain: 'Intervalli e Melodia',
+      areasPlain: 'Distanze tra le note e Melodia',
     },
     {
       id: 'altro',
       question: 'Come ti apri a persone e ambiente?',
       plain: 'Come entri in relazione con gli altri',
-      areasPlain: 'Timbro e Melodia',
+      areasPlain: 'Suono e Melodia',
     },
     {
       id: 'agire',
       question: 'Come trasformi il sentire in azione?',
       plain: 'Come trasformi il sentire in azione',
-      areasPlain: 'Ritmo e Melodia',
+      areasPlain: 'Tempo e Melodia',
     },
   ],
   readLabels: {
@@ -186,13 +241,20 @@ export const RAPPORTI_UI = {
 
 export const PORTATO_UI = {
   eyebrow: 'Vissuto del test',
-  title: 'Forza delle tue correnti emotive',
+  title: 'La tua relazione con il contenuto musicale',
   lead:
-    "L’intensità di queste correnti deriva dalla simpatia, antipatia o indifferenza che hai provato durante il test verso i suoni ascoltati.",
+    'Il punto combina sintonia, distonia e distanza emerse durante questo ascolto. Più si avvicina a un vertice, maggiore è il peso di quella modalità nel test.',
+  labels: {
+    Simpatia: 'Sintonia',
+    Antipatia: 'Distonia',
+    Indifferenza: 'Distanza',
+  },
+  padAria: 'Orientamento dell’ascolto tra sintonia, distonia e distanza',
+  padCenterLabel: 'Compresenza',
   prevalenteLabel: 'Prevalenza',
   quotaLabel: 'Quota',
   badgePrevalente: 'Prevalente',
-  gridAria: 'Punteggi portato esperienziale e quote',
+  gridAria: 'Punteggi di sintonia, distonia e distanza e relative quote',
 }
 
 export const PAROLE_UI = {
@@ -305,7 +367,7 @@ export const HELP_MODAL_UI = {
     },
     {
       title: '6 · Dove si attiva il profilo',
-      text: 'Scopri quali risposte arrivano da Timbro, Intervalli, Ritmo, Melodia e Armonia e come contribuiscono al filtro musicale.',
+      text: 'Scopri quali risposte arrivano da Suono, Distanze tra le note, Tempo, Melodia e Accordi e come contribuiscono al filtro musicale.',
     },
     {
       title: 'Le viste alternative',
@@ -357,21 +419,21 @@ export const REPORT_SHELL_UI = {
 
 export const GALASSIA_PORTATO_UI = {
   intro:
-    'Il portato esperienziale descrive come hai vissuto l’ascolto nel test: attrazione (simpatia), rifiuto (antipatia) o distacco (indifferenza). Nel modello TST, ogni stimolo sonoro mette in moto il «calore» affettivo: per simpatia il flusso si aggancia al filtro personale, per antipatia si allontana, per indifferenza resta neutro.',
+    'Il portato esperienziale descrive come hai vissuto l’ascolto nel test: sintonia, distonia o distanza. Nel modello TST, ogni stimolo sonoro può entrare in risonanza, generare attrito oppure restare neutro.',
   scaleNote:
     'Le percentuali sono quote sul totale dei tre punteggi PE in questo test — non giudizi sulla persona, ma fotografia di come hai orientato le risposte.',
   tapHint: 'Tocca un mondo per la lettura di quella voce: definizione, quota e significato nel test.',
   prevalenteLabel: 'Voce prevalente',
   vitalitaLabel: 'Asse vitalità / depressione',
-  triadAria: 'Bilancio portato esperienziale: simpatia, antipatia, indifferenza',
-  axisAttrazione: 'Attrazione',
-  axisRifiuto: 'Rifiuto',
-  axisDistacco: 'Distacco',
+  triadAria: 'Bilancio portato esperienziale: sintonia, distonia, distanza',
+  axisAttrazione: 'Sintonia',
+  axisRifiuto: 'Distonia',
+  axisDistacco: 'Distanza',
   cosaIndicaLabel: 'Nel modello TST',
   cards: [
     {
       id: 'Simpatia',
-      label: 'Simpatia / Empatia',
+      label: 'Sintonia',
       areas: 'Calore · Risonanza',
       metaphor: 'Aggancio al suono',
       meaning:
@@ -379,7 +441,7 @@ export const GALASSIA_PORTATO_UI = {
     },
     {
       id: 'Antipatia',
-      label: 'Antipatia',
+      label: 'Distonia',
       areas: 'Rifiuto · Fastidio',
       metaphor: 'Distanza dal suono',
       meaning:
@@ -387,7 +449,7 @@ export const GALASSIA_PORTATO_UI = {
     },
     {
       id: 'Indifferenza',
-      label: 'Indifferenza / Nichilismo',
+      label: 'Distanza',
       areas: 'Neutro · Distacco',
       metaphor: 'Presa di distanza',
       meaning:
@@ -411,28 +473,28 @@ export const GALASSIA_RAPPORTI_UI = {
     {
       id: 'natura',
       label: 'Natura di base',
-      areas: 'Timbro + Intervalli + Armonia',
+      areas: 'Suono + Distanze tra le note + Accordi',
       metaphor: 'Terra · Luce · Calore',
       meaning: 'Risponde a: che tono emotivo hai di base?',
     },
     {
       id: 'se',
       label: 'Rapporto con te stesso',
-      areas: 'Intervalli + Melodia',
+      areas: 'Distanze tra le note + Melodia',
       metaphor: 'Luce · Aria',
       meaning: 'Risponde a: come stai in rapporto con la tua interiorità?',
     },
     {
       id: 'altro',
       label: 'Rapporto con l’Altro',
-      areas: 'Timbro + Melodia',
+      areas: 'Suono + Melodia',
       metaphor: 'Terra · Aria',
       meaning: 'Risponde a: come ti apri a persone e ambiente?',
     },
     {
       id: 'agire',
       label: 'Rapporto con l’Agire',
-      areas: 'Ritmo + Melodia',
+      areas: 'Tempo + Melodia',
       metaphor: 'Acqua · Aria',
       meaning: 'Risponde a: come trasformi il sentire in movimento?',
     },
@@ -469,7 +531,7 @@ export const GALASSIA_UI = {
   idleHintKicker: {
     disposizioni: 'Cinque disposizioni',
     rapporti: 'Quattro rapporti',
-    portato: 'Portato esperienziale',
+    portato: 'Come hai vissuto il test',
     parole: 'Lessico',
   },
   modeSwitchAria: 'Sezione della Galassia',

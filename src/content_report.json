@@ -34,19 +34,19 @@
   },
   "portato_esperienziale": {
     "Simpatia": {
-      "label": "Simpatia / Empatia",
+      "label": "Sintonia",
       "cosa_indica": "Attrazione istintiva verso lo stimolo: il flusso sonoro si aggancia al filtro affettivo e provoca risonanza emotiva (fono-sintesi).",
-      "descrizione_breve": "Nel test hai vissuto l’esperienza sonora soprattutto in modo aperto e in risonanza. Il portato prevalente di Simpatia/Empatia descrive una tendenza a entrare in contatto con i suoni in modo diretto, a lasciarti toccare e a rispondere con vicinanza emotiva. È semplicemente la fotografia di come hai vissuto l’ascolto in questo test."
+      "descrizione_breve": "In questo ascolto la sintonia indica apertura e risonanza verso il contenuto musicale. Descrive il modo in cui i suoni ti hanno coinvolto durante il test, senza definire un tratto stabile della persona."
     },
     "Antipatia": {
-      "label": "Antipatia",
+      "label": "Distonia",
       "cosa_indica": "Rifiuto o fastidio verso lo stimolo: il materiale sonoro non si lega al filtro personale e genera distanza, irritazione o chiusura.",
-      "descrizione_breve": "Nel test hai espresso con una certa frequenza risposte di rifiuto, disturbo o repulsione verso alcuni stimoli sonori. Il portato prevalente di Antipatia descrive una tendenza a vivere parte dell’esperienza come inquietante, irritante o disturbante: i suoni hanno toccato corde di fastidio, chiusura o allontanamento. Questa restituzione non etichetta la persona: indica semplicemente come, in questa somministrazione, è emersa una reazione di distanza o di rifiuto verso una parte del materiale ascoltato. Può essere utile esplorare, in un contesto di dialogo, quali qualità sonore hanno generato queste risposte."
+      "descrizione_breve": "In questo ascolto la distonia indica attrito, fastidio o rifiuto verso una parte del contenuto musicale. Descrive le risposte emerse durante il test e può aiutare a riconoscere quali qualità sonore hanno generato allontanamento."
     },
     "Indifferenza": {
-      "label": "Indifferenza / Nichilismo",
+      "label": "Distanza",
       "cosa_indica": "Distacco o neutralità: lo stimolo non accende né attrazione né rifiuto; il calore affettivo resta spento o in disparte.",
-      "descrizione_breve": "Nel test una parte rilevante delle tue risposte è caduta su opzioni di indifferenza, distacco o disinteresse verso gli stimoli. Il portato prevalente di Indifferenza-Nichilismo descrive una tendenza a restare neutri, distaccati o poco coinvolti rispetto a molti suoni: l’esperienza è stata vissuta più «da fuori» che in risonanza. Anche qui non si tratta di un giudizio: la restituzione fotografa come, in questa prova, hai orientato l’ascolto verso la neutralità o il distacco. Può essere un punto di partenza per riflettere, con l’operatore, su quali sezioni del test hanno suscitato maggiore o minore coinvolgimento."
+      "descrizione_breve": "In questo ascolto la distanza indica neutralità o scarso coinvolgimento verso una parte del contenuto musicale. Fotografa il modo in cui alcuni suoni sono rimasti più in disparte durante il test, senza esprimere un giudizio sulla persona."
     }
   },
   "Blu": {

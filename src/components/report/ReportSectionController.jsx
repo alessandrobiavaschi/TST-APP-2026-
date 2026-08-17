@@ -33,6 +33,7 @@ export default function ReportSectionController({
     [sections],
   )
   const [activeId, setActiveId] = useState(sections[0]?.id ?? '')
+  const [railOpen, setRailOpen] = useState(false)
   const resolvedActiveId = useMemo(() => {
     let targetId = activeId
     if (targetId && targetId.startsWith('report-chapter-')) {
@@ -47,6 +48,19 @@ export default function ReportSectionController({
   const mobileListRef = useRef(null)
   const activeMobileBtnRef = useRef(null)
   const activeRailBtnRef = useRef(null)
+  const railToggleRef = useRef(null)
+
+  useEffect(() => {
+    if (!railOpen) return undefined
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setRailOpen(false)
+        railToggleRef.current?.focus()
+      }
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [railOpen])
 
   useEffect(() => {
     const onChapterNav = () => {
@@ -149,6 +163,7 @@ export default function ReportSectionController({
       scrollLockRef.current = true
       userNavigatedRef.current = true
       setActiveId(id)
+      setRailOpen(false)
       if (onNavigate) {
         onNavigate(id, {
           onScrollComplete: () => {
@@ -212,13 +227,47 @@ export default function ReportSectionController({
         </div>
       </nav>
 
+      <button
+        type="button"
+        ref={railToggleRef}
+        className="report-section-controller__toggle"
+        data-open={railOpen ? 'true' : 'false'}
+        aria-label={railOpen ? 'Chiudi il percorso di lettura' : 'Apri il percorso di lettura'}
+        aria-expanded={railOpen}
+        aria-controls="report-section-controller-rail"
+        tabIndex={railOpen ? -1 : 0}
+        onClick={() => setRailOpen((prev) => !prev)}
+      >
+        <span aria-hidden="true">☰</span>
+      </button>
+
+      <div
+        className="report-section-controller__backdrop"
+        data-open={railOpen ? 'true' : 'false'}
+        onClick={() => setRailOpen(false)}
+        aria-hidden="true"
+      />
+
       <nav
+        id="report-section-controller-rail"
         className="report-section-controller report-section-controller--rail"
         data-visible="true"
+        data-open={railOpen ? 'true' : 'false'}
         {...navProps}
       >
         <div className="report-section-controller__index-head report-section-controller__index-head--rail">
           <p className="report-section-controller__rail-label">{REPORT_NAV_UI.indexTitle}</p>
+          <button
+            type="button"
+            className="report-section-controller__rail-close"
+            aria-label="Chiudi il percorso di lettura"
+            onClick={() => {
+              setRailOpen(false)
+              railToggleRef.current?.focus()
+            }}
+          >
+            ×
+          </button>
         </div>
         <ul className="report-section-controller__rail-list">
           {navSections.map((section) => renderSectionLink(section, 'rail'))}

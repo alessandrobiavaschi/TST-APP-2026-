@@ -1834,7 +1834,7 @@
 .galassia-view__constellation-label {
   position: absolute;
   left: 50%;
-  top: calc(100% + 0.58rem);
+  top: 50%;
   display: grid;
   width: max-content;
   min-width: 7rem;
@@ -1845,15 +1845,14 @@
   border-radius: 8px;
   background: rgba(5, 10, 22, 0.72);
   box-shadow: 0 14px 36px rgba(2, 6, 23, 0.24);
-  transform: translateX(-50%);
+  /* Anchor on the node center, then push radially outward via --label-dx/--label-dy
+     (set inline per-node from live geometry) so the label always clears the core
+     and the node itself, at any orbit radius, satellite count or viewport size. */
+  transform: translate(-50%, -50%) translate(var(--label-dx, 0px), var(--label-dy, 0px));
+  text-align: var(--label-align, center);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   text-wrap: balance;
-}
-
-.galassia-view__constellation-wrap--label-above .galassia-view__constellation-label {
-  top: auto;
-  bottom: calc(100% + 0.58rem);
 }
 
 .galassia-view__constellation-label strong {
@@ -2667,14 +2666,21 @@
 }
 
 /* Costellazione: etichette solo su nodo attivo / hover / focus */
+/* Satelliti sempre identificabili: nome + peso visibili di default, senza hover. */
 .galassia-view--zoomed .galassia-view__constellation-trait {
   display: none;
 }
 
-.galassia-view--zoomed .galassia-view__constellation-wrap:not(.galassia-view__constellation-wrap--active):not(.galassia-view__constellation-wrap--hovered) .galassia-view__constellation-label {
-  opacity: 0;
-  visibility: hidden;
-  transform: translateX(-50%) translateY(4px);
+.galassia-view--zoomed .galassia-view__constellation-wrap--active .galassia-view__constellation-trait,
+.galassia-view--zoomed .galassia-view__constellation-wrap--hovered .galassia-view__constellation-trait,
+.galassia-view--zoomed .galassia-view__constellation-hit:hover .galassia-view__constellation-trait,
+.galassia-view--zoomed .galassia-view__constellation-hit:focus-visible .galassia-view__constellation-trait {
+  display: block;
+}
+
+.galassia-view--zoomed .galassia-view__constellation-label {
+  opacity: 0.9;
+  visibility: visible;
   pointer-events: none;
 }
 
@@ -2683,19 +2689,14 @@
 .galassia-view--zoomed .galassia-view__constellation-hit:hover .galassia-view__constellation-label,
 .galassia-view--zoomed .galassia-view__constellation-hit:focus-visible .galassia-view__constellation-label {
   opacity: 1;
-  visibility: visible;
-  transform: translateX(-50%);
+  background: rgba(5, 10, 22, 0.94);
+  border-color: rgba(226, 232, 240, 0.4);
 }
 
-.galassia-view--zoomed .galassia-view__constellation-wrap--label-above:not(.galassia-view__constellation-wrap--active):not(.galassia-view__constellation-wrap--hovered) .galassia-view__constellation-label {
-  transform: translateX(-50%) translateY(-4px);
-}
-
-.galassia-view--zoomed .galassia-view__constellation-wrap--label-above.galassia-view__constellation-wrap--active .galassia-view__constellation-label,
-.galassia-view--zoomed .galassia-view__constellation-wrap--label-above.galassia-view__constellation-wrap--hovered .galassia-view__constellation-label,
-.galassia-view--zoomed .galassia-view__constellation-wrap--label-above .galassia-view__constellation-hit:hover .galassia-view__constellation-label,
-.galassia-view--zoomed .galassia-view__constellation-wrap--label-above .galassia-view__constellation-hit:focus-visible .galassia-view__constellation-label {
-  transform: translateX(-50%);
+/* In hover/focus il satellite e la sua etichetta salgono sopra il nucleo e i vicini. */
+.galassia-view__constellation-wrap--active,
+.galassia-view__constellation-wrap--hovered {
+  z-index: 20;
 }
 
 .galassia-view__constellation-label {

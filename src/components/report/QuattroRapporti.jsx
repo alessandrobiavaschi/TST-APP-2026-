@@ -1,13 +1,127 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 
 void motion
 import { RAPPORTI_UI } from './reportUiCopy.js'
+import { FAMILY_THEME } from '../../config/reportFamilyTheme.js'
 import SectionNumber from './SectionNumber.jsx'
+import CalculationDisclosure from './CalculationDisclosure.jsx'
 import { scrollElementToReportCenter } from './reportSectionNavUtils.js'
+import {
+  ResponsiveContainer,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  Radar,
+  Tooltip,
+} from 'recharts'
 import '../../styles/quattro-rapporti.css'
 
 const FALLBACK_COLOR = '#94a3b8'
+const FAMILY_THEME_BY_KEY = Object.fromEntries(
+  Object.values(FAMILY_THEME).map((theme) => [theme.key, theme]),
+)
+
+function normalizeFamilyDatum(datum = {}) {
+  const familyTheme = FAMILY_THEME_BY_KEY[datum.familyKey]
+  return {
+    ...datum,
+    // I confronti mostrano famiglie distinte. Le nature (per esempio Lunare
+    // o Solare) appartengono al livello di dettaglio della singola famiglia.
+    corrente: familyTheme?.family || datum.corrente,
+  }
+}
+
+function hexToRgba(hex, alpha) {
+  if (typeof hex !== 'string') return `rgba(148, 163, 184, ${alpha})`
+  let h = hex.replace('#', '').trim()
+  if (h.length === 3) {
+    h = h
+      .split('')
+      .map((c) => c + c)
+      .join('')
+  }
+  if (h.length !== 6) return `rgba(148, 163, 184, ${alpha})`
+  const r = parseInt(h.slice(0, 2), 16)
+  const g = parseInt(h.slice(2, 4), 16)
+  const b = parseInt(h.slice(4, 6), 16)
+  if ([r, g, b].some((n) => Number.isNaN(n))) {
+    return `rgba(148, 163, 184, ${alpha})`
+  }
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`
+}
+
+function AxisTick({ x, y, payload, textAnchor }) {
+  return (
+    <text
+      x={x}
+      y={y}
+      textAnchor={textAnchor}
+      fill="#e2e8f0"
+      fontSize={13}
+      fontFamily="'Public Sans', system-ui, -apple-system, sans-serif"
+      dominantBaseline="central"
+    >
+      {payload?.value}
+    </text>
+  )
+}
+
+function RadarTooltipContent({ active, payload }) {
+  if (!active || !payload?.length) return null
+  const item = payload[0]?.payload
+  if (!item) return null
+
+  return (
+    <div
+      className="quattro-rapporti-radar-tooltip"
+      style={{ '--qr-tooltip-color': item.colore || FALLBACK_COLOR }}
+    >
+      <span className="quattro-rapporti-radar-tooltip__family">{item.corrente}</span>
+      <strong className="quattro-rapporti-radar-tooltip__value">{item.valore}/7</strong>
+      <small>
+        {item.rawValue ?? 0} punti · {item.distributionPercent ?? 0}% della lente
+      </small>
+    </div>
+  )
+}
+
+function RadarPoint({ cx, cy, payload, index, selectedFamilyKey, onSelect }) {
+  if (!Number.isFinite(cx) || !Number.isFinite(cy) || !payload) return null
+  const selected = payload.familyKey === selectedFamilyKey
+  const label = `${payload.corrente}: ${payload.valore} su 7. Seleziona per i dettagli.`
+  return (
+    <g
+      role="button"
+      tabIndex="0"
+      aria-label={label}
+      aria-pressed={selected}
+      style={{ cursor: 'pointer' }}
+      onClick={(event) => {
+        event.stopPropagation()
+        onSelect?.(payload.familyKey, index)
+      }}
+      onKeyDown={(event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return
+        event.preventDefault()
+        onSelect?.(payload.familyKey, index)
+      }}
+    >
+      <title>{label}</title>
+      <circle cx={cx} cy={cy} r="14" fill="transparent" />
+      <circle
+        cx={cx}
+        cy={cy}
+        r={selected ? 7 : 5}
+        fill={payload.colore || FALLBACK_COLOR}
+        stroke={selected ? '#ffffff' : payload.colore || FALLBACK_COLOR}
+        strokeWidth={selected ? 2.5 : 1.5}
+        pointerEvents="none"
+      />
+    </g>
+  )
+}
 
 const RELATIONSHIP_ROWS = [
   ['Flemmatica + Malinconica', 'Modulazione', 'Calma e interiorità si accompagnano, senza essere in opposizione.'],
@@ -62,10 +176,10 @@ function RapportiHelpModal({ onClose }) {
               emotive confrontiamo quei punteggi: la famiglia che incide di più orienta la lettura.
             </p>
             <div className="quattro-rapporti-help__formula-list">
-              <div><strong>Natura di base</strong><span>Timbro + Intervalli + Armonia</span></div>
-              <div><strong>Rapporto con te stesso</strong><span>Intervalli + Melodia</span></div>
-              <div><strong>Rapporto con l’Altro</strong><span>Timbro + Melodia</span></div>
-              <div><strong>Rapporto con l’Agire</strong><span>Ritmo + Melodia</span></div>
+              <div><strong>Natura di base</strong><span>Suono + Distanze tra le note + Accordi</span></div>
+              <div><strong>Rapporto con te stesso</strong><span>Distanze tra le note + Melodia</span></div>
+              <div><strong>Rapporto con l’Altro</strong><span>Suono + Melodia</span></div>
+              <div><strong>Rapporto con l’Agire</strong><span>Tempo + Melodia</span></div>
             </div>
             <p className="quattro-rapporti-help__note">
               Non è un voto: è un modo per capire quale componente del tuo profilo è più rilevante in quella situazione.
@@ -100,10 +214,15 @@ function RapportiHelpModal({ onClose }) {
   )
 }
 
-export default function QuattroRapporti({ rapporti = [] }) {
+export default function QuattroRapporti({
+  rapporti = [],
+  coloriCorrenti = {},
+  sottocorrenti = [],
+}) {
   const reduceMotion = useReducedMotion()
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [isHelpOpen, setIsHelpOpen] = useState(false)
+  const [selectedFamilyByRapporto, setSelectedFamilyByRapporto] = useState({})
   const rapportiMainRef = useRef(null)
   const shouldCenterRapportoRef = useRef(false)
 
@@ -111,8 +230,36 @@ export default function QuattroRapporti({ rapporti = [] }) {
     ? Math.min(Math.max(selectedIndex, 0), rapporti.length - 1)
     : 0
   const active = rapporti[activeIndex] || null
-  const activeColor = active?.correntePrincipale?.colore || FALLBACK_COLOR
+  const activeColor =
+    active?.correntePrincipale?.colore ||
+    coloriCorrenti?.[active?.correntePrincipale?.nome] ||
+    FALLBACK_COLOR
   const fadeDuration = reduceMotion ? 0 : 0.15
+
+  const radarData = useMemo(() => {
+    if (!active?.datiRadar) return []
+    return active.datiRadar.map((datum) => ({
+      ...normalizeFamilyDatum(datum),
+      valore: typeof datum.valore === 'number' ? datum.valore : 0,
+    }))
+  }, [active])
+
+  const selectedFamilyKey =
+    selectedFamilyByRapporto[active?.id] || active?.correntePrincipale?.familyKey || radarData[0]?.familyKey
+  const selectedFamily =
+    radarData.find((item) => item.familyKey === selectedFamilyKey) || radarData[0] || null
+  const selectedTheme = FAMILY_THEME_BY_KEY[selectedFamily?.familyKey]
+  const selectedShades = sottocorrenti.filter(
+    (item) => item.familyKey === selectedFamily?.familyKey && item.misurabile !== false,
+  )
+  const ranking = active?.graduatoria?.length
+    ? active.graduatoria.map(normalizeFamilyDatum)
+    : [...radarData].sort((a, b) => b.valore - a.valore || b.rawValue - a.rawValue)
+
+  const selectFamily = (familyKey) => {
+    if (!active?.id || !familyKey) return
+    setSelectedFamilyByRapporto((current) => ({ ...current, [active.id]: familyKey }))
+  }
 
   useEffect(() => {
     if (!isHelpOpen) return undefined
@@ -149,7 +296,6 @@ export default function QuattroRapporti({ rapporti = [] }) {
     >
       <div className="quattro-rapporti-section__inner">
         <div className="quattro-rapporti-heading-row">
-          <h2>I quattro rapporti</h2>
           <button
             type="button"
             className="quattro-rapporti-help-trigger"
@@ -187,7 +333,160 @@ export default function QuattroRapporti({ rapporti = [] }) {
           })}
         </div>
 
-        <div ref={rapportiMainRef} className="quattro-rapporti-main quattro-rapporti-main--reading-only">
+        <div ref={rapportiMainRef} className="quattro-rapporti-main">
+          <div className="quattro-rapporti-radar-wrap">
+            <div
+              className="quattro-rapporti-radar"
+              role="group"
+              aria-label={
+                active
+                  ? `Radar del rapporto ${active.nome}: ${RAPPORTI_UI.radarCaption}`
+                  : 'Radar dei rapporti'
+              }
+            >
+              <ResponsiveContainer width="100%" height={320} debounce={100}>
+                <RadarChart data={radarData} outerRadius="64%">
+                  <PolarGrid stroke="#334155" strokeOpacity={0.5} />
+                  <PolarAngleAxis
+                    dataKey="corrente"
+                    tick={<AxisTick />}
+                  />
+                  <PolarRadiusAxis
+                    angle={90}
+                    domain={[0, 7]}
+                    tick={{ fill: '#64748b', fontSize: 10 }}
+                    axisLine={false}
+                  />
+                  <Tooltip
+                    content={<RadarTooltipContent />}
+                    cursor={false}
+                    wrapperStyle={{ pointerEvents: 'none', zIndex: 4 }}
+                  />
+                  <Radar
+                    dataKey="valore"
+                    stroke={hexToRgba(activeColor, 0.9)}
+                    strokeWidth={2.5}
+                    fill={activeColor}
+                    fillOpacity={0.15}
+                    dot={(
+                      <RadarPoint
+                        selectedFamilyKey={selectedFamilyKey}
+                        onSelect={selectFamily}
+                      />
+                    )}
+                    isAnimationActive={!reduceMotion}
+                    animationDuration={400}
+                  />
+                </RadarChart>
+              </ResponsiveContainer>
+              <div className="quattro-rapporti-radar-guide">
+                <p className="quattro-rapporti-radar-caption">{RAPPORTI_UI.radarCaption}</p>
+                <p className="quattro-rapporti-radar-scale">{RAPPORTI_UI.radarScaleNote}</p>
+                <p className="quattro-rapporti-radar-hint">
+                  Passa sugli spigoli per vedere i valori esatti. Seleziona uno spigolo per approfondire.
+                </p>
+              </div>
+              {ranking.length ? (
+                <div className="quattro-rapporti-ranking" aria-label="Classifica completa delle famiglie in questa lente">
+                  <p className="quattro-rapporti-ranking__summary">
+                    {active.esitoComposizione || 'Confronta tutti i valori della lente.'}
+                  </p>
+                  <div className="quattro-rapporti-ranking__list">
+                    {ranking.map((item, index) => {
+                      const sameGraphLevel = index > 0 && item.valore === ranking[index - 1].valore
+                      const tied = sameGraphLevel && item.rawValue === ranking[index - 1].rawValue
+                      return (
+                        <button
+                          key={item.familyKey}
+                          type="button"
+                          className={`quattro-rapporti-ranking__item${item.familyKey === selectedFamilyKey ? ' quattro-rapporti-ranking__item--selected' : ''}`}
+                          style={{ '--qr-family-color': item.colore || FALLBACK_COLOR }}
+                          aria-pressed={item.familyKey === selectedFamilyKey}
+                          onClick={() => selectFamily(item.familyKey)}
+                        >
+                          <span>
+                            {item.corrente}
+                            {tied ? ' · pari punti' : sameGraphLevel ? ' · stesso livello grafico' : ''}
+                          </span>
+                          <strong>{item.valore}/7</strong>
+                          <small>
+                            {item.rawValue} punti · {item.distributionPercent}% della lente
+                          </small>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              ) : null}
+              {selectedFamily ? (
+                <div
+                  className="quattro-rapporti-radar-detail"
+                  aria-live="polite"
+                  style={{
+                    '--qr-selected-color': selectedFamily.colore || selectedTheme?.dot || activeColor,
+                  }}
+                >
+                  <p className="quattro-rapporti-radar-detail__value">
+                    {selectedFamily.valore}/7 · {selectedFamily.distributionPercent ?? 0}% dei punti di questa lente
+                  </p>
+                  <CalculationDisclosure>
+                    {selectedShades.length ? (
+                      <div className="quattro-rapporti-shades">
+                        <p>Sfumature della famiglia nel profilo complessivo</p>
+                        <ul>
+                          {selectedShades.map((shade) => (
+                            <li key={shade.rawKey}>
+                              <span>{shade.nome}</span>
+                              <strong>{shade.percentuale}%</strong>
+                            </li>
+                          ))}
+                        </ul>
+                        <small>
+                          Queste percentuali non appartengono alla singola lente: indicano l'attivazione
+                          complessiva di ogni sfumatura sul suo massimo teorico. Sono indipendenti e non
+                          devono sommare a 100%.
+                        </small>
+                      </div>
+                    ) : null}
+                    <div className="calculation-disclosure__method">
+                      <p>{active.composizioneSemplice}</p>
+                      <p><strong>Risposte considerate:</strong> {active.composizione}</p>
+                    </div>
+                    <div className="calculation-disclosure__metrics">
+                      <p><strong>Punti ottenuti:</strong> {selectedFamily.rawValue ?? 0}</p>
+                      <p><strong>Presenza in questo rapporto:</strong> {selectedFamily.distributionPercent ?? 0}%</p>
+                      <p><strong>Valore nel grafico:</strong> {selectedFamily.valore} su 7</p>
+                    </div>
+                    {selectedFamily.maxRawPoints > 0 && selectedFamily.rawValue > 0 ? (
+                      <p className="calculation-disclosure__formula">
+                        Formula: {selectedFamily.rawValue ?? 0} ÷ {selectedFamily.maxRawPoints} × 7,
+                        arrotondata all'intero più vicino. La famiglia con più punti vale quindi 7;
+                        le altre sono proporzionate allo stesso massimo. Il{' '}
+                        {selectedFamily.distributionPercent ?? 0}% indica invece la quota di{' '}
+                        {selectedFamily.rawValue ?? 0} punti sui {selectedFamily.totalRawPoints ?? 0}{' '}
+                        complessivi della lente. Più famiglie possono raggiungere 7 per effetto
+                        dell'arrotondamento: i punti grezzi permettono di distinguere un vero pari merito.
+                        Un 7, un 6 e un 5 restano tutti visibili e descrivono un profilo composto.
+                      </p>
+                    ) : selectedFamily.maxRawPoints > 0 ? (
+                      <p className="calculation-disclosure__formula">
+                        Questa famiglia ha ottenuto 0 punti e rappresenta lo 0% della lente. Per la
+                        sola leggibilità del poligono, il radar mostra il minimo visuale 1/7: non è
+                        un punto ottenuto né una presenza misurata.
+                      </p>
+                    ) : (
+                      <p className="calculation-disclosure__formula">
+                        Non ci sono punti sufficienti per calcolare questa lente.
+                      </p>
+                    )}
+                  </CalculationDisclosure>
+                </div>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="quattro-rapporti-divider" aria-hidden="true" />
+
           <div
             className="quattro-rapporti-read"
             role="tabpanel"

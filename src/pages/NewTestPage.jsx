@@ -116,6 +116,7 @@ const RESULT_ANALYSIS_MESSAGES = [
   'Privacy attiva: i dati vengono trattati in forma riservata e protetta.',
   'Quasi pronto: passaggio al report finale.',
 ]
+const FLOWER_SEQUENCE = ['blu', 'rosso', 'verde', 'giallo', 'grigio']
 
 const STORAGE_KEY_TEST_STARTED = 'tst_test_started_v1'
 const STORAGE_KEY_TEST_DRAFT = 'tst_test_draft_v1'
@@ -210,8 +211,6 @@ function NewTestPage() {
   const [audioDuration, setAudioDuration] = useState(0)
   const [showExitConfirm, setShowExitConfirm] = useState(false)
   const [showDraftSubmitConfirm, setShowDraftSubmitConfirm] = useState(false)
-  const [pendingReplayFile, setPendingReplayFile] = useState(null)
-  const [replayFile, setReplayFile] = useState(null)
   const [showAreasHelp, setShowAreasHelp] = useState(false)
   const [isThresholdFocusActive, setIsThresholdFocusActive] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -238,10 +237,14 @@ function NewTestPage() {
   const resetTimerRef = useRef(null)
   const recallTimerRef = useRef(null)
   const stepEnterTimerRef = useRef(null)
+  const flowerPreloadRef = useRef([])
 
   // Sample da /audio in locale, oppure da VITE_AUDIO_BASE_URL (streaming, senza MP3 nel deploy).
   const audioSrc = buildTestAudioUrl(currentFile)
-  const playerAudioSrc = replayFile ? buildTestAudioUrl(replayFile) : audioSrc
+  // Ai passi di riconferma (41/42) non esiste un file audio proprio: si riascolta il file di riferimento (29/40).
+  const reconfirmReferenceFile =
+    getQuestionGroupForFile(currentFile) === 'C_BIS' ? (currentFile === 41 ? 29 : 40) : null
+  const playerAudioSrc = reconfirmReferenceFile ? buildTestAudioUrl(reconfirmReferenceFile) : audioSrc
   const audioSourceIssue = getAudioSourceIssue(playerAudioSrc)
   const currentFileKey = `File_${String(currentFile).padStart(2, '0')}`
   const isCurrentStepAnswered = Boolean((testRecord[currentFileKey] || '').trim())
@@ -254,7 +257,6 @@ function NewTestPage() {
         }
       : undefined
   const selectedAnswerValue = (testRecord[currentFileKey] || '').trim()
-  const FLOWER_SEQUENCE = ['blu', 'rosso', 'verde', 'giallo', 'grigio']
   const loadingFlowerImages = FLOWER_SEQUENCE.map((key) => ({
     key,
     src: getFlowerStillByColor(key),
@@ -266,10 +268,6 @@ function NewTestPage() {
           Math.floor((analysisProgress / 100) * loadingFlowerImages.length),
         )
       : 0
-  const animatedFlowerIndex =
-    loadingFlowerImages.length > 0
-      ? (activeFlowerIndex + loadingFlowerTick) % loadingFlowerImages.length
-      : 0
 
   const isGuestMode = location.state && location.state.mode === 'guest'
 
@@ -279,6 +277,19 @@ function NewTestPage() {
       navigate('/', { replace: true, state: { fromTest: true } })
     }
   }, [authReady, user, isGuestMode, navigate])
+
+  // Precarica gli asset del loader finale appena si entra nel test, così sono
+  // già in cache del browser molto prima che la sequenza venga mostrata.
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    flowerPreloadRef.current = FLOWER_SEQUENCE.map((key) => {
+      const src = getFlowerStillByColor(key)
+      if (!src) return null
+      const img = new window.Image()
+      img.src = src
+      return img
+    })
+  }, [])
 
   useEffect(() => {
     if (!showAreasHelp) return undefined
@@ -309,8 +320,6 @@ function NewTestPage() {
     setAudioCurrentTime(0)
     setAudioProgress(0)
     setIsAudioBusy(false)
-    setReplayFile(null)
-    setPendingReplayFile(null)
   }
 
   const stopPreviewAudio = () => {
@@ -358,40 +367,6 @@ function NewTestPage() {
       setIsAudioBusy(false)
     }
   }
-
-  // Il riascolto passa dal disclaimer di conferma e riusa il player principale (nessun player separato).
-  const requestReplay = (fileNumber) => {
-    if (!fileNumber) return
-    uiSounds?.playTestTap?.()
-    setPendingReplayFile(fileNumber)
-  }
-
-  const cancelReplay = () => {
-    uiSounds?.playTestGhostTap?.()
-    setPendingReplayFile(null)
-  }
-
-  const confirmReplay = () => {
-    uiSounds?.playTestTap?.()
-    setAudioError(null)
-    setAudioProgress(0)
-    setAudioDuration(0)
-    setAudioCurrentTime(0)
-    setReplayFile(pendingReplayFile)
-    setPendingReplayFile(null)
-  }
-
-  useEffect(() => {
-    if (!replayFile) return
-    const audio = audioRef.current
-    if (!audio) return
-    audio.pause()
-    audio.currentTime = 0
-    audio.playbackRate = 1
-    audio.load()
-    playCurrentAudio({ restart: true })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [replayFile])
 
   const seekAudioFromEvent = (event) => {
     const audio = audioRef.current
@@ -1013,39 +988,24 @@ function NewTestPage() {
     }
 
     if (group === 'C_BIS') {
-      const referenceFile = currentFile === 41 ? 29 : 40
-
       return (
-        <div className="answers-c-bis">
-          <p className="answers-c-bis-hint">
-            Riascolta con calma e scegli l’aggettivo che senti piu coerente per il file {referenceFile}.
-            Se vuoi, puoi riascoltare il file di riferimento prima di confermare.
-          </p>
-          <button
-            type="button"
-            className="nav-button secondary"
-            onClick={() => requestReplay(referenceFile)}
-          >
-            Riascolta file {referenceFile}
-          </button>
-          <div className="answers-grid answers-grid--dense">
-            {Object.keys(DIZIONARIO_2).map((label) => (
-              <button
-                key={label}
-                type="button"
-                className={`answer-button ${selectedAnswerValue === label ? 'answer-button-selected' : ''}`}
-                aria-pressed={selectedAnswerValue === label}
-                onClick={() =>
-                  handleAnswer({
-                    answerLabel: label,
-                    isConfirmation: true,
-                  })
-                }
-              >
-                {label}
-              </button>
-            ))}
-          </div>
+        <div className="answers-grid answers-grid--dense">
+          {Object.keys(DIZIONARIO_2).map((label) => (
+            <button
+              key={label}
+              type="button"
+              className={`answer-button ${selectedAnswerValue === label ? 'answer-button-selected' : ''}`}
+              aria-pressed={selectedAnswerValue === label}
+              onClick={() =>
+                handleAnswer({
+                  answerLabel: label,
+                  isConfirmation: true,
+                })
+              }
+            >
+              {label}
+            </button>
+          ))}
         </div>
       )
     }
@@ -1404,6 +1364,14 @@ function NewTestPage() {
                     </div>
                   </div>
                 </header>
+                {!testCompleted && reconfirmReferenceFile && (
+                  <div className="answers-c-bis" aria-live="polite">
+                    <p className="answers-c-bis-title">Riascolto di conferma</p>
+                    <p className="answers-c-bis-hint">
+                      Stai risentendo il file {reconfirmReferenceFile}, già presentato durante il test. Il player qui sotto riproduce solo questo suono di riferimento: ascolta con calma e scegli l’aggettivo che senti più coerente.
+                    </p>
+                  </div>
+                )}
                 {!testCompleted && (
                   <section
                     className="test-stage-audio-zone test-stage-audio-zone--menu-tab player-card player-card--bottom-dock"
@@ -1551,12 +1519,7 @@ function NewTestPage() {
                           {audioError || audioSourceIssue}
                         </p>
                       )}
-                      {!audioError && !audioSourceIssue && replayFile && (
-                        <p className="player-hint">
-                          Stai riascoltando il file {replayFile}, già presentato durante il test.
-                        </p>
-                      )}
-                      {!audioError && !audioSourceIssue && !replayFile && navigationHint && (
+                      {!audioError && !audioSourceIssue && navigationHint && (
                         <p className="player-hint">
                           {navigationHint}
                         </p>
@@ -1836,11 +1799,11 @@ function NewTestPage() {
                           className="result-analysis-flower-track"
                           style={{
                             width: `${loadingFlowerImages.length * 100}%`,
-                            transform: `translateX(-${animatedFlowerIndex * (100 / loadingFlowerImages.length)}%)`,
+                            transform: `translateX(-${activeFlowerIndex * (100 / loadingFlowerImages.length)}%)`,
                           }}
                         >
                           {loadingFlowerImages.map((item, index) => {
-                            const isActive = index === animatedFlowerIndex
+                            const isActive = index === activeFlowerIndex
                             return (
                               <div
                                 key={item.key}
@@ -2019,44 +1982,6 @@ function NewTestPage() {
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? 'Salvataggio...' : 'Consegna bozza'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-          {pendingReplayFile && (
-            <div
-              className="test-exit-modal-backdrop"
-              role="presentation"
-              onClick={cancelReplay}
-            >
-              <div
-                className="test-exit-modal"
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="test-replay-modal-title"
-                onClick={(event) => event.stopPropagation()}
-              >
-                <h3 id="test-replay-modal-title" className="test-exit-modal-title">
-                  Riascolto di un suono già presentato
-                </h3>
-                <p className="test-exit-modal-text">
-                  Stai per ascoltare nuovamente un suono già presentato durante il test. Premi Conferma per procedere.
-                </p>
-                <div className="test-exit-modal-actions">
-                  <button
-                    type="button"
-                    className="nav-button exit-confirm-continue"
-                    onClick={confirmReplay}
-                  >
-                    Conferma
-                  </button>
-                  <button
-                    type="button"
-                    className="nav-button secondary"
-                    onClick={cancelReplay}
-                  >
-                    Annulla
                   </button>
                 </div>
               </div>

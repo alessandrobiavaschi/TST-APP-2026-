@@ -51,7 +51,7 @@ export const REPORT_SECTIONS = [
 
   // 2. Forza delle tue correnti emotive
   { id: 'report-group-forza-correnti', label: 'Forza delle tue correnti emotive', groupId: 'report-group-forza-correnti' },
-  { id: 'report-tst-portato', label: 'Portato esperienziale', navStep: '3.1', groupId: 'report-group-forza-correnti', isSub: true },
+  { id: 'report-tst-portato', label: 'Come hai vissuto il test', navStep: '3.1', groupId: 'report-group-forza-correnti', isSub: true },
   { id: 'report-group-forza-correnti', label: 'Attivazioni delle correnti', navStep: '3.2', groupId: 'report-group-forza-correnti', isSub: true },
 
   // 4. Un contributo all'educazione emotiva

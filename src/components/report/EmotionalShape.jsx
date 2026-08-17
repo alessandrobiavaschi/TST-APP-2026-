@@ -25,38 +25,11 @@ const CENTER_X = 600
 const CENTER_Y = 600
 const GRID_BASE_RADIUS = 155
 const GRID_STEP = 42
-const LABEL_MIN_X = 60
-const LABEL_MAX_X = 1140
-const LABEL_MIN_Y = 60
-const LABEL_MAX_Y = 1140
-const LABEL_EDGE_PADDING = 24
-const SVG_MIN_X = 40
-const SVG_MAX_X = 1160
 const MIN_VISIBLE_TAGLIA = 1
-
-function clamp(value, min, max) {
-  return Math.min(max, Math.max(min, value))
-}
 
 function formatScaleScore(score) {
   const roundedScore = Math.round((Number(score) || 0) * 10) / 10
   return Number.isInteger(roundedScore) ? String(roundedScore) : roundedScore.toFixed(1)
-}
-
-function getContainedLabelX(x, align, label) {
-  const estimatedWidth = Math.max(100, label.length * 17)
-
-  if (align === 'end') {
-    return clamp(x, SVG_MIN_X + LABEL_EDGE_PADDING + estimatedWidth, SVG_MAX_X - LABEL_EDGE_PADDING)
-  }
-  if (align === 'start') {
-    return clamp(x, SVG_MIN_X + LABEL_EDGE_PADDING, SVG_MAX_X - LABEL_EDGE_PADDING - estimatedWidth)
-  }
-  return clamp(
-    x,
-    SVG_MIN_X + LABEL_EDGE_PADDING + estimatedWidth / 2,
-    SVG_MAX_X - LABEL_EDGE_PADDING - estimatedWidth / 2,
-  )
 }
 
 export default function EmotionalShape({
@@ -68,7 +41,6 @@ export default function EmotionalShape({
 }) {
   const uiSounds = useUiSounds()
   const [hoveredFamily, setHoveredFamily] = useState(null)
-  const [isHoveredChart, setIsHoveredChart] = useState(false)
   const [localSelectedFamily, setLocalSelectedFamily] = useState(null)
   const prefersReducedMotion = useReducedMotion()
 
@@ -109,16 +81,23 @@ export default function EmotionalShape({
   }
 
   const maxScore = Math.max(...familiesData.map((f) => Number(f.peso) || 0), 1)
-  const activeFamilyKeyResolved = selectedFamily || hoveredFamily
-  const activeFamilyData = familiesData.find((f) => (f.family || 'Verde') === activeFamilyKeyResolved)
-  const activeScore = activeFamilyData
-    ? Math.max(1 + (Number(activeFamilyData.peso) || 0) / maxScore * 6, MIN_VISIBLE_TAGLIA)
-    : null
-  const activeColor = activeFamilyKeyResolved ? (FAMILY_PARAMS[activeFamilyKeyResolved] || FAMILY_PARAMS.Verde).color : null
-  const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches
-  const isTouch = typeof window !== 'undefined' && (isMobile || 'ontouchstart' in window || navigator.maxTouchPoints > 0)
 
-
+  // Dati derivati condivisi da petali SVG e legenda esterna.
+  const familyRows = familiesData.map((data) => {
+    const familyKey = data.family || 'Verde'
+    const params = FAMILY_PARAMS[familyKey] || FAMILY_PARAMS.Verde
+    const score = Number(data.peso) || 0
+    const normalizedTaglia = 1 + (score / maxScore) * 6
+    const visibleTaglia = Math.max(normalizedTaglia, MIN_VISIBLE_TAGLIA)
+    return {
+      familyKey,
+      label: NOMI_FAMIGLIE[familyKey] || familyKey,
+      color: params.color,
+      angle: params.angle,
+      normalizedTaglia,
+      visibleTaglia,
+    }
+  })
 
   return (
     <div
@@ -128,277 +107,167 @@ export default function EmotionalShape({
         maxWidth: 940,
         height,
         margin: '0 auto',
-        position: 'relative',
-        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
-      <svg 
-        className="sintesi-correnti__svg sintesi-correnti__svg--ellipses"
-        onMouseEnter={() => setIsHoveredChart(true)}
-        onMouseLeave={() => setIsHoveredChart(false)}
-        viewBox="40 40 1120 1120"
-        width="100%" 
-        height="100%" 
-        preserveAspectRatio="xMidYMid meet"
-        style={{
-          display: 'block',
-          overflow: 'hidden',
-          width: '100%',
-          height: '100%',
-          maxWidth: '100%',
-          maxHeight: '100%',
-          margin: '0 auto',
-        }}
-      >
-        <defs>
-          <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation="12" result="blur" />
-            <feComposite in="SourceGraphic" in2="blur" operator="over" />
-          </filter>
-        </defs>
+      <div className="emotional-shape-canvas">
+        <svg
+          className="sintesi-correnti__svg sintesi-correnti__svg--ellipses"
+          viewBox="40 40 1120 1120"
+          width="100%"
+          height="100%"
+          preserveAspectRatio="xMidYMid meet"
+          style={{
+            display: 'block',
+            width: '100%',
+            height: '100%',
+            maxWidth: '100%',
+            maxHeight: '100%',
+            margin: '0 auto',
+          }}
+        >
+          <defs>
+            <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="12" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+          </defs>
 
-        {/* Griglia di metratura 1-7 di sfondo (proporzionale dal centro) */}
-        <g className="emotional-shape-grid">
-          {[1, 2, 3, 4, 5, 6, 7].map(t => {
-            const r = GRID_BASE_RADIUS + (t - 1) * GRID_STEP
-            // Posizioniamo i numeri in alto a sinistra (angolo -135°) per non sovrapporli ai petali
-            const rad = -135 * (Math.PI / 180)
-            const textX = CENTER_X + Math.cos(rad) * r
-            const textY = CENTER_Y + Math.sin(rad) * r
-            
-            const showGridNumbers = isHoveredChart || selectedFamily !== null
+          {/* Griglia di metratura 1-7 di sfondo (proporzionale dal centro), senza numeri: la scala esatta è nella legenda sotto. */}
+          <g className="emotional-shape-grid">
+            {[1, 2, 3, 4, 5, 6, 7].map(t => {
+              const r = GRID_BASE_RADIUS + (t - 1) * GRID_STEP
+              return (
+                <circle key={`grid-${t}`} cx={CENTER_X} cy={CENTER_Y} r={r} fill="none" stroke="#334155" strokeWidth="1" strokeDasharray="4 6" opacity="0.4" />
+              )
+            })}
+          </g>
 
-            return (
-              <g key={`grid-${t}`}>
-                <circle cx={CENTER_X} cy={CENTER_Y} r={r} fill="none" stroke="#334155" strokeWidth="1" strokeDasharray="4 6" opacity="0.4" />
-                <motion.g
-                  initial={{ opacity: 0, scale: 0.6 }}
-                  animate={{ opacity: showGridNumbers ? 1 : 0, scale: showGridNumbers ? 1 : 0.6 }}
-                  transition={{ duration: 0.25, ease: "easeOut" }}
-                  style={{ transformOrigin: `${textX}px ${textY}px`, pointerEvents: 'none' }}
-                >
-                  <rect x={textX - 22} y={textY - 22} width="44" height="44" fill="#070d1b" stroke="#475569" strokeWidth="1.5" opacity="0.95" rx="22" />
-                  <text x={textX} y={textY} fill="#f8fafc" fontSize="24" fontWeight="800" textAnchor="middle" dominantBaseline="central">
-                    {t}
-                  </text>
-                </motion.g>
-              </g>
-            )
-          })}
-        </g>
+          <g style={{ mixBlendMode: 'screen' }}>
+            {familyRows.map((row, idx) => {
+              const { familyKey, color, angle, visibleTaglia, label } = row
 
-        <g style={{ mixBlendMode: 'screen' }}>
-          {familiesData.map((data, idx) => {
-            const familyKey = data.family || 'Verde'
-            const params = FAMILY_PARAMS[familyKey] || FAMILY_PARAMS.Verde
-            const score = Number(data.peso) || 0
-            
-            // NORMALIZZAZIONE 1-7: Il punteggio più alto diventa esattamente 7.
-            const normalizedTaglia = 1 + (score / maxScore) * 6
-            const visibleTaglia = Math.max(normalizedTaglia, MIN_VISIBLE_TAGLIA)
-            
-            const outerTip = GRID_BASE_RADIUS + (visibleTaglia - 1) * GRID_STEP
-            const overlapCentro = 20 // I petali si incrociano al centro di 20 pixel costanti
-            const rx = (outerTip + overlapCentro) / 2
-            const offset = rx - overlapCentro
-            const ry = 50 + (visibleTaglia - 1) * 8
-            
-            // Calcolo coordinate del centro del petalo
-            const rad = params.angle * (Math.PI / 180)
-            const cx = CENTER_X + Math.cos(rad) * offset
-            const cy = CENTER_Y + Math.sin(rad) * offset
-            
-            // Opacità interna proporzionale alla taglia e stato hover/selezionato
-            const baseOpacity = 0.40 + (normalizedTaglia / 7) * 0.35
-            const isHighlighted = (hoveredFamily === familyKey) || (selectedFamily === familyKey)
-            const fillOpacity = isHighlighted ? Math.min(baseOpacity + 0.25, 1) : baseOpacity
-            
-            // Posizione calcolata per le etichette di testo (rimangono dritte fuori dalla rotazione)
-            const textRadius = outerTip + 65
-            const tx = clamp(CENTER_X + Math.cos(rad) * textRadius, LABEL_MIN_X, LABEL_MAX_X)
-            const ty = clamp(CENTER_Y + Math.sin(rad) * textRadius, LABEL_MIN_Y, LABEL_MAX_Y)
-            
-            // Offset manuale per allineare bene i testi come in reference
-            let align = 'middle'
-            let tOffsetX = 0
-            if (Math.cos(rad) < -0.1) {
-              align = 'end'
-              tOffsetX = 30
-            } else if (Math.cos(rad) > 0.1) {
-              align = 'start'
-              tOffsetX = -30
-            }
-            const familyLabel = NOMI_FAMIGLIE[familyKey] || familyKey
-            const labelX = getContainedLabelX(
-              clamp(tx + tOffsetX, LABEL_MIN_X, LABEL_MAX_X),
-              align,
-              familyLabel,
-            )
-            const transition = prefersReducedMotion ? { duration: 0 } : { duration: 1.0, ease: "easeOut", delay: idx * 0.1 }
-            const labelTransition = prefersReducedMotion ? { duration: 0 } : { duration: 0.6, delay: 0.6 + idx * 0.1 }
-            
-            return (
-              <g 
-                key={`text-${familyKey}`}
-                tabIndex={0}
-                role="button"
-                aria-label={`Petalo ${familyLabel}, valore normalizzato ${formatScaleScore(normalizedTaglia)} su 7`}
-                onFocus={() => handleFamilyHover(familyKey)}
-                onBlur={() => handleFamilyHover(null)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault()
-                    handleFamilySelect(familyKey)
-                  }
-                }}
-                style={{ outline: 'none' }}
-              >
-                <g transform={`rotate(${params.angle} ${cx} ${cy})`}>
-                {/* Ellisse di glow esterno (leggermente ridotto lo spessore per non impastare) */}
-                <motion.ellipse
-                  cx={cx} cy={cy} rx={rx} ry={ry}
-                  fill="none"
-                  stroke={params.color}
-                  strokeWidth={4}
-                  filter="url(#glow)"
-                  opacity={isHighlighted ? 0.9 : 0.6}
-                  style={{ transformOrigin: `${cx}px ${cy}px` }}
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{
-                    scale: (isHighlighted && !prefersReducedMotion) ? [1, 1.04, 1] : 1,
-                    opacity: isHighlighted ? 0.7 : 0.4
-                  }}
-                  transition={
-                    (isHighlighted && !prefersReducedMotion)
-                      ? { repeat: Infinity, duration: 2.2, ease: 'easeInOut' }
-                      : transition
-                  }
-                />
-                
-                {/* Ellisse principale nitida */}
-                <motion.ellipse
-                  onMouseEnter={() => handleFamilyHover(familyKey)}
-                  onMouseLeave={() => handleFamilyHover(null)}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleFamilySelect(familyKey)
-                  }}
-                  cx={cx} cy={cy} rx={rx} ry={ry}
-                  fill={params.color}
-                  fillOpacity={fillOpacity}
-                  stroke={params.color}
-                  strokeWidth={1.5}
-                  style={{ transformOrigin: `${cx}px ${cy}px`, cursor: 'pointer' }}
-                  initial={{ scale: 0.8, opacity: 0, fillOpacity: 0 }}
-                  animate={{
-                    scale: (isHighlighted && !prefersReducedMotion) ? [1, 1.025, 1] : 1,
-                    opacity: 1,
-                    fillOpacity
-                  }}
-                  transition={
-                    (isHighlighted && !prefersReducedMotion)
-                      ? { repeat: Infinity, duration: 2.2, ease: 'easeInOut' }
-                      : transition
-                  }
-                />
-                </g>
-                
-                {/* Etichetta di testo interna (Fuori dal gruppo di rotazione per restare dritta) */}
-                <motion.g
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={labelTransition}
-                >
-                  <text
-                    onMouseEnter={() => handleFamilyHover(familyKey)}
-                    onMouseLeave={() => handleFamilyHover(null)}
-                    onClick={(e) => {
-                      e.stopPropagation()
+              const outerTip = GRID_BASE_RADIUS + (visibleTaglia - 1) * GRID_STEP
+              const overlapCentro = 20 // I petali si incrociano al centro di 20 pixel costanti
+              const rx = (outerTip + overlapCentro) / 2
+              const offset = rx - overlapCentro
+              const ry = 50 + (visibleTaglia - 1) * 8
+
+              // Calcolo coordinate del centro del petalo
+              const rad = angle * (Math.PI / 180)
+              const cx = CENTER_X + Math.cos(rad) * offset
+              const cy = CENTER_Y + Math.sin(rad) * offset
+
+              // Opacità interna proporzionale alla taglia e stato hover/selezionato
+              const baseOpacity = 0.40 + (row.normalizedTaglia / 7) * 0.35
+              const isHighlighted = (hoveredFamily === familyKey) || (selectedFamily === familyKey)
+              const fillOpacity = isHighlighted ? Math.min(baseOpacity + 0.25, 1) : baseOpacity
+
+              const transition = prefersReducedMotion ? { duration: 0 } : { duration: 1.0, ease: "easeOut", delay: idx * 0.1 }
+
+              return (
+                <g
+                  key={`petal-${familyKey}`}
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`Petalo ${label}, valore normalizzato ${formatScaleScore(row.normalizedTaglia)} su 7`}
+                  onFocus={() => handleFamilyHover(familyKey)}
+                  onBlur={() => handleFamilyHover(null)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
                       handleFamilySelect(familyKey)
-                    }}
-                    x={labelX}
-                    y={ty}
-                    fill="#F8FAFC"
-                    fontSize="28"
-                    fontWeight="760"
-                    textAnchor={align}
-                    dominantBaseline="middle"
-                    paintOrder="stroke"
-                    stroke="#071123"
-                    strokeWidth="5"
-                    strokeLinejoin="round"
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <tspan x={labelX} dy="0" style={{ transition: 'fill 0.2s', fill: isHighlighted ? params.color : '#F8FAFC' }}>
-                      {familyLabel}
-                    </tspan>
-                  </text>
-                </motion.g>
-              </g>
-            )
-          })}
-        </g>
-        
-        {/* Lettura unica e fissa in alto: evita sovrapposizioni con le etichette dei petali */}
-        {activeFamilyKeyResolved ? (() => {
-          const activeFamilyName = NOMI_FAMIGLIE[activeFamilyKeyResolved] || activeFamilyKeyResolved
-          const BOX_LEFT_PAD = 54 // bordo sinistro box -> inizio testo nome (include pallino)
-          const BOX_RIGHT_SCORE_WIDTH = 130 // divisore -> bordo destro box (spazio fisso per il punteggio)
-          const BOX_MIN_NAME_AREA = 176 // spazio minimo nome (comportamento originale)
-          const DIVIDER_GAP = 24 // margine tra fine testo nome e divisore
-          const estimatedNameWidth = Math.max(80, activeFamilyName.length * 13)
-          const nameAreaWidth = Math.max(BOX_MIN_NAME_AREA, estimatedNameWidth + DIVIDER_GAP)
-          const boxWidth = BOX_LEFT_PAD + nameAreaWidth + BOX_RIGHT_SCORE_WIDTH
-          const boxX = CENTER_X - boxWidth / 2
-          const dividerX = boxX + BOX_LEFT_PAD + nameAreaWidth
+                    }
+                  }}
+                  style={{ outline: 'none' }}
+                >
+                  <g transform={`rotate(${angle} ${cx} ${cy})`}>
+                    {/* Ellisse di glow esterno (leggermente ridotto lo spessore per non impastare) */}
+                    <motion.ellipse
+                      cx={cx} cy={cy} rx={rx} ry={ry}
+                      fill="none"
+                      stroke={color}
+                      strokeWidth={4}
+                      filter="url(#glow)"
+                      opacity={isHighlighted ? 0.9 : 0.6}
+                      style={{ transformOrigin: `${cx}px ${cy}px` }}
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{
+                        scale: (isHighlighted && !prefersReducedMotion) ? [1, 1.04, 1] : 1,
+                        opacity: isHighlighted ? 0.7 : 0.4
+                      }}
+                      transition={
+                        (isHighlighted && !prefersReducedMotion)
+                          ? { repeat: Infinity, duration: 2.2, ease: 'easeInOut' }
+                          : transition
+                      }
+                    />
 
+                    {/* Ellisse principale nitida */}
+                    <motion.ellipse
+                      onMouseEnter={() => handleFamilyHover(familyKey)}
+                      onMouseLeave={() => handleFamilyHover(null)}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleFamilySelect(familyKey)
+                      }}
+                      cx={cx} cy={cy} rx={rx} ry={ry}
+                      fill={color}
+                      fillOpacity={fillOpacity}
+                      stroke={color}
+                      strokeWidth={1.5}
+                      style={{ transformOrigin: `${cx}px ${cy}px`, cursor: 'pointer' }}
+                      initial={{ scale: 0.8, opacity: 0, fillOpacity: 0 }}
+                      animate={{
+                        scale: (isHighlighted && !prefersReducedMotion) ? [1, 1.025, 1] : 1,
+                        opacity: 1,
+                        fillOpacity
+                      }}
+                      transition={
+                        (isHighlighted && !prefersReducedMotion)
+                          ? { repeat: Infinity, duration: 2.2, ease: 'easeInOut' }
+                          : transition
+                      }
+                    />
+                  </g>
+                </g>
+              )
+            })}
+          </g>
+        </svg>
+      </div>
+
+      <ul className="emotional-shape-legend" aria-hidden="false">
+        {familyRows.map((row) => {
+          const isHighlighted = (hoveredFamily === row.familyKey) || (selectedFamily === row.familyKey)
           return (
-            <g style={{ pointerEvents: 'none' }}>
-              <rect
-                x={boxX}
-                y="56"
-                width={boxWidth}
-                height="68"
-                rx="18"
-                fill="#070d1b"
-                stroke="#334155"
-                strokeWidth="1.5"
-                opacity="0.96"
-              />
-              <circle cx={boxX + 34} cy="90" r="6" fill={activeColor} />
-              <text
-                x={boxX + BOX_LEFT_PAD}
-                y="90"
-                fill="#f8fafc"
-                fontSize="22"
-                fontWeight="750"
-                textAnchor="start"
-                dominantBaseline="central"
-              >
-                {activeFamilyName}
-              </text>
-              <line x1={dividerX} y1="72" x2={dividerX} y2="108" stroke="#334155" strokeWidth="1.5" />
-              <text
-                x={boxX + boxWidth - 32}
-                y="90"
-                fill={activeColor}
-                fontSize="27"
-                fontWeight="850"
-                textAnchor="end"
-                dominantBaseline="central"
-              >
-                {formatScaleScore(activeScore)}<tspan fill="#94a3b8" fontSize="18" fontWeight="650">/7</tspan>
-              </text>
-            </g>
+            <li
+              key={`legend-${row.familyKey}`}
+              className={`emotional-shape-legend__item${isHighlighted ? ' emotional-shape-legend__item--active' : ''}`}
+              style={{ '--legend-color': row.color }}
+              tabIndex={0}
+              role="button"
+              aria-label={`${row.label}, valore ${formatScaleScore(row.normalizedTaglia)} su 7`}
+              onMouseEnter={() => handleFamilyHover(row.familyKey)}
+              onMouseLeave={() => handleFamilyHover(null)}
+              onClick={() => handleFamilySelect(row.familyKey)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  handleFamilySelect(row.familyKey)
+                }
+              }}
+            >
+              <span className="emotional-shape-legend__dot" style={{ backgroundColor: row.color }} aria-hidden="true" />
+              <span className="emotional-shape-legend__name">{row.label}</span>
+              <span className="emotional-shape-legend__score">
+                {formatScaleScore(row.normalizedTaglia)}<span className="emotional-shape-legend__max">/7</span>
+              </span>
+            </li>
           )
-        })() : (
-          <text x="600" y="90" fill="#94a3b8" fontSize="18" fontWeight="600" textAnchor="middle" opacity="0.8">
-            {isTouch
-              ? 'Tocca i petali per i punteggi in scala normalizzata 1-7'
-              : 'Passa il cursore o premi Tab sui petali per i punteggi in scala normalizzata 1-7'}
-          </text>
-        )}
-      </svg>
+        })}
+      </ul>
     </div>
   )
 }

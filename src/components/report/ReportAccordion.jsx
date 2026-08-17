@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { APPROFONDIMENTO_AREAS, APPROFONDIMENTO_UI } from './reportUiCopy.js'
+import { APPROFONDIMENTO_AREAS, APPROFONDIMENTO_UI, getAreaLabel, getAreaCopy } from './reportUiCopy.js'
 import InfoTip from './InfoTip.jsx'
 
 /** Colore bordo sinistro per ogni sezione (palette leggera) */
@@ -11,8 +11,9 @@ const SEZIONE_ACCENT = {
   Armonia: 'var(--report-accordion-armonia, #eab308)',
 }
 
-export default function ReportAccordion({ sezioniTest }) {
+export default function ReportAccordion({ sezioniTest, plainLanguage = false }) {
   const [openKey, setOpenKey] = useState(null)
+  const [activeTip, setActiveTip] = useState(null)
 
   if (!sezioniTest || typeof sezioniTest !== 'object') {
     return null
@@ -31,8 +32,9 @@ export default function ReportAccordion({ sezioniTest }) {
       </div>
       <div className="report-sezioni-list">
         {APPROFONDIMENTO_AREAS.map((nomeSezione) => {
-          const sezione = sezioniTest[nomeSezione]
+          const sezione = getAreaCopy(nomeSezione, sezioniTest[nomeSezione], plainLanguage)
           if (!sezione) return null
+          const label = getAreaLabel(nomeSezione, plainLanguage)
           const isOpen = openKey === nomeSezione
           const id = `accordion-${nomeSezione.toLowerCase()}`
           const accent = SEZIONE_ACCENT[nomeSezione]
@@ -42,27 +44,29 @@ export default function ReportAccordion({ sezioniTest }) {
               className={`report-sezione-item ${isOpen ? 'report-sezione-item--open' : ''}`}
               style={{ '--sezione-accent': accent }}
             >
-              <button
-                type="button"
-                className="report-sezione-trigger"
-                onClick={() => setOpenKey(isOpen ? null : nomeSezione)}
-                aria-expanded={isOpen}
-                aria-controls={id}
-                id={`${id}-button`}
-              >
-                <span className="report-sezione-name">
-                  {nomeSezione}
-                  <InfoTip
-                    variant="button"
-                    term={nomeSezione}
-                    tip={APPROFONDIMENTO_UI.areaTips[nomeSezione]}
-                    className="report-sezione-tip"
-                  />
-                </span>
-                <span className="report-sezione-chevron" aria-hidden>
-                  {isOpen ? '−' : '+'}
-                </span>
-              </button>
+              <div className="report-sezione-header">
+                <button
+                  type="button"
+                  className="report-sezione-trigger"
+                  onClick={() => setOpenKey(isOpen ? null : nomeSezione)}
+                  aria-expanded={isOpen}
+                  aria-controls={id}
+                  id={`${id}-button`}
+                >
+                  <span className="report-sezione-name">{label}</span>
+                  <span className="report-sezione-chevron" aria-hidden>
+                    {isOpen ? '−' : '+'}
+                  </span>
+                </button>
+                <InfoTip
+                  variant="button"
+                  term={label}
+                  tip={APPROFONDIMENTO_UI.areaTips[nomeSezione]}
+                  className="report-sezione-tip"
+                  open={activeTip === nomeSezione}
+                  onToggle={() => setActiveTip((cur) => (cur === nomeSezione ? null : nomeSezione))}
+                />
+              </div>
               <div
                 id={id}
                 role="region"

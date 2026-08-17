@@ -18,9 +18,10 @@ const V_TEMPORALE = '/Video Background/Temporale.mp4'
 
 // Mappatura timeOfDay + weather → video (tutti e 12 i file usati; sereno = predilezione sole)
 // Ogni entry include anche un profilo visivo/emotivo per l'armocromia:
-// - tone:      'light' | 'medium' | 'dark'     → luminosità percepita
-// - warmth:    'cool' | 'neutral' | 'warm'     → tinta emotiva dominante
-// - intensity: 'soft' | 'normal' | 'rich'      → quanta \"energia\" visiva si percepisce
+// - tone:         'light' | 'medium' | 'dark'     → luminosità percepita
+// - warmth:       'cool' | 'neutral' | 'warm'     → tinta emotiva dominante
+// - intensity:    'soft' | 'normal' | 'rich'      → quanta "energia" visiva si percepisce
+// - playbackRate: number (opzionale, es. 0.15)   → velocità di riproduzione (default: 0.25)
 export const SKY_VIDEOS = {
   morning: {
     sereno:     { src: V_SERENO,  tone: 'light',  warmth: 'neutral', intensity: 'soft' },

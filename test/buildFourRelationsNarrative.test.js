@@ -30,12 +30,12 @@ test('Sé separa osservazione Malinconica e armonia con la famiglia dominante', 
 
   assert.equal(result.metrics.awarenessPercent, 23)
   assert.equal(result.metrics.harmonyPercent, 31)
-  assert.equal(result.metrics.relationKind, 'compensation')
+  assert.equal(result.metrics.relationKind, 'awareness')
   assert.equal(result.frontParagraphs.length, 2)
   assert.match(result.levelLabel, /Consapevolezza discreta.*armonia buona/i)
   assert.match(text, /Malinconica raggiunge il 23%/)
   assert.match(text, /Marziale.*raggiunge il 31%/)
-  assert.match(text, /compensazione/)
+  assert.match(text, /consapevolezza/)
   assert.doesNotMatch(text, /una ottima/i)
 })
 
@@ -126,7 +126,7 @@ test('Agire applica le soglie percentuali concordate per la componente Marziale'
 
 test('Agire modula il testo secondo tutte le famiglie di base', () => {
   const cases = [
-    ['blu', /natura Lunare.*compensando/i],
+    ['blu', /natura Lunare.*rende più consapevoli/i],
     ['verde', /natura Contemplativa.*tensione/i],
     ['giallo', /natura di tipo Gioioso-sanguinico.*nuove possibilità/i],
     ['grigio', /natura Intellettuale-razionale.*calcolo e controllo/i],
