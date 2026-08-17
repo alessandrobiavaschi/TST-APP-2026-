@@ -1,45 +1,76 @@
-# Handoff Codex — QA mobile report TST
+# HANDOFF CODEX — Integrazione Galassia Lessicale 2.0
 
-## Stato
+## Sintesi
 
-Revisione mobile completata e verificata sul branch `ai/codex` nel worktree `/Users/alessandrobiavaschi/Downloads/TST 2026 cursor-codex`.
+La consegna Claude + Antigravity è integrata su `ai/integration` senza modificare `master`. La branch contiene il view model deterministico, le sei sezioni UI, i test contrattuali Codex e un fix di compatibilità finale tra chiavi del view model e identificatori dell'atlante.
 
-L'implementazione Antigravity è stata auditata integralmente. Le parti valide sono state mantenute; il rendering interrotto di `EmotionalShape`, gli override responsive incompleti e i problemi di navigazione, grafici, tipografia e sezione Natura sono stati corretti senza cambiare contenuti o scoring.
+Il calcolo scientifico del TST non è stato modificato.
 
-## Verifica
+## Storia integrata
 
-- Lint: PASS
-- Test: PASS, 43/43 (inclusi contratti mobile/desktop e scoring golden)
-- Build: PASS
-- Browser: PASS a 320x568, 375x667, 390x844, 430x932, 768x1024 e 1440x900
-- Console: pulita
+- baseline: `master` a `a857bed`;
+- Claude: incluso dalla merge ancestry di `ai/antigravity` (`faabfe2`, `bbf4d91`);
+- Antigravity: `95c59f2`, integrato con merge commit `f60f528`;
+- Codex test contrattuali: `c151dd4`, applicato come `c85b81b`;
+- fix finali e questo handoff: commit successivo su `ai/integration`.
 
-I dettagli tecnici sono in `MOBILE_IMPLEMENTATION_REPORT.md`; la matrice, la checklist completa e i problemi trovati/corretti/residui sono in `MOBILE_QA_REPORT.md`. La fixture DEV usata per la verifica browser è stata rimossa dal codice finale.
+I commit successivi presenti su `ai/codex` relativi a deploy, cache e modifica delle istruzioni non sono stati integrati perché estranei a questa missione.
 
-## Integrazione
+## File della funzionalità integrata
 
-Integrare il commit finale di `ai/codex` solo dopo revisione. Non è stato eseguito alcun push e non è stato effettuato alcun merge su `ai/integration`.
+- `src/utils/galassiaLessicoViewModel.js`
+- `src/utils/buildReportData.js`
+- `src/components/report/GalassiaView.jsx`
+- `src/components/report/LessicoAtlasView.jsx`
+- `src/components/report/ReportShell.jsx`
+- `src/components/report/ParoleStatiAnimo.jsx`
+- `src/components/report/SintesiCorrenti.jsx`
+- `src/components/report/SintesiCorrenti.css`
+- `src/styles/galassia-view.css`
+- `src/content/relational/anaffettivo.js`
+- `src/content/relational/assertivo.js`
+- `test/galassiaLessicoViewModel.test.js`
+- `test/galassiaDataContract.test.js`
+- `HANDOFF_CLAUDE.md`
+- `HANDOFF_ANTIGRAVITY.md`
+- `HANDOFF_CODEX.md`
 
-Il file `.firebase/hosting.ZGlzdA.cache`, rigenerato localmente dalla build, resta volutamente fuori dal commit.
+## Correzioni Codex d'integrazione
 
-## Disattivazione temporanea Galassia mobile
+- introdotta una mappa esplicita tra le chiavi scientifiche `blu/rosso/verde/giallo/grigio`, i nomi `Blu/Rosso/Verde/Giallo/Grigio` e gli ID visuali dell'atlante;
+- ripristinati click, selezione, colore e zoom delle pillole situazionali;
+- ripristinato il vocabolario stabile per tutte e cinque le famiglie;
+- resa non ambigua la tracciabilità tramite `parola + familyKey + correnteKey`;
+- resa non ambigua anche l'evidenziazione dei nodi emersi e la selezione delle parole vicine;
+- mostrate soltanto le costellazioni con correnti utente attive;
+- rimossi dal percorso Tab i nodi esclusi dai filtri;
+- applicato il focus visibile dashed blu a pulsanti, input e summary dell'atlante.
 
-Sotto i 768px la Galassia non è esposta nella bottom navigation o nelle card finali. Anche il deep-link `#galassia` viene ricondotto al report e il layer non viene montato. Desktop invariato.
+## Verifiche eseguite
 
-## Correzione proporzioni import CSV
+```text
+npm test
+npm run lint
+npm run build
+git diff --check
+```
 
-Il dialog "Importa Risultati" ora usa un contenitore locale compatto, centrato e scrollabile: larghezza massima 640 px, altezza determinata dal contenuto e adattamento mobile sotto i 640 px. La dropzone è stata ridotta da 220 px a 170 px su desktop e 150 px su mobile. Il generico `.modal-content` e gli altri dialog non sono stati modificati.
+Esito:
 
-Il dialog viene montato sul `body`, così il posizionamento resta ancorato al viewport anche dentro la card con effetto vetro, e il suo livello resta sopra l'header desktop e mobile. Sono stati inoltre aggiunti il contratto accessibile `role="dialog"`, `aria-modal="true"`, il collegamento del titolo tramite `aria-labelledby`, il focus iniziale, la chiusura con Esc e il ripristino del focus sul pulsante Importa. Il flusso di selezione, drag and drop e importazione CSV è invariato.
+- test: 33 passati, 0 falliti;
+- lint: 0 errori;
+- build: Vite completata con 1224 moduli trasformati;
+- diff check: pulito;
+- typecheck: non disponibile, perché `package.json` non espone uno script dedicato.
 
-Verifica specifica:
+## QA browser reale
 
-- `npm run lint`: PASS
-- `npm test`: PASS, 43/43
-- `npm run build`: PASS
-- browser locale: route verificata; il contenuto import richiede autenticazione, quindi non è stato possibile aprire il dialog nella sessione di test non autenticata
+La route `/risultati/report` senza record mostra correttamente lo stato "Report non disponibile". Per raggiungere la Galassia popolata senza usare dati Firebase o credenziali è stato montato un harness locale temporaneo con lo stesso componente e un view model realistico; l'harness è stato rimosso prima del commit.
 
 File modificati: `src/App.css`, `src/pages/ResultsPage.jsx`, `HANDOFF_CODEX.md`.
+
+---
+Verifiche desktop:
 
 ## Integrazione UX fullscreen a stanze
 
@@ -648,3 +679,59 @@ vera seconda o terza componente.
 - `npm run lint`: superato, 0 errori;
 - `npm run build`: superato, 1227 moduli trasformati;
 - `git diff --check`: superato.
+
+---
+
+---
+
+## Pad Portato sulla navigazione a stanze — 2026-08-17
+
+### Sintesi
+
+Il lavoro del pad triangolare Sintonia / Distonia / Distanza è stato integrato
+sopra il checkpoint del report a stanze (`489f8e3`). `ReportShell` monta ora il
+pad nella stanza 04 tramite `RoomRevealContent`; `ReportSectionGroup.jsx` resta
+eliminato e `ReportDetailTabs.jsx` non è stato reintrodotto.
+
+La presentazione interattiva del redesign (vertici apribili, popover e ripple)
+usa la logica testata di `portatoPadViewData.js`: quote su scala 0–1 o 0–100,
+arrotondamento con somma 100, parità/quasi parità, punto baricentrico e stato
+vuoto. L'anchor `report-tst-portato` appartiene soltanto al wrapper della stanza,
+evitando l'ID duplicato che rendeva ambiguo lo scroll.
+
+### File centrali dell'integrazione
+
+- `src/components/report/ReportShell.jsx`
+- `src/components/report/RoomRevealContent.jsx`
+- `src/components/report/SezionePortatoEsperienziale.jsx`
+- `src/components/report/ReportSectionGroup.jsx` (eliminato)
+- `src/styles/report-tst.css`
+- `src/utils/buildReportData.js`
+- `src/utils/portatoPadViewData.js`
+- `test/portatoPadUiContract.test.js`
+- `test/reportGraphDataContract.test.js`
+
+Il merge include inoltre i file del checkpoint a stanze necessari a mantenere
+coerente la nuova esperienza report; non sono stati eseguiti deploy, modifiche a
+credenziali o operazioni su dati remoti.
+
+### Verifiche
+
+- `node --test test/portatoPadUiContract.test.js test/reportGraphDataContract.test.js`:
+  25 test superati; 3 failure già interne al checkpoint sulle narrative dei
+  Quattro Rapporti, non collegate al Portato. Tutti i 12 test Portato passano.
+- `npm run lint`: superato, 0 errori.
+- `npm run build`: superato, 1232 moduli trasformati.
+- `git diff --check`: superato.
+- controllo statico: una sola occorrenza di `id="report-tst-portato"`; nessun
+  import/uso runtime di `ReportDetailTabs` o `ReportSectionGroup`.
+- smoke browser locale: accesso sviluppo e flusso test avviati correttamente;
+  l'automazione delle 72 tracce è scaduta prima della stanza 04, quindi non è
+  disponibile una validazione visuale completa desktop/mobile del pad.
+
+### Comportamento atteso
+
+Nel report principale la stanza 04 mostra il testo interpretativo e il triangolo
+Sintonia / Distonia / Distanza. Il puck usa le quote non arrotondate; i vertici
+mostrano percentuale e dettaglio tramite pulsante accessibile. In assenza di
+punteggi PE compare soltanto lo stato vuoto, senza triangolo o punto artificiale.

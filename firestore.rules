@@ -41,5 +41,14 @@ service cloud.firestore {
         && resource.data.operatoreUid == request.auth.uid;
     }
 
+    match /shared_tests/{docId} {
+      allow create: if request.auth != null
+        && docId.matches('^[A-Z0-9]{6}$');
+
+      allow read: if request.auth != null
+        && docId.matches('^[A-Z0-9]{6}$');
+
+      allow update, delete: if false;
+    }
   }
 }

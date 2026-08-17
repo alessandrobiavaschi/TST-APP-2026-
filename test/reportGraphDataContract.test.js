@@ -469,12 +469,36 @@ test('parità e quasi equilibrio non forzano una prevalenza nella sintesi', () =
   assert.match(quasiBilanciato.portato.sintesiInterpretativa, /emerse con quote molto vicine/)
   assert.match(quasiBilanciato.portato.sintesiInterpretativa, /compresenza delle tre modalità/)
   assert.match(quasiBilanciato.portato.sintesiInterpretativa, /senza una nettamente prevalente/)
+  assert.equal(quasiBilanciato.portato.prevalente, '')
+  assert.equal(quasiBilanciato.portato.prevalenteLabel, '')
   assert.ok(quasiBilanciato.portato.sintesiInterpretativa.includes('sintonia'))
   assert.ok(quasiBilanciato.portato.sintesiInterpretativa.includes('distonia'))
   assert.ok(quasiBilanciato.portato.sintesiInterpretativa.includes('distanza'))
   assert.match(paritaInTesta.portato.sintesiInterpretativa, /sintonia e distonia/)
   assert.match(paritaInTesta.portato.sintesiInterpretativa, /intensità simile/)
   assert.match(paritaInTesta.portato.sintesiInterpretativa, /distanza è emersa in misura contenuta/)
+  assert.equal(paritaInTesta.portato.prevalente, '')
+  assert.equal(paritaInTesta.portato.prevalenteLabel, '')
+  assert.equal(paritaInTesta.portato.descrizione, '')
+})
+
+test('le percentuali del portato distribuiscono il resto e sommano sempre a cento', () => {
+  const terzi = buildReportData({
+    record: { raw: { PE_Simpatia: 1, PE_Antipatia: 1, PE_Indifferenza: 1 } },
+  })
+  const arrotondamentoAlto = buildReportData({
+    record: { raw: { PE_Simpatia: 1, PE_Antipatia: 1, PE_Indifferenza: 4 } },
+  })
+
+  assert.deepEqual(terzi.portato.dimensioni.map((item) => item.percentuale), [34, 33, 33])
+  assert.deepEqual(
+    arrotondamentoAlto.portato.dimensioni.map((item) => item.percentuale),
+    [17, 17, 66],
+  )
+  assert.equal(
+    arrotondamentoAlto.portato.dimensioni.reduce((sum, item) => sum + item.percentuale, 0),
+    100,
+  )
 })
 
 test('il portato tutto a zero resta uno stato vuoto senza un falso punto nel pad', () => {
