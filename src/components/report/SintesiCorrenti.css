@@ -675,17 +675,21 @@
 
 .sintesi-correnti__visual-panel--radar {
   padding: 1.25rem;
-  height: 480px;
+  min-height: 480px;
+  height: auto;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .sintesi-correnti__visual-panel--ellipses {
   display: grid;
-  place-items: center;
+  grid-template-rows: minmax(0, 1fr);
+  align-items: stretch;
+  justify-items: stretch;
   height: 480px;
-  padding: 0;
+  padding: 1.25rem;
+  box-sizing: border-box;
 }
 
 .sintesi-correnti__total-radar {
@@ -710,18 +714,82 @@
   }
 }
 
+.emotional-shape-canvas {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+}
+
+.emotional-shape-legend {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
+}
+
+.emotional-shape-legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.emotional-shape-legend__item:hover,
+.emotional-shape-legend__item--active {
+  background: color-mix(in srgb, var(--legend-color) 18%, transparent);
+  border-color: var(--legend-color);
+}
+
+.emotional-shape-legend__item:focus-visible {
+  outline: 2px solid #f8fafc;
+  outline-offset: 2px;
+}
+
+.emotional-shape-legend__dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  flex: none;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.035);
+}
+
+.emotional-shape-legend__name {
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #edf2fb;
+  white-space: nowrap;
+}
+
+.emotional-shape-legend__score {
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--legend-color);
+  font-variant-numeric: tabular-nums;
+}
+
+.emotional-shape-legend__max {
+  font-size: 0.68rem;
+  font-weight: 650;
+  color: rgba(226, 232, 240, 0.55);
+}
+
 .sintesi-correnti__radar-caption {
-  margin: 0 0 0.55rem;
+  margin: 0 0 0.75rem;
   font-size: 0.82rem;
   line-height: 1.45;
   color: var(--sc-faint);
-}
-
-.sintesi-correnti__radar-hint {
-  margin: 0 0 0.75rem;
-  font-size: 0.76rem;
-  font-style: italic;
-  color: rgba(255, 255, 255, 0.4);
 }
 
 .report-radar-chart__tooltip {

@@ -24,7 +24,7 @@ export const RELATIONS = [
         label: 'La dinamica',
         title: 'Assertivo ↔ Malinconico',
         body: [
-          'L\'assertivo agisce nel presente con decisione e chiarezza; il malinconico riflette nel passato con profondità e bisogno di senso. Il Sole e la Luna del modello: energie diverse che possono completarsi o ostacolarsi.',
+          'L\'assertivo agisce nel presente con decisione e chiarezza; il malinconico riflette sul passato con profondità e bisogno di senso. Il Sole e la Luna del modello: energie diverse che possono completarsi o ostacolarsi.',
           'L\'assertivo può dare struttura e protezione al malinconico; il malinconico può richiamare l\'assertivo alla sensibilità quando la volontà diventa troppo rigida.',
           'Il pericolo è che l\'assertivo interpreti la lentezza malinconica come debolezza, e il malinconico viva la forza assertiva come mancanza di cura.',
         ],
@@ -36,7 +36,7 @@ export const RELATIONS = [
         body: [
           'L\'assertivo vuole risposte rapide; il malinconico ha bisogno di tempo. La frustrazione è reciproca e frequente.',
           'Nei conflitti, l\'assertivo alza il tono; il malinconico si chiude. Nulla viene risolto davvero.',
-          'Il malinconico può accumulare risentimento per la fretta dell\'altro — finché la reazione sorprende l\'assertivo.',
+          'Il malinconico può accumulare risentimento per la fretta dell\'altro, finché la reazione sorprende l\'assertivo.',
         ],
         tip: 'L\'assertivo offre tempo esplicito («parliamone domani»). Il malinconico si impegna a non sparire senza spiegare.',
       },
@@ -64,7 +64,7 @@ export const RELATIONS = [
         title: 'Assertivo ↔ Flemmatico',
         body: [
           'L\'assertivo è deciso e orientato al risultato; il flemmatico è paziente e orientato alla pace. In apparenza si completano: uno guida, l\'altro sostiene.',
-          'L\'assertivo apprezza la costanza del flemmatico; il flemmatico trova rassicurante la chiarezza assertiva — ma può sentirsi schiacciato.',
+          'L\'assertivo apprezza la costanza del flemmatico; il flemmatico trova rassicurante la chiarezza assertiva, ma può sentirsi schiacciato.',
           'Il pericolo è una gerarchia implicita: l\'assertivo decide, il flemmatico esegue, finché la tensione cresce in silenzio.',
         ],
         tip: 'L\'assertivo invita attivamente il parere del flemmatico. Il flemmatico esprime dissenso prima di cedere per evitare conflitto.',
@@ -102,11 +102,11 @@ export const RELATIONS = [
         label: 'La dinamica',
         title: 'Assertivo ↔ Entusiasta',
         body: [
-          'Entrambi vivono nel movimento e nell\'azione, ma con accenti diversi: l\'assertivo nel decidere e realizzare, l\'entusiasta nel scoprire e accendersi. Possono essere alleati potenti o competitorsi.',
+          'Entrambi vivono nel movimento e nell\'azione, ma con accenti diversi: l\'assertivo nel decidere e realizzare, l\'entusiasta nello scoprire e accendersi. Possono essere alleati potenti o in competizione.',
           'L\'entusiasta porta creatività e slancio; l\'assertivo porta struttura e follow-through. Insieme possono trasformare idee in risultati.',
-          'Il pericolo è la competizione per lo spazio: chi guida, chi brilla, chi decide — senza che venga mai nominato.',
+          'Il pericolo è la competizione per lo spazio: chi guida, chi brilla, chi decide, chi vince e chi si prende la scena.',
         ],
-        tip: 'Definire ruoli espliciti in progetti condivisi. L\'entusiasta genera, l\'assertivo finalizza — o viceversa, ma con accordo chiaro.',
+        tip: 'Definire ruoli espliciti in progetti condivisi. L\'entusiasta genera, l\'assertivo finalizza, o viceversa, ma con accordo chiaro.',
       },
       frizioni: {
         label: 'Le frizioni',
@@ -114,7 +114,7 @@ export const RELATIONS = [
         body: [
           'L\'entusiasta cambia direzione spesso; l\'assertivo vuole coerenza e completamento. La frustrazione è alta su entrambi i lati.',
           'L\'assertivo può giudicare l\'entusiasta superficiale; l\'entusiasta può sentire l\'assertivo oppressivo.',
-          'Nei conflitti, entrambi alzano l\'intensità — ma con modalità diverse: uno spinge, l\'altro sfoga.',
+          'Nei conflitti, entrambi alzano l\'intensità, ma con modalità diverse: uno spinge, l\'altro sfoga.',
         ],
         tip: 'Concordare criteri di successo prima di iniziare. Rivederli quando l\'entusiasmo cambia rotta.',
       },

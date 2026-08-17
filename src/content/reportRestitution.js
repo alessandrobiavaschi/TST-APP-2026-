@@ -270,7 +270,7 @@ export const GROUP_INTROS = {
 export const SECTION_INTROS = {
   rapporti: {
     intro:
-      'Quattro lenti sullo stesso profilo, dal modello del Pianeta della Musica: Natura (Timbro + Intervalli + Armonia, il suolo emotivo), Sé (Intervalli + Melodia, interiorità), Altro (Timbro + Melodia, relazione), Agire (Ritmo + Melodia, movimento). Ogni scheda usa una scala 1–7 — gli scarti tra lenti sono parte della lettura.',
+      'Quattro lenti sullo stesso profilo, dal modello del Pianeta della Musica: Natura (Suono + Distanze tra le note + Accordi, il suolo emotivo), Sé (Distanze tra le note + Melodia, interiorità), Altro (Suono + Melodia, relazione), Agire (Tempo + Melodia, movimento). Ogni scheda usa una scala 1–7 — gli scarti tra lenti sono parte della lettura.',
   },
   portato: {
     lead:

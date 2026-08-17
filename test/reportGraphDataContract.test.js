@@ -186,7 +186,7 @@ test('la lettura della Natura usa la prevalente della lente e racconta le second
   assert.match(natura.definizione, /seconda componente.*Marziale.*influenza discreta.*tensione significativa/i)
 })
 
-test('il contratto Natura espone seconda e terza del caso CSV nel riepilogo visibile', () => {
+test('il contratto Natura racconta la tensione reale nel riepilogo visibile del caso CSV', () => {
   const naturaTotals = { rosso: 19, blu: 15, giallo: 12, verde: 7, grigio: 3 }
   const report = buildReportData({
     record: { raw: {} },
@@ -198,9 +198,10 @@ test('il contratto Natura espone seconda e terza del caso CSV nel riepilogo visi
 
   assert.equal(natura.correntePrincipale.nome, 'Marziale')
   assert.equal(natura.sintesiBreveParagrafi.length, 3)
-  assert.match(natura.sintesiBreveParagrafi[1], /Malinconica.*influenza marcata.*compensazione/i)
-  assert.match(natura.sintesiBreveParagrafi[2], /Entusiasta.*influenza discreta.*affinità/i)
-  assert.doesNotMatch(natura.sintesiBreveParagrafi.join(' '), /Flemmatica/i)
+  assert.match(natura.sintesiBreveParagrafi[0], /Marziale.*Volitivo-collerica/i)
+  assert.match(natura.sintesiBreveParagrafi[1], /tensione moderata.*Flemmatica/i)
+  assert.match(natura.sintesiBreveParagrafi[2], /discreta armonia/i)
+  assert.doesNotMatch(natura.sintesiBreveParagrafi.join(' '), /%|punti percentuali/i)
 })
 
 test('Sé Altro e Agire usano la famiglia risultante dalla Natura classica', () => {

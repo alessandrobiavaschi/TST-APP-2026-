@@ -59,17 +59,23 @@ export function ReportRadarAxisTick({ x, y, payload, textAnchor, cx, cy }) {
     if (dist > 0) {
       const nudgeAmount = 12
       const horizontalDirection = dx / dist
+      const verticalDirection = dy / dist
+      // Solo i vertici davvero laterali (poco scarto verticale) vanno
+      // ancorati verso l'interno: sui vertici diagonali (es. i due in basso
+      // di un pentagono a 5 assi) questo farebbe crescere le etichette
+      // l'una verso l'altra, sovrapponendole al centro in basso.
+      const isMostlyLateral = Math.abs(verticalDirection) < 0.5
 
       // Keep lateral labels inside the SVG. Recharts normally anchors them
       // outwards, so longer Italian names can be clipped by the chart panel.
-      if (horizontalDirection < -0.35) {
+      if (isMostlyLateral && horizontalDirection < -0.35) {
         nudgedX = x + nudgeAmount
         safeTextAnchor = 'start'
-      } else if (horizontalDirection > 0.35) {
+      } else if (isMostlyLateral && horizontalDirection > 0.35) {
         nudgedX = x - nudgeAmount
         safeTextAnchor = 'end'
       } else {
-        nudgedY = y + (dy / dist) * nudgeAmount
+        nudgedY = y + verticalDirection * nudgeAmount
       }
     }
   }

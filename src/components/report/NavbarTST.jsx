@@ -69,8 +69,8 @@ export default function NavbarTST({
 
   const tabs = [
     { id: 'report', label: 'Report' },
+    { id: 'for-musicians', label: 'Musicians' },
     { id: 'galassia', label: 'Galassia' },
-    { id: 'for-musicians', label: 'For Musicians' },
   ]
   const naturaResult = formatNatureResult(profilo?.natura || correnteDominante)
   const famigliaResult = toDisplayCase(profilo?.famigliaLabel || correnteDominante)
@@ -97,41 +97,51 @@ export default function NavbarTST({
           </div>
         </div>
 
-        {/* ── Centro: switch Report | Galassia ────────────────────── */}
-        <div
-          role="tablist"
-          aria-label={NAVBAR_UI.modalitaAria}
-          className="navbar-tst__switch"
-        >
-          {tabs.map((tab) => {
-            const active = modalita === tab.id
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                role="tab"
-                aria-selected={active}
-                onClick={() => onModalitaChange?.(tab.id)}
-                className="navbar-tst__switch-btn"
-                data-active={active ? 'true' : 'false'}
-              >
-                {active && (
-                  <motion.span
-                    layoutId="navbar-tst-indicator"
-                    className="navbar-tst__switch-indicator"
-                    transition={
-                      reduceMotion
-                        ? { duration: 0 }
-                        : { type: 'spring', stiffness: 380, damping: 32 }
-                    }
-                    aria-hidden="true"
-                  />
-                )}
-                <span className="navbar-tst__switch-label">{tab.label}</span>
-              </button>
-            )
-          })}
-        </div>
+        {/* ── Centro: switch Report | Musicians | Galassia, o rientro ── */}
+        {forceVisible ? (
+          <button
+            type="button"
+            className="navbar-tst__back-btn"
+            onClick={() => onModalitaChange?.('report')}
+          >
+            ← Torna al report principale
+          </button>
+        ) : (
+          <div
+            role="tablist"
+            aria-label={NAVBAR_UI.modalitaAria}
+            className="navbar-tst__switch"
+          >
+            {tabs.map((tab) => {
+              const active = modalita === tab.id
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => onModalitaChange?.(tab.id)}
+                  className="navbar-tst__switch-btn"
+                  data-active={active ? 'true' : 'false'}
+                >
+                  {active && (
+                    <motion.span
+                      layoutId="navbar-tst-indicator"
+                      className="navbar-tst__switch-indicator"
+                      transition={
+                        reduceMotion
+                          ? { duration: 0 }
+                          : { type: 'spring', stiffness: 380, damping: 32 }
+                      }
+                      aria-hidden="true"
+                    />
+                  )}
+                  <span className="navbar-tst__switch-label">{tab.label}</span>
+                </button>
+              )
+            })}
+          </div>
+        )}
 
         {/* ── Destra: corrente + scarica + aiuto ──────────────────── */}
         <div className="navbar-tst__right">

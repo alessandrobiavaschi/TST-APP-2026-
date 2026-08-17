@@ -551,15 +551,6 @@ export default function SintesiCorrenti({
         aria-labelledby="sintesi-correnti-heading"
         style={{ '--sc-accent': accentColor }}
       >
-        <ReportPassageHeader
-          step={`${stepPrefix}.1`}
-          eyebrow={SINTESI_UI.eyebrow}
-          title={SINTESI_UI.title}
-          lead={SINTESI_UI.subtitle}
-          accentColor={accentColor}
-          titleId="sintesi-correnti-heading"
-        />
-
         {/* Unified Editorial Summary Card */}
         <div className="sintesi-editorial-card">
           <div className="sintesi-editorial-text">
@@ -601,7 +592,7 @@ export default function SintesiCorrenti({
               const peso = Number(c.peso) || 0
               const barColor = c.color
               const label = familyPresenceLabel(c)
-              const isActive = (hoveredFamilyKey || activeDetailFamily?.familyKey) === c.familyKey
+              const isActive = activeDetailFamily?.familyKey === c.familyKey
               return (
                 <li
                   className={`sintesi-mobile-bar-row${isActive ? ' sintesi-mobile-bar-row--active' : ''}`}
@@ -609,8 +600,6 @@ export default function SintesiCorrenti({
                   tabIndex={0}
                   role="button"
                   aria-label={`Rango ${i + 1}: natura ${label.title}, presenza ${pctAttivazione(peso)}`}
-                  onMouseEnter={() => setHoveredFamilyKey(c.familyKey)}
-                  onMouseLeave={() => setHoveredFamilyKey(null)}
                   onClick={() => {
                     const radarItem = totalScoreRadarData.find(d => d.familyKey === c.familyKey)
                     if (radarItem) setActiveDetailFamily(radarItem)
@@ -704,9 +693,8 @@ export default function SintesiCorrenti({
           <div className="sintesi-mobile-radar-container">
             <div className="sintesi-correnti__total-radar">
               <p className="sintesi-correnti__radar-caption">
-                Scala 1-7 distribuita sui vertici del grafico radar delle cinque famiglie.
+                Punteggio 1-7 per famiglia — passa il cursore su un vertice per il valore esatto.
               </p>
-              <p className="sintesi-correnti__radar-hint">Passa il cursore sui vertici per i punteggi esatti.</p>
               <ReportRadarChart
                 data={totalScoreRadarData}
                 color={accentColor}
@@ -746,15 +734,6 @@ export default function SintesiCorrenti({
       aria-labelledby="sintesi-correnti-heading"
       style={{ '--sc-accent': accentColor }}
     >
-      <ReportPassageHeader
-        step={`${stepPrefix}.1`}
-        eyebrow={SINTESI_UI.eyebrow}
-        title={SINTESI_UI.title}
-        lead={SINTESI_UI.subtitle}
-        accentColor={accentColor}
-        titleId="sintesi-correnti-heading"
-      />
-
       <div className="sintesi-correnti__summary">
         {/* Unified Editorial Summary Card */}
         <div className="sintesi-editorial-card">
@@ -803,9 +782,8 @@ export default function SintesiCorrenti({
               <div className="sintesi-correnti__visual-panel sintesi-correnti__visual-panel--radar">
                 <div className="sintesi-correnti__total-radar">
                   <p className="sintesi-correnti__radar-caption">
-                    Scala 1-7 derivata dai punteggi totali delle cinque famiglie.
+                    Punteggio 1-7 per famiglia — passa il cursore su un vertice per il valore esatto.
                   </p>
-                  <p className="sintesi-correnti__radar-hint">Passa il cursore sui vertici per i punteggi esatti.</p>
                   <ReportRadarChart
                     data={totalScoreRadarData}
                     color={accentColor}
@@ -863,7 +841,7 @@ export default function SintesiCorrenti({
                           damping: 18,
                           delay: i * 0.12,
                         }
-                    const isActive = (hoveredFamilyKey || activeDetailFamily?.familyKey) === c.familyKey
+                    const isActive = activeDetailFamily?.familyKey === c.familyKey
                     return (
                       <li
                         className={`sintesi-correnti__row${isActive ? ' sintesi-correnti__row--active' : ''}`}
@@ -871,8 +849,6 @@ export default function SintesiCorrenti({
                         tabIndex={0}
                         role="button"
                         aria-label={`Rango ${i + 1}: natura ${label.title}, presenza ${pctAttivazione(peso)}`}
-                        onMouseEnter={() => setHoveredFamilyKey(c.familyKey)}
-                        onMouseLeave={() => setHoveredFamilyKey(null)}
                         onClick={() => {
                           const radarItem = totalScoreRadarData.find(d => d.familyKey === c.familyKey)
                           if (radarItem) setActiveDetailFamily(radarItem)
@@ -990,9 +966,8 @@ export default function SintesiCorrenti({
               <div className="sintesi-correnti__visual-panel sintesi-correnti__visual-panel--radar">
                 <div className="sintesi-correnti__total-radar">
                   <p className="sintesi-correnti__radar-caption">
-                    Scala 1-7 derivata dai punteggi totali delle cinque famiglie.
+                    Punteggio 1-7 per famiglia — passa il cursore su un vertice per il valore esatto.
                   </p>
-                  <p className="sintesi-correnti__radar-hint">Passa il cursore sui vertici per i punteggi esatti.</p>
                   <ReportRadarChart
                     data={totalScoreRadarData}
                     color={accentColor}

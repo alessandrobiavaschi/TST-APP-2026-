@@ -609,44 +609,44 @@ export function buildReportData({
     {
       id: 'natura',
       nome: 'La tua Natura di Base',
-      composizione: 'Timbro + Intervalli + Armonia',
+      composizione: 'Suono + Distanze tra le note + Accordi',
       composizioneSemplice:
-        'Questa parte somma i punti ottenuti nelle risposte su Timbro, Intervalli e Armonia, separatamente per ciascuna famiglia emotiva.',
+        'Questa parte somma i punti ottenuti nelle risposte su Suono, Distanze tra le note e Accordi, separatamente per ciascuna famiglia emotiva.',
       definizione:
-        'Il suolo emotivo di fondo: Terra sonora (Timbro), Luce sonora (Intervalli) e Calore sonoro (Armonia). Mostra l’impronta che tendi ad abitare al di là delle situazioni.',
+        'Il suolo emotivo di fondo: Terra sonora (Suono), Luce sonora (Distanze tra le note) e Calore sonoro (Accordi). Mostra l’impronta che tendi ad abitare al di là delle situazioni.',
       cosaIndica:
         'Mostra come risuoni nel profondo e quale equilibrio tende a guidare il tuo modo spontaneo di sentire.',
     },
     {
       id: 'se',
       nome: 'Rapporto con te stesso',
-      composizione: 'Intervalli + Melodia',
+      composizione: 'Distanze tra le note + Melodia',
       composizioneSemplice:
         'Questa parte guarda come ascolti quello che succede dentro di te e quanto riesci a dare forma chiara a ciò che senti.',
       definizione:
-        'Il dialogo con l’interiorità: Luce sonora (Intervalli) e Aria sonora (Melodia). Indica riflessione, qualità del sentire e racconto personale.',
+        'Il dialogo con l’interiorità: Luce sonora (Distanze tra le note) e Aria sonora (Melodia). Indica riflessione, qualità del sentire e racconto personale.',
       cosaIndica:
         'Quanto spazio dai all’interiorità e a nominare ciò che vivi dentro di te.',
     },
     {
       id: 'altro',
       nome: 'Rapporto con l’Altro',
-      composizione: 'Timbro + Melodia',
+      composizione: 'Suono + Melodia',
       composizioneSemplice:
         'Questa parte guarda come ti avvicini agli altri: se il contatto nasce più facilmente come apertura, fiducia e ascolto.',
       definizione:
-        'La disponibilità relazionale: Terra sonora (Timbro) e Aria sonora (Melodia). Mostra come ti apri verso persone e ambiente.',
+        'La disponibilità relazionale: Terra sonora (Suono) e Aria sonora (Melodia). Mostra come ti apri verso persone e ambiente.',
       cosaIndica:
         'Il modo in cui entri in contatto, ti lasci toccare e rispondi al mondo relazionale.',
     },
     {
       id: 'agire',
       nome: 'Rapporto con l’Agire',
-      composizione: 'Ritmo + Melodia',
+      composizione: 'Tempo + Melodia',
       composizioneSemplice:
         'Questa parte guarda quanto il tuo sentire diventa movimento concreto: iniziativa, decisione e capacità di agire.',
       definizione:
-        'L’energia del fare: Acqua sonora (Ritmo) e Aria sonora (Melodia). Mostra come trasformi emozioni in movimento, iniziativa o sosta.',
+        'L’energia del fare: Acqua sonora (Tempo) e Aria sonora (Melodia). Mostra come trasformi emozioni in movimento, iniziativa o sosta.',
       cosaIndica:
         'La spinta volitiva: quanto sei portato ad agire, muoverti o lasciare scorrere.',
     },
@@ -707,7 +707,7 @@ export function buildReportData({
     const formatFamilyLevels = (items) =>
       items.map((item) => `${item.corrente} ${item.valore}/7`).join(', ')
     const esitoComposizione = rawSum <= 0
-      ? 'Dati insufficienti per descrivere la composizione di questa lente.'
+      ? 'Dati insufficienti per descrivere la composizione di questo rapporto.'
       : topRawFamilies.length > 1
         ? `Prevalenza a pari punti: ${formatFamilyLevels(topRawFamilies)}.`
         : topLevelFamilies.length > 1
@@ -863,9 +863,9 @@ export function buildReportData({
     ''
   const vitalita = portatoEsperienziale?.vitalityInterpretation || ''
   const definizioneBreveByKey = {
-    Simpatia: 'Attrazione, piacere e coinvolgimento verso gli stimoli ascoltati.',
-    Antipatia: 'Rifiuto, distanza o fastidio verso parte del materiale ascoltato.',
-    Indifferenza: 'Distacco, neutralità o scarso coinvolgimento verso gli stimoli.',
+    Simpatia: 'Sintonia con la comunicazione sonora.',
+    Antipatia: 'Selettività nella comunicazione sonora.',
+    Indifferenza: 'Distanza dalla comunicazione sonora.',
   }
   const dimensioni = PORTATO_ORDER.map((key) => {
     const valore = punteggi[key.toLowerCase()] ?? 0

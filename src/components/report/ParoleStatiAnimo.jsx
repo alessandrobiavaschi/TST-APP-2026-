@@ -25,6 +25,9 @@ const FAMILY_ORDER = ['Blu', 'Rosso', 'Verde', 'Giallo', 'Grigio']
 
 const BODY_STACK = 'var(--font-body)'
 
+/** Progressive disclosure: parole visibili prima di "Apri elenco completo". */
+const WORD_PREVIEW_COUNT = 10
+
 function withAlpha(hex, alpha) {
   if (typeof hex !== 'string') return `rgba(148,163,184,${alpha})`
   let c = hex.trim().replace('#', '')
@@ -68,6 +71,8 @@ export default function ParoleStatiAnimo({
 
   const [selectedFamily, setSelectedFamily] = useState(initialFamily)
   const [selectedWord, setSelectedWord] = useState(null)
+  const [expanded, setExpanded] = useState(false)
+  const [query, setQuery] = useState('')
 
   const coloreDominante = useMemo(() => {
     const trovata = correnti.find((c) => c?.nome === correnteDominante)
@@ -104,6 +109,15 @@ export default function ParoleStatiAnimo({
     return words
   }, [famData, selectedFamily])
 
+  const filteredWords = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    if (!q) return wordList
+    return wordList.filter((w) => w.parola.toLowerCase().includes(q))
+  }, [wordList, query])
+
+  const visibleWords = expanded ? filteredWords : wordList.slice(0, WORD_PREVIEW_COUNT)
+  const hasMore = wordList.length > WORD_PREVIEW_COUNT
+
   const handleWordClick = useCallback(
     (word) => {
       const paroleVicine = word.sub
@@ -123,6 +137,8 @@ export default function ParoleStatiAnimo({
   const handleFamilyChange = (key) => {
     setSelectedFamily(key)
     setSelectedWord(null)
+    setExpanded(false)
+    setQuery('')
   }
 
   return (
@@ -151,17 +167,6 @@ export default function ParoleStatiAnimo({
           titleId="dizionario-emotivo-title"
         />
 
-        <div className="parole-stati-animo-guide">
-          {(PAROLE_UI.educazioneParagraphs || []).map((p) => (
-            <p key={p.slice(0, 48)}>{p}</p>
-          ))}
-          {PAROLE_UI.educazioneCta && (
-            <p>
-              <em>{PAROLE_UI.educazioneCta}</em>
-            </p>
-          )}
-        </div>
-
         <p
           className="parole-stati-animo-zone__lead"
           style={{ marginTop: 'var(--space-xs)', marginBottom: 'var(--space-md)' }}
@@ -178,6 +183,7 @@ export default function ParoleStatiAnimo({
         >
           {FAMILY_ORDER.filter((k) => famiglieLessico[k]).map((k) => {
             const isSelected = k === selectedFamily
+            const isPrevalente = k === famiglia
             const color = FAMILY_COLORS[k]
             return (
               <button
@@ -185,6 +191,7 @@ export default function ParoleStatiAnimo({
                 type="button"
                 className="parole-stati-animo__family-btn"
                 aria-pressed={isSelected}
+                aria-label={`${FAMILY_DISPLAY_NAMES[k]}${isPrevalente ? ' — famiglia prevalente nel tuo profilo' : ''}`}
                 onClick={() => handleFamilyChange(k)}
                 style={{
                   display: 'inline-flex',
@@ -213,6 +220,11 @@ export default function ParoleStatiAnimo({
                   }}
                 />
                 {FAMILY_DISPLAY_NAMES[k]}
+                {isPrevalente && (
+                  <span className="parole-stati-animo__family-btn-tag" aria-hidden="true">
+                    la tua
+                  </span>
+                )}
               </button>
             )
           })}
@@ -351,9 +363,23 @@ export default function ParoleStatiAnimo({
           )}
         </AnimatePresence>
 
-        {/* NUVOLA DI PAROLE */}
+        {/* RICERCA — solo nell'elenco completo, filtro semplice sulle parole già caricate */}
+        {expanded && hasMore && (
+          <div style={{ marginBottom: 16 }}>
+            <input
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Cerca una parola"
+              aria-label="Cerca una parola nel dizionario di questa famiglia"
+              className="parole-stati-animo__search"
+            />
+          </div>
+        )}
+
+        {/* NUVOLA DI PAROLE — 8–12 parole di default, elenco completo su richiesta */}
         <motion.div
-          key={selectedFamily}
+          key={`${selectedFamily}-${expanded}`}
           initial={prefersReducedMotion ? {} : { opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.35 }}
@@ -362,10 +388,10 @@ export default function ParoleStatiAnimo({
             flexWrap: 'wrap',
             alignItems: 'center',
             gap: 0,
-            marginBottom: 40,
+            marginBottom: 16,
           }}
         >
-          {wordList.map((w) => (
+          {visibleWords.map((w) => (
             <WordPill
               key={`${w.parola}-${w.tipo}`}
               word={w}
@@ -376,11 +402,48 @@ export default function ParoleStatiAnimo({
           ))}
         </motion.div>
 
+        {expanded && filteredWords.length === 0 && wordList.length > 0 && (
+          <p style={{ fontFamily: BODY_STACK, opacity: 0.5, fontSize: 13, marginBottom: 16 }}>
+            Nessuna parola trovata per «{query}».
+          </p>
+        )}
+
+        {hasMore && (
+          <div className="parole-stati-animo-expand-row">
+            <button
+              type="button"
+              className="parole-stati-animo-expand-btn"
+              aria-expanded={expanded}
+              onClick={() => {
+                setExpanded((prev) => !prev)
+                setQuery('')
+              }}
+            >
+              {expanded ? PAROLE_UI.chiudiElencoCompleto : PAROLE_UI.apriElencoCompleto}
+            </button>
+            <span className="parole-stati-animo-expand-count">
+              {expanded ? `${wordList.length} parole` : `${WORD_PREVIEW_COUNT} di ${wordList.length} parole`}
+            </span>
+          </div>
+        )}
+
         {wordList.length === 0 && (
           <p style={{ fontFamily: BODY_STACK, opacity: 0.4, fontSize: 13, marginBottom: 40 }}>
             Dizionario non disponibile per questa famiglia.
           </p>
         )}
+
+        {/* Testo metodologico — secondario, dopo l'interazione con il dizionario */}
+        <div className="parole-stati-animo-guide parole-stati-animo-guide--after">
+          {(PAROLE_UI.educazioneParagraphs || []).map((p) => (
+            <p key={p.slice(0, 48)}>{p}</p>
+          ))}
+          {PAROLE_UI.educazioneCta && (
+            <p>
+              <em>{PAROLE_UI.educazioneCta}</em>
+            </p>
+          )}
+        </div>
       </div>
     </section>
   )
