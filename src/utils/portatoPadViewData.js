@@ -24,6 +24,12 @@ const SHARE_ALIASES = {
   Indifferenza: ['Indifferenza', 'indifferenza', 'Distanza', 'distanza'],
 }
 
+const INTERPRETATION_THRESHOLDS = {
+  nearShare: 0.08,
+  nearlyAbsent: 0.05,
+  contained: 0.15,
+}
+
 function toNonNegativeNumber(value) {
   const number = Number(value)
   return Number.isFinite(number) && number > 0 ? number : 0
@@ -44,8 +50,18 @@ function readContractShare(shares, key) {
 export function buildPortatoInterpretation(dimensions) {
   const sorted = [...dimensions].sort((a, b) => b.share - a.share)
   const spread = sorted[0].share - sorted[2].share
-  if (spread <= 0.05) {
+  if (spread <= INTERPRETATION_THRESHOLDS.nearShare) {
     return 'Durante questo ascolto sintonia, distonia e distanza hanno mostrato quote molto vicine: il contenuto musicale ha generato una compresenza delle tre modalità, senza un unico orientamento netto.'
+  }
+
+  if (sorted[0].share - sorted[1].share <= INTERPRETATION_THRESHOLDS.nearShare) {
+    const thirdLabel = sorted[2].ui.label.toLowerCase()
+    const thirdClause = sorted[2].share <= INTERPRETATION_THRESHOLDS.nearlyAbsent
+      ? `la ${thirdLabel} è rimasta quasi assente`
+      : sorted[2].share <= INTERPRETATION_THRESHOLDS.contained
+        ? `la ${thirdLabel} è emersa in misura contenuta`
+        : `la ${thirdLabel} ha avuto una presenza più contenuta`
+    return `Durante questo ascolto ${sorted[0].ui.label.toLowerCase()} e ${sorted[1].ui.label.toLowerCase()} sono emerse con intensità simile; ${thirdClause}. Il contenuto musicale ha quindi generato un orientamento misto, senza una sola modalità nettamente prevalente.`
   }
 
   return `Durante questo ascolto ha prevalso la ${sorted[0].ui.label.toLowerCase()} con il contenuto musicale; la ${sorted[1].ui.label.toLowerCase()} è emersa in misura secondaria, mentre la ${sorted[2].ui.label.toLowerCase()} è rimasta più contenuta.`

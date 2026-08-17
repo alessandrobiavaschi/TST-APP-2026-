@@ -82,7 +82,7 @@ avviato un cherry-pick concorrente su file non pertinenti alla funzione.
 
 ### Verifiche
 
-- `npm test`: PASS, 54/54.
+- `npm test`: PASS, 55/55.
 - `npm run lint`: PASS, zero errori e warning.
 - `npm run build`: PASS, 1225 moduli trasformati.
 - `git diff --check`: PASS.

@@ -2,7 +2,10 @@ import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import { test } from 'node:test'
 
-import { buildPortatoViewData } from '../src/utils/portatoPadViewData.js'
+import {
+  buildPortatoInterpretation,
+  buildPortatoViewData,
+} from '../src/utils/portatoPadViewData.js'
 
 const readSource = (relativePath) => readFile(new URL(`../${relativePath}`, import.meta.url), 'utf8')
 
@@ -40,6 +43,17 @@ test('la compresenza in terzi coincide con il centro geometrico della griglia', 
   assert.deepEqual(viewData.dimensions.map((item) => item.percentage), [34, 33, 33])
   assert.ok(Math.abs(viewData.point.x - 50) < Number.EPSILON * 64)
   assert.ok(Math.abs(viewData.point.y - 36) < Number.EPSILON * 64)
+})
+
+test('il fallback interpreta parità e quasi parità senza inventare una prevalenza', () => {
+  const tied = buildPortatoViewData({ shares: { Sintonia: 45, Distonia: 45, Distanza: 10 } })
+  const nearTied = buildPortatoViewData({ shares: { Sintonia: 46, Distonia: 44, Distanza: 10 } })
+  const tiedText = buildPortatoInterpretation(tied.dimensions)
+  const nearTiedText = buildPortatoInterpretation(nearTied.dimensions)
+
+  assert.match(tiedText, /sintonia e distonia sono emerse con intensità simile/)
+  assert.match(nearTiedText, /sintonia e distonia sono emerse con intensità simile/)
+  assert.doesNotMatch(`${tiedText} ${nearTiedText}`, /ha prevalso/)
 })
 
 test('lo stato vuoto non mostra triangolo, puck o risultati a zero', async () => {
