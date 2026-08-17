@@ -3998,6 +3998,7 @@
   top: var(--puck-y);
   width: 22px;
   height: 22px;
+  padding: 0;
   border: 4px solid #fff;
   border-radius: 50%;
   background: rgba(7, 12, 24, 0.78);
@@ -4005,6 +4006,33 @@
     0 0 0 3px rgba(7, 12, 24, 0.54),
     0 0 28px rgba(255, 255, 255, 0.62);
   transform: translate(-50%, -50%);
+  cursor: pointer;
+}
+.report-tst-portato__puck:hover,
+.report-tst-portato__puck--open {
+  box-shadow:
+    0 0 0 3px rgba(7, 12, 24, 0.54),
+    0 0 34px rgba(255, 255, 255, 0.85);
+}
+.report-tst-portato__puck:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+.report-tst-portato__puck-popover {
+  position: absolute;
+  z-index: 10;
+  left: var(--puck-x);
+  top: var(--puck-y);
+  transform: translate(-50%, calc(-100% - 16px));
+  width: max-content;
+  max-width: 230px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 12px;
+  background: rgba(7, 12, 24, 0.94);
+  box-shadow: 0 10px 30px rgba(3, 7, 18, 0.45);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 .report-tst-portato__vertex-wrap {
   position: absolute;
@@ -4013,17 +4041,17 @@
 .report-tst-portato__vertex-wrap--sintonia {
   left: 8%;
   top: 8%;
-  transform: translate(-12%, -50%);
+  transform: translate(-55%, calc(-100% - 8px));
 }
 .report-tst-portato__vertex-wrap--distonia {
   right: 8%;
   top: 8%;
-  transform: translate(12%, -50%);
+  transform: translate(55%, calc(-100% - 8px));
 }
 .report-tst-portato__vertex-wrap--distanza {
   left: 50%;
   bottom: 8%;
-  transform: translate(-50%, 50%);
+  transform: translate(-50%, calc(100% + 8px));
 }
 .report-tst-portato__vertex {
   display: flex;

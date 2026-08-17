@@ -226,11 +226,32 @@ export default function SezionePortatoEsperienziale({
                   <line x1="50" y1="36" x2="92" y2="8" />
                   <line x1="50" y1="36" x2="50" y2="92" />
                 </svg>
-                <span
-                  className="report-tst-portato__puck"
-                  aria-hidden="true"
+                <button
+                  type="button"
+                  className={`report-tst-portato__puck${openVertexKey === 'puck' ? ' report-tst-portato__puck--open' : ''}`}
+                  aria-expanded={openVertexKey === 'puck'}
+                  aria-controls="report-tst-portato-puck-popover"
+                  aria-label={PORTATO_UI.padCenterLabel || 'Compresenza'}
+                  onClick={() =>
+                    setOpenVertexKey((current) => (current === 'puck' ? null : 'puck'))
+                  }
                   style={{ '--puck-x': `${viewData.point.x}%`, '--puck-y': `${viewData.point.y}%` }}
                 />
+                {openVertexKey === 'puck' ? (
+                  <div
+                    id="report-tst-portato-puck-popover"
+                    role="note"
+                    className="report-tst-portato__puck-popover"
+                    style={{ '--puck-x': `${viewData.point.x}%`, '--puck-y': `${viewData.point.y}%` }}
+                  >
+                    <p className="report-tst-portato__vertex-popover-stats">
+                      {PORTATO_UI.padCenterLabel || 'Compresenza'}
+                    </p>
+                    <p className="report-tst-portato__vertex-popover-meaning">
+                      {PORTATO_UI.lead}
+                    </p>
+                  </div>
+                ) : null}
                 {!reduceMotion && (
                   <>
                     <span

@@ -23,8 +23,8 @@ export default function RoomRevealContent({ children, className = '', id, style,
     Math.min(1, Math.max(0, enterValue - exitValue)),
   )
 
-  const opacity = useTransform(lightProgress, [0.7, 0.95], [0, 1])
-  const y = useTransform(lightProgress, [0.7, 0.95], [16, 0])
+  const opacity = useTransform(lightProgress, [0, 0.6], [0, 1])
+  const y = useTransform(lightProgress, [0, 0.6], [16, 0])
 
   return (
     <MotionTag
