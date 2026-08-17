@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {
   ResponsiveContainer,
   BarChart,
@@ -13,7 +13,7 @@ import ReportAccordion from './ReportAccordion'
 import ReportPassageHeader from './ReportPassageHeader.jsx'
 import PlainLanguageBox from './PlainLanguageBox.jsx'
 import InfoTip from './InfoTip.jsx'
-import { APPROFONDIMENTO_AREAS, APPROFONDIMENTO_UI } from './reportUiCopy.js'
+import { APPROFONDIMENTO_AREAS, APPROFONDIMENTO_UI, getAreaLabel } from './reportUiCopy.js'
 
 const BAR_COLORS = {
   Blu: '#3b82f6',
@@ -24,11 +24,11 @@ const BAR_COLORS = {
 }
 
 const OPERATOR_LEGEND_ORDER = [
-  { key: 'Grigio', label: 'Anaffettività' },
-  { key: 'Verde', label: 'Calma' },
-  { key: 'Giallo', label: 'Entusiasmo' },
-  { key: 'Blu', label: 'Malinconia' },
-  { key: 'Rosso', label: 'Volitività' },
+  { key: 'Grigio', label: 'Razionale' },
+  { key: 'Verde', label: 'Flemmatica' },
+  { key: 'Giallo', label: 'Entusiasta' },
+  { key: 'Blu', label: 'Malinconica' },
+  { key: 'Rosso', label: 'Marziale' },
 ]
 
 function OperatorLegend() {
@@ -83,12 +83,18 @@ function EmptyAreaOverlay({ xAxisMap, yAxisMap, data = [], emptyAreas }) {
   )
 }
 
-function AreaGlossaryRow() {
+function AreaGlossaryRow({ plainLanguage = false }) {
+  const [activeTip, setActiveTip] = useState(null)
   return (
     <ul className="report-operator-areas" aria-label="Le cinque aree del test sonoro">
       {APPROFONDIMENTO_AREAS.map((nome) => (
         <li key={nome} className="report-operator-areas__item">
-          <InfoTip term={nome} tip={APPROFONDIMENTO_UI.areaTips[nome]} />
+          <InfoTip
+            term={getAreaLabel(nome, plainLanguage)}
+            tip={APPROFONDIMENTO_UI.areaTips[nome]}
+            open={activeTip === nome}
+            onToggle={() => setActiveTip((cur) => (cur === nome ? null : nome))}
+          />
         </li>
       ))}
     </ul>
@@ -197,6 +203,7 @@ export default function OperatorSection({
   filtroMusicale,
   correnteColore = '#4ade80',
   step = '6',
+  plainLanguage = false,
 }) {
   const accent = correnteColore || '#4ade80'
   const chartData = sezioniData || []
@@ -227,7 +234,7 @@ export default function OperatorSection({
         {APPROFONDIMENTO_UI.chartPlainSummary}
       </PlainLanguageBox>
 
-      <AreaGlossaryRow />
+      <AreaGlossaryRow plainLanguage={plainLanguage} />
 
       <div className="report-operator-chart-block">
         <p className="report-operator-chart-caption">{APPROFONDIMENTO_UI.chartCaption}</p>
@@ -239,7 +246,12 @@ export default function OperatorSection({
             initialDimension={{ width: 320, height: 340 }}
           >
             <BarChart data={chartData} margin={{ top: 16, right: 16, bottom: 16, left: 8 }}>
-              <XAxis dataKey="nome" stroke="#64748b" tick={{ fontSize: 12 }} />
+              <XAxis
+                dataKey="nome"
+                stroke="#64748b"
+                tick={{ fontSize: 12 }}
+                tickFormatter={(value) => getAreaLabel(value, plainLanguage)}
+              />
               <YAxis stroke="#64748b" tick={{ fontSize: 12 }} />
               <Tooltip
                 formatter={(value, name) => [value?.toFixed?.(0) ?? value, name]}
@@ -248,29 +260,29 @@ export default function OperatorSection({
                   border: '1px solid #e2e8f0',
                   boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
                 }}
-                labelStyle={{ fontWeight: 600 }}
+                labelStyle={{ fontWeight: 600, color: '#0f172a' }}
                 cursor={{ fill: 'rgba(148, 163, 184, 0.15)' }}
               />
               <BarLegend verticalAlign="top" align="center" content={<OperatorLegend />} />
-              <Bar dataKey="Blu" fill={BAR_COLORS.Blu} name="Malinconia" />
-              <Bar dataKey="Rosso" fill={BAR_COLORS.Rosso} name="Volitività" />
+              <Bar dataKey="Grigio" fill={BAR_COLORS.Grigio} name="Anaffettività" />
               <Bar dataKey="Verde" fill={BAR_COLORS.Verde} name="Calma" />
               <Bar dataKey="Giallo" fill={BAR_COLORS.Giallo} name="Entusiasmo" />
-              <Bar dataKey="Grigio" fill={BAR_COLORS.Grigio} name="Anaffettività" />
+              <Bar dataKey="Blu" fill={BAR_COLORS.Blu} name="Malinconia" />
+              <Bar dataKey="Rosso" fill={BAR_COLORS.Rosso} name="Volitività" />
               <Customized component={(props) => <EmptyAreaOverlay {...props} data={chartData} emptyAreas={emptyAreaSet} />} />
             </BarChart>
           </ResponsiveContainer>
         </div>
         {emptyAreas.length ? (
           <p className="report-operator-chart-empty-note">
-            Dati non disponibili per: {emptyAreas.join(', ')}.
+            Dati non disponibili per: {emptyAreas.map((nome) => getAreaLabel(nome, plainLanguage)).join(', ')}.
           </p>
         ) : null}
       </div>
 
       <FiltroMusicalePanel filtroMusicale={filtroMusicale} accentColor={accent} />
 
-      <ReportAccordion sezioniTest={sezioniTest} />
+      <ReportAccordion sezioniTest={sezioniTest} plainLanguage={plainLanguage} />
     </section>
   )
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import reportContent from '../content_report.json'
 import {
@@ -17,22 +17,7 @@ import '../styles/report-tst.css'
 function ReportPage() {
   const location = useLocation()
   const navigate = useNavigate()
-  const routedRecord = location.state?.record
-  const persistedRecord = useMemo(() => {
-    if (routedRecord) return null
-    try {
-      const raw = window.sessionStorage.getItem('tst_last_report_record')
-      if (!raw) return null
-      const parsed = JSON.parse(raw)
-      if (!parsed || typeof parsed !== 'object') return null
-      if (!parsed.raw || typeof parsed.raw !== 'object') return null
-      return parsed
-    } catch (error) {
-      console.warn('Impossibile leggere il fallback report da sessionStorage:', error)
-      return null
-    }
-  }, [routedRecord])
-  const record = routedRecord || persistedRecord
+  const record = location.state?.record
   const fromSubmit = Boolean(location.state?.fromSubmit)
   const skipReportTransition = Boolean(location.state?.skipReportTransition)
   const playSubmitTransition = fromSubmit && !skipReportTransition
@@ -46,15 +31,6 @@ function ReportPage() {
     return () => window.clearTimeout(timer)
   }, [resultRevealPhase])
 
-  useEffect(() => {
-    if (!routedRecord || !routedRecord.raw || typeof routedRecord.raw !== 'object') return
-    try {
-      window.sessionStorage.setItem('tst_last_report_record', JSON.stringify(routedRecord))
-    } catch (error) {
-      console.warn('Impossibile salvare il fallback report in sessionStorage:', error)
-    }
-  }, [routedRecord])
-
   const showIntroFrame = resultRevealPhase !== 'visible'
 
   useEffect(() => {
@@ -65,11 +41,6 @@ function ReportPage() {
   }, [showIntroFrame, record])
 
   if (!record || !record.raw || typeof record.raw !== 'object') {
-    try {
-      window.sessionStorage.removeItem('tst_last_report_record')
-    } catch {
-      // ignore
-    }
     return (
       <div className="page report-page-empty">
         <section className="page-card">

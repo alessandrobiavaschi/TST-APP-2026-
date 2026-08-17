@@ -11,13 +11,13 @@ const EXAMPLE_RAPPORTI = [
     composizione: 'Timbro + Intervalli + Armonia',
     definizione: 'Impronta emotiva di fondo.',
     cosaIndica: 'Come risuoni nel profondo.',
-    correntePrincipale: { nome: 'Calma', colore: '#22c55e' },
+    correntePrincipale: { nome: 'Flemmatica', colore: '#22c55e' },
     datiRadar: [
-      { corrente: 'Malinconia', valore: 3 },
-      { corrente: 'Volitività', valore: 4 },
-      { corrente: 'Calma', valore: 6 },
-      { corrente: 'Entusiasmo', valore: 2 },
-      { corrente: 'Anaffettività', valore: 1 },
+      { corrente: 'Malinconica', valore: 3 },
+      { corrente: 'Marziale', valore: 4 },
+      { corrente: 'Flemmatica', valore: 6 },
+      { corrente: 'Entusiasta', valore: 2 },
+      { corrente: 'Razionale', valore: 1 },
     ],
   },
   {
@@ -26,13 +26,13 @@ const EXAMPLE_RAPPORTI = [
     composizione: 'Intervalli + Melodia',
     definizione: 'Monologo interiore e riflessione.',
     cosaIndica: 'Spazio per l’interiorità.',
-    correntePrincipale: { nome: 'Malinconia', colore: '#3b82f6' },
+    correntePrincipale: { nome: 'Malinconica', colore: '#3b82f6' },
     datiRadar: [
-      { corrente: 'Malinconia', valore: 5 },
-      { corrente: 'Volitività', valore: 3 },
-      { corrente: 'Calma', valore: 4 },
-      { corrente: 'Entusiasmo', valore: 2 },
-      { corrente: 'Anaffettività', valore: 2 },
+      { corrente: 'Malinconica', valore: 5 },
+      { corrente: 'Marziale', valore: 3 },
+      { corrente: 'Flemmatica', valore: 4 },
+      { corrente: 'Entusiasta', valore: 2 },
+      { corrente: 'Razionale', valore: 2 },
     ],
   },
   {
@@ -41,13 +41,13 @@ const EXAMPLE_RAPPORTI = [
     composizione: 'Timbro + Melodia',
     definizione: 'Disposizione relazionale.',
     cosaIndica: 'Come entri in contatto.',
-    correntePrincipale: { nome: 'Entusiasmo', colore: '#eab308' },
+    correntePrincipale: { nome: 'Entusiasta', colore: '#eab308' },
     datiRadar: [
-      { corrente: 'Malinconia', valore: 2 },
-      { corrente: 'Volitività', valore: 5 },
-      { corrente: 'Calma', valore: 3 },
-      { corrente: 'Entusiasmo', valore: 6 },
-      { corrente: 'Anaffettività', valore: 1 },
+      { corrente: 'Malinconica', valore: 2 },
+      { corrente: 'Marziale', valore: 5 },
+      { corrente: 'Flemmatica', valore: 3 },
+      { corrente: 'Entusiasta', valore: 6 },
+      { corrente: 'Razionale', valore: 1 },
     ],
   },
   {
@@ -56,13 +56,13 @@ const EXAMPLE_RAPPORTI = [
     composizione: 'Ritmo + Melodia',
     definizione: 'Energia volitiva e azione.',
     cosaIndica: 'Quanto ti muovi o sostai.',
-    correntePrincipale: { nome: 'Volitività', colore: '#ef4444' },
+    correntePrincipale: { nome: 'Marziale', colore: '#ef4444' },
     datiRadar: [
-      { corrente: 'Malinconia', valore: 2 },
-      { corrente: 'Volitività', valore: 7 },
-      { corrente: 'Calma', valore: 4 },
-      { corrente: 'Entusiasmo', valore: 3 },
-      { corrente: 'Anaffettività', valore: 1 },
+      { corrente: 'Malinconica', valore: 2 },
+      { corrente: 'Marziale', valore: 7 },
+      { corrente: 'Flemmatica', valore: 4 },
+      { corrente: 'Entusiasta', valore: 3 },
+      { corrente: 'Razionale', valore: 1 },
     ],
   },
 ]
@@ -80,11 +80,11 @@ const EXAMPLE_PORTATO = {
 }
 
 const EXAMPLE_PAROLE = [
-  { parola: 'Calmo', corrente: 'Calma', colore: '#22c55e' },
-  { parola: 'Sereno', corrente: 'Calma', colore: '#22c55e' },
-  { parola: 'Determinato', corrente: 'Volitività', colore: '#ef4444' },
-  { parola: 'Nostalgico', corrente: 'Malinconia', colore: '#3b82f6' },
-  { parola: 'Vivace', corrente: 'Entusiasmo', colore: '#eab308' },
+  { parola: 'Calmo', corrente: 'Flemmatica', colore: '#22c55e' },
+  { parola: 'Sereno', corrente: 'Flemmatica', colore: '#22c55e' },
+  { parola: 'Determinato', corrente: 'Marziale', colore: '#ef4444' },
+  { parola: 'Nostalgico', corrente: 'Malinconica', colore: '#3b82f6' },
+  { parola: 'Vivace', corrente: 'Entusiasta', colore: '#eab308' },
 ]
 
 createRoot(document.getElementById('root')).render(

@@ -57,7 +57,7 @@ export const SEMANTIC_CONCEPTS: Record<string, SemanticConcept> = {
     sourceLines: [CORPUS_SCHEMA_ASSI_ORIENTAMENTO[2], CORPUS_RITMO_RAPPORTO_ANIMA_SLANCIO_REGOLAZIONE],
     calculationLabel: 'Somma dei valori delle correnti collegate a calma, regolazione e contemplazione.',
     moduleLinks: [
-      { module: 'Rapporti', label: 'Portato esperienziale', anchor: 'report-rapporti' },
+      { module: 'Rapporti', label: 'Come hai vissuto il test', anchor: 'report-rapporti' },
       { module: 'Galassia', label: 'Calma e distacco', anchor: 'report-galassia' },
     ],
   },

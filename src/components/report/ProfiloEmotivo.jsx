@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { getProfiloPanelDisplay } from '../../utils/profiloDisplayCopy.js'
-import ReportPassageHeader from './ReportPassageHeader.jsx'
 import SectionNumber from './SectionNumber.jsx'
 import { PROFILO_CHAPTER_EVENT, chapterAnchorId } from './profiloChapterNav.js'
 import { scrollElementToReportCenter } from './reportSectionNavUtils.js'
@@ -17,7 +16,6 @@ const CHAPTER_NAV_LABELS = {
   risorse: 'Risorse',
   ombre: 'Ombre',
 }
-const HEADER_COLOR_FALLBACK = '#4ade80'
 
 function PanelBody({ display }) {
   const skipHeader = /^FAMIGLIA\s+\d+/i
@@ -94,9 +92,7 @@ function ChapterBlock({ sezione, index, famiglia, profilo, reduceMotion, title }
 export default function ProfiloEmotivo({
   sezioni = [],
   famiglia = '',
-  accentColor = '',
   profilo = {},
-  stepPrefix = '1',
 }) {
   const reduceMotion = useReducedMotion()
   const [activeChapter, setActiveChapter] = useState('natura')
@@ -111,8 +107,6 @@ export default function ProfiloEmotivo({
     [list, activeChapter],
   )
   const activeIndex = Math.max(0, list.findIndex((s) => s.id === activeSezione?.id))
-
-  const headerColor = list[0]?.correnteColore || accentColor || HEADER_COLOR_FALLBACK
 
   const selectChapter = useCallback(
     (panelId, shouldScroll = false, isExternalEvent = false) => {
@@ -192,13 +186,7 @@ export default function ProfiloEmotivo({
   return (
     <section aria-labelledby="pe-section-title" className="report-tst-profilo">
       <div className="pe-container">
-        <ReportPassageHeader
-          step={`${stepPrefix}.3`}
-          eyebrow={PROFILO_UI.eyebrow}
-          title={PROFILO_UI.title}
-          accentColor={headerColor}
-          titleId="pe-section-title"
-        />
+        <p className="report-room-preview-lead">{PROFILO_UI.title}</p>
 
         {/* Sintesi breve; l'approfondimento e distribuito nei quattro capitoli. */}
         {profilo.fraseChiave ? (

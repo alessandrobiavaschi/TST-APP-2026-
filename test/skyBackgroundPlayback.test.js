@@ -37,8 +37,9 @@ test('il player applica velocita lenta e transizioni morbide a entrambi i layer'
   )
 
   assert.match(source, /const PLAYBACK_RATE = 0\.5/)
-  assert.match(source, /videoEl\.defaultPlaybackRate = PLAYBACK_RATE/)
-  assert.match(source, /videoEl\.playbackRate = PLAYBACK_RATE/)
+  assert.match(source, /const rate = typeof customPlaybackRate === 'number'/)
+  assert.match(source, /videoEl\.defaultPlaybackRate = rate/)
+  assert.match(source, /videoEl\.playbackRate = rate/)
   assert.match(source, /const DEFAULT_CROSSFADE_DURATION_MS = 2400/)
   assert.match(source, /const LANDING_CROSSFADE_DURATION_MS = 1600/)
   assert.equal((source.match(/CROSSFADE_EASING/g) || []).length, 3)

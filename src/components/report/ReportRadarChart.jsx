@@ -50,6 +50,7 @@ function RadarTooltipContent({ active, payload, domain }) {
 export function ReportRadarAxisTick({ x, y, payload, textAnchor, cx, cy }) {
   let nudgedX = x
   let nudgedY = y
+  let safeTextAnchor = textAnchor
 
   const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768
 
@@ -58,9 +59,26 @@ export function ReportRadarAxisTick({ x, y, payload, textAnchor, cx, cy }) {
     const dy = y - cy
     const dist = Math.sqrt(dx * dx + dy * dy)
     if (dist > 0) {
-      const nudgeAmount = isMobile ? 8 : 12
-      nudgedX = x + (dx / dist) * nudgeAmount
-      nudgedY = y + (dy / dist) * nudgeAmount
+      const nudgeAmount = 12
+      const horizontalDirection = dx / dist
+      const verticalDirection = dy / dist
+      // Solo i vertici davvero laterali (poco scarto verticale) vanno
+      // ancorati verso l'interno: sui vertici diagonali (es. i due in basso
+      // di un pentagono a 5 assi) questo farebbe crescere le etichette
+      // l'una verso l'altra, sovrapponendole al centro in basso.
+      const isMostlyLateral = Math.abs(verticalDirection) < 0.5
+
+      // Keep lateral labels inside the SVG. Recharts normally anchors them
+      // outwards, so longer Italian names can be clipped by the chart panel.
+      if (isMostlyLateral && horizontalDirection < -0.35) {
+        nudgedX = x + nudgeAmount
+        safeTextAnchor = 'start'
+      } else if (isMostlyLateral && horizontalDirection > 0.35) {
+        nudgedX = x - nudgeAmount
+        safeTextAnchor = 'end'
+      } else {
+        nudgedY = y + verticalDirection * nudgeAmount
+      }
     }
   }
 
@@ -68,7 +86,7 @@ export function ReportRadarAxisTick({ x, y, payload, textAnchor, cx, cy }) {
     <text
       x={nudgedX}
       y={nudgedY}
-      textAnchor={textAnchor}
+      textAnchor={safeTextAnchor}
       fill="#e2e8f0"
       fontSize={isMobile ? 12 : 13}
       fontFamily="'Public Sans', system-ui, -apple-system, sans-serif"

@@ -16,7 +16,7 @@ import { TEST_STORY_SLIDES } from '../components/TestStorySlider.jsx'
 import { useSkyTheme } from '../SkyThemeContext.jsx'
 
 function HomePage() {
-  const { user: currentUser, authReady, logout } = useAuth()
+  const { user: currentUser, authReady, logout, isLocalDeveloper } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const { setLandingSkyOverride } = useSkyTheme()
@@ -337,10 +337,16 @@ function HomePage() {
 
             <div className="my-area-column my-area-column--main">
               <div className="my-area-account account-management">
-                <h2>Gestione account operatore</h2>
+                <h2>{isLocalDeveloper ? 'Sessione di sviluppo locale' : 'Gestione account operatore'}</h2>
                 <p className="my-area-email-badge">
                   Utente collegato: <strong>{currentUser.email}</strong>
                 </p>
+                {isLocalDeveloper && (
+                  <p className="auth-success">
+                    Questa sessione serve a verificare l&apos;app senza collegarsi agli account o ai dati Firebase.
+                    I test completati aprono il report ma non vengono archiviati.
+                  </p>
+                )}
                 {accountError && <p className="auth-error">{accountError}</p>}
                 {accountMessage && <p className="auth-success">{accountMessage}</p>}
                 <div className="account-actions">
@@ -351,20 +357,24 @@ function HomePage() {
                   >
                     Logout
                   </button>
-                  <button
-                    type="button"
-                    className="btn-account btn-account-password"
-                    onClick={handleModificaPassword}
-                  >
-                    Modifica password
-                  </button>
-                  <button
-                    type="button"
-                    className="btn-account btn-account-danger"
-                    onClick={handleDeleteAccount}
-                  >
-                    Elimina account
-                  </button>
+                  {!isLocalDeveloper && (
+                    <>
+                      <button
+                        type="button"
+                        className="btn-account btn-account-password"
+                        onClick={handleModificaPassword}
+                      >
+                        Modifica password
+                      </button>
+                      <button
+                        type="button"
+                        className="btn-account btn-account-danger"
+                        onClick={handleDeleteAccount}
+                      >
+                        Elimina account
+                      </button>
+                    </>
+                  )}
                 </div>
                 <div className="my-area-support">
                   <h3 className="my-area-support-title">Supporto e contatti</h3>
@@ -375,8 +385,9 @@ function HomePage() {
                 </div>
               </div>
               <p className="my-area-footnote">
-                I test che conduci sono collegati al tuo profilo operatore e archiviati in Risultati: report,
-                archivi e confronto delle sessioni nel tempo.
+                {isLocalDeveloper
+                  ? 'Modalita locale attiva: account e archivio Firebase restano separati da questa sessione.'
+                  : 'I test che conduci sono collegati al tuo profilo operatore e archiviati in Risultati: report, archivi e confronto delle sessioni nel tempo.'}
               </p>
             </div>
           </div>

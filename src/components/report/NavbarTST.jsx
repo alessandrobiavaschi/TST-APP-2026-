@@ -89,8 +89,9 @@ export default function NavbarTST({
   }, [menuOpen])
 
   const naturaResult = formatNatureResult(profilo?.natura || correnteDominante)
-  const caratteristicaResult = formatCharacteristicResult(profilo?.disposizione)
-  const correnteTitle = ['natura', naturaResult, caratteristicaResult].filter(Boolean).join(' · ')
+  const famigliaResult = toDisplayCase(profilo?.famigliaLabel || correnteDominante)
+  const caratteristicaResult = formatCharacteristicResult(profilo?.disposizione || naturaResult)
+  const correnteTitle = ['famiglia', famigliaResult, caratteristicaResult].filter(Boolean).join(' · ')
 
   // ── Render Mobile: Bottom Navigation Bar ───────────────────────────
   if (isMobile) {
@@ -176,10 +177,9 @@ export default function NavbarTST({
   // ── Render Desktop: Top Sticky Navigation Bar ─────────────────────
   const desktopTabs = [
     { id: 'report', label: 'Report' },
+    { id: 'for-musicians', label: 'Musicians' },
     { id: 'galassia', label: 'Galassia' },
-    { id: 'for-musicians', label: 'For Musicians' },
   ]
-
   return (
     <header
       className="navbar-tst"
@@ -200,49 +200,59 @@ export default function NavbarTST({
           </div>
         </div>
 
-        {/* ── Centro: switch Report | Galassia ────────────────────── */}
-        <div
-          role="tablist"
-          aria-label={NAVBAR_UI.modalitaAria}
-          className="navbar-tst__switch"
-        >
-          {desktopTabs.map((tab) => {
-            const active = modalita === tab.id
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                role="tab"
-                aria-selected={active}
-                onClick={() => onModalitaChange?.(tab.id)}
-                className="navbar-tst__switch-btn"
-                data-active={active ? 'true' : 'false'}
-              >
-                {active && (
-                  <motion.span
-                    layoutId="navbar-tst-indicator"
-                    className="navbar-tst__switch-indicator"
-                    transition={
-                      reduceMotion
-                        ? { duration: 0 }
-                        : { type: 'spring', stiffness: 380, damping: 32 }
-                    }
-                    aria-hidden="true"
-                  />
-                )}
-                <span className="navbar-tst__switch-label">{tab.label}</span>
-              </button>
-            )
-          })}
-        </div>
+        {/* ── Centro: switch Report | Musicians | Galassia, o rientro ── */}
+        {forceVisible ? (
+          <button
+            type="button"
+            className="navbar-tst__back-btn"
+            onClick={() => onModalitaChange?.('report')}
+          >
+            ← Torna al report principale
+          </button>
+        ) : (
+          <div
+            role="tablist"
+            aria-label={NAVBAR_UI.modalitaAria}
+            className="navbar-tst__switch"
+          >
+            {desktopTabs.map((tab) => {
+              const active = modalita === tab.id
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => onModalitaChange?.(tab.id)}
+                  className="navbar-tst__switch-btn"
+                  data-active={active ? 'true' : 'false'}
+                >
+                  {active && (
+                    <motion.span
+                      layoutId="navbar-tst-indicator"
+                      className="navbar-tst__switch-indicator"
+                      transition={
+                        reduceMotion
+                          ? { duration: 0 }
+                          : { type: 'spring', stiffness: 380, damping: 32 }
+                      }
+                      aria-hidden="true"
+                    />
+                  )}
+                  <span className="navbar-tst__switch-label">{tab.label}</span>
+                </button>
+              )
+            })}
+          </div>
+        )}
 
         {/* ── Destra: corrente + scarica + aiuto ──────────────────── */}
         <div className="navbar-tst__right">
-          {naturaResult || caratteristicaResult ? (
+          {famigliaResult || caratteristicaResult ? (
             <span className="navbar-tst__corrente" title={correnteTitle}>
-              <span className="navbar-tst__corrente-label">natura</span>
-              {naturaResult ? (
-                <span className="navbar-tst__corrente-family">{naturaResult}</span>
+              <span className="navbar-tst__corrente-label">famiglia</span>
+              {famigliaResult ? (
+                <span className="navbar-tst__corrente-family">{famigliaResult}</span>
               ) : null}
               {caratteristicaResult ? (
                 <span className="navbar-tst__corrente-name">{caratteristicaResult}</span>

@@ -13915,6 +13915,21 @@ body {
   -webkit-user-drag: none;
 }
 
+/* VideoBackground0311 (landing + report): il video ha un attimo di
+   caricamento prima del primo frame. Nome dedicato invece di riusare
+   .page-video-bg__video sopra — quella classe porta con sé object-position
+   80% 100% e altre regole pensate per un componente diverso, non per questo
+   video (crop centrato). Sotto le stelle del fondo (z-index maggiore), così
+   il caricamento sembra intenzionale invece che un flash a scatto. */
+.vb0311-video {
+  opacity: 0;
+  transition: opacity 600ms ease;
+}
+
+.vb0311-video--ready {
+  opacity: 1;
+}
+
 .page-video-bg__video--visible {
   opacity: 1;
 }
@@ -15147,6 +15162,8 @@ body {
 
 .result-analysis-flower-carousel {
   position: relative;
+  display: block;
+  place-items: normal;
   width: 100%;
   max-width: 620px;
   height: 12.5rem;

@@ -47,7 +47,8 @@ test('conserva i contratti responsive contro overflow e sovrapposizione della bo
   assert.match(css, /\.navbar-tst--mobile\s*\{[^}]*position:\s*fixed/s)
   assert.match(css, /\.report-tst-layout,[\s\S]*max-width:\s*100vw/)
   const sintesiCss = await readSource('src/components/report/SintesiCorrenti.css')
-  assert.match(sintesiCss, /@media\s*\(max-width:\s*768px\)[\s\S]*\.detail-panel__metrics-grid\s*\{[^}]*grid-template-columns:\s*1fr/)
+  assert.match(sintesiCss, /@media\s*\(max-width:\s*768px\)[\s\S]*\.sintesi-correnti--mobile\s*\{[^}]*padding:/)
+  assert.match(sintesiCss, /@media\s*\(max-width:\s*768px\)[\s\S]*\.sintesi-mobile-card\s*\{[^}]*border-radius:/)
 })
 
 test('i grafici restano responsive e mostrano valori statici su touch', async () => {
@@ -59,8 +60,8 @@ test('i grafici restano responsive e mostrano valori statici su touch', async ()
   assert.match(radar, /const isMobile =/)
   assert.match(radar, /label=/)
   assert.match(rapporti, /ResponsiveContainer/)
-  assert.match(rapporti, /isMobileViewport/)
-  assert.match(rapporti, /label=/)
+  assert.match(rapporti, /function RadarPoint/)
+  assert.match(rapporti, /aria-label=\{label\}/)
 })
 
 test('la navigazione mobile espone tablist e gestione tastiera del menu', async () => {
@@ -76,6 +77,6 @@ test('la navigazione mobile espone tablist e gestione tastiera del menu', async 
   assert.match(navbar, /menuButtonRef\.current\?\.focus\(\)/)
   assert.doesNotMatch(mobileTabsBlock, /galassia/i)
   assert.match(navbar, /const desktopTabs = \[[\s\S]*galassia/)
-  assert.match(reportShell, /next === 'galassia' && isMobileViewport/)
-  assert.match(reportShell, /galassiaEverOpened && !isMobileViewport/)
+  assert.match(reportShell, /function isMobileReportViewport\(\)/)
+  assert.match(reportShell, /return isMobileReportViewport\(\) \? 'report' : 'galassia'/)
 })

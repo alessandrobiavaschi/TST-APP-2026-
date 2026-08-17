@@ -107,7 +107,7 @@ function SkyBackground() {
   }, [])
 
   // Play helper resiliente (tab in background, iOS, ecc.).
-  const ensureVideoPlaying = useCallback((videoEl) => {
+  const ensureVideoPlaying = useCallback((videoEl, customPlaybackRate) => {
     if (!videoEl) return
     try {
       videoEl.muted = true
@@ -116,8 +116,9 @@ function SkyBackground() {
       videoEl.autoplay = true
       videoEl.loop = true
       videoEl.controls = false
-      videoEl.defaultPlaybackRate = PLAYBACK_RATE
-      videoEl.playbackRate = PLAYBACK_RATE
+      const rate = typeof customPlaybackRate === 'number' ? customPlaybackRate : PLAYBACK_RATE
+      videoEl.defaultPlaybackRate = rate
+      videoEl.playbackRate = rate
       const p = videoEl.play()
       if (p && typeof p.catch === 'function') p.catch(() => {})
     } catch {
@@ -129,8 +130,8 @@ function SkyBackground() {
   // ri-avvia la riproduzione.
   useEffect(() => {
     const tick = () => {
-      ensureVideoPlaying(videoRefA.current)
-      ensureVideoPlaying(videoRefB.current)
+      ensureVideoPlaying(videoRefA.current, configA?.playbackRate)
+      ensureVideoPlaying(videoRefB.current, configB?.playbackRate)
     }
     tick()
     const interval = window.setInterval(tick, 2000)
@@ -144,7 +145,7 @@ function SkyBackground() {
       document.removeEventListener('visibilitychange', onVisibility)
       window.removeEventListener('pageshow', tick)
     }
-  }, [ensureVideoPlaying])
+  }, [ensureVideoPlaying, configA?.playbackRate, configB?.playbackRate])
 
   const handleReady = useCallback(
     (slotId) => {
@@ -214,7 +215,7 @@ function SkyBackground() {
           disablePictureInPicture
           disableRemotePlayback
           onLoadedData={() => {
-            ensureVideoPlaying(videoRefA.current)
+            ensureVideoPlaying(videoRefA.current, configA?.playbackRate)
             handleReady('a')
           }}
           onCanPlay={() => handleReady('a')}
@@ -238,7 +239,7 @@ function SkyBackground() {
           disablePictureInPicture
           disableRemotePlayback
           onLoadedData={() => {
-            ensureVideoPlaying(videoRefB.current)
+            ensureVideoPlaying(videoRefB.current, configB?.playbackRate)
             handleReady('b')
           }}
           onCanPlay={() => handleReady('b')}

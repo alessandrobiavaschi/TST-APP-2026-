@@ -21,9 +21,10 @@ const V_NUVOLE_CALDE = '/Video Background/854740-hd_1920_1080_30fps.mp4'
 
 // Mappatura timeOfDay + weather → video (sereno = predilezione sole)
 // Ogni entry include anche un profilo visivo/emotivo per l'armocromia:
-// - tone:      'light' | 'medium' | 'dark'     → luminosità percepita
-// - warmth:    'cool' | 'neutral' | 'warm'     → tinta emotiva dominante
-// - intensity: 'soft' | 'normal' | 'rich'      → quanta \"energia\" visiva si percepisce
+// - tone:         'light' | 'medium' | 'dark'     → luminosità percepita
+// - warmth:       'cool' | 'neutral' | 'warm'     → tinta emotiva dominante
+// - intensity:    'soft' | 'normal' | 'rich'      → quanta "energia" visiva si percepisce
+// - playbackRate: number (opzionale, es. 0.15)   → velocità di riproduzione (default: 0.5)
 export const SKY_VIDEOS = {
   morning: {
     sereno:     { src: V_MATTINO_PASTELLO, tone: 'light', warmth: 'neutral', intensity: 'soft' },

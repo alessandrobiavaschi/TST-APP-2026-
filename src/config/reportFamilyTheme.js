@@ -4,9 +4,9 @@
  * Mappa data-driven famiglia → identità visiva e narrativa, usata dalla nuova
  * esperienza report (hero full-bleed, sezione sintesi, fiore SVG, navbar).
  *
- * I colori sono soltanto una convenzione visiva per le 5 nature emotive:
- *   BLU → Malinconia · ROSSO → Volitività · VERDE → Calma
- *   GIALLO → Entusiasmo · GRIGIO → Anaffettività
+ * I colori sono soltanto una convenzione visiva per le 5 famiglie emotive.
+ * `family` è il nome della famiglia; `characteristic`/`nature` descrivono
+ * la natura (caratteristica emotiva). Non invertire questi due livelli.
  *
  * Per i nomi natura/disposizione si riusano, dove disponibili, le diciture
  * ufficiali già presenti nel repository (content_report.json / HeroSummary).
@@ -16,7 +16,9 @@ export const FAMILY_THEME = {
   Verde: {
     key: 'verde',
     label: 'Verde',
-    nature: 'NATURA FLEMMATICA',
+    family: 'Flemmatica',
+    characteristic: 'CONTEMPLATIVA',
+    nature: 'NATURA CONTEMPLATIVA',
     corrente: 'Flemmatica',
     disposition: 'CONTEMPLATIVA',
     macro: 'Calma',
@@ -24,78 +26,86 @@ export const FAMILY_THEME = {
     gradient: { from: '#166534', to: '#14532d' },
     dot: '#22c55e',
     personalizedTitles: {
-      natura: 'La Natura del Flemmatico',
+      natura: 'La Natura Contemplativa',
       racconto: 'Memoria, Esperienza ed essere Musica',
-      risorse: 'Risorse del Flemmatico',
-      ombre: 'Ombre del flemmatico',
+      risorse: 'Risorse della famiglia Flemmatica',
+      ombre: 'Ombre della famiglia Flemmatica',
     },
   },
   Rosso: {
     key: 'rosso',
     label: 'Rosso',
-    nature: 'NATURA MARZIALE',
+    family: 'Marziale',
+    characteristic: 'VOLITIVO-COLLERICA',
+    nature: 'NATURA VOLITIVO-COLLERICA',
     corrente: 'Marziale',
-    disposition: 'VOLITIVO COLLERICA',
+    disposition: 'VOLITIVO-COLLERICA',
     macro: 'Volitività',
     tagline: 'Caratteri emotivi in cui prevalgono assertività e spinta all’azione',
     gradient: { from: '#991b1b', to: '#7f1d1d' },
     dot: '#ef4444',
     personalizedTitles: {
-      natura: 'La Natura del Volitivo',
+      natura: 'La Natura Volitivo-collerica',
       racconto: 'Memoria, Esperienza ed essere Musica',
-      risorse: 'Risorse del Volitivo',
-      ombre: 'Ombre del volitivo',
+      risorse: 'Risorse della famiglia Marziale',
+      ombre: 'Ombre della famiglia Marziale',
     },
   },
   Blu: {
     key: 'blu',
     label: 'Blu',
+    family: 'Malinconica',
+    characteristic: 'LUNARE',
     nature: 'NATURA LUNARE',
-    corrente: 'Lunare',
-    disposition: 'MALINCONICO NOSTALGICA',
+    corrente: 'Malinconica',
+    disposition: 'LUNARE',
     macro: 'Malinconia',
     tagline: 'Caratteri emotivi che prediligono riflessività, dialogo intimo e percezione interiore',
     gradient: { from: '#1e3a8a', to: '#172554' },
     dot: '#3b82f6',
     personalizedTitles: {
-      natura: 'La Natura del Malinconico - nostalgico',
+      natura: 'La Natura Lunare',
       racconto: 'Memoria, Esperienza ed essere Musica',
-      risorse: 'Risorse del Malinconico - nostalgico',
-      ombre: 'Ombre del malinconico - nostalgico',
+      risorse: 'Risorse della famiglia Malinconica',
+      ombre: 'Ombre della famiglia Malinconica',
     },
   },
   Giallo: {
     key: 'giallo',
     label: 'Giallo',
-    nature: 'NATURA SOLARE',
-    corrente: 'Solare',
-    disposition: 'SANGUINICO ENTUSIASTA',
+    family: 'Entusiasta',
+    characteristic: 'GIOIOSO-SANGUINICO',
+    nature: 'NATURA GIOIOSO-SANGUINICO',
+    corrente: 'Entusiasta',
+    disposition: 'GIOIOSO-SANGUINICO',
     macro: 'Entusiasmo',
     tagline: 'Caratteri emotivi orientati al movimento, alla scoperta e all’entusiasmo',
     gradient: { from: '#a16207', to: '#854d0e' },
     dot: '#eab308',
     personalizedTitles: {
-      natura: "La Natura dell'Entusiasta",
+      natura: 'La Natura Gioioso-Sanguinico',
       racconto: 'Memoria, Esperienza ed essere Musica',
-      risorse: "Risorse dell'Entusiasta",
-      ombre: "Ombre dell'entusiasta",
+      risorse: 'Risorse della famiglia Entusiasta',
+      ombre: 'Ombre della famiglia Entusiasta',
     },
   },
   Grigio: {
     key: 'grigio',
     label: 'Grigio',
-    nature: 'NATURA ANAFFETTIVA',
-    corrente: 'Anaffettiva',
-    disposition: 'AGNOSTICO ANAFFETTIVA',
+    family: 'Razionale',
+    characteristic: 'INTELLETTUALE-RAZIONALE',
+    nature: 'NATURA INTELLETTUALE-RAZIONALE',
+    corrente: 'Razionale',
+    disposition: 'INTELLETTUALE-RAZIONALE',
     macro: 'Anaffettività',
     tagline: 'Corrente agnostico-anaffettiva orientata al distacco intellettuale',
     gradient: { from: '#374151', to: '#1f2937' },
     dot: '#6b7280',
     personalizedTitles: {
-      natura: "La Natura dell'Anaffettivo",
+      natura: 'La Natura Intellettuale-Razionale',
       racconto: 'Memoria, Esperienza ed essere Musica',
-      risorse: "Risorse dell'Anaffettivo",
-      ombre: "Ombre dell'anaffettivo",
+      risorse: 'Risorse della famiglia Razionale',
+      ombre: 'Ombre della famiglia Razionale',
     },
   },
 }
@@ -113,6 +123,15 @@ export const FAMILY_NAME_BY_KEY = {
   giallo: 'Giallo',
   grigio: 'Grigio',
 }
+
+/** Etichette canoniche mostrate all'utente, distinte dalle chiavi colore interne. */
+export const FAMILY_LABEL_BY_KEY = Object.fromEntries(
+  Object.values(FAMILY_THEME).map((theme) => [theme.key, theme.family]),
+)
+
+export const FAMILY_CHARACTERISTIC_BY_KEY = Object.fromEntries(
+  Object.values(FAMILY_THEME).map((theme) => [theme.key, theme.characteristic]),
+)
 
 /** Ritorna il tema della famiglia dominante (fallback: Verde). */
 export function getFamilyTheme(dominantColorName) {

@@ -10,6 +10,12 @@ import {
 import { AuthContext } from './AuthContext.jsx'
 import { useUiSounds } from './UiSoundProvider.jsx'
 import { useSkyTheme } from './SkyThemeContext.jsx'
+import {
+  clearLocalDeveloperSession,
+  isLocalDeveloperAccessAvailable,
+  restoreLocalDeveloperSession,
+  startLocalDeveloperSession,
+} from './localDeveloperAccess.js'
 import SkyBackground from './components/SkyBackground.jsx'
 import {
   buildChunkRecoveryUrl,
@@ -30,6 +36,7 @@ const InfoPage = lazy(() => import('./pages/InfoPage.jsx'))
 const ProfilePage = lazy(() => import('./pages/ProfilePage.jsx'))
 const TstPage = lazy(() => import('./pages/TstPage.jsx'))
 const TutorialPage = lazy(() => import('./pages/TutorialPage.jsx'))
+const LocalDeveloperPage = lazy(() => import('./pages/LocalDeveloperPage.jsx'))
 
 class AppErrorBoundary extends React.Component {
   constructor(props) {
@@ -143,9 +150,30 @@ function RouteScrollReset() {
   return null
 }
 
+function LocalDeveloperNewTestEntry() {
+  const location = useLocation()
+  const navigate = useNavigate()
+  const isGuestSession = location.state?.mode === 'guest'
+
+  useEffect(() => {
+    if (isGuestSession) return
+    navigate('/nuovo-test', {
+      replace: true,
+      state: { ...(location.state || {}), mode: 'guest', localDeveloper: true },
+    })
+  }, [isGuestSession, location.state, navigate])
+
+  if (!isGuestSession) {
+    return <div className="page" aria-busy="true" aria-label="Preparazione test locale" />
+  }
+
+  return <NewTestPage />
+}
+
 function App() {
   const [currentUser, setCurrentUser] = useState(null)
-  const [authReady, setAuthReady] = useState(false)
+  const [localDeveloperUser, setLocalDeveloperUser] = useState(() => restoreLocalDeveloperSession())
+  const [authReady, setAuthReady] = useState(() => Boolean(localDeveloperUser))
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [ritualFocusActive, setRitualFocusActive] = useState(false)
@@ -165,7 +193,9 @@ function App() {
   const prevMobileNavOpenRef = useRef(false)
   const accountMenuRef = useRef(null)
   const accountButtonRef = useRef(null)
-  const effectiveUser = currentUser || auth?.currentUser || null
+  const localDeveloperAccessAvailable = isLocalDeveloperAccessAvailable()
+  const effectiveUser = localDeveloperUser || currentUser || auth?.currentUser || null
+  const isLocalDeveloper = Boolean(localDeveloperUser)
   const isAuthenticated = Boolean(effectiveUser)
 
   useEffect(() => {
@@ -410,9 +440,21 @@ function App() {
     navigate({ pathname: '/', search: loginSearch, state: { openAccessBox: true, openRegister: true } })
   }
 
+  const enterLocalDeveloperMode = () => {
+    const user = startLocalDeveloperSession({ available: localDeveloperAccessAvailable })
+    setLocalDeveloperUser(user)
+    setAuthReady(true)
+    setMobileNavOpen(false)
+    navigate('/home', { replace: true })
+  }
+
   const logout = async () => {
-    if (!auth) return
-    await signOut(auth)
+    if (localDeveloperUser) {
+      clearLocalDeveloperSession()
+      setLocalDeveloperUser(null)
+    } else if (auth) {
+      await signOut(auth)
+    }
     setCurrentUser(null)
     setIsAccountMenuOpen(false)
     setMobileNavOpen(false)
@@ -466,7 +508,16 @@ function App() {
   const isTestFlowPage = location.pathname === '/nuovo-test'
 
   return (
-    <AuthContext.Provider value={{ user: effectiveUser, authReady, logout }}>
+    <AuthContext.Provider
+      value={{
+        user: effectiveUser,
+        authReady,
+        logout,
+        isLocalDeveloper,
+        localDeveloperAccessAvailable,
+        enterLocalDeveloperMode,
+      }}
+    >
       <div
         className={`app-shell app-with-sky${
           cookieConsent === null && !testSessionActive ? ' has-gdpr-banner' : ''
@@ -622,6 +673,15 @@ function App() {
                   >
                     Login
                   </button>
+                  {localDeveloperAccessAvailable && (
+                    <button
+                      type="button"
+                      className="header-login-button"
+                      onClick={enterLocalDeveloperMode}
+                    >
+                      Accesso sviluppo
+                    </button>
+                  )}
                 </>
               )}
               {isAuthenticated && (
@@ -765,6 +825,15 @@ function App() {
                   ) : (
                     <>
                       <div className="app-mobile-nav-actions">
+                        {localDeveloperAccessAvailable && (
+                          <button
+                            type="button"
+                            className="app-mobile-nav-action app-mobile-nav-action--primary"
+                            onClick={enterLocalDeveloperMode}
+                          >
+                            Accesso sviluppo
+                          </button>
+                        )}
                         <button
                           type="button"
                           className="app-mobile-nav-action app-mobile-nav-action--primary"
@@ -854,13 +923,34 @@ function App() {
               <Routes>
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/home" element={<HomePage />} />
-                <Route path="/nuovo-test" element={<NewTestPage />} />
+                <Route
+                  path="/nuovo-test"
+                  element={
+                    isLocalDeveloper
+                      ? <LocalDeveloperNewTestEntry />
+                      : <NewTestPage />
+                  }
+                />
                 <Route path="/tutorial" element={<TutorialPage />} />
                 <Route path="/tst" element={<TstPage />} />
-                <Route path="/risultati" element={<ResultsPage />} />
+                <Route
+                  path="/risultati"
+                  element={
+                    isLocalDeveloper
+                      ? <LocalDeveloperPage section="results" />
+                      : <ResultsPage />
+                  }
+                />
                 <Route path="/risultati/report" element={<ReportPage />} />
                 <Route path="/dashboard-operatore" element={<Navigate to="/home" replace />} />
-                <Route path="/profilo" element={<ProfilePage />} />
+                <Route
+                  path="/profilo"
+                  element={
+                    isLocalDeveloper
+                      ? <LocalDeveloperPage section="profile" />
+                      : <ProfilePage />
+                  }
+                />
                 <Route path="/info" element={<InfoPage />} />
               </Routes>
               </Suspense>

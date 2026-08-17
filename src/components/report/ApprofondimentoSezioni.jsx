@@ -16,6 +16,7 @@ export default function ApprofondimentoSezioni({
   filtroMusicale,
   correnteColore = '#4ade80',
   step = '6',
+  plainLanguage = false,
 }) {
   if (!sezioniData?.length && !sezioniTest && !filtroMusicale?.hasData) {
     return null
@@ -29,6 +30,7 @@ export default function ApprofondimentoSezioni({
         filtroMusicale={filtroMusicale}
         correnteColore={correnteColore}
         step={step}
+        plainLanguage={plainLanguage}
       />
     </div>
   )

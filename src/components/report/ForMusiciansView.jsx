@@ -5,43 +5,57 @@ import { MUSICISTI_INTRO } from '../../content/musicaDisposizione.js'
 
 export default function ForMusiciansView({
   profilo = {},
-  accentColor = '#4ade80',
-  approfondimento = { sezioniData: [], sezioniTest: null },
+  approfondimento = {},
   filtroMusicale = {},
-  onBack,
-  backButtonRef,
+  accentColor = '#4ade80',
+  onClose,
 }) {
   return (
     <div className="for-musicians-view" style={{ '--music-accent': accentColor }}>
       <header className="for-musicians-view__hero">
-        <button
-          ref={backButtonRef}
-          type="button"
-          className="nav-button secondary for-musicians-view__back"
-          onClick={onBack}
-        >
-          Torna al report
-        </button>
-        <p className="for-musicians-view__eyebrow">TST - Lettura musicale</p>
+        <div className="for-musicians-view__top-nav">
+          {onClose ? (
+            <button
+              type="button"
+              className="for-musicians-view__back-btn"
+              onClick={onClose}
+              aria-label="Torna al report principale"
+            >
+              ← Torna al report principale
+            </button>
+          ) : null}
+        </div>
+        <p className="for-musicians-view__eyebrow">TST — Lettura musicale e Aree sonore</p>
         <h1>For Musicians</h1>
         <p>{MUSICISTI_INTRO}</p>
       </header>
 
-      <section id="report-tst-approfondimento" className="for-musicians-view__section report-tst-section-anchor">
+      <SezioneMusica
+        profilo={profilo}
+        accentColor={accentColor}
+      />
+
+      <div className="for-musicians-view__sound-areas">
+        <h2 className="for-musicians-view__sound-title">Aree sonore del test</h2>
         <ApprofondimentoSezioni
           sezioniData={approfondimento?.sezioniData}
           sezioniTest={approfondimento?.sezioniTest}
           filtroMusicale={filtroMusicale}
           correnteColore={accentColor}
         />
-      </section>
+      </div>
 
-      <section className="for-musicians-view__section">
-        <SezioneMusica
-          profilo={profilo}
-          accentColor={accentColor}
-        />
-      </section>
+      {onClose ? (
+        <div className="for-musicians-view__footer-nav">
+          <button
+            type="button"
+            className="for-musicians-view__back-btn for-musicians-view__back-btn--bottom"
+            onClick={onClose}
+          >
+            ← Torna al report principale
+          </button>
+        </div>
+      ) : null}
     </div>
   )
 }
