@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { motion, useReducedMotion } from 'framer-motion'
 import { HERO_UI } from './reportUiCopy.js'
 import { getFlowerStillByColor } from '../../colorAssets.js'
@@ -90,7 +89,6 @@ export default function HeroScreen({
   onNewTest,
 }) {
   const reduceMotion = useReducedMotion()
-  const navigate = useNavigate()
 
   const colorKey = useMemo(() => {
     const totals = computeColorTotals(rawRecord)

@@ -184,6 +184,20 @@ export default function ReportShell({
     setGlossaryFocusId(null)
   }, [])
 
+  const changeModalita = useCallback((next) => {
+    setModalita((current) => {
+      if (next === current) return current
+      if (next === 'galassia') setGalassiaEverOpened(true)
+      try {
+        const url = `${window.location.pathname}${window.location.search}#${next}`
+        window.history.replaceState(null, '', next === 'report' ? window.location.pathname + window.location.search : url)
+      } catch {
+        window.location.hash = next === 'report' ? '' : next
+      }
+      return next
+    })
+  }, [])
+
   useEffect(() => {
     const previousMode = previousModalitaRef.current
     previousModalitaRef.current = modalita
@@ -333,20 +347,6 @@ export default function ReportShell({
     }
     window.addEventListener('hashchange', onHashChange)
     return () => window.removeEventListener('hashchange', onHashChange)
-  }, [])
-
-  const changeModalita = useCallback((next) => {
-    setModalita((current) => {
-      if (next === current) return current
-      if (next === 'galassia') setGalassiaEverOpened(true)
-      try {
-        const url = `${window.location.pathname}${window.location.search}#${next}`
-        window.history.replaceState(null, '', next === 'report' ? window.location.pathname + window.location.search : url)
-      } catch {
-        window.location.hash = next === 'report' ? '' : next
-      }
-      return next
-    })
   }, [])
 
   useEffect(() => {
