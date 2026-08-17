@@ -12,11 +12,11 @@ import {
 import { GALASSIA_CRT } from '../content/reportRestitution.js'
 
 const FAMIGLIA_LABEL = {
-  blu: 'Malinconia',
-  rosso: 'Volitività',
-  verde: 'Calma',
-  giallo: 'Entusiasmo',
-  grigio: 'Anaffettività',
+  blu: 'Malinconica',
+  rosso: 'Marziale',
+  verde: 'Flemmatica',
+  giallo: 'Entusiasta',
+  grigio: 'Razionale',
 }
 
 function pesoToPct(peso) {

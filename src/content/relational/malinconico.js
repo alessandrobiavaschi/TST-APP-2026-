@@ -29,14 +29,14 @@ export const RELATIONS = [
           'Per il malinconico, il flemmatico è un porto dove non serve difendersi dall\'intensità del proprio sentire. Per il flemmatico, il malinconico apre una vita interiore ricca che tende a non esplorare da solo.',
           'Il rischio è la stasi condivisa: nessuno dei due spinge verso il movimento, e la relazione può diventare profonda ma immobile, chiusa nel proprio mondo.',
         ],
-        tip: 'Il malinconico propone piccoli gesti concreti — una musica, una passeggiata — per dare ossigeno al legame. Il flemmatico risponde meglio a inviti leggeri che a richieste emotive troppo dense.',
+        tip: 'Il malinconico propone piccoli gesti concreti (una musica, una passeggiata) per dare ossigeno al legame. Il flemmatico risponde meglio a inviti leggeri che a richieste emotive troppo dense.',
       },
       frizioni: {
         label: 'Le frizioni',
         title: 'Dove nascono i conflitti',
         body: [
           'Il malinconico ha bisogno di essere compreso in profondità; il flemmatico ascolta ma raramente risponde con la stessa intensità. Il malinconico può sentirsi solo anche in presenza dell\'altro.',
-          'Nei momenti di chiusura, il flemmatico rispetta il silenzio senza intervenire — gesto che il malinconico può leggere come abbandono o disinteresse.',
+          'Nei momenti di chiusura, il flemmatico rispetta il silenzio senza intervenire: gesto che il malinconico può leggere come abbandono o disinteresse.',
           'Entrambi evitano il conflitto diretto: le tensioni si accumulano senza essere nominate, finché diventano distanza emotiva difficile da colmare.',
         ],
         tip: 'Il malinconico chiede esplicitamente presenza («resta con me un momento») invece di aspettare che l\'altro intuisca. Il flemmatico impara che poche parole chiare valgono più di lunghe attese silenziose.',
@@ -45,9 +45,9 @@ export const RELATIONS = [
         label: 'Le risorse',
         title: 'Cosa si danno a vicenda',
         body: [
-          'Il flemmatico offre al malinconico uno spazio sicuro dove non serve giustificare ciò che si prova — un sollievo per chi spesso si sente «troppo».',
+          'Il flemmatico offre al malinconico uno spazio sicuro dove non serve giustificare ciò che si prova: un sollievo per chi spesso si sente «troppo».',
           'Il malinconico restituisce al flemmatico una maggiore consapevolezza emotiva: lo abitua a riconoscere sfumature che tende a lasciare sedimentare in silenzio.',
-          'Insieme possono costruire legami lenti ma solidi, fondati su rituali condivisi — musica, lettura, contemplazione — che non richiedono prestazione.',
+          'Insieme possono costruire legami lenti ma solidi, fondati su rituali condivisi (musica, lettura, contemplazione) che non richiedono prestazione.',
         ],
         tip: 'Creare rituali di qualità condivisa: la bellezza estetica e musicale è il linguaggio comune tra riflessione malinconica e calma flemmatica.',
       },
@@ -76,7 +76,7 @@ export const RELATIONS = [
         body: [
           'L\'entusiasta decide in fretta e vuole condivisione immediata; il malinconico elabora lentamente e ha bisogno di tempo. Il silenzio malinconico viene letto come disinteresse, l\'urgenza entusiasta come invasione.',
           'Nei conflitti, l\'entusiasta alza il tono e vuole risolvere subito; il malinconico si chiude nel proprio mondo. Nulla viene davvero risolto.',
-          'Il malinconico può accumulare risentimento per la leggerezza con cui l\'altro tratta ciò che per lui ha peso — finché la reazione sorprende l\'entusiasta.',
+          'Il malinconico può accumulare risentimento per la leggerezza con cui l\'altro tratta ciò che per lui ha peso, finché la reazione sorprende l\'entusiasta.',
         ],
         tip: 'Concordare tempi diversi per parlare: l\'entusiasta aspetta la risposta, il malinconico si impegna a non restare in silenzio indefinito.',
       },
@@ -84,11 +84,11 @@ export const RELATIONS = [
         label: 'Le risorse',
         title: 'Cosa si danno a vicenda',
         body: [
-          'L\'entusiasta porta al malinconico movimento, curiosità e aperture verso il mondo — una breccia verso la malinconia solare descritta nel modello.',
+          'L\'entusiasta porta al malinconico movimento, curiosità e aperture verso il mondo: una breccia verso la malinconia solare descritta nel modello.',
           'Il malinconico offre all\'entusiasta profondità, autenticità e capacità di stare con ciò che non è solo gioia immediata.',
           'Nella Musica condivisa, timbri e ritmi diversi possono diventare ponte: l\'entusiasta scopre la malinconia come risorsa, il malinconico scopre l\'entusiasmo come luce.',
         ],
-        tip: 'Esplorare insieme repertori che uniscono slancio e profondità — non solo musica allegra o solo musica malinconica, ma opere che tengono entrambi i poli.',
+        tip: 'Esplorare insieme repertori che uniscono slancio e profondità: non solo musica allegra o solo musica malinconica, ma opere che tengono entrambi i poli.',
       },
     },
   },
@@ -115,7 +115,7 @@ export const RELATIONS = [
         body: [
           'L\'assertivo vuole risposte rapide; il malinconico ha bisogno di tempo e profondità. La frustrazione è frequente su entrambi i fronti.',
           'Il malinconico può cedere per evitare il conflitto, accumulando risentimento silenzioso che l\'assertivo non percepisce.',
-          'Nei momenti di rabbia assertiva, il malinconico si ritira ulteriormente — e la distanza si allarga senza conciliazione.',
+          'Nei momenti di rabbia assertiva, il malinconico si ritira ulteriormente, e la distanza si allarga senza conciliazione.',
         ],
         tip: 'L\'assertivo riduce il tono e offre spazio temporale. Il malinconico impara a dire «ho bisogno di tempo» invece di sparire.',
       },
@@ -143,7 +143,7 @@ export const RELATIONS = [
         title: 'Malinconico ↔ Anaffettivo',
         body: [
           'Il malinconico vive l\'intensità affettiva e il bisogno di connessione profonda; l\'anaffettivo mantiene distanza razionale e osservazione. Sembrano opposti, ma possono rispettarsi se non si pretendono lo stesso linguaggio.',
-          'L\'anaffettivo offre al malinconico chiarezza e stabilità emotiva bassa — niente alti e bassi che affaticano. Il malinconico può offrire all\'anaffettivo un graduale accesso al sentire attraverso piccoli gesti.',
+          'L\'anaffettivo offre al malinconico chiarezza e stabilità emotiva bassa: niente alti e bassi che affaticano. Il malinconico può offrire all\'anaffettivo un graduale accesso al sentire attraverso piccoli gesti.',
           'Il pericolo è che il malinconico si senta freddo o incompreso, mentre l\'anaffettivo si senta invaso da richieste emotive che non sa come sostenere.',
         ],
         tip: 'Il malinconico formula richieste concrete («raccontami una cosa della tua giornata») invece di inviti emotivi ampi. L\'anaffettivo risponde meglio a segnali chiari che a impliciti.',
@@ -153,7 +153,7 @@ export const RELATIONS = [
         title: 'Dove nascono i conflitti',
         body: [
           'Il malinconico ha bisogno di sentirsi visto; l\'anaffettivo non segnala presenza in modo riconoscibile. Il malinconico può dubitare di contare davvero per l\'altro.',
-          'L\'anaffettivo risponde con logica o silenzio ai momenti di apertura malinconica — e il malinconico si sente respinto senza capire perché.',
+          'L\'anaffettivo risponde con logica o silenzio ai momenti di apertura malinconica, e il malinconico si sente respinto senza capire perché.',
           'Entrambi possono evitare il confronto: il malinconico per paura del rifiuto, l\'anaffettivo per evitare il contatto emotivo.',
         ],
         tip: 'Il malinconico nomina il disagio una volta, con precisione. L\'anaffettivo, se capisce che è una segnalazione concreta e non un dramma, può rispondere.',
@@ -163,7 +163,7 @@ export const RELATIONS = [
         title: 'Cosa si danno a vicenda',
         body: [
           'L\'anaffettivo offre al malinconico un ambiente prevedibile, senza turbolenze emotive che possono affaticare chi è già sensibile.',
-          'Il malinconico può aiutare l\'anaffettivo a scoprire che la connessione non minaccia il controllo — attraverso continuità e gentilezza, non pressione.',
+          'Il malinconico può aiutare l\'anaffettivo a scoprire che la connessione non minaccia il controllo: attraverso continuità e gentilezza, non pressione.',
           'Insieme possono costruire un legame funzionale: profondità malinconica e chiarezza anaffettiva, se entrambi scelgono consapevolmente la relazione.',
         ],
         tip: 'Costruire ponti piccoli e quotidiani: per l\'anaffettivo funzionano meglio i gesti ripetuti che le grandi aperture.',

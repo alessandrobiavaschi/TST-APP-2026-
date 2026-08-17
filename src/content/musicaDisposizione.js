@@ -116,11 +116,11 @@ export const MUSICISTI_SCHEDE = {
   },
 
   Verde: {
-    label: 'Calma',
+    label: 'Flemmatica',
     profiloEmotivo:
       'Ciò che contraddistingue il temperamento flemmatico è il piacere della lentezza, del silenzio, della calma, del riposo e della contemplazione.',
     cosaCerca:
-      'La famiglia calma tende a cercare riposo, armonia, delicatezza e continuità. La musica diventa spesso un luogo in cui sentirsi sostenuti, respirare con gli altri e abitare un clima sonoro senza dover forzare l’esposizione.',
+      'La famiglia flemmatica tende a cercare riposo, armonia, delicatezza e continuità. La musica diventa spesso un luogo in cui sentirsi sostenuti, respirare con gli altri e abitare un clima sonoro senza dover forzare l’esposizione.',
     piaceriAscolto:
       'Subisce in modo speciale il fascino dell’armonia, che lo guida alla calma. Cerca la sensazione del riposo anche durante il giorno. Sente, vive le proprie funzioni vitali come il respiro e il battito costante del cuore che gli portano benessere e rilassatezza. Utilizza il suono come strumento per allontanarsi da tutto ciò che porta frenesia, è alla costante ricerca del piacere consolatorio.',
     linguaggioMusicale: {
@@ -173,9 +173,9 @@ export const MUSICISTI_SCHEDE = {
   },
 
   Giallo: {
-    label: 'Entusiastica',
+    label: 'Entusiasta',
     profiloEmotivo:
-      'Ciò che contraddistingue il temperamento gioioso entusiasta è il piacere del movimento, della curiosità, della scoperta del nuovo, dell’estroversione.',
+      'Ciò che contraddistingue la natura gioioso-sanguinica è il piacere del movimento, della curiosità, della scoperta del nuovo, dell’estroversione.',
     cosaCerca:
       'La famiglia entusiastica tende a cercare energia, movimento, luce e partecipazione immediata. La musica diventa spesso una spinta vitale: qualcosa che accende il corpo, porta fuori da sé e invita a cantare, ballare o condividere.',
     piaceriAscolto:
@@ -237,11 +237,11 @@ export const MUSICISTI_SCHEDE = {
   },
 
   Rosso: {
-    label: 'Volitiva',
+    label: 'Marziale',
     profiloEmotivo:
       'Ciò che contraddistingue il temperamento volitivo, collerico è il piacere del fare, realizzare ciò che si desidera e a cui si ambisce, il piacere di governarsi e governare, di mettersi alla prova.',
     cosaCerca:
-      'La famiglia volitiva tende a cercare forza, direzione, concretezza e controllo dell’energia. La musica diventa spesso un campo di prova: un luogo in cui restare svegli, governare il tempo, riconoscere struttura e misurarsi con intensità.',
+      'La famiglia marziale tende a cercare forza, direzione, concretezza e controllo dell’energia. La sua natura volitivo-collerica vive spesso la musica come un campo di prova: un luogo in cui restare svegli, governare il tempo, riconoscere struttura e misurarsi con intensità.',
     piaceriAscolto:
       'Subisce in modo speciale il fascino del timbro, nel quale vede i segni di identità e personalità. Gode dell’energia del suono in termini di forza e incisività. Nonostante sia predisposto all’analisi intellettuale, cerca la Musica più per svagarsi, per riposarsi dalla sua attività fisica. Non sempre ci riesce, spesso non sa lasciarsi andare e, suo malgrado, si ritrova a utilizzare il lato razionale per analizzare, discernere.',
     linguaggioMusicale: {
@@ -301,11 +301,11 @@ export const MUSICISTI_SCHEDE = {
   },
 
   Grigio: {
-    label: 'Anaffettiva',
+    label: 'Razionale',
     profiloEmotivo:
       'Ciò che contraddistingue il temperamento agnostico anaffettivo è il piacere del calcolo, della dubbiosità di origine intellettuale, dell’oggettività fisica.',
     cosaCerca:
-      'La famiglia anaffettiva tende a cercare distanza, sospensione, dubbio e osservazione. La musica viene vissuta come un territorio ambiguo e mentale, capace di stare tra dentro e fuori senza consegnarsi subito a una risposta emotiva netta.',
+      'La famiglia razionale tende a cercare distanza, sospensione, dubbio e osservazione. La sua natura intellettuale-razionale può vivere la musica come un territorio ambiguo e mentale, capace di stare tra dentro e fuori senza consegnarsi subito a una risposta emotiva netta.',
     piaceriAscolto:
       'Ogni cosa viene osservata ma senza vero interesse, con un distacco intellettuale anaffettivo che riduce tutto a qualcosa di banale, di poco appagante, di dissacrante. Si manifesta anch’essa come un piacere, ma è un piacere astratto, intellettuale, che si usa prevalentemente a livello numerico matematico.',
     linguaggioMusicale: {

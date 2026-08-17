@@ -445,11 +445,11 @@ function computeGalassiaZoomLayout({
 }
 
 const GALASSIA_AXIS = [
-  { className: 'galassia-view__axis-label--north', title: 'Nord', text: 'Entusiasmo' },
-  { className: 'galassia-view__axis-label--west', title: 'Ovest', text: 'Malinconia' },
-  { className: 'galassia-view__axis-label--east', title: 'Est', text: 'Volitività' },
-  { className: 'galassia-view__axis-label--center', title: 'Centro', text: 'Calma' },
-  { className: 'galassia-view__axis-label--south', title: 'Sud', text: 'Anaffettività' },
+  { className: 'galassia-view__axis-label--north', title: 'Nord', text: 'Entusiasta' },
+  { className: 'galassia-view__axis-label--west', title: 'Ovest', text: 'Malinconica' },
+  { className: 'galassia-view__axis-label--east', title: 'Est', text: 'Marziale' },
+  { className: 'galassia-view__axis-label--center', title: 'Centro', text: 'Flemmatica' },
+  { className: 'galassia-view__axis-label--south', title: 'Sud', text: 'Razionale' },
 ]
 
 const FAMILY_KEY_BY_DISPOSITION = {
@@ -461,11 +461,11 @@ const FAMILY_KEY_BY_DISPOSITION = {
 }
 
 const CORRENTE_NAME_BY_FAMILY = {
-  blu: 'Malinconia',
-  rosso: 'Volitività',
-  verde: 'Calma',
-  giallo: 'Entusiasmo',
-  grigio: 'Anaffettività',
+  blu: 'Malinconica',
+  rosso: 'Marziale',
+  verde: 'Flemmatica',
+  giallo: 'Entusiasta',
+  grigio: 'Razionale',
 }
 
 const RELATION_TONE_COPY = {
@@ -519,6 +519,11 @@ const PORTATO_CARD_BY_KEY = Object.fromEntries(
 )
 
 const CORRENTE_COLOR_BY_NAME = {
+  Malinconica: '#3b82f6',
+  Marziale: '#ef4444',
+  Flemmatica: '#22c55e',
+  Entusiasta: '#eab308',
+  Razionale: '#94a3b8',
   Malinconia: '#3b82f6',
   Volitività: '#ef4444',
   Calma: '#22c55e',
@@ -569,10 +574,15 @@ const FAMILY_KEY_ALIASES = {
   giallo: 'giallo',
   entusiasmo: 'giallo',
   solare: 'giallo',
+  gioiososanguinico: 'giallo',
+  gioioso: 'giallo',
+  sanguinico: 'giallo',
   grigio: 'grigio',
   anaffettivita: 'grigio',
   anaffettiva: 'grigio',
   agnostica: 'grigio',
+  razionale: 'grigio',
+  intellettualerazionale: 'grigio',
 }
 
 const LESSICO_RELATIONS_BY_FAMILY = {
@@ -929,7 +939,7 @@ function buildModeIdlePanel(mode, { dominant, portato, deepReading } = {}) {
           id: 'settori',
           label: 'Pianeta',
           areas: 'Famiglia emotiva',
-          meaning: 'Il cerchio rappresenta una disposizione, come Entusiasmo o Calma.',
+          meaning: 'Il cerchio rappresenta una famiglia, come Entusiasta o Flemmatica.',
         },
         {
           id: 'conteggio',
@@ -950,7 +960,7 @@ function buildModeIdlePanel(mode, { dominant, portato, deepReading } = {}) {
     const prevalenteDim = (portato.dimensioni || []).find((dim) => dim.key === portato.prevalente)
     return {
       ...base,
-      idleKicker: 'Portato esperienziale',
+      idleKicker: 'Come hai vissuto il test',
       dominantChipLabel: GALASSIA_PORTATO_UI.prevalenteLabel,
       intro: GALASSIA_PORTATO_UI.intro,
       introPoints: GALASSIA_PORTATO_UI.cards,
@@ -2269,46 +2279,6 @@ function GalassiaCrtPanel({
                             <em>{sub.pct}%</em>
                           </span>
                           <MiniBar value={sub.pct} color={sub.colore || panel.colore} />
-                        </li>
-                      ))}
-                    </ul>
-                  </section>
-                )}
-
-                {profileInfo.activePartners.length > 0 && (
-                  <section className="galassia-view__profile-block galassia-view__profile-block--dialogue">
-                    <h3>Rapporti tra disposizioni</h3>
-                    <ul className="galassia-view__dialogue-list">
-                      {profileInfo.activePartners.map((partner) => (
-                        <li key={partner.id}>
-                          <span className="galassia-view__dialogue-head">
-                            <i style={{ backgroundColor: partner.colore }} aria-hidden="true" />
-                            <b>{partner.nome}</b>
-                            <em>{partner.pct}%</em>
-                          </span>
-                          <span className="galassia-view__dialogue-keywords">
-                            <b>{RELATION_TONE_COPY[partner.tone]?.label || 'modula'}</b>
-                            {partner.keywords.join(' · ')}
-                          </span>
-                          {partner.reciprocalKeywords.length > 0 ? (
-                            <span className="galassia-view__dialogue-keywords galassia-view__dialogue-keywords--reverse">
-                              Di ritorno: {partner.reciprocalKeywords.join(' · ')}
-                            </span>
-                          ) : null}
-                        </li>
-                      ))}
-                    </ul>
-                  </section>
-                )}
-
-                {profileInfo.rapporti.length > 0 && (
-                  <section className="galassia-view__profile-block galassia-view__profile-block--rapporti">
-                    <h3>Rapporti</h3>
-                    <ul className="galassia-view__rapporti-list">
-                      {profileInfo.rapporti.map((rapporto) => (
-                        <li key={rapporto.id}>
-                          <span>{rapporto.nome}</span>
-                          <b>{rapporto.valore}/7</b>
                         </li>
                       ))}
                     </ul>
@@ -3942,17 +3912,27 @@ export default function GalassiaView({
                   const isActive = sub.id === activeSubId
                   const isHovered = sub.id === hoveredSubId
                   const showLabel = !isMobile || isActive || isHovered
-                  const labelSide =
-                    constellationLayout.n === 2
-                      ? (x < 0 ? 'below' : 'above')
-                      : (y >= 0 ? 'below' : 'above')
+                  // Push the label radially outward along the same angle as the
+                  // satellite itself (relative to the core at 0,0), so it always
+                  // lands farther from the core than the node — never behind it,
+                  // regardless of orbit radius, satellite count or viewport size.
+                  const distFromCore = Math.hypot(x, y) || 1
+                  const dirX = x / distFromCore
+                  const dirY = y / distFromCore
+                  const labelPush = size / 2 + CONSTELLATION_LABEL_CLEAR
+                  const labelDx = Math.round(dirX * labelPush)
+                  const labelDy = Math.round(dirY * labelPush)
+                  const labelAlign = dirX > 0.32 ? 'left' : dirX < -0.32 ? 'right' : 'center'
                   return (
                     <motion.div
                       key={sub.id}
-                      className={`galassia-view__constellation-wrap galassia-view__constellation-wrap--label-${labelSide}${isActive ? ' galassia-view__constellation-wrap--active' : ''}${isHovered ? ' galassia-view__constellation-wrap--hovered' : ''}${showLabel ? ' galassia-view__constellation-wrap--show-label' : ''}`}
+                      className={`galassia-view__constellation-wrap${isActive ? ' galassia-view__constellation-wrap--active' : ''}${isHovered ? ' galassia-view__constellation-wrap--hovered' : ''}${showLabel ? ' galassia-view__constellation-wrap--show-label' : ''}`}
                       style={{
                         left: `calc(50% + ${x - size / 2}px)`,
                         top: `calc(50% + ${y - size / 2}px)`,
+                        '--label-dx': `${labelDx}px`,
+                        '--label-dy': `${labelDy}px`,
+                        '--label-align': labelAlign,
                       }}
                       initial={{ opacity: 0, scale: 0.2 }}
                       animate={{ opacity: 1, scale: isActive ? 1.06 : 1 }}
@@ -4007,7 +3987,7 @@ export default function GalassiaView({
                             })}
                           </span>
                         ) : null}
-                        <span className="galassia-view__constellation-label" aria-hidden={!isActive && !isHovered}>
+                        <span className="galassia-view__constellation-label" aria-hidden="true">
                           <strong>{sub.nome}</strong>
                           <small>{weightLabel}</small>
                           {trait ? (

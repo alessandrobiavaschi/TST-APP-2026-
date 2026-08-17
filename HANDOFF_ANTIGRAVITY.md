@@ -1,140 +1,48 @@
 # HANDOFF - ANTIGRAVITY
-## Lexical Galaxy 2.0 & Interactive Results Overhaul
 
-This document outlines the final implementation details and architectural enhancements for the "Galassia Lessicale 2.0" (Lexical Galaxy 2.0) and "Grafici dei risultati" section overhaul of the TST Emotional Report.
+## 1. Supporto Playback Rate Personalizzato per Video Cielo
 
-All work has been completed inside the `ai/antigravity` branch and worktree directory `/Users/alessandrobiavaschi/Downloads/TST 2026 cursor-antigravity`.
+Abbiamo completato con successo l'implementazione del supporto per impostare un `playbackRate` personalizzato su singoli video di sfondo cielo.
 
----
+### Riepilogo dell'Implementazione
+- Esteso il metodo helper `ensureVideoPlaying` nel componente `SkyBackground.jsx` per accettare un parametro opzionale `customPlaybackRate`.
+- Se `customPlaybackRate` è fornito come numero, viene applicato direttamente alla proprietà `playbackRate` del tag `<video>`. Altrimenti, viene utilizzato il default di `0.25`.
+- Aggiornate le chiamate a `ensureVideoPlaying` passandogli la velocità configurata per lo slot attivo/in caricamento (`configA?.playbackRate` e `configB?.playbackRate`).
+- Documentato l'uso della proprietà `playbackRate` nei commenti di `src/skyVideosConfig.js`.
 
-### Lexical Galaxy 2.0 Integration & Six Sections
+### Istruzioni per l'integrazione e Uso
+Per cambiare la velocità di un qualsiasi cielo (ad esempio, uno dei nuovi cieli veloci), è sufficiente aggiungere la proprietà `playbackRate` nell'oggetto corrispondente in `src/skyVideosConfig.js`:
 
-We successfully merged the deterministic lexical view model developed by Claude Code (`ai/claude`) and linked `buildLessicoAnaliticoViewModel` directly to the user interface. The UI consumes the view model statically, respecting the `datiDisponibili` flag and avoiding any local raw score recalculation.
-
-Here is how each of the six requested sections was realized in the UI:
-
-1. **Campo di Forze Lessicale (Force Field)**:
-   - Extracted coordinates `x`, `y`, `z` of the Resultant Vector and its magnitude, displaying them in a dedicated telemetry card.
-   - Showcased the Dominant Polarity (e.g., *Espansione*, *Contrazione*) in a styled high-contrast badge.
-   - Provided an expandable `<details>` section showing the individual static family vectors scaled by their real weights (from `config/dispositions.ts`).
-   - Clearly documented this as a visual metaphor using the `criterio` field, preventing it from being misconstrued as a new scientific indicator.
-
-2. **Costellazioni Semantiche (Semantic Constellations)**:
-   - Plotted the active primary semantic concepts matching the user's active subcurrents.
-   - For each concept (e.g., *Sguardo di Meraviglia*), displayed connected user subcurrents along with their percentage activation.
-   - Displayed an explicit footnote noting the structural limit: the concept-to-concept graph (`relatedConcepts`) is currently empty in the theory data, meaning only concept-to-user-subcurrent links are visible.
-
-3. **Lessico Stabile e Situazionale (Stable & Situational Lexicon)**:
-   - **Lessico Situazionale**: Rendered words emerged from the test as interactive button pills. Clicking a pill automatically selects the word, zooms the viewport (`scale: 2.2`), and centers the camera on it.
-   - **Lessico Stabile**: Displayed the theoretical dictionary words for the five families in a collapsible reference section labeled explicitly as theory.
-
-4. **Contrasti Lessicali (Lexical Contrasts)**:
-   - Rendered the three contrasting family pairs (based on the production policy of gap $\le 1$ on scale 1-7).
-   - Displayed active/silent badges and illustrated the dynamic tension with sample words from both families, clearly tagging their sources (*fonte: test* vs *fonte: teoria*).
-   - Provided a footnote stating that the opposition represents family-level tension rather than word-to-word semantic antonyms.
-
-5. **Firma Personale (Personal Signature)**:
-   - Rendered the unique, deterministic signature code (e.g., `flemmatica_lieve_verde-rosso-blu`) in a monospaced code badge, alongside its breakdown (prevalenza, sottodisposizione, top 3 ranking).
-   - Ensured no signature or code is shown if `datiDisponibili` is `false`.
-
-6. **Tracciabilità Musica-Parola (Music-to-Word Traceability)**:
-   - Integrated dynamic traceability directly inside the `DictionaryPanel` for selected words.
-   - When a word is clicked, the panel checks if it exists in `lessicoSituazionale`. If it does, it displays the specific audio files (e.g., *Traccia 32, Traccia 35*) that prompted the word, alongside its `correnteKey` and `familyKey`. If it does not, it displays it as a theoretical word.
+```javascript
+export const SKY_VIDEOS = {
+  morning: {
+    sereno:     { src: V_SERENO,  tone: 'light',  warmth: 'neutral', intensity: 'soft', playbackRate: 0.12 },
+    // altri cieli...
+  }
+}
+```
 
 ---
 
-### Update: Mobile Responsive Overhaul (5 Key Fixes)
+## 2. Correzione del Report (Triangolo, Dettagli e Rimozione Foglio Chiaro)
 
-We completed a comprehensive layout sweep of the mobile report interface to ensure visual excellence, premium typography scaling, touch target accessibility, and correct viewport scroll bounds:
+In base alle segnalazioni sul layout del report e della stanza del dettaglio:
 
-1. **Mobile page shell alignment (`fix/mobile-shell`)**:
-   - Fixed `.app-header` on mobile to an explicit height of `52px` (matching `--app-header-offset`).
-   - Adjusted `.app-header-inner` to fill the container height with `box-sizing: border-box`, preventing layout shift and header overlapping during navigation.
-
-2. **Mobile typography clamps (`fix/mobile-typography`)**:
-   - Replaced fixed titles and subtitle sizes (like `.sintesi-mobile-title` and `.profilo-panel__title`) with fluid `clamp()` values (e.g. `clamp(1.4rem, 6vw, 1.8rem) !important` for main titles) to ensure titles fit neatly in 1-2 lines on narrow screens.
-
-3. **Touch targets and menu drawer scroll locking (`fix/mobile-navigation`)**:
-   - Expanded the mobile drawer hamburger toggle button target size to `40px` by `40px` (up from `36px`), adjusting grid columns in `.app-header-inner` to `44px 1fr 44px`.
-   - Expanded the drawer close button `.app-mobile-drawer-close` target size to `40px` by `40px`.
-   - Raised `.navbar-tst__switch-btn` tab button heights to `40px` on mobile (up from `32px`) to meet touch targets.
-   - Disabled flex stretching (`flex: initial !important`) on the left/right parts of `navbar-tst` on mobile, giving the central tab selector breathing room to avoid compression.
-   - Implemented a `useEffect` in `App.jsx` to lock body scroll (`overflow: hidden`) whenever the mobile navigation drawer is active.
-
-4. **Mobile chart constraints and vertical padding (`fix/mobile-charts`)**:
-   - Set Recharts Radar charts to scale down dynamically on mobile (`height={260}` and `outerRadius="60%"`).
-   - Decreased radar axis tick font sizes to `10` and tick offsets to `8` to prevent labels from overflowing.
-   - Wired dynamic heights in `SintesiCorrenti.jsx` to render `EmotionalShape` (petal chart) at a height of `300` on mobile viewports instead of default clamps, eliminating blank vertical gaps.
-
-5. **Compact horizontal tab navigation (`fix/mobile-nature-section`)**:
-   - Added matchMedia hooks in `ProfiloEmotivo.jsx` to detect mobile viewports.
-   - Rendered compact button labels ("Natura", "Racconto", "Risorse", "Ombre") on the horizontal tab bar on mobile, while keeping the full rich titles ("Memoria, Esperienza, Essere Musica" etc.) inside the `<h3>` headers of the content cards, preventing horizontal scroll compression.
+### Modifiche apportate
+- **Ripristino del Triangolo del Portato**: Allineata `SezionePortatoEsperienziale.jsx` con l'implementazione premium (avente mesh SVG e puck dinamico tracciati).
+- **Risoluzione Contenuti Vuoti del Dettaglio**: Inserito il rendering del componente `ApprofondimentoSezioni` all'interno del tabpanel `report-group-approfondimento` ("Aree sonore") in `ReportShell.jsx`, che in precedenza risultava vuoto.
+- **Rimozione della Light Sheet ("Bloccone Bianco")**: Rimossa la superficie editoriale chiara `.report-tst-light-sheet` che copriva lo sfondo scuro allo scroll. Il background cosmico e le stelle restano statici al 100% di opacità per tutto lo scroll della pagina, garantendo uniformità visiva e leggibilità perfetta del testo chiaro.
 
 ---
 
-### Layout & Responsiveness (Desktop, Tablet, Mobile)
+### File Modificati complessivamente
+- [SkyBackground.jsx](file:///Users/alessandrobiavaschi/Downloads/TST%202026%20cursor/src/components/SkyBackground.jsx)
+- [skyVideosConfig.js](file:///Users/alessandrobiavaschi/Downloads/TST%202026%20cursor/src/skyVideosConfig.js)
+- [ReportShell.jsx](file:///Users/alessandrobiavaschi/Downloads/TST%202026%20cursor/src/components/report/ReportShell.jsx)
+- [SezionePortatoEsperienziale.jsx](file:///Users/alessandrobiavaschi/Downloads/TST%202026%20cursor/src/components/report/SezionePortatoEsperienziale.jsx)
+- [report-tst.css](file:///Users/alessandrobiavaschi/Downloads/TST%202026%20cursor/src/styles/report-tst.css)
 
-- **Desktop & Tablet Layout**:
-  - Added a collapsible sidebar on the right side of the canvas (`position: absolute; right: 0; top: 0; bottom: 0; width: 340px`) to display the `AnalisiDashboard` when no word is selected.
-  - Clicking a word replaces the dashboard with the detailed definition (`DictionaryPanel`).
-  - Added a "Nascondi Analisi / Analisi Lessicale" toggle button in the top controls bar so the user can collapse the panel to explore the galaxy map fullscreen.
-- **Mobile Layout**:
-  - Integrated the `AnalisiDashboard` as a special blue card at the top of the mobile vertical stack (`lessico-mobile-card`).
-  - Tapping the card expands it accordion-style to reveal the full 6-section dashboard, matching the visual patterns of the family cards and ensuring zero overlaps across devices.
-
----
-
-### Verification and Compliance
-
-- **Empty State Policy**:
-  - When `datiDisponibili === false` (test not completed), the UI hides the signature, polarity, and contrast cards. The dashboard outputs clean empty messages and references the gaps.
-- **Keyboard Usability & Accessibility**:
-  - All interactive items in the dashboard (word pills, details blocks) are native `<button>` or `<details>` tags.
-  - Standardized dashed blue focus rings (`outline: 2px dashed #3b82f6` with offset) are active for all controls, tabs, guide stars, and planet nodes on `:focus-visible`.
-- **Motion Settings (`prefers-reduced-motion`)**:
-  - The viewport automatically reads accessibility reduced-motion configurations and sets spring transitions to instant or non-animated.
-- **Linter & Tests**:
-  - `npm run lint` executed and verified: **0 errors or warnings**.
-  - `npm test` executed and verified: **24/24 unit tests passed** (including the new view model test cases).
-  - `npm run build` executed and verified: **Vite compiled all assets successfully in 4.64s**.
-
----
-
-### 5. Triangular Portato Pad — Sintonia / Distonia / Distanza
-
-#### Summary
-
-- Replaced the three large portato result cards with one triangular color-field pad.
-- The UI renames only the visible concepts: `Simpatia` → **Sintonia**, `Antipatia` → **Distonia**, `Indifferenza` → **Distanza**. Internal PE keys and scoring are unchanged.
-- The interpretation sentence is shown before the pad; compact raw points and percentages follow it.
-- The white puck consumes the canonical barycentric `portato.pad.punto`; it falls back to a local barycentric projection from the three raw values when logic data is not yet integrated.
-- Canonical logic inputs supported: `portato.sintesiInterpretativa`, `portato.quoteNormalizzate`, `dimensione.quotaNormalizzata`, and `portato.pad.punto`. Older raw `portato.dimensioni` remains a safe fallback.
-- The explicit `hasData: false` state renders only an availability message. It never renders a zeroed triangle, puck, or result list.
-
-#### Files changed for this feature
-
-- `src/components/report/SezionePortatoEsperienziale.jsx`
-- Portato-only rules in `src/styles/report-tst.css`
-- `HANDOFF_ANTIGRAVITY.md`
-
-#### Accessibility and responsive decisions
-
-- The field is decorative and hidden from assistive technology; the figure exposes a concise title plus the exact points and percentages in text.
-- Labels and three different marker shapes accompany color, so color is not the only encoding.
-- Reduced-motion users receive no entrance translation or duration.
-- At 640px and below, results stack in one column and the pad becomes taller for readable vertex labels.
-
-#### Verification performed
-
-- `npx eslint src/components/report/SezionePortatoEsperienziale.jsx` — passed.
-- `npm run lint` passed before the concurrent room/navigation edits appeared. The final rerun is blocked by an unrelated unstaged `ReportShell.jsx:276` `react-hooks/immutability` error (`changeModalita` is used before its declaration); this feature does not modify that file.
-- `npm run build` — passed (Vite production build).
-- Browser check at 1440×1000 and 390×844 using the sample 61 / 17 / 1 — puck correctly biased toward Sintonia.
-- Mobile DOM measurements: viewport/client width 390px, document scroll width 390px; no horizontal overflow.
-- QA screenshots were captured locally at `/tmp/portato-pad-desktop.png` and `/tmp/portato-pad-mobile.png`; no preview-only route or fixture is included in the commit.
-
-#### Integration notes
-
-- Merge the logic contract before or alongside this commit to receive the approved scientific sentence. Without it, the component creates a conservative, listening-specific sentence from the same three shares.
-- `PORTATO_UI.labels` and `PORTATO_UI.padAria` are consumed when present, with backwards-compatible UI fallbacks.
-- No unresolved feature issue. Concurrent unrelated edits in report rooms, hero, musicians view, test flow, and the untracked mobile implementation report were deliberately left untouched and unstaged.
+### Comandi Eseguiti e Verifica
+- `npm run lint` (Verificato, nessun errore o warning di compilazione)
+- `npm run build` (Compilato in produzione con successo)
+- I commit sono stati effettuati sul branch corrente `codex/mobile-report-review` per non interferire con gli altri worktree attivi.

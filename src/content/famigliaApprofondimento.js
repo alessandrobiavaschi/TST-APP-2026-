@@ -11,7 +11,7 @@
 
 export const FAMIGLIA_APPROFONDIMENTO = {
   Blu: {
-    nome: 'Malinconica e Nostalgica',
+    nome: 'Malinconica',
     natura: [
       'Ciò che contraddistingue il temperamento malinconico è il piacere di stare con sé stessi, dell’introversione, di osservarsi interiormente, di riflettere su ciò che si è vissuto.',
       'Da Ovest a Est, in profondità, dal lato opposto da dove sorge il Sole, si fa sentire l’azione riflessa della Luna. Quel flusso vibrante ha un solo nome: Malinconia. Nel suo espandersi in un carattere in formazione, offre ciò che di emotivo nasce dal nostro interiore Continente della Malinconia.',
@@ -59,7 +59,7 @@ export const FAMIGLIA_APPROFONDIMENTO = {
         differenza: '«Opera nel chiuso dell’interiorità, agisce su una visione riflessa dell’esperienza emotiva» — mentre la Nostalgia è «il dolore interiore provocato da una perdita, da un senso di mancanza, da un sentirsi persi, un sentirsi soli, abbandonati».',
       },
       {
-        nome: 'Nostalgica',
+        nome: 'Nostalgica (Solare o Lunare)',
         descrizione:
           'Le forze emotive che operano nel temperamento nostalgico fanno vivere un’esperienza emotiva molto simile a quella della malinconia lunare. Del sentire riflesso della malinconia lunare, la nostalgia mutua il senso del dolore interiore. Ma non è tristezza, né lo stordimento che provoca sentirsi vivere in un mondo chiuso: è il dolore interiore provocato da una perdita, da un senso di mancanza, da un sentirsi persi, soli, abbandonati. La corrente nostalgica — che i brasiliani chiamano saudade — porta a elaborare il passato in due modalità: fa riflettere visceralmente sul dolore provato, facendo provare un’esperienza amara, quella del rimpianto; oppure sollecita un gesto di amore e di riconoscenza verso ciò che si è perduto, permettendo di osservare quanta bellezza, quanto affetto si è dato e, soprattutto, quanto se ne è ricevuto. Questa seconda forma — la nostalgia solare — permette di aprire lo scrigno del cuore ad esperienze, luoghi, affetti ormai lasciati alle spalle, ma il cui ricordo porta una luminosità, un diverso senso di compagnia, una compagnia nostalgica che vive e riscalda il presente.',
         statiAnimo: ['Rimpiangente', 'Afflitto', 'Straziato', 'Rammaricato', 'Desolato', 'Disperato', 'Sconsolato', 'Mortificato', 'Abbandonato', 'Nostalgico', 'Compassionevole', 'Accorato', 'Rimembrante', 'Desiderante', 'Riconoscente', 'Grato'],
@@ -78,7 +78,7 @@ export const FAMIGLIA_APPROFONDIMENTO = {
   },
 
   Rosso: {
-    nome: 'Collerico-Volitiva',
+    nome: 'Marziale',
     natura: [
       'Ciò che contraddistingue il temperamento volitivo, collerico è il piacere del fare, realizzare ciò a cui si ambisce, il piacere di governarsi e governare, di mettersi alla prova.',
       'Da Est verso Ovest soffiano i venti che seguono l’azione vitale per eccellenza, che invitano a muoversi, venti che seguono il percorso del Sole. Una forza che spinge a vivere il piacere del fare: questo è il flusso Volitivo.',
@@ -157,7 +157,7 @@ export const FAMIGLIA_APPROFONDIMENTO = {
         nome: 'Calma flemmatica',
         descrizione:
           'Bonaccia, leggerezza del non movimento, calma: il flemmatico ama riposare e contemplare, indursi un clima di equilibrio affettivo. La traccia di questo piacere offre l’occasione di vivere pace, tranquillità, moderazione e prudenza. Quando la gentilezza che ne deriva non è più gratuita ma programmata per evitare ogni conflitto, scivola nel suo «meno nobile derivato»: la pigrizia.',
-        statiAnimo: ['Rilassato', 'Calmo', 'Gentile', 'Disteso', 'Pacato', 'Placido', 'Pacifico', 'Tranquillo', 'Estatico', 'Serafico', 'Contemplativo', 'Sognante', 'Equilibrato', 'Quieto', 'Tollerante', 'Mistico', 'Prudente', 'Meditativo', 'Ammirato', 'Annoiato', 'Pigro', 'Oziante', 'Indolente', 'Ignavo'],
+        statiAnimo: ['Rilassato', 'Calmo', 'Gentile', 'Disteso', 'Pacato', 'Placido', 'Pacifico', 'Tranquillo', 'Estatico', 'Serafico', 'Contemplativo', 'Sognante', 'Equilibrato', 'Quieto', 'Tollerante', 'Mistico', 'Prudente', 'Meditativo', 'Ammirato', 'Annoiato', 'Pigro', 'Oziante', 'Svampito', 'Indolente', 'Ignavo'],
         differenza: '«Quando è totalmente gratuita, la gentilezza rappresenta una qualità etica straordinaria»; quando invece «è programmata allo scopo di prevenire ogni conflitto: non si tratta allora di Flemma, ma di un suo meno nobile derivato, la pigrizia».',
       },
     ],
@@ -166,9 +166,9 @@ export const FAMIGLIA_APPROFONDIMENTO = {
   },
 
   Giallo: {
-    nome: 'Entusiastica',
+    nome: 'Entusiasta',
     natura: [
-      'Ciò che contraddistingue il temperamento gioioso entusiasta è il piacere del movimento, della curiosità, della scoperta del nuovo, dell’estroversione.',
+      'Ciò che contraddistingue la natura gioioso-sanguinica è il piacere del movimento, della curiosità, della scoperta del nuovo, dell’estroversione.',
       'Da Sud verso Nord soffiano venti caldi: un flusso emotivo gioioso pervaso di solarità e di calore. Quel flusso si chiama Entusiasmo. Nel suo espandersi in un carattere in formazione, offre quello che di emotivo nasce dal nostro interiore Continente dell’Entusiasmo.',
       'L’esperienza affettiva che si vive con le forze dell’entusiasmo si manifesta con il piacere di uscire da sé stessi per abbracciare tutto ciò che è nuovo, che è fuori da noi: persone, natura, oggetti, le più svariate attività.',
       'È a questa tendenza che si agganciano le correnti musicali, orientando l’energia emotiva verso un moto centrifugo: un movimento che va verso il fuori, si disperde nel mondo e lo abbraccia, risvegliando e appagando la gioia di sentire questa propensione nel proprio carattere.',
@@ -215,7 +215,7 @@ export const FAMIGLIA_APPROFONDIMENTO = {
   },
 
   Grigio: {
-    nome: 'Agnostico-Anaffettiva',
+    nome: 'Razionale',
     natura: [
       'Ciò che contraddistingue il temperamento agnostico anaffettivo è il piacere del calcolo, della dubbiosità di origine intellettuale, dell’oggettività fisica.',
       'Da Nord verso Sud soffiano venti gelidi: diventano un flusso emotivo che raffredda, raggela affettivamente. Possiamo chiamare questa corrente: agnostica anaffettiva.',

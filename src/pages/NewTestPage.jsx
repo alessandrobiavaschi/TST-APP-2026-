@@ -19,6 +19,7 @@ import { useAuth } from '../AuthContext.jsx'
 import { useAdaptiveFlow } from '../hooks/useAdaptiveFlow.js'
 import { getFlowerStillByColor } from '../colorAssets.js'
 import { compactTestRecord, computeTestResultFields } from '../utils/testRecordProcessing.js'
+import { getNextFileAfterAnswer } from '../utils/testAnswerNavigation.js'
 import '../styles/nuovo-test-flow.css'
 
 const STATO_ANIMO_OPTIONS = [
@@ -115,6 +116,7 @@ const RESULT_ANALYSIS_MESSAGES = [
   'Privacy attiva: i dati vengono trattati in forma riservata e protetta.',
   'Quasi pronto: passaggio al report finale.',
 ]
+const FLOWER_SEQUENCE = ['blu', 'rosso', 'verde', 'giallo', 'grigio']
 
 const STORAGE_KEY_TEST_STARTED = 'tst_test_started_v1'
 const STORAGE_KEY_TEST_DRAFT = 'tst_test_draft_v1'
@@ -139,10 +141,10 @@ function getQuestionTitleForFile(fileNumber) {
     return 'B) Ascolta le combinazioni di due suoni e scegli un solo aggettivo tra quelli proposti.'
   }
   if (fileNumber === 41) {
-    return 'B-bis) Prima riconferma: riascolta e conferma in modo istintivo.'
+    return 'B) Prima riconferma: riascolta e conferma in modo istintivo.'
   }
   if (fileNumber === 42) {
-    return 'B-ter) Seconda riconferma: riascolta e conferma in modo istintivo.'
+    return 'B) Seconda riconferma: riascolta e conferma in modo istintivo.'
   }
   if (fileNumber === 43 || fileNumber === 44 || fileNumber === 45) {
     return 'C1a) Ascolta i groove e scegli la sensazione che meglio descrive la tua percezione musicale.'
@@ -234,10 +236,15 @@ function NewTestPage() {
   const resetTimerRef = useRef(null)
   const recallTimerRef = useRef(null)
   const stepEnterTimerRef = useRef(null)
+  const flowerPreloadRef = useRef([])
 
   // Sample da /audio in locale, oppure da VITE_AUDIO_BASE_URL (streaming, senza MP3 nel deploy).
   const audioSrc = buildTestAudioUrl(currentFile)
-  const audioSourceIssue = getAudioSourceIssue(audioSrc)
+  // Ai passi di riconferma (41/42) non esiste un file audio proprio: si riascolta il file di riferimento (29/40).
+  const reconfirmReferenceFile =
+    getQuestionGroupForFile(currentFile) === 'C_BIS' ? (currentFile === 41 ? 29 : 40) : null
+  const playerAudioSrc = reconfirmReferenceFile ? buildTestAudioUrl(reconfirmReferenceFile) : audioSrc
+  const audioSourceIssue = getAudioSourceIssue(playerAudioSrc)
   const currentFileKey = `File_${String(currentFile).padStart(2, '0')}`
   const isCurrentStepAnswered = Boolean((testRecord[currentFileKey] || '').trim())
   const canGoNext = currentFile < TOTAL_STEPS
@@ -249,7 +256,6 @@ function NewTestPage() {
         }
       : undefined
   const selectedAnswerValue = (testRecord[currentFileKey] || '').trim()
-  const FLOWER_SEQUENCE = ['blu', 'rosso', 'verde', 'giallo', 'grigio']
   const loadingFlowerImages = FLOWER_SEQUENCE.map((key) => ({
     key,
     src: getFlowerStillByColor(key),
@@ -261,10 +267,6 @@ function NewTestPage() {
           Math.floor((analysisProgress / 100) * loadingFlowerImages.length),
         )
       : 0
-  const animatedFlowerIndex =
-    loadingFlowerImages.length > 0
-      ? (activeFlowerIndex + loadingFlowerTick) % loadingFlowerImages.length
-      : 0
 
   const isGuestMode = location.state && location.state.mode === 'guest'
 
@@ -274,6 +276,19 @@ function NewTestPage() {
       navigate('/', { replace: true, state: { fromTest: true } })
     }
   }, [authReady, user, isGuestMode, navigate])
+
+  // Precarica gli asset del loader finale appena si entra nel test, così sono
+  // già in cache del browser molto prima che la sequenza venga mostrata.
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    flowerPreloadRef.current = FLOWER_SEQUENCE.map((key) => {
+      const src = getFlowerStillByColor(key)
+      if (!src) return null
+      const img = new window.Image()
+      img.src = src
+      return img
+    })
+  }, [])
 
   useEffect(() => {
     if (!showAreasHelp) return undefined
@@ -315,7 +330,7 @@ function NewTestPage() {
   }
 
   const explainPlayError = (error) => {
-    const issue = getAudioSourceIssue(audioSrc)
+    const issue = getAudioSourceIssue(playerAudioSrc)
     const normalized = String(error?.name || '').toLowerCase()
     if (issue) return issue
     if (normalized.includes('notallowed')) {
@@ -349,25 +364,6 @@ function NewTestPage() {
       )
     } finally {
       setIsAudioBusy(false)
-    }
-  }
-
-  const playReferenceAudio = async (fileNumber) => {
-    if (!fileNumber) return
-    uiSounds?.playTestTap?.()
-    stopAudio()
-    stopPreviewAudio()
-    setAudioError(null)
-    try {
-      const preview = new Audio(buildTestAudioUrl(fileNumber))
-      preview.preload = 'auto'
-      previewAudioRef.current = preview
-      const playPromise = preview.play()
-      if (playPromise && typeof playPromise.then === 'function') {
-        await playPromise
-      }
-    } catch (error) {
-      setAudioError(explainPlayError(error))
     }
   }
 
@@ -653,9 +649,7 @@ function NewTestPage() {
       },
     }))
 
-    if (fileNumber < TOTAL_STEPS) {
-      proceedToNextStep()
-    }
+    proceedToNextStep(fileNumber)
   }
 
   const handleBack = () => {
@@ -679,13 +673,14 @@ function NewTestPage() {
     setIsReviewingTestSteps(false)
   }
 
-  const proceedToNextStep = () => {
+  const proceedToNextStep = (expectedFile = currentFile) => {
     if (isProcessingNext) return
-    if (currentFile >= 72) return
+    const nextFile = getNextFileAfterAnswer(expectedFile, TOTAL_STEPS)
+    if (nextFile === expectedFile) return
     stopAudio()
     stopPreviewAudio()
     uiSounds?.playTestTransition?.()
-    setCurrentFile((prev) => prev + 1)
+    setCurrentFile((activeFile) => (activeFile === expectedFile ? nextFile : activeFile))
   }
 
   const handleNextStep = () => {
@@ -992,42 +987,24 @@ function NewTestPage() {
     }
 
     if (group === 'C_BIS') {
-      const referenceFile = currentFile === 41 ? 29 : 40
-
       return (
-        <div className="answers-c-bis">
-          <p className="answers-c-bis-hint">
-            Riascolta con calma e scegli l’aggettivo che senti piu coerente per il file {referenceFile}.
-            Se vuoi, puoi riascoltare il file di riferimento prima di confermare.
-          </p>
-          <button
-            type="button"
-            className="nav-button secondary"
-            onClick={() => playReferenceAudio(referenceFile)}
-          >
-            Riascolta file {referenceFile}
-          </button>
-          <p className="answers-c-bis-note">
-            Questa riconferma rafforza il peso della scelta nel profilo finale.
-          </p>
-          <div className="answers-grid answers-grid--dense">
-            {Object.keys(DIZIONARIO_2).map((label) => (
-              <button
-                key={label}
-                type="button"
-                className={`answer-button ${selectedAnswerValue === label ? 'answer-button-selected' : ''}`}
-                aria-pressed={selectedAnswerValue === label}
-                onClick={() =>
-                  handleAnswer({
-                    answerLabel: label,
-                    isConfirmation: true,
-                  })
-                }
-              >
-                {label}
-              </button>
-            ))}
-          </div>
+        <div className="answers-grid answers-grid--dense">
+          {Object.keys(DIZIONARIO_2).map((label) => (
+            <button
+              key={label}
+              type="button"
+              className={`answer-button ${selectedAnswerValue === label ? 'answer-button-selected' : ''}`}
+              aria-pressed={selectedAnswerValue === label}
+              onClick={() =>
+                handleAnswer({
+                  answerLabel: label,
+                  isConfirmation: true,
+                })
+              }
+            >
+              {label}
+            </button>
+          ))}
         </div>
       )
     }
@@ -1383,6 +1360,14 @@ function NewTestPage() {
                     />
                   </div>
                 </header>
+                {!testCompleted && reconfirmReferenceFile && (
+                  <div className="answers-c-bis" aria-live="polite">
+                    <p className="answers-c-bis-title">Riascolto di conferma</p>
+                    <p className="answers-c-bis-hint">
+                      Stai risentendo il file {reconfirmReferenceFile}, già presentato durante il test. Il player qui sotto riproduce solo questo suono di riferimento: ascolta con calma e scegli l’aggettivo che senti più coerente.
+                    </p>
+                  </div>
+                )}
                 {!testCompleted && (
                   <section
                     className="test-stage-audio-zone test-stage-audio-zone--menu-tab player-card player-card--bottom-dock"
@@ -1396,7 +1381,7 @@ function NewTestPage() {
                         setNeuroChoiceStage('passive')
                       }}
                       onError={() => {
-                        const issue = getAudioSourceIssue(audioSrc)
+                        const issue = getAudioSourceIssue(playerAudioSrc)
                         setAudioError(
                           issue ||
                             'File audio non disponibile. In dev: imposta VITE_AUDIO_BASE_URL nel .env oppure copia 1.mp3…72.mp3 in public/audio/, poi riavvia npm run dev.',
@@ -1440,7 +1425,7 @@ function NewTestPage() {
                         }, timings.choiceRecallMs)
                       }}
                     >
-                      <source src={audioSrc} type="audio/mpeg" />
+                      <source src={playerAudioSrc} type="audio/mpeg" />
                     </audio>
                     <div
                       className="player-progress"
@@ -1797,11 +1782,11 @@ function NewTestPage() {
                           className="result-analysis-flower-track"
                           style={{
                             width: `${loadingFlowerImages.length * 100}%`,
-                            transform: `translateX(-${animatedFlowerIndex * (100 / loadingFlowerImages.length)}%)`,
+                            transform: `translateX(-${activeFlowerIndex * (100 / loadingFlowerImages.length)}%)`,
                           }}
                         >
                           {loadingFlowerImages.map((item, index) => {
-                            const isActive = index === animatedFlowerIndex
+                            const isActive = index === activeFlowerIndex
                             return (
                               <div
                                 key={item.key}

@@ -28,11 +28,11 @@ const FAMILY_REF = {
 const FAMILY_ORDER = ['Verde', 'Blu', 'Rosso', 'Giallo', 'Grigio']
 
 const TOTAL_SCORE_RADAR_AXES = [
-  { key: 'verde', corrente: 'Calma' },
-  { key: 'rosso', corrente: 'Volitività' },
-  { key: 'blu', corrente: 'Malinconia' },
-  { key: 'giallo', corrente: 'Entusiasmo' },
-  { key: 'grigio', corrente: 'Anaffettività' },
+  { key: 'verde', corrente: 'Flemmatica' },
+  { key: 'rosso', corrente: 'Marziale' },
+  { key: 'blu', corrente: 'Malinconica' },
+  { key: 'giallo', corrente: 'Entusiasta' },
+  { key: 'grigio', corrente: 'Razionale' },
 ]
 
 const FAMILY_LAYOUT = {
@@ -44,28 +44,28 @@ const FAMILY_LAYOUT = {
 }
 
 const FAMILY_PRESENCE_LABELS = {
-  verde: { title: 'Calma', detail: 'flemmatica' },
-  giallo: { title: 'Entusiasmo', detail: 'gioiosità' },
-  rosso: { title: 'Volitività', detail: 'collerica' },
-  grigio: { title: 'Anaffettività', detail: 'nichilista' },
-  blu: { title: 'Malinconia', detail: 'nostalgica / lunare-solare' },
+  verde: { title: 'Flemmatica', detail: 'natura contemplativa' },
+  giallo: { title: 'Entusiasta', detail: 'natura Gioioso-Sanguinico' },
+  rosso: { title: 'Marziale', detail: 'natura volitivo-collerica' },
+  grigio: { title: 'Razionale', detail: 'natura intellettuale-razionale' },
+  blu: { title: 'Malinconica', detail: 'natura lunare' },
 }
 
 // Fonti: docs/fonti-scientifiche/_estratto/MATRICE_TRACCIABILITA.md e
 // docs/fonti-scientifiche/_estratto/STATI_D_ANIMO_IN_4_FAMIGLIE_salvataggio_automatico.txt.
 const BRIEF_SUMMARY_BY_FAMILY = {
   Blu: {
-    family: 'Lunare',
+    family: 'Malinconica',
     fundamentalPleasure:
       "il piacere di stare con sé stessi, dell’introversione, dell’osservarsi interiormente e del riflettere su ciò che si è vissuto",
-    qualities: "caratteristiche emotive lunari, solari e nostalgiche",
+    qualities: "nature (caratteristiche emotive) lunari, solari e nostalgiche",
     qualitiesByQuality: {
       Lunare:
         "una caratteristica Lunare e una Solare. Quella Lunare opera nel chiuso dell’interiorità, su una visione riflessa dell’esperienza emotiva",
       Solare:
         "una caratteristica Lunare e una Solare. Quella Solare apre verso il mondo, portando speranza, serenità e fiducia nel futuro",
       Nostalgica:
-        "una caratteristica riflessiva e una nostalgica. Quella Nostalgica porta a elaborare il passato attraverso il rimpianto o, nel suo volto più luminoso, attraverso la riconoscenza verso ciò che si è vissuto",
+        "una natura Nostalgica, che può essere Lunare o Solare. La forma Lunare elabora il passato attraverso il rimpianto; quella Solare attraverso la riconoscenza verso ciò che si è vissuto",
       Depressiva:
         "una caratteristica introspettiva e una depressiva. Quella Depressiva opera nel chiuso dell’interiorità, scandagliandone gli aspetti più scuri",
     },
@@ -74,27 +74,27 @@ const BRIEF_SUMMARY_BY_FAMILY = {
     defaultQuality: "Lunare",
   },
   Giallo: {
-    family: 'Solare',
+    family: 'Entusiasta',
     fundamentalPleasure:
       "il piacere del movimento, della curiosità, della scoperta del nuovo e dell’apertura verso il mondo",
-    qualities: "caratteristiche emotive legate alla gioia, all’entusiasmo, alla curiosità e alla solarità",
+    qualities: "nature (caratteristiche emotive) legate alla gioia, all’entusiasmo, alla curiosità e alla solarità",
     qualitiesByQuality: {
       Solare:
-        "una caratteristica Solare e una Passionale. Quella Solare si esprime con vivacità, positività e un moto naturale verso il fuori e verso gli altri",
-      "Gioioso-entusiasta":
-        "una caratteristica Solare e una Passionale. Quella Solare si esprime con vivacità, positività e un moto naturale verso il fuori e verso gli altri",
+        "una caratteristica Gioioso-Sanguinico e una Passionale. Quella Gioioso-Sanguinico si esprime con vivacità, positività e un moto naturale verso il fuori e verso gli altri",
+      "Gioioso-Sanguinico":
+        "una caratteristica Gioioso-Sanguinico e una Passionale. Quella Gioioso-Sanguinico si esprime con vivacità, positività e un moto naturale verso il fuori e verso gli altri",
       Passionale:
-        "una caratteristica Solare e una Passionale. Quella Passionale si esprime con intensità affettiva, trasporto e un profondo senso di fusione con ciò che si ama",
+        "una caratteristica Gioioso-Sanguinico e una Passionale. Quella Passionale si esprime con intensità affettiva, trasporto e un profondo senso di fusione con ciò che si ama",
     },
     orientation: "il fuori, gli altri, la relazione, la natura, le attività e le possibilità",
     note: "",
-    defaultQuality: "Solare",
+    defaultQuality: "Gioioso-Sanguinico",
   },
   Rosso: {
     family: 'Marziale',
     fundamentalPleasure:
       "il piacere del fare, del realizzare ciò che si desidera, del governarsi e del mettersi alla prova",
-    qualities: "caratteristiche emotive legate all’assertività volitiva, al dubbio e alla collera",
+    qualities: "nature (caratteristiche emotive) legate all’assertività volitiva, al dubbio e alla collera",
     qualitiesByQuality: {
       Assertiva:
         "una caratteristica Assertiva e una del Dubbio. Quella Assertiva si esprime con fermezza, determinazione e volontà di concretizzare nel presente",
@@ -109,18 +109,18 @@ const BRIEF_SUMMARY_BY_FAMILY = {
     family: 'Flemmatica',
     fundamentalPleasure: "il piacere della lentezza, del riposo, della calma e della contemplazione",
     qualities:
-      "caratteristiche emotive legate alla pace interiore, alla moderazione, alla prudenza e all’osservazione contemplativa",
+      "nature (caratteristiche emotive) legate alla pace interiore, alla moderazione, alla prudenza e all’osservazione contemplativa",
     orientation:
       "la calma interiore — non per riflettere su sé stessi, ma per trovare quiete ed equilibrio affettivo",
     note: "",
     defaultQuality: 'Contemplativa',
   },
   Grigio: {
-    family: 'Anaffettiva',
+    family: 'Razionale',
     fundamentalPleasure:
       "il piacere del calcolo, della dubbiosità di origine intellettuale, dell’oggettività e della distanza affettiva",
     qualities:
-      "caratteristiche emotive legate all’anaffettività, al distacco, al nichilismo e alla dimensione intellettuale",
+      "nature (caratteristiche emotive) legate all’anaffettività, al distacco, al nichilismo e alla dimensione intellettuale",
     qualitiesByQuality: {
       Anaffettiva:
         "una caratteristica Anaffettiva e una della Saggezza. Quella Anaffettiva agisce con gelido distacco intellettuale, osservando ogni cosa senza lasciarsi coinvolgere dalla sfera sentimentale",
@@ -221,11 +221,11 @@ function buildTotalScoreRadarData(totalScores = {}, correnti = [], assignedFamil
     const sumRaw = correnti.reduce((acc, c) => acc + (Number(c.valoreAssoluto) || 0), 0)
     const max = Math.max(...correnti.map(c => Number(c.valoreAssoluto) || 0), 0)
     const familyLabels = {
-      blu: 'Lunare',
-      giallo: 'Solare',
+      blu: 'Malinconica',
+      giallo: 'Entusiasta',
       rosso: 'Marziale',
       verde: 'Flemmatica',
-      grigio: 'Anaffettiva',
+      grigio: 'Razionale',
     }
     return TOTAL_SCORE_RADAR_AXES.map((axis) => {
       const c = correnti.find(item => String(item.familyKey || '').toLowerCase() === axis.key.toLowerCase())
@@ -274,11 +274,11 @@ function buildTotalScoreRadarData(totalScores = {}, correnti = [], assignedFamil
     const valore = max > 0 ? Math.min(7, Math.max(1, Math.round((rawValue / max) * 7))) : 1
     const distributionPercent = sumRaw > 0 ? Number(((rawValue / sumRaw) * 100).toFixed(1)) : 0
     const familyLabels = {
-      blu: 'Lunare',
-      giallo: 'Solare',
+      blu: 'Malinconica',
+      giallo: 'Entusiasta',
       rosso: 'Marziale',
       verde: 'Flemmatica',
-      grigio: 'Anaffettiva',
+      grigio: 'Razionale',
     }
     return {
       corrente: axis.corrente,
@@ -299,11 +299,11 @@ function resolveBriefQuality({ familyName, sottodisposizione, correnteDominante 
   if (haystack.includes('nostalg')) return 'Nostalgica'
   if (haystack.includes('depress')) return 'Depressiva'
   if (haystack.includes('lunare')) return 'Lunare'
-  if (haystack.includes('solare')) return 'Solare'
+  if (haystack.includes('solare')) return familyName === 'Giallo' ? 'Gioioso-Sanguinico' : 'Solare'
   if (haystack.includes('assert') || haystack.includes('marziale')) return 'Assertiva'
   if (haystack.includes('dubbio') || haystack.includes('collera')) return 'Dubbio-collerica'
   if (haystack.includes('flemm') || haystack.includes('contemplat')) return 'Contemplativa'
-  if (haystack.includes('gioia') || haystack.includes('entusiasm')) return 'Gioioso-entusiasta'
+  if (haystack.includes('gioia') || haystack.includes('entusiasm') || haystack.includes('sanguin')) return 'Gioioso-Sanguinico'
   if (haystack.includes('passion')) return 'Passionale'
   if (haystack.includes('saggio') || haystack.includes('intellett')) return 'Intellettuale-saggia'
   if (haystack.includes('distacc')) return 'Distaccata'
@@ -347,7 +347,7 @@ function familyPresenceLabel(item = {}, fallbackFamily = '') {
 function familySectionIntro(dominantFamilyFullLabel) {
   return [
     'Nel tuo test visivo sono riportate tutte e cinque le componenti emotive.',
-    `Nonostante dai risultati emerga una prevalenza della natura ${dominantFamilyFullLabel}, le altre nature rimangono comunque presenti e contribuiscono, con intensità differenti, alla costruzione della tua identità emotiva.`,
+    `Dai risultati emerge una prevalenza della famiglia ${dominantFamilyFullLabel}; le altre famiglie rimangono comunque presenti e contribuiscono, con intensità differenti, alla costruzione della tua identità emotiva.`,
     'Verifica, attraverso i grafici, come le diverse componenti si relazionano tra loro.',
   ]
 }
@@ -468,80 +468,42 @@ export default function SintesiCorrenti({
     const activeKey = hoveredFamilyKey || activeDetailFamily.familyKey
     const activeItem = totalScoreRadarData.find(d => d.familyKey === activeKey) || activeDetailFamily
     const accent = colors[activeItem.familyKey] || '#94a3b8'
-    const activeCapitalized = activeItem.familyKey ? (activeItem.familyKey.charAt(0).toUpperCase() + activeItem.familyKey.slice(1).toLowerCase()) : 'Verde'
-    const activeBriefSummary = BRIEF_SUMMARY_BY_FAMILY[activeCapitalized] || BRIEF_SUMMARY_BY_FAMILY.Verde
-
-    // Quality resolved for active family
-    const resolvedQuality = resolveBriefQuality({
-      familyName: activeCapitalized,
-      sottodisposizione,
-      correnteDominante
-    })
-    const qualitiesText = activeBriefSummary.qualitiesByQuality?.[resolvedQuality] ?? activeBriefSummary.qualities
-
     return (
-      <div 
-        className="sintesi-correnti__detail-panel" 
-        style={{
-          '--panel-accent': accent,
-          borderLeft: `4px solid ${accent}`
-        }}
-      >
-        <div className="detail-panel__header">
-          <span className="detail-panel__status-dot" style={{ backgroundColor: accent }} />
-          <h4 className="detail-panel__title">
-            ANALISI DETTAGLIATA: {activeBriefSummary.family.toUpperCase()}
-          </h4>
-          <span className="detail-panel__subtitle-mono">METRICS & PROFILE COHERENCE</span>
-        </div>
-
-        {/* 3-Column Stats Dashboard */}
-        <div className="detail-panel__metrics-grid">
-          <div className="detail-panel__metric-card">
-            <span className="detail-panel__metric-label">Risonanza (% del profilo)</span>
-            <span className="detail-panel__metric-value">{activeItem.distributionPercent}%</span>
-          </div>
-          <div className="detail-panel__metric-card">
-            <span className="detail-panel__metric-label">Scala Normalizzata (1-7)</span>
-            <span className="detail-panel__metric-value">{activeItem.valore} <span className="detail-panel__metric-val-max">/ 7</span></span>
-          </div>
-          <div className="detail-panel__metric-card">
-            <span className="detail-panel__metric-label">Punteggio Grezzo (punti)</span>
-            <span className="detail-panel__metric-value">{activeItem.rawValue} <span className="detail-panel__metric-val-max">pt</span></span>
-          </div>
-        </div>
-
-        {/* Scientific Explanation Block */}
-        <div className="detail-panel__desc-block">
-          <p className="detail-panel__desc-lead">
-            La famiglia <strong>{activeBriefSummary.family}</strong> rappresenta {activeBriefSummary.fundamentalPleasure}.
-          </p>
-          <p className="detail-panel__desc-body">
-            Al suo interno si distinguono {qualitiesText}. L'energia emotiva viene prevalentemente orientata verso <strong>{activeBriefSummary.orientation}</strong>.
-          </p>
-          {activeBriefSummary.note && (
-            <p className="detail-panel__desc-note">
-              * {activeBriefSummary.note}
-            </p>
-          )}
-        </div>
-
-        <CalculationDisclosure>
+      <div className="sintesi-correnti__information" style={{ '--panel-accent': accent }}>
+        <CalculationDisclosure label="Come leggere dati e punteggi">
           <p className="calculation-disclosure__intro">
-            Ogni risposta del test assegna punti a una corrente emotiva. Sommiamo poi i
-            punti delle correnti che appartengono alla stessa famiglia. Alcuni passaggi
-            del test hanno un peso maggiore, come previsto dal metodo.
+            Qui trovi i valori della famiglia selezionata e il modo in cui vengono letti nel report.
           </p>
-          <div className="calculation-disclosure__formula">
-            <span className="formula-header">FORMULA DI RISONANZA & NORMALIZZAZIONE</span>
-            <code className="formula-code">
-              Risonanza = (Punti Grezzi / Punti Totali) * 100
-              Scale_Value = (Punti Grezzi / Punteggio Massimo) * 7
-            </code>
-            <p className="formula-explanation">
-              <strong>Nota Metodologica:</strong> La Risonanza (%) e il Valore in Scala (1-7) sono metriche distinte. La risonanza indica la quota di attivazione percentuale di ciascuna famiglia rispetto all'intero profilo emotivo (fette di una torta, somma = 100%). Il valore normalizzato (1-7) normalizza invece i punteggi ponendo la famiglia dominante al massimo (7/7) e proporzionando le altre per rendere l'intensità visivamente confrontabile.
-            </p>
+          <div className="detail-panel__metrics-grid">
+            <div className="detail-panel__metric-card">
+              <span className="detail-panel__metric-label">Risonanza nel profilo</span>
+              <span className="detail-panel__metric-value">{activeItem.distributionPercent}%</span>
+            </div>
+            <div className="detail-panel__metric-card">
+              <span className="detail-panel__metric-label">Scala del grafico</span>
+              <span className="detail-panel__metric-value">{activeItem.valore} <span className="detail-panel__metric-val-max">/ 7</span></span>
+            </div>
+            <div className="detail-panel__metric-card">
+              <span className="detail-panel__metric-label">Punti ottenuti</span>
+              <span className="detail-panel__metric-value">{activeItem.rawValue} <span className="detail-panel__metric-val-max">pt</span></span>
+            </div>
           </div>
+          <details className="sintesi-correnti__calculation-menu">
+            <summary>Come si calcolano questi dati?</summary>
+            <div className="calculation-disclosure__formula">
+              <span className="formula-header">DALLE RISPOSTE AI VALORI DEL GRAFICO</span>
+              <p className="formula-explanation">
+                Ogni risposta assegna punti a una corrente emotiva; i punti delle correnti della stessa famiglia vengono poi sommati. Alcuni passaggi del test hanno un peso maggiore, come previsto dal metodo.
+              </p>
+              <code className="formula-code">
+                Risonanza = (Punti della famiglia / Punti totali) * 100
+                Scala = (Punti della famiglia / Punteggio più alto del profilo) * 7
+              </code>
+              <p className="formula-explanation">
+                La risonanza mostra quanto una famiglia è presente nell'insieme del profilo: le cinque percentuali sommano a 100%. La scala 1-7 serve invece a confrontare visivamente le famiglie: quella con più punti vale 7 e le altre sono proporzionate a quel valore.
+              </p>
+            </div>
+          </details>
         </CalculationDisclosure>
       </div>
     )
@@ -567,7 +529,7 @@ export default function SintesiCorrenti({
 
   const sottocorrenteDisplayName = (nome) => {
     if (nome === 'Lunare') return 'Caratteristica Lunare'
-    if (nome === 'Nostalgia') return 'Nostalgica'
+    if (nome === 'Nostalgia' || nome === 'Nostalgica' || nome === 'Nostalgico') return 'Nostalgica (Solare o Lunare)'
     return nome
   }
 
@@ -589,25 +551,16 @@ export default function SintesiCorrenti({
         aria-labelledby="sintesi-correnti-heading"
         style={{ '--sc-accent': accentColor }}
       >
-        <ReportPassageHeader
-          step={`${stepPrefix}.1`}
-          eyebrow={SINTESI_UI.eyebrow}
-          title={SINTESI_UI.title}
-          lead={SINTESI_UI.subtitle}
-          accentColor={accentColor}
-          titleId="sintesi-correnti-heading"
-        />
-
         {/* Unified Editorial Summary Card */}
         <div className="sintesi-editorial-card">
           <div className="sintesi-editorial-text">
             <p className="sintesi-editorial-body sintesi-editorial-body--lead">
-              La tua natura emotiva di appartenenza è{' '}
-              <strong className="sintesi-editorial-highlight">{briefSummary.introFamily}</strong> e la sua caratteristica emotiva
-              (sottofamiglia) prevalente è <strong className="sintesi-editorial-highlight">{briefSummary.introQuality}</strong>.
+              La tua famiglia emotiva prevalente è{' '}
+              <strong className="sintesi-editorial-highlight">{briefSummary.introFamily}</strong> e la sua natura
+              (caratteristica emotiva) prevalente è <strong className="sintesi-editorial-highlight">{briefSummary.introQuality}</strong>.
             </p>
             <p className="sintesi-editorial-body">
-              Questa natura emotiva è una delle 5 forze emotive comuni a tutti.
+              Questa famiglia emotiva è una delle 5 forze emotive comuni a tutti.
             </p>
             {briefSummary.paragraphs.map((paragraph) => (
               <p key={paragraph} className="sintesi-editorial-body">
@@ -639,7 +592,7 @@ export default function SintesiCorrenti({
               const peso = Number(c.peso) || 0
               const barColor = c.color
               const label = familyPresenceLabel(c)
-              const isActive = (hoveredFamilyKey || activeDetailFamily?.familyKey) === c.familyKey
+              const isActive = activeDetailFamily?.familyKey === c.familyKey
               return (
                 <li
                   className={`sintesi-mobile-bar-row${isActive ? ' sintesi-mobile-bar-row--active' : ''}`}
@@ -647,8 +600,6 @@ export default function SintesiCorrenti({
                   tabIndex={0}
                   role="button"
                   aria-label={`Rango ${i + 1}: natura ${label.title}, presenza ${pctAttivazione(peso)}`}
-                  onMouseEnter={() => setHoveredFamilyKey(c.familyKey)}
-                  onMouseLeave={() => setHoveredFamilyKey(null)}
                   onClick={() => {
                     const radarItem = totalScoreRadarData.find(d => d.familyKey === c.familyKey)
                     if (radarItem) setActiveDetailFamily(radarItem)
@@ -698,10 +649,10 @@ export default function SintesiCorrenti({
         {summarySottocorrenti.length > 0 ? (
           <div className="sintesi-mobile-subcurrents">
             <h3 className="sintesi-mobile-section-title">
-              Sottocategorie di {dominantPresenceLabel.title.toLowerCase()}
+              Correnti della famiglia {dominantPresenceLabel.title.toLowerCase()}
             </h3>
             <p className="sintesi-mobile-explanation">
-              All’interno di questa famiglia, il test evidenzia le caratteristiche emotive specifiche che
+              All’interno di questa famiglia, il test evidenzia le nature (caratteristiche emotive) specifiche che
               contribuiscono a definire meglio la tua appartenenza.
             </p>
             <ul className="sintesi-mobile-subcurrents-list">
@@ -742,13 +693,12 @@ export default function SintesiCorrenti({
           <div className="sintesi-mobile-radar-container">
             <div className="sintesi-correnti__total-radar">
               <p className="sintesi-correnti__radar-caption">
-                Scala 1-7 distribuita sui vertici del grafico radar delle cinque famiglie.
+                Punteggio 1-7 per famiglia — passa il cursore su un vertice per il valore esatto.
               </p>
-              <p className="sintesi-correnti__radar-hint">Tocca i vertici per i punteggi esatti.</p>
               <ReportRadarChart
                 data={totalScoreRadarData}
                 color={accentColor}
-                height={340}
+                height={300}
                 outerRadius="72%"
                 domain={[1, 7]}
                 className="sintesi-correnti__total-radar-chart"
@@ -761,7 +711,6 @@ export default function SintesiCorrenti({
             </div>
             <EmotionalShape 
               familiesData={ordered}
-              height={isMobileViewport ? 300 : 'clamp(440px, 42vw, 560px)'}
               activeFamilyKey={hoveredFamilyKey || activeDetailFamily?.familyKey}
               onFamilySelect={(key) => {
                 const radarItem = totalScoreRadarData.find(d => d.familyKey === key)
@@ -785,26 +734,17 @@ export default function SintesiCorrenti({
       aria-labelledby="sintesi-correnti-heading"
       style={{ '--sc-accent': accentColor }}
     >
-      <ReportPassageHeader
-        step={`${stepPrefix}.1`}
-        eyebrow={SINTESI_UI.eyebrow}
-        title={SINTESI_UI.title}
-        lead={SINTESI_UI.subtitle}
-        accentColor={accentColor}
-        titleId="sintesi-correnti-heading"
-      />
-
       <div className="sintesi-correnti__summary">
         {/* Unified Editorial Summary Card */}
         <div className="sintesi-editorial-card">
           <div className="sintesi-editorial-text">
             <p className="sintesi-editorial-body sintesi-editorial-body--lead">
-              La tua natura emotiva di appartenenza è{' '}
-              <strong className="sintesi-editorial-highlight">{briefSummary.introFamily}</strong> e la sua caratteristica emotiva
-              (sottofamiglia) prevalente è <strong className="sintesi-editorial-highlight">{briefSummary.introQuality}</strong>.
+              La tua famiglia emotiva prevalente è{' '}
+              <strong className="sintesi-editorial-highlight">{briefSummary.introFamily}</strong> e la sua natura
+              (caratteristica emotiva) prevalente è <strong className="sintesi-editorial-highlight">{briefSummary.introQuality}</strong>.
             </p>
             <p className="sintesi-editorial-body">
-              Questa natura emotiva è una delle 5 forze emotive comuni a tutti.
+              Questa famiglia emotiva è una delle 5 forze emotive comuni a tutti.
             </p>
             {briefSummary.paragraphs.map((paragraph) => (
               <p key={paragraph} className="sintesi-editorial-body">
@@ -842,9 +782,8 @@ export default function SintesiCorrenti({
               <div className="sintesi-correnti__visual-panel sintesi-correnti__visual-panel--radar">
                 <div className="sintesi-correnti__total-radar">
                   <p className="sintesi-correnti__radar-caption">
-                    Scala 1-7 derivata dai punteggi totali delle cinque famiglie.
+                    Punteggio 1-7 per famiglia — passa il cursore su un vertice per il valore esatto.
                   </p>
-                  <p className="sintesi-correnti__radar-hint">Passa il cursore sui vertici per i punteggi esatti.</p>
                   <ReportRadarChart
                     data={totalScoreRadarData}
                     color={accentColor}
@@ -902,7 +841,7 @@ export default function SintesiCorrenti({
                           damping: 18,
                           delay: i * 0.12,
                         }
-                    const isActive = (hoveredFamilyKey || activeDetailFamily?.familyKey) === c.familyKey
+                    const isActive = activeDetailFamily?.familyKey === c.familyKey
                     return (
                       <li
                         className={`sintesi-correnti__row${isActive ? ' sintesi-correnti__row--active' : ''}`}
@@ -910,8 +849,6 @@ export default function SintesiCorrenti({
                         tabIndex={0}
                         role="button"
                         aria-label={`Rango ${i + 1}: natura ${label.title}, presenza ${pctAttivazione(peso)}`}
-                        onMouseEnter={() => setHoveredFamilyKey(c.familyKey)}
-                        onMouseLeave={() => setHoveredFamilyKey(null)}
                         onClick={() => {
                           const radarItem = totalScoreRadarData.find(d => d.familyKey === c.familyKey)
                           if (radarItem) setActiveDetailFamily(radarItem)
@@ -975,14 +912,14 @@ export default function SintesiCorrenti({
                 <div className="sintesi-correnti__subcurrents">
                   <div className="sintesi-correnti__subcurrents-head">
                     <span className="sintesi-correnti__subcurrents-title">
-                      Sottocategorie di {dominantPresenceLabel.title.toLowerCase()}
+                      Correnti della famiglia {dominantPresenceLabel.title.toLowerCase()}
                     </span>
                     <span className="sintesi-correnti__subcurrents-count">
                       {familySottocorrenti.length}
                     </span>
                   </div>
                   <p className="sintesi-correnti__subcurrents-caption">
-                    Caratteristiche emotive specifiche che definiscono meglio la famiglia prevalente.
+                    Nature (caratteristiche emotive) specifiche che definiscono meglio la famiglia prevalente.
                   </p>
                   <ul className="sintesi-correnti__subcurrents-list">
                     {familySottocorrenti.map((sub) => (
@@ -1029,9 +966,8 @@ export default function SintesiCorrenti({
               <div className="sintesi-correnti__visual-panel sintesi-correnti__visual-panel--radar">
                 <div className="sintesi-correnti__total-radar">
                   <p className="sintesi-correnti__radar-caption">
-                    Scala 1-7 derivata dai punteggi totali delle cinque famiglie.
+                    Punteggio 1-7 per famiglia — passa il cursore su un vertice per il valore esatto.
                   </p>
-                  <p className="sintesi-correnti__radar-hint">Passa il cursore sui vertici per i punteggi esatti.</p>
                   <ReportRadarChart
                     data={totalScoreRadarData}
                     color={accentColor}

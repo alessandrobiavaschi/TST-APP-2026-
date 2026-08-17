@@ -44,7 +44,7 @@ function clampCameraToViewport(camera, width = 0, height = 0) {
 const FAMILY_META = {
   malinconica_nostalgica: {
     id: 'malinconica_nostalgica',
-    label: 'Malinconia',
+    label: 'Malinconica',
     colors: ['#818cf8', '#6366f1', '#7c3aed', '#a5b4fc', '#4338ca', '#c084fc'],
     baseColor: '#6366f1',
     nebula: 'rgba(67, 56, 202, 0.18)',
@@ -54,7 +54,7 @@ const FAMILY_META = {
   },
   collerico_volitiva: {
     id: 'collerico_volitiva',
-    label: 'Volitività',
+    label: 'Marziale',
     colors: ['#f87171', '#ef4444', '#dc2626', '#fb7185', '#be123c', '#c026d3'],
     baseColor: '#ef4444',
     nebula: 'rgba(153, 27, 27, 0.18)',
@@ -64,7 +64,7 @@ const FAMILY_META = {
   },
   flemmatica: {
     id: 'flemmatica',
-    label: 'Calma',
+    label: 'Flemmatica',
     colors: ['#4ade80', '#22c55e', '#16a34a', '#34d399', '#0d9488', '#2dd4bf'],
     baseColor: '#22c55e',
     nebula: 'rgba(22, 101, 52, 0.18)',
@@ -74,7 +74,7 @@ const FAMILY_META = {
   },
   entusiasmo: {
     id: 'entusiasmo',
-    label: 'Entusiasmo',
+    label: 'Entusiasta',
     colors: ['#fbbf24', '#f59e0b', '#d97706', '#fcd34d', '#f97316', '#fb923c'],
     baseColor: '#f59e0b',
     nebula: 'rgba(146, 64, 14, 0.18)',
@@ -84,7 +84,7 @@ const FAMILY_META = {
   },
   agnostica_anaffettiva: {
     id: 'agnostica_anaffettiva',
-    label: 'Anaffettività',
+    label: 'Razionale',
     colors: ['#94a3b8', '#64748b', '#cbd5e1', '#9ca3af', '#475569', '#e2e8f0'],
     baseColor: '#94a3b8',
     nebula: 'rgba(71, 85, 105, 0.18)',

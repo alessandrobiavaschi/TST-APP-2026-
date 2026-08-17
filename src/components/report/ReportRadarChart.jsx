@@ -50,17 +50,33 @@ function RadarTooltipContent({ active, payload, domain }) {
 export function ReportRadarAxisTick({ x, y, payload, textAnchor, cx, cy }) {
   let nudgedX = x
   let nudgedY = y
-
-  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768
+  let safeTextAnchor = textAnchor
 
   if (typeof cx === 'number' && typeof cy === 'number') {
     const dx = x - cx
     const dy = y - cy
     const dist = Math.sqrt(dx * dx + dy * dy)
     if (dist > 0) {
-      const nudgeAmount = isMobile ? 8 : 12
-      nudgedX = x + (dx / dist) * nudgeAmount
-      nudgedY = y + (dy / dist) * nudgeAmount
+      const nudgeAmount = 12
+      const horizontalDirection = dx / dist
+      const verticalDirection = dy / dist
+      // Solo i vertici davvero laterali (poco scarto verticale) vanno
+      // ancorati verso l'interno: sui vertici diagonali (es. i due in basso
+      // di un pentagono a 5 assi) questo farebbe crescere le etichette
+      // l'una verso l'altra, sovrapponendole al centro in basso.
+      const isMostlyLateral = Math.abs(verticalDirection) < 0.5
+
+      // Keep lateral labels inside the SVG. Recharts normally anchors them
+      // outwards, so longer Italian names can be clipped by the chart panel.
+      if (isMostlyLateral && horizontalDirection < -0.35) {
+        nudgedX = x + nudgeAmount
+        safeTextAnchor = 'start'
+      } else if (isMostlyLateral && horizontalDirection > 0.35) {
+        nudgedX = x - nudgeAmount
+        safeTextAnchor = 'end'
+      } else {
+        nudgedY = y + verticalDirection * nudgeAmount
+      }
     }
   }
 
@@ -68,9 +84,9 @@ export function ReportRadarAxisTick({ x, y, payload, textAnchor, cx, cy }) {
     <text
       x={nudgedX}
       y={nudgedY}
-      textAnchor={textAnchor}
+      textAnchor={safeTextAnchor}
       fill="#e2e8f0"
-      fontSize={isMobile ? 12 : 13}
+      fontSize={13}
       fontFamily="'Public Sans', system-ui, -apple-system, sans-serif"
       dominantBaseline="central"
     >
@@ -113,13 +129,6 @@ export default function ReportRadarChart({
     distributionPercent: d.distributionPercent,
   }))
 
-  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768
-  const finalHeight = isMobile ? Math.min(360, Math.max(320, height)) : height
-  const finalOuterRadius = isMobile ? '66%' : outerRadius
-  const chartMargin = isMobile
-    ? { top: 18, right: 12, bottom: 18, left: 12 }
-    : { top: 10, right: 30, bottom: 10, left: 30 }
-
   if (!radarData.length) return null
 
   const handleChartClick = (state) => {
@@ -136,26 +145,20 @@ export default function ReportRadarChart({
       className={className}
       role="img"
       aria-label={ariaLabel}
-      style={{ width: '100%', maxWidth: '100%', minWidth: 0, minHeight: finalHeight, cursor: onFamilySelect ? 'pointer' : 'default' }}
+      style={{ width: '100%', minHeight: height, cursor: onFamilySelect ? 'pointer' : 'default' }}
     >
       {scaleLabel ? (
         <p className="report-radar-chart__scale" aria-hidden="true">
           {scaleLabel}
         </p>
       ) : null}
-      <ResponsiveContainer
-        width="100%"
-        height={finalHeight}
-        minWidth={0}
-        initialDimension={{ width: 320, height: finalHeight }}
-        debounce={100}
-      >
+      <ResponsiveContainer width="100%" height={height} debounce={100}>
         <RadarChart
           data={radarData}
-          outerRadius={finalOuterRadius}
+          outerRadius={outerRadius}
           cx="50%"
           cy="50%"
-          margin={chartMargin}
+          margin={{ top: 10, right: 30, bottom: 10, left: 30 }}
           onClick={handleChartClick}
         >
           <PolarGrid stroke="#334155" strokeOpacity={0.5} />
@@ -165,7 +168,7 @@ export default function ReportRadarChart({
             <PolarRadiusAxis
               angle={90}
               domain={domain}
-              tick={{ fill: '#64748b', fontSize: isMobile ? 12 : 10 }}
+              tick={{ fill: '#64748b', fontSize: 10 }}
               axisLine={false}
             />
           ) : null}
@@ -176,7 +179,6 @@ export default function ReportRadarChart({
             fill={strokeColor}
             fillOpacity={0.15}
             dot={{ r: 5, fill: strokeColor, stroke: strokeColor }}
-            label={{ fill: '#f8fafc', fontSize: 12, fontWeight: 700, dy: -6 }}
             isAnimationActive={!reduceMotion}
             animationDuration={400}
           />

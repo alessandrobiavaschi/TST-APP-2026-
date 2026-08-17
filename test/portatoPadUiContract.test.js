@@ -56,16 +56,16 @@ test('il fallback interpreta parità e quasi parità senza inventare una prevale
   assert.doesNotMatch(`${tiedText} ${nearTiedText}`, /ha prevalso/)
 })
 
-test('lo stato vuoto non mostra triangolo, puck o risultati a zero', async () => {
+test('lo stato vuoto non mostra triangolo, puck o vertici a zero', async () => {
   const source = await readSource('src/components/report/SezionePortatoEsperienziale.jsx')
   const positiveDataBlock = source.slice(
-    source.indexOf('{viewData.hasData ? (', source.indexOf('report-tst-portato__empty')),
-    source.indexOf('{viewData.hasData && portato?.descrizione'),
+    source.indexOf('{viewData.hasData ? ('),
+    source.lastIndexOf(') : ('),
   )
 
   assert.match(positiveDataBlock, /report-tst-portato__figure/)
   assert.match(positiveDataBlock, /report-tst-portato__puck/)
-  assert.match(positiveDataBlock, /report-tst-portato__results/)
+  assert.match(positiveDataBlock, /report-tst-portato__vertex/)
   assert.doesNotMatch(source, /report-tst-portato__figure--empty/)
 })
 
@@ -81,6 +81,20 @@ test('il risultato resta leggibile senza affidarsi soltanto al colore', async ()
   assert.match(source, /Sintonia/)
   assert.match(source, /Distonia/)
   assert.match(source, /Distanza/)
-  assert.match(css, /\.report-tst-portato__result--distonia[\s\S]*border-radius:\s*2px[\s\S]*rotate\(45deg\)/)
-  assert.match(css, /@media\s*\(max-width:\s*640px\)[\s\S]*\.report-tst-portato__results\s*\{[^}]*grid-template-columns:\s*1fr/)
+  assert.match(source, /aria-expanded=\{isOpen\}/)
+  assert.match(source, /report-tst-portato__vertex-percent/)
+  assert.match(css, /\.report-tst-portato__vertex:focus-visible/)
+})
+
+test('il pad vive nella stanza Portato e usa un solo anchor', async () => {
+  const [shell, section] = await Promise.all([
+    readSource('src/components/report/ReportShell.jsx'),
+    readSource('src/components/report/SezionePortatoEsperienziale.jsx'),
+  ])
+
+  assert.match(shell, /<RoomRevealContent id="report-tst-portato"/)
+  assert.match(shell, /<SezionePortatoEsperienziale/)
+  assert.doesNotMatch(shell, /ReportDetailTabs/)
+  assert.doesNotMatch(shell, /ReportSectionGroup/)
+  assert.doesNotMatch(section, /id="report-tst-portato"/)
 })

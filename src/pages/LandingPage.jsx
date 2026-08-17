@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useScroll, useTransform } from 'framer-motion'
 import AuthBox from '../components/AuthBox.jsx'
 import VideoBackground0311 from '../components/VideoBackground0311.jsx'
 import { useSkyTheme } from '../SkyThemeContext.jsx'
@@ -104,7 +105,7 @@ const TIMELINE_DATA = [
 ]
 
 function buildStarShadow() {
-  return Array.from({ length: 90 }, () => {
+  return Array.from({ length: 220 }, () => {
     const x = Math.round(Math.random() * 2000)
     const y = Math.round(Math.random() * 4000)
     const o = (Math.random() * 0.6 + 0.3).toFixed(2)
@@ -127,7 +128,27 @@ function LandingPage() {
   const hasAuthenticatedSession = Boolean(currentUser)
   const accessBoxRef = useRef(null)
   const accessSectionRef = useRef(null)
+  const heroRef = useRef(null)
+  const methodRef = useRef(null)
   const starShadow = useMemo(() => buildStarShadow(), [])
+
+  // Sfondo video: sparisce (opacità 0) uscendo dall'Hero, lascia solo il
+  // cielo stellato durante pitch/slider/pannelli, poi ricompare gradualmente
+  // entrando in Metodologia — ma più scuro rispetto all'Hero, mai al 100%.
+  const MAX_RETURN_OPACITY = 0.45
+  const { scrollYProgress: heroFadeProgress } = useScroll({
+    target: heroRef,
+    offset: ['start start', 'end start'],
+  })
+  const { scrollYProgress: methodFadeProgress } = useScroll({
+    target: methodRef,
+    offset: ['start end', 'start 30%'],
+  })
+  const bgVideoOpacity = useTransform(
+    [heroFadeProgress, methodFadeProgress],
+    ([heroProgress, methodProgress]) =>
+      Math.max(1 - heroProgress, methodProgress * MAX_RETURN_OPACITY),
+  )
 
   const scrollAccessSectionIntoView = useCallback(() => {
     if (typeof window === 'undefined') return
@@ -374,14 +395,14 @@ function LandingPage() {
   return (
     <div className="tst-nebula">
       <div className="tst-nebula-bg" aria-hidden="true">
-        <VideoBackground0311 className="tst-nebula-bg-video" />
+        <VideoBackground0311 className="tst-nebula-bg-video" style={{ opacity: bgVideoOpacity }} />
         <div className="tst-nebula-bg-corner-vignette" />
         <div className="tst-nebula-bg-gradient" />
         <div className="tst-nebula-bg-stars" style={{ boxShadow: starShadow }} />
       </div>
 
       <main className="tst-nebula-main">
-        <section data-screen-label="Hero" className="tst-nebula-hero">
+        <section data-screen-label="Hero" className="tst-nebula-hero" ref={heroRef}>
           <div className="tst-nebula-hero-word">
             {'TST'.split('').map((letter, index) => (
               <span key={letter + index} style={{ animationDelay: `${index * 130}ms` }}>
@@ -504,6 +525,7 @@ function LandingPage() {
           data-screen-label="Metodologia"
           id="tst-method"
           data-reveal-id="method"
+          ref={methodRef}
           className={`tst-nebula-method tst-nebula-reveal ${revealed.method ? 'is-revealed' : ''}`}
         >
           <div className="tst-nebula-method-head">
