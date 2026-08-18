@@ -25,7 +25,7 @@ import SectionDivider from './SectionDivider'
 import FioreCorrenti from './FioreCorrenti'
 import { buildCorrentDataFromRecord } from '../../utils/galassiaData.js'
 import { buildLessicoAnaliticoViewModel } from '../../utils/galassiaLessicoViewModel.js'
-import { REPORT_NAV_UI, REPORT_SHELL_UI, APPROFONDIMENTO_UI, SINTESI_UI } from './reportUiCopy.js'
+import { REPORT_NAV_UI, REPORT_SHELL_UI, SINTESI_UI } from './reportUiCopy.js'
 import { SECTION_INTROS } from '../../content/reportRestitution.js'
 
 // Il flat-config ESLint del repo non rileva l'uso di `motion` via JSX member.
@@ -38,7 +38,6 @@ const GalassiaView = lazy(() => import('./GalassiaView'))
 const ForMusiciansView = lazy(() => import('./ForMusiciansView.jsx'))
 const QuattroRapporti = lazy(() => import('./QuattroRapporti'))
 const SintesiCorrenti = lazy(() => import('./SintesiCorrenti'))
-const ApprofondimentoSezioni = lazy(() => import('./ApprofondimentoSezioni'))
 
 /* ── Fallback Suspense: 3 dot pulsanti del colore corrente ──────────── */
 function DotsSpinner({ color = '#4ade80' }) {
@@ -91,7 +90,6 @@ function readModalitaFromHash() {
     return isMobileReportViewport() ? 'report' : 'galassia'
   }
   if (window.location.hash === '#for-musicians') return 'for-musicians'
-  if (window.location.hash === '#aree-sonore') return 'aree-sonore'
   if (window.location.hash === '#famiglie') return 'famiglie'
   return 'report'
 }
@@ -99,7 +97,6 @@ function readModalitaFromHash() {
 // Voci del percorso di lettura laterale che aprono una stanza di
 // approfondimento indipendente (invece di scrollare nel report principale).
 const ROOM_BY_GROUP = {
-  'report-group-approfondimento': 'aree-sonore',
   'report-group-relazioni': 'famiglie',
 }
 // "Forza delle tue correnti emotive" e "Dizionario emotivo" non hanno una
@@ -112,7 +109,6 @@ const SCROLL_ANCHOR_BY_GROUP = {
 // nessuna stanza lo nasconde, quindi il suo target di scroll resta stabile.
 const STATIC_GROUP_OPEN = { 'report-group-profilo-generale': true }
 
-const AREE_SONORE_GROUP = REPORT_GROUPS.find((g) => g.id === 'report-group-approfondimento')
 const FAMIGLIE_GROUP = REPORT_GROUPS.find((g) => g.id === 'report-group-relazioni')
 
 /**
@@ -139,7 +135,6 @@ export default function ReportShell({
   const [modalita, setModalita] = useState(readModalitaFromHash)
   
   // Refs for accessibility focus restoration
-  const areeSonoreEntryBtnRef = useRef(null)
   const famiglieEntryBtnRef = useRef(null)
   const musiciansEntryBtnRef = useRef(null)
   const musiciansBackButtonRef = useRef(null)
@@ -235,9 +230,7 @@ export default function ReportShell({
     const previousMode = previousModalitaRef.current
     previousModalitaRef.current = modalita
     if (modalita === 'report') {
-      if (previousMode === 'aree-sonore') {
-        requestAnimationFrame(() => areeSonoreEntryBtnRef.current?.focus())
-      } else if (previousMode === 'famiglie') {
+      if (previousMode === 'famiglie') {
         requestAnimationFrame(() => famiglieEntryBtnRef.current?.focus())
       } else if (previousMode === 'for-musicians') {
         requestAnimationFrame(() => musiciansEntryBtnRef.current?.focus())
@@ -444,7 +437,6 @@ export default function ReportShell({
       <motion.div className="report-tst-cosmic-bg" aria-hidden="true" />
       <motion.div className="report-page-wrapper__stars" aria-hidden="true" />
       <VideoBackground0311 showOverlay className="report-page-wrapper__video" />
-      <motion.div className="report-page-wrapper__vignette" aria-hidden="true" />
       <div className="report-xp-progress" aria-hidden="true">
         <div ref={progressBarRef} className="report-xp-progress-bar" style={{ width: '0%' }} />
       </div>
@@ -675,27 +667,6 @@ export default function ReportShell({
                 </RoomRevealContent>
               </section>
 
-              <SectionDivider />
-
-              {/* ── STANZA 06: AREE SONORE DEL TEST ─────────────────────── */}
-              <section id="report-group-approfondimento" className="report-room-section report-room-section--preview">
-                <header className="report-room-header">
-                  <span className="report-room-badge">06</span>
-                  <h2 className="report-room-title">Aree sonore del test</h2>
-                </header>
-                <RoomRevealContent>
-                  <p className="report-room-preview-lead">{APPROFONDIMENTO_UI.lead}</p>
-                  <button
-                    ref={areeSonoreEntryBtnRef}
-                    type="button"
-                    className="report-room-preview-cta"
-                    onClick={(event) => openModalita('aree-sonore', event)}
-                  >
-                    Apri Aree sonore
-                  </button>
-                </RoomRevealContent>
-              </section>
-
               {showEmotionalIntegrations ? (
                 <>
                   <SectionDivider />
@@ -767,58 +738,6 @@ export default function ReportShell({
           </div>
         </div>
       </main>
-
-      {/* ── STANZA SEPARATA: AREE SONORE ──────────────────────────────────── */}
-      <div
-        className={`report-tst-dettaglio-layer${modalita === 'aree-sonore' ? ' is-open' : ''}`}
-        data-report-mode="aree-sonore"
-        role="dialog"
-        aria-modal={modalita === 'aree-sonore'}
-        aria-label="Aree sonore del test"
-        aria-hidden={modalita !== 'aree-sonore'}
-        inert={modalita !== 'aree-sonore' ? true : undefined}
-      >
-        <div className="report-tst-dettaglio-container">
-          <header className="report-dettaglio-header">
-            <button
-              type="button"
-              className="report-dettaglio-back-btn"
-              onClick={() => changeModalita('report')}
-            >
-              ← Torna al report principale
-            </button>
-            <p className="report-dettaglio-eyebrow">TST — Livello di Approfondimento</p>
-            <h1 className="report-dettaglio-title">{AREE_SONORE_GROUP?.title}</h1>
-            {AREE_SONORE_GROUP?.subtitle ? (
-              <p className="report-dettaglio-lead">{AREE_SONORE_GROUP.subtitle}</p>
-            ) : null}
-          </header>
-
-          <div className="report-detail-navigation__workspace">
-            <div id="report-tst-approfondimento-detail" className="report-tst-section-anchor">
-              <Suspense fallback={<DotsSpinner color={correnteColore} />}>
-                <ApprofondimentoSezioni
-                  sezioniData={approfondimento?.sezioniData}
-                  sezioniTest={approfondimento?.sezioniTest}
-                  filtroMusicale={filtroMusicale}
-                  correnteColore={correnteColore}
-                  plainLanguage
-                />
-              </Suspense>
-            </div>
-          </div>
-
-          <footer className="report-dettaglio-footer">
-            <button
-              type="button"
-              className="report-dettaglio-back-btn report-dettaglio-back-btn--bottom"
-              onClick={() => changeModalita('report')}
-            >
-              ← Torna al report principale
-            </button>
-          </footer>
-        </div>
-      </div>
 
       {/* ── STANZA SEPARATA: FAMIGLIE IN RELAZIONE ──────────────────────────── */}
       {showEmotionalIntegrations ? (

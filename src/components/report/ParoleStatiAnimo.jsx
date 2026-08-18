@@ -14,10 +14,10 @@ const FAMILY_DISPLAY_NAMES = {
 }
 
 const FAMILY_COLORS = {
-  Blu: '#3b82f6',
-  Rosso: '#ef4444',
-  Verde: '#22c55e',
-  Giallo: '#eab308',
+  Blu: '#60a5fa',
+  Rosso: '#f87171',
+  Verde: '#4ade80',
+  Giallo: '#fde047',
   Grigio: '#94a3b8',
 }
 

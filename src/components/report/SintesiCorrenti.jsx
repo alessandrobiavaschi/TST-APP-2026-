@@ -19,11 +19,11 @@ void motion
  */
 
 const FAMILY_REF = {
-  Verde: { color: '#16a34a' },
-  Blu: { color: '#2563eb' },
-  Rosso: { color: '#dc2626' },
-  Giallo: { color: '#ca8a04' },
-  Grigio: { color: '#6b7280' },
+  Verde: { color: '#4ade80' },
+  Blu: { color: '#60a5fa' },
+  Rosso: { color: '#f87171' },
+  Giallo: { color: '#fde047' },
+  Grigio: { color: '#9ca3af' },
 }
 const FAMILY_ORDER = ['Verde', 'Blu', 'Rosso', 'Giallo', 'Grigio']
 
@@ -459,11 +459,11 @@ export default function SintesiCorrenti({
   const renderDetailPanel = () => {
     if (!activeDetailFamily) return null
     const colors = {
-      verde: '#16a34a',
-      blu: '#2563eb',
-      rosso: '#dc2626',
-      giallo: '#ca8a04',
-      grigio: '#6b7280',
+      verde: '#4ade80',
+      blu: '#60a5fa',
+      rosso: '#f87171',
+      giallo: '#fde047',
+      grigio: '#9ca3af',
     }
     const activeKey = hoveredFamilyKey || activeDetailFamily.familyKey
     const activeItem = totalScoreRadarData.find(d => d.familyKey === activeKey) || activeDetailFamily

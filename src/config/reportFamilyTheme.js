@@ -24,7 +24,7 @@ export const FAMILY_THEME = {
     macro: 'Calma',
     tagline: 'Caratteri emotivi che prediligono calma, riposo e contemplazione',
     gradient: { from: '#166534', to: '#14532d' },
-    dot: '#22c55e',
+    dot: '#4ade80',
     personalizedTitles: {
       natura: 'La Natura Contemplativa',
       racconto: 'Memoria, Esperienza ed essere Musica',
@@ -43,7 +43,7 @@ export const FAMILY_THEME = {
     macro: 'Volitività',
     tagline: 'Caratteri emotivi in cui prevalgono assertività e spinta all’azione',
     gradient: { from: '#991b1b', to: '#7f1d1d' },
-    dot: '#ef4444',
+    dot: '#f87171',
     personalizedTitles: {
       natura: 'La Natura Volitivo-collerica',
       racconto: 'Memoria, Esperienza ed essere Musica',
@@ -62,7 +62,7 @@ export const FAMILY_THEME = {
     macro: 'Malinconia',
     tagline: 'Caratteri emotivi che prediligono riflessività, dialogo intimo e percezione interiore',
     gradient: { from: '#1e3a8a', to: '#172554' },
-    dot: '#3b82f6',
+    dot: '#60a5fa',
     personalizedTitles: {
       natura: 'La Natura Lunare',
       racconto: 'Memoria, Esperienza ed essere Musica',
@@ -81,7 +81,7 @@ export const FAMILY_THEME = {
     macro: 'Entusiasmo',
     tagline: 'Caratteri emotivi orientati al movimento, alla scoperta e all’entusiasmo',
     gradient: { from: '#a16207', to: '#854d0e' },
-    dot: '#eab308',
+    dot: '#fde047',
     personalizedTitles: {
       natura: 'La Natura Gioioso-Sanguinico',
       racconto: 'Memoria, Esperienza ed essere Musica',
@@ -100,7 +100,7 @@ export const FAMILY_THEME = {
     macro: 'Anaffettività',
     tagline: 'Corrente agnostico-anaffettiva orientata al distacco intellettuale',
     gradient: { from: '#374151', to: '#1f2937' },
-    dot: '#6b7280',
+    dot: '#9ca3af',
     personalizedTitles: {
       natura: 'La Natura Intellettuale-Razionale',
       racconto: 'Memoria, Esperienza ed essere Musica',

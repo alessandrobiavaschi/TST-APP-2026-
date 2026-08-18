@@ -81,6 +81,7 @@ import {
 import { RAW_DOC_VISUAL } from '../config/galaxyDocBridge.ts'
 import {
   buildNaturaNarrative,
+  buildRelationBreakdown,
   NATURA_NARRATIVE_STATUS,
 } from './buildNaturaNarrative.js'
 import {
@@ -329,7 +330,7 @@ const PORTATO_ORDER = ['Simpatia', 'Antipatia', 'Indifferenza']
 const PORTATO_PRESENTATION_LABELS = {
   Simpatia: 'Sintonia',
   Antipatia: 'Distonia',
-  Indifferenza: 'Distanza',
+  Indifferenza: 'Indifferenza',
 }
 
 const PORTATO_PAD_VERTICES = {
@@ -432,11 +433,16 @@ export function detectContrastingPresence(levels = {}) {
 /**
  * Restituisce il levelLabel da mostrare nel tag visivo della Prospettiva 1.
  */
-function resolveNaturaLevelLabel(status) {
+function resolveNaturaLevelLabel(status, harmonyDescriptor) {
   if (status === NATURA_NARRATIVE_STATUS.EMPTY) return 'Dati insufficienti'
   if (status === NATURA_NARRATIVE_STATUS.TRUE_TIE) return 'Prevalenza condivisa — profilo composito'
   if (status === NATURA_NARRATIVE_STATUS.ROUNDED_TIE) return 'Valori ravvicinati — profilo composito'
-  if (status === NATURA_NARRATIVE_STATUS.COMPOSITE) return 'Profilo composito — compresenza emotiva'
+  if (status === NATURA_NARRATIVE_STATUS.COMPOSITE) {
+    const harmonyLabel = harmonyDescriptor
+      ? harmonyDescriptor.replace(/^(un'|una\s+)/, '')
+      : 'compresenza emotiva'
+    return `Profilo composito — ${harmonyLabel}`
+  }
   return 'Prevalenza riconoscibile'
 }
 
@@ -826,6 +832,14 @@ export function buildReportData({
       colore: volitiveTheme.dot,
       valore: Number(levels?.[volitiveTheme.key]) || 0,
     }
+    const melancholicTheme = FAMILY_THEME.Blu
+    const melancholicFamily = {
+      familyName: 'Blu',
+      key: melancholicTheme.key,
+      nome: melancholicTheme.corrente,
+      colore: melancholicTheme.dot,
+      valore: Number(levels?.[melancholicTheme.key]) || 0,
+    }
     const isNatura = meta.id === 'natura'
     const isSe = meta.id === 'se'
     const isAltro = meta.id === 'altro'
@@ -848,6 +862,17 @@ export function buildReportData({
         : usesNaturaBaseFamily
           ? naturaBaseFamily
           : localPrincipale
+    // L'ago della bilancia è la componente interpretativa fissa della lente: non coincide
+    // sempre con la famiglia più alta nel radar della lente (vedi graduatoria[0]) né con la
+    // natura di base — per "Rapporto con te stesso" è sempre Malinconica, anche quando non è
+    // la famiglia dominante del profilo.
+    const agoDellaBilancia = isAltro
+      ? enthusiasmFamily
+      : isAgire
+        ? volitiveFamily
+        : isSe
+          ? melancholicFamily
+          : naturaFamily
     const relationshipNarrative = isNatura
       ? buildNaturaNarrative({
           dominantFamilyKey: naturaFamily.key,
@@ -867,7 +892,7 @@ export function buildReportData({
       : definizioneParagrafi.slice(0, 2)
     const definizione = definizioneParagrafi.join(' ')
     const levelLabel = isNatura
-      ? resolveNaturaLevelLabel(relationshipNarrative.status)
+      ? resolveNaturaLevelLabel(relationshipNarrative.status, relationshipNarrative.harmonyDescriptor)
       : relationshipNarrative?.levelLabel || ''
 
     return {
@@ -892,6 +917,19 @@ export function buildReportData({
       composizioneSemplice: meta.composizioneSemplice,
       cosaIndica: meta.cosaIndica,
       correntePrincipale: { nome: principale.nome, colore: principale.colore, familyKey: principale.key },
+      agoDellaBilancia: (() => {
+        const agoItem = graduatoria.find((item) => item.familyKey === agoDellaBilancia.key)
+        return {
+          nome: agoDellaBilancia.nome,
+          colore: agoDellaBilancia.colore,
+          familyKey: agoDellaBilancia.key,
+          valore: agoItem?.valore ?? agoDellaBilancia.valore,
+          rawValue: agoItem?.rawValue ?? 0,
+          distributionPercent: agoItem?.distributionPercent ?? 0,
+          coincideConFamigliaPrevalente: graduatoria[0]?.familyKey === agoDellaBilancia.key,
+        }
+      })(),
+      relationBreakdown: buildRelationBreakdown({ agoFamilyKey: agoDellaBilancia.key, ranking: graduatoria }),
       datiRadar,
       graduatoria,
       topLevelFamilies,

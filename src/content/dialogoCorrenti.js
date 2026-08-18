@@ -90,7 +90,7 @@ export function getFamigliaLabel(familyKey) {
 
 export function getFamigliaDot(familyKey) {
   const name = FAMILY_NAME_BY_KEY[String(familyKey).toLowerCase()] || ''
-  return FAMILY_THEME[name]?.dot || '#6b7280'
+  return FAMILY_THEME[name]?.dot || '#9ca3af'
 }
 
 export function getDialogoKeywords(baseFamilyKey, partnerFamilyKey) {

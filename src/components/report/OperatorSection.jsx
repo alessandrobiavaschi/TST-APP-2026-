@@ -16,11 +16,11 @@ import InfoTip from './InfoTip.jsx'
 import { APPROFONDIMENTO_AREAS, APPROFONDIMENTO_UI, getAreaLabel } from './reportUiCopy.js'
 
 const BAR_COLORS = {
-  Blu: '#3b82f6',
-  Rosso: '#ef4444',
-  Verde: '#22c55e',
-  Giallo: '#eab308',
-  Grigio: '#6b7280',
+  Blu: '#60a5fa',
+  Rosso: '#f87171',
+  Verde: '#4ade80',
+  Giallo: '#fde047',
+  Grigio: '#9ca3af',
 }
 
 const OPERATOR_LEGEND_ORDER = [

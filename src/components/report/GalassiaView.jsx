@@ -519,15 +519,15 @@ const PORTATO_CARD_BY_KEY = Object.fromEntries(
 )
 
 const CORRENTE_COLOR_BY_NAME = {
-  Malinconica: '#3b82f6',
-  Marziale: '#ef4444',
-  Flemmatica: '#22c55e',
-  Entusiasta: '#eab308',
+  Malinconica: '#60a5fa',
+  Marziale: '#f87171',
+  Flemmatica: '#4ade80',
+  Entusiasta: '#fde047',
   Razionale: '#94a3b8',
-  Malinconia: '#3b82f6',
-  Volitività: '#ef4444',
-  Calma: '#22c55e',
-  Entusiasmo: '#eab308',
+  Malinconia: '#60a5fa',
+  Volitività: '#f87171',
+  Calma: '#4ade80',
+  Entusiasmo: '#fde047',
   Anaffettività: '#94a3b8',
 }
 
@@ -549,9 +549,13 @@ const DISPOSITION_ID_BY_FAMILY_KEY = {
 
 const FAMILY_KEY_BY_COLOR = {
   '#3b82f6': 'blu',
+  '#60a5fa': 'blu',
   '#ef4444': 'rosso',
+  '#f87171': 'rosso',
   '#22c55e': 'verde',
+  '#4ade80': 'verde',
   '#eab308': 'giallo',
+  '#fde047': 'giallo',
   '#6b7280': 'grigio',
   '#9ca3af': 'grigio',
 }
@@ -1859,7 +1863,7 @@ function GalassiaCrtPanel({
       className={`galassia-view__crt${isCompact ? ' galassia-view__crt--compact' : ''}`}
       aria-label={GALASSIA_UI.monitorAria}
     >
-      <div className="galassia-view__crt-bezel" style={{ '--panel-color': panel.colore || '#22c55e' }}>
+      <div className="galassia-view__crt-bezel" style={{ '--panel-color': panel.colore || '#4ade80' }}>
         <div className="galassia-view__crt-head">
           <p className="galassia-view__crt-kicker">
             {isIdle

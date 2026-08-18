@@ -17,11 +17,11 @@ const NATURE_LABELS = {
 }
 
 const BASE_COLORS = {
-  blu: '#3b82f6',
-  rosso: '#ef4444',
-  verde: '#22c55e',
-  giallo: '#eab308',
-  grigio: '#6b7280',
+  blu: '#60a5fa',
+  rosso: '#f87171',
+  verde: '#4ade80',
+  giallo: '#fde047',
+  grigio: '#9ca3af',
 }
 
 const SHADES = {

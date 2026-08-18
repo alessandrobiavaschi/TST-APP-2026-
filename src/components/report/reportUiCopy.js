@@ -243,11 +243,11 @@ export const PORTATO_UI = {
   eyebrow: 'Vissuto del test',
   title: 'La tua relazione con il contenuto musicale',
   lead:
-    'Il punto combina sintonia, distonia e distanza emerse durante questo ascolto. Più si avvicina a un vertice, maggiore è il peso di quella modalità nel test.',
+    'Il punto combina sintonia, distonia e distanza emerse durante questo ascolto.',
   labels: {
     Simpatia: 'Sintonia',
     Antipatia: 'Distonia',
-    Indifferenza: 'Distanza',
+    Indifferenza: 'Indifferenza',
   },
   padAria: 'Orientamento dell’ascolto tra sintonia, distonia e distanza',
   padCenterLabel: 'Compresenza',
@@ -428,7 +428,7 @@ export const GALASSIA_PORTATO_UI = {
   triadAria: 'Bilancio portato esperienziale: sintonia, distonia, distanza',
   axisAttrazione: 'Sintonia',
   axisRifiuto: 'Distonia',
-  axisDistacco: 'Distanza',
+  axisDistacco: 'Indifferenza',
   cosaIndicaLabel: 'Nel modello TST',
   cards: [
     {
@@ -449,7 +449,7 @@ export const GALASSIA_PORTATO_UI = {
     },
     {
       id: 'Indifferenza',
-      label: 'Distanza',
+      label: 'Indifferenza',
       areas: 'Neutro · Distacco',
       metaphor: 'Presa di distanza',
       meaning:

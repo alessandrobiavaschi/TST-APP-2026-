@@ -148,6 +148,52 @@ const RELATION_LABEL_BY_KIND = {
   tension: 'tensione',
 }
 
+/**
+ * Scomposizione generica influenze/tensioni/armonia rispetto a una famiglia di
+ * riferimento (l'ago della bilancia della lente). Usata dal toggle "Vedi calcoli
+ * e relazioni tra le famiglie" per tutti e quattro i rapporti: la famiglia di
+ * riferimento non è sempre la più alta nella graduatoria della lente (es. Marziale
+ * resta l'ago del rapporto con l'Agire anche quando un'altra famiglia ha più punti).
+ */
+export function buildRelationBreakdown({ agoFamilyKey = '', ranking = [] } = {}) {
+  const measurable = ranking.filter((item) => (Number(item?.rawValue) || 0) > 0)
+  const agoItem = measurable.find((item) => item.familyKey === agoFamilyKey) || null
+  if (!agoItem) return { agoItem: null, others: [], tensions: [], harmony: null }
+
+  const others = measurable
+    .filter((item) => item.familyKey !== agoFamilyKey)
+    .sort((a, b) => (Number(b.rawValue) || 0) - (Number(a.rawValue) || 0))
+    .map((item) => {
+      const gap = percentGap(agoItem.distributionPercent, item.distributionPercent)
+      const rule = NATURA_RELATION_RULES[pairKey(agoFamilyKey, item.familyKey)] || null
+      return {
+        ...item,
+        gap,
+        influenceDescriptor: resolveInfluenceDescriptor(gap),
+        relation: rule
+          ? { kind: rule.kind, label: RELATION_LABEL_BY_KIND[rule.kind] || 'integrazione', copy: rule.copy }
+          : null,
+      }
+    })
+
+  const tensions = others
+    .filter((item) => item.relation?.kind === 'tension')
+    .map((item) => ({ ...item, tensionDescriptor: resolveTensionDescriptor(item.gap) }))
+
+  const harmony = others.length >= 2
+    ? (() => {
+        const gap = Number(((others[0].gap + others[1].gap) / 2).toFixed(1))
+        return {
+          gap,
+          descriptor: resolveHarmonyDescriptor(gap),
+          familyKeys: [others[0].familyKey, others[1].familyKey],
+        }
+      })()
+    : null
+
+  return { agoItem, others, tensions, harmony }
+}
+
 function buildInfluenceParagraph(item, leader, position) {
   const copy = familyCopy(item.familyKey)
   const leaderCopy = familyCopy(leader.familyKey)
@@ -187,10 +233,13 @@ function buildNaturaStoryParagraphs({ status, leader, leaderCopy, influenceFamil
         ].filter(Boolean).join(' '),
       ]
     }
+    const tiedHarmonyClause = harmonyGap !== null
+      ? `, rivelando ${resolveHarmonyDescriptor(harmonyGap)} tra le diverse componenti`
+      : ''
     return [
       opening,
       [
-        `La presenza di più componenti con percentuali apprezzabili conferisce al tuo profilo temperamentale una complessità che unisce profondità con leggerezza, rivelando ${resolveHarmonyDescriptor(harmonyGap)} tra le diverse componenti.`,
+        `La presenza di più componenti con percentuali apprezzabili conferisce al tuo profilo temperamentale una complessità che unisce profondità con leggerezza${tiedHarmonyClause}.`,
         tiedPracticalParagraph,
       ].filter(Boolean).join(' '),
     ]
@@ -219,10 +268,13 @@ function buildNaturaStoryParagraphs({ status, leader, leaderCopy, influenceFamil
   const gap = percentGap(leader.distributionPercent, chosen.item.distributionPercent)
 
   const compresenzaSentence = tensionMatch
-    ? `Il tuo profilo indica una compresenza di componenti sia in accordo che in tensione ${resolveTensionDescriptor(gap)}: emerge infatti anche la natura ${secondaryCopy.family}, che ${chosen.rule.copy}.`
+    ? `Nel tuo profilo compaiono componenti sia in accordo che in tensione ${resolveTensionDescriptor(gap)}: emerge infatti anche la natura ${secondaryCopy.family}, che ${chosen.rule.copy}.`
     : `Il tuo profilo rivela anche la presenza della natura ${secondaryCopy.family}: ${chosen.rule.copy}.`
 
-  const harmonySentence = `La presenza di più componenti con percentuali apprezzabili conferisce al tuo profilo temperamentale una complessità che unisce profondità con leggerezza, rivelando ${resolveHarmonyDescriptor(harmonyGap)} tra le diverse componenti.`
+  const harmonyClause = harmonyGap !== null
+    ? `, rivelando ${resolveHarmonyDescriptor(harmonyGap)} tra le diverse componenti`
+    : ''
+  const harmonySentence = `La presenza di più componenti con percentuali apprezzabili conferisce al tuo profilo temperamentale una complessità che unisce profondità con leggerezza${harmonyClause}.`
 
   const baseSentence = NATURA_PRACTICAL_BASE[leader.familyKey]
   const relationPractical = resolvePracticalRelation(leader.familyKey, chosen.item.familyKey)
@@ -326,19 +378,22 @@ export function buildNaturaNarrative({
   const influenceParagraphs = influenceFamilies.map((item) =>
     buildInfluenceParagraph(item, leader, ranked.findIndex((candidate) => candidate.familyKey === item.familyKey) + 1),
   )
-  const harmonyGap = influenceFamilies.length
+  const secondFamily = ranked[1] || null
+  const thirdFamily = ranked[2] || null
+  const harmonyGap = secondFamily && thirdFamily
     ? Number(
         (
-          influenceFamilies.reduce(
-            (sum, item) => sum + percentGap(leader.distributionPercent, item.distributionPercent),
-            0,
-          ) / influenceFamilies.length
+          (percentGap(leader.distributionPercent, secondFamily.distributionPercent) +
+            percentGap(leader.distributionPercent, thirdFamily.distributionPercent)) / 2
         ).toFixed(1),
       )
     : null
+  const harmonyDescriptor = harmonyGap !== null ? resolveHarmonyDescriptor(harmonyGap) : null
   const harmonyParagraph = harmonyGap !== null
-    ? `La distanza media di ${formatPercent(harmonyGap)} punti percentuali tra la famiglia ${leaderCopy.family} e le altre componenti misurate indica ${resolveHarmonyDescriptor(harmonyGap)} nella composizione del profilo.`
-    : ''
+    ? `La distanza media di ${formatPercent(harmonyGap)} punti percentuali tra la famiglia ${leaderCopy.family} e le prime due componenti successive indica ${harmonyDescriptor} nella composizione del profilo.`
+    : influenceFamilies.length
+      ? 'Non ci sono abbastanza famiglie misurabili per calcolare l\'armonia complessiva del profilo: servono almeno tre famiglie con punti.'
+      : ''
   const relatedFamilies = ranked
     .filter((item) => item.familyKey !== leader.familyKey)
     .map((item) => ({
@@ -358,7 +413,7 @@ export function buildNaturaNarrative({
       ? `Il risultato resta condiviso tra le famiglie ${formatItalianList(topRawFamilies.map((item) => familyCopy(item.familyKey).family))}; nessuna delle due viene trattata come influenza secondaria.`
       : 'Il risultato del rapporto è concentrato interamente sulla famiglia prevalente; nessun’altra famiglia ha ottenuto punti in questa misurazione.'
   const closingParagraph = influenceFamilies.length
-    ? 'La compresenza non indica una contraddizione: descrive orientamenti che possono alternarsi o combinarsi in modo diverso a seconda delle situazioni.'
+    ? 'Questa combinazione non indica una contraddizione: descrive orientamenti che possono alternarsi o combinarsi in modo diverso a seconda delle situazioni.'
     : status === NATURA_NARRATIVE_STATUS.TRUE_TIE
       ? 'La natura di base è quindi composita e conserva il pari peso delle famiglie al vertice.'
     : ranked.length === 1
@@ -395,5 +450,7 @@ export function buildNaturaNarrative({
     frontParagraphs: storyParagraphs,
     highlightedFamilies: highlightedFamilies.map((item) => item.familyKey),
     relations,
+    harmonyGap,
+    harmonyDescriptor,
   }
 }

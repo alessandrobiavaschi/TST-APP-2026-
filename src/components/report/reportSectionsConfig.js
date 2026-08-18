@@ -57,10 +57,6 @@ export const REPORT_SECTIONS = [
   // 4. Un contributo all'educazione emotiva
   { id: 'report-group-educazione', label: "Un contributo all'educazione emotiva", groupId: 'report-group-educazione' },
   { id: 'report-tst-parole', label: 'Parole e stati d\'animo', navStep: '4.1', groupId: 'report-group-educazione', isSub: true },
-
-  // 5. In quali stimoli si accende?
-  { id: 'report-group-approfondimento', label: 'Aree sonore del test', groupId: 'report-group-approfondimento' },
-  { id: 'report-tst-approfondimento', label: 'Aree sonore del test', navStep: '5.1', groupId: 'report-group-approfondimento', isSub: true },
 ]
 
 /** Macro-blocchi accordion del report — ordine = percorso di lettura. */
@@ -108,15 +104,6 @@ export const REPORT_GROUPS = [
     intro: GROUP_INTROS['report-group-educazione'] || '',
     stepLabel: '4',
     readingFocus: 'Parole emerse dal test, dizionario per famiglia, definizioni e copia.',
-    defaultOpen: false,
-  },
-  {
-    id: 'report-group-approfondimento',
-    title: 'Aree sonore del test',
-    subtitle: 'Lettura delle aree sonore e filtro musicale',
-    intro: GROUP_INTROS['report-group-approfondimento'] || '',
-    stepLabel: '6',
-    readingFocus: 'Come le famiglie emotive si attivano area per area.',
     defaultOpen: false,
   },
   {

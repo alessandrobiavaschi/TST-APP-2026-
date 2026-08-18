@@ -100,11 +100,11 @@ function buildResultRecord(docId, data) {
 
 /* Ordine: Blu, Rosso, Giallo, Verde, Grigio – etichette = le 5 famiglie emotive. */
 const RADAR_FAMIGLIE = [
-  { subject: 'Malinconica', key: 'blu', color: '#3b82f6' },
-  { subject: 'Marziale', key: 'rosso', color: '#ef4444' },
-  { subject: 'Entusiasta', key: 'giallo', color: '#eab308' },
-  { subject: 'Flemmatica', key: 'verde', color: '#22c55e' },
-  { subject: 'Razionale', key: 'grigio', color: '#6b7280' },
+  { subject: 'Malinconica', key: 'blu', color: '#60a5fa' },
+  { subject: 'Marziale', key: 'rosso', color: '#f87171' },
+  { subject: 'Entusiasta', key: 'giallo', color: '#fde047' },
+  { subject: 'Flemmatica', key: 'verde', color: '#4ade80' },
+  { subject: 'Razionale', key: 'grigio', color: '#9ca3af' },
 ]
 
 /** Etichette colonne matrice risultati: le 5 macro-aree cromatiche del punteggio. */
@@ -249,12 +249,12 @@ const NORMALIZZAZIONE_SPIEGAZIONE =
 function getDispColor(val) {
   if (!val) return '#94a3b8'
   const v = val.toLowerCase()
-  if (v.includes('malinconia')) return '#3b82f6'
-  if (v.includes('malinconic')) return '#3b82f6'
-  if (v.includes('volitiv') || v.includes('marzial')) return '#ef4444'
-  if (v.includes('calma') || v.includes('flemmatic')) return '#22c55e'
-  if (v.includes('entusiasm')) return '#eab308'
-  if (v.includes('anaffettiv') || v.includes('razional')) return '#6b7280'
+  if (v.includes('malinconia')) return '#60a5fa'
+  if (v.includes('malinconic')) return '#60a5fa'
+  if (v.includes('volitiv') || v.includes('marzial')) return '#f87171'
+  if (v.includes('calma') || v.includes('flemmatic')) return '#4ade80'
+  if (v.includes('entusiasm')) return '#fde047'
+  if (v.includes('anaffettiv') || v.includes('razional')) return '#9ca3af'
   return '#94a3b8'
 }
 

@@ -1,4 +1,21 @@
 {
-  "indexes": [],
+  "indexes": [
+    {
+      "collectionGroup": "test_results",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "Data_Ora_Fine_Test", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "aree",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "operatoreUid", "order": "ASCENDING" },
+        { "fieldPath": "order", "order": "ASCENDING" }
+      ]
+    }
+  ],
   "fieldOverrides": []
 }

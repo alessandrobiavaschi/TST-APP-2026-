@@ -109,8 +109,8 @@ export default function SezionePortatoEsperienziale({
               aria-labelledby="report-tst-portato-map-title"
               aria-describedby="report-tst-portato-map-summary"
             >
-              <figcaption id="report-tst-portato-map-title" className="sr-only">
-                {PORTATO_UI.padAria || "Orientamento dell'ascolto tra sintonia, distonia e distanza"}
+              <figcaption id="report-tst-portato-map-title" className="report-tst-portato__figure-caption">
+                Il triangolo mostra come hai reagito istintivamente alla somministrazione del test.
               </figcaption>
               <p id="report-tst-portato-map-summary" className="sr-only">{chartSummary}</p>
               <div className="report-tst-portato__pad" ref={padRef}>

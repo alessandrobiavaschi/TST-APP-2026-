@@ -123,7 +123,7 @@ export const EXAMPLE_CORRENT_DATA = [
     id: 'flemmatica',
     nome: 'Flemmatica',
     familyKey: 'verde',
-    colore: '#22c55e',
+    colore: '#4ade80',
     peso: 82,
     descrizione:
       'La corrente flemmatica custodisce calma, lentezza e contemplazione: una base di equilibrio che modula gli eccessi.',
@@ -143,7 +143,7 @@ export const EXAMPLE_CORRENT_DATA = [
     id: 'collerico_volitiva',
     nome: 'Marziale',
     familyKey: 'rosso',
-    colore: '#ef4444',
+    colore: '#f87171',
     peso: 41,
     descrizione:
       'Questa corrente sostiene l’azione e la direzione intenzionale: in forma armonica porta decisione e responsabilità.',
@@ -171,7 +171,7 @@ export const EXAMPLE_CORRENT_DATA = [
     id: 'malinconica_nostalgica',
     nome: 'Malinconica',
     familyKey: 'blu',
-    colore: '#3b82f6',
+    colore: '#60a5fa',
     peso: 28,
     descrizione:
       'Questa corrente orienta all’interiorità: riflessione, memoria e ascolto profondo di ciò che si è vissuto.',
@@ -215,7 +215,7 @@ export const EXAMPLE_CORRENT_DATA = [
     id: 'entusiasmo',
     nome: 'Entusiasta',
     familyKey: 'giallo',
-    colore: '#eab308',
+    colore: '#fde047',
     peso: 9,
     descrizione:
       'Questa corrente esprime curiosità, movimento e slancio vitale verso il nuovo.',

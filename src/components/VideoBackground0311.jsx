@@ -44,10 +44,21 @@ function VideoBackground0311({ className = '', showOverlay = false, style }) {
     }
     window.addEventListener('visibilitychange', onVisibility)
     window.addEventListener('pageshow', ensurePlaying)
+    /* Alcuni browser (iOS Safari in Low Power Mode, Chrome Android con risparmio
+       dati) bloccano l'autoplay muto finché non arriva un gesto qualsiasi
+       dell'utente: senza questo, il video resta fermo sul primo frame finché
+       non arriva il prossimo giro dell'interval sotto. Intercettando il primo
+       gesto (tap, scroll, tastiera) il video riparte all'istante invece che
+       "solo se clicchi" sul video stesso. */
+    const interactionEvents = ['pointerdown', 'touchstart', 'keydown', 'wheel', 'scroll']
+    interactionEvents.forEach((evt) =>
+      window.addEventListener(evt, ensurePlaying, { passive: true, once: true }),
+    )
     const interval = window.setInterval(ensurePlaying, 1400)
     return () => {
       window.removeEventListener('visibilitychange', onVisibility)
       window.removeEventListener('pageshow', ensurePlaying)
+      interactionEvents.forEach((evt) => window.removeEventListener(evt, ensurePlaying))
       window.clearInterval(interval)
     }
   }, [ensurePlaying])

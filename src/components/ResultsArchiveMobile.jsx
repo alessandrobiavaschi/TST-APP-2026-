@@ -2,11 +2,11 @@ import React from 'react'
 import { formatSubcategoryLabel } from '../utils/reportTaxonomy.js'
 
 const RADAR_FAMIGLIE = [
-  { subject: 'Malinconica', key: 'blu', color: '#3b82f6' },
-  { subject: 'Marziale', key: 'rosso', color: '#ef4444' },
-  { subject: 'Entusiasta', key: 'giallo', color: '#eab308' },
-  { subject: 'Flemmatica', key: 'verde', color: '#22c55e' },
-  { subject: 'Razionale', key: 'grigio', color: '#6b7280' },
+  { subject: 'Malinconica', key: 'blu', color: '#60a5fa' },
+  { subject: 'Marziale', key: 'rosso', color: '#f87171' },
+  { subject: 'Entusiasta', key: 'giallo', color: '#fde047' },
+  { subject: 'Flemmatica', key: 'verde', color: '#4ade80' },
+  { subject: 'Razionale', key: 'grigio', color: '#9ca3af' },
 ]
 
 const MATRICE_HEADERS = [

@@ -255,6 +255,8 @@ export default function QuattroRapporti({
   const ranking = active?.graduatoria?.length
     ? active.graduatoria.map(normalizeFamilyDatum)
     : [...radarData].sort((a, b) => b.valore - a.valore || b.rawValue - a.rawValue)
+  const agoDellaBilancia = active?.agoDellaBilancia || null
+  const relationBreakdown = active?.relationBreakdown || null
 
   const selectFamily = (familyKey) => {
     if (!active?.id || !familyKey) return
@@ -379,108 +381,14 @@ export default function QuattroRapporti({
                   />
                 </RadarChart>
               </ResponsiveContainer>
-              <div className="quattro-rapporti-radar-guide">
-                <p className="quattro-rapporti-radar-caption">{RAPPORTI_UI.radarCaption}</p>
-                <p className="quattro-rapporti-radar-scale">{RAPPORTI_UI.radarScaleNote}</p>
-                <p className="quattro-rapporti-radar-hint">
-                  Passa sugli spigoli per vedere i valori esatti. Seleziona uno spigolo per approfondire.
-                </p>
-              </div>
-              {ranking.length ? (
-                <div className="quattro-rapporti-ranking" aria-label="Classifica completa delle famiglie in questa lente">
-                  <p className="quattro-rapporti-ranking__summary">
-                    {active.esitoComposizione || 'Confronta tutti i valori della lente.'}
-                  </p>
-                  <div className="quattro-rapporti-ranking__list">
-                    {ranking.map((item, index) => {
-                      const sameGraphLevel = index > 0 && item.valore === ranking[index - 1].valore
-                      const tied = sameGraphLevel && item.rawValue === ranking[index - 1].rawValue
-                      return (
-                        <button
-                          key={item.familyKey}
-                          type="button"
-                          className={`quattro-rapporti-ranking__item${item.familyKey === selectedFamilyKey ? ' quattro-rapporti-ranking__item--selected' : ''}`}
-                          style={{ '--qr-family-color': item.colore || FALLBACK_COLOR }}
-                          aria-pressed={item.familyKey === selectedFamilyKey}
-                          onClick={() => selectFamily(item.familyKey)}
-                        >
-                          <span>
-                            {item.corrente}
-                            {tied ? ' · pari punti' : sameGraphLevel ? ' · stesso livello grafico' : ''}
-                          </span>
-                          <strong>{item.valore}/7</strong>
-                          <small>
-                            {item.rawValue} punti · {item.distributionPercent}% della lente
-                          </small>
-                        </button>
-                      )
-                    })}
-                  </div>
-                </div>
-              ) : null}
               {selectedFamily ? (
-                <div
-                  className="quattro-rapporti-radar-detail"
+                <p
+                  className="quattro-rapporti-radar-hint"
                   aria-live="polite"
-                  style={{
-                    '--qr-selected-color': selectedFamily.colore || selectedTheme?.dot || activeColor,
-                  }}
+                  style={{ '--qr-selected-color': selectedFamily.colore || selectedTheme?.dot || activeColor }}
                 >
-                  <p className="quattro-rapporti-radar-detail__value">
-                    {selectedFamily.valore}/7 · {selectedFamily.distributionPercent ?? 0}% dei punti di questa lente
-                  </p>
-                  <CalculationDisclosure>
-                    {selectedShades.length ? (
-                      <div className="quattro-rapporti-shades">
-                        <p>Sfumature della famiglia nel profilo complessivo</p>
-                        <ul>
-                          {selectedShades.map((shade) => (
-                            <li key={shade.rawKey}>
-                              <span>{shade.nome}</span>
-                              <strong>{shade.percentuale}%</strong>
-                            </li>
-                          ))}
-                        </ul>
-                        <small>
-                          Queste percentuali non appartengono alla singola lente: indicano l'attivazione
-                          complessiva di ogni sfumatura sul suo massimo teorico. Sono indipendenti e non
-                          devono sommare a 100%.
-                        </small>
-                      </div>
-                    ) : null}
-                    <div className="calculation-disclosure__method">
-                      <p>{active.composizioneSemplice}</p>
-                      <p><strong>Risposte considerate:</strong> {active.composizione}</p>
-                    </div>
-                    <div className="calculation-disclosure__metrics">
-                      <p><strong>Punti ottenuti:</strong> {selectedFamily.rawValue ?? 0}</p>
-                      <p><strong>Presenza in questo rapporto:</strong> {selectedFamily.distributionPercent ?? 0}%</p>
-                      <p><strong>Valore nel grafico:</strong> {selectedFamily.valore} su 7</p>
-                    </div>
-                    {selectedFamily.maxRawPoints > 0 && selectedFamily.rawValue > 0 ? (
-                      <p className="calculation-disclosure__formula">
-                        Formula: {selectedFamily.rawValue ?? 0} ÷ {selectedFamily.maxRawPoints} × 7,
-                        arrotondata all'intero più vicino. La famiglia con più punti vale quindi 7;
-                        le altre sono proporzionate allo stesso massimo. Il{' '}
-                        {selectedFamily.distributionPercent ?? 0}% indica invece la quota di{' '}
-                        {selectedFamily.rawValue ?? 0} punti sui {selectedFamily.totalRawPoints ?? 0}{' '}
-                        complessivi della lente. Più famiglie possono raggiungere 7 per effetto
-                        dell'arrotondamento: i punti grezzi permettono di distinguere un vero pari merito.
-                        Un 7, un 6 e un 5 restano tutti visibili e descrivono un profilo composto.
-                      </p>
-                    ) : selectedFamily.maxRawPoints > 0 ? (
-                      <p className="calculation-disclosure__formula">
-                        Questa famiglia ha ottenuto 0 punti e rappresenta lo 0% della lente. Per la
-                        sola leggibilità del poligono, il radar mostra il minimo visuale 1/7: non è
-                        un punto ottenuto né una presenza misurata.
-                      </p>
-                    ) : (
-                      <p className="calculation-disclosure__formula">
-                        Non ci sono punti sufficienti per calcolare questa lente.
-                      </p>
-                    )}
-                  </CalculationDisclosure>
-                </div>
+                  <strong>{selectedFamily.corrente}</strong> · {selectedFamily.valore}/7 · {selectedFamily.distributionPercent ?? 0}% della lente
+                </p>
               ) : null}
             </div>
           </div>
@@ -508,6 +416,7 @@ export default function QuattroRapporti({
                     {active.nome}
                   </h3>
                   {active.sottotitolo ? <p className="quattro-rapporti-read__question">{active.sottotitolo}</p> : null}
+                  <p className="quattro-rapporti-read__result-label">Il tuo risultato</p>
                   {active.levelLabel ? <p className="quattro-rapporti-read__level-label">{active.levelLabel}</p> : null}
                   <div className="quattro-rapporti-read__block">
                     {Array.isArray(active.sintesiBreveParagrafi) && active.sintesiBreveParagrafi.length
@@ -523,6 +432,182 @@ export default function QuattroRapporti({
             </AnimatePresence>
           </div>
         </div>
+
+        {active ? (
+          <CalculationDisclosure
+            label="Vedi calcoli e relazioni tra le famiglie"
+            className="quattro-rapporti-toggle"
+          >
+            <div className="qr-toggle-section">
+              <h4>Da cosa nasce questo rapporto</h4>
+              {active.composizioneSemplice ? <p>{active.composizioneSemplice}</p> : null}
+              {active.composizione ? (
+                <p>
+                  <strong>{RAPPORTI_UI.readLabels?.composizione || 'Aree sonore usate'}:</strong> {active.composizione}
+                </p>
+              ) : null}
+            </div>
+
+            <div className="qr-toggle-section">
+              <h4>Come leggere il grafico</h4>
+              <p className="quattro-rapporti-radar-caption">{RAPPORTI_UI.radarCaption}</p>
+              <p className="quattro-rapporti-radar-scale">{RAPPORTI_UI.radarScaleNote}</p>
+            </div>
+
+            <div className="qr-toggle-section">
+              <h4>Classifica delle famiglie</h4>
+              <p className="quattro-rapporti-ranking__summary">
+                {active.esitoComposizione || 'Confronta tutti i valori della lente.'}
+              </p>
+              <div className="quattro-rapporti-ranking__list">
+                {ranking.map((item, index) => {
+                  const sameGraphLevel = index > 0 && item.valore === ranking[index - 1].valore
+                  const tied = sameGraphLevel && item.rawValue === ranking[index - 1].rawValue
+                  return (
+                    <button
+                      key={item.familyKey}
+                      type="button"
+                      className={`quattro-rapporti-ranking__item${item.familyKey === selectedFamilyKey ? ' quattro-rapporti-ranking__item--selected' : ''}`}
+                      style={{ '--qr-family-color': item.colore || FALLBACK_COLOR }}
+                      aria-pressed={item.familyKey === selectedFamilyKey}
+                      onClick={() => selectFamily(item.familyKey)}
+                    >
+                      <span>
+                        {index + 1}ª · {item.corrente}
+                        {tied ? ' · pari punti' : sameGraphLevel ? ' · stesso livello grafico' : ''}
+                      </span>
+                      <strong>{item.valore}/7</strong>
+                      <small>
+                        {item.rawValue} punti · {item.distributionPercent}% della lente
+                      </small>
+                    </button>
+                  )
+                })}
+              </div>
+              {selectedFamily ? (
+                <div className="qr-toggle-family-detail">
+                  {selectedShades.length ? (
+                    <div className="quattro-rapporti-shades">
+                      <p>Sfumature di {selectedFamily.corrente} nel profilo complessivo</p>
+                      <ul>
+                        {selectedShades.map((shade) => (
+                          <li key={shade.rawKey}>
+                            <span>{shade.nome}</span>
+                            <strong>{shade.percentuale}%</strong>
+                          </li>
+                        ))}
+                      </ul>
+                      <small>
+                        Queste percentuali non appartengono alla singola lente: indicano l'attivazione
+                        complessiva di ogni sfumatura sul suo massimo teorico. Sono indipendenti e non
+                        devono sommare a 100%.
+                      </small>
+                    </div>
+                  ) : null}
+                  {selectedFamily.maxRawPoints > 0 && selectedFamily.rawValue > 0 ? (
+                    <p className="calculation-disclosure__formula">
+                      Formula: {selectedFamily.rawValue ?? 0} ÷ {selectedFamily.maxRawPoints} × 7,
+                      arrotondata all'intero più vicino. La famiglia con più punti vale quindi 7;
+                      le altre sono proporzionate allo stesso massimo. Il{' '}
+                      {selectedFamily.distributionPercent ?? 0}% indica invece la quota di{' '}
+                      {selectedFamily.rawValue ?? 0} punti sui {selectedFamily.totalRawPoints ?? 0}{' '}
+                      complessivi della lente. Più famiglie possono raggiungere 7 per effetto
+                      dell'arrotondamento: i punti grezzi permettono di distinguere un vero pari merito.
+                      Un 7, un 6 e un 5 restano tutti visibili e descrivono un profilo composto.
+                    </p>
+                  ) : selectedFamily.maxRawPoints > 0 ? (
+                    <p className="calculation-disclosure__formula">
+                      Questa famiglia ha ottenuto 0 punti e rappresenta lo 0% della lente. Per la
+                      sola leggibilità del poligono, il radar mostra il minimo visuale 1/7: non è
+                      un punto ottenuto né una presenza misurata.
+                    </p>
+                  ) : (
+                    <p className="calculation-disclosure__formula">
+                      Non ci sono punti sufficienti per calcolare questa lente.
+                    </p>
+                  )}
+                </div>
+              ) : null}
+            </div>
+
+            {agoDellaBilancia ? (
+              <div className="qr-toggle-section">
+                <h4>Qual è l'ago della bilancia</h4>
+                <p>
+                  <strong>{agoDellaBilancia.nome}</strong> è la componente di riferimento di questo
+                  rapporto: raggiunge il {agoDellaBilancia.distributionPercent}% dei punti della lente
+                  ({agoDellaBilancia.rawValue} punti, {agoDellaBilancia.valore}/7).
+                </p>
+                <p>
+                  {agoDellaBilancia.coincideConFamigliaPrevalente
+                    ? 'In questo rapporto coincide con la famiglia più alta nel radar.'
+                    : `Non coincide con la famiglia più alta nel radar di questa lente (${ranking[0]?.corrente || '—'}): resta comunque il riferimento fisso di questo rapporto.`}
+                </p>
+              </div>
+            ) : null}
+
+            {relationBreakdown?.others?.length ? (
+              <div className="qr-toggle-section">
+                <h4>Influenze</h4>
+                <ul className="qr-toggle-list">
+                  {relationBreakdown.others.map((item) => (
+                    <li key={item.familyKey}>
+                      <strong>{item.corrente}</strong> — {item.distributionPercent}% (distanza di{' '}
+                      {item.gap} punti percentuali da {agoDellaBilancia?.nome}): influenza{' '}
+                      {item.influenceDescriptor}.
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
+            <div className="qr-toggle-section">
+              <h4>Relazioni e tensioni</h4>
+              {relationBreakdown?.tensions?.length ? (
+                <ul className="qr-toggle-list">
+                  {relationBreakdown.tensions.map((item) => (
+                    <li key={item.familyKey}>
+                      {agoDellaBilancia?.nome} e {item.corrente}: {item.relation.copy} Distanza di{' '}
+                      {item.gap} punti percentuali — tensione {item.tensionDescriptor}.
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>Nessuna tensione reale rilevata in base alla matrice delle famiglie per questo rapporto.</p>
+              )}
+            </div>
+
+            <div className="qr-toggle-section">
+              <h4>Armonia</h4>
+              {relationBreakdown?.harmony ? (
+                <>
+                  <p className="calculation-disclosure__formula">
+                    Distanza {agoDellaBilancia?.nome}–{relationBreakdown.others[0]?.corrente}:{' '}
+                    {relationBreakdown.others[0]?.gap} punti · Distanza {agoDellaBilancia?.nome}–
+                    {relationBreakdown.others[1]?.corrente}: {relationBreakdown.others[1]?.gap} punti ·
+                    Media: {relationBreakdown.harmony.gap} punti
+                  </p>
+                  <p>
+                    Il risultato indica {relationBreakdown.harmony.descriptor} tra le componenti di
+                    questo rapporto.
+                  </p>
+                </>
+              ) : (
+                <p>
+                  Non ci sono abbastanza famiglie misurabili per calcolare l'armonia complessiva di
+                  questo rapporto.
+                </p>
+              )}
+            </div>
+
+            {active.levelLabel ? (
+              <div className="qr-toggle-section">
+                <h4>Come si arriva alla frase finale</h4>
+                <p>Per questo il risultato viene descritto come «{active.levelLabel}».</p>
+              </div>
+            ) : null}
+          </CalculationDisclosure>
+        ) : null}
       </div>
       {isHelpOpen ? <RapportiHelpModal onClose={() => setIsHelpOpen(false)} /> : null}
     </section>

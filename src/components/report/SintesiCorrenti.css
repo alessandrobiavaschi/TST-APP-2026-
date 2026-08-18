@@ -462,9 +462,9 @@
 }
 
 .sintesi-correnti__criterion-card--prevalenza {
-  border-color: color-mix(in srgb, var(--sc-accent, #ef4444) 42%, rgba(255, 255, 255, 0.2));
+  border-color: color-mix(in srgb, var(--sc-accent, #f87171) 42%, rgba(255, 255, 255, 0.2));
   background:
-    linear-gradient(135deg, color-mix(in srgb, var(--sc-accent, #ef4444) 18%, transparent), transparent 70%),
+    linear-gradient(135deg, color-mix(in srgb, var(--sc-accent, #f87171) 18%, transparent), transparent 70%),
     rgba(255, 255, 255, 0.045);
 }
 
@@ -490,7 +490,7 @@
 }
 
 .sintesi-correnti__criterion-card-subvalue {
-  color: color-mix(in srgb, var(--sc-accent, #ef4444) 70%, #ffffff);
+  color: color-mix(in srgb, var(--sc-accent, #f87171) 70%, #ffffff);
   font-family: var(--font-body, system-ui, sans-serif);
   font-size: 1rem;
   font-weight: 800;
@@ -518,7 +518,7 @@
   font-weight: 600;
   line-height: 0.98;
   letter-spacing: 0;
-  color: var(--sc-accent, #ef4444);
+  color: var(--sc-accent, #f87171);
 }
 
 .sintesi-correnti__hero-lead {
@@ -1223,7 +1223,7 @@
   width: 0.38rem;
   height: 0.38rem;
   border-radius: 50%;
-  background: var(--sc-accent, #ef4444);
+  background: var(--sc-accent, #f87171);
 }
 
 @media (max-width: 1080px) {
@@ -1679,7 +1679,7 @@
 }
 .sintesi-correnti__row--active {
   background-color: rgba(255, 255, 255, 0.09) !important;
-  border-left: 3px solid var(--sc-accent, #3b82f6) !important;
+  border-left: 3px solid var(--sc-accent, #60a5fa) !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
@@ -1692,7 +1692,7 @@
 }
 .sintesi-mobile-bar-row--active {
   background-color: rgba(255, 255, 255, 0.09) !important;
-  border-left: 3px solid var(--sc-accent, #3b82f6) !important;
+  border-left: 3px solid var(--sc-accent, #60a5fa) !important;
 }
 
 /* Dominant Nature Badge */
@@ -1702,9 +1702,9 @@
   font-size: 0.58rem !important;
   font-weight: 700 !important;
   letter-spacing: 0.1em !important;
-  color: var(--sc-accent, #3b82f6);
-  background: color-mix(in srgb, var(--sc-accent, #3b82f6) 15%, transparent);
-  border: 1px solid color-mix(in srgb, var(--sc-accent, #3b82f6) 30%, transparent);
+  color: var(--sc-accent, #60a5fa);
+  background: color-mix(in srgb, var(--sc-accent, #60a5fa) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--sc-accent, #60a5fa) 30%, transparent);
   padding: 1px 6px;
   border-radius: 4px;
   margin-left: 8px;
@@ -1847,7 +1847,7 @@
   font-size: 0.58rem !important;
   font-weight: 700;
   letter-spacing: 0.08em;
-  color: var(--panel-accent, #3b82f6);
+  color: var(--panel-accent, #60a5fa);
   margin-bottom: 6px;
 }
 .formula-code {
@@ -1872,12 +1872,12 @@
 /* Focus outlines for accessibility */
 .sintesi-correnti__row:focus-visible,
 .sintesi-mobile-bar-row:focus-visible {
-  outline: 2px solid var(--sc-accent, #3b82f6) !important;
+  outline: 2px solid var(--sc-accent, #60a5fa) !important;
   outline-offset: 2px;
 }
 
 .sintesi-correnti__svg--ellipses g[role="button"]:focus-visible {
-  outline: 2px dashed var(--sc-accent, #3b82f6) !important;
+  outline: 2px dashed var(--sc-accent, #60a5fa) !important;
   outline-offset: 4px;
 }
 
@@ -1889,11 +1889,11 @@
 
 /* ParoleStatiAnimo focus outlines for accessibility */
 .parole-stati-animo__family-btn:focus-visible {
-  outline: 2px solid var(--sc-accent, #3b82f6) !important;
+  outline: 2px solid var(--sc-accent, #60a5fa) !important;
   outline-offset: 3px !important;
 }
 .parole-stati-animo__word-pill:focus-visible {
-  outline: 2px solid var(--sc-accent, #3b82f6) !important;
+  outline: 2px solid var(--sc-accent, #60a5fa) !important;
   outline-offset: 2px !important;
 }
 .parole-stati-animo__close-btn:focus-visible {

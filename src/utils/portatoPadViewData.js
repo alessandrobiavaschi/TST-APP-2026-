@@ -3,7 +3,7 @@ import { allocateRoundedPercentages } from './reportRecordUtils.js'
 const DEFAULT_LABELS = {
   Simpatia: 'Sintonia',
   Antipatia: 'Distonia',
-  Indifferenza: 'Distanza',
+  Indifferenza: 'Indifferenza',
 }
 
 const DIMENSION_CLASS_BY_KEY = {

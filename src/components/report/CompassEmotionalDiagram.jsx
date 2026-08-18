@@ -5,11 +5,11 @@ void motion
 
 /** 5 famiglie emotive: settori radiali con poligoni irregolari. */
 const DISPOSIZIONI = [
-  { label: 'Malinconica', key: 'blu', color: '#3b82f6', sectorIndex: 0 },
-  { label: 'Marziale', key: 'rosso', color: '#ef4444', sectorIndex: 1 },
-  { label: 'Entusiasta', key: 'giallo', color: '#eab308', sectorIndex: 2 },
-  { label: 'Flemmatica', key: 'verde', color: '#22c55e', sectorIndex: 3 },
-  { label: 'Razionale', key: 'grigio', color: '#6b7280', sectorIndex: 4 },
+  { label: 'Malinconica', key: 'blu', color: '#60a5fa', sectorIndex: 0 },
+  { label: 'Marziale', key: 'rosso', color: '#f87171', sectorIndex: 1 },
+  { label: 'Entusiasta', key: 'giallo', color: '#fde047', sectorIndex: 2 },
+  { label: 'Flemmatica', key: 'verde', color: '#4ade80', sectorIndex: 3 },
+  { label: 'Razionale', key: 'grigio', color: '#9ca3af', sectorIndex: 4 },
 ]
 const SECTOR_COUNT = 5
 const DEG_PER_SECTOR = 360 / SECTOR_COUNT

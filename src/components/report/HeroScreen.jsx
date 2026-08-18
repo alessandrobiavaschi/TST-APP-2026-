@@ -279,6 +279,10 @@ export default function HeroScreen({
           font-weight: 420;
           margin-bottom: 0.1em;
         }
+        .hero-screen__cta-primary,
+        .hero-screen__cta-secondary {
+          font-family: var(--font-display);
+        }
         .hero-screen__cta-sintesi {
           display: flex;
           flex-wrap: wrap;

@@ -32,11 +32,11 @@ function withAlpha(hex, alpha) {
 }
 
 const DEFAULT_PETALS = [
-  { nome: 'Verde', colore: '#22c55e' },
-  { nome: 'Rosso', colore: '#ef4444' },
-  { nome: 'Blu', colore: '#3b82f6' },
-  { nome: 'Giallo', colore: '#eab308' },
-  { nome: 'Grigio', colore: '#6b7280' },
+  { nome: 'Verde', colore: '#4ade80' },
+  { nome: 'Rosso', colore: '#f87171' },
+  { nome: 'Blu', colore: '#60a5fa' },
+  { nome: 'Giallo', colore: '#fde047' },
+  { nome: 'Grigio', colore: '#9ca3af' },
 ]
 
 export default function FioreCorrenti({

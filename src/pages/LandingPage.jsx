@@ -104,12 +104,15 @@ const TIMELINE_DATA = [
   },
 ]
 
-function buildStarShadow() {
-  return Array.from({ length: 220 }, () => {
-    const x = Math.round(Math.random() * 2000)
-    const y = Math.round(Math.random() * 4000)
-    const o = (Math.random() * 0.6 + 0.3).toFixed(2)
-    return `${x}px ${y}px rgba(255,255,255,${o})`
+// Coordinate in vw/vh (non px fissi): il contenitore è agganciato al viewport
+// (position: fixed), quindi un range fisso più grande dello schermo tagliava
+// fuori la maggior parte dei punti, lasciando poche stelle visibili.
+function buildStarShadow(count, { blur = 0, minOpacity = 0.3, maxOpacity = 0.9 } = {}) {
+  return Array.from({ length: count }, () => {
+    const x = (Math.random() * 100).toFixed(2)
+    const y = (Math.random() * 100).toFixed(2)
+    const o = (Math.random() * (maxOpacity - minOpacity) + minOpacity).toFixed(2)
+    return `${x}vw ${y}vh ${blur}px rgba(255,255,255,${o})`
   }).join(',')
 }
 
@@ -130,7 +133,11 @@ function LandingPage() {
   const accessSectionRef = useRef(null)
   const heroRef = useRef(null)
   const methodRef = useRef(null)
-  const starShadow = useMemo(() => buildStarShadow(), [])
+  const starShadow = useMemo(() => buildStarShadow(320, { minOpacity: 0.25, maxOpacity: 0.75 }), [])
+  const starGlowShadow = useMemo(
+    () => buildStarShadow(48, { blur: 2, minOpacity: 0.55, maxOpacity: 1 }),
+    [],
+  )
 
   // Sfondo video: sparisce (opacità 0) uscendo dall'Hero, lascia solo il
   // cielo stellato durante pitch/slider/pannelli, poi ricompare gradualmente
@@ -398,7 +405,9 @@ function LandingPage() {
         <VideoBackground0311 className="tst-nebula-bg-video" style={{ opacity: bgVideoOpacity }} />
         <div className="tst-nebula-bg-corner-vignette" />
         <div className="tst-nebula-bg-gradient" />
+        <div className="tst-nebula-bg-nebula-glow" />
         <div className="tst-nebula-bg-stars" style={{ boxShadow: starShadow }} />
+        <div className="tst-nebula-bg-stars tst-nebula-bg-stars--glow" style={{ boxShadow: starGlowShadow }} />
       </div>
 
       <main className="tst-nebula-main">

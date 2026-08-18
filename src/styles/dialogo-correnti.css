@@ -209,9 +209,9 @@
   align-items: center;
   padding: 0.22rem 0.65rem;
   border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--chip-color, #6b7280) 40%, transparent);
-  background: color-mix(in srgb, var(--chip-color, #6b7280) 12%, transparent);
-  color: color-mix(in srgb, var(--chip-color, #6b7280) 85%, #f8fafc);
+  border: 1px solid color-mix(in srgb, var(--chip-color, #9ca3af) 40%, transparent);
+  background: color-mix(in srgb, var(--chip-color, #9ca3af) 12%, transparent);
+  color: color-mix(in srgb, var(--chip-color, #9ca3af) 85%, #f8fafc);
   font-size: 0.78rem;
   font-weight: 500;
   letter-spacing: 0.01em;

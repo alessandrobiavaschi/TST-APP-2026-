@@ -11658,7 +11658,7 @@ body {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: linear-gradient(90deg, #22c55e, #3b82f6);
+  background: linear-gradient(90deg, #4ade80, #60a5fa);
   transform-origin: left center;
 }
 
@@ -11745,16 +11745,16 @@ body {
 }
 
 .legend-blu {
-  background: #3b82f6;
+  background: #60a5fa;
 }
 .legend-rosso {
-  background: #ef4444;
+  background: #f87171;
 }
 .legend-verde {
-  background: #22c55e;
+  background: #4ade80;
 }
 .legend-giallo {
-  background: #eab308;
+  background: #fde047;
 }
 .legend-grigio {
   background: #9ca3af;

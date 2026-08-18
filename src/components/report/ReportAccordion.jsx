@@ -4,11 +4,11 @@ import InfoTip from './InfoTip.jsx'
 
 /** Colore bordo sinistro per ogni sezione (palette leggera) */
 const SEZIONE_ACCENT = {
-  Timbro: 'var(--report-accordion-timbro, #3b82f6)',
+  Timbro: 'var(--report-accordion-timbro, #60a5fa)',
   Intervalli: 'var(--report-accordion-intervalli, #8b5cf6)',
-  Ritmo: 'var(--report-accordion-ritmo, #ef4444)',
-  Melodia: 'var(--report-accordion-melodia, #22c55e)',
-  Armonia: 'var(--report-accordion-armonia, #eab308)',
+  Ritmo: 'var(--report-accordion-ritmo, #f87171)',
+  Melodia: 'var(--report-accordion-melodia, #4ade80)',
+  Armonia: 'var(--report-accordion-armonia, #fde047)',
 }
 
 export default function ReportAccordion({ sezioniTest, plainLanguage = false }) {
