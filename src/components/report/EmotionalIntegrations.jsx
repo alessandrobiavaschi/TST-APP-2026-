@@ -110,7 +110,6 @@ function RelationalDeductionsSection({ correnteDominante, famiglia }) {
 
           <div className="emotional-integrations__map-card">
             <div className="emotional-integrations__map-header">
-              <span className="emotional-integrations__map-tag">// GRAFO DELLE INTERAZIONI</span>
               <h4 className="emotional-integrations__map-title">Mappa dei Vettori Relazionali</h4>
             </div>
             <div className="emotional-integrations__map-svg-wrap">

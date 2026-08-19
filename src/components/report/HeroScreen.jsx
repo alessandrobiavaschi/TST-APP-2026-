@@ -106,7 +106,7 @@ export default function HeroScreen({
 
   const colors = useMemo(() => {
     const media = correnteColoreMedia || darken(correnteColore, 0.32)
-    const chiara = correnteColoreChiara || lighten(correnteColore, 0.35)
+    const chiara = correnteColoreChiara || lighten(correnteColore, 0.16)
     const edgeRgb = parseHex(edgeColor) || BLACK
     const mid = mixToward(media, edgeRgb, 0.62)
     return { media, chiara, mid }
@@ -144,8 +144,8 @@ export default function HeroScreen({
 
   const gradientStyle = {
     backgroundImage: `
-      radial-gradient(circle at 50% 46%, ${rgba(colors.media, 0.12)} 0%, ${rgba(colors.mid, 0.42)} 42%, ${rgba(edgeColor, 0.82)} 84%),
-      linear-gradient(180deg, ${rgba(edgeColor, 0.42)} 0%, ${rgba(edgeColor, 0.08)} 48%, ${rgba(edgeColor, 0.56)} 100%)
+      radial-gradient(circle at 50% 46%, ${rgba(colors.media, 0.08)} 0%, ${rgba(colors.mid, 0.28)} 42%, ${rgba(edgeColor, 0.6)} 84%),
+      linear-gradient(180deg, ${rgba(edgeColor, 0.3)} 0%, ${rgba(edgeColor, 0.05)} 48%, ${rgba(edgeColor, 0.4)} 100%)
     `,
   }
 
@@ -179,12 +179,6 @@ export default function HeroScreen({
         className="report-tst-hero__content hero-screen__content flex w-full flex-col items-center justify-center px-6 py-10 z-10"
       >
         <div className="report-tst-hero__inner report-tst-hero__identity flex w-full max-w-4xl flex-col items-center">
-          <motion.p
-            {...fade(0.1, 12)}
-            className="hero-screen__restituzione-label"
-          >
-            Restituzioni del Test TST
-          </motion.p>
           <motion.h1
             {...fade(0.2, 24)}
             className="hero-screen__sintesi-title"
@@ -215,14 +209,14 @@ export default function HeroScreen({
           <motion.div {...fade(0.45, 8)} className="hero-screen__cta-container flex flex-wrap gap-5 items-center justify-center mt-8">
             <button
               type="button"
-              className="hero-screen__cta-primary"
+              className="hero-screen__cta-primary hero-screen-btn-primary"
               onClick={onReadReport}
             >
               LEGGI IL TUO REPORT
             </button>
             <button
               type="button"
-              className="hero-screen__cta-secondary"
+              className="hero-screen__cta-secondary hero-screen-btn-secondary"
               onClick={onNewTest}
             >
               NUOVO TEST
@@ -262,20 +256,10 @@ export default function HeroScreen({
         .hero-screen__sintesi-title span {
           display: inline;
         }
-        .hero-screen__restituzione-label {
-          font-size: clamp(0.68rem, 1vw, 0.82rem);
-          letter-spacing: 0.14em;
-          text-transform: uppercase;
-          color: var(--report-structural-accent, #c4b5fd);
-          font-weight: 500;
-          margin: 0 0 clamp(0.85rem, 2vh, 1.3rem) 0;
-          opacity: 0.82;
-          text-align: center;
-        }
         .hero-screen__sintesi-bridge {
           display: block;
           font-size: clamp(1.05rem, 1.6vw, 1.65rem);
-          color: color-mix(in srgb, var(--corrente-chiara, #fde68a) 78%, #ffffff);
+          color: color-mix(in srgb, var(--corrente-chiara, #fde68a) 92%, #ffffff);
           font-weight: 420;
           margin-bottom: 0.1em;
         }
@@ -324,7 +308,7 @@ export default function HeroScreen({
           margin-top: clamp(0.85rem, 1.8vh, 1.35rem);
           font-size: clamp(1.85rem, 3.2vw, 3.75rem);
           line-height: 1.05;
-          color: color-mix(in srgb, var(--corrente-chiara, #fde68a) 82%, #ffffff);
+          color: color-mix(in srgb, var(--corrente-chiara, #fde68a) 94%, #ffffff);
         }
         .hero-screen__sintesi-nature-label {
           display: inline;
@@ -343,7 +327,7 @@ export default function HeroScreen({
         .hero-screen__sintesi-nature {
           display: inline;
           font-size: inherit;
-          color: color-mix(in srgb, var(--corrente-chiara, #fde68a) 72%, #ffffff);
+          color: color-mix(in srgb, var(--corrente-chiara, #fde68a) 88%, #ffffff);
         }
         @media (max-width: 768px) {
           .hero-screen__flower-container {

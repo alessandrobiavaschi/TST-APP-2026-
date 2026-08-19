@@ -248,7 +248,6 @@ export default function QuattroRapporti({
     selectedFamilyByRapporto[active?.id] || active?.correntePrincipale?.familyKey || radarData[0]?.familyKey
   const selectedFamily =
     radarData.find((item) => item.familyKey === selectedFamilyKey) || radarData[0] || null
-  const selectedTheme = FAMILY_THEME_BY_KEY[selectedFamily?.familyKey]
   const selectedShades = sottocorrenti.filter(
     (item) => item.familyKey === selectedFamily?.familyKey && item.misurabile !== false,
   )
@@ -298,6 +297,29 @@ export default function QuattroRapporti({
     >
       <div className="quattro-rapporti-section__inner">
         <div className="quattro-rapporti-heading-row">
+          <div className="quattro-rapporti-pager" role="group" aria-label="Naviga tra i quattro rapporti">
+            <button
+              type="button"
+              className="quattro-rapporti-pager__btn"
+              aria-label="Rapporto precedente"
+              disabled={activeIndex === 0}
+              onClick={() => selectRapporto(Math.max(activeIndex - 1, 0))}
+            >
+              ‹
+            </button>
+            <span className="quattro-rapporti-pager__count">
+              {activeIndex + 1} di {rapporti.length}
+            </span>
+            <button
+              type="button"
+              className="quattro-rapporti-pager__btn"
+              aria-label="Rapporto successivo"
+              disabled={activeIndex === rapporti.length - 1}
+              onClick={() => selectRapporto(Math.min(activeIndex + 1, rapporti.length - 1))}
+            >
+              ›
+            </button>
+          </div>
           <button
             type="button"
             className="quattro-rapporti-help-trigger"
@@ -381,15 +403,6 @@ export default function QuattroRapporti({
                   />
                 </RadarChart>
               </ResponsiveContainer>
-              {selectedFamily ? (
-                <p
-                  className="quattro-rapporti-radar-hint"
-                  aria-live="polite"
-                  style={{ '--qr-selected-color': selectedFamily.colore || selectedTheme?.dot || activeColor }}
-                >
-                  <strong>{selectedFamily.corrente}</strong> · {selectedFamily.valore}/7 · {selectedFamily.distributionPercent ?? 0}% della lente
-                </p>
-              ) : null}
             </div>
           </div>
 
@@ -413,10 +426,8 @@ export default function QuattroRapporti({
                 >
                   <h3 className="quattro-rapporti-read__title">
                     <SectionNumber value={activeIndex + 1} size="sm" className="quattro-rapporti-read__index-prefix" />
-                    {active.nome}
+                    {active.sottotitolo || active.nome}
                   </h3>
-                  {active.sottotitolo ? <p className="quattro-rapporti-read__question">{active.sottotitolo}</p> : null}
-                  <p className="quattro-rapporti-read__result-label">Il tuo risultato</p>
                   {active.levelLabel ? <p className="quattro-rapporti-read__level-label">{active.levelLabel}</p> : null}
                   <div className="quattro-rapporti-read__block">
                     {Array.isArray(active.sintesiBreveParagrafi) && active.sintesiBreveParagrafi.length

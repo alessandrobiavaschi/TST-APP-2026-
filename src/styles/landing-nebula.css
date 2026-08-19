@@ -151,6 +151,7 @@
   font-weight: 600;
   margin: 0;
   font-family: 'Public Sans', sans-serif;
+  text-wrap: balance;
 }
 
 .tst-nebula-hero-cta {
@@ -219,6 +220,7 @@
   line-height: 1.4;
   color: #f8f8fa;
   margin: 0;
+  text-wrap: balance;
 }
 
 .tst-nebula-pitch-body {
@@ -227,6 +229,7 @@
   line-height: 1.6;
   color: rgba(242, 242, 245, 0.72);
   margin: 0;
+  text-wrap: pretty;
 }
 
 .tst-nebula-pitch-cta {
@@ -267,6 +270,7 @@
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: #c4b5fd;
+  text-wrap: pretty;
 }
 
 .tst-nebula-slider-intro-title {
@@ -277,6 +281,7 @@
   line-height: 1.25;
   margin: 0;
   color: #f8f8fa;
+  text-wrap: balance;
 }
 
 /* Panel dot rail */
@@ -341,7 +346,7 @@
   max-width: 620px;
   display: flex;
   flex-direction: column;
-  gap: clamp(14px, 1.6vw, 19px);
+  gap: clamp(16px, 1.9vw, 24px);
   opacity: 0;
   transform: translateY(44px);
   transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
@@ -387,14 +392,16 @@
   line-height: 1.12;
   margin: 0;
   color: #fff;
+  text-wrap: balance;
 }
 
 .tst-nebula-panel-paragraph {
   max-width: 590px;
   font-size: clamp(16px, 1.55vw, 18px);
-  line-height: 1.58;
+  line-height: 1.65;
   color: rgba(255, 255, 255, 0.9);
   margin: 0;
+  text-wrap: pretty;
 }
 
 .tst-nebula-panel-footnote {
@@ -403,6 +410,7 @@
   line-height: 1.5;
   color: rgba(255, 255, 255, 0.72);
   margin: 8px 0 0;
+  text-wrap: pretty;
 }
 
 /* Reveal generico (pitch, slider intro, metodologia) */
@@ -439,6 +447,7 @@
   font-size: clamp(32px, 4.4vw, 50px);
   margin: 0;
   color: #f8f8fa;
+  text-wrap: balance;
 }
 
 .tst-nebula-method-intro {
@@ -447,6 +456,7 @@
   color: rgba(242, 242, 245, 0.78);
   max-width: 800px;
   margin: 0;
+  text-wrap: pretty;
 }
 
 .tst-nebula-timeline {
@@ -506,6 +516,7 @@
   color: rgba(242, 242, 245, 0.75);
   margin: 0;
   max-width: 800px;
+  text-wrap: pretty;
 }
 
 /* Footer */

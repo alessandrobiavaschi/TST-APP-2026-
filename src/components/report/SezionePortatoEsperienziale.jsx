@@ -81,8 +81,6 @@ export default function SezionePortatoEsperienziale({
         {viewData.hasData ? (
           <div className="report-tst-portato__layout">
             <div className="report-tst-portato__text">
-              <p className="report-tst-portato__lead">{PORTATO_UI.lead}</p>
-
               <motion.p
                 className="report-tst-portato__interpretation"
                 initial="hidden"
@@ -95,7 +93,12 @@ export default function SezionePortatoEsperienziale({
               </motion.p>
 
               {portato?.descrizione ? (
-                <p className="report-tst-portato__narrative-text">{portato.descrizione}</p>
+                <p
+                  className="report-tst-portato__narrative-text"
+                  style={{ '--narrative-accent': accent }}
+                >
+                  {portato.descrizione}
+                </p>
               ) : null}
             </div>
 
@@ -144,9 +147,6 @@ export default function SezionePortatoEsperienziale({
                     className="report-tst-portato__puck-popover"
                     style={{ '--puck-x': `${viewData.point.x}%`, '--puck-y': `${viewData.point.y}%` }}
                   >
-                    <p className="report-tst-portato__vertex-popover-stats">
-                      {PORTATO_UI.padCenterLabel || 'Compresenza'}
-                    </p>
                     <p className="report-tst-portato__vertex-popover-meaning">
                       {PORTATO_UI.lead}
                     </p>

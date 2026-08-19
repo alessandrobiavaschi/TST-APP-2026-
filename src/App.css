@@ -1222,6 +1222,9 @@
   --sky-text-secondary-on-medium: #0f172a;
   --sky-text-secondary-on-dark: #e2e8f0;
 
+  /* Sfoca leggermente il video di sfondo per mascherare la pixellatura della sorgente compressa */
+  --sky-blur: 1.4px;
+
   /* Variabili effettive usate dai componenti; vengono ridefinite in base a data-sky-tone */
   --sky-text-main: var(--sky-text-main-on-light);
   --sky-text-soft: var(--sky-text-soft-on-light);
@@ -10314,112 +10317,6 @@ body {
   font-weight: 600;
   line-height: 1.2;
   color: var(--text-primary, var(--report-body));
-}
-
-/* --- Accordion Sezioni principali: bordo colorato, titoli chiari --- */
-.report-sezioni-accordion {
-  margin-top: 0;
-}
-
-.report-sezioni-header {
-  margin-bottom: 1.25rem;
-}
-
-.report-sezioni-title {
-  margin: 0 0 0.35rem;
-  font-size: 1.15rem;
-  font-weight: 600;
-  color: var(--report-title);
-}
-
-.report-sezioni-intro {
-  margin: 0;
-  font-size: 0.9rem;
-  color: var(--report-subtitle);
-  line-height: 1.5;
-}
-
-.report-sezioni-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.report-sezione-item {
-  overflow: hidden;
-  border-radius: 1rem;
-  border: 1px solid var(--color-border-soft, #e2e8f0);
-  background: #fff;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-  border-left: 3px solid var(--color-border-soft, #e2e8f0);
-}
-
-.report-sezione-item--open {
-  border-left-color: var(--sezione-accent);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-}
-
-.report-sezione-trigger {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 0.9rem 1.1rem;
-  text-align: left;
-  font: inherit;
-  font-weight: 600;
-  color: var(--report-title);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.report-sezione-trigger:hover {
-  background: var(--color-surface-subtle, #f8fafc);
-}
-
-.report-sezione-name {
-  font-size: 1rem;
-}
-
-.report-sezione-chevron {
-  flex-shrink: 0;
-  font-size: 1.1rem;
-  color: var(--report-subtitle);
-  line-height: 1;
-}
-
-.report-sezione-panel {
-  border-top: 1px solid var(--color-border-soft, #f1f5f9);
-}
-
-.report-sezione-panel[hidden] {
-  display: none;
-}
-
-.report-sezione-dl {
-  margin: 0;
-  padding: 1rem 1.1rem 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
-}
-
-.report-sezione-dt {
-  margin: 0;
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  color: var(--report-accent);
-}
-
-.report-sezione-dd {
-  margin: 0;
-  font-size: 0.9rem;
-  line-height: 1.55;
-  color: var(--report-body);
 }
 
 /* --- I quattro rapporti: titolo con linea, tab distinti --- */

@@ -9,6 +9,16 @@ const WHEEL_ZOOM_INTENSITY_PX = 0.0022
 const WHEEL_ZOOM_INTENSITY_LINE = 0.072
 const PINCH_DAMPING = 0.46
 
+// Profondità prospettica: ogni parola ha uno z logico (0 = vicino, 1 = lontano) oltre a x/y.
+// depthFactor smorza quanto una parola reagisce allo zoom in base alla sua distanza:
+// a z=0 (parole 'big') reagisce esattamente come oggi (projScale = camera.scale, qualunque scale);
+// a z>0 la crescita/spostamento dal centro (0,0) è più lenta — è questa differenza tra parole
+// vicine e lontane a produrre la parallasse ("la costellazione si apre") invece di un semplice scale
+// uniforme condiviso da tutti gli elementi.
+const DEPTH_STRENGTH = 2.2
+const REVEAL_START = 0.55
+const REVEAL_END = 0.82
+
 function seededRnd(n) {
   const x = Math.sin(n * 127.1 + 311.7) * 43758.5453123
   return x - Math.floor(x)
@@ -16,6 +26,22 @@ function seededRnd(n) {
 
 function clamp(v, min, max) {
   return Math.max(min, Math.min(max, v))
+}
+
+function depthFactor(z) {
+  return 1 / (1 + z * DEPTH_STRENGTH)
+}
+
+// Posizione/dimensione: proporzionale dall'origine (0,0), come .lessico-atlas__canvas
+// (transform-origin: 0 0). A z=0 vale camera.scale per qualunque scale, non solo a riposo.
+function projScale(z, scale) {
+  return 1 + (scale - 1) * depthFactor(z)
+}
+
+// Reveal/opacità: a differenza di projScale, deve differenziare per z già a scale di riposo
+// (altrimenti medium/small comparirebbero subito invece di rivelarsi avvicinandosi).
+function depthReveal(z, scale) {
+  return clamp((scale * depthFactor(z) - REVEAL_START) / (REVEAL_END - REVEAL_START), 0, 1)
 }
 
 function clampCameraToViewport(camera, width = 0, height = 0) {
@@ -111,6 +137,9 @@ const ATLAS_FAMILY_ID_BY_KEY = Object.fromEntries(
   VIEW_MODEL_FAMILIES.map(({ familyKey, familyId }) => [familyKey, familyId]),
 )
 
+// z logico per tier: 0 = vicino alla camera, 1 = lontano (vedi depthFactor/projScale sopra).
+const Z_BY_TIER = { big: 0, medium: 0.45, small: 0.85 }
+
 // ─── Build word atlas (static, computed once) ────────────────────────────────
 function buildAtlasWords() {
   const all = []
@@ -176,6 +205,7 @@ function buildAtlasWords() {
       const colorIdx = (w.ci * 2 + i) % colors.length
       const color = colors[colorIdx]
       const opacity = tier === 'big' ? 0.92 : tier === 'medium' ? 0.78 : 0.55
+      const z = Z_BY_TIER[tier] + seededRnd(globalIdx + 0.9) * 0.15
 
       all.push({
         id: `${familyId}-${i}`,
@@ -192,6 +222,7 @@ function buildAtlasWords() {
         fontWeight,
         color,
         opacity,
+        z,
         x: Math.max(1.5, Math.min(98.5, x)),
         y: Math.max(2, Math.min(97, y)),
       })
@@ -214,7 +245,7 @@ const FAMILY_LIST = FAMILY_ORDER.map((id) => ({ id, ...FAMILY_META[id] }))
 const CAMERA_RESET = { x: 0, y: 0, scale: 1 }
 
 // ─── Dictionary panel ─────────────────────────────────────────────────────────
-function DictionaryPanel({ word, onClose, onSelectWord, viewModel, placement }) {
+function DictionaryPanel({ word, onClose, onSelectWord, viewModel }) {
   const closeButtonRef = useRef(null)
 
   useEffect(() => {
@@ -231,11 +262,12 @@ function DictionaryPanel({ word, onClose, onSelectWord, viewModel, placement }) 
       && p.correnteKey === word.subcurrentId,
   )
 
+  const hasApprofondimento = Boolean(word.subcurrentInterval || dynamicWordInfo)
+
   return (
     <aside
       id="lessico-dictionary-popover"
-      className={`lessico-dict${placement ? ` lessico-dict--inline lessico-dict--${placement.side}` : ''}`}
-      style={placement?.style}
+      className="lessico-dict"
       aria-label="Dizionario emotivo"
     >
       <div className="lessico-dict__bezel" style={{ '--dict-color': word.familyColor }}>
@@ -271,38 +303,12 @@ function DictionaryPanel({ word, onClose, onSelectWord, viewModel, placement }) 
               <dt>Sottocorrente</dt>
               <dd>{word.subcurrentTitle}</dd>
             </div>
-            {word.subcurrentInterval && (
-              <div>
-                <dt>Intervallo musicale</dt>
-                <dd>{word.subcurrentInterval}</dd>
-              </div>
-            )}
             <div>
               <dt>Fonte Lessico</dt>
               <dd style={{ color: dynamicWordInfo ? '#22c55e' : '#cbd5e1', fontWeight: 600 }}>
                 {dynamicWordInfo ? 'Situazionale (dal test)' : 'Stabile (teoria)'}
               </dd>
             </div>
-            {dynamicWordInfo?.fileKeys && dynamicWordInfo.fileKeys.length > 0 && (
-              <div>
-                <dt>Tracce collegate</dt>
-                <dd style={{ color: '#60a5fa' }}>
-                  {dynamicWordInfo.fileKeys.map((f) => `Traccia ${f.replace('File_', '')}`).join(', ')}
-                </dd>
-              </div>
-            )}
-            {dynamicWordInfo && (
-              <>
-                <div>
-                  <dt>Corrente TST</dt>
-                  <dd style={{ fontSize: '0.85rem' }}>{dynamicWordInfo.correnteKey}</dd>
-                </div>
-                <div>
-                  <dt>Famiglia Key</dt>
-                  <dd>{dynamicWordInfo.familyKey}</dd>
-                </div>
-              </>
-            )}
           </dl>
           {word.subcurrentDescription && (
             <div className="lessico-dict__def">
@@ -335,6 +341,41 @@ function DictionaryPanel({ word, onClose, onSelectWord, viewModel, placement }) 
                 })}
               </div>
             </div>
+          )}
+          {hasApprofondimento && (
+            <details className="lessico-dashboard__details lessico-dict__approfondisci">
+              <summary className="text-xs cursor-pointer select-none text-slate-400 hover:text-slate-200">
+                Approfondisci
+              </summary>
+              <dl className="lessico-dict__meta mt-2">
+                {word.subcurrentInterval && (
+                  <div>
+                    <dt>Intervallo musicale</dt>
+                    <dd>{word.subcurrentInterval}</dd>
+                  </div>
+                )}
+                {dynamicWordInfo?.fileKeys && dynamicWordInfo.fileKeys.length > 0 && (
+                  <div>
+                    <dt>Tracce collegate</dt>
+                    <dd style={{ color: '#60a5fa' }}>
+                      {dynamicWordInfo.fileKeys.map((f) => `Traccia ${f.replace('File_', '')}`).join(', ')}
+                    </dd>
+                  </div>
+                )}
+                {dynamicWordInfo && (
+                  <>
+                    <div>
+                      <dt>Corrente TST</dt>
+                      <dd style={{ fontSize: '0.85rem' }}>{dynamicWordInfo.correnteKey}</dd>
+                    </div>
+                    <div>
+                      <dt>Famiglia Key</dt>
+                      <dd>{dynamicWordInfo.familyKey}</dd>
+                    </div>
+                  </>
+                )}
+              </dl>
+            </details>
           )}
         </div>
       </div>
@@ -685,9 +726,8 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
   const [showSearch, setShowSearch] = useState(false)
   const [expandedMobileFamily, setExpandedMobileFamily] = useState(null)
   const [camera, setCamera] = useState(CAMERA_RESET)
-  const [viewportSize, setViewportSize] = useState({ w: 0, h: 0 })
   const [cameraAnimating, setCameraAnimating] = useState(false)
-  const [showDashboard, setShowDashboard] = useState(true)
+  const [showDashboard, setShowDashboard] = useState(false)
 
   const canvasRef = useRef(null)
   const layerRef = useRef(null)
@@ -728,17 +768,21 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
       const matchesFilter = !filterFamily || word.familyId === filterFamily
       if (!matchesSearch || !matchesFilter) return 0.05
       if (normalizedSearch && matchesSearch) return 1
-      return word.opacity
+      return word.opacity * depthReveal(word.z ?? 0, camera.scale)
     },
-    [filterFamily, normalizedSearch],
+    [filterFamily, normalizedSearch, camera.scale],
   )
 
+  // Proiezione prospettica: un punto {x,y[,z]} (percentuale, origine 0,0 come
+  // .lessico-atlas__canvas transform-origin) viene riproiettato in base alla profondità
+  // e allo zoom corrente. z assente (es. nebulose/etichette famiglia) equivale a z=0.
   const getAtlasPoint = useCallback(
-    (point) => point,
-    [],
+    (point) => {
+      const scale = projScale(point.z ?? 0, camera.scale)
+      return { x: point.x * scale, y: point.y * scale, scale }
+    },
+    [camera.scale],
   )
-
-  const wordFontScale = 1 / Math.sqrt(camera.scale)
 
   // ── Camera helpers ─────────────────────────────────────────────────────────
   const applyCamera = useCallback((updater) => {
@@ -836,9 +880,7 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
 
     const updateSize = () => {
       const rect = layer.getBoundingClientRect()
-      const next = { w: rect.width || 1, h: rect.height || 1 }
-      viewportSizeRef.current = next
-      setViewportSize(next)
+      viewportSizeRef.current = { w: rect.width || 1, h: rect.height || 1 }
     }
     const observer = new ResizeObserver(updateSize)
     updateSize()
@@ -1038,10 +1080,10 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
                 borderWidth: '1px',
               }}
               onClick={() => setShowDashboard((prev) => !prev)}
-              aria-label={showDashboard ? 'Nascondi dashboard analisi' : 'Mostra dashboard analisi lessicale'}
+              aria-label={showDashboard ? 'Nascondi analisi avanzata' : 'Mostra analisi avanzata'}
               aria-pressed={showDashboard ? 'true' : 'false'}
             >
-              {showDashboard ? 'Nascondi Analisi' : 'Analisi Lessicale'}
+              {showDashboard ? 'Nascondi analisi avanzata' : 'Analisi avanzata'}
             </button>
           )}
           {showSearch && (
@@ -1081,7 +1123,7 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
           <div
             ref={canvasRef}
             className={`lessico-atlas__canvas${cameraAnimating ? ' lessico-atlas__canvas--animating' : ''}`}
-            style={{ transform: `translate(${camera.x}px, ${camera.y}px) scale(${camera.scale})` }}
+            style={{ transform: `translate(${camera.x}px, ${camera.y}px)` }}
           >
             {/* Nebula backgrounds */}
             {FAMILY_LIST.map((fam) => {
@@ -1124,7 +1166,7 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
               const isEmerged =
                 emergedWords.precise.has(`${word.familyId}|${word.subcurrentId}|${normalizedName}`)
                 || emergedWords.fallback.has(normalizedName)
-              const isFilteredOut = opacity === 0.05
+              const isFilteredOut = opacity <= 0.05
               const pos = getAtlasPoint(word)
               return (
                 <button
@@ -1140,8 +1182,8 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
                     left: `${pos.x}%`,
                     top: `${pos.y}%`,
                     fontSize: isSelected
-                      ? `${clamp(word.fontSize * 1.75, 28, 42) * wordFontScale}px`
-                      : `${word.fontSize * wordFontScale}px`,
+                      ? `${clamp(word.fontSize * 1.75, 28, 42) * pos.scale}px`
+                      : `${word.fontSize * pos.scale}px`,
                     fontWeight: word.fontWeight,
                     '--word-color': word.color,
                     color: word.color,
@@ -1160,23 +1202,6 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
             })}
           </div>
 
-          {selectedWord && (
-            <DictionaryPanel
-              word={selectedWord}
-              onClose={closeDictionary}
-              onSelectWord={setSelectedWord}
-              viewModel={viewModel}
-              placement={{
-                side: camera.x + (selectedWord.x / 100) * viewportSize.w * camera.scale > viewportSize.w * 0.62
-                  ? 'left'
-                  : 'right',
-                style: {
-                  '--dict-anchor-x': `calc(${selectedWord.x * camera.scale}% + ${camera.x}px)`,
-                  '--dict-anchor-y': `calc(${selectedWord.y * camera.scale}% + ${camera.y}px)`,
-                },
-              }}
-            />
-          )}
         </div>
       ) : (
         /* ── Mobile: vertical card stack ────────────────────────────────── */
@@ -1193,7 +1218,7 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
                 aria-expanded={expandedMobileFamily === 'dashboard'}
               >
                 <span className="lessico-mobile-card__dot" style={{ backgroundColor: '#3b82f6' }} aria-hidden />
-                <strong className="lessico-mobile-card__title">Analisi Lessicale 2.0</strong>
+                <strong className="lessico-mobile-card__title">Analisi avanzata</strong>
                 <span className="lessico-mobile-card__count">
                   {viewModel.datiDisponibili ? 'Firma & Forze' : 'Vuoto'}
                 </span>
@@ -1225,24 +1250,24 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
         </div>
       )}
 
-      {/* Dictionary panel */}
-      {selectedWord && isMobile ? (
+      {/* Right-side panel: word detail when selected, otherwise the opt-in dashboard */}
+      {selectedWord ? (
         <DictionaryPanel
           word={selectedWord}
           onClose={closeDictionary}
           onSelectWord={setSelectedWord}
           viewModel={viewModel}
         />
-      ) : !selectedWord && !isMobile && showDashboard && viewModel ? (
-        <aside className="lessico-dict" aria-label="Analisi lessicale">
-          <div className="lessico-dict__bezel" style={{ '--dict-color': '#3b82f6', width: '340px' }}>
+      ) : !isMobile && showDashboard && viewModel ? (
+        <aside className="lessico-dict" aria-label="Analisi lessicale avanzata">
+          <div className="lessico-dict__bezel" style={{ '--dict-color': '#3b82f6' }}>
             <header className="lessico-dict__head" style={{ borderBottomColor: 'rgba(59, 130, 246, 0.2)' }}>
-              <p className="lessico-dict__kicker" style={{ color: '#60a5fa' }}>Analisi Lessicale 2.0</p>
+              <p className="lessico-dict__kicker" style={{ color: '#60a5fa' }}>Analisi avanzata</p>
               <button
                 type="button"
                 className="lessico-dict__close"
                 onClick={() => setShowDashboard(false)}
-                aria-label="Nascondi analisi lessicale"
+                aria-label="Nascondi analisi avanzata"
               >
                 ✕
               </button>

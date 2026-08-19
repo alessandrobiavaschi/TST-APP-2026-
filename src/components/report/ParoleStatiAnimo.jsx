@@ -222,7 +222,7 @@ export default function ParoleStatiAnimo({
                 {FAMILY_DISPLAY_NAMES[k]}
                 {isPrevalente && (
                   <span className="parole-stati-animo__family-btn-tag" aria-hidden="true">
-                    la tua
+                    (la tua)
                   </span>
                 )}
               </button>

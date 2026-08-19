@@ -1,7 +1,7 @@
 import React from 'react'
 import SezioneMusica from './SezioneMusica.jsx'
 import ApprofondimentoSezioni from './ApprofondimentoSezioni.jsx'
-import { MUSICISTI_INTRO } from '../../content/musicaDisposizione.js'
+import { MUSICISTI_INTRO, MUSICISTI_SCHEDE } from '../../content/musicaDisposizione.js'
 
 export default function ForMusiciansView({
   profilo = {},
@@ -11,6 +11,9 @@ export default function ForMusiciansView({
   onClose,
   backButtonRef,
 }) {
+  const scheda = MUSICISTI_SCHEDE[profilo?.famiglia || '']
+  const introMusicale = scheda?.introMusicale || MUSICISTI_INTRO
+
   return (
     <div className="for-musicians-view" style={{ '--music-accent': accentColor }}>
       <header className="for-musicians-view__hero">
@@ -27,9 +30,10 @@ export default function ForMusiciansView({
             </button>
           ) : null}
         </div>
-        <p className="for-musicians-view__eyebrow">TST — Lettura musicale e Aree sonore</p>
+        <p className="for-musicians-view__eyebrow">TST — Lettura musicale</p>
         <h1>For Musicians</h1>
-        <p>{MUSICISTI_INTRO}</p>
+        <p className="for-musicians-view__subtitle">Per musicisti &amp; amanti della Musica</p>
+        <p className="for-musicians-view__intro">{introMusicale}</p>
       </header>
 
       <SezioneMusica

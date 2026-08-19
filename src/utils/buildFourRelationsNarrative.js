@@ -167,7 +167,7 @@ export function buildSelfNarrative({ dominantFamilyKey = '', ranking = [] } = {}
   const awarenessPractical = SELF_AWARENESS_PRACTICAL[awareness] || ''
   const harmonyPractical = SELF_HARMONY_PRACTICAL[harmony]?.(dominantCopy.nature) || ''
   const practicalParagraph = awarenessPractical && harmonyPractical
-    ? `In pratica ${awarenessPractical} Sul piano dei comportamenti, ${harmonyPractical}.`
+    ? `In pratica ${awarenessPractical} Sul piano dei comportamenti, proprio in virtù delle forze della Malinconica, ${harmonyPractical}.`
     : ''
 
   return {
@@ -235,18 +235,18 @@ export function buildOtherNarrative({ dominantFamilyKey = '', ranking = [] } = {
     frontParagraphs: [
       `L'Entusiasmo fa da ago della bilancia in questo rapporto: misura la tua apertura verso l'altro, il coraggio di incontrare persone ed esperienze nuove.`,
       [
-        `Nel tuo profilo, la relazione con la componente ${dominantCopy.family} è di ${relation.label}: il test rivela una ${result.adjective} propensione all'ascolto e alla fiducia.`,
+        `Nel tuo profilo, la relazione con la componente ${dominantCopy.family} ${relation.kind === 'affinity' ? `accentua l'${relation.label}` : `è di ${relation.label}`}: il test rivela quindi una ${result.adjective} propensione all'ascolto e alla fiducia.`,
         otherPractical ? `In pratica ${otherPractical}` : '',
       ].filter(Boolean).join(' '),
     ],
     paragraphs: sameFamily
       ? [
-          `L'Entusiasmo fa da ago della bilancia in questo rapporto ed è anche la tua natura di base. Nel tuo profilo raggiunge il ${formatPercent(enthusiasm.distributionPercent)}%: il risultato rivela ${feminineIndefinite(result.adjective)} propensione all'ascolto del prossimo e alla fiducia.`,
+          `L'Entusiasmo fa da ago della bilancia in questo rapporto ed è anche la tua natura di base. Nel tuo profilo raggiunge il ${formatPercent(enthusiasm.distributionPercent)}%: il risultato rivela quindi ${feminineIndefinite(result.adjective)} propensione all'ascolto del prossimo e alla fiducia.`,
         ]
       : [
           `L'Entusiasmo fa da ago della bilancia in questo rapporto: misura la tua apertura verso l'altro, il coraggio di incontrare persone ed esperienze nuove. Nel tuo profilo raggiunge il ${formatPercent(enthusiasm.distributionPercent)}%.`,
           `${intros[dominantFamilyKey] || `La tua natura ${dominantCopy.nature} definisce il modo spontaneo in cui incontri gli altri.`} ${comparisonCopy}`,
-          `La relazione tra ${dominantCopy.family} ed Entusiasta è di ${relation.label}: ${relation.copy}. Il risultato rivela ${feminineIndefinite(result.adjective)} propensione all'ascolto del prossimo e alla fiducia.`,
+          `La relazione tra ${dominantCopy.family} ed Entusiasta ${relation.kind === 'affinity' ? `accentua l'${relation.label}` : `è di ${relation.label}`}: ${relation.copy}. Il risultato rivela quindi ${feminineIndefinite(result.adjective)} propensione all'ascolto del prossimo e alla fiducia.`,
         ],
     metrics: {
       enthusiasmPercent: enthusiasm.distributionPercent,
@@ -264,7 +264,7 @@ export function buildOtherNarrative({ dominantFamilyKey = '', ranking = [] } = {
 const ACTION_CONTEXT_BY_FAMILY = {
   rosso: {
     relation: 'rapporto simbiotico',
-    copy: 'La natura Volitivo-collerica ha un rapporto simbiotico con la volontà. È l’elemento che la caratterizza, in quanto coinvolge direttamente l’azione dell’Io, la forza che opera per realizzare i propri obiettivi.',
+    copy: 'La natura Volitivo-collerica, infatti, ha un rapporto simbiotico con la volontà. È l’elemento che la caratterizza, in quanto coinvolge direttamente l’azione dell’Io, la forza che opera per realizzare i propri obiettivi.',
   },
   blu: {
     relation: 'consapevolezza',
@@ -299,16 +299,16 @@ export function buildActionNarrative({ dominantFamilyKey = '', ranking = [] } = 
     status: 'ready',
     levelLabel: result.badge,
     frontParagraphs: [
-      `Il Marziale fa da ago della bilancia in questo rapporto: misura la tua propensione a trasformare il sentire in azione, decisione e iniziativa.`,
+      `Il Marziale misura la tua intensità nel trasformare il tuo sentire o le tue idee in azione, decisione e iniziativa.`,
       [
         context.copy,
-        `Nel tuo profilo raggiunge il ${formatPercent(martial.distributionPercent)}%: il test rivela una ${result.adjective} propensione all'azione.`,
+        `Nel tuo profilo raggiunge il ${formatPercent(martial.distributionPercent)}%: il test rivela quindi una ${result.adjective} propensione all'azione.`,
         actionPractical ? `In pratica ${actionPractical}` : '',
       ].filter(Boolean).join(' '),
     ],
     paragraphs: [
       context.copy,
-      `Nel tuo profilo raggiunge il ${formatPercent(martial.distributionPercent)}%: il test rivela ${feminineIndefinite(result.adjective)} propensione all'azione.`,
+      `Nel tuo profilo raggiunge il ${formatPercent(martial.distributionPercent)}%: il test rivela quindi ${feminineIndefinite(result.adjective)} propensione all'azione.`,
     ],
     metrics: {
       martialPercent: martial.distributionPercent,

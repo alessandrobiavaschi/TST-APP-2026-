@@ -122,13 +122,19 @@ export const APPROFONDIMENTO_UI = {
     Melodia: 'Linea cantabile: come segui o ti distacchi dal racconto sonoro.',
     Armonia: 'Accordi e insieme: clima complessivo e contemplazione.',
   },
+  areeSectionEyebrow: 'Le dimensioni dell’ascolto',
+  areeSectionTitle: 'Le 5 aree musicali',
+  areeSectionIntro:
+    'Il TST attraversa cinque dimensioni fondamentali dell’esperienza musicale. Ognuna osserva un aspetto diverso del rapporto con il suono.',
+  areeToFeedbackBridge:
+    'Ora che conosci le cinque dimensioni, ecco come le hai vissute durante il test.',
   filtroEyebrow: 'Feedback finale',
   filtroTitle: 'Filtro musicale',
   filtroLead:
     'Risposte alle domande conclusive del test: aree di maggiore o minore agio, stato d’animo percepito e difficoltà incontrata.',
   accordionTitle: 'Cosa misura ogni area',
   accordionIntro:
-    'Apri un’area per la lettura completa. I nomi corrispondono alle colonne del grafico sopra.',
+    'Seleziona un’area per la lettura completa. I nomi corrispondono alle colonne del grafico sopra.',
   /** @deprecated Usare title/lead */
   intro:
     'Confronto immediato tra le cinque famiglie emotive in ogni area del test sonoro: Timbro, Intervalli, Ritmo, Melodia e Armonia.',

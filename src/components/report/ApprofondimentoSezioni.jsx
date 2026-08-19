@@ -7,7 +7,7 @@ import OperatorSection from './OperatorSection'
  *
  * Props:
  *   - sezioniData: array per Recharts (nome + Blu/Rosso/Verde/Giallo/Grigio)
- *   - sezioniTest: oggetto narrativo per ReportAccordion
+ *   - sezioniTest: oggetto narrativo per AreeMusicaliSection
  *   - filtroMusicale: risposte finali su aree A-E / qualità / difficoltà
  */
 export default function ApprofondimentoSezioni({

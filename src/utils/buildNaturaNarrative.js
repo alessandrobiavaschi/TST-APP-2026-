@@ -65,7 +65,7 @@ const NATURA_PRACTICAL_BASE = {
 
 const NATURA_RELATION_PRACTICAL = {
   'blu|verde': 'la tua calma accompagna i momenti di riflessione più intensa, aiutandoti a non restarci impigliato a lungo',
-  'rosso|verde': 'agli scatti di iniziativa si alternano momenti in cui senti il bisogno di fermarti e non forzare le cose',
+  'rosso|verde': 'a momenti di impulsività si alternano fasi in cui senti il bisogno di fermarti e non forzare le cose',
   'giallo|verde': 'alla voglia di buttarti in cose nuove si alterna il bisogno, altrettanto reale, di restare fermo e riposare',
   'blu|rosso': 'quando la fretta di agire rischia di portarti fuori strada, la parte più riflessiva ti rende più consapevole di quello che stai per fare, un attimo prima di scattare',
   'giallo|rosso': 'entusiasmo e determinazione remano nella stessa direzione: quando parti, difficilmente ti fermi a metà strada',
@@ -214,7 +214,7 @@ function buildNaturaStoryParagraphs({ status, leader, leaderCopy, influenceFamil
   if (status === NATURA_NARRATIVE_STATUS.TRUE_TIE) {
     const tiedFamilies = formatItalianList(topRawFamilies.map((item) => familyCopy(item.familyKey).family))
     const tiedNatures = formatItalianList(topRawFamilies.map((item) => familyCopy(item.familyKey).nature))
-    const opening = `Il test rivela un profilo condiviso tra le famiglie ${tiedFamilies}, che ottengono lo stesso punteggio più alto. La lettura delle diverse aree del test converge nel riconoscere una natura emotiva di base composta, in cui coesistono le nature ${tiedNatures}.`
+    const opening = `Il test rivela quindi un profilo condiviso tra le famiglie ${tiedFamilies}, che ottengono lo stesso punteggio più alto. La lettura delle diverse aree del test converge nel riconoscere una natura emotiva di base composta, in cui coesistono le nature ${tiedNatures}.`
     const tiedPracticalSentences = topRawFamilies
       .map((item) => NATURA_PRACTICAL_BASE[item.familyKey])
       .filter(Boolean)

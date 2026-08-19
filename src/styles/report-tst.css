@@ -311,8 +311,8 @@
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
-  opacity: 0.32;
-  filter: saturate(1) brightness(0.9);
+  opacity: 0.58;
+  filter: saturate(1.25) brightness(1.02);
   pointer-events: none;
   z-index: 0;
   transition: opacity 0.5s ease;
@@ -1880,6 +1880,15 @@
   font-size: 0.68rem;
 }
 
+/* Badge delle stanze report — variante più grande per marcare meglio il cambio sezione in scroll */
+.report-room-badge {
+  min-width: 3.75rem;
+  height: 3.75rem;
+  padding: 0 0.75rem;
+  border-width: 1.5px;
+  font-size: 1.4rem;
+}
+
 .report-section-group__trigger:hover {
   background: rgba(255, 255, 255, 0.05);
 }
@@ -2111,8 +2120,18 @@
   letter-spacing: -0.045em;
 }
 
-.for-musicians-view__hero > p:not(.for-musicians-view__eyebrow) {
+.for-musicians-view__subtitle {
+  margin: 0 0 16px;
+  color: rgba(255, 255, 255, 0.88);
+  font-family: var(--font-display) !important;
+  font-size: clamp(1.15rem, 2.2vw, 1.5rem);
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.for-musicians-view__intro {
   max-width: 68ch;
+  margin: 0;
   color: rgba(255, 255, 255, 0.76);
   font-size: clamp(1rem, 1.8vw, 1.22rem);
   line-height: 1.65;
@@ -2276,19 +2295,6 @@
 .fm-combination__copy p { margin-top: 8px; }
 .fm-combination__where { margin-top: 20px; }
 
-.fm-summary__grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 28px;
-  margin-top: 22px;
-  padding: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  background: rgba(5, 10, 22, 0.52);
-}
-
-.fm-summary__grid p { margin-top: 0; }
-.fm-summary__grid ul,
 .fm-attentions ul { margin: 0; padding-left: 18px; }
 .fm-attentions { margin-top: 18px; }
 
@@ -2298,8 +2304,7 @@
 }
 
 @media (max-width: 760px) {
-  .fm-combination__copy,
-  .fm-summary__grid { grid-template-columns: 1fr; }
+  .fm-combination__copy { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 768px) {
@@ -2343,12 +2348,12 @@
 }
 .report-divider__diamond {
   position: relative;
-  width: 6px;
-  height: 6px;
+  width: 10px;
+  height: 10px;
   transform: rotate(45deg);
   background: var(--corrente-primaria, #4ade80);
-  opacity: 0.4;
-  box-shadow: 0 0 0 8px var(--divider-gap-bg, rgba(2, 8, 23, 0.72));
+  opacity: 0.55;
+  box-shadow: 0 0 0 12px var(--divider-gap-bg, rgba(2, 8, 23, 0.72));
 }
 
 /* =====================================================================
@@ -2369,16 +2374,14 @@
   color: var(--text-primary);
 }
 
-.report-tst .report-tst-approfondimento .report-operator-title,
-.report-tst .report-tst-approfondimento .report-sezioni-title {
+.report-tst .report-tst-approfondimento .report-operator-title {
   color: var(--text-primary);
   font-family: var(--font-display);
   font-weight: 400;
   font-style: normal;
 }
 
-.report-tst .report-tst-approfondimento .report-operator-intro,
-.report-tst .report-tst-approfondimento .report-sezioni-intro {
+.report-tst .report-tst-approfondimento .report-operator-intro {
   color: var(--text-secondary);
 }
 
@@ -2448,50 +2451,6 @@
   margin: 0 0 var(--space-md);
 }
 
-.report-sezione-name {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.report-sezione-tip {
-  flex-shrink: 0;
-}
-
-.report-sezione-trigger-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-}
-
-.report-tst .report-tst-approfondimento .report-sezione-item {
-  border-color: var(--report-surface-card-border);
-  background: var(--report-surface-card);
-}
-
-.report-tst .report-tst-approfondimento .report-sezione-trigger {
-  appearance: none;
-  -webkit-appearance: none;
-  background: transparent;
-  border: 0;
-  width: 100%;
-  text-align: left;
-  font: inherit;
-  color: var(--text-primary);
-}
-
-.report-tst .report-tst-approfondimento .report-sezione-trigger:hover {
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.report-tst .report-tst-approfondimento .report-sezione-dt {
-  color: var(--text-tertiary);
-}
-
-.report-tst .report-tst-approfondimento .report-sezione-dd {
-  color: var(--text-secondary);
-}
-
 .report-filtro-musicale {
   margin: var(--space-lg) 0;
   padding: var(--space-md);
@@ -2527,77 +2486,32 @@
 
 .report-filtro-musicale__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
-  gap: var(--space-sm);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  column-gap: var(--space-lg);
+  row-gap: var(--space-md);
   margin: 0;
 }
 
-.report-filtro-musicale__field {
+.report-filtro-musicale__row {
   min-width: 0;
-  padding: var(--space-sm);
-  border: 1px solid rgba(255, 255, 255, 0.13);
-  border-radius: 8px;
-  background: rgba(2, 8, 23, 0.34);
 }
 
 .report-filtro-musicale__dt {
-  margin: 0 0 0.55rem;
+  margin: 0 0 0.4rem;
   color: var(--text-tertiary);
-  font-family: var(--font-body);
-  font-size: var(--text-caption);
-  font-weight: 800;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .report-filtro-musicale__dd {
-  display: grid;
-  gap: 0.55rem;
   margin: 0;
-  color: var(--text-secondary);
+  color: var(--text-primary);
   font-family: var(--font-body);
   font-size: var(--text-body);
   line-height: 1.45;
-}
-
-.report-filtro-musicale__chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.report-filtro-musicale__chip {
-  display: inline-flex;
-  min-width: 0;
-  min-height: 2rem;
-  align-items: center;
-  padding: 0.35rem 0.6rem;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.045);
-  color: var(--text-secondary);
-  font-family: var(--font-body);
-  font-size: var(--text-caption);
-  font-weight: 700;
-  overflow-wrap: anywhere;
-}
-
-.report-filtro-musicale__area {
-  display: grid;
-  gap: 0.08rem;
-}
-
-.report-filtro-musicale__area-name {
-  color: var(--text-primary);
-  line-height: 1.15;
-}
-
-.report-filtro-musicale__area-range {
-  color: var(--text-ghost);
-  font-family: var(--font-mono);
-  font-size: var(--text-micro);
-  line-height: 1.2;
 }
 
 /* =====================================================================
@@ -3160,7 +3074,7 @@
 /* Profilo — capitoli sempre aperti */
 .report-tst-profilo {
   background-color: transparent;
-  padding: clamp(3rem, 8vw, 7.5rem) 0;
+  padding: clamp(2rem, 4vw, 3rem) 0;
   width: 100%;
 }
 
@@ -3972,10 +3886,11 @@
 }
 .report-tst-portato__figure-caption {
   font-family: var(--font-body);
-  font-size: var(--text-body);
+  font-size: var(--text-body-lg);
   line-height: 1.5;
   font-style: normal;
-  color: var(--text-secondary);
+  font-weight: 500;
+  color: var(--text-primary);
   max-width: 40ch;
   margin: 0 0 var(--space-sm);
 }
@@ -4164,7 +4079,8 @@
   font-size: var(--text-body-lg);
   line-height: 1.65;
   font-style: normal;
-  color: var(--text-secondary);
+  font-weight: 600;
+  color: var(--narrative-accent, var(--text-primary));
   margin: 0;
   max-width: 72ch;
 }
@@ -4637,7 +4553,7 @@
 
 .report-tst .emotional-integrations__map-svg {
   width: 100%;
-  max-width: 240px;
+  max-width: 360px;
   height: auto;
   display: block;
 }
@@ -5461,8 +5377,7 @@
 .report-reading-guide__step-button,
 .report-card,
 .report-section-group,
-.report-filtro-musicale,
-.report-tst-approfondimento .report-sezione-item {
+.report-filtro-musicale {
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.03);
@@ -5554,7 +5469,6 @@
 .report-tst .report-card,
 .report-tst .report-section-group,
 .report-tst .report-filtro-musicale,
-.report-tst .report-sezione-item,
 .report-tst .report-tst-portato__card,
 .report-tst .report-reading-guide,
 .report-tst .parole-stati-animo-sotto-card,
@@ -5575,7 +5489,6 @@
 
 .report-tst .report-card:hover,
 .report-tst .report-section-group:hover,
-.report-tst .report-sezione-item:hover,
 .report-tst .report-tst-portato__card:hover,
 .report-tst .fm-interval-item:hover,
 .report-tst .quattro-rapporti-tab:hover,
@@ -5732,7 +5645,7 @@
 .report-room-header {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
+  gap: var(--space-md);
   margin-bottom: var(--space-md);
 }
 
@@ -5740,7 +5653,7 @@
   margin: 0;
   color: #fff;
   font-family: var(--font-display);
-  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  font-size: clamp(2rem, 4vw, 3.2rem);
   font-weight: 700;
   line-height: 1.15;
 }

@@ -9,7 +9,7 @@ import {
   Legend as BarLegend,
   Customized,
 } from 'recharts'
-import ReportAccordion from './ReportAccordion'
+import AreeMusicaliSection from './AreeMusicaliSection.jsx'
 import ReportPassageHeader from './ReportPassageHeader.jsx'
 import PlainLanguageBox from './PlainLanguageBox.jsx'
 import InfoTip from './InfoTip.jsx'
@@ -101,44 +101,23 @@ function AreaGlossaryRow({ plainLanguage = false }) {
   )
 }
 
-function FieldList({ label, children }) {
-  if (!children) return null
+function FiltroRow({ label, values = [] }) {
+  if (!values.length) return null
   return (
-    <div className="report-filtro-musicale__field">
+    <div className="report-filtro-musicale__row">
       <dt className="report-filtro-musicale__dt">{label}</dt>
-      <dd className="report-filtro-musicale__dd">{children}</dd>
+      <dd className="report-filtro-musicale__dd">{values.join(' · ')}</dd>
     </div>
-  )
-}
-
-function ChipList({ items = [], renderItem, empty = null }) {
-  if (!items.length) return empty
-  return (
-    <ul className="report-filtro-musicale__chips">
-      {items.map((item) => (
-        <li key={item.code || item.label || item.nome} className="report-filtro-musicale__chip">
-          {renderItem ? renderItem(item) : item.label}
-        </li>
-      ))}
-    </ul>
-  )
-}
-
-function AreaChip({ area }) {
-  return (
-    <span className="report-filtro-musicale__area">
-      <span className="report-filtro-musicale__area-name">
-        {area.code} · {area.nome}
-      </span>
-      {area.range ? (
-        <span className="report-filtro-musicale__area-range">{area.range}</span>
-      ) : null}
-    </span>
   )
 }
 
 function FiltroMusicalePanel({ filtroMusicale, accentColor }) {
   if (!filtroMusicale?.hasData) return null
+
+  const difficoltaValues = [
+    filtroMusicale.difficolta?.label,
+    ...(filtroMusicale.difficoltaDettaglio || []).map((item) => item.label),
+  ].filter(Boolean)
 
   return (
     <section
@@ -146,6 +125,8 @@ function FiltroMusicalePanel({ filtroMusicale, accentColor }) {
       className="report-filtro-musicale report-tst-section-anchor"
       aria-labelledby="report-filtro-musicale-heading"
     >
+      <p className="fm-areas__bridge">{APPROFONDIMENTO_UI.areeToFeedbackBridge}</p>
+
       <header className="report-filtro-musicale__header">
         <div className="report-filtro-musicale__header-text">
           <p className="report-filtro-musicale__eyebrow">{APPROFONDIMENTO_UI.filtroEyebrow}</p>
@@ -160,38 +141,23 @@ function FiltroMusicalePanel({ filtroMusicale, accentColor }) {
       </PlainLanguageBox>
 
       <dl className="report-filtro-musicale__grid">
-        {filtroMusicale.areeMaggiorAgio?.length ? (
-          <FieldList label="Aree di maggiore agio">
-            <ChipList
-              items={filtroMusicale.areeMaggiorAgio}
-              renderItem={(area) => <AreaChip area={area} />}
-            />
-          </FieldList>
-        ) : null}
-        {filtroMusicale.areeMinorAgio?.length ? (
-          <FieldList label="Aree di minore agio">
-            <ChipList
-              items={filtroMusicale.areeMinorAgio}
-              renderItem={(area) => <AreaChip area={area} />}
-            />
-          </FieldList>
-        ) : null}
-        {filtroMusicale.statoAnimoFinale?.length ? (
-          <FieldList label="Stato d'animo finale">
-            <ChipList items={filtroMusicale.statoAnimoFinale} />
-          </FieldList>
-        ) : null}
-        {filtroMusicale.difficolta || filtroMusicale.difficoltaDettaglio?.length ? (
-          <FieldList label="Difficoltà">
-            {filtroMusicale.difficolta?.label || null}
-            <ChipList items={filtroMusicale.difficoltaDettaglio} />
-          </FieldList>
-        ) : null}
-        {filtroMusicale.qualitaSuoni ? (
-          <FieldList label="Qualità dei suoni">
-            {filtroMusicale.qualitaSuoni.label}
-          </FieldList>
-        ) : null}
+        <FiltroRow
+          label="Aree di maggiore agio"
+          values={(filtroMusicale.areeMaggiorAgio || []).map((area) => area.nome)}
+        />
+        <FiltroRow
+          label="Aree di minore agio"
+          values={(filtroMusicale.areeMinorAgio || []).map((area) => area.nome)}
+        />
+        <FiltroRow
+          label="Stato d'animo finale"
+          values={(filtroMusicale.statoAnimoFinale || []).map((item) => item.label)}
+        />
+        <FiltroRow label="Difficoltà" values={difficoltaValues} />
+        <FiltroRow
+          label="Qualità dei suoni"
+          values={filtroMusicale.qualitaSuoni ? [filtroMusicale.qualitaSuoni.label] : []}
+        />
       </dl>
     </section>
   )
@@ -280,9 +246,9 @@ export default function OperatorSection({
         ) : null}
       </div>
 
-      <FiltroMusicalePanel filtroMusicale={filtroMusicale} accentColor={accent} />
+      <AreeMusicaliSection sezioniTest={sezioniTest} plainLanguage={plainLanguage} />
 
-      <ReportAccordion sezioniTest={sezioniTest} plainLanguage={plainLanguage} />
+      <FiltroMusicalePanel filtroMusicale={filtroMusicale} accentColor={accent} />
     </section>
   )
 }

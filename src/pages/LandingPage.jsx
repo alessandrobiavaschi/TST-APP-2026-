@@ -17,64 +17,83 @@ import '../styles/landing-nebula.css'
 const PANELS_DATA = [
   {
     num: '01',
-    color: '#7dabfa',
-    eyebrow: "MUSICA COME LINGUAGGIO DELL'IDENTITÀ EMOTIVA",
-    title: 'Perché un test sonoro?',
+    color: '#f9a8d4',
     paragraphs: [
-      "La Musica è il mezzo più evoluto per la comunicazione emotiva. Il test non è un gioco è un primo concreto esempio di uso della musica a fini umanistici. I flussi sonori sono una lente per osservare l'area del sentire, oltre la sfera cognitiva.",
+      'Ogni individuo è un ascoltatore. Come tale ha un suo specifico, individuale rapporto di relazione emotiva con il suono e con la Musica che il Test rileva e rivela.',
+      'Ma non tutti gli ascoltatori sono persone che fanno Musica, o che fanno parte della categoria dei musicisti che con le emozioni ci dialoga e ci lavora.',
+      'Per questo alla fine del test abbiamo creato una apposita sezione con un linguaggio più tecnico, dedicata a chi vuole entrare nel merito del rapporto tra la singola identità emotiva e la speciale sensibilità al suono che ogni musicista o aspirante musicista possiede.',
+      'Si potrà così entrare in contatto il vocabolario del "sentire musicale".',
     ],
   },
   {
     num: '02',
-    color: '#c4b5fd',
-    eyebrow: 'COME CI SI MUOVE TRA SIMPATIA, ANTIPATIA E INDIFFERENZA ATTRAVERSO STIMOLI SONORI MUSICALI.',
-    title: "TST illumina l'area del sentire",
+    color: '#7dabfa',
+    eyebrow: "MUSICA COME LINGUAGGIO DELL'IDENTITÀ EMOTIVA",
+    title: 'Perché un Test sonoro?',
     paragraphs: [
-      'Il protocollo TST rivela le istintive reazioni emotive e affettive a stimoli sonori multipli che fanno parte delle qualità oggettive del codice musicale.',
-      'I 5 elementi del codice musicale sono Timbro, Ritmo, Intervalli, Armonia e Melodia.',
-      'Per "area del sentire" si intendono diverse tipologie di forze emotive che agiscono in maniera unica e irripetibile nell\'interiorità di ciascun individuo. Dal punto di vista musicale, queste aree sono sintetizzate in cinque grandi correnti di energia emotiva: Flemma, Entusiasmo, Malinconia-Nostalgia, Volitività e Anaffettività.',
+      'La Musica è il mezzo più evoluto per la comunicazione emotiva.',
+      "Il Test non è un gioco: è un primo concreto esempio di uso della Musica a scopi umanistici, formativi per una sempre più consapevole educazione emotiva delle persone nelle loro diverse fasi evolutive.",
+      "Il TST è una lente per osservare gli effetti dei flussi sonori organizzati sull'area del sentire, oltre la sfera cognitiva.",
     ],
   },
   {
     num: '03',
+    color: '#c4b5fd',
+    eyebrow: 'COME CI SI MUOVE TRA SIMPATIA, ANTIPATIA E INDIFFERENZA ATTRAVERSO STIMOLI SONORI MUSICALI.',
+    title: "TST illumina l'area del sentire",
+    paragraphs: [
+      'Il protocollo TST rivela le istintive reazioni emotive e affettive a stimoli sonori organizzati — singoli, multipli, di natura ritmica, elementi vibratori — che fanno parte delle qualità oggettive del Codice Musicale.',
+      'I 5 elementi essenziali di questo Codice non verbale per la comunicazione emotiva sono Timbro, Ritmo, Intervalli, Armonia e Melodia: si trovano in tutti i generi e stili musicali, nessuno escluso, anche se assemblati in quantità, qualità e strutture diverse.',
+      'Nel Test vengono però somministrati in forme archetipiche che non rimandano ad alcun genere o stile.',
+      'Per "area del sentire" si intende un\'area privata, unica e irripetibile a seconda del singolo individuo: è di fatto la "struttura emotiva".',
+      'È l\'insieme di 5 forze emotive che, per qualità e quantità, definiscono la singola identità emotiva: Flemma, Malinconia-Nostalgia, Marzialità od Assertività (le forze coleriche volitive), Entusiasmo e Anaffettività.',
+    ],
+  },
+  {
+    num: '04',
     color: '#5eead4',
     eyebrow: '72 PASSI BREVI, NESSUNA RISPOSTA GIUSTA O SBAGLIATA',
     title: 'Un percorso di ascolto guidato',
     paragraphs: [
-      'TST è costituito da 72 brevi stimoli sonori e musicali, da sentire uno per volta.',
+      'TST è costituito da 72 brevi stimoli sonori e musicali, da sentire uno per volta e da associare a una o più sensazioni suggerite.',
       'Sono organizzati per Timbri, Intervalli, Ritmi, Melodie ed Armonie.',
       'Associa in modo istintivo i flussi sonori alle tue sensazioni, emozioni e sentimenti individuando nella barra delle risposte quelli che corrispondono meglio alle tue percezioni.',
     ],
   },
   {
-    num: '04',
+    num: '05',
     color: '#a5b4fc',
     eyebrow: 'DAI SUONI AI PROFILI TEMPERAMENTALI',
     title: 'Flussi musicali come rilevatori e rivelatori',
     paragraphs: [
-      "La risonanza tra Musica e Disposizioni Intellettuali, Emotive e Spirituali dell'Uomo si è evidenziata nel corso dei secoli come elemento oggettivo conclamato.",
+      "La risonanza tra la Musica e il complesso di tutte le naturali disposizioni dell'Uomo si è evidenziata nel corso dei secoli come elemento oggettivo conclamato.",
       'Basandosi su questa evidenza, TST entra nei dettagli di questa relazione utilizzando singoli suoni e flussi musicali come strumenti rilevatori e rivelatori di una complessità emotiva interiore che va oltre la sfera cognitiva.',
       "Le risposte date attraverso il questionario, opportunamente decodificate, creano un profilo interiore unico per ciascun individuo e una mappa sintetica dell'identità emotiva individuale.",
     ],
   },
   {
-    num: '05',
+    num: '06',
     color: '#fbbf62',
     eyebrow: 'UNA MAPPA VISIVA DELLA STRUTTURA EMOTIVA',
     title: 'Cosa ottieni alla fine',
     paragraphs: [
-      "Il report finale TST restituisce quattro indicatori dell'identità emotiva: la tua natura di base, il rapporto con te stesso, il rapporto con l'altro e il rapporto con l'agire, insieme alla rappresentazione visiva della tua complessità temperamentale.",
+      "Il report finale TST restituisce quattro indicatori dell'identità emotiva:",
+      "la tua natura di base, il rapporto con te stesso, il rapporto con l'altro e il rapporto con l'agire, insieme alla rappresentazione visiva della tua complessità temperamentale.",
+      'Può essere il punto di partenza per una reale e profonda autoconoscenza di Sé.',
+      'Aiuta a osservare con maggiore oggettività l\'importanza e il ruolo della sfera emotiva nella vita reale, dall\'ambizione individuale al rapporto con lo studio, il lavoro e il mondo delle relazioni.',
+      'Data la speciale natura del Test abbiamo aggiunto restituzioni ancora più specifiche, che possono essere viste da tutti anche per mera curiosità, nell\'area "For Musicians".',
     ],
   },
   {
-    num: '06',
+    num: '07',
     color: '#c4b5fd',
     eyebrow: 'LA PROCEDURA, LO STUDIO E LA BIBLIOGRAFIA',
     title: 'Elementi essenziali della procedura TST',
     paragraphs: [
-      'Questa procedura nasce da anni di ricerca, studi e sperimentazioni di Franco Mussida, raccolti in libri, saggi e pubblicazioni*. Ne è derivata una procedura di rilevanza scientifica sul rapporto tra l\'oggettività del codice musicale e la realtà emotiva individuale.',
+      'Questa procedura nasce da anni di ricerca, studi e sperimentazioni di Franco Mussida, raccolti in libri, saggi e pubblicazioni*.',
+      'Ne è derivata una procedura di rilevanza scientifica sul rapporto tra l\'oggettività del Codice Musicale e la realtà emotiva individuale.',
       "In questa versione informatica, il linguaggio è stato appositamente curato e scelto da Franco Mussida, dal comitato scientifico Co2, dal CPM Music Institute e dall'Università degli Studi di Pavia.",
-      'Per iniziare subito il test, vai direttamente al pannello di accesso.',
+      'Per iniziare subito il Test, vai direttamente al pannello di accesso.',
     ],
     footnote:
       '*La Musica Ignorata (Skira, 2013); Le Chiavi Nascoste della Musica (Skira, 2016); Il Pianeta della Musica (Salani, 2019, oggi alla VI ed.)',
@@ -468,7 +487,7 @@ function LandingPage() {
             individuale.
           </p>
           <p className="tst-nebula-pitch-body tst-nebula-legible">
-            Il test usa la musica come stimolo emozionale. Un protocollo unico privo di algoritmi che
+            Il Test usa la Musica come stimolo emozionale. Un protocollo unico privo di algoritmi che
             illumina le nostre profonde qualità interiori.
           </p>
           <button type="button" className="tst-nebula-pitch-cta" onClick={handleStartClick}>
@@ -482,9 +501,9 @@ function LandingPage() {
           data-reveal-id="sliderIntro"
           className={`tst-nebula-slider-intro tst-nebula-reveal ${revealed.sliderIntro ? 'is-revealed' : ''}`}
         >
-          <span className="tst-nebula-eyebrow tst-nebula-legible">Perché il test sonoro</span>
+          <span className="tst-nebula-eyebrow tst-nebula-legible">Perché il Test sonoro</span>
           <h2 className="tst-nebula-slider-intro-title tst-nebula-legible">
-            Sei passaggi per capire cosa ascolti e cosa rivela di te.
+            Sette passaggi per capire cosa ascolti e cosa rivela di te.
           </h2>
         </section>
 
@@ -513,10 +532,14 @@ function LandingPage() {
               <div
                 className={`tst-nebula-panel-content ${revealed[revealId] ? 'is-revealed' : ''}`}
               >
-                <span className="tst-nebula-eyebrow tst-nebula-legible" style={{ color: panel.color }}>
-                  {panel.eyebrow}
-                </span>
-                <h3 className="tst-nebula-panel-title tst-nebula-legible">{panel.title}</h3>
+                {panel.eyebrow && (
+                  <span className="tst-nebula-eyebrow tst-nebula-legible" style={{ color: panel.color }}>
+                    {panel.eyebrow}
+                  </span>
+                )}
+                {panel.title && (
+                  <h3 className="tst-nebula-panel-title tst-nebula-legible">{panel.title}</h3>
+                )}
                 {panel.paragraphs.map((paragraph) => (
                   <p key={paragraph.slice(0, 24)} className="tst-nebula-panel-paragraph tst-nebula-legible">
                     {paragraph}

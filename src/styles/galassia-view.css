@@ -5117,6 +5117,27 @@
     transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* Posizione/dimensione delle parole sono ora calcolate per elemento (proiezione
+   prospettica in base a z), non più ereditate dalla scale() dell'ancestor: senza
+   queste regole uno zoom da bottone/tastiera "teletrasporterebbe" invece di animare. */
+.lessico-atlas__canvas--animating .lessico-atlas__word {
+  transition:
+    opacity 0.22s ease,
+    text-shadow 0.18s ease,
+    transform 0.14s ease,
+    left 0.24s cubic-bezier(0.22, 1, 0.36, 1),
+    top 0.24s cubic-bezier(0.22, 1, 0.36, 1),
+    font-size 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.lessico-atlas__canvas--animating .lessico-atlas__nebula,
+.lessico-atlas__canvas--animating .lessico-atlas__zone-label {
+  transition:
+    opacity 0.4s ease,
+    left 0.24s cubic-bezier(0.22, 1, 0.36, 1),
+    top 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 /* Etichette zona famiglia */
 .lessico-atlas__zone-label {
   position: absolute;
@@ -5183,6 +5204,11 @@
 
 .lessico-atlas__word.is-selected {
   opacity: 1 !important;
+  /* width:auto farebbe uno shrink-to-fit basato su "spazio disponibile da `left` al bordo
+     del contenitore": con la proiezione prospettica `left` può superare abbondantemente il
+     100% (parola vicina alla camera, lontana dal centro), lo spazio disponibile calcolato
+     crollerebbe a un valore minuscolo e il testo si spezzerebbe lettera per lettera. */
+  width: max-content;
   max-width: min(34vw, 440px);
   padding: 0.16em 0.32em 0.2em;
   border: 1px solid color-mix(in srgb, var(--word-color) 54%, rgba(226, 232, 240, 0.2));
@@ -5220,7 +5246,7 @@
   top: 0;
   bottom: 0;
   width: 320px;
-  z-index: 70;
+  z-index: 230;
   display: flex;
   flex-direction: column;
 }
@@ -5234,86 +5260,6 @@
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   overflow: hidden;
-}
-
-.lessico-dict--inline {
-  position: absolute;
-  top: clamp(12px, calc(var(--dict-anchor-y) - 112px), calc(100% - 400px));
-  right: auto;
-  bottom: auto;
-  width: min(320px, calc(100% - 24px));
-  max-height: min(388px, calc(100% - 24px));
-  z-index: 240;
-  filter: drop-shadow(0 18px 32px rgba(0, 0, 0, 0.48));
-  touch-action: pan-y;
-  overscroll-behavior: contain;
-}
-
-.lessico-dict--inline.lessico-dict--right {
-  left: min(calc(100% - 332px), calc(var(--dict-anchor-x) + 34px));
-}
-
-.lessico-dict--inline.lessico-dict--left {
-  left: max(12px, calc(var(--dict-anchor-x) - 354px));
-}
-
-.lessico-dict--inline::before {
-  content: '';
-  position: absolute;
-  top: 96px;
-  width: 12px;
-  height: 12px;
-  background: rgba(2, 6, 23, 0.94);
-  border: solid color-mix(in srgb, var(--dict-color) 38%, rgba(71, 85, 105, 0.72));
-  transform: rotate(45deg);
-  z-index: 1;
-}
-
-.lessico-dict--inline.lessico-dict--right::before {
-  left: -6px;
-  border-width: 0 0 1px 1px;
-}
-
-.lessico-dict--inline.lessico-dict--left::before {
-  right: -6px;
-  border-width: 1px 1px 0 0;
-}
-
-.lessico-dict--inline .lessico-dict__bezel {
-  position: relative;
-  z-index: 2;
-  height: auto;
-  max-height: inherit;
-  border: 1px solid color-mix(in srgb, var(--dict-color) 38%, rgba(71, 85, 105, 0.72));
-  border-radius: 12px;
-  background: rgba(2, 6, 23, 0.94);
-  box-shadow: 0 0 24px color-mix(in srgb, var(--dict-color) 14%, transparent);
-}
-
-.lessico-dict--inline .lessico-dict__head {
-  padding: 0.62rem 0.72rem 0.5rem;
-}
-
-.lessico-dict--inline .lessico-dict__body {
-  padding: 0.72rem;
-  gap: 0.72rem;
-  touch-action: pan-y;
-  overscroll-behavior-y: contain;
-}
-
-.lessico-dict--inline .lessico-dict__word {
-  font-size: 1.25rem;
-}
-
-.lessico-dict--inline .lessico-dict__meta {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.48rem 0.72rem;
-}
-
-.lessico-dict--inline .lessico-dict__meta dd,
-.lessico-dict--inline .lessico-dict__def p {
-  font-size: 0.74rem;
 }
 
 .lessico-dict__head {

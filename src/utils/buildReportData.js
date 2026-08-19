@@ -155,9 +155,12 @@ const FINAL_STATE_LABELS = {
 }
 
 const DIFFICOLTA_LABELS = {
-  DT_NO: 'No',
+  DT_NO: 'Nessuna difficoltà segnalata',
   DT_SI: 'Sì',
 }
+
+/** Sentinel scritto da NewTestPage quando l'utente non segnala difficoltà: non è un codice reale da mostrare. */
+const DIFFICOLTA_DETTAGLIO_NONE_CODE = 'DD_NESSUNA'
 
 const DIFFICOLTA_DETTAGLIO_LABELS = {
   DD_CONCENTRAZIONE: 'Concentrazione / attenzione',
@@ -303,7 +306,8 @@ function buildFiltroMusicale(rawRecord = {}) {
   const filtro = {
     statoAnimoFinale: resolveCodeList(rawRecord.Stato_Animo_Finale, FINAL_STATE_LABELS),
     difficolta: resolveSingleCode(rawRecord.Difficolta_Test, DIFFICOLTA_LABELS),
-    difficoltaDettaglio: resolveCodeList(rawRecord.Difficolta_Dettaglio, DIFFICOLTA_DETTAGLIO_LABELS),
+    difficoltaDettaglio: resolveCodeList(rawRecord.Difficolta_Dettaglio, DIFFICOLTA_DETTAGLIO_LABELS)
+      .filter((item) => item.code !== DIFFICOLTA_DETTAGLIO_NONE_CODE),
     areeMaggiorAgio: resolveAreaList(rawRecord.Area_Maggior_Agio),
     areeMinorAgio: resolveAreaList(rawRecord.Area_Minor_Agio),
     qualitaSuoni: resolveSingleCode(rawRecord.Qualita_Suoni, QUALITA_SUONI_LABELS),
@@ -367,7 +371,7 @@ function buildPortatoSynthesis(quoteNormalizzate, hasData) {
   const [first, second, third] = ranked
 
   if (first.quota - third.quota <= PORTATO_PRESENTATION_THRESHOLDS.nearShare) {
-    return 'In questo ascolto sintonia, distonia e distanza sono emerse con quote molto vicine: il contenuto musicale ha generato una compresenza delle tre modalità, senza una nettamente prevalente.'
+    return 'In questa esperienza d\'ascolto sintonia, distonia e distanza sono emerse con quote molto vicine: il contenuto musicale ha generato una compresenza delle tre modalità, senza una nettamente prevalente.'
   }
 
   if (first.quota - second.quota <= PORTATO_PRESENTATION_THRESHOLDS.nearShare) {
@@ -376,7 +380,7 @@ function buildPortatoSynthesis(quoteNormalizzate, hasData) {
       : third.quota <= PORTATO_PRESENTATION_THRESHOLDS.contained
         ? `la ${third.label} è emersa in misura contenuta`
         : `la ${third.label} ha avuto una presenza più contenuta`
-    return `In questo ascolto ${first.label} e ${second.label} sono emerse con intensità simile; ${thirdClause}. Il contenuto musicale ha quindi generato un orientamento misto, senza una sola modalità nettamente prevalente.`
+    return `In questa esperienza d'ascolto ${first.label} e ${second.label} sono emerse con intensità simile; ${thirdClause}. Il contenuto musicale ha quindi generato un orientamento misto, senza una sola modalità nettamente prevalente.`
   }
 
   const secondaryClause = second.quota <= PORTATO_PRESENTATION_THRESHOLDS.nearlyAbsent
@@ -390,7 +394,7 @@ function buildPortatoSynthesis(quoteNormalizzate, hasData) {
       ? `la ${third.label} è emersa in misura contenuta`
       : `è presente anche una componente di ${third.label}`
 
-  return `In questo ascolto hai mostrato soprattutto ${first.label} nella relazione con il contenuto musicale; ${secondaryClause}, mentre ${thirdClause}.`
+  return `In questa esperienza d'ascolto hai mostrato soprattutto ${first.label} nella relazione con il contenuto musicale; ${secondaryClause}, mentre ${thirdClause}.`
 }
 
 

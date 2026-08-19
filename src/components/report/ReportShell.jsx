@@ -671,10 +671,10 @@ export default function ReportShell({
                 <>
                   <SectionDivider />
 
-                  {/* ── STANZA 07: FAMIGLIE EMOTIVE IN RELAZIONE ────────────── */}
+                  {/* ── STANZA 06: FAMIGLIE EMOTIVE IN RELAZIONE ────────────── */}
                   <section id="report-group-relazioni" className="report-room-section report-room-section--preview">
                     <header className="report-room-header">
-                      <span className="report-room-badge">07</span>
+                      <span className="report-room-badge">06</span>
                       <h2 className="report-room-title">Le cinque famiglie emotive in relazione tra loro</h2>
                     </header>
                     <RoomRevealContent>

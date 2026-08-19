@@ -17,11 +17,6 @@ export const MUSICISTI_APPROFONDIMENTO = {
     'Il musicista malinconico ama interpretare e comporre più che eseguire, leggere o improvvisare. Vive con grande piacere il bel suono, è particolarmente sensibile alla liricità, alle interpretazioni sentite, ricche di dinamiche. La Musica lo coinvolge più emotivamente che intellettualmente.',
     'I piaceri del temperamento malinconico quando ascolta Musica sono quelli di subire il fascino della melodia e degli intervalli, attraverso i quali si gode ogni tipo di stato d’animo e ci si riflette sopra. Cerca una Musica profonda, adatta a mettere in movimento il suo mondo interiore.',
   ],
-  Rosso: [
-    'Ritmicamente ricerca tempi forti e costanti. Ama la Musica con i piedi per terra, dalle sonorità chiare e leggibili; subisce il fascino della melodia che memorizza con facilità i testi. Ama farsi spiazzare.',
-    'La sua propensione intellettuale gli fa apprezzare istintivamente l’improvvisazione, che segue con piacere, ma solo come ascoltatore. Come musicista è molto organizzato, non abbonda di fantasia, per questo fatica a «lasciarsi andare»; legge benissimo ed esegue altrettanto bene. Digerisce poco il minimalismo, e alla ripetitività resiste pochissimo.',
-    'Riserva molta attenzione ai concetti espressi dal testo ed è un attento critico verso gli aspetti interpretativi. La Musica lo coinvolge più mentalmente che fisicamente o sentimentalmente.',
-  ],
   Verde: [
     'Adora composizioni con pochi strumenti e ricerca atmosfere e climi armonici in cui potersi rilassare, lasciarsi andare al mondo del sogno. Cerca atmosfere larghe senza concitazione e, nelle canzoni, predilige melodie rarefatte con poche note e molto clima armonico.',
     'Il musicista flemmatico ama molto ascoltare e suonare con gli altri, esegue e legge volentieri con meticolosità le parti che gli assegnano. La sua propensione a contemplare, a vivere l’armonia sognando, lo rende adatto a stare in gruppi.',
@@ -31,6 +26,7 @@ export const MUSICISTI_APPROFONDIMENTO = {
     'Adora composizioni con melodie chiare e riconoscibili che non inducano a riflettere troppo, ma piuttosto a dare carica, con ritmi accentuati; l’importante è che la melodia non sia sempre uguale, altrimenti si annoierebbe.',
     'Quando ascolta Musica gli risulta difficile non muoversi, e ha quindi un atteggiamento molto coinvolto, proiettato verso l’esterno. È interessato al testo della canzone, soprattutto se trova la storia simpatica, ma è il fascino del ritmo a coinvolgerlo di più. È sempre alla ricerca di novità, di suoni mai sentiti: si potrebbe dire che gli va bene tutto pur di muoversi.',
   ],
+  Rosso: [],
   Grigio: [],
 }
 
@@ -238,60 +234,53 @@ export const MUSICISTI_SCHEDE = {
 
   Rosso: {
     label: 'Marziale',
+    introMusicale:
+      `Una lettura musicale della famiglia Marziale emersa dal test presuppone un caratteristico modo di percepire il timbro e di esprimere il suono. Ma coinvolge anche il gusto compositivo, il modo di interpretare e organizzare l’esperienza musicale.`,
     profiloEmotivo:
-      'Ciò che contraddistingue il temperamento volitivo, collerico è il piacere del fare, realizzare ciò che si desidera e a cui si ambisce, il piacere di governarsi e governare, di mettersi alla prova.',
+      `La propensione volitiva, che spesso si lega a quella razionale, gli fa apprezzare l’esecuzione quando è precisa e rigorosa. Se non gli vengono in aiuto lampi di malinconia, fatica invece ad interpretare a suo modo una esecuzione. Come musicista è molto organizzato, non abbonda di fantasia, per questo fatica a «lasciarsi andare»; legge solitamente bene. La sua propensione razionale gli fa apprezzare istintivamente l’improvvisazione, che segue con piacere, ma più come ascoltatore che esecutore.`,
     cosaCerca:
-      'La famiglia marziale tende a cercare forza, direzione, concretezza e controllo dell’energia. La sua natura volitivo-collerica vive spesso la musica come un campo di prova: un luogo in cui restare svegli, governare il tempo, riconoscere struttura e misurarsi con intensità.',
+      `È solitamente un musicista ben organizzato, ma pensare di dover sempre fare la cosa giusta alimenta la fatica a «lasciarsi andare». La Musica lo coinvolge più mentalmente che fisicamente o sentimentalmente. Riserva molta attenzione ai concetti espressi dal testo. Ciò che contraddistingue le qualità del temperamento volitivo, collerico è il piacere del fare. Per chi ama suonare o cantare significa fare Musica: mettersi alla prova con sé stesso e con il pubblico, realizzare ciò che si desidera nei modi che decide lui e a cui ambisce, vivere il piacere di governarsi e governare.`,
     piaceriAscolto:
-      'Subisce in modo speciale il fascino del timbro, nel quale vede i segni di identità e personalità. Gode dell’energia del suono in termini di forza e incisività. Nonostante sia predisposto all’analisi intellettuale, cerca la Musica più per svagarsi, per riposarsi dalla sua attività fisica. Non sempre ci riesce, spesso non sa lasciarsi andare e, suo malgrado, si ritrova a utilizzare il lato razionale per analizzare, discernere.',
+      `Chi appartiene alla famiglia Marziale tende a dare concretezza e direzione all’energia della Musica, farla avvivare con forza e convinzione agli ascoltatori. È poco disposto ad abbracciare l’elemento sognante, spesso molto potente specie nelle composizioni per malinconici. Preferisce misurarsi con l’incisività, la potenza e l’intensità. La sua natura volitivo-collerica sente la Musica come occasione per vivere il qui e ora, per restare lucidi e desti. La voce e il pianoforte sono i due strumenti di riferimento della famiglia Marziale. Il primo rimarca la volontà di voler gestire lo strumento degli strumenti, lo strumento dell’essere umano per eccellenza. Il secondo è il grande gestore e organizzatore dei suoni, non solo nella versione acustica ma anche nell’infinito mondo delle tastiere.`,
+    pullQuote: {
+      titolo: 'Il piacere del fare',
+      testo:
+        `Per chi ama suonare o cantare significa fare Musica: mettersi alla prova con sé stesso e con il pubblico, realizzare ciò che si desidera nei modi che decide lui e a cui ambisce, vivere il piacere di governarsi e governare.`,
+    },
     linguaggioMusicale: {
       timbri:
-        'Timbri medi, decisi, fermi, squillanti o ruvidi: sax, trombe, tromboni, viole, percussioni, pianoforte e tastiere.',
+        `Chi appartiene alla famiglia Marziale predilige Timbri che si posizionano al centro dello spettro sonoro. Timbri medi, decisi, incisivi, fermi e poco modulanti. Non sente particolari fastidi rispetto alle tante diverse qualità e colori timbrici. Accetta bene sia quelle squillanti che ruvidi o sordi, l’importante è che mostrino viva personalità. A titolo esplicativo ma non esaustivo oltre a quelle emesse dalla voce e dal pianoforte, si possono inserire sax, trombe, tromboni. Tra le corde le viole, tra le percussioni la batteria specie il rullante e i tom.`,
       ritmo:
-        'Tempi forti e costanti, spesso vicini al Rock, intorno a 90-130 bpm, con sonorità chiare e leggibili.',
+        `La famiglia dei Marziali predilige tempi forti e costanti, intorno a 100 / 130 bpm. Ama la Musica con i piedi per terra, dalle sonorità chiare e leggibili. Tra Battere e Levare, i due elementi essenziali che costituiscono lo scandire fantasioso del ritmo, separati da un elemento centrale, orizzontale di silenzio, l’assertivo, il volitivo, predilige il Battere ma ama anche farsi spiazzare.`,
       melodiaArmonia:
-        'Melodie memorabili, frammenti brevi e intensi, unisoni potenti, scale meno consuete e intervalli duri.',
+        `L’assertivo collerico subisce il fascino della melodia che memorizza con facilità così come i testi. Predilige melodie memorabili, frammenti anche brevi ma intensi, unisoni potenti, scale meno consuete e intervalli duri. Così com’è attento e attratto a tutto ciò che musicalmente è consequenziale specie dallo svolgimento delle melodie che, se si sviluppano a mo’ di racconto, ovvero melodie lunghe, segue con intenzione quasi meditativa. Se invece, com’è più consueto oggi, la melodia è fatta di brevi frammenti, la prende e l’accetta con leggerezza come un giochino divertente che colora il tempo in modo positivo ma leggero.`,
     },
     intervalli: {
+      intro:
+        `La distanza, l’esperienza che si scatena dentro di noi quando elaboriamo la vibrazione simultanea di due suoni uno distante dall’altro, è per il Marziale un preludio di armonia. Percepisce la realtà immaginativa che esce dall’insieme di queste vibrazioni come qualcosa di magico, ma che non lo rassicura, in quanto le tante combinazioni possono evocare tante diverse correnti emotive che fanno sorgere stati d’animo diversi dal suo Mood emotivo.`,
       correnti: [
         {
-          nome: 'Corrente emotiva dell’assertività volitiva',
-          intervallo: 'Quarta',
+          intervallo: 'Prima',
           significato:
-            'La corrente volitiva invita a muoversi e a percorrere la vita operante. È una forza che spinge verso il piacere del fare, del realizzare ciò che si desidera, del governarsi e governare e del mettersi alla prova. La Quarta raccoglie il versante della saldezza, della decisione e del coraggio.',
-          stati: ['Stabile', 'Saldo', 'Sicuro', 'Certo', 'Costante', 'Determinato', 'Decisionista', 'Fermo', 'Schietto', 'Sincero', 'Franco', 'Fiero', 'Risoluto', 'Fedele', 'Spavaldo', 'Altero', 'Ostinato', 'Orgoglioso', 'Coraggioso', 'Impavido'],
-        },
-        {
-          nome: 'Corrente del dubbio e della collera',
-          intervallo: 'Quarta eccedente',
-          significato:
-            'Alla fermezza volitiva si affianca un versante polare: quando la forza del fare perde stabilità può trasformarsi in incertezza, esitazione, sospetto o collera. La Quarta eccedente raccoglie questo passaggio dal dubbio alla tensione e alla rabbia.',
-          stati: ['Incerto', 'Inquieto', 'Dubbioso', 'Esitante', 'Ambiguo', 'Misterioso', 'Indeciso', 'Oscillante', 'Precario', 'Perplesso', 'Irrisoluto', 'Smarrito', 'Elusivo', 'Equivoco', 'Criptico', 'Enigmatico', 'Infido', 'Subdolo', 'Rabbioso', 'Rancoroso', 'Irato', 'Furioso', 'Iracondo', 'Travagliato', 'Tribolato', 'Odioso', 'Diffidente', 'Sospettoso', 'Nevrotico'],
+            `Se la volontà lo rende forte, affidabile, determinato, con la Musica si confronta nello stesso modo, affrontandola con fermezza e, in età adulta, con saggezza.`,
+          stati: ['Stabile', 'Saggio', 'Sicuro', 'Fattivo', 'Certo', 'Volitivo', 'Assertivo', 'Indubitabile', 'Saldo', 'Fermo', 'Fiero', 'Schietto', 'Sincero', 'Franco', 'Decisionista', 'Risoluto', 'Irritabile', 'Calcolatore', 'Combattivo', 'Caparbio', 'Perseverante', 'Collerico'],
         },
       ],
     },
     fareMusica: {
       suonare:
-        'Tende a dirigere, suonare da solo o governare l’interplay. Pianoforte e batteria rappresentano bene controllo e ritmo.',
-      comporre:
-        'Cerca strutture incisive, unisoni forti e climi che mantengano attivazione, evitando ripetitività eccessiva.',
+        `Quando studia tende a concentrarsi a tener fuori i disturbi esteriori, a ripetere più e più volte le cose che non gli vengono. Ma tende a pensare che la ragione dei suoi errori siano cause tecniche, meccaniche. In pubblico tende a prendersi la scena senza troppi patemi, esegue in modo rigoroso rispetto a ciò che ha programmato e si esprime senza troppa timidezza specie se si sente sicuro. Ma a volte rischia di concentrarsi troppo su sé stesso e ad ascoltare poco chi ha attorno. Nello stesso tempo il suo spirito organizzativo, specie se suona tastiere e pianoforte, lo stimola e spinge a dirigere e a governare lui stesso l’interplay. In un gruppo musicale il Collerico-Volitivo ha un ruolo determinante per il raggiungimento degli obiettivi concreti.`,
       interpretare:
-        'Legge ed esegue con sicurezza, osserva criticamente l’interpretazione e ama passaggi brevi, chiari e intensi.',
+        `Chi appartiene alla Famiglia Marziale tende a leggere la Musica e ad apprendere le regole teorico armoniche con una certa facilità. Esegue con sicurezza, osserva criticamente l’interpretazione altrui. Ma quando si tratta di dover interpretare, se non gli vengono in aiuto le propensioni malinconiche e quelle legate all’entusiasmo, si ritrova costretto ad impegnarsi in esecuzioni magari perfette ma che restituiscono rigidità, più che musicalità.`,
+      comporre:
+        `Chi della famiglia Marziale ha predisposizioni creative considera il tempo della composizione un tempo ben speso. Gli permette di precisare ciò che immagina, all’occorrenza di correggere per unire per bene l’immaginazione con il risultato finale. Nella composizione le regole matematiche per lui sono una guida sicura. Spesso cerca strutture che lo stimolano ad andare fuori dagli schemi. Nel Jazz e nel Pop strumentale una scrittura con misure e tempi irregolari, unisoni.`,
+      improvvisare:
+        `La tendenza alla precisione e all’organizzazione, a tenere tutto sotto controllo non giocano a favore del temperamento volitivo collerico. In ambito improvvisativo il prodigio della composizione in tempo reale, in fondo questa è l’improvvisazione, si realizza quando la fantasia che nasce da impulsi emotivi, immaginativi, extracognitivi, arrivano d’istinto e trovano immediatamente modo di incarnarsi in suoni. Significa abbandonarsi, entrare in uno stato di flow dove quel controllo non c’è più. Significa connettersi con una immensa banca dati dove soggiorna nella memoria esperienziale di ciascuno il vissuto musicale, dalla conoscenza di scale accordi modulazioni fino a ricordi di esperienze emotive vissute. Il tutto da corroborare mischiando conoscenza passata, scale, accordi con il nuovo, con nuove visioni del suono e tensioni intervallari da sperimentare.`,
     },
-    valorizza: [
-      'Incisività, organizzazione e direzione.',
-      'Lettura, esecuzione e controllo ritmico.',
-      'Memoria melodica e impatto timbrico.',
-      'Testi chiari e aspetti interpretativi solidi.',
-    ],
-    difficolta: [
-      'Lasciarsi andare nell’improvvisazione musicale può essere difficile.',
-      'Minimalismo e ripetitività possono essere poco tollerati.',
-      'L’ascolto può diventare molto razionale e analitico.',
-    ],
     paroleChiave: [
       'forza',
       'direzione',
+      'precisione',
       'ritmo',
       'controllo',
       'incisività',
