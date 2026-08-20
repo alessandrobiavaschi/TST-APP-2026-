@@ -5,10 +5,15 @@ export default function CalculationDisclosure({
   children,
   className = '',
   label = 'Come si ottengono questi numeri?',
+  onOpenChange,
 }) {
   const [open, setOpen] = useState(false)
   const rootRef = useRef(null)
   const contentId = useId()
+
+  useEffect(() => {
+    onOpenChange?.(open)
+  }, [open, onOpenChange])
 
   useEffect(() => {
     if (!open) return undefined

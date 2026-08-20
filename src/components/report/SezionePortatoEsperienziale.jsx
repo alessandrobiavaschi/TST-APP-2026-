@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { PORTATO_UI, GALASSIA_PORTATO_UI } from './reportUiCopy.js'
 import ReportPassageHeader from './ReportPassageHeader.jsx'
+import CalculationDisclosure from './CalculationDisclosure.jsx'
 import {
   buildPortatoInterpretation,
   buildPortatoViewData,
@@ -56,6 +57,11 @@ export default function SezionePortatoEsperienziale({
 
   const interpretation = portato?.sintesiInterpretativa || portato?.interpretation ||
     (viewData.hasData ? buildPortatoInterpretation(viewData.dimensions) : '')
+  const dominant = portato?.prevalente
+    ? viewData.dimensions.find((dimension) => dimension.key === portato.prevalente)
+    : null
+  const leadText = portato?.descrizione || interpretation
+  const hasApprofondimento = Boolean(portato?.descrizione) && Boolean(interpretation) && interpretation !== leadText
   const chartSummary = viewData.dimensions
     .map((dimension) => `${dimension.ui.label}: ${formatPoints(dimension.value)}, ${dimension.percentage} per cento`)
     .join('; ')
@@ -81,24 +87,39 @@ export default function SezionePortatoEsperienziale({
         {viewData.hasData ? (
           <div className="report-tst-portato__layout">
             <div className="report-tst-portato__text">
-              <motion.p
-                className="report-tst-portato__interpretation"
+              <motion.div
+                className="report-tst-portato__result"
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, margin: '-40px' }}
                 variants={sectionVariants}
                 transition={{ duration: reduceMotion ? 0 : 0.4, ease: 'easeOut' }}
               >
-                {interpretation}
-              </motion.p>
+                {leadText ? (
+                  <p
+                    className="report-tst-portato__result-lead"
+                    style={{ '--narrative-accent': accent }}
+                  >
+                    {leadText}
+                  </p>
+                ) : null}
+                {dominant ? (
+                  <p className="report-tst-portato__result-stat">
+                    <span className="report-tst-portato__result-stat-value" style={{ color: accent }}>
+                      {dominant.percentage}%
+                    </span>
+                    <span className="report-tst-portato__result-stat-label">{dominant.ui.label}</span>
+                  </p>
+                ) : null}
+              </motion.div>
 
-              {portato?.descrizione ? (
-                <p
-                  className="report-tst-portato__narrative-text"
-                  style={{ '--narrative-accent': accent }}
+              {hasApprofondimento ? (
+                <CalculationDisclosure
+                  label="Approfondisci il risultato"
+                  className="report-tst-portato__approfondisci"
                 >
-                  {portato.descrizione}
-                </p>
+                  <p className="report-tst-portato__interpretation">{interpretation}</p>
+                </CalculationDisclosure>
               ) : null}
             </div>
 
@@ -112,9 +133,6 @@ export default function SezionePortatoEsperienziale({
               aria-labelledby="report-tst-portato-map-title"
               aria-describedby="report-tst-portato-map-summary"
             >
-              <figcaption id="report-tst-portato-map-title" className="report-tst-portato__figure-caption">
-                Il triangolo mostra come hai reagito istintivamente alla somministrazione del test.
-              </figcaption>
               <p id="report-tst-portato-map-summary" className="sr-only">{chartSummary}</p>
               <div className="report-tst-portato__pad" ref={padRef}>
                 <div className="report-tst-portato__field" aria-hidden="true" />
@@ -200,6 +218,9 @@ export default function SezionePortatoEsperienziale({
                   )
                 })}
               </div>
+              <figcaption id="report-tst-portato-map-title" className="report-tst-portato__figure-caption">
+                Il triangolo mostra come hai reagito istintivamente alla somministrazione del test.
+              </figcaption>
             </motion.figure>
           </div>
         ) : (

@@ -1,23 +1,31 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react'
+import React, { useState, useCallback, useRef, useEffect, useLayoutEffect } from 'react'
 import { GALAXY_THEORY_BY_DISPOSITION } from '../../config/galaxyTheoryContent.ts'
 
 const GOLDEN_ANGLE = 2.399963229728653
 const CAMERA_MIN_SCALE = 0.82
-const CAMERA_MAX_SCALE = 4.8
+const CAMERA_MAX_SCALE = 3.2
 const CAMERA_ZOOM_STEP = 1.25
 const WHEEL_ZOOM_INTENSITY_PX = 0.0022
 const WHEEL_ZOOM_INTENSITY_LINE = 0.072
 const PINCH_DAMPING = 0.46
 
 // Profondità prospettica: ogni parola ha uno z logico (0 = vicino, 1 = lontano) oltre a x/y.
-// depthFactor smorza quanto una parola reagisce allo zoom in base alla sua distanza:
-// a z=0 (parole 'big') reagisce esattamente come oggi (projScale = camera.scale, qualunque scale);
-// a z>0 la crescita/spostamento dal centro (0,0) è più lenta — è questa differenza tra parole
-// vicine e lontane a produrre la parallasse ("la costellazione si apre") invece di un semplice scale
-// uniforme condiviso da tutti gli elementi.
+// depthFactor smorza quanto una parola reagisce allo zoom in base alla sua distanza. La posizione
+// proietta uno SCOSTAMENTO LOCALE dal centro della propria famiglia (non dall'origine globale):
+// il centro famiglia resta fisso a ogni zoom, solo lo scostamento reagisce alla camera — è questo
+// pivot locale (invece che globale) a impedire che le parole periferiche "scappino" fuori schermo.
+// SPREAD_GAIN > 1: lo scostamento dal centro cresce più velocemente della dimensione del font,
+// così il rapporto testo/spazio-vuoto DIMINUISCE avvicinandosi — la costellazione si apre davvero
+// invece di restare proporzionalmente identica a ogni zoom (un semplice scale condiviso, o due
+// quantità che scalano allo stesso ritmo, lasciano quel rapporto invariato per costruzione).
 const DEPTH_STRENGTH = 2.2
-const REVEAL_START = 0.55
-const REVEAL_END = 0.82
+const SPREAD_GAIN = 1.8
+const FONT_MIN = 8
+const FONT_MAX = 64
+// Bande di reveal: 'big' (z~0) deve restare sempre visibile su tutto [CAMERA_MIN_SCALE,CAMERA_MAX_SCALE],
+// 'medium'/'small' devono restare quasi invisibili a riposo (scale=1) e rivelarsi avvicinandosi.
+const REVEAL_START = 0.45
+const REVEAL_END = 0.6
 
 function seededRnd(n) {
   const x = Math.sin(n * 127.1 + 311.7) * 43758.5453123
@@ -32,13 +40,21 @@ function depthFactor(z) {
   return 1 / (1 + z * DEPTH_STRENGTH)
 }
 
-// Posizione/dimensione: proporzionale dall'origine (0,0), come .lessico-atlas__canvas
-// (transform-origin: 0 0). A z=0 vale camera.scale per qualunque scale, non solo a riposo.
-function projScale(z, scale) {
-  return 1 + (scale - 1) * depthFactor(z)
+// Proiezione unica: usata sia per le parole sia per nebulose/etichette famiglia (con
+// localX=localY=0, z=0 — restano ancorate al centro della propria famiglia a ogni zoom).
+// anchor/localX/localY sono in percentuale (0-100) del contenitore.
+function project(anchor, localX, localY, z, scale) {
+  const near = depthFactor(z)
+  const grow = 1 + (scale - 1) * near
+  const spread = 1 + (scale - 1) * near * SPREAD_GAIN
+  return {
+    x: anchor.x + localX * spread,
+    y: anchor.y + localY * spread,
+    scale: grow,
+  }
 }
 
-// Reveal/opacità: a differenza di projScale, deve differenziare per z già a scale di riposo
+// Reveal/opacità: a differenza di project(), deve differenziare per z già a scale di riposo
 // (altrimenti medium/small comparirebbero subito invece di rivelarsi avvicinandosi).
 function depthReveal(z, scale) {
   return clamp((scale * depthFactor(z) - REVEAL_START) / (REVEAL_END - REVEAL_START), 0, 1)
@@ -137,7 +153,7 @@ const ATLAS_FAMILY_ID_BY_KEY = Object.fromEntries(
   VIEW_MODEL_FAMILIES.map(({ familyKey, familyId }) => [familyKey, familyId]),
 )
 
-// z logico per tier: 0 = vicino alla camera, 1 = lontano (vedi depthFactor/projScale sopra).
+// z logico per tier: 0 = vicino alla camera, 1 = lontano (vedi depthFactor/project sopra).
 const Z_BY_TIER = { big: 0, medium: 0.45, small: 0.85 }
 
 // ─── Build word atlas (static, computed once) ────────────────────────────────
@@ -206,6 +222,8 @@ function buildAtlasWords() {
       const color = colors[colorIdx]
       const opacity = tier === 'big' ? 0.92 : tier === 'medium' ? 0.78 : 0.55
       const z = Z_BY_TIER[tier] + seededRnd(globalIdx + 0.9) * 0.15
+      const clampedX = Math.max(1.5, Math.min(98.5, x))
+      const clampedY = Math.max(2, Math.min(97, y))
 
       all.push({
         id: `${familyId}-${i}`,
@@ -223,8 +241,12 @@ function buildAtlasWords() {
         color,
         opacity,
         z,
-        x: Math.max(1.5, Math.min(98.5, x)),
-        y: Math.max(2, Math.min(97, y)),
+        x: clampedX,
+        y: clampedY,
+        // Scostamento dal centro famiglia: è questo — non x/y assoluti — a essere proiettato
+        // dalla camera (vedi project() sopra). Il centro famiglia resta fisso a ogni zoom.
+        localX: clampedX - anchor.x,
+        localY: clampedY - anchor.y,
       })
       globalIdx++
     }
@@ -725,14 +747,15 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
   const [searchQuery, setSearchQuery] = useState('')
   const [showSearch, setShowSearch] = useState(false)
   const [expandedMobileFamily, setExpandedMobileFamily] = useState(null)
-  const [camera, setCamera] = useState(CAMERA_RESET)
   const [cameraAnimating, setCameraAnimating] = useState(false)
   const [showDashboard, setShowDashboard] = useState(false)
 
   const canvasRef = useRef(null)
   const layerRef = useRef(null)
+  // La camera vive solo in ref, non in state React: wheel/pinch/drag possono aggiornarla
+  // a ~60fps senza mai passare da un render/reconciliation React (vedi applyProjectionToDOM).
   const cameraRef = useRef(CAMERA_RESET)
-  const viewportSizeRef = useRef({ w: 0, h: 0 })
+  const viewportSizeRef = useRef({ w: 0, h: 0, left: 0, top: 0 })
   const pointersRef = useRef(new Map())
   const pinchRef = useRef(null)
   const mouseDragRef = useRef(null)
@@ -741,8 +764,19 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
   const cameraRafRef = useRef(0)
   const searchInputRef = useRef(null)
   const wordButtonRefs = useRef(new Map())
+  const nebulaRefs = useRef(new Map())
+  const labelRefs = useRef(new Map())
+  // Traccia quali parole erano invisibili all'ultimo tick, per saltare gli aggiornamenti di
+  // left/top/font-size (layout-triggering) sulle parole che restano invisibili (vedi applyProjectionToDOM).
+  const hiddenWordsRef = useRef(new Map())
+  // Specchio in ref di stato React letto dalla hot path imperativa (applyProjectionToDOM),
+  // per evitare closure non aggiornate senza dover ricreare quella funzione a ogni cambio.
+  const filterFamilyRef = useRef(null)
+  const normalizedSearchRef = useRef('')
 
   const normalizedSearch = searchQuery.trim().toLowerCase()
+  useEffect(() => { filterFamilyRef.current = filterFamily }, [filterFamily])
+  useEffect(() => { normalizedSearchRef.current = normalizedSearch }, [normalizedSearch])
 
   const emergedWords = React.useMemo(() => {
     const precise = new Set()
@@ -762,29 +796,86 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
     return { precise, fallback }
   }, [paroleEmerse])
 
-  const getWordOpacity = useCallback(
+  // Opacità "a riposo" (scale=1), usata solo per il render iniziale/JSX — la camera reale
+  // (che può non essere a riposo, es. dopo aver zoomato e poi cambiato filtro) è applicata
+  // subito dopo da applyProjectionToDOM via l'effetto qui sotto.
+  const getRestOpacity = useCallback(
     (word) => {
       const matchesSearch = !normalizedSearch || word.nome.toLowerCase().includes(normalizedSearch)
       const matchesFilter = !filterFamily || word.familyId === filterFamily
       if (!matchesSearch || !matchesFilter) return 0.05
       if (normalizedSearch && matchesSearch) return 1
-      return word.opacity * depthReveal(word.z ?? 0, camera.scale)
+      return word.opacity * depthReveal(word.z ?? 0, 1)
     },
-    [filterFamily, normalizedSearch, camera.scale],
+    [filterFamily, normalizedSearch],
   )
 
-  // Proiezione prospettica: un punto {x,y[,z]} (percentuale, origine 0,0 come
-  // .lessico-atlas__canvas transform-origin) viene riproiettato in base alla profondità
-  // e allo zoom corrente. z assente (es. nebulose/etichette famiglia) equivale a z=0.
-  const getAtlasPoint = useCallback(
-    (point) => {
-      const scale = projScale(point.z ?? 0, camera.scale)
-      return { x: point.x * scale, y: point.y * scale, scale }
-    },
-    [camera.scale],
-  )
+  const wordOpacityFor = useCallback((word, scale) => {
+    const search = normalizedSearchRef.current
+    const filter = filterFamilyRef.current
+    const matchesSearch = !search || word.nome.toLowerCase().includes(search)
+    const matchesFilter = !filter || word.familyId === filter
+    if (!matchesSearch || !matchesFilter) return 0.05
+    if (search && matchesSearch) return 1
+    return word.opacity * depthReveal(word.z ?? 0, scale)
+  }, [])
+
+  // Hot path della camera: chiamata da applyCamera ad ogni tick (wheel/pinch/drag) via ref,
+  // MAI tramite setState — scrive direttamente su ogni nodo DOM, saltando interamente il
+  // render/reconciliation React (che con ~217 parole era la causa principale del lag).
+  const applyProjectionToDOM = useCallback((camera) => {
+    if (canvasRef.current) {
+      canvasRef.current.style.transform = `translate(${camera.x}px, ${camera.y}px)`
+    }
+    for (const fam of FAMILY_LIST) {
+      const pos = project(fam.anchor, 0, 0, 0, camera.scale)
+      const nebEl = nebulaRefs.current.get(fam.id)
+      if (nebEl) {
+        nebEl.style.left = `${pos.x}%`
+        nebEl.style.top = `${pos.y}%`
+        nebEl.style.transform = `translate(-50%, -50%) scale(${pos.scale})`
+      }
+      const labelEl = labelRefs.current.get(fam.id)
+      if (labelEl) {
+        labelEl.style.left = `${pos.x}%`
+        labelEl.style.top = `${pos.y}%`
+      }
+    }
+    for (const word of ATLAS_WORDS) {
+      const el = wordButtonRefs.current.get(word.id)
+      if (!el) continue
+      const opacity = wordOpacityFor(word, camera.scale)
+      const isHidden = opacity <= 0.05
+      // Una parola invisibile prima e dopo questo tick non ha bisogno di left/top/font-size
+      // aggiornati (proprietà che innescano layout): a riposo/zoom basso solo il tier 'big'
+      // è rivelato, quindi questo evita di forzare un reflow di ~217 elementi ad ogni frame
+      // quando la stragrande maggioranza non è comunque visibile — la causa principale del
+      // costo di Layout/RecalcStyle misurato col Performance domain di Chrome DevTools.
+      if (isHidden && hiddenWordsRef.current.get(word.id)) {
+        if (el.style.opacity !== String(opacity)) el.style.opacity = opacity
+        continue
+      }
+      hiddenWordsRef.current.set(word.id, isHidden)
+      const anchor = FAMILY_META[word.familyId].anchor
+      const pos = project(anchor, word.localX, word.localY, word.z, camera.scale)
+      el.style.left = `${pos.x}%`
+      el.style.top = `${pos.y}%`
+      el.style.fontSize = `${clamp(word.fontSize * pos.scale, FONT_MIN, FONT_MAX)}px`
+      el.style.opacity = opacity
+      el.style.pointerEvents = isHidden ? 'none' : ''
+      if (el.tabIndex !== (isHidden ? -1 : 0)) el.tabIndex = isHidden ? -1 : 0
+    }
+  }, [wordOpacityFor])
+
+  // Ricalcola la proiezione (senza attendere un tick camera) quando cambia qualcosa che
+  // tocca opacità/visibilità ma non la camera stessa — es. filtro famiglia, ricerca.
+  useLayoutEffect(() => {
+    applyProjectionToDOM(cameraRef.current)
+  }, [applyProjectionToDOM, filterFamily, normalizedSearch])
 
   // ── Camera helpers ─────────────────────────────────────────────────────────
+  // Nessun setState qui: la camera aggiorna solo cameraRef + il DOM (via rAF, come prima),
+  // mai lo state React — è questo a evitare un render/reconciliation ad ogni tick.
   const applyCamera = useCallback((updater) => {
     const next = typeof updater === 'function' ? updater(cameraRef.current) : updater
     const { w, h } = viewportSizeRef.current
@@ -794,9 +885,9 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
     if (cameraRafRef.current) return
     cameraRafRef.current = window.requestAnimationFrame(() => {
       cameraRafRef.current = 0
-      setCamera(cameraRef.current)
+      applyProjectionToDOM(cameraRef.current)
     })
-  }, [])
+  }, [applyProjectionToDOM])
 
   const beginCameraAnimation = useCallback(() => {
     setCameraAnimating(true)
@@ -807,8 +898,8 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
   const resetCamera = useCallback(() => {
     beginCameraAnimation()
     cameraRef.current = CAMERA_RESET
-    setCamera(CAMERA_RESET)
-  }, [beginCameraAnimation])
+    applyProjectionToDOM(CAMERA_RESET)
+  }, [beginCameraAnimation, applyProjectionToDOM])
 
   const zoomAt = useCallback((scale, origin, w, h, prev = cameraRef.current) => {
     const clamped = clamp(scale, CAMERA_MIN_SCALE, CAMERA_MAX_SCALE)
@@ -825,8 +916,19 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
     const vp = layerRef.current
     if (!vp) return
     const rect = vp.getBoundingClientRect()
-    viewportSizeRef.current = { w: rect.width || 1, h: rect.height || 1 }
-    const origin = { x: rect.width / 2, y: rect.height / 2 }
+    viewportSizeRef.current = { w: rect.width || 1, h: rect.height || 1, left: rect.left, top: rect.top }
+    // Se una parola è selezionata, lo zoom da bottone/tastiera punta verso di lei (non verso
+    // il centro del viewport): altrimenti, ad ogni click, si allontanerebbe progressivamente
+    // dal punto di zoom invece di restare a portata — il bottone "+" non segue il cursore
+    // come wheel/pinch, quindi senza questo la parola cliccata "scapperebbe" comunque, anche
+    // con il tetto sul font-size già applicato altrove.
+    const selectedEl = selectedWord ? wordButtonRefs.current.get(selectedWord.id) : null
+    const origin = selectedEl
+      ? (() => {
+          const wr = selectedEl.getBoundingClientRect()
+          return { x: wr.left + wr.width / 2 - rect.left, y: wr.top + wr.height / 2 - rect.top }
+        })()
+      : { x: rect.width / 2, y: rect.height / 2 }
     const factor = direction > 0 ? CAMERA_ZOOM_STEP : 1 / CAMERA_ZOOM_STEP
     beginCameraAnimation()
     applyCamera((prev) => zoomAt(
@@ -835,7 +937,7 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
       rect.width,
       rect.height,
     ))
-  }, [applyCamera, beginCameraAnimation, zoomAt])
+  }, [applyCamera, beginCameraAnimation, zoomAt, selectedWord])
 
   // ── Wheel (trackpad pinch + scroll pan) ───────────────────────────────────
   const handleWheel = useCallback((event) => {
@@ -846,15 +948,18 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
     const vp = layerRef.current
     if (!vp) return
 
-    const rect = vp.getBoundingClientRect()
-    viewportSizeRef.current = { w: rect.width || 1, h: rect.height || 1 }
-    const origin = { x: event.clientX - rect.left, y: event.clientY - rect.top }
+    // Niente getBoundingClientRect() qui: con ~217 parole riposizionate ad ogni frame da
+    // applyProjectionToDOM, una misura sincrona ad ogni singolo evento wheel forzerebbe un
+    // layout completo prima di poter rispondere ("layout thrashing"), il vero collo di
+    // bottiglia della fluidità. Il rettangolo è già tenuto aggiornato dal ResizeObserver.
+    const { w: width, h: height, left, top } = viewportSizeRef.current
+    const origin = { x: event.clientX - left, y: event.clientY - top }
     const isPinch = event.ctrlKey || event.metaKey
 
     if (isPinch) {
       const intensity = event.deltaMode === 1 ? WHEEL_ZOOM_INTENSITY_LINE : WHEEL_ZOOM_INTENSITY_PX
       applyCamera((prev) =>
-        zoomAt(prev.scale * Math.exp(-event.deltaY * intensity), origin, rect.width, rect.height),
+        zoomAt(prev.scale * Math.exp(-event.deltaY * intensity), origin, width, height),
       )
     } else {
       event.stopPropagation()
@@ -880,7 +985,7 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
 
     const updateSize = () => {
       const rect = layer.getBoundingClientRect()
-      viewportSizeRef.current = { w: rect.width || 1, h: rect.height || 1 }
+      viewportSizeRef.current = { w: rect.width || 1, h: rect.height || 1, left: rect.left, top: rect.top }
     }
     const observer = new ResizeObserver(updateSize)
     updateSize()
@@ -901,7 +1006,7 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
       const fallbackY = rect.top + rect.height / 2
       const clientX = Number.isFinite(e.clientX) ? e.clientX : fallbackX
       const clientY = Number.isFinite(e.clientY) ? e.clientY : fallbackY
-      viewportSizeRef.current = { w: rect.width || 1, h: rect.height || 1 }
+      viewportSizeRef.current = { w: rect.width || 1, h: rect.height || 1, left: rect.left, top: rect.top }
       webkitGestureRef.current = {
         camera: cameraRef.current,
         origin: { x: clientX - rect.left, y: clientY - rect.top },
@@ -947,7 +1052,7 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
       const my = (a.clientY + b.clientY) / 2
       const vp = layerRef.current
       const rect = vp?.getBoundingClientRect() || { left: 0, top: 0 }
-      viewportSizeRef.current = { w: rect.width || 1, h: rect.height || 1 }
+      viewportSizeRef.current = { w: rect.width || 1, h: rect.height || 1, left: rect.left, top: rect.top }
       pinchRef.current = {
         camera: cameraRef.current,
         distance: dist,
@@ -1123,43 +1228,50 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
           <div
             ref={canvasRef}
             className={`lessico-atlas__canvas${cameraAnimating ? ' lessico-atlas__canvas--animating' : ''}`}
-            style={{ transform: `translate(${camera.x}px, ${camera.y}px)` }}
           >
-            {/* Nebula backgrounds */}
-            {FAMILY_LIST.map((fam) => {
-              const pos = getAtlasPoint(fam.anchor)
-              return (
-                <div
-                  key={fam.id}
-                  className={`lessico-atlas__nebula${filterFamily && filterFamily !== fam.id ? ' is-dimmed' : ''}`}
-                  style={{
-                    left: `${pos.x}%`,
-                    top: `${pos.y}%`,
-                    '--nebula-color': fam.nebula,
-                  }}
-                  aria-hidden
-                />
-              )
-            })}
+            {/* Nebula backgrounds — posizione/scala reali aggiornate da applyProjectionToDOM;
+                qui solo il valore a riposo (scale=1), per il primo paint. */}
+            {FAMILY_LIST.map((fam) => (
+              <div
+                key={fam.id}
+                ref={(node) => {
+                  if (node) nebulaRefs.current.set(fam.id, node)
+                  else nebulaRefs.current.delete(fam.id)
+                }}
+                className={`lessico-atlas__nebula${filterFamily && filterFamily !== fam.id ? ' is-dimmed' : ''}`}
+                style={{
+                  left: `${fam.anchor.x}%`,
+                  top: `${fam.anchor.y}%`,
+                  '--nebula-color': fam.nebula,
+                }}
+                aria-hidden
+              />
+            ))}
 
             {/* Family zone labels */}
-            {FAMILY_LIST.map((fam) => {
-              const pos = getAtlasPoint(fam.anchor)
-              return (
-                <div
-                  key={fam.id}
-                  className={`lessico-atlas__zone-label${filterFamily && filterFamily !== fam.id ? ' is-dimmed' : ''}`}
-                  style={{ left: `${pos.x}%`, top: `${pos.y}%`, '--zone-color': fam.baseColor }}
-                  aria-hidden
-                >
-                  {fam.label}
-                </div>
-              )
-            })}
+            {FAMILY_LIST.map((fam) => (
+              <div
+                key={fam.id}
+                ref={(node) => {
+                  if (node) labelRefs.current.set(fam.id, node)
+                  else labelRefs.current.delete(fam.id)
+                }}
+                className={`lessico-atlas__zone-label${filterFamily && filterFamily !== fam.id ? ' is-dimmed' : ''}`}
+                style={{ left: `${fam.anchor.x}%`, top: `${fam.anchor.y}%`, '--zone-color': fam.baseColor }}
+                aria-hidden
+              >
+                {fam.label}
+              </div>
+            ))}
 
-            {/* Words */}
+            {/* Words — left/top/fontSize/opacity qui sono il valore a riposo (scale=1):
+                applyProjectionToDOM li corregge subito con la camera reale (vedi useLayoutEffect
+                sopra), senza flash percepibile. Nessun ramo dimensionale speciale per la parola
+                selezionata: stessa geometria di qualunque altra parola, evidenziata solo via CSS
+                (.is-selected in galassia-view.css) — click non deve mai poter produrre un
+                font-size fuori controllo. */}
             {ATLAS_WORDS.map((word) => {
-              const opacity = getWordOpacity(word)
+              const opacity = getRestOpacity(word)
               const isSelected = selectedWord?.id === word.id
               const isHovered = hoveredWordId === word.id
               const normalizedName = word.nome.toLowerCase()
@@ -1167,7 +1279,6 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
                 emergedWords.precise.has(`${word.familyId}|${word.subcurrentId}|${normalizedName}`)
                 || emergedWords.fallback.has(normalizedName)
               const isFilteredOut = opacity <= 0.05
-              const pos = getAtlasPoint(word)
               return (
                 <button
                   ref={(node) => {
@@ -1179,15 +1290,14 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
                   tabIndex={isFilteredOut ? -1 : 0}
                   className={`lessico-atlas__word${isSelected ? ' is-selected' : ''}${isEmerged ? ' is-emerged' : ''}${isHovered ? ' is-hovered' : ''}`}
                   style={{
-                    left: `${pos.x}%`,
-                    top: `${pos.y}%`,
-                    fontSize: isSelected
-                      ? `${clamp(word.fontSize * 1.75, 28, 42) * pos.scale}px`
-                      : `${word.fontSize * pos.scale}px`,
+                    left: `${word.x}%`,
+                    top: `${word.y}%`,
+                    fontSize: `${clamp(word.fontSize, FONT_MIN, FONT_MAX)}px`,
                     fontWeight: word.fontWeight,
                     '--word-color': word.color,
                     color: word.color,
                     opacity,
+                    pointerEvents: isFilteredOut ? 'none' : undefined,
                     zIndex: isSelected ? 120 : isHovered ? 50 : word.tier === 'big' ? 20 : word.tier === 'medium' ? 15 : 10,
                   }}
                   onMouseEnter={() => setHoveredWordId(word.id)}

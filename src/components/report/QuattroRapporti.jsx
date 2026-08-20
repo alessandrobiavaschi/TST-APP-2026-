@@ -6,7 +6,6 @@ import { RAPPORTI_UI } from './reportUiCopy.js'
 import { FAMILY_THEME } from '../../config/reportFamilyTheme.js'
 import SectionNumber from './SectionNumber.jsx'
 import CalculationDisclosure from './CalculationDisclosure.jsx'
-import { scrollElementToReportCenter } from './reportSectionNavUtils.js'
 import {
   ResponsiveContainer,
   RadarChart,
@@ -50,6 +49,12 @@ function hexToRgba(hex, alpha) {
     return `rgba(148, 163, 184, ${alpha})`
   }
   return `rgba(${r}, ${g}, ${b}, ${alpha})`
+}
+
+function splitSottotitolo(sottotitolo, fallback) {
+  const match = typeof sottotitolo === 'string' ? sottotitolo.match(/^(.*?)\s*\(([^)]+)\)\s*$/) : null
+  if (match) return { main: match[1], sub: match[2] }
+  return { main: sottotitolo || fallback || '', sub: '' }
 }
 
 function AxisTick({ x, y, payload, textAnchor }) {
@@ -223,8 +228,7 @@ export default function QuattroRapporti({
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [isHelpOpen, setIsHelpOpen] = useState(false)
   const [selectedFamilyByRapporto, setSelectedFamilyByRapporto] = useState({})
-  const rapportiMainRef = useRef(null)
-  const shouldCenterRapportoRef = useRef(false)
+  const [approfondimentoOpen, setApprofondimentoOpen] = useState(false)
 
   const activeIndex = rapporti.length > 0
     ? Math.min(Math.max(selectedIndex, 0), rapporti.length - 1)
@@ -234,7 +238,13 @@ export default function QuattroRapporti({
     active?.correntePrincipale?.colore ||
     coloriCorrenti?.[active?.correntePrincipale?.nome] ||
     FALLBACK_COLOR
-  const fadeDuration = reduceMotion ? 0 : 0.15
+  const fadeDuration = reduceMotion ? 0 : 0.3
+
+  const sintesiParagraphs = Array.isArray(active?.sintesiBreveParagrafi) && active.sintesiBreveParagrafi.length
+    ? active.sintesiBreveParagrafi
+    : active?.definizione ? [active.definizione] : []
+  const [leadParagraph, ...restParagraphs] = sintesiParagraphs
+  const { main: titleMain, sub: titleSub } = splitSottotitolo(active?.sottotitolo, active?.nome)
 
   const radarData = useMemo(() => {
     if (!active?.datiRadar) return []
@@ -270,24 +280,9 @@ export default function QuattroRapporti({
   }, [isHelpOpen])
 
   const selectRapporto = (index) => {
-    shouldCenterRapportoRef.current = true
-    if (index === selectedIndex) {
-      window.requestAnimationFrame(() => {
-        shouldCenterRapportoRef.current = false
-        scrollElementToReportCenter(rapportiMainRef.current, { reduceMotion, placement: 'start' })
-      })
-    }
+    if (index !== selectedIndex) setApprofondimentoOpen(false)
     setSelectedIndex(index)
   }
-
-  useEffect(() => {
-    if (!shouldCenterRapportoRef.current) return undefined
-    shouldCenterRapportoRef.current = false
-    const raf = window.requestAnimationFrame(() => {
-      scrollElementToReportCenter(rapportiMainRef.current, { reduceMotion, placement: 'start' })
-    })
-    return () => window.cancelAnimationFrame(raf)
-  }, [selectedIndex, reduceMotion])
 
   return (
     <section
@@ -330,11 +325,14 @@ export default function QuattroRapporti({
           </button>
         </div>
 
-        <div role="tablist" aria-label={RAPPORTI_UI.tablistAria} className="quattro-rapporti-tabs">
+        <div
+          role="tablist"
+          aria-label={RAPPORTI_UI.tablistAria}
+          className={`quattro-rapporti-tabs${approfondimentoOpen ? ' quattro-rapporti-tabs--sticky' : ''}`}
+        >
           {rapporti.map((r, i) => {
             const selected = i === activeIndex
             const color = r?.correntePrincipale?.colore || FALLBACK_COLOR
-            const lensCopy = RAPPORTI_UI.lensCards?.find((item) => item.id === r?.id)
             return (
               <button
                 key={r?.id ?? i}
@@ -350,14 +348,12 @@ export default function QuattroRapporti({
               >
                 <SectionNumber value={i + 1} size="sm" className="quattro-rapporti-tab__index" />
                 <span className="quattro-rapporti-tab__name">{r?.nome}</span>
-                <span className="quattro-rapporti-tab__meaning">{lensCopy?.plain}</span>
-                <span className="quattro-rapporti-tab__dot" aria-hidden="true" />
               </button>
             )
           })}
         </div>
 
-        <div ref={rapportiMainRef} className="quattro-rapporti-main">
+        <div className="quattro-rapporti-main">
           <div className="quattro-rapporti-radar-wrap">
             <div
               className="quattro-rapporti-radar"
@@ -368,7 +364,7 @@ export default function QuattroRapporti({
                   : 'Radar dei rapporti'
               }
             >
-              <ResponsiveContainer width="100%" height={320} debounce={100}>
+              <ResponsiveContainer width="100%" height="100%" debounce={100}>
                 <RadarChart data={radarData} outerRadius="64%">
                   <PolarGrid stroke="#334155" strokeOpacity={0.5} />
                   <PolarAngleAxis
@@ -419,37 +415,45 @@ export default function QuattroRapporti({
                 <motion.div
                   key={active.id ?? activeIndex}
                   className="quattro-rapporti-read__content"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: fadeDuration }}
+                  initial={{ opacity: 0, x: 14 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -14 }}
+                  transition={{ duration: fadeDuration, ease: 'easeOut' }}
                 >
-                  <h3 className="quattro-rapporti-read__title">
-                    <SectionNumber value={activeIndex + 1} size="sm" className="quattro-rapporti-read__index-prefix" />
-                    {active.sottotitolo || active.nome}
-                  </h3>
-                  {active.levelLabel ? <p className="quattro-rapporti-read__level-label">{active.levelLabel}</p> : null}
-                  <div className="quattro-rapporti-read__block">
-                    {Array.isArray(active.sintesiBreveParagrafi) && active.sintesiBreveParagrafi.length
-                      ? active.sintesiBreveParagrafi.map((paragraph, index) => (
-                        <p key={`${active.id}-summary-${index}`} className={`quattro-rapporti-read__text${index === 0 ? ' quattro-rapporti-read__text--lead' : ''}`}>
-                          {paragraph}
-                        </p>
-                      ))
-                      : <p className="quattro-rapporti-read__text">{active.definizione}</p>}
+                  <div className="quattro-rapporti-read__heading">
+                    <SectionNumber value={activeIndex + 1} size="md" className="quattro-rapporti-read__index-prefix" />
+                    <div className="quattro-rapporti-read__heading-text">
+                      <h3 className="quattro-rapporti-read__title">{titleMain}</h3>
+                      {titleSub ? <p className="quattro-rapporti-read__subtitle">{titleSub}</p> : null}
+                    </div>
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
 
-        {active ? (
-          <CalculationDisclosure
-            label="Vedi calcoli e relazioni tra le famiglie"
-            className="quattro-rapporti-toggle"
-          >
-            <div className="qr-toggle-section">
+                  {active.levelLabel ? <p className="quattro-rapporti-read__level-label">{active.levelLabel}</p> : null}
+
+                  {leadParagraph ? (
+                    <p className="quattro-rapporti-read__text quattro-rapporti-read__text--lead">{leadParagraph}</p>
+                  ) : null}
+
+                  <CalculationDisclosure
+                    label="Approfondisci il rapporto"
+                    className="quattro-rapporti-approfondisci"
+                    onOpenChange={setApprofondimentoOpen}
+                  >
+                    {restParagraphs.length ? (
+                      <div className="quattro-rapporti-read__block">
+                        {restParagraphs.map((paragraph, index) => (
+                          <p key={`${active.id}-summary-${index}`} className="quattro-rapporti-read__text">
+                            {paragraph}
+                          </p>
+                        ))}
+                      </div>
+                    ) : null}
+
+                    <CalculationDisclosure
+                      label="Vedi calcoli e relazioni tra le famiglie"
+                      className="quattro-rapporti-toggle"
+                    >
+                      <div className="qr-toggle-section">
               <h4>Da cosa nasce questo rapporto</h4>
               {active.composizioneSemplice ? <p>{active.composizioneSemplice}</p> : null}
               {active.composizione ? (
@@ -611,14 +615,19 @@ export default function QuattroRapporti({
               )}
             </div>
 
-            {active.levelLabel ? (
-              <div className="qr-toggle-section">
-                <h4>Come si arriva alla frase finale</h4>
-                <p>Per questo il risultato viene descritto come «{active.levelLabel}».</p>
-              </div>
-            ) : null}
-          </CalculationDisclosure>
-        ) : null}
+                    {active.levelLabel ? (
+                      <div className="qr-toggle-section">
+                        <h4>Come si arriva alla frase finale</h4>
+                        <p>Per questo il risultato viene descritto come «{active.levelLabel}».</p>
+                      </div>
+                    ) : null}
+                    </CalculationDisclosure>
+                  </CalculationDisclosure>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
       </div>
       {isHelpOpen ? <RapportiHelpModal onClose={() => setIsHelpOpen(false)} /> : null}
     </section>
