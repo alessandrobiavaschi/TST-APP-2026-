@@ -186,7 +186,7 @@ test('la lettura della Natura usa la prevalente della lente e racconta le second
   assert.match(natura.definizione, /seconda componente.*Marziale.*influenza discreta.*tensione significativa/i)
 })
 
-test('il contratto Natura racconta la tensione reale nel riepilogo visibile del caso CSV', () => {
+test('il contratto Natura ordina il peso reale prima delle opposizioni teoriche', () => {
   const naturaTotals = { rosso: 19, blu: 15, giallo: 12, verde: 7, grigio: 3 }
   const report = buildReportData({
     record: { raw: {} },
@@ -199,8 +199,9 @@ test('il contratto Natura racconta la tensione reale nel riepilogo visibile del 
   assert.equal(natura.correntePrincipale.nome, 'Marziale')
   assert.equal(natura.sintesiBreveParagrafi.length, 3)
   assert.match(natura.sintesiBreveParagrafi[0], /Marziale.*Volitivo-collerica/i)
-  assert.match(natura.sintesiBreveParagrafi[1], /tensione moderata.*Flemmatica/i)
-  assert.match(natura.sintesiBreveParagrafi[2], /discreta armonia/i)
+  assert.match(natura.sintesiBreveParagrafi[1], /Malinconica.*riflessione.*consapevole/i)
+  assert.doesNotMatch(natura.sintesiBreveParagrafi.join(' '), /natura Flemmatica/i)
+  assert.match(natura.sintesiBreveParagrafi[2], /eccellente armonia/i)
   assert.doesNotMatch(natura.sintesiBreveParagrafi.join(' '), /%|punti percentuali/i)
 })
 

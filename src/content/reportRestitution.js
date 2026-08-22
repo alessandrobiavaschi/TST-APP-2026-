@@ -4,6 +4,7 @@
  */
 
 import { FAMILY_THEME } from '../config/reportFamilyTheme.js'
+import { analyzeFamilyComposition } from '../utils/reportCompositionSensitivity.js'
 
 const FAMILIES = ['Blu', 'Rosso', 'Verde', 'Giallo', 'Grigio']
 
@@ -381,7 +382,7 @@ function capitalizeLabel(text) {
 
 function describeFamigliaLeggibile(c) {
   if (!c) return ''
-  const famiglia = c.label || c.nome || ''
+  const famiglia = c.nome || c.label || ''
   const temperamento =
     c.nome && c.label && c.nome !== c.label ? `, qualità ${c.nome}` : ''
   const peso = typeof c.peso === 'number' ? Math.round(c.peso) : null
@@ -409,6 +410,13 @@ function buildDistribuzioneParagraph(correntiByPeso, famigliaPrevalente) {
     'Le percentuali nel grafico indicano la quota percentuale di ciascuna famiglia emotiva rispetto al totale del profilo (come fette di una torta).',
   ]
   const domEntry = findCorrenteByFamiglia(correntiByPeso, famigliaPrevalente)
+  const composition = analyzeFamilyComposition(
+    correntiByPeso.map((item) => ({
+      ...item,
+      rawValue: item.valoreAssoluto,
+      distributionPercent: item.peso,
+    })),
+  )
   const topPeso = Math.round(Number(correntiByPeso[0]?.peso) || 0)
   const tiedTop = correntiByPeso.filter((c) => Math.round(Number(c.peso) || 0) === topPeso)
 
@@ -418,7 +426,15 @@ function buildDistribuzioneParagraph(correntiByPeso, famigliaPrevalente) {
     )
   }
 
-  if (tiedTop.length > 1) {
+  if (composition.status === 'balanced' && composition.foreground.length > 1) {
+    parts.push(
+      `La prevalenza è ravvicinata: ${composition.foreground.map(describeFamigliaLeggibile).join('; ')} vanno lette quasi sullo stesso piano.`,
+    )
+  } else if (composition.status === 'mixed' && composition.foreground.length > 1) {
+    parts.push(
+      `La famiglia prevalente non esaurisce il profilo: ${composition.foreground.slice(1).map(describeFamigliaLeggibile).join('; ')} modifica in modo significativo la restituzione.`,
+    )
+  } else if (tiedTop.length > 1) {
     parts.push(
       `Famiglie con peso più alto, affiancate: ${tiedTop.map(describeFamigliaLeggibile).join('; ')}.`,
     )
@@ -434,7 +450,7 @@ function buildDistribuzioneParagraph(correntiByPeso, famigliaPrevalente) {
   }
 
   parts.push(
-    'Tutte le famiglie compaiono nel profilo: è una composizione mista, non un’etichetta unica.',
+    'Le famiglie marginali restano visibili nei dati, ma non vengono usate per attribuire tratti forti o per mettere in primo piano un\'opposizione teorica.',
   )
   return parts.join(' ')
 }

@@ -556,7 +556,9 @@ export default function QuattroRapporti({
                 <p>
                   {agoDellaBilancia.coincideConFamigliaPrevalente
                     ? 'In questo rapporto coincide con la famiglia più alta nel radar.'
-                    : `Non coincide con la famiglia più alta nel radar di questa lente (${ranking[0]?.corrente || '—'}): resta comunque il riferimento fisso di questo rapporto.`}
+                    : relationBreakdown?.supportsStrongReference
+                      ? `Non è la famiglia più alta (${ranking[0]?.corrente || '—'}), ma ha un peso sufficiente per contribuire alla lettura dopo le componenti prevalenti.`
+                      : `Non è la famiglia più alta (${ranking[0]?.corrente || '—'}) e il suo peso è ${relationBreakdown?.referenceSalience === 'marginal' ? 'marginale' : 'secondario'}: resta un riferimento teorico, ma non sostiene da solo una conclusione comportamentale.`}
                 </p>
               </div>
             ) : null}
@@ -588,7 +590,11 @@ export default function QuattroRapporti({
                   ))}
                 </ul>
               ) : (
-                <p>Nessuna tensione reale rilevata in base alla matrice delle famiglie per questo rapporto.</p>
+                <p>
+                  {relationBreakdown?.supportsStrongReference === false
+                    ? 'La componente di riferimento è troppo debole per mettere in primo piano un\'opposizione teorica.'
+                    : 'Nessuna tensione significativa rilevata in base alla matrice delle famiglie per questo rapporto.'}
+                </p>
               )}
             </div>
 

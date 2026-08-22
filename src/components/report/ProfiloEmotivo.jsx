@@ -214,8 +214,18 @@ export default function ProfiloEmotivo({
               color: 'rgba(255, 255, 255, 0.9)',
               marginBottom: '1rem'
             }}>
-              {profilo.fraseChiave}
+              {profilo.composizioneSintesi || profilo.fraseChiave}
             </p>
+            {profilo.composizioneSintesi ? (
+              <p className="profilo-family-summary-card__brief" style={{
+                fontSize: '0.95rem',
+                lineHeight: '1.6',
+                color: 'rgba(255, 255, 255, 0.76)',
+                margin: 0,
+              }}>
+                La descrizione della famiglia prevalente qui sotto è una base di lettura; non annulla le altre componenti significative.
+              </p>
+            ) : null}
           </div>
         ) : null}
 

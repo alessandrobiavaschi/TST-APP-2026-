@@ -3,6 +3,7 @@ import test from 'node:test'
 
 import {
   buildNaturaNarrative,
+  buildRelationBreakdown,
   NATURA_NARRATIVE_STATUS,
   NATURA_RELATION_RULES,
   resolveHarmonyDescriptor,
@@ -37,6 +38,22 @@ test('applica la formula editoriale a tutte le famiglie con maiuscole standard',
     assert.match(result.frontParagraphs[0], new RegExp(`famiglia ${family}`))
     assert.doesNotMatch(text, /profonda appartenenza|buona armonia/i)
   })
+})
+
+test('una opposizione marginale resta nel dettaglio ma non diventa tensione principale', () => {
+  const breakdown = buildRelationBreakdown({
+    agoFamilyKey: 'rosso',
+    ranking: [
+      radarItem('rosso', 40, 40, 7),
+      radarItem('blu', 32, 32, 6),
+      radarItem('giallo', 19, 19, 3),
+      radarItem('verde', 5, 5, 1),
+      radarItem('grigio', 4, 4, 1),
+    ],
+  })
+
+  assert.equal(breakdown.others.some((item) => item.familyKey === 'verde'), true)
+  assert.equal(breakdown.tensions.some((item) => item.familyKey === 'verde'), false)
 })
 
 test('racconta tutte le componenti di un profilo 7 6 5 e solo le tensioni codificate', () => {
@@ -91,7 +108,7 @@ test('gradua al contrario l influenza delle famiglie successive rispetto alla pr
   assert.doesNotMatch(close.paragraphs.join(' '), /certa prevalenza|netta prevalenza/i)
 })
 
-test('il racconto in primo piano evidenzia la tensione reale, il dettaglio tecnico mantiene tutta la graduatoria', () => {
+test('il racconto in primo piano segue il peso prima delle opposizioni teoriche', () => {
   const result = buildNaturaNarrative({
     dominantFamilyKey: 'rosso',
     ranking: [
@@ -105,8 +122,9 @@ test('il racconto in primo piano evidenzia la tensione reale, il dettaglio tecni
 
   assert.equal(result.frontParagraphs.length, 3)
   assert.match(result.frontParagraphs[0], /appartenenza alla famiglia Marziale.*Volitivo-collerica/i)
-  assert.match(result.frontParagraphs[1], /tensione moderata.*natura Flemmatica.*mette in tensione la spinta all'azione/i)
-  assert.match(result.frontParagraphs[2], /discreta armonia tra le diverse componenti/i)
+  assert.match(result.frontParagraphs[1], /natura Malinconica.*riflessione.*consapevole/i)
+  assert.doesNotMatch(result.frontParagraphs.join(' '), /natura Flemmatica/i)
+  assert.match(result.frontParagraphs[2], /eccellente armonia tra le diverse componenti/i)
   assert.doesNotMatch(result.frontParagraphs.join(' '), /%|punti percentuali/i)
   assert.match(result.paragraphs.join(' '), /quarta componente.*Flemmatica.*influenza moderata.*tensione/i)
   assert.match(result.paragraphs.join(' '), /quinta componente.*Razionale.*influenza leggera.*tensione/i)

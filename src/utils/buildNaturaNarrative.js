@@ -1,4 +1,9 @@
 import { FAMILY_THEME } from '../config/reportFamilyTheme.js'
+import {
+  analyzeFamilyComposition,
+  canSupportStrongInterpretation,
+  getFamilySalience,
+} from './reportCompositionSensitivity.js'
 
 export const NATURA_NARRATIVE_STATUS = Object.freeze({
   EMPTY: 'empty',
@@ -159,12 +164,17 @@ export function buildRelationBreakdown({ agoFamilyKey = '', ranking = [] } = {})
   const measurable = ranking.filter((item) => (Number(item?.rawValue) || 0) > 0)
   const agoItem = measurable.find((item) => item.familyKey === agoFamilyKey) || null
   if (!agoItem) return { agoItem: null, others: [], tensions: [], harmony: null }
+  const composition = analyzeFamilyComposition(measurable)
+  const referenceSalience = getFamilySalience(composition, agoFamilyKey)
+  const supportsStrongReference = canSupportStrongInterpretation(referenceSalience)
 
   const others = measurable
     .filter((item) => item.familyKey !== agoFamilyKey)
     .sort((a, b) => (Number(b.rawValue) || 0) - (Number(a.rawValue) || 0))
     .map((item) => {
-      const gap = percentGap(agoItem.distributionPercent, item.distributionPercent)
+      const gap = Number(Math.abs(
+        (Number(agoItem.distributionPercent) || 0) - (Number(item.distributionPercent) || 0),
+      ).toFixed(1))
       const rule = NATURA_RELATION_RULES[pairKey(agoFamilyKey, item.familyKey)] || null
       return {
         ...item,
@@ -177,10 +187,14 @@ export function buildRelationBreakdown({ agoFamilyKey = '', ranking = [] } = {})
     })
 
   const tensions = others
-    .filter((item) => item.relation?.kind === 'tension')
+    .filter((item) => (
+      supportsStrongReference &&
+      canSupportStrongInterpretation(getFamilySalience(composition, item.familyKey)) &&
+      item.relation?.kind === 'tension'
+    ))
     .map((item) => ({ ...item, tensionDescriptor: resolveTensionDescriptor(item.gap) }))
 
-  const harmony = others.length >= 2
+  const harmony = supportsStrongReference && others.length >= 2
     ? (() => {
         const gap = Number(((others[0].gap + others[1].gap) / 2).toFixed(1))
         return {
@@ -191,7 +205,15 @@ export function buildRelationBreakdown({ agoFamilyKey = '', ranking = [] } = {})
       })()
     : null
 
-  return { agoItem, others, tensions, harmony }
+  return {
+    agoItem,
+    others,
+    tensions,
+    harmony,
+    referenceSalience: referenceSalience?.salience || 'marginal',
+    supportsStrongReference,
+    compositionStatus: composition.status,
+  }
 }
 
 function buildInfluenceParagraph(item, leader, position) {
@@ -258,12 +280,25 @@ function buildNaturaStoryParagraphs({ status, leader, leaderCopy, influenceFamil
     ]
   }
 
-  const withRules = influenceFamilies.map((item) => ({
+  const composition = analyzeFamilyComposition([leader, ...influenceFamilies])
+  const foregroundKeys = new Set(composition.foreground.map((item) => item.familyKey))
+  const narrativeFamilies = influenceFamilies.filter((item) => foregroundKeys.has(item.familyKey))
+  const withRules = narrativeFamilies.map((item) => ({
     item,
     rule: NATURA_RELATION_RULES[pairKey(leader.familyKey, item.familyKey)],
   }))
   const tensionMatch = withRules.find(({ rule }) => rule?.kind === 'tension')
   const chosen = tensionMatch || withRules[0]
+  if (!chosen) {
+    const baseSentence = NATURA_PRACTICAL_BASE[leader.familyKey]
+    return [
+      opening,
+      [
+        `Le altre famiglie restano sullo sfondo e non sono abbastanza vicine alla componente prevalente da orientare il racconto principale.`,
+        baseSentence ? `In pratica, questa lente suggerisce soprattutto che ${baseSentence}` : '',
+      ].filter(Boolean).join(' '),
+    ]
+  }
   const secondaryCopy = familyCopy(chosen.item.familyKey)
   const gap = percentGap(leader.distributionPercent, chosen.item.distributionPercent)
 
@@ -305,7 +340,7 @@ function buildShadesParagraph(shades = [], familyKey) {
   const values = measurable.map(
     (shade) => `${shade.nome} raggiunge il ${formatPercent(shade.percentuale)}% del proprio massimo teorico`,
   )
-  return `Nel profilo complessivo, all'interno della famiglia ${copy.family}, ${formatItalianList(values)}. Queste percentuali descrivono attivazioni indipendenti: non appartengono al singolo rapporto e non devono sommare a 100%.`
+  return `Nel profilo complessivo, all'interno della famiglia ${copy.family}, ${formatItalianList(values)}. Queste percentuali descrivono attivazioni indipendenti: non appartengono alla singola lente e non devono sommare a 100%.`
 }
 
 /**
@@ -378,15 +413,16 @@ export function buildNaturaNarrative({
   const influenceParagraphs = influenceFamilies.map((item) =>
     buildInfluenceParagraph(item, leader, ranked.findIndex((candidate) => candidate.familyKey === item.familyKey) + 1),
   )
-  const secondFamily = ranked[1] || null
-  const thirdFamily = ranked[2] || null
-  const harmonyGap = secondFamily && thirdFamily
-    ? Number(
-        (
-          (percentGap(leader.distributionPercent, secondFamily.distributionPercent) +
-            percentGap(leader.distributionPercent, thirdFamily.distributionPercent)) / 2
-        ).toFixed(1),
-      )
+  const harmonyCandidates = status === NATURA_NARRATIVE_STATUS.TRUE_TIE
+    ? ranked.filter((item) => item.rawValue !== leader.rawValue).slice(0, 2)
+    : ranked.slice(1, 3)
+  const harmonyGap = harmonyCandidates.length
+    ? Number((
+        harmonyCandidates.reduce(
+          (sum, item) => sum + percentGap(leader.distributionPercent, item.distributionPercent),
+          0,
+        ) / harmonyCandidates.length
+      ).toFixed(1))
     : null
   const harmonyDescriptor = harmonyGap !== null ? resolveHarmonyDescriptor(harmonyGap) : null
   const harmonyParagraph = harmonyGap !== null
@@ -438,7 +474,8 @@ export function buildNaturaNarrative({
   return {
     status,
     paragraphs: [
-      ...(status === NATURA_NARRATIVE_STATUS.TRUE_TIE ? [familyParagraph, natureParagraph] : []),
+      familyParagraph,
+      natureParagraph,
       resultParagraph,
       relationParagraph,
       harmonyParagraph,

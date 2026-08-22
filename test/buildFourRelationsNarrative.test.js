@@ -65,7 +65,7 @@ test('Altro legge insieme presenza Entusiasta e distanza dalla famiglia dominant
 
   assert.equal(distant.metrics.deficit, 47)
   assert.equal(distant.metrics.grade, 1)
-  assert.match(distant.levelLabel, /parziale/i)
+  assert.match(distant.levelLabel, /non determinabile/i)
   assert.match(distant.paragraphs.join(' '), /Entusiasmo.*8%.*Marziale.*55%.*47 punti percentuali/i)
 })
 
@@ -148,4 +148,19 @@ test('le tre lenti restituiscono uno stato esplicito quando non esistono punti r
     assert.equal(result.status, 'empty')
     assert.equal(result.levelLabel, 'Dati insufficienti')
   })
+})
+
+test('una componente teorica marginale non produce un tratto comportamentale forte', () => {
+  const ranking = [
+    item('blu', 46, 46, 7),
+    item('giallo', 28, 28, 4),
+    item('verde', 17, 17, 3),
+    item('rosso', 5, 5, 1),
+    item('grigio', 4, 4, 1),
+  ]
+  const action = buildActionNarrative({ dominantFamilyKey: 'blu', ranking })
+
+  assert.equal(action.metrics.referenceSalience, 'marginal')
+  assert.match(action.frontParagraphs.join(' '), /non sarebbe corretto dedurne/i)
+  assert.doesNotMatch(action.frontParagraphs.join(' '), /particolarmente organizzato.*sei/i)
 })

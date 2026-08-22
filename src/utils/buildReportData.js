@@ -89,6 +89,7 @@ import {
   buildOtherNarrative,
   buildSelfNarrative,
 } from './buildFourRelationsNarrative.js'
+import { analyzeFamilyComposition } from './reportCompositionSensitivity.js'
 
 const PESO_RANK_LABEL = ['dominante', 'secondaria', 'minore', 'marginale', 'marginale']
 
@@ -601,6 +602,13 @@ export function buildReportData({
   })
 
   const correntiByPeso = [...correnti].sort((a, b) => b.peso - a.peso)
+  const familyComposition = analyzeFamilyComposition(
+    correntiByPeso.map((item) => ({
+      ...item,
+      rawValue: item.valoreAssoluto,
+      distributionPercent: item.peso,
+    })),
+  )
   const sottocorrenti = buildSottocorrenti(rawRecord)
   const sottodisposizionePrevalente = resolveSottodisposizionePrevalente(
     rawRecord,
@@ -628,6 +636,12 @@ export function buildReportData({
     criterioNatura: 'prevalenza',
     criterioFamiglia: 'prevalenza',
     criterioTemperamento: 'prevalenza',
+    composizioneFamiglie: familyComposition,
+    composizioneSintesi: familyComposition.status === 'balanced'
+      ? `La famiglia prevalente guida di poco: ${familyComposition.foreground.map((item) => `${item.nome} ${item.distributionPercent}%`).join(', ')} formano un profilo ravvicinato e vanno lette quasi sullo stesso piano.`
+      : familyComposition.status === 'mixed'
+        ? `La prevalenza non è esclusiva: ${familyComposition.foreground.map((item) => `${item.nome} ${item.distributionPercent}%`).join(', ')} contribuiscono in modo significativo al profilo.`
+        : `La restituzione è orientata soprattutto dalla famiglia ${familyComposition.leader?.nome || domTheme.family}; le componenti più basse restano sullo sfondo.`,
   }
 
   /* ── Profilo emotivo: 4 pannelli (natura/racconto/risorse/ombre) ──── */

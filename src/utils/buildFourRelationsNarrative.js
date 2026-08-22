@@ -1,5 +1,10 @@
 import { FAMILY_THEME } from '../config/reportFamilyTheme.js'
 import { NATURA_RELATION_RULES } from './buildNaturaNarrative.js'
+import {
+  analyzeFamilyComposition,
+  canSupportStrongInterpretation,
+  getFamilySalience,
+} from './reportCompositionSensitivity.js'
 
 const THEME_BY_KEY = Object.fromEntries(
   Object.values(FAMILY_THEME).map((theme) => [theme.key, theme]),
@@ -121,6 +126,28 @@ function emptyNarrative(copy) {
   }
 }
 
+function buildLensContext(ranking, referenceFamilyKey) {
+  const composition = analyzeFamilyComposition(ranking)
+  const reference = getFamilySalience(composition, referenceFamilyKey)
+  const leaderCopy = familyCopy(composition.leader?.familyKey)
+  const foregroundCopies = composition.foreground
+    .slice(1)
+    .map((item) => familyCopy(item.familyKey).family)
+  const compositionCopy = composition.status === 'balanced'
+    ? `La lente mostra un equilibrio ravvicinato: ${leaderCopy.family} guida di poco${foregroundCopies.length ? `, insieme a ${foregroundCopies.join(' e ')}` : ''}.`
+    : composition.status === 'mixed'
+      ? `La lente è mista: ${leaderCopy.family} è prima, ma ${foregroundCopies.join(' e ')} ha un peso abbastanza vicino da modificare la lettura.`
+      : `La lente è concentrata soprattutto sulla famiglia ${leaderCopy.family}.`
+
+  return {
+    composition,
+    reference,
+    leaderCopy,
+    compositionCopy,
+    supportsStrongReference: canSupportStrongInterpretation(reference),
+  }
+}
+
 export function resolveRelationalOpenness({ dominantPercent = 0, enthusiasmPercent = 0 } = {}) {
   const enthusiasm = Math.max(0, Number(enthusiasmPercent) || 0)
   const deficit = Math.max(0, (Number(dominantPercent) || 0) - enthusiasm)
@@ -159,30 +186,36 @@ export function buildSelfNarrative({ dominantFamilyKey = '', ranking = [] } = {}
   const harmony = presenceDescriptor(dominant.distributionPercent)
   const relation = relationBetween('blu', dominantFamilyKey)
   const sameFamily = dominantFamilyKey === 'blu'
+  const lens = buildLensContext(ranking, 'blu')
 
   const relationParagraph = sameFamily
-    ? `La tua famiglia di base è Malinconica.`
+    ? `La famiglia di base e il fattore di consapevolezza convergono nello stesso valore: non sono due misure indipendenti.`
     : `La relazione tra Malinconica e ${dominantCopy.family} è di ${relation.label}: ${relation.copy}.`
 
   const awarenessPractical = SELF_AWARENESS_PRACTICAL[awareness] || ''
   const harmonyPractical = SELF_HARMONY_PRACTICAL[harmony]?.(dominantCopy.nature) || ''
-  const practicalParagraph = awarenessPractical && harmonyPractical
+  const practicalParagraph = lens.supportsStrongReference && awarenessPractical && harmonyPractical
     ? `In pratica ${awarenessPractical} Sul piano dei comportamenti, proprio in virtù delle forze della Malinconica, ${harmonyPractical}.`
     : ''
 
   return {
     status: 'ready',
-    levelLabel: `Consapevolezza ${awareness} · armonia ${harmony}`,
+    levelLabel: lens.supportsStrongReference
+      ? `Consapevolezza ${awareness} · armonia ${harmony}`
+      : 'Consapevolezza non determinabile da una componente Malinconica debole',
     frontParagraphs: [
-      'La Malinconica fa da ago della bilancia in questo rapporto: misura la tua consapevolezza, cioè quanto riesci a riconoscere e abitare ciò che senti.',
+      `${lens.compositionCopy} La Malinconica è il riferimento teorico per la consapevolezza e pesa il ${formatPercent(melancholic.distributionPercent)}% in questa lente.`,
       [
-        `Nel tuo profilo emerge ${feminineIndefinite(awareness)} capacità di ascolto di sé e ${feminineIndefinite(harmony)} propensione a vivere in armonia con la tua natura ${dominantCopy.nature}.`,
+        lens.supportsStrongReference
+          ? `Il suo peso consente una lettura prudente: emerge ${feminineIndefinite(awareness)} capacità di ascolto di sé, da integrare con la natura ${dominantCopy.nature}.`
+          : `Poiché la componente Malinconica è ${melancholic.distributionPercent < 7 ? 'marginale' : 'secondaria'}, non basta da sola per concludere quanto tu sia consapevole di ciò che provi. La lettura parte invece dalle famiglie più alte della lente.`,
         practicalParagraph,
       ].filter(Boolean).join(' '),
     ],
     paragraphs: [
-      `La Malinconica fa da ago della bilancia in questo rapporto: misura la tua consapevolezza, cioè quanto riconosci ciò che vivi interiormente. Nel tuo profilo raggiunge il ${formatPercent(melancholic.distributionPercent)}%, ${feminineIndefinite(awareness)} capacità di osservarti dentro.`,
-      `${dominantCopy.family} — la tua natura di base (${dominantCopy.nature}) — mostra ${feminineIndefinite(harmony)} propensione a viverla in armonia. ${relationParagraph}`,
+      `La componente Malinconica raggiunge il ${formatPercent(melancholic.distributionPercent)}% dei punti della lente. ${lens.compositionCopy}`,
+      `La famiglia ${dominantCopy.family} raggiunge il ${formatPercent(dominant.distributionPercent)}%: è la tua natura di base (${dominantCopy.nature}). ${relationParagraph}`,
+      `La conclusione segue questo ordine: prima le famiglie con più punti, poi il ruolo teorico della Malinconica, soltanto se il suo peso è sufficiente.`,
     ],
     metrics: {
       awarenessPercent: melancholic.distributionPercent,
@@ -190,6 +223,8 @@ export function buildSelfNarrative({ dominantFamilyKey = '', ranking = [] } = {}
       dominantFamilyKey,
       relationKind: relation.kind,
       sameFamily,
+      referenceSalience: lens.reference?.salience || 'marginal',
+      compositionStatus: lens.composition.status,
     },
   }
 }
@@ -209,14 +244,15 @@ export function buildOtherNarrative({ dominantFamilyKey = '', ranking = [] } = {
   })
   const relation = relationBetween('giallo', dominantFamilyKey)
   const sameFamily = dominantFamilyKey === 'giallo'
+  const lens = buildLensContext(ranking, 'giallo')
   const signedDifference = Number((
     (Number(dominant.distributionPercent) || 0) -
     (Number(enthusiasm.distributionPercent) || 0)
   ).toFixed(1))
   const comparisonCopy = signedDifference > 0
-    ? `La componente ${dominantCopy.family} resta in vantaggio sull'Entusiasmo.`
+    ? `La componente ${dominantCopy.family}, con il ${formatPercent(dominant.distributionPercent)}%, resta in vantaggio sull'Entusiasmo di ${formatPercent(signedDifference)} punti percentuali.`
     : signedDifference < 0
-      ? `L'Entusiasmo supera la componente ${dominantCopy.family}.`
+      ? `L'Entusiasmo supera la componente ${dominantCopy.family} di ${formatPercent(Math.abs(signedDifference))} punti percentuali.`
       : `Le due componenti hanno un peso equivalente nel profilo.`
 
   const intros = {
@@ -231,23 +267,30 @@ export function buildOtherNarrative({ dominantFamilyKey = '', ranking = [] } = {
 
   return {
     status: 'ready',
-    levelLabel: result.badge,
+    levelLabel: lens.supportsStrongReference
+      ? result.badge
+      : 'Apertura relazionale non determinabile dalla sola componente Entusiasta',
     frontParagraphs: [
-      `L'Entusiasmo fa da ago della bilancia in questo rapporto: misura la tua apertura verso l'altro, il coraggio di incontrare persone ed esperienze nuove.`,
+      `${lens.compositionCopy} L'Entusiasmo è il riferimento teorico per apertura e fiducia e pesa il ${formatPercent(enthusiasm.distributionPercent)}%.`,
       [
-        `Nel tuo profilo, la relazione con la componente ${dominantCopy.family} ${relation.kind === 'affinity' ? `accentua l'${relation.label}` : `è di ${relation.label}`}: il test rivela quindi una ${result.adjective} propensione all'ascolto e alla fiducia.`,
-        otherPractical ? `In pratica ${otherPractical}` : '',
+        lens.supportsStrongReference
+          ? `Il confronto con ${dominantCopy.family} suggerisce una ${result.adjective} apertura relazionale; è un orientamento della lente, non una descrizione assoluta del comportamento.`
+          : `L'Entusiasmo è ${enthusiasm.distributionPercent < 7 ? 'marginale' : 'secondario'}: la sua sola presenza non sostiene una conclusione forte sulla tua apertura o fiducia.`,
+        lens.supportsStrongReference && otherPractical ? `In pratica, il risultato può tradursi così: ${otherPractical}` : '',
       ].filter(Boolean).join(' '),
     ],
-    paragraphs: sameFamily
+    paragraphs: [...(sameFamily
       ? [
           `L'Entusiasmo fa da ago della bilancia in questo rapporto ed è anche la tua natura di base. Nel tuo profilo raggiunge il ${formatPercent(enthusiasm.distributionPercent)}%: il risultato rivela quindi ${feminineIndefinite(result.adjective)} propensione all'ascolto del prossimo e alla fiducia.`,
+          'La famiglia di base e il fattore relazionale coincidono: non sono due prove indipendenti dello stesso tratto.',
         ]
       : [
           `L'Entusiasmo fa da ago della bilancia in questo rapporto: misura la tua apertura verso l'altro, il coraggio di incontrare persone ed esperienze nuove. Nel tuo profilo raggiunge il ${formatPercent(enthusiasm.distributionPercent)}%.`,
           `${intros[dominantFamilyKey] || `La tua natura ${dominantCopy.nature} definisce il modo spontaneo in cui incontri gli altri.`} ${comparisonCopy}`,
           `La relazione tra ${dominantCopy.family} ed Entusiasta ${relation.kind === 'affinity' ? `accentua l'${relation.label}` : `è di ${relation.label}`}: ${relation.copy}. Il risultato rivela quindi ${feminineIndefinite(result.adjective)} propensione all'ascolto del prossimo e alla fiducia.`,
-        ],
+        ]),
+      `La conclusione segue questo ordine: prima la composizione reale della lente, poi il ruolo teorico dell'Entusiasmo, senza trasformarlo in un'etichetta personale.`,
+    ],
     metrics: {
       enthusiasmPercent: enthusiasm.distributionPercent,
       dominantPercent: dominant.distributionPercent,
@@ -257,6 +300,8 @@ export function buildOtherNarrative({ dominantFamilyKey = '', ranking = [] } = {
       relationKind: relation.kind,
       grade: result.grade,
       sameFamily,
+      referenceSalience: lens.reference?.salience || 'marginal',
+      compositionStatus: lens.composition.status,
     },
   }
 }
@@ -294,26 +339,33 @@ export function buildActionNarrative({ dominantFamilyKey = '', ranking = [] } = 
   const result = resolveActionPropensity(martial.distributionPercent)
   const context = ACTION_CONTEXT_BY_FAMILY[dominantFamilyKey] || ACTION_CONTEXT_BY_FAMILY.rosso
   const actionPractical = ACTION_PRACTICAL_BY_ADJECTIVE[result.adjective] || ''
+  const lens = buildLensContext(ranking, 'rosso')
 
   return {
     status: 'ready',
-    levelLabel: result.badge,
+    levelLabel: lens.supportsStrongReference
+      ? result.badge
+      : 'Componente d\'azione debole · lettura non conclusiva',
     frontParagraphs: [
-      `Il Marziale misura la tua intensità nel trasformare il tuo sentire o le tue idee in azione, decisione e iniziativa.`,
+      `${lens.compositionCopy} Il Marziale è il riferimento teorico per iniziativa e azione e pesa il ${formatPercent(martial.distributionPercent)}%.`,
       [
-        context.copy,
-        `Nel tuo profilo raggiunge il ${formatPercent(martial.distributionPercent)}%: il test rivela quindi una ${result.adjective} propensione all'azione.`,
-        actionPractical ? `In pratica ${actionPractical}` : '',
+        lens.supportsStrongReference
+          ? `${context.copy} Il suo peso suggerisce una propensione all'azione ${result.adjective}.`
+          : `In questa lente il Marziale è ${martial.distributionPercent < 7 ? 'marginale' : 'secondario'}: non sarebbe corretto dedurne che tu sia particolarmente organizzato, rapido o orientato al fare.`,
+        lens.supportsStrongReference && actionPractical ? `Come possibilità, non come etichetta: ${actionPractical}` : '',
       ].filter(Boolean).join(' '),
     ],
     paragraphs: [
-      context.copy,
-      `Nel tuo profilo raggiunge il ${formatPercent(martial.distributionPercent)}%: il test rivela quindi ${feminineIndefinite(result.adjective)} propensione all'azione.`,
+      lens.supportsStrongReference ? context.copy.replace('Volitivo-collerica, infatti,', 'Volitivo-collerica') : lens.compositionCopy,
+      `La componente Marziale raggiunge il ${formatPercent(martial.distributionPercent)}% dei punti della lente: ${lens.supportsStrongReference ? `suggerisce ${feminineIndefinite(result.adjective)} propensione all'azione` : 'il suo peso non consente una conclusione comportamentale forte sull\'azione'}.`,
+      `La conclusione segue questo ordine: prima le famiglie con più punti, poi il ruolo teorico del Marziale, soltanto se il suo peso è sufficiente.`,
     ],
     metrics: {
       martialPercent: martial.distributionPercent,
       dominantFamilyKey,
       relationLabel: context.relation,
+      referenceSalience: lens.reference?.salience || 'marginal',
+      compositionStatus: lens.composition.status,
     },
   }
 }
