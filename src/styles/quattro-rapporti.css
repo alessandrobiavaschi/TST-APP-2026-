@@ -452,6 +452,16 @@
   gap: 1rem;
 }
 
+.quattro-rapporti-read__block + .quattro-rapporti-read__block {
+  margin-top: var(--space-md, 2rem);
+}
+
+.quattro-rapporti-read__block--composition {
+  margin-top: var(--space-md, 2rem);
+  padding-top: var(--space-sm, 1rem);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 .quattro-rapporti-read__label {
   margin: 0;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;

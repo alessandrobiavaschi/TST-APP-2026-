@@ -2,17 +2,20 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-sm, 1rem) var(--space-md, 2rem);
-  margin-top: var(--space-xs, 0.5rem);
+  margin-top: var(--space-md, 2rem);
+  padding-top: var(--space-sm, 1rem);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .composition-badges__group {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs, 0.5rem);
+  gap: 0.6rem;
   min-width: 0;
 }
 
 .composition-badges__heading {
+  display: block;
   font-size: 0.72rem;
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -22,7 +25,7 @@
 .composition-badges__chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.6rem;
 }
 
 .composition-badges__chip {
@@ -30,14 +33,15 @@
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.4rem 0.85rem;
+  white-space: nowrap;
+  padding: 0.5rem 1rem;
   border: 1px solid color-mix(in srgb, var(--chip-accent) 55%, transparent);
   border-radius: 999px;
   background: color-mix(in srgb, var(--chip-accent) 16%, transparent);
   color: rgba(255, 255, 255, 0.94);
   font-size: 0.88rem;
   font-weight: 600;
-  line-height: 1.2;
+  line-height: 1.3;
 }
 
 .composition-badges__chip--companion {
@@ -54,9 +58,16 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-sm, 1rem);
+  margin-top: var(--space-sm, 1rem);
 }
 
-.composition-family-card + .composition-family-card {
+.composition-family-cards:first-child {
+  margin-top: 0;
+}
+
+/* CalculationDisclosure porta un margin-top proprio: qui lo spacing è già gestito
+   dal gap del genitore, altrimenti raddoppierebbe tra una scheda e la successiva. */
+.composition-family-card.calculation-disclosure {
   margin-top: 0;
 }
 

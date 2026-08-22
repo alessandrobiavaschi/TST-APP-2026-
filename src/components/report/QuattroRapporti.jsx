@@ -460,14 +460,14 @@ export default function QuattroRapporti({
                       </div>
                     ) : null}
 
-                    {rapportoViewModel.primaryFamilies.length ? (
-                      <div className="quattro-rapporti-read__block">
-                        <CompositionFamilyCards cards={rapportoViewModel.primaryFamilies} />
-                      </div>
-                    ) : null}
-                    {rapportoViewModel.hasCompanion ? (
-                      <div className="quattro-rapporti-read__block">
-                        <CompositionFamilyCards cards={rapportoViewModel.companionFamilies} />
+                    {rapportoViewModel.primaryFamilies.length || rapportoViewModel.hasCompanion ? (
+                      <div className="quattro-rapporti-read__block quattro-rapporti-read__block--composition">
+                        {rapportoViewModel.primaryFamilies.length ? (
+                          <CompositionFamilyCards cards={rapportoViewModel.primaryFamilies} />
+                        ) : null}
+                        {rapportoViewModel.hasCompanion ? (
+                          <CompositionFamilyCards cards={rapportoViewModel.companionFamilies} />
+                        ) : null}
                       </div>
                     ) : null}
 
