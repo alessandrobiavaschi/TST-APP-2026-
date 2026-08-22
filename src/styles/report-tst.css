@@ -3558,6 +3558,27 @@
   color: rgba(255, 255, 255, 0.8);
 }
 
+.profilo-composition-extra {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md, 32px);
+  margin-top: var(--space-lg, 64px);
+}
+
+.profilo-composition-extra__heading {
+  margin: 0 0 var(--space-sm, 16px);
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.profilo-composition-extra__full {
+  margin-top: 0;
+}
+
 .profilo-panel__connector {
   margin: 0 0 20px;
   font-family: var(--font-body);

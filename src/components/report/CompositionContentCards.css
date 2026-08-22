@@ -1,0 +1,95 @@
+.composition-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm, 1rem) var(--space-md, 2rem);
+  margin-top: var(--space-xs, 0.5rem);
+}
+
+.composition-badges__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs, 0.5rem);
+  min-width: 0;
+}
+
+.composition-badges__heading {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.composition-badges__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.composition-badges__chip {
+  --chip-accent: rgba(255, 255, 255, 0.5);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.85rem;
+  border: 1px solid color-mix(in srgb, var(--chip-accent) 55%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--chip-accent) 16%, transparent);
+  color: rgba(255, 255, 255, 0.94);
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.composition-badges__chip--companion {
+  font-weight: 500;
+  opacity: 0.92;
+}
+
+.composition-badges__qualifier {
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.composition-family-cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm, 1rem);
+}
+
+.composition-family-card + .composition-family-card {
+  margin-top: 0;
+}
+
+.composition-family-card__block {
+  margin-top: var(--space-sm, 1rem);
+}
+
+.composition-family-card__block:first-child {
+  margin-top: 0;
+}
+
+.composition-family-card__block-title {
+  margin: 0 0 var(--space-xs, 0.5rem);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.composition-family-card__paragraph {
+  margin: 0 0 var(--space-xs, 0.5rem);
+  max-width: 65ch;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.composition-family-card__paragraph:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 640px) {
+  .composition-badges {
+    gap: var(--space-xs, 0.5rem) var(--space-sm, 1rem);
+  }
+}

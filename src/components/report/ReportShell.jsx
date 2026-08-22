@@ -282,6 +282,7 @@ export default function ReportShell({
     approfondimento = { sezioniData: [], sezioniTest: null },
     rawRecord = {},
     sottodisposizionePrevalente = '',
+    globalProfileContract = null,
   } = hasReportData ? reportData : {}
 
   const correnteColore = profilo?.colore || '#4ade80'
@@ -580,6 +581,8 @@ export default function ReportShell({
                       sottodisposizione={sottodisposizionePrevalente}
                       portato={portato}
                       stepPrefix="1"
+                      globalProfileContract={globalProfileContract}
+                      contentCards={profiloEmotivo?.contentCards}
                     />
                   </Suspense>
                 </RoomRevealContent>
@@ -600,6 +603,9 @@ export default function ReportShell({
                     profilo={profilo}
                     accentColor={correnteColore}
                     stepPrefix="2"
+                    contentCards={profiloEmotivo?.contentCards}
+                    globalRanking={globalProfileContract?.ranking}
+                    dominantFamilyKey={profiloEmotivo?.dominantFamilyKey}
                   />
                 </RoomRevealContent>
               </section>

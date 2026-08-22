@@ -677,6 +677,9 @@ export function buildReportData({
   const personalizedTitles = getPersonalizedTitles(dominantColorName)
 
   const profiloEmotivo = {
+    // Famiglia già raccontata per intero nei 4 capitoli sotto (sezioni): il rendering
+    // delle contentCards.primary la esclude per non duplicare la stessa scheda.
+    dominantFamilyKey: domTheme.key,
     sezioni: [
       {
         id: 'natura',

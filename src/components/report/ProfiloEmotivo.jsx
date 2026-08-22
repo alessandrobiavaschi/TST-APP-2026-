@@ -6,6 +6,9 @@ import { PROFILO_CHAPTER_EVENT, chapterAnchorId } from './profiloChapterNav.js'
 import { scrollElementToReportCenter } from './reportSectionNavUtils.js'
 import { getPersonalizedTitles } from '../../config/reportFamilyTheme.js'
 import { PROFILO_UI } from './reportUiCopy.js'
+import CalculationDisclosure from './CalculationDisclosure.jsx'
+import { CompositionFamilyCards } from './CompositionContentCards.jsx'
+import { buildProgressiveContentViewModel } from '../../utils/buildProgressiveContentViewModel.js'
 
 void motion
 
@@ -101,8 +104,24 @@ export default function ProfiloEmotivo({
   sezioni = [],
   famiglia = '',
   profilo = {},
+  contentCards = null,
+  globalRanking = null,
+  dominantFamilyKey = '',
 }) {
   const reduceMotion = useReducedMotion()
+  // La famiglia dominante è già raccontata per intero nei 4 capitoli sopra: esclusa qui
+  // per non mostrare due volte la stessa scheda.
+  const compositionViewModel = useMemo(
+    () => buildProgressiveContentViewModel({
+      ranking: globalRanking,
+      contentCards: contentCards || {},
+      excludeFamilyKeys: dominantFamilyKey ? [dominantFamilyKey] : [],
+    }),
+    [globalRanking, contentCards, dominantFamilyKey],
+  )
+  const hasExtraPrimary = compositionViewModel.primaryFamilies.length > 0
+  const hasFullComposition = compositionViewModel.theoreticalFamilies.length > 0
+    || compositionViewModel.marginalFamilies.length > 0
   const [activeChapter, setActiveChapter] = useState('natura')
   const [isMobileViewport, setIsMobileViewport] = useState(false)
 
@@ -274,6 +293,39 @@ export default function ProfiloEmotivo({
             />
           ) : null}
         </div>
+
+        {hasExtraPrimary || compositionViewModel.hasCompanion || hasFullComposition ? (
+          <div className="profilo-composition-extra">
+            {hasExtraPrimary ? (
+              <section aria-labelledby="profilo-composition-primary-heading">
+                <h4 id="profilo-composition-primary-heading" className="profilo-composition-extra__heading">
+                  {compositionViewModel.primaryFamilies.length > 1 ? 'Famiglie principali' : 'Famiglia principale'}
+                </h4>
+                <CompositionFamilyCards cards={compositionViewModel.primaryFamilies} />
+              </section>
+            ) : null}
+
+            {compositionViewModel.hasCompanion ? (
+              <section aria-labelledby="profilo-composition-companion-heading">
+                <h4 id="profilo-composition-companion-heading" className="profilo-composition-extra__heading">
+                  componente secondaria
+                </h4>
+                <CompositionFamilyCards cards={compositionViewModel.companionFamilies} />
+              </section>
+            ) : null}
+
+            {hasFullComposition ? (
+              <CalculationDisclosure
+                label="Composizione completa"
+                className="profilo-composition-extra__full"
+              >
+                <CompositionFamilyCards
+                  cards={[...compositionViewModel.theoreticalFamilies, ...compositionViewModel.marginalFamilies]}
+                />
+              </CalculationDisclosure>
+            ) : null}
+          </div>
+        ) : null}
       </div>
     </section>
   )

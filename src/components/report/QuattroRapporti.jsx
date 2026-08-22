@@ -6,6 +6,8 @@ import { RAPPORTI_UI } from './reportUiCopy.js'
 import { FAMILY_THEME } from '../../config/reportFamilyTheme.js'
 import SectionNumber from './SectionNumber.jsx'
 import CalculationDisclosure from './CalculationDisclosure.jsx'
+import { CompositionFamilyCards } from './CompositionContentCards.jsx'
+import { buildProgressiveContentViewModel } from '../../utils/buildProgressiveContentViewModel.js'
 import {
   ResponsiveContainer,
   RadarChart,
@@ -266,6 +268,15 @@ export default function QuattroRapporti({
     : [...radarData].sort((a, b) => b.valore - a.valore || b.rawValue - a.rawValue)
   const agoDellaBilancia = active?.agoDellaBilancia || null
   const relationBreakdown = active?.relationBreakdown || null
+  // Schede famiglia per QUESTO rapporto: primary/companion nell'approfondimento contestuale,
+  // marginal soltanto nella composizione completa. displayPriority segue sempre localRanking.
+  const rapportoViewModel = useMemo(
+    () => buildProgressiveContentViewModel({
+      ranking: active?.relationContract?.localRanking,
+      contentCards: active?.contentCards || {},
+    }),
+    [active],
+  )
 
   const selectFamily = (familyKey) => {
     if (!active?.id || !familyKey) return
@@ -449,6 +460,17 @@ export default function QuattroRapporti({
                       </div>
                     ) : null}
 
+                    {rapportoViewModel.primaryFamilies.length ? (
+                      <div className="quattro-rapporti-read__block">
+                        <CompositionFamilyCards cards={rapportoViewModel.primaryFamilies} />
+                      </div>
+                    ) : null}
+                    {rapportoViewModel.hasCompanion ? (
+                      <div className="quattro-rapporti-read__block">
+                        <CompositionFamilyCards cards={rapportoViewModel.companionFamilies} />
+                      </div>
+                    ) : null}
+
                     <CalculationDisclosure
                       label="Vedi calcoli e relazioni tra le famiglie"
                       className="quattro-rapporti-toggle"
@@ -611,6 +633,15 @@ export default function QuattroRapporti({
                       <div className="qr-toggle-section">
                         <h4>Come si arriva alla frase finale</h4>
                         <p>Per questo il risultato viene descritto come «{active.levelLabel}».</p>
+                      </div>
+                    ) : null}
+
+                    {rapportoViewModel.marginalFamilies.length || rapportoViewModel.theoreticalFamilies.length ? (
+                      <div className="qr-toggle-section">
+                        <h4>Composizione completa</h4>
+                        <CompositionFamilyCards
+                          cards={[...rapportoViewModel.theoreticalFamilies, ...rapportoViewModel.marginalFamilies]}
+                        />
                       </div>
                     ) : null}
                     </CalculationDisclosure>

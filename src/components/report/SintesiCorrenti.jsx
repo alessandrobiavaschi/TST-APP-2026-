@@ -9,6 +9,8 @@ import { normalizeFamigliaName } from '../../content/reportRestitution.js'
 import { FAMILY_THEME } from '../../config/reportFamilyTheme.js'
 import { GlossaryLink } from './ReportGlossaryDrawer.jsx'
 import CalculationDisclosure from './CalculationDisclosure.jsx'
+import { CompositionBadgeRow } from './CompositionContentCards.jsx'
+import { buildProgressiveContentViewModel } from '../../utils/buildProgressiveContentViewModel.js'
 import './SintesiCorrenti.css'
 
 void motion
@@ -51,86 +53,96 @@ const FAMILY_PRESENCE_LABELS = {
   blu: { title: 'Malinconica', detail: 'natura lunare' },
 }
 
-// Fonti: docs/fonti-scientifiche/_estratto/MATRICE_TRACCIABILITA.md e
-// docs/fonti-scientifiche/_estratto/STATI_D_ANIMO_IN_4_FAMIGLIE_salvataggio_automatico.txt.
+// Fonti: docs/fonti-scientifiche/_estratto/MATRICE_TRACCIABILITA.md,
+// docs/fonti-scientifiche/_estratto/STATI_D_ANIMO_IN_4_FAMIGLIE_salvataggio_automatico.txt,
+// docs/fonti-scientifiche/testi-definitivi/Malinconia_lunare.pages e
+// docs/fonti-scientifiche/Il Pianeta della Musica - FM.pdf.
+//
+// Gerarchia narrativa (in quest'ordine, vedi SintesiCorrenti):
+// 1) famiglia prevalente → 2) meaningParagraph (cosa rappresenta la famiglia) →
+// 3) compositionParagraph (la famiglia contiene più nature) → 4) natura/sottocorrente
+// prevalente → 5) natureFitByQuality[natura] (come si colloca nella famiglia).
+// deepDiveParagraphs è approfondimento facoltativo, mostrato in disclosure.
 const BRIEF_SUMMARY_BY_FAMILY = {
   Blu: {
     family: 'Malinconica',
-    fundamentalPleasure:
-      "il piacere di stare con sé stessi, dell’introversione, dell’osservarsi interiormente e del riflettere su ciò che si è vissuto",
-    qualities: "nature (caratteristiche emotive) lunari, solari e nostalgiche",
-    qualitiesByQuality: {
+    meaningParagraph:
+      "Questa famiglia emotiva è una delle 5 forze comuni a tutti: la Malinconia non significa automaticamente tristezza o depressione. È la famiglia dello spazio interiore, della riflessione, della memoria affettiva e dell’elaborazione di ciò che si vive.",
+    compositionParagraph:
+      "Al suo interno convivono forze differenti: nature (caratteristiche emotive) lunari, solari e nostalgiche.",
+    natureFitByQuality: {
       Lunare:
-        "una caratteristica Lunare e una Solare. Quella Lunare opera nel chiuso dell’interiorità, su una visione riflessa dell’esperienza emotiva",
+        "La natura Lunare orienta verso l’introspezione e il raccoglimento: è il versante della Malinconia rivolto verso l’interno.",
       Solare:
-        "una caratteristica Lunare e una Solare. Quella Solare apre verso il mondo, portando speranza, serenità e fiducia nel futuro",
+        "La natura Solare orienta verso l’apertura, la speranza, l’ottimismo e l’avvicinamento alla gioia: è il versante della Malinconia rivolto verso il mondo esterno.",
       Nostalgica:
-        "una natura Nostalgica, che può essere Lunare o Solare. La forma Lunare elabora il passato attraverso il rimpianto; quella Solare attraverso la riconoscenza verso ciò che si è vissuto",
+        "La natura Nostalgica rielabora il passato: nella sua forma Lunare attraverso il rimpianto, in quella Solare attraverso la riconoscenza per ciò che si è vissuto.",
       Depressiva:
-        "una caratteristica introspettiva e una depressiva. Quella Depressiva opera nel chiuso dell’interiorità, scandagliandone gli aspetti più scuri",
+        "Nel modello TST, «Depressiva» indica la forma più accentuata del versante Lunare della Malinconia, quando l’introspezione si fa raccoglimento profondo.",
     },
-    orientation: "sé stessi, la memoria, la riflessione e l’interiorità",
-    note: "La tristezza è solo uno dei volti dolorosi della malinconia.",
+    deepDiveParagraphs: [
+      "La tristezza è solo uno dei volti dolorosi della malinconia.",
+      "Il versante lunare della Malinconia, associato alla terza minore, orienta verso l’introspezione e il raccoglimento e, nelle forme più accentuate, verso la tristezza e la depressione. Il versante solare, associato alla terza maggiore, orienta invece verso l’apertura, la speranza, l’ottimismo e l’avvicinamento alla gioia.",
+      "La natura specifica emersa dal test indica quale di queste manifestazioni risulta più presente nel tuo profilo: non esaurisce l’intera persona. Etichette come «Depressiva» appartengono al linguaggio del modello TST e non costituiscono una diagnosi clinica.",
+    ],
     defaultQuality: "Lunare",
   },
   Giallo: {
     family: 'Entusiasta',
-    fundamentalPleasure:
-      "il piacere del movimento, della curiosità, della scoperta del nuovo e dell’apertura verso il mondo",
-    qualities: "nature (caratteristiche emotive) legate alla gioia, all’entusiasmo, alla curiosità e alla solarità",
-    qualitiesByQuality: {
+    meaningParagraph:
+      "Questa famiglia emotiva è una delle 5 forze comuni a tutti: racchiude il piacere del movimento, della curiosità, della scoperta del nuovo e dell’apertura verso il mondo.",
+    compositionParagraph:
+      "Al suo interno convivono nature (caratteristiche emotive) differenti, legate alla gioia, all’entusiasmo, alla curiosità e alla solarità.",
+    natureFitByQuality: {
       Solare:
-        "una caratteristica Gioioso-Sanguinico e una Passionale. Quella Gioioso-Sanguinico si esprime con vivacità, positività e un moto naturale verso il fuori e verso gli altri",
+        "La natura Gioioso-Sanguinica si esprime con vivacità, positività e un moto naturale verso il fuori e verso gli altri.",
       "Gioioso-Sanguinico":
-        "una caratteristica Gioioso-Sanguinico e una Passionale. Quella Gioioso-Sanguinico si esprime con vivacità, positività e un moto naturale verso il fuori e verso gli altri",
+        "La natura Gioioso-Sanguinica si esprime con vivacità, positività e un moto naturale verso il fuori e verso gli altri.",
       Passionale:
-        "una caratteristica Gioioso-Sanguinico e una Passionale. Quella Passionale si esprime con intensità affettiva, trasporto e un profondo senso di fusione con ciò che si ama",
+        "La natura Passionale si esprime con intensità affettiva, trasporto e un profondo senso di fusione con ciò che si ama.",
     },
-    orientation: "il fuori, gli altri, la relazione, la natura, le attività e le possibilità",
-    note: "",
     defaultQuality: "Gioioso-Sanguinico",
   },
   Rosso: {
     family: 'Marziale',
-    fundamentalPleasure:
-      "il piacere del fare, del realizzare ciò che si desidera, del governarsi e del mettersi alla prova",
-    qualities: "nature (caratteristiche emotive) legate all’assertività volitiva, al dubbio e alla collera",
-    qualitiesByQuality: {
+    meaningParagraph:
+      "Questa famiglia emotiva è una delle 5 forze comuni a tutti: racchiude il piacere del fare, del realizzare ciò che si desidera, del governarsi e del mettersi alla prova.",
+    compositionParagraph:
+      "Al suo interno convivono nature (caratteristiche emotive) differenti, legate all’assertività volitiva, al dubbio e alla collera.",
+    natureFitByQuality: {
       Assertiva:
-        "una caratteristica Assertiva e una del Dubbio. Quella Assertiva si esprime con fermezza, determinazione e volontà di concretizzare nel presente",
+        "La natura Assertiva si esprime con fermezza, determinazione e volontà di concretizzare nel presente.",
       "Dubbio-collerica":
-        "una caratteristica Assertiva e una del Dubbio. Quella del Dubbio porta all’esitazione e all’ambiguità; quando si esaspera, può trasformarsi in collera",
+        "La natura del Dubbio porta all’esitazione e all’ambiguità; quando si esaspera, può trasformarsi in collera.",
     },
-    orientation: "l’azione, la responsabilità, la decisione e la realizzazione",
-    note: "",
     defaultQuality: "Assertiva",
   },
   Verde: {
     family: 'Flemmatica',
-    fundamentalPleasure: "il piacere della lentezza, del riposo, della calma e della contemplazione",
-    qualities:
-      "nature (caratteristiche emotive) legate alla pace interiore, alla moderazione, alla prudenza e all’osservazione contemplativa",
-    orientation:
-      "la calma interiore — non per riflettere su sé stessi, ma per trovare quiete ed equilibrio affettivo",
-    note: "",
+    meaningParagraph:
+      "Questa famiglia emotiva è una delle 5 forze comuni a tutti: racchiude il piacere della lentezza, del riposo, della calma e della contemplazione.",
+    compositionParagraph:
+      "Al suo interno convivono nature (caratteristiche emotive) legate alla pace interiore, alla moderazione, alla prudenza e all’osservazione contemplativa.",
+    natureFitByQuality: {
+      Contemplativa:
+        "La natura Contemplativa orienta verso la calma interiore, la quiete e l’equilibrio affettivo, non verso la riflessione su sé stessi.",
+    },
     defaultQuality: 'Contemplativa',
   },
   Grigio: {
     family: 'Razionale',
-    fundamentalPleasure:
-      "il piacere del calcolo, della dubbiosità di origine intellettuale, dell’oggettività e della distanza affettiva",
-    qualities:
-      "nature (caratteristiche emotive) legate all’anaffettività, al distacco, al nichilismo e alla dimensione intellettuale",
-    qualitiesByQuality: {
+    meaningParagraph:
+      "Questa famiglia emotiva è una delle 5 forze comuni a tutti: racchiude il piacere del calcolo, della dubbiosità di origine intellettuale, dell’oggettività e della distanza affettiva.",
+    compositionParagraph:
+      "Al suo interno convivono nature (caratteristiche emotive) differenti, legate all’anaffettività, al distacco, al nichilismo e alla dimensione intellettuale.",
+    natureFitByQuality: {
       Anaffettiva:
-        "una caratteristica Anaffettiva e una della Saggezza. Quella Anaffettiva agisce con gelido distacco intellettuale, osservando ogni cosa senza lasciarsi coinvolgere dalla sfera sentimentale",
+        "La natura Anaffettiva agisce con gelido distacco intellettuale, osservando ogni cosa senza lasciarsi coinvolgere dalla sfera sentimentale.",
       Distaccata:
-        "una caratteristica Anaffettiva e una della Saggezza. Quella Anaffettiva agisce con gelido distacco intellettuale, osservando ogni cosa senza lasciarsi coinvolgere dalla sfera sentimentale",
+        "La natura Anaffettiva agisce con gelido distacco intellettuale, osservando ogni cosa senza lasciarsi coinvolgere dalla sfera sentimentale.",
       "Intellettuale-saggia":
-        "una caratteristica Anaffettiva e una della Saggezza. Quella della Saggezza orienta lo stesso sguardo distaccato verso un’osservazione amorevole e compassionevole, aprendosi alla devozione e alla cura dell’altro",
+        "La natura della Saggezza orienta lo stesso sguardo distaccato verso un’osservazione amorevole e compassionevole, aprendosi alla devozione e alla cura dell’altro.",
     },
-    orientation: "il distacco, l’oggettività, l’analisi e la distanza dal coinvolgimento immediato",
-    note: "",
     defaultQuality: "Anaffettiva",
   },
 }
@@ -315,20 +327,15 @@ function resolveBriefQuality({ familyName, sottodisposizione, correnteDominante 
 function buildBriefSummary({ familyName, sottodisposizione, correnteDominante }) {
   const copy = BRIEF_SUMMARY_BY_FAMILY[familyName] || BRIEF_SUMMARY_BY_FAMILY.Verde
   const quality = resolveBriefQuality({ familyName, sottodisposizione, correnteDominante })
-  const qualitiesText = copy.qualitiesByQuality?.[quality] ?? copy.qualities
-
-  const paragraphs = [
-    `In essa emerge ${copy.fundamentalPleasure}.`,
-    `Al suo interno si distinguono ${qualitiesText}.`,
-    `Chi ne fa parte orienta la propria energia emotiva verso ${copy.orientation}.`,
-  ]
-
-  if (copy.note) paragraphs.push(copy.note)
+  const natureFitParagraph = copy.natureFitByQuality?.[quality] ?? copy.compositionParagraph
 
   return {
     introFamily: copy.family,
     introQuality: quality,
-    paragraphs,
+    meaningParagraph: copy.meaningParagraph,
+    compositionParagraph: copy.compositionParagraph,
+    natureFitParagraph,
+    deepDiveParagraphs: copy.deepDiveParagraphs || [],
   }
 }
 
@@ -400,6 +407,8 @@ export default function SintesiCorrenti({
   onOpenGlossary: _onOpenGlossary,
   sottodisposizione = '',
   stepPrefix = '1',
+  globalProfileContract = null,
+  contentCards = null,
 }) {
   const prefersReducedMotion = useReducedMotion()
   const [activeDetailFamily, setActiveDetailFamily] = useState(null)
@@ -516,6 +525,16 @@ export default function SintesiCorrenti({
   })
   const familyIntroParagraphs = familySectionIntro(briefSummary.introFamily)
 
+  // Lettura compatta della composizione (Livello 1): solo Famiglie principali,
+  // quasi-parità e al massimo una componente secondaria — niente formule o marginali.
+  const compositionViewModel = useMemo(
+    () => buildProgressiveContentViewModel({
+      ranking: globalProfileContract?.ranking,
+      contentCards: contentCards || {},
+    }),
+    [globalProfileContract, contentCards],
+  )
+
   const familySottocorrenti = (Array.isArray(sottocorrenti) ? sottocorrenti : [])
     .filter((sub) => normalizeFamigliaName(sub?.familyName) === dominantFamilyName)
     .sort((a, b) => {
@@ -556,18 +575,32 @@ export default function SintesiCorrenti({
           <div className="sintesi-editorial-text">
             <p className="sintesi-editorial-body sintesi-editorial-body--lead">
               La tua famiglia emotiva prevalente è{' '}
-              <strong className="sintesi-editorial-highlight">{briefSummary.introFamily}</strong> e la sua natura
-              (caratteristica emotiva) prevalente è <strong className="sintesi-editorial-highlight">{briefSummary.introQuality}</strong>.
+              <strong className="sintesi-editorial-highlight">{briefSummary.introFamily}</strong>.
             </p>
-            <p className="sintesi-editorial-body">
-              Questa famiglia emotiva è una delle 5 forze emotive comuni a tutti.
+            <p className="sintesi-editorial-body">{briefSummary.meaningParagraph}</p>
+            <p className="sintesi-editorial-body">{briefSummary.compositionParagraph}</p>
+            <p className="sintesi-editorial-body sintesi-editorial-body--lead">
+              Nel tuo risultato prevale in particolare la natura (caratteristica emotiva){' '}
+              <strong className="sintesi-editorial-highlight">{briefSummary.introQuality}</strong>.
             </p>
-            {briefSummary.paragraphs.map((paragraph) => (
-              <p key={paragraph} className="sintesi-editorial-body">
-                {renderBriefSummaryParagraph(paragraph)}
-              </p>
-            ))}
+            <p className="sintesi-editorial-body">{briefSummary.natureFitParagraph}</p>
+            {briefSummary.deepDiveParagraphs.length > 0 ? (
+              <SintesiDisclosure
+                id="sintesi-editorial-approfondisci"
+                title={`Approfondisci la famiglia ${briefSummary.introFamily}`}
+              >
+                {briefSummary.deepDiveParagraphs.map((paragraph) => (
+                  <p key={paragraph} className="sintesi-correnti__narrative-p">
+                    {renderBriefSummaryParagraph(paragraph)}
+                  </p>
+                ))}
+              </SintesiDisclosure>
+            ) : null}
           </div>
+          <CompositionBadgeRow
+            primaryFamilies={compositionViewModel.primaryFamilies}
+            compactCompanion={compositionViewModel.compactCompanion}
+          />
         </div>
 
         <SectionDivider />
@@ -743,18 +776,32 @@ export default function SintesiCorrenti({
           <div className="sintesi-editorial-text">
             <p className="sintesi-editorial-body sintesi-editorial-body--lead">
               La tua famiglia emotiva prevalente è{' '}
-              <strong className="sintesi-editorial-highlight">{briefSummary.introFamily}</strong> e la sua natura
-              (caratteristica emotiva) prevalente è <strong className="sintesi-editorial-highlight">{briefSummary.introQuality}</strong>.
+              <strong className="sintesi-editorial-highlight">{briefSummary.introFamily}</strong>.
             </p>
-            <p className="sintesi-editorial-body">
-              Questa famiglia emotiva è una delle 5 forze emotive comuni a tutti.
+            <p className="sintesi-editorial-body">{briefSummary.meaningParagraph}</p>
+            <p className="sintesi-editorial-body">{briefSummary.compositionParagraph}</p>
+            <p className="sintesi-editorial-body sintesi-editorial-body--lead">
+              Nel tuo risultato prevale in particolare la natura (caratteristica emotiva){' '}
+              <strong className="sintesi-editorial-highlight">{briefSummary.introQuality}</strong>.
             </p>
-            {briefSummary.paragraphs.map((paragraph) => (
-              <p key={paragraph} className="sintesi-editorial-body">
-                {renderBriefSummaryParagraph(paragraph)}
-              </p>
-            ))}
+            <p className="sintesi-editorial-body">{briefSummary.natureFitParagraph}</p>
+            {briefSummary.deepDiveParagraphs.length > 0 ? (
+              <SintesiDisclosure
+                id="sintesi-editorial-approfondisci"
+                title={`Approfondisci la famiglia ${briefSummary.introFamily}`}
+              >
+                {briefSummary.deepDiveParagraphs.map((paragraph) => (
+                  <p key={paragraph} className="sintesi-correnti__narrative-p">
+                    {renderBriefSummaryParagraph(paragraph)}
+                  </p>
+                ))}
+              </SintesiDisclosure>
+            ) : null}
           </div>
+          <CompositionBadgeRow
+            primaryFamilies={compositionViewModel.primaryFamilies}
+            compactCompanion={compositionViewModel.compactCompanion}
+          />
         </div>
 
         <div className="sintesi-divider-container" style={{ gridColumn: '1 / -1', width: '100%', marginBottom: '2.5rem' }}>
