@@ -83,13 +83,19 @@ import {
   buildNaturaNarrative,
   buildRelationBreakdown,
   NATURA_NARRATIVE_STATUS,
+  NATURA_RELATION_RULES,
 } from './buildNaturaNarrative.js'
 import {
   buildActionNarrative,
   buildOtherNarrative,
   buildSelfNarrative,
 } from './buildFourRelationsNarrative.js'
-import { analyzeFamilyComposition } from './reportCompositionSensitivity.js'
+import {
+  analyzeFamilyComposition,
+  classifyFamilyRanking,
+  buildRelationLensContract,
+} from './reportCompositionSensitivity.js'
+import { buildReportContentSelection } from './buildReportContentSelection.js'
 
 const PESO_RANK_LABEL = ['dominante', 'secondaria', 'minore', 'marginale', 'marginale']
 
@@ -121,9 +127,11 @@ const SOTTOCORRENTE_LABEL_BY_RAW_KEY = {
   GRIGIO_2_Intellettuale_Saggio: 'Intellettuale / Saggio',
 }
 
+// Nessun fallback verso una famiglia diversa (es. Verde): una scheda mancante resta
+// mancante (null) e viene segnalata a chi chiama, mai sostituita con una scheda simile.
 function buildProfilo23Text(familyName, panelId) {
-  const approfondimento =
-    getFamigliaApprofondimento(familyName) || getFamigliaApprofondimento('Verde')
+  const approfondimento = getFamigliaApprofondimento(familyName)
+  if (!approfondimento) return null
 
   if (panelId === 'natura') {
     return (approfondimento.natura || []).join('\n\n')
@@ -601,6 +609,14 @@ export function buildReportData({
     }
   })
 
+  /* ── Contratto interpretativo isolato: graduatoria globale del profilo (Fase 2B) ──
+   * Chiavi canoniche colore, scala presence_percent_0_100. Non sostituisce
+   * familyComposition/correnti sotto: è dato aggiuntivo, non ancora renderizzato. ── */
+  const globalProfileContract = classifyFamilyRanking(
+    correnti.map((item) => ({ familyKey: item.familyKey, percent: item.peso })),
+    { scope: 'global', source: 'correnti.peso (globalProfileRanking)' },
+  )
+
   const correntiByPeso = [...correnti].sort((a, b) => b.peso - a.peso)
   const familyComposition = analyzeFamilyComposition(
     correntiByPeso.map((item) => ({
@@ -700,6 +716,16 @@ export function buildReportData({
         correnteColore: domTheme.dot,
       },
     ],
+    // Campo additivo (Fase 2C): schede famiglia (natura/racconto/risorse/ombre) per
+    // TUTTE le primaryKeys/companionKeys del profilo globale, non solo la dominante —
+    // pronto per una UX a "pari dignità" tra famiglie quasi-paritarie. Non sostituisce
+    // `sezioni` sopra (dominante singola), che resta invariato per compatibilità UI.
+    contentCards: globalProfileContract.status === 'ready'
+      ? buildReportContentSelection(globalProfileContract.contentPlan, { contentType: 'famiglia' })
+      : { primary: [], companion: [], theoretical: [], marginal: [], missingContentKeys: [], status: globalProfileContract.status },
+  }
+  if (profiloEmotivo.contentCards.missingContentKeys.length) {
+    fallbacks.push(`profiloEmotivo.contentCards: schede mancanti per ${profiloEmotivo.contentCards.missingContentKeys.join(', ')}.`)
   }
 
   /* ── I quattro rapporti (radar data-driven dai livelli reali) ─────── */
@@ -765,6 +791,25 @@ export function buildReportData({
       )?.key || domTheme.key
     : domTheme.key
 
+  /* ── Contratto interpretativo isolato: graduatoria dello scope Natura (Fase 2B) ──
+   * Ambito distinto dal profilo globale: sole sezioni Timbro+Intervalli+Armonia.
+   * globalProfileLeader e natureScopeLeader possono divergere legittimamente:
+   * non vengono mai unificati né usati per correggersi a vicenda. ── */
+  const natureScopeRawSum = radarFamilies.reduce(
+    (sum, family) => sum + (Number(naturaRawTotals[family.key]) || 0),
+    0,
+  )
+  const natureScopeContract = classifyFamilyRanking(
+    radarFamilies.map((family) => {
+      const rawValue = Number(naturaRawTotals[family.key]) || 0
+      const percent = natureScopeRawSum > 0
+        ? Number(((rawValue / natureScopeRawSum) * 100).toFixed(1))
+        : 0
+      return { familyKey: family.key, percent }
+    }),
+    { scope: 'nature', source: 'rapportiTotals.natura (natureScopeRanking)' },
+  )
+
   const rapporti = RAPPORTI_META.map((meta) => {
     const levels = rapportiLevels?.[meta.id] || {}
     const rawTotals = rapportiTotals?.[meta.id] || {}
@@ -813,26 +858,12 @@ export function buildReportData({
           : profiloComposto
             ? `Profilo composto: ${formatFamilyLevels(famiglieInEvidenza)}.`
             : `Famiglia prevalente: ${formatFamilyLevels(graduatoria.slice(0, 1))}.`
-    const localPrincipale = radarFamilies.reduce(
-      (best, f) => {
-        const v = Number(levels?.[f.key]) || 0
-        return v > best.valore ? { ...f, valore: v } : best
-      },
-      { ...radarFamilies[0], valore: -Infinity },
-    )
     const dominantFamily = {
       familyName: dominantColorName || domTheme.label,
       key: domTheme.key,
       nome: domTheme.corrente,
       colore: domTheme.dot,
       valore: Number(levels?.[domTheme.key]) || 0,
-    }
-    const naturaBaseTheme = radarFamilies.find(
-      (family) => family.key === naturaBaseFamilyKey,
-    ) || radarFamilies[0]
-    const naturaBaseFamily = {
-      ...naturaBaseTheme,
-      valore: Number(levels?.[naturaBaseFamilyKey]) || 0,
     }
     const enthusiasmTheme = FAMILY_THEME.Giallo
     const enthusiasmFamily = {
@@ -862,38 +893,30 @@ export function buildReportData({
     const isSe = meta.id === 'se'
     const isAltro = meta.id === 'altro'
     const isAgire = meta.id === 'agire'
-    const naturaLeader = graduatoria[0]
-    const naturaFamily = (naturaLeader?.rawValue || 0) > 0
+    // correntePrincipale deriva sempre dalla graduatoria locale reale (localLeaderItem),
+    // mai dalla famiglia teorica di riferimento della lente (Malinconica/Entusiasta/Marziale
+    // restano referenceFamilyKey in relationContract sotto, senza sostituire il leader locale).
+    const localLeaderItem = graduatoria[0]
+    const localLeaderFamily = (localLeaderItem?.rawValue || 0) > 0
       ? {
-          ...naturaLeader,
-          key: naturaLeader.familyKey,
-          nome: naturaLeader.corrente,
+          ...localLeaderItem,
+          key: localLeaderItem.familyKey,
+          nome: localLeaderItem.corrente,
         }
       : dominantFamily
-    const usesNaturaBaseFamily = isSe
-    const principale = isAltro
-      ? enthusiasmFamily
-      : isAgire
-        ? volitiveFamily
-        : isNatura
-          ? naturaFamily
-        : usesNaturaBaseFamily
-          ? naturaBaseFamily
-          : localPrincipale
-    // L'ago della bilancia è la componente interpretativa fissa della lente: non coincide
-    // sempre con la famiglia più alta nel radar della lente (vedi graduatoria[0]) né con la
-    // natura di base — per "Rapporto con te stesso" è sempre Malinconica, anche quando non è
-    // la famiglia dominante del profilo.
+    const principale = localLeaderFamily
+    // [legacy] Campo storico mantenuto solo per compatibilità con QuattroRapporti.jsx;
+    // non è più usato per ordinamento, leader o selezione contenuti. Il dato corretto è
+    // relationContract (referenceFamilyKey/referenceRank/referenceRole) costruito sotto.
     const agoDellaBilancia = isAltro
       ? enthusiasmFamily
       : isAgire
         ? volitiveFamily
         : isSe
           ? melancholicFamily
-          : naturaFamily
+          : localLeaderFamily
     const relationshipNarrative = isNatura
       ? buildNaturaNarrative({
-          dominantFamilyKey: naturaFamily.key,
           ranking: graduatoria,
           shades: sottocorrenti,
         })
@@ -904,6 +927,25 @@ export function buildReportData({
           : isAgire
             ? buildActionNarrative({ dominantFamilyKey: naturaBaseFamilyKey, ranking: graduatoria })
             : null
+
+    // Contratto interpretativo isolato per questo rapporto (Fase 2B): graduatoria locale
+    // classificata + famiglia di riferimento della lente, con la matrice NATURA_RELATION_RULES
+    // già esportata da buildNaturaNarrative.js (unica fonte, nessuna matrice duplicata).
+    // Non collegato al rendering delle schede: solo dato, per la Fase 2C.
+    const relationScope = isNatura ? 'nature' : isSe ? 'self' : isAltro ? 'other' : isAgire ? 'action' : meta.id
+    const relationContract = buildRelationLensContract({
+      scope: relationScope,
+      source: `rapporti.${meta.id}.graduatoria (relationLocalRanking)`,
+      ranking: graduatoria.map((item) => ({ familyKey: item.familyKey, percent: item.distributionPercent })),
+      referenceFamilyKey: isNatura ? (localLeaderItem?.familyKey || null) : undefined,
+      relationMatrix: NATURA_RELATION_RULES,
+    })
+    // Campo additivo (Fase 2C): schede famiglia per le primaryKeys/companionKeys reali di
+    // QUESTO rapporto (relationContract.localContentPlan, mai la referenceFamily teorica).
+    // Puro dato, non ancora renderizzato: pronto per il livello 2 progressivo di QuattroRapporti.
+    const contentCards = relationContract.status === 'ready'
+      ? buildReportContentSelection(relationContract.localContentPlan, { contentType: 'famiglia' })
+      : { primary: [], companion: [], theoretical: [], marginal: [], missingContentKeys: [], status: relationContract.status }
     const definizioneParagrafi = relationshipNarrative?.paragraphs || [meta.definizione]
     const sintesiBreveParagrafi = relationshipNarrative?.frontParagraphs?.length
       ? relationshipNarrative.frontParagraphs
@@ -948,6 +990,8 @@ export function buildReportData({
         }
       })(),
       relationBreakdown: buildRelationBreakdown({ agoFamilyKey: agoDellaBilancia.key, ranking: graduatoria }),
+      relationContract,
+      contentCards,
       datiRadar,
       graduatoria,
       topLevelFamilies,
@@ -1118,6 +1162,38 @@ export function buildReportData({
   if (!sezioniData.length) fallbacks.push('approfondimento: sezioniData vuoto.')
   if (!sezioniTest) fallbacks.push('approfondimento: testi sezioni_test assenti.')
 
+  /* ── Piano di selezione contenuti (Fase 2B) ────────────────────────────
+   * Solo chiavi/ruoli/segnalazioni, nessun testo caricato: la riconciliazione con le
+   * chiavi editoriali realmente disponibili resta per la Fase 2C. Uno scope per
+   * globalProfileContract, uno per natureScopeContract, uno per ciascun rapporto
+   * (chiave = rapporti[].id), senza mai unificare i quattro scope tra loro. ── */
+  const relationContentPlans = Object.fromEntries(
+    rapporti.map((rapporto) => [
+      rapporto.id,
+      {
+        status: rapporto.relationContract?.status || 'invalid_input',
+        referenceFamilyKey: rapporto.relationContract?.referenceFamilyKey ?? null,
+        primaryKeys: rapporto.relationContract?.localContentPlan?.primaryKeys || [],
+        companionKeys: rapporto.relationContract?.localContentPlan?.companionKeys || [],
+        marginalKeys: rapporto.relationContract?.localContentPlan?.marginalKeys || [],
+        tensionKeys: rapporto.relationContract?.tensionKeys || [],
+        theoreticalRelationKeys: rapporto.relationContract?.theoreticalRelationKeys || [],
+        missingContentKeys: [],
+      },
+    ]),
+  )
+  const contentSelectionPlan = {
+    status: [globalProfileContract, natureScopeContract, ...rapporti.map((r) => r.relationContract)]
+      .every((contract) => contract?.status === 'ready')
+      ? 'ready'
+      : 'incomplete_content',
+    scopes: {
+      global: globalProfileContract.contentPlan || null,
+      nature: natureScopeContract.contentPlan || null,
+      ...relationContentPlans,
+    },
+  }
+
   return {
     utente: { nome: nomeCompleto || '' },
     profilo,
@@ -1139,6 +1215,9 @@ export function buildReportData({
     coloriCorrenti,
     colorTotals: totals,
     rawRecord,
+    globalProfileContract,
+    natureScopeContract,
+    contentSelectionPlan,
     _fallbacks: fallbacks,
   }
 }

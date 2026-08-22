@@ -205,7 +205,7 @@ test('il contratto Natura ordina il peso reale prima delle opposizioni teoriche'
   assert.doesNotMatch(natura.sintesiBreveParagrafi.join(' '), /%|punti percentuali/i)
 })
 
-test('Sé Altro e Agire usano la famiglia risultante dalla Natura classica', () => {
+test('correntePrincipale segue sempre la graduatoria locale del rapporto, non la Natura classica', () => {
   const naturaTotals = { verde: 12, rosso: 8, blu: 6, giallo: 3, grigio: 2 }
   const lensTotals = { rosso: 9, blu: 7, giallo: 5, verde: 3, grigio: 1 }
   const report = buildReportData({
@@ -231,8 +231,14 @@ test('Sé Altro e Agire usano la famiglia risultante dalla Natura classica', () 
   const altro = report.rapporti.find((item) => item.id === 'altro')
   const agire = report.rapporti.find((item) => item.id === 'agire')
 
+  // correntePrincipale deriva sempre dalla graduatoria locale reale (localLeaderItem):
+  // natura ha la propria graduatoria (leader verde), se/altro/agire condividono lensTotals
+  // (leader rosso) — la famiglia "Natura classica" (verde) resta il dominantFamilyKey usato
+  // dal motore narrativo come confronto teorico, ma non sostituisce mai il leader locale.
   assert.equal(natura.correntePrincipale.familyKey, 'verde')
-  assert.equal(se.correntePrincipale.familyKey, 'verde')
+  assert.equal(se.correntePrincipale.familyKey, 'rosso')
+  assert.equal(altro.correntePrincipale.familyKey, 'rosso')
+  assert.equal(agire.correntePrincipale.familyKey, 'rosso')
   assert.equal(se.narrativaRapporto.metrics.dominantFamilyKey, 'verde')
   assert.equal(altro.narrativaRapporto.metrics.dominantFamilyKey, 'verde')
   assert.equal(agire.narrativaRapporto.metrics.dominantFamilyKey, 'verde')

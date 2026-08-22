@@ -130,24 +130,34 @@ test('il racconto in primo piano segue il peso prima delle opposizioni teoriche'
   assert.match(result.paragraphs.join(' '), /quinta componente.*Razionale.*influenza leggera.*tensione/i)
 })
 
-test('gradua l armonia sulla distanza media tra la principale e le famiglie misurate', () => {
+test('gradua l armonia sull ampiezza delle componenti principali', () => {
   assert.equal(resolveHarmonyDescriptor(10), "un'eccellente armonia")
   assert.equal(resolveHarmonyDescriptor(15), 'una buona armonia')
   assert.equal(resolveHarmonyDescriptor(25), 'una discreta armonia')
   assert.equal(resolveHarmonyDescriptor(35), 'una leggera armonia')
   assert.equal(resolveHarmonyDescriptor(36), 'poca armonia')
 
+  // L'armonia richiede almeno tre famiglie valide (vedi computeHarmonyMetric):
+  // gap = media tra |leader-seconda| e |leader-terza|, non piu' max-min.
   const result = buildNaturaNarrative({
     dominantFamilyKey: 'rosso',
-    ranking: [radarItem('rosso', 31, 31, 7), radarItem('giallo', 23, 23, 5)],
+    ranking: [
+      radarItem('rosso', 39, 39, 7),
+      radarItem('giallo', 31, 31, 5),
+      radarItem('verde', 30, 30, 4),
+    ],
   })
-  assert.match(result.paragraphs.join(' '), /distanza media di 8 punti percentuali.*eccellente armonia/i)
+  assert.match(result.paragraphs.join(' '), /ampiezza di 8,5 punti percentuali.*eccellente armonia/i)
 
   const decimalResult = buildNaturaNarrative({
     dominantFamilyKey: 'rosso',
-    ranking: [radarItem('rosso', 14, 51.9, 7), radarItem('verde', 13, 48.1, 7)],
+    ranking: [
+      radarItem('rosso', 14, 51.9, 7),
+      radarItem('verde', 13, 48.1, 7),
+      radarItem('blu', 12, 47.0, 6),
+    ],
   })
-  assert.match(decimalResult.paragraphs.join(' '), /3,8 punti percentuali/)
+  assert.match(decimalResult.paragraphs.join(' '), /4,3 punti percentuali/)
   assert.doesNotMatch(decimalResult.paragraphs.join(' '), /999999/)
 
   const multiFamily = buildNaturaNarrative({
@@ -160,8 +170,30 @@ test('gradua l armonia sulla distanza media tra la principale e le famiglie misu
   })
   assert.match(
     multiFamily.paragraphs.join(' '),
-    /distanza media di 25 punti percentuali.*discreta armonia/i,
+    /ampiezza di 25 punti percentuali.*discreta armonia/i,
   )
+  assert.equal(multiFamily.harmonyBasis, 'mean_gap_from_leader_to_second_and_third')
+})
+
+test('l armonia non dipende dall ordine delle componenti ricevute', () => {
+  const ordered = buildNaturaNarrative({
+    ranking: [
+      radarItem('rosso', 50, 50, 7),
+      radarItem('blu', 30, 30, 5),
+      radarItem('verde', 20, 20, 3),
+    ],
+  })
+  const shuffled = buildNaturaNarrative({
+    ranking: [
+      radarItem('verde', 20, 20, 3),
+      radarItem('rosso', 50, 50, 7),
+      radarItem('blu', 30, 30, 5),
+    ],
+  })
+
+  assert.equal(ordered.harmonyGap, 25)
+  assert.equal(shuffled.harmonyGap, ordered.harmonyGap)
+  assert.equal(shuffled.harmonyDescriptor, ordered.harmonyDescriptor)
 })
 
 test('la percentuale gradua la tensione solo dopo aver verificato la coppia teorica', () => {
@@ -279,7 +311,7 @@ test('un vero pari merito non degrada la famiglia a pari punti a influenza secon
 
   assert.doesNotMatch(result.frontParagraphs.join(' '), /componente.*Flemmatica|Flemmatica.*influenza/i)
   assert.match(result.frontParagraphs.join(' '), /famiglie Marziale e Flemmatica/i)
-  assert.match(result.frontParagraphs.join(' '), /discreta armonia/i)
+  assert.match(result.frontParagraphs.join(' '), /eccellente armonia/i)
 })
 
 test('un vero pari merito senza altre famiglie non nega la componente condivisa', () => {

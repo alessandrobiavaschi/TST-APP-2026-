@@ -545,23 +545,9 @@ export default function QuattroRapporti({
               ) : null}
             </div>
 
-            {agoDellaBilancia ? (
-              <div className="qr-toggle-section">
-                <h4>Qual è l'ago della bilancia</h4>
-                <p>
-                  <strong>{agoDellaBilancia.nome}</strong> è la componente di riferimento di questo
-                  rapporto: raggiunge il {agoDellaBilancia.distributionPercent}% dei punti della lente
-                  ({agoDellaBilancia.rawValue} punti, {agoDellaBilancia.valore}/7).
-                </p>
-                <p>
-                  {agoDellaBilancia.coincideConFamigliaPrevalente
-                    ? 'In questo rapporto coincide con la famiglia più alta nel radar.'
-                    : relationBreakdown?.supportsStrongReference
-                      ? `Non è la famiglia più alta (${ranking[0]?.corrente || '—'}), ma ha un peso sufficiente per contribuire alla lettura dopo le componenti prevalenti.`
-                      : `Non è la famiglia più alta (${ranking[0]?.corrente || '—'}) e il suo peso è ${relationBreakdown?.referenceSalience === 'marginal' ? 'marginale' : 'secondario'}: resta un riferimento teorico, ma non sostiene da solo una conclusione comportamentale.`}
-                </p>
-              </div>
-            ) : null}
+            {/* Blocco tecnico "ago della bilancia" volutamente non renderizzato in questa fase
+                (Fase 2B): agoDellaBilancia/relationBreakdown restano disponibili internamente
+                per una futura UX basata su referenceFamily/relationContract. */}
 
             {relationBreakdown?.others?.length ? (
               <div className="qr-toggle-section">

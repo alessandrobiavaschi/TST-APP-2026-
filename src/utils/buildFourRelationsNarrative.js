@@ -281,11 +281,11 @@ export function buildOtherNarrative({ dominantFamilyKey = '', ranking = [] } = {
     ],
     paragraphs: [...(sameFamily
       ? [
-          `L'Entusiasmo fa da ago della bilancia in questo rapporto ed è anche la tua natura di base. Nel tuo profilo raggiunge il ${formatPercent(enthusiasm.distributionPercent)}%: il risultato rivela quindi ${feminineIndefinite(result.adjective)} propensione all'ascolto del prossimo e alla fiducia.`,
+          `L'Entusiasmo è la famiglia di riferimento di questo rapporto ed è anche la tua natura di base. Nel tuo profilo raggiunge il ${formatPercent(enthusiasm.distributionPercent)}%: il risultato rivela quindi ${feminineIndefinite(result.adjective)} propensione all'ascolto del prossimo e alla fiducia.`,
           'La famiglia di base e il fattore relazionale coincidono: non sono due prove indipendenti dello stesso tratto.',
         ]
       : [
-          `L'Entusiasmo fa da ago della bilancia in questo rapporto: misura la tua apertura verso l'altro, il coraggio di incontrare persone ed esperienze nuove. Nel tuo profilo raggiunge il ${formatPercent(enthusiasm.distributionPercent)}%.`,
+          `L'Entusiasmo è la famiglia di riferimento di questo rapporto: misura la tua apertura verso l'altro, il coraggio di incontrare persone ed esperienze nuove. Nel tuo profilo raggiunge il ${formatPercent(enthusiasm.distributionPercent)}%.`,
           `${intros[dominantFamilyKey] || `La tua natura ${dominantCopy.nature} definisce il modo spontaneo in cui incontri gli altri.`} ${comparisonCopy}`,
           `La relazione tra ${dominantCopy.family} ed Entusiasta ${relation.kind === 'affinity' ? `accentua l'${relation.label}` : `è di ${relation.label}`}: ${relation.copy}. Il risultato rivela quindi ${feminineIndefinite(result.adjective)} propensione all'ascolto del prossimo e alla fiducia.`,
         ]),

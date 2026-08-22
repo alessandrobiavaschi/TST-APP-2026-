@@ -123,7 +123,36 @@ function formatPercent(value) {
 }
 
 function percentGap(first = 0, second = 0) {
-  return Number(Math.max(0, (Number(first) || 0) - (Number(second) || 0)).toFixed(1))
+  return Number(Math.abs((Number(first) || 0) - (Number(second) || 0)).toFixed(1))
+}
+
+/**
+ * Misura l'equilibrio distributivo, non l'affinita' teorica tra famiglie.
+ * Usa l'ampiezza tra le prime tre componenti misurabili: rispetto alla media
+ * delle distanze dal leader non nasconde una terza componente molto piu' bassa
+ * ed e' indipendente dall'ordine con cui vengono passati gli elementi.
+ */
+function computeHarmonyMetric(ranking = []) {
+  const principalFamilies = [...ranking]
+    .filter((item) => (Number(item?.rawValue) || 0) > 0)
+    .sort((a, b) => (Number(b.rawValue) || 0) - (Number(a.rawValue) || 0))
+    .slice(0, 3)
+
+  if (principalFamilies.length < 3) return null
+
+  const [first, second, third] = principalFamilies.map(
+    (item) => Number(item.distributionPercent) || 0,
+  )
+  const gapSecond = Number(Math.abs(first - second).toFixed(1))
+  const gapThird = Number(Math.abs(first - third).toFixed(1))
+  const gap = Number(((gapSecond + gapThird) / 2).toFixed(1))
+
+  return {
+    gap,
+    descriptor: resolveHarmonyDescriptor(gap),
+    familyKeys: principalFamilies.map((item) => item.familyKey),
+    basis: 'mean_gap_from_leader_to_second_and_third',
+  }
 }
 
 function formatItalianList(items = []) {
@@ -194,15 +223,8 @@ export function buildRelationBreakdown({ agoFamilyKey = '', ranking = [] } = {})
     ))
     .map((item) => ({ ...item, tensionDescriptor: resolveTensionDescriptor(item.gap) }))
 
-  const harmony = supportsStrongReference && others.length >= 2
-    ? (() => {
-        const gap = Number(((others[0].gap + others[1].gap) / 2).toFixed(1))
-        return {
-          gap,
-          descriptor: resolveHarmonyDescriptor(gap),
-          familyKeys: [others[0].familyKey, others[1].familyKey],
-        }
-      })()
+  const harmony = supportsStrongReference
+    ? computeHarmonyMetric([agoItem, ...others])
     : null
 
   return {
@@ -413,20 +435,11 @@ export function buildNaturaNarrative({
   const influenceParagraphs = influenceFamilies.map((item) =>
     buildInfluenceParagraph(item, leader, ranked.findIndex((candidate) => candidate.familyKey === item.familyKey) + 1),
   )
-  const harmonyCandidates = status === NATURA_NARRATIVE_STATUS.TRUE_TIE
-    ? ranked.filter((item) => item.rawValue !== leader.rawValue).slice(0, 2)
-    : ranked.slice(1, 3)
-  const harmonyGap = harmonyCandidates.length
-    ? Number((
-        harmonyCandidates.reduce(
-          (sum, item) => sum + percentGap(leader.distributionPercent, item.distributionPercent),
-          0,
-        ) / harmonyCandidates.length
-      ).toFixed(1))
-    : null
-  const harmonyDescriptor = harmonyGap !== null ? resolveHarmonyDescriptor(harmonyGap) : null
+  const harmony = computeHarmonyMetric(ranked)
+  const harmonyGap = harmony?.gap ?? null
+  const harmonyDescriptor = harmony?.descriptor ?? null
   const harmonyParagraph = harmonyGap !== null
-    ? `La distanza media di ${formatPercent(harmonyGap)} punti percentuali tra la famiglia ${leaderCopy.family} e le prime due componenti successive indica ${harmonyDescriptor} nella composizione del profilo.`
+    ? `L'ampiezza di ${formatPercent(harmonyGap)} punti percentuali tra le componenti principali indica ${harmonyDescriptor} nella distribuzione del profilo.`
     : influenceFamilies.length
       ? 'Non ci sono abbastanza famiglie misurabili per calcolare l\'armonia complessiva del profilo: servono almeno tre famiglie con punti.'
       : ''
@@ -489,5 +502,6 @@ export function buildNaturaNarrative({
     relations,
     harmonyGap,
     harmonyDescriptor,
+    harmonyBasis: harmony?.basis || null,
   }
 }
