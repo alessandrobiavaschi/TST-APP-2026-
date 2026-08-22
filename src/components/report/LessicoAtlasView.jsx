@@ -252,6 +252,80 @@ function buildAtlasWords() {
     }
   }
 
+  // Run relaxation algorithm to prevent overlaps
+  const W_SCALE = 12
+  const H_SCALE = 8
+  const iterations = 150
+
+  // Pre-calculate bounding boxes
+  for (const w of all) {
+    w.pWidth = (w.nome.length * w.fontSize * 0.54 + 14) / W_SCALE
+    w.pHeight = (w.fontSize * 1.15 + 10) / H_SCALE
+  }
+
+  for (let iter = 0; iter < iterations; iter++) {
+    let moved = false
+    for (let i = 0; i < all.length; i++) {
+      const w1 = all[i]
+      for (let j = i + 1; j < all.length; j++) {
+        const w2 = all[j]
+
+        // Overlap check in percentage coordinates
+        const dx = w2.x - w1.x
+        const dy = w2.y - w1.y
+        const minDx = (w1.pWidth + w2.pWidth) / 2
+        const minDy = (w1.pHeight + w2.pHeight) / 2
+
+        const absDx = Math.abs(dx)
+        const absDy = Math.abs(dy)
+
+        if (absDx < minDx && absDy < minDy) {
+          // They overlap!
+          const overlapX = minDx - absDx
+          const overlapY = minDy - absDy
+
+          let pushX = 0
+          let pushY = 0
+
+          if (overlapX < overlapY) {
+            pushX = dx === 0 ? (seededRnd(i + j) > 0.5 ? 1 : -1) * overlapX : (dx > 0 ? 1 : -1) * overlapX
+          } else {
+            pushY = dy === 0 ? (seededRnd(i * j) > 0.5 ? 1 : -1) * overlapY : (dy > 0 ? 1 : -1) * overlapY
+          }
+
+          const force = 0.5
+          const px = pushX * force * 0.5
+          const py = pushY * force * 0.5
+
+          w1.x -= px
+          w1.y -= py
+          w2.x += px
+          w2.y += py
+
+          w1.x = Math.max(1.5, Math.min(98.5, w1.x))
+          w1.y = Math.max(2, Math.min(97, w1.y))
+          w2.x = Math.max(1.5, Math.min(98.5, w2.x))
+          w2.y = Math.max(2, Math.min(97, w2.y))
+
+          moved = true
+        }
+      }
+
+      // Gentle attraction force to family anchor
+      const anchor = FAMILY_META[w1.familyId].anchor
+      w1.x += (anchor.x - w1.x) * 0.02
+      w1.y += (anchor.y - w1.y) * 0.02
+    }
+    if (!moved) break
+  }
+
+  // Recompute localX and localY based on relaxed x and y
+  for (const w of all) {
+    const anchor = FAMILY_META[w.familyId].anchor
+    w.localX = w.x - anchor.x
+    w.localY = w.y - anchor.y
+  }
+
   for (const w of all) {
     w.nearbyWords = all
       .filter((v) => v.subcurrentId === w.subcurrentId && v.id !== w.id)
@@ -824,21 +898,46 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
   // MAI tramite setState — scrive direttamente su ogni nodo DOM, saltando interamente il
   // render/reconciliation React (che con ~217 parole era la causa principale del lag).
   const applyProjectionToDOM = useCallback((camera) => {
+    let width = viewportSizeRef.current.w
+    let height = viewportSizeRef.current.h
+
+    // Fallback/Self-heal if size is not set yet but layerRef exists
+    if ((width === 0 || height === 0) && layerRef.current) {
+      const rect = layerRef.current.getBoundingClientRect()
+      viewportSizeRef.current = {
+        w: rect.width || 1,
+        h: rect.height || 1,
+        left: rect.left,
+        top: rect.top,
+      }
+      width = viewportSizeRef.current.w
+      height = viewportSizeRef.current.h
+    }
+
+    const safeW = width || 1200
+    const safeH = height || 800
+
     if (canvasRef.current) {
-      canvasRef.current.style.transform = `translate(${camera.x}px, ${camera.y}px)`
+      canvasRef.current.style.transform = `translate3d(${camera.x}px, ${camera.y}px, 0)`
     }
     for (const fam of FAMILY_LIST) {
       const pos = project(fam.anchor, 0, 0, 0, camera.scale)
+      
+      const projectedX = (pos.x / 100) * safeW
+      const initialX = (fam.anchor.x / 100) * safeW
+      const tx = projectedX - initialX
+      
+      const projectedY = (pos.y / 100) * safeH
+      const initialY = (fam.anchor.y / 100) * safeH
+      const ty = projectedY - initialY
+
       const nebEl = nebulaRefs.current.get(fam.id)
       if (nebEl) {
-        nebEl.style.left = `${pos.x}%`
-        nebEl.style.top = `${pos.y}%`
-        nebEl.style.transform = `translate(-50%, -50%) scale(${pos.scale})`
+        nebEl.style.transform = `translate3d(${tx.toFixed(2)}px, ${ty.toFixed(2)}px, 0) translate(-50%, -50%) scale(${pos.scale.toFixed(3)})`
       }
       const labelEl = labelRefs.current.get(fam.id)
       if (labelEl) {
-        labelEl.style.left = `${pos.x}%`
-        labelEl.style.top = `${pos.y}%`
+        labelEl.style.transform = `translate3d(${tx.toFixed(2)}px, ${ty.toFixed(2)}px, 0) translate(-50%, -50%)`
       }
     }
     for (const word of ATLAS_WORDS) {
@@ -858,9 +957,16 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
       hiddenWordsRef.current.set(word.id, isHidden)
       const anchor = FAMILY_META[word.familyId].anchor
       const pos = project(anchor, word.localX, word.localY, word.z, camera.scale)
-      el.style.left = `${pos.x}%`
-      el.style.top = `${pos.y}%`
-      el.style.fontSize = `${clamp(word.fontSize * pos.scale, FONT_MIN, FONT_MAX)}px`
+      
+      const projectedX = (pos.x / 100) * safeW
+      const initialX = (word.x / 100) * safeW
+      const tx = projectedX - initialX
+      
+      const projectedY = (pos.y / 100) * safeH
+      const initialY = (word.y / 100) * safeH
+      const ty = projectedY - initialY
+
+      el.style.transform = `translate3d(${tx.toFixed(2)}px, ${ty.toFixed(2)}px, 0) translate(-50%, -50%) scale(${pos.scale.toFixed(3)})`
       el.style.opacity = opacity
       el.style.pointerEvents = isHidden ? 'none' : ''
       if (el.tabIndex !== (isHidden ? -1 : 0)) el.tabIndex = isHidden ? -1 : 0
