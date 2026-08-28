@@ -230,6 +230,7 @@ function NewTestPage() {
   const [showRecoverDraftPrompt, setShowRecoverDraftPrompt] = useState(false)
   const [isReviewingTestSteps, setIsReviewingTestSteps] = useState(false)
   const audioRef = useRef(null)
+  const answersZoneRef = useRef(null)
   const preloadRef = useRef(null)
   const previewAudioRef = useRef(null)
   const analysisRafRef = useRef(null)
@@ -301,6 +302,7 @@ function NewTestPage() {
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [showAreasHelp])
+
 
   useEffect(() => {
     if (!showAreasHelp) return undefined
@@ -1043,6 +1045,29 @@ function NewTestPage() {
   }
 
   const testCompleted = isTestComplete()
+
+  // Permette di rispondere da tastiera (tasti 1-9): seleziona la risposta
+  // corrispondente e fa avanzare il test, senza passare dal focus/click del
+  // bottone (che altrimenti può far scrollare o "saltare" la vista).
+  useEffect(() => {
+    if (!profilingDone || testCompleted || showAreasHelp || showExitConfirm) return undefined
+    if (!isChoicesVisible) return undefined
+    const onKeyDown = (event) => {
+      if (event.repeat) return
+      const tag = event.target?.tagName
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || event.target?.isContentEditable) return
+      const digit = Number(event.key)
+      if (!Number.isInteger(digit) || digit < 1 || digit > 9) return
+      const buttons = answersZoneRef.current?.querySelectorAll('.answer-button')
+      const button = buttons?.[digit - 1]
+      if (!button || button.disabled) return
+      event.preventDefault()
+      button.click()
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [profilingDone, testCompleted, showAreasHelp, showExitConfirm, isChoicesVisible, currentFile])
+
   const isFinalSubmitDisabled = isSubmitting
   const adaptiveTransitionStyle = {
     opacity: 1,
@@ -1330,7 +1355,7 @@ function NewTestPage() {
               style={adaptiveTransitionStyle}
               data-adaptive-rhythm={rhythm}
             >
-              <div className="test-stage-main-card" key={currentFile}>
+              <div className="test-stage-main-card">
                 <header className="test-stage-progress-block" aria-label="Avanzamento test">
                   <div className="test-stage-topbar">
                     <p className="test-stage-step-label" aria-live="polite">
@@ -1528,16 +1553,21 @@ function NewTestPage() {
                     <audio ref={preloadRef} style={{ display: 'none' }} preload="auto" />
                   </section>
                 )}
-                <section className="test-stage-question-zone" role="status" aria-live="polite">
-                  <h2 className="test-threshold-question-title test-threshold-question-title--compact">
-                    {getQuestionTitleForFile(currentFile)}
-                  </h2>
-                </section>
-                <section className="test-stage-answers-shell" aria-live="polite">
-                  <div className={`test-stage-answers-zone ${isChoicesVisible ? 'is-revealed' : 'is-hidden'}`}>
-                    {renderAnswerButtons()}
-                  </div>
-                </section>
+                <div className="test-stage-step-content" key={currentFile}>
+                  <section className="test-stage-question-zone" role="status" aria-live="polite">
+                    <h2 className="test-threshold-question-title test-threshold-question-title--compact">
+                      {getQuestionTitleForFile(currentFile)}
+                    </h2>
+                  </section>
+                  <section className="test-stage-answers-shell" aria-live="polite">
+                    <div
+                      ref={answersZoneRef}
+                      className={`test-stage-answers-zone ${isChoicesVisible ? 'is-revealed' : 'is-hidden'}`}
+                    >
+                      {renderAnswerButtons()}
+                    </div>
+                  </section>
+                </div>
                 <footer className="test-stage-footer" aria-label="Navigazione test">
                   <div className="test-stage-footer-row">
                     <button

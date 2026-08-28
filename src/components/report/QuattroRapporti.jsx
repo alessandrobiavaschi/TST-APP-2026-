@@ -186,7 +186,7 @@ function RapportiHelpModal({ onClose }) {
               <div><strong>Natura di base</strong><span>Suono + Distanze tra le note + Accordi</span></div>
               <div><strong>Rapporto con te stesso</strong><span>Distanze tra le note + Melodia</span></div>
               <div><strong>Rapporto con l’Altro</strong><span>Suono + Melodia</span></div>
-              <div><strong>Rapporto con l’Agire</strong><span>Tempo + Melodia</span></div>
+              <div><strong>Rapporto con l’Agire</strong><span>Scala 1–7, per il triangolo</span></div>
             </div>
             <p className="quattro-rapporti-help__note">
               Non è un voto: è un modo per capire quale componente del tuo profilo è più rilevante in quella situazione.
@@ -336,6 +336,12 @@ export default function QuattroRapporti({
           </button>
         </div>
 
+        <p className="quattro-rapporti-intro">
+          La famiglia prevalente nel singolo rapporto può essere diversa da quella generale: non è una
+          contraddizione, mostra come le diverse correnti assumono pesi differenti nei diversi ambiti
+          dell’esperienza sonora.
+        </p>
+
         <div
           role="tablist"
           aria-label={RAPPORTI_UI.tablistAria}
@@ -478,7 +484,7 @@ export default function QuattroRapporti({
                       <div className="qr-toggle-section">
               <h4>Da cosa nasce questo rapporto</h4>
               {active.composizioneSemplice ? <p>{active.composizioneSemplice}</p> : null}
-              {active.composizione ? (
+              {active.composizione && active.id !== 'agire' ? (
                 <p>
                   <strong>{RAPPORTI_UI.readLabels?.composizione || 'Aree sonore usate'}:</strong> {active.composizione}
                 </p>
@@ -514,9 +520,11 @@ export default function QuattroRapporti({
                         {tied ? ' · pari punti' : sameGraphLevel ? ' · stesso livello grafico' : ''}
                       </span>
                       <strong>{item.valore}/7</strong>
-                      <small>
-                        {item.rawValue} punti · {item.distributionPercent}% della lente
-                      </small>
+                      {active.id !== 'agire' ? (
+                        <small>
+                          {item.rawValue} punti · {item.distributionPercent}% della lente
+                        </small>
+                      ) : null}
                     </button>
                   )
                 })}
@@ -541,7 +549,12 @@ export default function QuattroRapporti({
                       </small>
                     </div>
                   ) : null}
-                  {selectedFamily.maxRawPoints > 0 && selectedFamily.rawValue > 0 ? (
+                  {active.id === 'agire' ? (
+                    <p className="calculation-disclosure__formula">
+                      Il valore va da 1 a 7: indica la vivacità di questa esperienza e viene
+                      rappresentato graficamente nel triangolo.
+                    </p>
+                  ) : selectedFamily.maxRawPoints > 0 && selectedFamily.rawValue > 0 ? (
                     <p className="calculation-disclosure__formula">
                       Formula: {selectedFamily.rawValue ?? 0} ÷ {selectedFamily.maxRawPoints} × 7,
                       arrotondata all'intero più vicino. La famiglia con più punti vale quindi 7;

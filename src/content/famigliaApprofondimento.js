@@ -83,7 +83,7 @@ export const FAMIGLIA_APPROFONDIMENTO = {
       'Ciò che contraddistingue il temperamento volitivo, collerico è il piacere del fare, realizzare ciò a cui si ambisce, il piacere di governarsi e governare, di mettersi alla prova.',
       'Da Est verso Ovest soffiano i venti che seguono l’azione vitale per eccellenza, che invitano a muoversi, venti che seguono il percorso del Sole. Una forza che spinge a vivere il piacere del fare: questo è il flusso Volitivo.',
       '«Io» sono il padrone del mio destino: «Io» sono il capitano della mia anima (William Ernest Henley, Invictus) — parole che esprimono una superiore coscienza dell’Io, della sua piena maturità individuale.',
-      'A guidare il temperamento collerico assertivo è la forza di un Io che opera nel presente, con volontà e sicurezza di sé.',
+      'A guidare il temperamento volitivo-collerico è la forza di un Io che opera nel presente, con volontà e sicurezza di sé.',
     ],
     racconto: [
       'Nel dispiegarsi delle facoltà della vita, l’energia dell’Io ha aiutato a superare ogni momento di crescita, facendoci provare un piacere unico per ogni disposizione temperamentale. Scalando di anno in anno posizioni, crescendo, maturando, arriva a mostrarsi davvero per quello che è attorno al ventesimo anno di età.',
@@ -98,29 +98,28 @@ export const FAMIGLIA_APPROFONDIMENTO = {
     qualita: [
       'Un aspetto della collericità è vivere il piacere di fare, di concretizzare, di realizzare. La forza di un procedere sicuro e determinato. Una forza che spinge a prendersi responsabilità per sé e per gli altri. Una tendenza a operare affrontando rischi, ad andare oltre l’ostacolo, spesso a cercarli per poterli superare.',
       'L’Io deve mettere la propria fermezza e la propria forza di volontà anche al servizio dei suoi gregari: la Calma, l’Entusiasmo e la Riflessività. La solidità dell’intelletto si oppone alla debolezza del pensiero; un sentire stabile e autentico protegge dall’instabilità affettiva; una volontà chiara rischiara invece i cammini, anche difficili, che permettono di realizzare ciò a cui si tiene. L’armonia del comportamento nasce dall’equilibrio tra queste forze.',
-      'Le forze emotive che contraddistinguono la natura temperamentale volitiva collerica sono potenti, forti, in quanto il loro operare dà il via all’azione. Sono forze che agiscono al fine di concretizzare nella realtà sogni e ambizioni: fermezza, solidità, sicurezza, franchezza, costanza, determinazione.',
+      'Le forze emotive che contraddistinguono la natura temperamentale volitiva-collerica sono potenti, forti, in quanto il loro operare dà il via all’azione. Sono forze che agiscono al fine di concretizzare nella realtà sogni e ambizioni: fermezza, solidità, sicurezza, franchezza, costanza, determinazione.',
       '- Per mantenere in equilibrio il governatore e i suoi gregari è necessaria anche la saggezza: occorre saper ridimensionare il proprio Io e guardare con un poco d’ironia al «grande governatore». D’altra parte, senza la Calma, l’Entusiasmo e la Riflessività, che cosa potrebbe governare?',
     ],
     ombre: [
-      'Fermezza, solidità, sicurezza, franchezza, costanza, determinazione hanno però anche le loro rispettive ombre, aspetti polari negativi che si rivelano contrastanti.',
+      'Fermezza, solidità, sicurezza, franchezza, costanza, determinazione hanno però anche la loro ombra, un aspetto polare negativo che si rivela contrastante.',
       'Quando l’Io rivolge lo sguardo soltanto a sé stesso, perde armonia, si irrigidisce e si «egoicizza», fino a diventare incapace di riconoscere i propri gregari e di alimentarli con le sue qualità. Se il «sentire» non viene coltivato consapevolmente, finisce per inaridirsi e disidratarsi, privando la persona di uno strumento essenziale di conoscenza.',
-      'L’elemento essenziale che crea lo stimolo a vivere in modo esasperato questa condizione è il dubbio, uno stato d’animo instabile, altamente altalenante che chiamiamo dubbiosità: una forza che alimenta il volgere al negativo tutto ciò che induce all’azione, ovvero l’indecisione, l’incertezza, fino a dare corpo all’ambiguità — un procedere esitante insicuro, un tendere a cambiare idea spesso per paura di sbagliare.',
-      'Una terza condizione della natura temperamentale volitiva collerica è lo stato d’animo rabbioso, iracondo: forze che possono diventare esplosive quando la corrente emotiva della collericità assertiva si esaspera. Rabbia e ira nascono spesso da rapporti con visioni opposte, spesso dominate da reciproci istinti di antipatia covati ma non manifestati: da questa impossibilità di dialogo emerge un’energia egoico assertiva scaricata verso il contendente in termini di rabbia trattenuta, o di ira manifestata con violenza.',
+      'Una condizione della natura temperamentale volitiva-collerica è lo stato d’animo rabbioso, iracondo: forze che possono diventare esplosive quando la corrente emotiva della collericità si esaspera. Rabbia e ira nascono spesso da rapporti con visioni opposte, spesso dominate da reciproci istinti di antipatia covati ma non manifestati: da questa impossibilità di dialogo emerge un’energia egoica scaricata verso il contendente in termini di rabbia trattenuta, o di ira manifestata con violenza.',
     ],
     sottocategorie: [
       {
-        nome: 'Assertività volitiva',
+        nome: 'Determinazione volitiva',
         descrizione:
           'Un aspetto della collericità è vivere il piacere di fare, di concretizzare, di realizzare. La forza di un procedere sicuro e determinato. Una forza che spinge a prendersi responsabilità per sé e per gli altri, a operare affrontando rischi, ad andare oltre l’ostacolo, spesso a cercarli per poterli superare.',
         statiAnimo: ['Stabile', 'Saldo', 'Sicuro', 'Certo', 'Costante', 'Determinato', 'Decisionista', 'Fermo', 'Schietto', 'Sincero', 'Franco', 'Fiero', 'Risoluto', 'Fedele', 'Spavaldo', 'Altero', 'Ostinato', 'Orgoglioso', 'Coraggioso', 'Impavido'],
-        differenza: '«Fermezza, solidità, sicurezza, franchezza, costanza, determinazione, hanno però anche le loro rispettive ombre, aspetti polari negativi che si rivelano contrastanti»: il Dubbio e la Collera.',
+        differenza: '«Fermezza, solidità, sicurezza, franchezza, costanza, determinazione, hanno però anche la loro ombra, un aspetto polare negativo che si rivela contrastante»: la Collera.',
       },
       {
-        nome: 'Dubbio e collera',
+        nome: 'Collera',
         descrizione:
-          'Il dubbio è uno stato d’animo instabile, altamente altalenante — una forza che alimenta il volgere al negativo tutto ciò che induce all’azione: indecisione, incertezza, ambiguità, un procedere esitante insicuro, un tendere a cambiare idea per paura di sbagliare. La collera è lo stato d’animo rabbioso, iracondo: forze che diventano esplosive quando la corrente della collericità assertiva si esaspera, spesso a partire da un’inconciliabilità interiore tra persone che, non trovando vie d’uscita, smettono di sentire l’altro e riaffermano solo sé stesse.',
-        statiAnimo: ['Incerto', 'Inquieto', 'Dubbioso', 'Esitante', 'Ambiguo', 'Misterioso', 'Indeciso', 'Oscillante', 'Precario', 'Perplesso', 'Irrisoluto', 'Smarrito', 'Elusivo', 'Equivoco', 'Criptico', 'Enigmatico', 'Infido', 'Subdolo', 'Rabbioso', 'Rancoroso', 'Irato', 'Furioso', 'Iracondo', 'Travagliato', 'Tribolato', 'Odioso', 'Diffidente', 'Sospettoso', 'Nevrotico'],
-        differenza: 'Il dubbio è «uno stato d’animo instabile, altamente altalenante»; la collera è lo «stato d’animo rabbioso iracondo», forza che «può diventare esplosiva quando la corrente emotiva della collericità assertiva si esaspera».',
+          'La collera è lo stato d’animo rabbioso, iracondo: forze che diventano esplosive quando la corrente della collericità si esaspera, spesso a partire da un’inconciliabilità interiore tra persone che, non trovando vie d’uscita, smettono di sentire l’altro e riaffermano solo sé stesse.',
+        statiAnimo: ['Rabbioso', 'Rancoroso', 'Irato', 'Furioso', 'Iracondo', 'Travagliato', 'Tribolato', 'Odioso', 'Diffidente', 'Sospettoso', 'Nevrotico'],
+        differenza: 'La collera è lo «stato d’animo rabbioso iracondo», forza che «può diventare esplosiva quando la corrente emotiva della collericità si esaspera».',
       },
     ],
     immaginiSimboliche:

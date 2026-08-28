@@ -14,7 +14,16 @@
  * Forma di `reportData`:
  * {
  *   utente: { nome },
- *   profilo: { natura, disposizione, famiglia, correnteDominante, fraseChiave, focus, colore },
+ *   profilo: { natura, disposizione, famiglia, correnteDominante, fraseChiave, focus, colore,
+ *     heroResult: {                     // apertura report: famiglia principale + eventuale secondaria
+ *       band,                           // 'leader' | 'near_parity' | 'exact_tie' — da globalProfileContract, nessuna nuova soglia
+ *       leader: { familyKey, famiglia, colore },
+ *       secondary: null | { familyKey, famiglia, colore }, // valorizzato solo se band !== 'leader'
+ *     },
+ *     globalProfileContract,             // stessa fonte di heroResult: bande per famiglia (leader/exact_tie/
+ *                                         // near_parity/secondary/marginal), usata anche da reportFeatureFlags
+ *                                         // e EmotionalIntegrations per restare coerenti con l'Hero.
+ *   },
  *   correnti: [{                       // 5 famiglie — familyKey sempre esplicito, mai dedurre dal colore
  *     familyKey, familyName, nome, label, colore,
  *     valoreAssoluto,                  // punteggio grezzo della famiglia (raw points)
@@ -632,6 +641,30 @@ export function buildReportData({
   )
   const coloriCorrenti = Object.fromEntries(correnti.map((c) => [c.nome, c.colore]))
 
+  /* ── Hero: famiglia principale + eventuale famiglia secondaria (Fase report semplice/sotto
+   * complesso). Riusa solo le bande già calcolate da classifyFamilyRanking sopra
+   * (globalProfileContract): nessuna nuova soglia di "quasi pareggio" introdotta qui.
+   * band 'near_parity' | 'exact_tie' → la seconda famiglia in graduatoria è entro la
+   * distanza già codificata (<=10 punti percentuali, o 0 per il pareggio esatto). ── */
+  const familyByKey = Object.fromEntries(correnti.map((item) => [item.familyKey, item]))
+  const heroSecondEntry = globalProfileContract.status === 'ready' ? globalProfileContract.ranking?.[1] : null
+  const heroBand = heroSecondEntry?.band === 'exact_tie'
+    ? 'exact_tie'
+    : heroSecondEntry?.band === 'near_parity'
+      ? 'near_parity'
+      : 'leader'
+  const heroLeaderFamily = familyByKey[globalProfileContract.leader?.familyKey] || familyByKey[domTheme.key]
+  const heroSecondaryFamily = heroBand !== 'leader' ? familyByKey[heroSecondEntry.familyKey] : null
+  const heroResult = {
+    band: heroBand,
+    leader: heroLeaderFamily
+      ? { familyKey: heroLeaderFamily.familyKey, famiglia: heroLeaderFamily.nome, colore: heroLeaderFamily.colore }
+      : null,
+    secondary: heroSecondaryFamily
+      ? { familyKey: heroSecondaryFamily.familyKey, famiglia: heroSecondaryFamily.nome, colore: heroSecondaryFamily.colore }
+      : null,
+  }
+
   /* ── Profilo (hero + sintesi) ─────────────────────────────────────── */
   const pdfEarly = PROFILE_PDF_BLOCKS[dominantColorName] || null
   const fraseChiave =
@@ -653,6 +686,12 @@ export function buildReportData({
     criterioFamiglia: 'prevalenza',
     criterioTemperamento: 'prevalenza',
     composizioneFamiglie: familyComposition,
+    heroResult,
+    // Stessa fonte già usata per heroResult e per i badge/schede di SintesiCorrenti
+    // (contentCards/compositionViewModel): esposta anche qui perché reportFeatureFlags.js
+    // e EmotionalIntegrations.jsx ricevono solo `profilo`, non l'intero reportData — così
+    // "quale famiglia secondaria è significativa" resta la stessa risposta ovunque nel report.
+    globalProfileContract,
     composizioneSintesi: familyComposition.status === 'balanced'
       ? `La famiglia prevalente guida di poco: ${familyComposition.foreground.map((item) => `${item.nome} ${item.distributionPercent}%`).join(', ')} formano un profilo ravvicinato e vanno lette quasi sullo stesso piano.`
       : familyComposition.status === 'mixed'

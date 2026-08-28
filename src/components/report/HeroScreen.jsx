@@ -2,7 +2,7 @@ import React, { useMemo } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { HERO_UI } from './reportUiCopy.js'
 import { getFlowerStillByColor } from '../../colorAssets.js'
-import { computeColorTotals, getDominantColorInfo } from '../../utils/reportRecordUtils.js'
+import { computeColorTotals, formatDateShort, getDominantColorInfo } from '../../utils/reportRecordUtils.js'
 import { FAMILY_NAME_BY_KEY, FAMILY_THEME } from '../../config/reportFamilyTheme.js'
 
 // Il setup ESLint del progetto non riconosce l'uso di `motion.X` nel JSX come
@@ -68,16 +68,17 @@ const NOISE_SVG =
 /**
  * <HeroScreen /> — schermata d'apertura (100vh) del report TST.
  *
- * Schermata iniziale in stile "home da videogioco" (Super Mario Bros Wii style):
- * - 100vh fullscreen
- * - Testo/Hero identitario
- * - 2 CTA chiare: "LEGGI IL TUO REPORT" (apre il report a stanze) e "NUOVO TEST" (naviga a /nuovo-test)
+ * Carta d'identità del risultato: nome/data, famiglia, natura e frase chiave.
+ * Mantiene una sola CTA primaria verso il percorso di lettura, con download e
+ * ritorno all'archivio come azioni secondarie.
  */
 export default function HeroScreen({
   familyName = '',
   naturaName = 'NATURA CONTEMPLATIVA',
+  heroResult = null,
   _disposizione = 'CONTEMPLATIVA',
-  _userName = '',
+  userName = '',
+  fraseChiave = '',
   correnteColore = '#16a34a',
   correnteColoreChiara,
   correnteColoreMedia,
@@ -86,7 +87,9 @@ export default function HeroScreen({
   _portato = {},
   onOpenGlossary,
   onReadReport,
-  onNewTest,
+  onDownload,
+  onNavigateArchive,
+  testDate,
 }) {
   const reduceMotion = useReducedMotion()
 
@@ -141,11 +144,19 @@ export default function HeroScreen({
   const familyText = toTitleCase(
     familyName || FAMILY_THEME[FAMILY_NAME_BY_KEY[colorKey]]?.family || 'Flemmatica',
   )
+  const formattedTestDate = formatDateShort(testDate)
+
+  // Famiglia secondaria: mostrata solo quando la banda già calcolata a monte
+  // (globalProfileContract, nessuna soglia nuova) segnala un pareggio esatto o un
+  // quasi pareggio. In pareggio esatto il titolo non proclama un vincitore.
+  const isExactTie = heroResult?.band === 'exact_tie' && Boolean(heroResult?.secondary)
+  const isNearParity = heroResult?.band === 'near_parity' && Boolean(heroResult?.secondary)
+  const secondaryFamilyText = heroResult?.secondary ? toTitleCase(heroResult.secondary.famiglia) : ''
 
   const gradientStyle = {
     backgroundImage: `
-      radial-gradient(circle at 50% 46%, ${rgba(colors.media, 0.08)} 0%, ${rgba(colors.mid, 0.28)} 42%, ${rgba(edgeColor, 0.6)} 84%),
-      linear-gradient(180deg, ${rgba(edgeColor, 0.3)} 0%, ${rgba(edgeColor, 0.05)} 48%, ${rgba(edgeColor, 0.4)} 100%)
+      radial-gradient(circle at 50% 46%, ${rgba(colors.media, 0.08)} 0%, ${rgba(colors.mid, 0.22)} 42%, ${rgba(edgeColor, 0.48)} 84%),
+      linear-gradient(180deg, ${rgba(edgeColor, 0.14)} 0%, ${rgba(edgeColor, 0.02)} 48%, ${rgba(edgeColor, 0.3)} 100%)
     `,
   }
 
@@ -179,6 +190,13 @@ export default function HeroScreen({
         className="report-tst-hero__content hero-screen__content flex w-full flex-col items-center justify-center px-6 py-10 z-10"
       >
         <div className="report-tst-hero__inner report-tst-hero__identity flex w-full max-w-4xl flex-col items-center">
+          {(userName || formattedTestDate) && (
+            <motion.p {...fade(0.1, 12)} className="hero-screen__metadata">
+              {userName ? <span>{userName}</span> : null}
+              {userName && formattedTestDate ? <span aria-hidden="true"> · </span> : null}
+              {formattedTestDate ? <span>Test del {formattedTestDate}</span> : null}
+            </motion.p>
+          )}
           <motion.h1
             {...fade(0.2, 24)}
             className="hero-screen__sintesi-title"
@@ -191,9 +209,13 @@ export default function HeroScreen({
             }}
           >
             <span className="hero-screen__sintesi-bridge">
-              La tua famiglia emotiva prevalente è
+              {isExactTie
+                ? 'Il tuo profilo emerge con pari intensità tra'
+                : 'La tua famiglia emotiva prevalente è'}
             </span>
-            <strong className="hero-screen__sintesi-family">{familyText}</strong>
+            <strong className="hero-screen__sintesi-family">
+              {isExactTie ? `${familyText} e ${secondaryFamilyText}` : familyText}
+            </strong>
             <span className="hero-screen__sintesi-bridge">
               <button
                 type="button"
@@ -205,21 +227,38 @@ export default function HeroScreen({
               (caratteristica emotiva): {naturaText}
             </span>
           </motion.h1>
-          {/* Dual CTAs: LEGGI IL TUO REPORT & NUOVO TEST */}
-          <motion.div {...fade(0.45, 8)} className="hero-screen__cta-container flex flex-wrap gap-5 items-center justify-center mt-8">
+          {isNearParity ? (
+            <motion.p {...fade(0.28, 10)} className="hero-screen__secondary-family">
+              Nel tuo profilo è molto presente anche la famiglia{' '}
+              <strong>{secondaryFamilyText}</strong>.
+            </motion.p>
+          ) : null}
+          {fraseChiave ? (
+            <motion.p {...fade(0.35, 12)} className="hero-screen__frase-chiave">
+              {fraseChiave}
+            </motion.p>
+          ) : null}
+          <motion.div {...fade(0.45, 8)} className="hero-screen__cta-container">
             <button
               type="button"
               className="hero-screen__cta-primary hero-screen-btn-primary"
               onClick={onReadReport}
             >
-              LEGGI IL TUO REPORT
+              Leggi il tuo report
             </button>
             <button
               type="button"
               className="hero-screen__cta-secondary hero-screen-btn-secondary"
-              onClick={onNewTest}
+              onClick={onDownload}
             >
-              NUOVO TEST
+              Scarica i dati
+            </button>
+            <button
+              type="button"
+              className="hero-screen__cta-tertiary"
+              onClick={onNavigateArchive}
+            >
+              Torna ai risultati
             </button>
           </motion.div>
         </div>
@@ -262,6 +301,18 @@ export default function HeroScreen({
           color: color-mix(in srgb, var(--corrente-chiara, #fde68a) 92%, #ffffff);
           font-weight: 420;
           margin-bottom: 0.1em;
+        }
+        .hero-screen__secondary-family {
+          max-width: min(760px, 88vw);
+          margin: 0.6em 0 0;
+          text-align: center;
+          font-size: clamp(0.95rem, 1.3vw, 1.15rem);
+          color: rgba(255, 255, 255, 0.82);
+          text-shadow: 0 2px 18px rgba(0, 0, 0, 0.6);
+        }
+        .hero-screen__secondary-family strong {
+          color: #ffffff;
+          font-weight: 650;
         }
         .hero-screen__cta-primary,
         .hero-screen__cta-secondary {

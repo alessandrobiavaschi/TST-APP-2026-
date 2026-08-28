@@ -1,0 +1,35 @@
+/* ReportPartDivider — cambio di capitolo tra Parte 1 e Parte 2 del report.
+   Deve essere impossibile confondere le due parti: la distinzione passa da
+   spazio e tipografia, non da decorazioni (bordi, sfondi, icone). */
+
+.report-part-divider {
+  width: 100%;
+  padding: var(--space-lg, 64px) 1.5rem;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+}
+
+.report-part-divider__inner {
+  max-width: 640px;
+}
+
+.report-part-divider__eyebrow {
+  display: block;
+  margin-bottom: var(--space-xs, 8px);
+  color: var(--report-text-muted, rgba(248, 250, 252, 0.56));
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.report-part-divider__title {
+  margin: 0;
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, 3.4vw, 2.6rem);
+  font-weight: 700;
+  line-height: 1.2;
+}

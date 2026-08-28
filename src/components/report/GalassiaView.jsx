@@ -2010,7 +2010,7 @@ function GalassiaCrtPanel({
                   />
                   <span>{panel.nome}</span>
                 </h2>
-                {panel.composizione && (
+                {panel.composizione && panel.id !== 'agire' && (
                   <p className="galassia-view__crt-meta">{panel.composizione}</p>
                 )}
                 {panel.definizione && (

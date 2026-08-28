@@ -6,7 +6,7 @@ import { DISPOSITIONS } from './dispositions'
  */
 export const CORPUS_SCHEMA_ASSI_ORIENTAMENTO = [
   'Blu (famiglia Malinconica, natura Lunare): riflessività, malinconia descrittiva, nostalgia (orientamento introspettivo).',
-  'Rosso (famiglia Marziale, natura Volitivo-collerica): assertività, decisione, oscillazione dubbio/collera descrittiva (orientamento all’azione).',
+  'Rosso (famiglia Marziale, natura Volitiva-Collerica): volontà, decisione, collera descrittiva (orientamento all’azione).',
   'Verde (famiglia flemmatica nel modello): calma, regolazione, contemplazione (orientamento omeostatico).',
   'Giallo (famiglia Entusiasta, natura Gioioso-Sanguinico): curiosità, slancio, partecipazione (orientamento esplorativo).',
   'Grigio (famiglia Razionale, natura Intellettuale-Razionale): distacco osservativo vs saggezza riflessiva (orientamento cognitivo-analitico).',
@@ -33,7 +33,7 @@ export const CORPUS_MAPPING_CELESTE_SOLARE =
   'Celeste — malinconia solare (terza maggiore).'
 
 export const CORPUS_MAPPING_ROSSO_QUARTA =
-  'Associazione ipotizzata — Rosso: assertività volitiva nel modello (intervallo di quarta).'
+  'Associazione ipotizzata — Rosso: volontà decisa nel modello (intervallo di quarta).'
 
 const gialloDisposition = DISPOSITIONS.find((d) => d.dispositionId === 'entusiasmo')
 

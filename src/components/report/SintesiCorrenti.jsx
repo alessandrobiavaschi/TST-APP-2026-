@@ -58,30 +58,31 @@ const FAMILY_PRESENCE_LABELS = {
 // docs/fonti-scientifiche/testi-definitivi/Malinconia_lunare.pages e
 // docs/fonti-scientifiche/Il Pianeta della Musica - FM.pdf.
 //
-// Gerarchia narrativa (in quest'ordine, vedi SintesiCorrenti):
-// 1) famiglia prevalente → 2) meaningParagraph (cosa rappresenta la famiglia) →
-// 3) compositionParagraph (la famiglia contiene più nature) → 4) natura/sottocorrente
-// prevalente → 5) natureFitByQuality[natura] (come si colloca nella famiglia).
-// deepDiveParagraphs è approfondimento facoltativo, mostrato in disclosure.
+// Testi invariati rispetto alla versione precedente (fundamentalPleasure, qualities,
+// qualitiesByQuality, orientation, note): solo l'ORDINE in cui vengono mostrati è
+// cambiato in SintesiCorrenti — famiglia → cosa rappresenta → composizione interna →
+// natura prevalente → come si colloca. Uniche aggiunte nuove: `clarification` e
+// `deepDiveParagraphs` per Blu (approfondimento facoltativo in disclosure).
 const BRIEF_SUMMARY_BY_FAMILY = {
   Blu: {
     family: 'Malinconica',
-    meaningParagraph:
-      "Questa famiglia emotiva è una delle 5 forze comuni a tutti: la Malinconia non significa automaticamente tristezza o depressione. È la famiglia dello spazio interiore, della riflessione, della memoria affettiva e dell’elaborazione di ciò che si vive.",
-    compositionParagraph:
-      "Al suo interno convivono forze differenti: nature (caratteristiche emotive) lunari, solari e nostalgiche.",
-    natureFitByQuality: {
+    clarification: "La Malinconia non significa automaticamente tristezza o depressione.",
+    fundamentalPleasure:
+      "il piacere di stare con sé stessi, dell’introversione, dell’osservarsi interiormente e del riflettere su ciò che si è vissuto",
+    qualities: "nature (caratteristiche emotive) lunari, solari e nostalgiche",
+    qualitiesByQuality: {
       Lunare:
-        "La natura Lunare orienta verso l’introspezione e il raccoglimento: è il versante della Malinconia rivolto verso l’interno.",
+        "una caratteristica Lunare e una Solare. Quella Lunare opera nel chiuso dell’interiorità, su una visione riflessa dell’esperienza emotiva",
       Solare:
-        "La natura Solare orienta verso l’apertura, la speranza, l’ottimismo e l’avvicinamento alla gioia: è il versante della Malinconia rivolto verso il mondo esterno.",
+        "una caratteristica Lunare e una Solare. Quella Solare apre verso il mondo, portando speranza, serenità e fiducia nel futuro",
       Nostalgica:
-        "La natura Nostalgica rielabora il passato: nella sua forma Lunare attraverso il rimpianto, in quella Solare attraverso la riconoscenza per ciò che si è vissuto.",
+        "una natura Nostalgica, che può essere Lunare o Solare. La forma Lunare elabora il passato attraverso il rimpianto; quella Solare attraverso la riconoscenza verso ciò che si è vissuto",
       Depressiva:
-        "Nel modello TST, «Depressiva» indica la forma più accentuata del versante Lunare della Malinconia, quando l’introspezione si fa raccoglimento profondo.",
+        "una caratteristica introspettiva e una depressiva. Quella Depressiva opera nel chiuso dell’interiorità, scandagliandone gli aspetti più scuri",
     },
+    orientation: "sé stessi, la memoria, la riflessione e l’interiorità",
+    note: "La tristezza è solo uno dei volti dolorosi della malinconia.",
     deepDiveParagraphs: [
-      "La tristezza è solo uno dei volti dolorosi della malinconia.",
       "Il versante lunare della Malinconia, associato alla terza minore, orienta verso l’introspezione e il raccoglimento e, nelle forme più accentuate, verso la tristezza e la depressione. Il versante solare, associato alla terza maggiore, orienta invece verso l’apertura, la speranza, l’ottimismo e l’avvicinamento alla gioia.",
       "La natura specifica emersa dal test indica quale di queste manifestazioni risulta più presente nel tuo profilo: non esaurisce l’intera persona. Etichette come «Depressiva» appartengono al linguaggio del modello TST e non costituiscono una diagnosi clinica.",
     ],
@@ -89,60 +90,62 @@ const BRIEF_SUMMARY_BY_FAMILY = {
   },
   Giallo: {
     family: 'Entusiasta',
-    meaningParagraph:
-      "Questa famiglia emotiva è una delle 5 forze comuni a tutti: racchiude il piacere del movimento, della curiosità, della scoperta del nuovo e dell’apertura verso il mondo.",
-    compositionParagraph:
-      "Al suo interno convivono nature (caratteristiche emotive) differenti, legate alla gioia, all’entusiasmo, alla curiosità e alla solarità.",
-    natureFitByQuality: {
+    fundamentalPleasure:
+      "il piacere del movimento, della curiosità, della scoperta del nuovo e dell’apertura verso il mondo",
+    qualities: "nature (caratteristiche emotive) legate alla gioia, all’entusiasmo, alla curiosità e alla solarità",
+    qualitiesByQuality: {
       Solare:
-        "La natura Gioioso-Sanguinica si esprime con vivacità, positività e un moto naturale verso il fuori e verso gli altri.",
+        "una caratteristica Gioioso-Sanguinico e una Passionale. Quella Gioioso-Sanguinico si esprime con vivacità, positività e un moto naturale verso il fuori e verso gli altri",
       "Gioioso-Sanguinico":
-        "La natura Gioioso-Sanguinica si esprime con vivacità, positività e un moto naturale verso il fuori e verso gli altri.",
+        "una caratteristica Gioioso-Sanguinico e una Passionale. Quella Gioioso-Sanguinico si esprime con vivacità, positività e un moto naturale verso il fuori e verso gli altri",
       Passionale:
-        "La natura Passionale si esprime con intensità affettiva, trasporto e un profondo senso di fusione con ciò che si ama.",
+        "una caratteristica Gioioso-Sanguinico e una Passionale. Quella Passionale si esprime con intensità affettiva, trasporto e un profondo senso di fusione con ciò che si ama",
     },
+    orientation: "il fuori, gli altri, la relazione, la natura, le attività e le possibilità",
+    note: "",
     defaultQuality: "Gioioso-Sanguinico",
   },
   Rosso: {
     family: 'Marziale',
-    meaningParagraph:
-      "Questa famiglia emotiva è una delle 5 forze comuni a tutti: racchiude il piacere del fare, del realizzare ciò che si desidera, del governarsi e del mettersi alla prova.",
-    compositionParagraph:
-      "Al suo interno convivono nature (caratteristiche emotive) differenti, legate all’assertività volitiva, al dubbio e alla collera.",
-    natureFitByQuality: {
-      Assertiva:
-        "La natura Assertiva si esprime con fermezza, determinazione e volontà di concretizzare nel presente.",
-      "Dubbio-collerica":
-        "La natura del Dubbio porta all’esitazione e all’ambiguità; quando si esaspera, può trasformarsi in collera.",
+    fundamentalPleasure:
+      "il piacere del fare, del realizzare ciò che si desidera, del governarsi e del mettersi alla prova",
+    qualities: "nature (caratteristiche emotive) legate alla Natura Volitiva e alla Natura Collerica",
+    qualitiesByQuality: {
+      Volitiva:
+        "una Natura Volitiva e una Collerica. Quella Volitiva si esprime con fermezza, determinazione e volontà di concretizzare nel presente",
+      Collerica:
+        "una Natura Volitiva e una Collerica. Quella Collerica porta all’esitazione e all’ambiguità del dubbio; quando si esaspera, può trasformarsi in collera",
     },
-    defaultQuality: "Assertiva",
+    orientation: "l’azione, la responsabilità, la decisione e la realizzazione",
+    note: "",
+    defaultQuality: "Volitiva",
   },
   Verde: {
     family: 'Flemmatica',
-    meaningParagraph:
-      "Questa famiglia emotiva è una delle 5 forze comuni a tutti: racchiude il piacere della lentezza, del riposo, della calma e della contemplazione.",
-    compositionParagraph:
-      "Al suo interno convivono nature (caratteristiche emotive) legate alla pace interiore, alla moderazione, alla prudenza e all’osservazione contemplativa.",
-    natureFitByQuality: {
-      Contemplativa:
-        "La natura Contemplativa orienta verso la calma interiore, la quiete e l’equilibrio affettivo, non verso la riflessione su sé stessi.",
-    },
+    fundamentalPleasure: "il piacere della lentezza, del riposo, della calma e della contemplazione",
+    qualities:
+      "nature (caratteristiche emotive) legate alla pace interiore, alla moderazione, alla prudenza e all’osservazione contemplativa",
+    orientation:
+      "la calma interiore — non per riflettere su sé stessi, ma per trovare quiete ed equilibrio affettivo",
+    note: "",
     defaultQuality: 'Contemplativa',
   },
   Grigio: {
     family: 'Razionale',
-    meaningParagraph:
-      "Questa famiglia emotiva è una delle 5 forze comuni a tutti: racchiude il piacere del calcolo, della dubbiosità di origine intellettuale, dell’oggettività e della distanza affettiva.",
-    compositionParagraph:
-      "Al suo interno convivono nature (caratteristiche emotive) differenti, legate all’anaffettività, al distacco, al nichilismo e alla dimensione intellettuale.",
-    natureFitByQuality: {
+    fundamentalPleasure:
+      "il piacere del calcolo, della dubbiosità di origine intellettuale, dell’oggettività e della distanza affettiva",
+    qualities:
+      "nature (caratteristiche emotive) legate all’anaffettività, al distacco, al nichilismo e alla dimensione intellettuale",
+    qualitiesByQuality: {
       Anaffettiva:
-        "La natura Anaffettiva agisce con gelido distacco intellettuale, osservando ogni cosa senza lasciarsi coinvolgere dalla sfera sentimentale.",
+        "una caratteristica Anaffettiva e una della Saggezza. Quella Anaffettiva agisce con gelido distacco intellettuale, osservando ogni cosa senza lasciarsi coinvolgere dalla sfera sentimentale",
       Distaccata:
-        "La natura Anaffettiva agisce con gelido distacco intellettuale, osservando ogni cosa senza lasciarsi coinvolgere dalla sfera sentimentale.",
+        "una caratteristica Anaffettiva e una della Saggezza. Quella Anaffettiva agisce con gelido distacco intellettuale, osservando ogni cosa senza lasciarsi coinvolgere dalla sfera sentimentale",
       "Intellettuale-saggia":
-        "La natura della Saggezza orienta lo stesso sguardo distaccato verso un’osservazione amorevole e compassionevole, aprendosi alla devozione e alla cura dell’altro.",
+        "una caratteristica Anaffettiva e una della Saggezza. Quella della Saggezza orienta lo stesso sguardo distaccato verso un’osservazione amorevole e compassionevole, aprendosi alla devozione e alla cura dell’altro",
     },
+    orientation: "il distacco, l’oggettività, l’analisi e la distanza dal coinvolgimento immediato",
+    note: "",
     defaultQuality: "Anaffettiva",
   },
 }
@@ -312,8 +315,8 @@ function resolveBriefQuality({ familyName, sottodisposizione, correnteDominante 
   if (haystack.includes('depress')) return 'Depressiva'
   if (haystack.includes('lunare')) return 'Lunare'
   if (haystack.includes('solare')) return familyName === 'Giallo' ? 'Gioioso-Sanguinico' : 'Solare'
-  if (haystack.includes('assert') || haystack.includes('marziale')) return 'Assertiva'
-  if (haystack.includes('dubbio') || haystack.includes('collera')) return 'Dubbio-collerica'
+  if (haystack.includes('assert') || haystack.includes('marziale')) return 'Volitiva'
+  if (haystack.includes('dubbio') || haystack.includes('collera')) return 'Collerica'
   if (haystack.includes('flemm') || haystack.includes('contemplat')) return 'Contemplativa'
   if (haystack.includes('gioia') || haystack.includes('entusiasm') || haystack.includes('sanguin')) return 'Gioioso-Sanguinico'
   if (haystack.includes('passion')) return 'Passionale'
@@ -327,15 +330,34 @@ function resolveBriefQuality({ familyName, sottodisposizione, correnteDominante 
 function buildBriefSummary({ familyName, sottodisposizione, correnteDominante }) {
   const copy = BRIEF_SUMMARY_BY_FAMILY[familyName] || BRIEF_SUMMARY_BY_FAMILY.Verde
   const quality = resolveBriefQuality({ familyName, sottodisposizione, correnteDominante })
-  const natureFitParagraph = copy.natureFitByQuality?.[quality] ?? copy.compositionParagraph
+
+  // Step 2 — cosa rappresenta la famiglia: testo originale (fundamentalPleasure +
+  // orientation), invariato, solo con la chiarificazione anteposta per Blu.
+  const familyParagraphs = []
+  if (copy.clarification) familyParagraphs.push(copy.clarification)
+  familyParagraphs.push(`In essa emerge ${copy.fundamentalPleasure}.`)
+  familyParagraphs.push(`Chi ne fa parte orienta la propria energia emotiva verso ${copy.orientation}.`)
+
+  // Step 3 — la famiglia contiene più nature: testo generico originale.
+  const compositionParagraph = `Al suo interno si distinguono ${copy.qualities}.`
+
+  // Step 5 — come la natura prevalente si colloca nella famiglia: testo originale
+  // per-qualità (qualitiesByQuality), invariato.
+  const qualitiesByQualityText = copy.qualitiesByQuality?.[quality]
+  const natureFitParagraph = qualitiesByQualityText
+    ? `Nello specifico, si distinguono ${qualitiesByQualityText}.`
+    : ''
+
+  const deepDiveParagraphs = [...(copy.note ? [copy.note] : []), ...(copy.deepDiveParagraphs || [])]
 
   return {
     introFamily: copy.family,
     introQuality: quality,
-    meaningParagraph: copy.meaningParagraph,
-    compositionParagraph: copy.compositionParagraph,
+    familyParagraphs,
+    compositionParagraph,
     natureFitParagraph,
-    deepDiveParagraphs: copy.deepDiveParagraphs || [],
+    qualitiesByQuality: copy.qualitiesByQuality || null,
+    deepDiveParagraphs,
   }
 }
 
@@ -351,12 +373,8 @@ function familyPresenceLabel(item = {}, fallbackFamily = '') {
   }
 }
 
-function familySectionIntro(dominantFamilyFullLabel) {
-  return [
-    'Nel tuo test visivo sono riportate tutte e cinque le componenti emotive.',
-    `Dai risultati emerge una prevalenza della famiglia ${dominantFamilyFullLabel}; le altre famiglie rimangono comunque presenti e contribuiscono, con intensità differenti, alla costruzione della tua identità emotiva.`,
-    'Verifica, attraverso i grafici, come le diverse componenti si relazionano tra loro.',
-  ]
+function familySectionIntro() {
+  return ['Le percentuali di presenza delle cinque famiglie nel tuo profilo, dalla più alta alla più bassa.']
 }
 
 function SintesiDisclosure({ id, title, defaultOpen = false, children, className = '' }) {
@@ -413,6 +431,10 @@ export default function SintesiCorrenti({
   const prefersReducedMotion = useReducedMotion()
   const [activeDetailFamily, setActiveDetailFamily] = useState(null)
   const [hoveredFamilyKey, setHoveredFamilyKey] = useState(null)
+  // Nature (qualità) esplorabili in progressive disclosure sotto la famiglia prevalente:
+  // parte sempre dalla natura realmente emersa dal test (briefSummary.introQuality),
+  // esplorabile ma non sostituita da quella frase fattuale.
+  const [selectedQuality, setSelectedQuality] = useState(null)
 
   const [isMobileViewport, setIsMobileViewport] = useState(false)
   React.useEffect(() => {
@@ -523,7 +545,7 @@ export default function SintesiCorrenti({
     sottodisposizione,
     correnteDominante,
   })
-  const familyIntroParagraphs = familySectionIntro(briefSummary.introFamily)
+  const familyIntroParagraphs = familySectionIntro()
 
   // Lettura compatta della composizione (Livello 1): solo Famiglie principali,
   // quasi-parità e al massimo una componente secondaria — niente formule o marginali.
@@ -534,6 +556,24 @@ export default function SintesiCorrenti({
     }),
     [globalProfileContract, contentCards],
   )
+
+  // Nature esplorabili per la famiglia prevalente (pillole): solo quando il testo editoriale
+  // ne definisce più di una per questa famiglia — nessuna pillola generata per famiglie senza
+  // qualitiesByQuality (es. Verde), niente tab vuoti.
+  const qualityKeys = briefSummary.qualitiesByQuality ? Object.keys(briefSummary.qualitiesByQuality) : []
+  const activeQuality = selectedQuality && qualityKeys.includes(selectedQuality)
+    ? selectedQuality
+    : briefSummary.introQuality
+  const activeQualityText = briefSummary.qualitiesByQuality?.[activeQuality]
+    ? `Nello specifico, si distinguono ${briefSummary.qualitiesByQuality[activeQuality]}.`
+    : ''
+
+  // Famiglia secondaria realmente significativa (banda 'secondary' da globalProfileContract,
+  // stessa fonte dei badge sotto): al massimo una, per restare un ponte narrativo breve e non
+  // una lista di tutte le famiglie con valore > 0.
+  const modulatingFamilyName = compositionViewModel.compactCompanion
+    ? (compositionViewModel.compactCompanion.content?.nome || compositionViewModel.compactCompanion.familyName)
+    : null
 
   const familySottocorrenti = (Array.isArray(sottocorrenti) ? sottocorrenti : [])
     .filter((sub) => normalizeFamigliaName(sub?.familyName) === dominantFamilyName)
@@ -577,13 +617,45 @@ export default function SintesiCorrenti({
               La tua famiglia emotiva prevalente è{' '}
               <strong className="sintesi-editorial-highlight">{briefSummary.introFamily}</strong>.
             </p>
-            <p className="sintesi-editorial-body">{briefSummary.meaningParagraph}</p>
+            {briefSummary.familyParagraphs.map((paragraph) => (
+              <p key={paragraph} className="sintesi-editorial-body">
+                {paragraph}
+              </p>
+            ))}
             <p className="sintesi-editorial-body">{briefSummary.compositionParagraph}</p>
+            {modulatingFamilyName ? (
+              <p className="sintesi-editorial-body">
+                Il tuo profilo, guidato dalla famiglia {briefSummary.introFamily}, è modulato anche da una
+                presenza significativa della famiglia <strong>{modulatingFamilyName}</strong>.
+              </p>
+            ) : null}
             <p className="sintesi-editorial-body sintesi-editorial-body--lead">
               Nel tuo risultato prevale in particolare la natura (caratteristica emotiva){' '}
               <strong className="sintesi-editorial-highlight">{briefSummary.introQuality}</strong>.
             </p>
-            <p className="sintesi-editorial-body">{briefSummary.natureFitParagraph}</p>
+            {qualityKeys.length > 1 ? (
+              <div
+                className="sintesi-correnti__quality-pills"
+                role="tablist"
+                aria-label={`Nature della famiglia ${briefSummary.introFamily}`}
+              >
+                {qualityKeys.map((key) => (
+                  <button
+                    type="button"
+                    key={key}
+                    role="tab"
+                    aria-selected={activeQuality === key}
+                    className={`sintesi-correnti__quality-pill${activeQuality === key ? ' sintesi-correnti__quality-pill--active' : ''}`}
+                    onClick={() => setSelectedQuality(key)}
+                  >
+                    {key}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+            {activeQualityText ? (
+              <p className="sintesi-editorial-body">{activeQualityText}</p>
+            ) : null}
             {briefSummary.deepDiveParagraphs.length > 0 ? (
               <SintesiDisclosure
                 id="sintesi-editorial-approfondisci"
@@ -605,7 +677,7 @@ export default function SintesiCorrenti({
 
         <SectionDivider />
 
-        {/* b) Attivazione (numbers/bars come after explanation) */}
+        {/* b) Dati (numeri, percentuali e radar: composizione del profilo, sempre visibile) */}
         <div id="report-tst-grafici" className="report-tst-section-anchor sintesi-mobile-activation">
           <div className="sintesi-family-intro" style={{ borderBottom: 'none', paddingBottom: 0 }}>
             <ReportPassageHeader
@@ -620,6 +692,7 @@ export default function SintesiCorrenti({
               ))}
             </div>
           </div>
+
           <ul className="sintesi-mobile-bars-list">
             {ordered.map((c, i) => {
               const peso = Number(c.peso) || 0
@@ -676,10 +749,9 @@ export default function SintesiCorrenti({
               )
             })}
           </ul>
-        </div>
 
-        {/* Sottocorrenti */}
-        {summarySottocorrenti.length > 0 ? (
+          {/* Sottocorrenti */}
+          {summarySottocorrenti.length > 0 ? (
           <div className="sintesi-mobile-subcurrents">
             <h3 className="sintesi-mobile-section-title">
               Correnti della famiglia {dominantPresenceLabel.title.toLowerCase()}
@@ -757,8 +829,7 @@ export default function SintesiCorrenti({
           </div>
           {renderDetailPanel()}
         </div>
-
-
+        </div>
       </section>
     )
   }
@@ -778,13 +849,45 @@ export default function SintesiCorrenti({
               La tua famiglia emotiva prevalente è{' '}
               <strong className="sintesi-editorial-highlight">{briefSummary.introFamily}</strong>.
             </p>
-            <p className="sintesi-editorial-body">{briefSummary.meaningParagraph}</p>
+            {briefSummary.familyParagraphs.map((paragraph) => (
+              <p key={paragraph} className="sintesi-editorial-body">
+                {paragraph}
+              </p>
+            ))}
             <p className="sintesi-editorial-body">{briefSummary.compositionParagraph}</p>
+            {modulatingFamilyName ? (
+              <p className="sintesi-editorial-body">
+                Il tuo profilo, guidato dalla famiglia {briefSummary.introFamily}, è modulato anche da una
+                presenza significativa della famiglia <strong>{modulatingFamilyName}</strong>.
+              </p>
+            ) : null}
             <p className="sintesi-editorial-body sintesi-editorial-body--lead">
               Nel tuo risultato prevale in particolare la natura (caratteristica emotiva){' '}
               <strong className="sintesi-editorial-highlight">{briefSummary.introQuality}</strong>.
             </p>
-            <p className="sintesi-editorial-body">{briefSummary.natureFitParagraph}</p>
+            {qualityKeys.length > 1 ? (
+              <div
+                className="sintesi-correnti__quality-pills"
+                role="tablist"
+                aria-label={`Nature della famiglia ${briefSummary.introFamily}`}
+              >
+                {qualityKeys.map((key) => (
+                  <button
+                    type="button"
+                    key={key}
+                    role="tab"
+                    aria-selected={activeQuality === key}
+                    className={`sintesi-correnti__quality-pill${activeQuality === key ? ' sintesi-correnti__quality-pill--active' : ''}`}
+                    onClick={() => setSelectedQuality(key)}
+                  >
+                    {key}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+            {activeQualityText ? (
+              <p className="sintesi-editorial-body">{activeQualityText}</p>
+            ) : null}
             {briefSummary.deepDiveParagraphs.length > 0 ? (
               <SintesiDisclosure
                 id="sintesi-editorial-approfondisci"
@@ -1003,53 +1106,6 @@ export default function SintesiCorrenti({
             </div>
           </div>
         </div>
-      </div>
-
-      <div className="sintesi-correnti__narrative sintesi-correnti__order-narrative">
-        <SintesiDisclosure
-          id="sintesi-visual-mobile"
-          title={SINTESI_UI.visualToggle}
-          className="sintesi-correnti__disclosure--visual-mobile"
-        >
-          <div className="sintesi-correnti__visual sintesi-correnti__visual--mobile-inline">
-            <div className="sintesi-correnti__radar sintesi-correnti__order-radar">
-              <div className="sintesi-correnti__visual-panel sintesi-correnti__visual-panel--radar">
-                <div className="sintesi-correnti__total-radar">
-                  <p className="sintesi-correnti__radar-caption">
-                    Punteggio 1-7 per famiglia — passa il cursore su un vertice per il valore esatto.
-                  </p>
-                  <ReportRadarChart
-                    data={totalScoreRadarData}
-                    color={accentColor}
-                    height={300}
-                    outerRadius="72%"
-                    domain={[1, 7]}
-                    className="sintesi-correnti__total-radar-chart"
-                    ariaLabel="Grafico radar del total score delle delle cinque famiglie emotive"
-                    onFamilySelect={(key) => {
-                      const radarItem = totalScoreRadarData.find(d => d.familyKey === key)
-                      if (radarItem) setActiveDetailFamily(radarItem)
-                    }}
-                  />
-                </div>
-              </div>
-              <div className="sintesi-correnti__visual-panel sintesi-correnti__visual-panel--ellipses">
-                <EmotionalShape 
-                  familiesData={ordered} 
-                  activeFamilyKey={hoveredFamilyKey || activeDetailFamily?.familyKey}
-                  onFamilySelect={(key) => {
-                    const radarItem = totalScoreRadarData.find(d => d.familyKey === key)
-                    if (radarItem) setActiveDetailFamily(radarItem)
-                  }}
-                  onFamilyHover={setHoveredFamilyKey}
-                />
-              </div>
-            </div>
-          </div>
-          {renderDetailPanel()}
-        </SintesiDisclosure>
-
-
       </div>
     </section>
   )

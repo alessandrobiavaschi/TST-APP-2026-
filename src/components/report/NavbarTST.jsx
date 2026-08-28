@@ -92,7 +92,7 @@ export default function NavbarTST({
   if (isMobile) {
     const mobileTabs = [
       { id: 'report', label: 'Report' },
-      { id: 'for-musicians', label: 'Musicisti' },
+      { id: 'for-musicians', label: 'Musica' },
     ]
 
     return (
@@ -100,16 +100,14 @@ export default function NavbarTST({
         className="navbar-tst navbar-tst--mobile"
         data-force-visible={forceVisible ? 'true' : 'false'}
       >
-        <div className="navbar-tst__bar navbar-tst__bar--mobile" role="tablist" aria-label={NAVBAR_UI.modalitaAria}>
+        <nav className="navbar-tst__bar navbar-tst__bar--mobile" aria-label={NAVBAR_UI.modalitaAria}>
           {mobileTabs.map((tab) => {
             const active = modalita === tab.id
             return (
               <button
                 key={tab.id}
                 type="button"
-                role="tab"
-                aria-selected={active}
-                tabIndex={active ? 0 : -1}
+                aria-current={active ? 'page' : undefined}
                 onClick={() => {
                   setMenuOpen(false)
                   onModalitaChange?.(tab.id)
@@ -185,7 +183,7 @@ export default function NavbarTST({
               </button>
             </div>
           )}
-        </div>
+        </nav>
       </header>
     )
   }
@@ -193,7 +191,7 @@ export default function NavbarTST({
   // ── Render Desktop: Top Sticky Navigation Bar ─────────────────────
   const desktopTabs = [
     { id: 'report', label: 'Report' },
-    { id: 'for-musicians', label: 'Musicians' },
+    { id: 'for-musicians', label: 'Musica' },
     { id: 'galassia', label: 'Galassia' },
   ]
   const naturaResult = formatNatureResult(profilo?.natura || correnteDominante)

@@ -10,27 +10,43 @@ import {
 
 const readSource = (relativePath) => readFile(new URL(`../${relativePath}`, import.meta.url), 'utf8')
 
+// shouldShowEmotionalIntegrations (reportFeatureFlags.js) ora è condizionale: la stanza
+// "report-group-relazioni" compare solo se il profilo ha una famiglia realmente
+// significativa oltre alla leader (banda exact_tie/near_parity/secondary in
+// globalProfileContract). Questo fixture simula un profilo con una tale famiglia secondaria
+// per continuare a testare l'ordine/struttura completa dei macro-blocchi, inclusa quella stanza.
+const PROFILO_CON_FAMIGLIA_SECONDARIA = {
+  globalProfileContract: {
+    status: 'ready',
+    ranking: [
+      { familyKey: 'blu', rank: 1, band: 'leader' },
+      { familyKey: 'rosso', rank: 2, band: 'secondary' },
+    ],
+  },
+}
+
 test('mantiene ordine, id e struttura desktop dei macro-blocchi', () => {
-  const groups = getReportGroups({})
+  const groups = getReportGroups(PROFILO_CON_FAMIGLIA_SECONDARIA)
   assert.deepEqual(groups.map(({ id }) => id), [
     'report-group-hero',
     'report-group-profilo-generale',
+    'stanza-identita',
     'report-tst-rapporti',
     'report-group-forza-correnti',
     'report-group-educazione',
-    'report-group-approfondimento',
     'report-group-relazioni',
   ])
   assert.deepEqual(getDefaultGroupOpenState(), {
     'report-group-hero': false,
     'report-group-profilo-generale': true,
+    'stanza-identita': false,
     'report-tst-rapporti': false,
     'report-group-forza-correnti': false,
     'report-group-educazione': false,
-    'report-group-approfondimento': false,
     'report-group-relazioni': false,
   })
-  assert.deepEqual(getVisibleReportSections({}).map(({ id }) => id), [
+  assert.deepEqual(groups.slice(1).map(({ stepLabel }) => stepLabel), ['1', '2', '3', '4', '5', '6'])
+  assert.deepEqual(getVisibleReportSections(PROFILO_CON_FAMIGLIA_SECONDARIA).map(({ id }) => id), [
     'report-hero',
     'report-tst-sintesi',
     'report-tst-grafici',
@@ -64,15 +80,16 @@ test('i grafici restano responsive e mostrano valori statici su touch', async ()
   assert.match(rapporti, /aria-label=\{label\}/)
 })
 
-test('la navigazione mobile espone tablist e gestione tastiera del menu', async () => {
+test('la navigazione mobile espone controlli raggiungibili e gestione tastiera del menu', async () => {
   const navbar = await readSource('src/components/report/NavbarTST.jsx')
   const reportShell = await readSource('src/components/report/ReportShell.jsx')
   const mobileTabsBlock = navbar.slice(
     navbar.indexOf('const mobileTabs = ['),
     navbar.indexOf('return (', navbar.indexOf('const mobileTabs = [')),
   )
-  assert.match(navbar, /role="tablist"/)
-  assert.match(navbar, /role="tab"/)
+  assert.match(navbar, /<nav className="navbar-tst__bar navbar-tst__bar--mobile"/)
+  assert.match(navbar, /aria-current=\{active \? 'page' : undefined\}/)
+  assert.doesNotMatch(mobileTabsBlock, /tabIndex=\{active \? 0 : -1\}/)
   assert.match(navbar, /e\.key !== 'Escape'/)
   assert.match(navbar, /menuButtonRef\.current\?\.focus\(\)/)
   assert.doesNotMatch(mobileTabsBlock, /galassia/i)

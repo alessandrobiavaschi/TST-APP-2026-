@@ -4,23 +4,26 @@ import { test } from 'node:test'
 
 const readSource = (relativePath) => readFile(new URL(`../${relativePath}`, import.meta.url), 'utf8')
 
-test('la home del report mantiene le due CTA sul flusso a stanze', async () => {
+test('la home del report orienta al percorso con una sola CTA primaria', async () => {
   const [hero, shell, newTest] = await Promise.all([
     readSource('src/components/report/HeroScreen.jsx'),
     readSource('src/components/report/ReportShell.jsx'),
     readSource('src/pages/NewTestPage.jsx'),
   ])
 
-  assert.match(hero, />\s*LEGGI IL TUO REPORT\s*</)
-  assert.match(hero, />\s*NUOVO TEST\s*</)
-  assert.match(hero, /href="#report-group-profilo-generale"/)
-  assert.match(hero, /navigate\('\/nuovo-test', \{ state: \{ startAtProfile: true \} \}\)/)
+  assert.match(hero, />\s*Leggi il tuo report\s*</)
+  assert.match(hero, />\s*Scarica i dati\s*</)
+  assert.match(hero, />\s*Torna ai risultati\s*</)
+  assert.match(hero, /hero-screen__metadata/)
+  assert.match(hero, /hero-screen__frase-chiave/)
+  assert.match(shell, /getElementById\('report-group-profilo-generale'\)/)
+  assert.match(shell, /getElementById\('report-group-profilo-generale-heading'\)\?\.focus/)
+  assert.match(shell, /navigate\('\/nuovo-test', \{ state: \{ startAtProfile: true \} \}\)/)
   assert.match(shell, /id="report-group-profilo-generale"/)
   for (const anchorId of [
     'report-tst-rapporti',
     'report-group-forza-correnti',
     'report-group-educazione',
-    'report-group-approfondimento',
     'report-group-relazioni',
   ]) {
     assert.match(shell, new RegExp(`id="${anchorId}"`))
@@ -49,15 +52,14 @@ test('le stanze usano RoomRevealContent senza ripristinare i wrapper obsoleti', 
 test('le stanze separate restano accessibili e reversibili', async () => {
   const shell = await readSource('src/components/report/ReportShell.jsx')
 
-  assert.match(shell, /window\.location\.hash === '#aree-sonore'/)
   assert.match(shell, /window\.location\.hash === '#famiglie'/)
   assert.match(shell, /window\.location\.hash === '#for-musicians'/)
   assert.match(shell, /event\.key === 'Escape'/)
-  assert.ok((shell.match(/role="dialog"/g) || []).length >= 3)
-  assert.match(shell, /inert=\{modalita !== 'aree-sonore' \? true : undefined\}/)
+  assert.match(shell, /event\.key !== 'Tab'/)
+  assert.ok((shell.match(/role="dialog"/g) || []).length >= 2)
   assert.match(shell, /inert=\{modalita !== 'famiglie' \? true : undefined\}/)
-  assert.match(shell, /returnFocusRef\.current\?\.focus\(\)/)
-  assert.match(shell, /data-report-mode="aree-sonore"/)
+  assert.match(shell, /famiglieBackButtonRef\.current\?\.focus\(\)/)
+  assert.match(shell, /galassiaLayerRef\.current\?\.focus\(\)/)
   assert.match(shell, /data-report-mode="famiglie"/)
   assert.match(shell, /data-report-mode="for-musicians"/)
   assert.match(shell, /galassiaEverOpened && !isMobileViewport/)

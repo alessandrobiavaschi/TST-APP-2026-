@@ -1108,7 +1108,7 @@
 }
 
 /* Wow Effect 5: Smooth Card Entry slide transition */
-.test-stage-main-card {
+.test-stage-step-content {
   animation: test-card-slide-in 0.48s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   will-change: transform, opacity;
 }
@@ -1128,7 +1128,7 @@
   .stepper-progress-laser,
   .test-stage-rhythm-aura.is-playing,
   .answer-button-selected::after,
-  .test-stage-main-card {
+  .test-stage-step-content {
     animation: none !important;
     transform: none !important;
   }

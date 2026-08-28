@@ -11,7 +11,7 @@ import HeroScreen from './HeroScreen'
 import NavbarTST from './NavbarTST'
 import ReportSectionController from './ReportSectionController'
 import RoomRevealContent from './RoomRevealContent'
-import { REPORT_GROUPS, SECTION_TO_GROUP } from './reportSectionsConfig'
+import { getReportGroups, REPORT_GROUPS, SECTION_TO_GROUP } from './reportSectionsConfig'
 import { SHOW_TRACCE_SECTION, shouldShowEmotionalIntegrations } from './reportFeatureFlags.js'
 import { resolveReportScrollTarget, scrollToReportSection } from './reportSectionNavUtils'
 import ReportHelpModal from './ReportHelpModal'
@@ -22,6 +22,7 @@ import SezionePortatoEsperienziale from './SezionePortatoEsperienziale'
 import ParoleStatiAnimo from './ParoleStatiAnimo'
 import EmotionalIntegrations from './EmotionalIntegrations.jsx'
 import SectionDivider from './SectionDivider'
+import ReportPartDivider from './ReportPartDivider.jsx'
 import FioreCorrenti from './FioreCorrenti'
 import { buildCorrentDataFromRecord } from '../../utils/galassiaData.js'
 import { buildLessicoAnaliticoViewModel } from '../../utils/galassiaLessicoViewModel.js'
@@ -136,9 +137,11 @@ export default function ReportShell({
   
   // Refs for accessibility focus restoration
   const famiglieEntryBtnRef = useRef(null)
+  const famiglieBackButtonRef = useRef(null)
   const musiciansEntryBtnRef = useRef(null)
   const musiciansBackButtonRef = useRef(null)
   const galassiaEntryBtnRef = useRef(null)
+  const galassiaLayerRef = useRef(null)
   const previousModalitaRef = useRef(modalita)
   /** Monta Galassia al primo accesso e la tiene in DOM (overlay) per preservare stato e scroll del report. */
   const [galassiaEverOpened, setGalassiaEverOpened] = useState(
@@ -154,7 +157,6 @@ export default function ReportShell({
   const heroRef = useRef(null)
   const progressBarRef = useRef(null)
   const rapportiAnchorRef = useRef(null)
-  const returnFocusRef = useRef(null)
 
   useEffect(() => {
     if (typeof window.matchMedia !== 'function') return undefined
@@ -216,7 +218,7 @@ export default function ReportShell({
   }, [isMobileViewport])
 
   const openModalita = useCallback((next, event) => {
-    returnFocusRef.current = event?.currentTarget || null
+    void event
     changeModalita(next)
   }, [changeModalita])
 
@@ -239,6 +241,10 @@ export default function ReportShell({
       }
     } else if (modalita === 'for-musicians') {
       requestAnimationFrame(() => musiciansBackButtonRef.current?.focus())
+    } else if (modalita === 'famiglie') {
+      requestAnimationFrame(() => famiglieBackButtonRef.current?.focus())
+    } else if (modalita === 'galassia') {
+      requestAnimationFrame(() => galassiaLayerRef.current?.focus())
     }
   }, [modalita])
 
@@ -246,16 +252,39 @@ export default function ReportShell({
     if (modalita === 'report') return undefined
     const handleKeyDown = (event) => {
       if (event.key === 'Escape') changeModalita('report')
+      if (event.key !== 'Tab') return
+      const layer = document.querySelector(`[data-report-mode="${modalita}"]`)
+      if (!layer) return
+      const focusable = [...layer.querySelectorAll(
+        'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      )].filter((element) => !element.closest('[inert]'))
+      if (focusable.length === 0) {
+        event.preventDefault()
+        layer.focus()
+        return
+      }
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
+      }
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [modalita, changeModalita])
 
   const enterReport = useCallback(() => {
-    const target = document.getElementById('stanza-overview')
+    const target = document.getElementById('report-group-profilo-generale')
     if (target) {
       target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' })
-      window.history.pushState(null, '', '#stanza-overview')
+      window.history.pushState(null, '', '#report-group-profilo-generale')
+      window.requestAnimationFrame(() => {
+        document.getElementById('report-group-profilo-generale-heading')?.focus({ preventScroll: true })
+      })
     }
   }, [reduceMotion])
 
@@ -288,6 +317,10 @@ export default function ReportShell({
   const correnteColore = profilo?.colore || '#4ade80'
   const isAlternateMode = modalita !== 'report'
   const showEmotionalIntegrations = shouldShowEmotionalIntegrations(profilo)
+  const roomMetaById = useMemo(
+    () => Object.fromEntries(getReportGroups(profilo).map((group) => [group.id, group])),
+    [profilo],
+  )
 
   const correntData = useMemo(
     () => buildCorrentDataFromRecord(rawRecord || {}),
@@ -513,6 +546,7 @@ export default function ReportShell({
           <HeroScreen
             familyName={profilo?.correnteDominante}
             naturaName={profilo?.natura}
+            heroResult={profilo?.heroResult}
             disposizione={profilo?.disposizione}
             userName={utente?.nome || ''}
             fraseChiave={profilo?.fraseChiave}
@@ -524,7 +558,9 @@ export default function ReportShell({
             portato={portato}
             onOpenGlossary={openGlossary}
             onReadReport={enterReport}
-            onNewTest={startNewTest}
+            onDownload={onDownload}
+            onNavigateArchive={onNavigateArchive}
+            testDate={rawRecord.Data_Ora_Fine_Test || rawRecord.Data_Test}
           />
         </div>
 
@@ -555,11 +591,19 @@ export default function ReportShell({
             <p className="report-tst-layout-hint sr-only">{REPORT_NAV_UI.layoutHint}</p>
             <div className="report-tst-body__groups report-rooms-container">
 
+              <ReportPartDivider index={1} title="La tua identità emotiva" />
+
               {/* ── STANZA 01: OVERVIEW FULLSCREEN (Sintesi + Grafici) ── */}
               <section id="report-group-profilo-generale" className="report-room-section report-room-section--overview">
                 <header className="report-room-header">
-                  <span className="report-room-badge">01</span>
-                  <h2 id="sintesi-correnti-heading" className="report-room-title">{SINTESI_UI.title}</h2>
+                  <span className="report-room-badge">0{roomMetaById['report-group-profilo-generale']?.stepLabel}</span>
+                  <h2
+                    id="report-group-profilo-generale-heading"
+                    className="report-room-title"
+                    tabIndex="-1"
+                  >
+                    {roomMetaById['report-group-profilo-generale']?.title || SINTESI_UI.title}
+                  </h2>
                 </header>
                 <RoomRevealContent id="report-tst-sintesi" className="report-tst-section-anchor">
                   <Suspense fallback={<DotsSpinner color={correnteColore} />}>
@@ -593,8 +637,10 @@ export default function ReportShell({
               {/* ── STANZA 02: IDENTITÀ EMOTIVA E NATURA ────────────────── */}
               <section id="stanza-identita" className="report-room-section report-room-section--identita">
                 <header className="report-room-header">
-                  <span className="report-room-badge">02</span>
-                  <h2 id="pe-section-title" className="report-room-title">Identità Emotiva e Natura</h2>
+                  <span className="report-room-badge">0{roomMetaById['stanza-identita']?.stepLabel}</span>
+                  <h2 id="pe-section-title" className="report-room-title">
+                    {roomMetaById['stanza-identita']?.title}
+                  </h2>
                 </header>
                 <RoomRevealContent id="report-tst-famiglia" className="report-tst-section-anchor">
                   <ProfiloEmotivo
@@ -610,13 +656,13 @@ export default function ReportShell({
                 </RoomRevealContent>
               </section>
 
-              <SectionDivider />
+              <ReportPartDivider index={2} title="Come cambia nei diversi ambiti" />
 
               {/* ── STANZA 03: I QUATTRO RAPPORTI ───────────────────────── */}
               <section id="report-tst-rapporti" className="report-room-section report-room-section--rapporti">
                 <header className="report-room-header">
-                  <span className="report-room-badge">03</span>
-                  <h2 className="report-room-title">I Quattro Rapporti</h2>
+                  <span className="report-room-badge">0{roomMetaById['report-tst-rapporti']?.stepLabel}</span>
+                  <h2 className="report-room-title">{roomMetaById['report-tst-rapporti']?.title}</h2>
                 </header>
                 <div id="stanza-rapporti" ref={rapportiAnchorRef} className="report-tst-section-anchor">
                   <RoomRevealContent>
@@ -638,8 +684,8 @@ export default function ReportShell({
               {/* ── STANZA 04: PORTATO ESPERIENZIALE E VITALITÀ ─────────── */}
               <section id="report-group-forza-correnti" className="report-room-section report-room-section--portato">
                 <header className="report-room-header">
-                  <span className="report-room-badge">04</span>
-                  <h2 className="report-room-title">Portato Esperienziale e Vitalità</h2>
+                  <span className="report-room-badge">0{roomMetaById['report-group-forza-correnti']?.stepLabel}</span>
+                  <h2 className="report-room-title">{roomMetaById['report-group-forza-correnti']?.title}</h2>
                 </header>
                 <RoomRevealContent id="report-tst-portato" className="report-tst-section-anchor">
                   <SezionePortatoEsperienziale
@@ -660,8 +706,8 @@ export default function ReportShell({
               {/* ── STANZA 05: LESSICO EMOTIVO E PAROLE ─────────────────── */}
               <section id="report-group-educazione" className="report-room-section report-room-section--lessico">
                 <header className="report-room-header">
-                  <span className="report-room-badge">05</span>
-                  <h2 className="report-room-title">Lessico Emotivo e Parole</h2>
+                  <span className="report-room-badge">0{roomMetaById['report-group-educazione']?.stepLabel}</span>
+                  <h2 className="report-room-title">{roomMetaById['report-group-educazione']?.title}</h2>
                 </header>
                 <RoomRevealContent id="report-tst-parole" className="report-tst-section-anchor">
                   <ParoleStatiAnimo
@@ -680,8 +726,8 @@ export default function ReportShell({
                   {/* ── STANZA 06: FAMIGLIE EMOTIVE IN RELAZIONE ────────────── */}
                   <section id="report-group-relazioni" className="report-room-section report-room-section--preview">
                     <header className="report-room-header">
-                      <span className="report-room-badge">06</span>
-                      <h2 className="report-room-title">Le cinque famiglie emotive in relazione tra loro</h2>
+                      <span className="report-room-badge">0{roomMetaById['report-group-relazioni']?.stepLabel}</span>
+                      <h2 className="report-room-title">{roomMetaById['report-group-relazioni']?.title}</h2>
                     </header>
                     <RoomRevealContent>
                       <p className="report-room-preview-lead">{SECTION_INTROS.mappa.intro}</p>
@@ -711,7 +757,7 @@ export default function ReportShell({
                   className="report-final-view-card"
                   onClick={(event) => openModalita('for-musicians', event)}
                 >
-                  <span className="report-final-view-card__title">Musicians</span>
+                  <span className="report-final-view-card__title">Lettura musicale</span>
                   <span className="report-final-view-card__subtitle">
                     Aree sonore e lettura musicale
                   </span>
@@ -734,11 +780,14 @@ export default function ReportShell({
 
             {/* Azioni di chiusura */}
             <div className="report-tst-actions">
-              <button type="button" onClick={onNavigateHome} className="report-tst-action-btn">
-                {REPORT_SHELL_UI.home}
-              </button>
-              <button type="button" onClick={onNavigateArchive} className="report-tst-action-btn">
+              <button type="button" onClick={onNavigateArchive} className="report-tst-action-btn report-tst-action-btn--primary">
                 {REPORT_SHELL_UI.archive}
+              </button>
+              <button type="button" onClick={startNewTest} className="report-tst-action-btn">
+                Nuovo test
+              </button>
+              <button type="button" onClick={onNavigateHome} className="report-tst-action-btn report-tst-action-btn--ghost">
+                {REPORT_SHELL_UI.home}
               </button>
             </div>
           </div>
@@ -748,6 +797,7 @@ export default function ReportShell({
       {/* ── STANZA SEPARATA: FAMIGLIE IN RELAZIONE ──────────────────────────── */}
       {showEmotionalIntegrations ? (
         <div
+          tabIndex="-1"
           className={`report-tst-dettaglio-layer${modalita === 'famiglie' ? ' is-open' : ''}`}
           data-report-mode="famiglie"
           role="dialog"
@@ -759,6 +809,7 @@ export default function ReportShell({
           <div className="report-tst-dettaglio-container">
             <header className="report-dettaglio-header">
               <button
+                ref={famiglieBackButtonRef}
                 type="button"
                 className="report-dettaglio-back-btn"
                 onClick={() => changeModalita('report')}
@@ -796,6 +847,8 @@ export default function ReportShell({
       {/* ── STANZA SEPARATA: GALASSIA ──────────────────────────────────────── */}
       {galassiaEverOpened && !isMobileViewport ? (
         <div
+          ref={galassiaLayerRef}
+          tabIndex="-1"
           className={`report-tst-galassia-layer${modalita === 'galassia' ? ' is-open' : ''}`}
           data-report-mode="galassia"
           role="dialog"
