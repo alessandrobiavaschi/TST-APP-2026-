@@ -85,6 +85,19 @@ function HomePage() {
     return () => window.removeEventListener(eventName, onGoogleDiagnostic)
   }, [])
 
+  // Dopo un login appena completato, auth.currentUser può propagarsi con qualche istante di
+  // ritardo (visto soprattutto su Safari): senza questa attesa, il redirect qui sotto rimbalza
+  // l'utente sulla landing subito dopo un accesso riuscito, prima che lo stato si aggiorni.
+  const [loggedOutConfirmed, setLoggedOutConfirmed] = useState(false)
+  useEffect(() => {
+    if (!authReady || currentUser) {
+      setLoggedOutConfirmed(false)
+      return
+    }
+    const timer = window.setTimeout(() => setLoggedOutConfirmed(true), 500)
+    return () => window.clearTimeout(timer)
+  }, [authReady, currentUser])
+
   const trackLandingPreviewEvent = (eventName, payload = {}) => {
     if (typeof window === 'undefined') return
     const eventPayload = {
@@ -246,7 +259,7 @@ function HomePage() {
     )
   }
 
-  if (authReady && !currentUser) {
+  if (loggedOutConfirmed) {
     return (
       <Navigate
         to="/"
