@@ -6,7 +6,6 @@
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-  signInWithPopup,
   signInWithRedirect,
   getRedirectResult,
   setPersistence,
@@ -53,18 +52,6 @@ async function waitForCurrentAuthUser(maxWaitMs = 2500) {
     if (auth.currentUser) return auth.currentUser
   }
   return auth.currentUser || null
-}
-
-/** In iframe il popup OAuth e poco affidabile: usiamo redirect. Nei browser esterni proviamo prima il popup. */
-function shouldUseGoogleRedirect() {
-  if (typeof window !== 'undefined') {
-    try {
-      if (window.self !== window.top) return true
-    } catch {
-      return true
-    }
-  }
-  return false
 }
 
 function clearStaleGoogleRedirectPending() {
@@ -394,39 +381,7 @@ export async function signInWithGoogle() {
     })
   }
   try {
-    if (shouldUseGoogleRedirect()) {
-      return startGoogleRedirectSignIn()
-    }
-
-    // Non awaiting setSafeAuthPersistence prima di signInWithPopup: qualsiasi await prima di
-    // window.open() invalida il "user gesture context". La persistence parte in background.
-    setSafeAuthPersistence().catch(() => {})
-
-      // Browser esterni desktop: popup più affidabile; redirect solo come fallback.
-    try {
-      const cred = await signInWithPopup(auth, googleProvider)
-      await ensureUserProfile(cred.user)
-      return buildAuthResult({
-        success: true,
-        user: cred.user,
-        nextRoute: DEFAULT_HOME_ROUTE,
-      })
-    } catch (err) {
-      const code = err?.code || ''
-      if (
-        code === 'auth/popup-blocked' ||
-        code === 'auth/popup-closed-by-user' ||
-        code === 'auth/cancelled-popup-request' ||
-        code === 'auth/operation-not-supported-in-this-environment'
-      ) {
-        return startGoogleRedirectSignIn()
-      }
-      return buildAuthResult({
-        success: false,
-        message: getGoogleLoginErrorMessage(err),
-        code,
-      })
-    }
+    return await startGoogleRedirectSignIn()
   } catch (err) {
     return buildAuthResult({
       success: false,
