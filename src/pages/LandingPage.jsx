@@ -46,7 +46,7 @@ const PANELS_DATA = [
       'I 5 elementi essenziali di questo Codice non verbale per la comunicazione emotiva sono Timbro, Ritmo, Intervalli, Armonia e Melodia: si trovano in tutti i generi e stili musicali, nessuno escluso, anche se assemblati in quantità, qualità e strutture diverse.',
       'Nel Test vengono però somministrati in forme archetipiche che non rimandano ad alcun genere o stile.',
       'Per "area del sentire" si intende un\'area privata, unica e irripetibile a seconda del singolo individuo: è di fatto la "struttura emotiva".',
-      'È l\'insieme di 5 forze emotive che, per qualità e quantità, definiscono la singola identità emotiva: Flemma, Malinconia-Nostalgia, Marzialità od Assertività (le forze coleriche volitive), Entusiasmo e Anaffettività.',
+      'È l\'insieme di 5 forze emotive che, per qualità e quantità, definiscono la singola identità emotiva: Flemma, Malinconia-Nostalgia, Marzialità (le forze coleriche volitive), Entusiasmo e Anaffettività.',
     ],
   },
   {
@@ -332,6 +332,7 @@ function LandingPage() {
         setResetMessage('')
         setAuthError(event?.detail?.message || '')
         setShowAccessBox(true)
+        scrollAccessSectionIntoView()
         return
       }
       const nextMessage =
@@ -339,10 +340,11 @@ function LandingPage() {
         "Errore durante l'accesso con Google. Apri la console Firebase per i dettagli."
       setAuthError(nextMessage)
       setShowAccessBox(true)
+      scrollAccessSectionIntoView()
     }
     window.addEventListener(eventName, onGoogleDiagnostic)
     return () => window.removeEventListener(eventName, onGoogleDiagnostic)
-  }, [])
+  }, [scrollAccessSectionIntoView])
 
   useEffect(() => {
     if (location?.state?.openAccessBox) {
@@ -356,8 +358,11 @@ function LandingPage() {
   useEffect(() => {
     if (location.pathname !== '/') return
     const params = new URLSearchParams(location.search.replace(/^\?/, ''))
-    if (params.get('accesso') !== '1') return
+    const hasAccessParam = params.get('accesso') === '1'
+    const hasGoogleAuthParam = params.get('tst_google_auth') === '1'
+    if (!hasAccessParam && !hasGoogleAuthParam) return
     params.delete('accesso')
+    params.delete('tst_google_auth')
     const rest = params.toString()
     queueMicrotask(() => {
       openAccessBox('scelta')
@@ -367,12 +372,6 @@ function LandingPage() {
       )
     })
   }, [location.pathname, location.search, location.hash, navigate, openAccessBox])
-
-  useEffect(() => {
-    if (showAccessBox && accessBoxRef.current) {
-      accessSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }
-  }, [showAccessBox])
 
   useEffect(() => {
     if (!authReady || !hasAuthenticatedSession) return
