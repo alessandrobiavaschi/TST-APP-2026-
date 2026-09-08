@@ -1,135 +1,81 @@
-import React, { useState, useCallback, useRef, useEffect, useLayoutEffect } from 'react'
+import React, { useState, useCallback, useRef, useEffect, useLayoutEffect, useMemo } from 'react'
 import { GALAXY_THEORY_BY_DISPOSITION } from '../../config/galaxyTheoryContent.ts'
 
-const GOLDEN_ANGLE = 2.399963229728653
-const CAMERA_MIN_SCALE = 0.82
-const CAMERA_MAX_SCALE = 3.2
+// ─── Virtual World Dimensions ────────────────────────────────────────────────
+const WORLD_WIDTH = 3400
+const WORLD_HEIGHT = 2400
+
+const CAMERA_MIN_SCALE = 0.22
+const CAMERA_MAX_SCALE = 2.8
 const CAMERA_ZOOM_STEP = 1.25
-const WHEEL_ZOOM_INTENSITY_PX = 0.0022
-const WHEEL_ZOOM_INTENSITY_LINE = 0.072
-const PINCH_DAMPING = 0.46
-
-// Profondità prospettica: ogni parola ha uno z logico (0 = vicino, 1 = lontano) oltre a x/y.
-// depthFactor smorza quanto una parola reagisce allo zoom in base alla sua distanza. La posizione
-// proietta uno SCOSTAMENTO LOCALE dal centro della propria famiglia (non dall'origine globale):
-// il centro famiglia resta fisso a ogni zoom, solo lo scostamento reagisce alla camera — è questo
-// pivot locale (invece che globale) a impedire che le parole periferiche "scappino" fuori schermo.
-// SPREAD_GAIN > 1: lo scostamento dal centro cresce più velocemente della dimensione del font,
-// così il rapporto testo/spazio-vuoto DIMINUISCE avvicinandosi — la costellazione si apre davvero
-// invece di restare proporzionalmente identica a ogni zoom (un semplice scale condiviso, o due
-// quantità che scalano allo stesso ritmo, lasciano quel rapporto invariato per costruzione).
-const DEPTH_STRENGTH = 2.2
-const SPREAD_GAIN = 1.8
-const FONT_MIN = 8
-const FONT_MAX = 64
-// Bande di reveal: 'big' (z~0) deve restare sempre visibile su tutto [CAMERA_MIN_SCALE,CAMERA_MAX_SCALE],
-// 'medium'/'small' devono restare quasi invisibili a riposo (scale=1) e rivelarsi avvicinandosi.
-const REVEAL_START = 0.45
-const REVEAL_END = 0.6
-
-function seededRnd(n) {
-  const x = Math.sin(n * 127.1 + 311.7) * 43758.5453123
-  return x - Math.floor(x)
-}
+const WHEEL_ZOOM_INTENSITY = 0.002
+const PINCH_DAMPING = 0.55
 
 function clamp(v, min, max) {
   return Math.max(min, Math.min(max, v))
 }
 
-function depthFactor(z) {
-  return 1 / (1 + z * DEPTH_STRENGTH)
-}
-
-// Proiezione unica: usata sia per le parole sia per nebulose/etichette famiglia (con
-// localX=localY=0, z=0 — restano ancorate al centro della propria famiglia a ogni zoom).
-// anchor/localX/localY sono in percentuale (0-100) del contenitore.
-function project(anchor, localX, localY, z, scale) {
-  const near = depthFactor(z)
-  const grow = 1 + (scale - 1) * near
-  const spread = 1 + (scale - 1) * near * SPREAD_GAIN
-  return {
-    x: anchor.x + localX * spread,
-    y: anchor.y + localY * spread,
-    scale: grow,
-  }
-}
-
-// Reveal/opacità: a differenza di project(), deve differenziare per z già a scale di riposo
-// (altrimenti medium/small comparirebbero subito invece di rivelarsi avvicinandosi).
-function depthReveal(z, scale) {
-  return clamp((scale * depthFactor(z) - REVEAL_START) / (REVEAL_END - REVEAL_START), 0, 1)
-}
-
-function clampCameraToViewport(camera, width = 0, height = 0) {
-  const scale = clamp(camera.scale, CAMERA_MIN_SCALE, CAMERA_MAX_SCALE)
-  if (!width || !height) return { x: camera.x || 0, y: camera.y || 0, scale }
-
-  if (scale <= 1) {
-    return {
-      x: (width * (1 - scale)) / 2,
-      y: (height * (1 - scale)) / 2,
-      scale,
-    }
-  }
-
-  return {
-    x: clamp(camera.x || 0, width * (1 - scale), 0),
-    y: clamp(camera.y || 0, height * (1 - scale), 0),
-    scale,
-  }
-}
-
-// ─── Family metadata ────────────────────────────────────────────────────────────
-const FAMILY_META = {
-  malinconica_nostalgica: {
-    id: 'malinconica_nostalgica',
-    label: 'Malinconica',
-    colors: ['#818cf8', '#6366f1', '#7c3aed', '#a5b4fc', '#4338ca', '#c084fc'],
-    baseColor: '#6366f1',
-    nebula: 'rgba(67, 56, 202, 0.18)',
-    anchor: { x: 17, y: 50 },
-    maxRx: 24,
-    maxRy: 30,
-  },
-  collerico_volitiva: {
-    id: 'collerico_volitiva',
-    label: 'Marziale',
-    colors: ['#f87171', '#ef4444', '#dc2626', '#fb7185', '#be123c', '#c026d3'],
-    baseColor: '#ef4444',
-    nebula: 'rgba(153, 27, 27, 0.18)',
-    anchor: { x: 83, y: 50 },
-    maxRx: 23,
-    maxRy: 30,
+// ─── Family Metadata & Constellation Anchor Positions (Rosa dei Venti) ───────
+const FAMILY_CONFIG = {
+  entusiasmo: {
+    id: 'entusiasmo',
+    label: 'Entusiasta',
+    colors: ['#fbbf24', '#f59e0b', '#d97706', '#fcd34d', '#f97316', '#fb923c'],
+    baseColor: '#f59e0b',
+    glowColor: 'rgba(245, 158, 11, 0.24)',
+    x: 1700,
+    y: 480,
+    radius: 390,
+    subSpread: 210,
+    compass: 'Nord · Fuoco / Luce',
   },
   flemmatica: {
     id: 'flemmatica',
     label: 'Flemmatica',
     colors: ['#4ade80', '#22c55e', '#16a34a', '#34d399', '#0d9488', '#2dd4bf'],
     baseColor: '#22c55e',
-    nebula: 'rgba(22, 101, 52, 0.18)',
-    anchor: { x: 50, y: 52 },
-    maxRx: 21,
-    maxRy: 22,
-  },
-  entusiasmo: {
-    id: 'entusiasmo',
-    label: 'Entusiasta',
-    colors: ['#fbbf24', '#f59e0b', '#d97706', '#fcd34d', '#f97316', '#fb923c'],
-    baseColor: '#f59e0b',
-    nebula: 'rgba(146, 64, 14, 0.18)',
-    anchor: { x: 50, y: 14 },
-    maxRx: 28,
-    maxRy: 18,
+    glowColor: 'rgba(34, 197, 94, 0.22)',
+    x: 1700,
+    y: 1250,
+    radius: 380,
+    subSpread: 0,
+    compass: 'Centro · Acqua / Calma',
   },
   agnostica_anaffettiva: {
     id: 'agnostica_anaffettiva',
     label: 'Razionale',
     colors: ['#94a3b8', '#64748b', '#cbd5e1', '#9ca3af', '#475569', '#e2e8f0'],
     baseColor: '#94a3b8',
-    nebula: 'rgba(71, 85, 105, 0.18)',
-    anchor: { x: 50, y: 84 },
-    maxRx: 28,
-    maxRy: 17,
+    glowColor: 'rgba(148, 163, 184, 0.22)',
+    x: 1700,
+    y: 2020,
+    radius: 340,
+    subSpread: 180,
+    compass: 'Sud · Terra / Distacco',
+  },
+  malinconica_nostalgica: {
+    id: 'malinconica_nostalgica',
+    label: 'Malinconica',
+    colors: ['#818cf8', '#6366f1', '#7c3aed', '#a5b4fc', '#4338ca', '#c084fc'],
+    baseColor: '#6366f1',
+    glowColor: 'rgba(99, 102, 241, 0.24)',
+    x: 740,
+    y: 1250,
+    radius: 620,
+    subSpread: 320,
+    compass: 'Ovest · Aria / Memoria',
+  },
+  collerico_volitiva: {
+    id: 'collerico_volitiva',
+    label: 'Marziale',
+    colors: ['#f87171', '#ef4444', '#dc2626', '#fb7185', '#be123c', '#c026d3'],
+    baseColor: '#ef4444',
+    glowColor: 'rgba(239, 68, 68, 0.24)',
+    x: 2660,
+    y: 1250,
+    radius: 510,
+    subSpread: 260,
+    compass: 'Est · Fuoco / Decisione',
   },
 }
 
@@ -140,6 +86,8 @@ const FAMILY_ORDER = [
   'entusiasmo',
   'agnostica_anaffettiva',
 ]
+
+const FAMILY_META = FAMILY_CONFIG
 
 const VIEW_MODEL_FAMILIES = [
   { familyKey: 'blu', familyName: 'Blu', familyId: 'malinconica_nostalgica' },
@@ -153,194 +101,195 @@ const ATLAS_FAMILY_ID_BY_KEY = Object.fromEntries(
   VIEW_MODEL_FAMILIES.map(({ familyKey, familyId }) => [familyKey, familyId]),
 )
 
-// z logico per tier: 0 = vicino alla camera, 1 = lontano (vedi depthFactor/project sopra).
-const Z_BY_TIER = { big: 0, medium: 0.45, small: 0.85 }
+const FAMILY_LIST = FAMILY_ORDER.map((id) => ({ id, ...FAMILY_CONFIG[id] }))
 
-// ─── Build word atlas (static, computed once) ────────────────────────────────
-function buildAtlasWords() {
-  const all = []
-  let globalIdx = 0
+// ─── Build Constellation Network (Computed once with 0 overlaps) ─────────────
+function buildConstellationData() {
+  const words = []
+  const hubs = []
+  const edges = []
+  const spheres = []
 
-  for (const familyId of FAMILY_ORDER) {
-    const theory = GALAXY_THEORY_BY_DISPOSITION[familyId]
-    const meta = FAMILY_META[familyId]
-    if (!theory || !meta) continue
+  for (const famId of FAMILY_ORDER) {
+    const theory = GALAXY_THEORY_BY_DISPOSITION[famId]
+    const cfg = FAMILY_CONFIG[famId]
+    if (!theory || !cfg) continue
 
-    const { anchor, maxRx, maxRy, colors } = meta
+    spheres.push({
+      id: famId,
+      name: cfg.label,
+      compass: cfg.compass,
+      x: cfg.x,
+      y: cfg.y,
+      radius: cfg.radius,
+      color: cfg.baseColor,
+      glowColor: cfg.glowColor,
+    })
 
-    const raw = []
-    for (let ci = 0; ci < theory.currents.length; ci++) {
-      const c = theory.currents[ci]
-      for (const state of c.states) {
-        raw.push({
+    const currents = theory.currents
+    const numCurrents = currents.length
+
+    currents.forEach((c, ci) => {
+      let hubX = cfg.x
+      let hubY = cfg.y
+
+      if (numCurrents > 1) {
+        const hubAngle = (ci / numCurrents) * Math.PI * 2 - Math.PI / 2
+        hubX = cfg.x + Math.cos(hubAngle) * cfg.subSpread
+        hubY = cfg.y + Math.sin(hubAngle) * cfg.subSpread
+
+        edges.push({
+          id: `edge-core-${c.rawKey}`,
+          familyId: famId,
+          subcurrentId: c.rawKey,
+          x1: cfg.x,
+          y1: cfg.y,
+          x2: hubX,
+          y2: hubY,
+          type: 'core-hub',
+          color: cfg.baseColor,
+        })
+      }
+
+      hubs.push({
+        id: c.rawKey,
+        familyId: famId,
+        title: c.title,
+        interval: c.interval,
+        x: hubX,
+        y: hubY,
+        color: cfg.baseColor,
+      })
+
+      const states = c.states
+      const numStates = states.length
+
+      states.forEach((state, si) => {
+        const phi = 2.3999632
+        const maxR = numCurrents === 1 ? cfg.radius * 0.76 : cfg.subSpread * 0.74
+        const r = 44 + Math.sqrt((si + 1) / (numStates + 1)) * maxR
+        const angle = si * phi + (numCurrents > 1 ? (ci * Math.PI) / 2 : 0)
+
+        const wx = hubX + Math.cos(angle) * r
+        const wy = hubY + Math.sin(angle) * (r * 0.88)
+
+        const fontSize = si < 2 ? 18 : si < 7 ? 15 : 13
+        const estWidth = state.length * fontSize * 0.64 + 28
+        const estHeight = fontSize * 1.4 + 14
+
+        const wordId = `${famId}-${c.rawKey}-${si}`
+        words.push({
+          id: wordId,
           nome: state,
-          ci,
+          familyId: famId,
+          familyLabel: cfg.label,
+          familyColor: cfg.baseColor,
           subcurrentId: c.rawKey,
           subcurrentTitle: c.title,
           subcurrentDescription: c.description,
           subcurrentInterval: c.interval,
+          hubId: c.rawKey,
+          hubX,
+          hubY,
+          x: wx,
+          y: wy,
+          width: estWidth,
+          height: estHeight,
+          fontSize,
+          fontWeight: si < 2 ? 700 : si < 7 ? 600 : 500,
+          color: cfg.colors[si % cfg.colors.length],
         })
-      }
-    }
 
-    const seen = new Set()
-    const unique = raw.filter((w) => {
-      const k = w.nome.toLowerCase()
-      if (seen.has(k)) return false
-      seen.add(k)
-      return true
-    })
-
-    const n = unique.length
-    const bigCount = Math.max(1, Math.round(n * 0.1))
-    const medCount = Math.max(1, Math.round(n * 0.2))
-
-    for (let i = 0; i < n; i++) {
-      const w = unique[i]
-      const tier = i < bigCount ? 'big' : i < bigCount + medCount ? 'medium' : 'small'
-
-      const rnd = seededRnd(globalIdx)
-      const rnd2 = seededRnd(globalIdx + 0.5)
-      const fontSize =
-        tier === 'big'
-          ? 18 + Math.round(rnd * 6)
-          : tier === 'medium'
-            ? 12 + Math.round(rnd * 4)
-            : 8 + Math.round(rnd * 3)
-
-      const fontWeight = tier === 'big' ? 700 : tier === 'medium' ? 550 : 400
-      const angle = i * GOLDEN_ANGLE + rnd2 * 0.15
-      const radiusRatio = Math.sqrt(i / Math.max(1, n))
-      const jitter = 0.75 + seededRnd(globalIdx + 0.7) * 0.5
-      const rx = maxRx * radiusRatio * jitter
-      const ry = maxRy * radiusRatio * jitter
-
-      const x = anchor.x + rx * Math.cos(angle)
-      const y = anchor.y + ry * Math.sin(angle)
-
-      const colorIdx = (w.ci * 2 + i) % colors.length
-      const color = colors[colorIdx]
-      const opacity = tier === 'big' ? 0.92 : tier === 'medium' ? 0.78 : 0.55
-      const z = Z_BY_TIER[tier] + seededRnd(globalIdx + 0.9) * 0.15
-      const clampedX = Math.max(1.5, Math.min(98.5, x))
-      const clampedY = Math.max(2, Math.min(97, y))
-
-      all.push({
-        id: `${familyId}-${i}`,
-        nome: w.nome,
-        familyId,
-        familyLabel: meta.label,
-        familyColor: meta.baseColor,
-        subcurrentId: w.subcurrentId,
-        subcurrentTitle: w.subcurrentTitle,
-        subcurrentDescription: w.subcurrentDescription,
-        subcurrentInterval: w.subcurrentInterval,
-        tier,
-        fontSize,
-        fontWeight,
-        color,
-        opacity,
-        z,
-        x: clampedX,
-        y: clampedY,
-        // Scostamento dal centro famiglia: è questo — non x/y assoluti — a essere proiettato
-        // dalla camera (vedi project() sopra). Il centro famiglia resta fisso a ogni zoom.
-        localX: clampedX - anchor.x,
-        localY: clampedY - anchor.y,
+        edges.push({
+          id: `edge-word-${wordId}`,
+          familyId: famId,
+          subcurrentId: c.rawKey,
+          wordId,
+          x1: hubX,
+          y1: hubY,
+          x2: wx,
+          y2: wy,
+          type: 'hub-word',
+          color: cfg.baseColor,
+        })
       })
-      globalIdx++
-    }
+    })
   }
 
-  // Run relaxation algorithm to prevent overlaps
-  const W_SCALE = 12
-  const H_SCALE = 8
-  const iterations = 150
-
-  // Pre-calculate bounding boxes
-  for (const w of all) {
-    w.pWidth = (w.nome.length * w.fontSize * 0.54 + 14) / W_SCALE
-    w.pHeight = (w.fontSize * 1.15 + 10) / H_SCALE
-  }
-
+  // Strict collision relaxation pass in pixel space: guarantees 0 overlaps
+  const iterations = 320
   for (let iter = 0; iter < iterations; iter++) {
     let moved = false
-    for (let i = 0; i < all.length; i++) {
-      const w1 = all[i]
-      for (let j = i + 1; j < all.length; j++) {
-        const w2 = all[j]
+    for (let i = 0; i < words.length; i++) {
+      const a = words[i]
+      for (let j = i + 1; j < words.length; j++) {
+        const b = words[j]
 
-        // Overlap check in percentage coordinates
-        const dx = w2.x - w1.x
-        const dy = w2.y - w1.y
-        const minDx = (w1.pWidth + w2.pWidth) / 2
-        const minDy = (w1.pHeight + w2.pHeight) / 2
+        const minDx = (a.width + b.width) / 2 + 10
+        const minDy = (a.height + b.height) / 2 + 8
+        const dx = b.x - a.x
+        const dy = b.y - a.y
 
         const absDx = Math.abs(dx)
         const absDy = Math.abs(dy)
 
         if (absDx < minDx && absDy < minDy) {
-          // They overlap!
           const overlapX = minDx - absDx
           const overlapY = minDy - absDy
 
           let pushX = 0
           let pushY = 0
-
-          if (overlapX < overlapY) {
-            pushX = dx === 0 ? (seededRnd(i + j) > 0.5 ? 1 : -1) * overlapX : (dx > 0 ? 1 : -1) * overlapX
+          if (overlapX / minDx < overlapY / minDy) {
+            const dir = dx >= 0 ? 1 : -1
+            pushX = dir * overlapX * 0.52
           } else {
-            pushY = dy === 0 ? (seededRnd(i * j) > 0.5 ? 1 : -1) * overlapY : (dy > 0 ? 1 : -1) * overlapY
+            const dir = dy >= 0 ? 1 : -1
+            pushY = dir * overlapY * 0.52
           }
 
-          const force = 0.5
-          const px = pushX * force * 0.5
-          const py = pushY * force * 0.5
-
-          w1.x -= px
-          w1.y -= py
-          w2.x += px
-          w2.y += py
-
-          w1.x = Math.max(1.5, Math.min(98.5, w1.x))
-          w1.y = Math.max(2, Math.min(97, w1.y))
-          w2.x = Math.max(1.5, Math.min(98.5, w2.x))
-          w2.y = Math.max(2, Math.min(97, w2.y))
-
+          a.x -= pushX
+          a.y -= pushY
+          b.x += pushX
+          b.y += pushY
           moved = true
         }
       }
-
-      // Gentle attraction force to family anchor
-      const anchor = FAMILY_META[w1.familyId].anchor
-      w1.x += (anchor.x - w1.x) * 0.02
-      w1.y += (anchor.y - w1.y) * 0.02
     }
     if (!moved) break
   }
 
-  // Recompute localX and localY based on relaxed x and y
-  for (const w of all) {
-    const anchor = FAMILY_META[w.familyId].anchor
-    w.localX = w.x - anchor.x
-    w.localY = w.y - anchor.y
+  // Synchronize edge endpoints to relaxed word positions
+  const wordPosMap = new Map(words.map((w) => [w.id, w]))
+  for (const edge of edges) {
+    if (edge.wordId) {
+      const target = wordPosMap.get(edge.wordId)
+      if (target) {
+        edge.x2 = target.x
+        edge.y2 = target.y
+      }
+    }
   }
 
-  for (const w of all) {
-    w.nearbyWords = all
+  // Populate nearby words for dictionary panel
+  for (const w of words) {
+    w.nearbyWords = words
       .filter((v) => v.subcurrentId === w.subcurrentId && v.id !== w.id)
       .slice(0, 6)
       .map((v) => v.nome)
   }
 
-  return all
+  return {
+    spheres,
+    hubs,
+    edges,
+    words,
+  }
 }
 
-const ATLAS_WORDS = buildAtlasWords()
-const FAMILY_LIST = FAMILY_ORDER.map((id) => ({ id, ...FAMILY_META[id] }))
-const CAMERA_RESET = { x: 0, y: 0, scale: 1 }
+const CONSTELLATION_DATA = buildConstellationData()
+const ATLAS_WORDS = CONSTELLATION_DATA.words
 
-// ─── Dictionary panel ─────────────────────────────────────────────────────────
+// ─── Dictionary Panel ────────────────────────────────────────────────────────
 function DictionaryPanel({ word, onClose, onSelectWord, viewModel }) {
   const closeButtonRef = useRef(null)
 
@@ -349,13 +298,13 @@ function DictionaryPanel({ word, onClose, onSelectWord, viewModel }) {
   }, [word?.id])
 
   if (!word) return null
-  const meta = FAMILY_META[word.familyId]
+  const meta = FAMILY_CONFIG[word.familyId]
 
   const dynamicWordInfo = viewModel?.lessicoSituazionale?.find(
     (p) =>
-      p.parola.toLowerCase() === word.nome.toLowerCase()
-      && ATLAS_FAMILY_ID_BY_KEY[p.familyKey] === word.familyId
-      && p.correnteKey === word.subcurrentId,
+      p.parola.toLowerCase() === word.nome.toLowerCase() &&
+      ATLAS_FAMILY_ID_BY_KEY[p.familyKey] === word.familyId &&
+      p.correnteKey === word.subcurrentId,
   )
 
   const hasApprofondimento = Boolean(word.subcurrentInterval || dynamicWordInfo)
@@ -419,9 +368,9 @@ function DictionaryPanel({ word, onClose, onSelectWord, viewModel }) {
                 {word.nearbyWords.map((nome) => {
                   const w = ATLAS_WORDS.find(
                     (v) =>
-                      v.nome === nome
-                      && v.familyId === word.familyId
-                      && v.subcurrentId === word.subcurrentId,
+                      v.nome === nome &&
+                      v.familyId === word.familyId &&
+                      v.subcurrentId === word.subcurrentId,
                   )
                   return (
                     <button
@@ -454,7 +403,9 @@ function DictionaryPanel({ word, onClose, onSelectWord, viewModel }) {
                   <div>
                     <dt>Tracce collegate</dt>
                     <dd style={{ color: '#60a5fa' }}>
-                      {dynamicWordInfo.fileKeys.map((f) => `Traccia ${f.replace('File_', '')}`).join(', ')}
+                      {dynamicWordInfo.fileKeys
+                        .map((f) => `Traccia ${f.replace('File_', '')}`)
+                        .join(', ')}
                     </dd>
                   </div>
                 )}
@@ -479,7 +430,7 @@ function DictionaryPanel({ word, onClose, onSelectWord, viewModel }) {
   )
 }
 
-// ─── Family filter legend ─────────────────────────────────────────────────────
+// ─── Family Filter Legend ───────────────────────────────────────────────────
 function AtlasLegend({ filterFamily, onFilterChange }) {
   return (
     <nav className="lessico-legend" aria-label="Filtra per famiglia emotiva">
@@ -510,9 +461,9 @@ function AtlasLegend({ filterFamily, onFilterChange }) {
   )
 }
 
-// ─── Mobile card ──────────────────────────────────────────────────────────────
+// ─── Mobile Accordion Card ──────────────────────────────────────────────────
 function MobileAtlasCard({ fam, isExpanded, onToggle, onSelectWord, searchQuery }) {
-  const meta = FAMILY_META[fam.id]
+  const meta = FAMILY_CONFIG[fam.id]
   const words = ATLAS_WORDS.filter((w) => w.familyId === fam.id)
   const norm = searchQuery.trim().toLowerCase()
 
@@ -540,10 +491,16 @@ function MobileAtlasCard({ fam, isExpanded, onToggle, onSelectWord, searchQuery 
         onClick={onToggle}
         aria-expanded={isExpanded}
       >
-        <span className="lessico-mobile-card__dot" style={{ backgroundColor: meta.baseColor }} aria-hidden />
+        <span
+          className="lessico-mobile-card__dot"
+          style={{ backgroundColor: meta.baseColor }}
+          aria-hidden
+        />
         <strong className="lessico-mobile-card__title">{meta.label}</strong>
         <span className="lessico-mobile-card__count">{words.length} parole</span>
-        <span className="lessico-mobile-card__chevron" aria-hidden>{isExpanded ? '▲' : '▼'}</span>
+        <span className="lessico-mobile-card__chevron" aria-hidden>
+          {isExpanded ? '▲' : '▼'}
+        </span>
       </button>
       {isExpanded && (
         <div className="lessico-mobile-card__body">
@@ -579,7 +536,7 @@ function MobileAtlasCard({ fam, isExpanded, onToggle, onSelectWord, searchQuery 
   )
 }
 
-// ─── Analisi Dashboard 2.0 ────────────────────────────────────────────────────
+// ─── Analisi Dashboard ───────────────────────────────────────────────────────
 function AnalisiDashboard({ viewModel, onSelectWord }) {
   if (!viewModel) return null
 
@@ -599,7 +556,6 @@ function AnalisiDashboard({ viewModel, onSelectWord }) {
 
   return (
     <div className="lessico-dashboard">
-      {/* 1. FIRMA PERSONALE */}
       <div className="lessico-dashboard__section">
         <h3 className="lessico-dashboard__title">1. Firma Personale</h3>
         {!datiDisponibili ? (
@@ -610,17 +566,23 @@ function AnalisiDashboard({ viewModel, onSelectWord }) {
               <code className="lessico-dashboard__code">{firmaPersonale.codice}</code>
             </div>
             <ul className="lessico-dashboard__list text-xs opacity-90 mt-2 space-y-1">
-              <li>• Natura Prevalente: <strong>{firmaPersonale.componenti.dominante}</strong></li>
+              <li>
+                • Natura Prevalente: <strong>{firmaPersonale.componenti.dominante}</strong>
+              </li>
               {firmaPersonale.componenti.sottodisposizione && (
-                <li>• Sotto-disposizione: <strong>{firmaPersonale.componenti.sottodisposizione}</strong></li>
+                <li>
+                  • Sotto-disposizione: <strong>{firmaPersonale.componenti.sottodisposizione}</strong>
+                </li>
               )}
-              <li>• Top 3 Famiglie: <strong>{firmaPersonale.componenti.rankingFamiglie.slice(0, 3).join(' · ')}</strong></li>
+              <li>
+                • Top 3 Famiglie:{' '}
+                <strong>{firmaPersonale.componenti.rankingFamiglie.slice(0, 3).join(' · ')}</strong>
+              </li>
             </ul>
           </div>
         )}
       </div>
 
-      {/* 2. CAMPO DI FORZE LESSICALE */}
       <div className="lessico-dashboard__section">
         <h3 className="lessico-dashboard__title">2. Campo di Forze</h3>
         {!datiDisponibili ? (
@@ -630,9 +592,15 @@ function AnalisiDashboard({ viewModel, onSelectWord }) {
             <div className="lessico-dashboard__vettore-risultante">
               <span className="text-xs uppercase tracking-wider opacity-60">Vettore risultante</span>
               <div className="flex space-x-3 font-mono text-sm mt-1">
-                <span>X: <strong>{campoDiForze.risultante.x.toFixed(2)}</strong></span>
-                <span>Y: <strong>{campoDiForze.risultante.y.toFixed(2)}</strong></span>
-                <span>Z: <strong>{campoDiForze.risultante.z.toFixed(2)}</strong></span>
+                <span>
+                  X: <strong>{campoDiForze.risultante.x.toFixed(2)}</strong>
+                </span>
+                <span>
+                  Y: <strong>{campoDiForze.risultante.y.toFixed(2)}</strong>
+                </span>
+                <span>
+                  Z: <strong>{campoDiForze.risultante.z.toFixed(2)}</strong>
+                </span>
               </div>
               <p className="text-xs opacity-75 mt-1">
                 Magnitudine: <strong>{campoDiForze.magnitudineRisultante.toFixed(2)}</strong>
@@ -640,7 +608,10 @@ function AnalisiDashboard({ viewModel, onSelectWord }) {
             </div>
             {campoDiForze.polaritaDominante && (
               <p className="text-xs mt-2">
-                Polarità Dominante: <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30 uppercase">{campoDiForze.polaritaDominante}</span>
+                Polarità Dominante:{' '}
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30 uppercase">
+                  {campoDiForze.polaritaDominante}
+                </span>
               </p>
             )}
             <details className="lessico-dashboard__details mt-2">
@@ -649,11 +620,14 @@ function AnalisiDashboard({ viewModel, onSelectWord }) {
               </summary>
               <div className="space-y-1 mt-1 text-[11px] font-mono opacity-80 pl-2 border-l border-slate-700">
                 {campoDiForze.perFamiglia.map((fam) => {
-                  const m = FAMILY_META[ATLAS_FAMILY_ID_BY_KEY[fam.familyKey]]
+                  const m = FAMILY_CONFIG[ATLAS_FAMILY_ID_BY_KEY[fam.familyKey]]
                   return (
                     <div key={fam.familyKey} className="flex justify-between">
                       <span style={{ color: m?.baseColor }}>{fam.familyName}</span>
-                      <span>[{fam.vettore.x.toFixed(2)}, {fam.vettore.y.toFixed(2)}, {fam.vettore.z.toFixed(2)}]</span>
+                      <span>
+                        [{fam.vettore.x.toFixed(2)}, {fam.vettore.y.toFixed(2)},{' '}
+                        {fam.vettore.z.toFixed(2)}]
+                      </span>
                     </div>
                   )
                 })}
@@ -663,7 +637,6 @@ function AnalisiDashboard({ viewModel, onSelectWord }) {
         )}
       </div>
 
-      {/* 3. COSTELLAZIONI SEMANTICHE */}
       <div className="lessico-dashboard__section">
         <h3 className="lessico-dashboard__title">3. Costellazioni Semantiche</h3>
         {costellazioniAttive.length === 0 ? (
@@ -673,7 +646,10 @@ function AnalisiDashboard({ viewModel, onSelectWord }) {
             {costellazioniAttive.map((c) => {
               const activeCount = c.correntiUtenteCollegate.length
               return (
-                <div key={c.conceptId} className="p-2 rounded bg-slate-950/40 border border-slate-800/60">
+                <div
+                  key={c.conceptId}
+                  className="p-2 rounded bg-slate-950/40 border border-slate-800/60"
+                >
                   <div className="flex justify-between items-center">
                     <strong className="text-xs text-blue-300">{c.label}</strong>
                     <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-900 text-slate-400">
@@ -683,14 +659,19 @@ function AnalisiDashboard({ viewModel, onSelectWord }) {
                   {c.correntiUtenteCollegate.length > 0 ? (
                     <div className="mt-1.5 space-y-1">
                       {c.correntiUtenteCollegate.map((s) => (
-                        <div key={s.rawKey} className="flex justify-between items-center text-[10px] opacity-80">
+                        <div
+                          key={s.rawKey}
+                          className="flex justify-between items-center text-[10px] opacity-80"
+                        >
                           <span>{s.nome}</span>
                           <span className="font-mono text-blue-400">{s.percentuale}%</span>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-[10px] opacity-50 mt-1 italic">Nessuna corrente collegata attiva</p>
+                    <p className="text-[10px] opacity-50 mt-1 italic">
+                      Nessuna corrente collegata attiva
+                    </p>
                   )}
                 </div>
               )
@@ -699,13 +680,13 @@ function AnalisiDashboard({ viewModel, onSelectWord }) {
         )}
       </div>
 
-      {/* 4. LESSICO STABILE E SITUAZIONALE */}
       <div className="lessico-dashboard__section">
         <h3 className="lessico-dashboard__title">4. Lessico Stabile e Situazionale</h3>
         <div className="space-y-3">
-          {/* Situazionale */}
           <div>
-            <span className="text-[11px] uppercase tracking-wider opacity-60 block mb-1">Situazionale (dal test)</span>
+            <span className="text-[11px] uppercase tracking-wider opacity-60 block mb-1">
+              Situazionale (dal test)
+            </span>
             {!datiDisponibili || lessicoSituazionale.length === 0 ? (
               <p className="lessico-dashboard__empty">Nessuna parola emersa dal test.</p>
             ) : (
@@ -714,11 +695,11 @@ function AnalisiDashboard({ viewModel, onSelectWord }) {
                   const familyId = ATLAS_FAMILY_ID_BY_KEY[p.familyKey]
                   const match = ATLAS_WORDS.find(
                     (w) =>
-                      w.nome.toLowerCase() === p.parola.toLowerCase()
-                      && w.familyId === familyId
-                      && w.subcurrentId === p.correnteKey,
+                      w.nome.toLowerCase() === p.parola.toLowerCase() &&
+                      w.familyId === familyId &&
+                      w.subcurrentId === p.correnteKey,
                   )
-                  const fColor = FAMILY_META[familyId]?.baseColor || '#fff'
+                  const fColor = FAMILY_CONFIG[familyId]?.baseColor || '#fff'
                   return (
                     <button
                       key={`${p.parola}-${p.correnteKey}`}
@@ -740,9 +721,10 @@ function AnalisiDashboard({ viewModel, onSelectWord }) {
             )}
           </div>
 
-          {/* Stabile (Teoria) */}
           <div>
-            <span className="text-[11px] uppercase tracking-wider opacity-60 block mb-1">Stabile (teorico di riferimento)</span>
+            <span className="text-[11px] uppercase tracking-wider opacity-60 block mb-1">
+              Stabile (teorico di riferimento)
+            </span>
             <details className="lessico-dashboard__details">
               <summary className="text-xs cursor-pointer select-none text-slate-400 hover:text-slate-200">
                 Mostra dizionario teorico
@@ -750,12 +732,14 @@ function AnalisiDashboard({ viewModel, onSelectWord }) {
               <div className="space-y-2 mt-1.5">
                 {VIEW_MODEL_FAMILIES.map(({ familyId, familyName }) => {
                   const stabile = lessicoStabile[familyName]
-                  const meta = FAMILY_META[familyId]
+                  const meta = FAMILY_CONFIG[familyId]
                   const forms = stabile?.vocabolarioAggettivi || []
                   return (
                     <div key={familyId} className="text-[11px]">
                       <strong style={{ color: meta?.baseColor }}>{familyName}</strong>
-                      <p className="opacity-80 mt-0.5 leading-relaxed">{forms.slice(0, 10).join(', ')}...</p>
+                      <p className="opacity-80 mt-0.5 leading-relaxed">
+                        {forms.slice(0, 10).join(', ')}...
+                      </p>
                     </div>
                   )
                 })}
@@ -765,7 +749,6 @@ function AnalisiDashboard({ viewModel, onSelectWord }) {
         </div>
       </div>
 
-      {/* 5. CONTRASTI LESSICALI */}
       <div className="lessico-dashboard__section">
         <h3 className="lessico-dashboard__title">5. Contrasti Lessicali</h3>
         {!datiDisponibili || contrastiLessicali.length === 0 ? (
@@ -773,23 +756,46 @@ function AnalisiDashboard({ viewModel, onSelectWord }) {
         ) : (
           <div className="space-y-2">
             {contrastiLessicali.map((c, idx) => (
-              <div key={idx} className={`p-2 rounded bg-slate-950/30 border ${c.isContrastante ? 'border-amber-500/20 bg-amber-500/5' : 'border-slate-800/40 opacity-80'}`}>
+              <div
+                key={idx}
+                className={`p-2 rounded bg-slate-950/30 border ${
+                  c.isContrastante
+                    ? 'border-amber-500/20 bg-amber-500/5'
+                    : 'border-slate-800/40 opacity-80'
+                }`}
+              >
                 <div className="flex justify-between items-center">
-                  <span className="text-xs font-semibold">{c.coppia[0]} <span className="opacity-40">vs</span> {c.coppia[1]}</span>
-                  <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold uppercase ${c.isContrastante ? 'bg-amber-500/20 text-amber-300' : 'bg-slate-900 text-slate-500'}`}>
+                  <span className="text-xs font-semibold">
+                    {c.coppia[0]} <span className="opacity-40">vs</span> {c.coppia[1]}
+                  </span>
+                  <span
+                    className={`text-[9px] px-1.5 py-0.5 rounded font-bold uppercase ${
+                      c.isContrastante
+                        ? 'bg-amber-500/20 text-amber-300'
+                        : 'bg-slate-900 text-slate-500'
+                    }`}
+                  >
                     {c.isContrastante ? 'Attivo' : 'Silente'}
                   </span>
                 </div>
                 <div className="mt-1.5 grid grid-cols-2 gap-2 text-[10px]">
                   <div>
                     <span className="opacity-60 block font-semibold">{c.coppia[0]}</span>
-                    <span className="block italic opacity-95">{c.paroleA.slice(0, 3).join(', ') || 'Nessuna'}</span>
-                    <span className="text-[9px] opacity-40 font-mono">fonte: {c.fonteParoleA}</span>
+                    <span className="block italic opacity-95">
+                      {c.paroleA.slice(0, 3).join(', ') || 'Nessuna'}
+                    </span>
+                    <span className="text-[9px] opacity-40 font-mono">
+                      fonte: {c.fonteParoleA}
+                    </span>
                   </div>
                   <div>
                     <span className="opacity-60 block font-semibold">{c.coppia[1]}</span>
-                    <span className="block italic opacity-95">{c.paroleB.slice(0, 3).join(', ') || 'Nessuna'}</span>
-                    <span className="text-[9px] opacity-40 font-mono">fonte: {c.fonteParoleB}</span>
+                    <span className="block italic opacity-95">
+                      {c.paroleB.slice(0, 3).join(', ') || 'Nessuna'}
+                    </span>
+                    <span className="text-[9px] opacity-40 font-mono">
+                      fonte: {c.fonteParoleB}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -798,7 +804,6 @@ function AnalisiDashboard({ viewModel, onSelectWord }) {
         )}
       </div>
 
-      {/* 6. GAP E COMPORTAMENTO GAP ONESTO */}
       {_gap && _gap.length > 0 && (
         <div className="lessico-dashboard__section lessico-dashboard__section--gap">
           <h3 className="lessico-dashboard__title opacity-50">Limiti dei dati & Gap</h3>
@@ -813,8 +818,12 @@ function AnalisiDashboard({ viewModel, onSelectWord }) {
   )
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
-export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, viewModel = null }) {
+// ─── Main Component: LessicoAtlasView ────────────────────────────────────────
+export default function LessicoAtlasView({
+  paroleEmerse = [],
+  isMobile = false,
+  viewModel = null,
+}) {
   const [selectedWord, setSelectedWord] = useState(null)
   const [hoveredWordId, setHoveredWordId] = useState(null)
   const [filterFamily, setFilterFamily] = useState(null)
@@ -826,37 +835,23 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
 
   const canvasRef = useRef(null)
   const layerRef = useRef(null)
-  // La camera vive solo in ref, non in state React: wheel/pinch/drag possono aggiornarla
-  // a ~60fps senza mai passare da un render/reconciliation React (vedi applyProjectionToDOM).
-  const cameraRef = useRef(CAMERA_RESET)
+  const cameraRef = useRef({ x: 0, y: 0, scale: 0.5 })
+  const initialCameraRef = useRef({ x: 0, y: 0, scale: 0.5 })
   const viewportSizeRef = useRef({ w: 0, h: 0, left: 0, top: 0 })
   const pointersRef = useRef(new Map())
   const pinchRef = useRef(null)
   const mouseDragRef = useRef(null)
   const webkitGestureRef = useRef(null)
   const cameraAnimTimerRef = useRef(null)
-  const cameraRafRef = useRef(0)
   const searchInputRef = useRef(null)
-  const wordButtonRefs = useRef(new Map())
-  const nebulaRefs = useRef(new Map())
-  const labelRefs = useRef(new Map())
-  // Traccia quali parole erano invisibili all'ultimo tick, per saltare gli aggiornamenti di
-  // left/top/font-size (layout-triggering) sulle parole che restano invisibili (vedi applyProjectionToDOM).
-  const hiddenWordsRef = useRef(new Map())
-  // Specchio in ref di stato React letto dalla hot path imperativa (applyProjectionToDOM),
-  // per evitare closure non aggiornate senza dover ricreare quella funzione a ogni cambio.
-  const filterFamilyRef = useRef(null)
-  const normalizedSearchRef = useRef('')
 
   const normalizedSearch = searchQuery.trim().toLowerCase()
-  useEffect(() => { filterFamilyRef.current = filterFamily }, [filterFamily])
-  useEffect(() => { normalizedSearchRef.current = normalizedSearch }, [normalizedSearch])
 
-  const emergedWords = React.useMemo(() => {
+  const emergedWords = useMemo(() => {
     const precise = new Set()
     const fallback = new Set()
     for (const p of paroleEmerse || []) {
-      const nome = typeof p === 'string' ? p : (p?.parola || p?.nome || '')
+      const nome = typeof p === 'string' ? p : p?.parola || p?.nome || ''
       if (!nome) continue
       const normalizedName = nome.toLowerCase()
       const familyId = typeof p === 'string' ? '' : ATLAS_FAMILY_ID_BY_KEY[p?.familyKey]
@@ -870,214 +865,170 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
     return { precise, fallback }
   }, [paroleEmerse])
 
-  // Opacità "a riposo" (scale=1), usata solo per il render iniziale/JSX — la camera reale
-  // (che può non essere a riposo, es. dopo aver zoomato e poi cambiato filtro) è applicata
-  // subito dopo da applyProjectionToDOM via l'effetto qui sotto.
-  const getRestOpacity = useCallback(
-    (word) => {
-      const matchesSearch = !normalizedSearch || word.nome.toLowerCase().includes(normalizedSearch)
-      const matchesFilter = !filterFamily || word.familyId === filterFamily
-      if (!matchesSearch || !matchesFilter) return 0.05
-      if (normalizedSearch && matchesSearch) return 1
-      return word.opacity * depthReveal(word.z ?? 0, 1)
-    },
-    [filterFamily, normalizedSearch],
-  )
-
-  const wordOpacityFor = useCallback((word, scale) => {
-    const search = normalizedSearchRef.current
-    const filter = filterFamilyRef.current
-    const matchesSearch = !search || word.nome.toLowerCase().includes(search)
-    const matchesFilter = !filter || word.familyId === filter
-    if (!matchesSearch || !matchesFilter) return 0.05
-    if (search && matchesSearch) return 1
-    return word.opacity * depthReveal(word.z ?? 0, scale)
+  // 120 FPS Single DOM update: applies GPU hardware transform to the entire world canvas
+  const applyCameraToDOM = useCallback((camera) => {
+    if (canvasRef.current) {
+      canvasRef.current.style.transform = `translate3d(${camera.x}px, ${camera.y}px, 0) scale(${camera.scale})`
+    }
   }, [])
 
-  // Hot path della camera: chiamata da applyCamera ad ogni tick (wheel/pinch/drag) via ref,
-  // MAI tramite setState — scrive direttamente su ogni nodo DOM, saltando interamente il
-  // render/reconciliation React (che con ~217 parole era la causa principale del lag).
-  const applyProjectionToDOM = useCallback((camera) => {
-    let width = viewportSizeRef.current.w
-    let height = viewportSizeRef.current.h
+  const applyCamera = useCallback(
+    (updater) => {
+      const next = typeof updater === 'function' ? updater(cameraRef.current) : updater
+      const clampedScale = clamp(next.scale, CAMERA_MIN_SCALE, CAMERA_MAX_SCALE)
+      const clamped = {
+        x: next.x,
+        y: next.y,
+        scale: clampedScale,
+      }
+      cameraRef.current = clamped
+      applyCameraToDOM(clamped)
+    },
+    [applyCameraToDOM],
+  )
 
-    // Fallback/Self-heal if size is not set yet but layerRef exists
-    if ((width === 0 || height === 0) && layerRef.current) {
-      const rect = layerRef.current.getBoundingClientRect()
+  const beginCameraAnimation = useCallback(() => {
+    setCameraAnimating(true)
+    if (cameraAnimTimerRef.current) clearTimeout(cameraAnimTimerRef.current)
+    cameraAnimTimerRef.current = setTimeout(() => setCameraAnimating(false), 500)
+  }, [])
+
+  const zoomAt = useCallback(
+    (targetScale, origin) => {
+      const current = cameraRef.current
+      const clampedScale = clamp(targetScale, CAMERA_MIN_SCALE, CAMERA_MAX_SCALE)
+      const ratio = clampedScale / current.scale
+      return {
+        x: origin.x - (origin.x - current.x) * ratio,
+        y: origin.y - (origin.y - current.y) * ratio,
+        scale: clampedScale,
+      }
+    },
+    [],
+  )
+
+  const resetCamera = useCallback(() => {
+    beginCameraAnimation()
+    applyCamera(initialCameraRef.current)
+  }, [applyCamera, beginCameraAnimation])
+
+  const zoomStep = useCallback(
+    (direction) => {
+      const vp = layerRef.current
+      if (!vp) return
+      const rect = vp.getBoundingClientRect()
+      const origin = { x: rect.width / 2, y: rect.height / 2 }
+      const factor = direction > 0 ? CAMERA_ZOOM_STEP : 1 / CAMERA_ZOOM_STEP
+      beginCameraAnimation()
+      applyCamera((prev) => zoomAt(prev.scale * factor, origin))
+    },
+    [applyCamera, beginCameraAnimation, zoomAt],
+  )
+
+  // Smoothly glide camera to frame a specific family sphere
+  const focusFamily = useCallback(
+    (familyId) => {
+      const vp = layerRef.current
+      if (!vp) return
+      const rect = vp.getBoundingClientRect()
+      const fam = FAMILY_CONFIG[familyId]
+      if (!fam) {
+        resetCamera()
+        return
+      }
+
+      const padding = 1.35
+      const targetScale = clamp(
+        Math.min(rect.width / (fam.radius * 2 * padding), rect.height / (fam.radius * 2 * padding)),
+        0.5,
+        1.6,
+      )
+
+      const targetX = rect.width / 2 - fam.x * targetScale
+      const targetY = rect.height / 2 - fam.y * targetScale
+
+      beginCameraAnimation()
+      applyCamera({
+        x: targetX,
+        y: targetY,
+        scale: targetScale,
+      })
+    },
+    [applyCamera, beginCameraAnimation, resetCamera],
+  )
+
+  const handleFilterChange = useCallback(
+    (famId) => {
+      setFilterFamily(famId)
+      if (famId) {
+        focusFamily(famId)
+      } else {
+        resetCamera()
+      }
+    },
+    [focusFamily, resetCamera],
+  )
+
+  // Initial viewport fit
+  useLayoutEffect(() => {
+    const layer = layerRef.current
+    if (!layer) return
+
+    const updateFit = () => {
+      const rect = layer.getBoundingClientRect()
       viewportSizeRef.current = {
         w: rect.width || 1,
         h: rect.height || 1,
         left: rect.left,
         top: rect.top,
       }
-      width = viewportSizeRef.current.w
-      height = viewportSizeRef.current.h
-    }
 
-    const safeW = width || 1200
-    const safeH = height || 800
-
-    if (canvasRef.current) {
-      canvasRef.current.style.transform = `translate3d(${camera.x}px, ${camera.y}px, 0)`
-    }
-    for (const fam of FAMILY_LIST) {
-      const pos = project(fam.anchor, 0, 0, 0, camera.scale)
-      
-      const projectedX = (pos.x / 100) * safeW
-      const initialX = (fam.anchor.x / 100) * safeW
-      const tx = projectedX - initialX
-      
-      const projectedY = (pos.y / 100) * safeH
-      const initialY = (fam.anchor.y / 100) * safeH
-      const ty = projectedY - initialY
-
-      const nebEl = nebulaRefs.current.get(fam.id)
-      if (nebEl) {
-        nebEl.style.transform = `translate3d(${tx.toFixed(2)}px, ${ty.toFixed(2)}px, 0) translate(-50%, -50%) scale(${pos.scale.toFixed(3)})`
-      }
-      const labelEl = labelRefs.current.get(fam.id)
-      if (labelEl) {
-        labelEl.style.transform = `translate3d(${tx.toFixed(2)}px, ${ty.toFixed(2)}px, 0) translate(-50%, -50%)`
+      if (rect.width > 0 && rect.height > 0) {
+        const fitScale = Math.min(rect.width / WORLD_WIDTH, rect.height / WORLD_HEIGHT) * 0.94
+        const initX = (rect.width - WORLD_WIDTH * fitScale) / 2
+        const initY = (rect.height - WORLD_HEIGHT * fitScale) / 2
+        const initial = { x: initX, y: initY, scale: fitScale }
+        initialCameraRef.current = initial
+        cameraRef.current = initial
+        applyCameraToDOM(initial)
       }
     }
-    for (const word of ATLAS_WORDS) {
-      const el = wordButtonRefs.current.get(word.id)
-      if (!el) continue
-      const opacity = wordOpacityFor(word, camera.scale)
-      const isHidden = opacity <= 0.05
-      // Una parola invisibile prima e dopo questo tick non ha bisogno di left/top/font-size
-      // aggiornati (proprietà che innescano layout): a riposo/zoom basso solo il tier 'big'
-      // è rivelato, quindi questo evita di forzare un reflow di ~217 elementi ad ogni frame
-      // quando la stragrande maggioranza non è comunque visibile — la causa principale del
-      // costo di Layout/RecalcStyle misurato col Performance domain di Chrome DevTools.
-      if (isHidden && hiddenWordsRef.current.get(word.id)) {
-        if (el.style.opacity !== String(opacity)) el.style.opacity = opacity
-        continue
+
+    updateFit()
+    const observer = new ResizeObserver(updateFit)
+    observer.observe(layer)
+    return () => observer.disconnect()
+  }, [applyCameraToDOM, isMobile])
+
+  // Wheel zoom and pan
+  const handleWheel = useCallback(
+    (event) => {
+      const target = event.target instanceof Element ? event.target : null
+      if (target?.closest('.lessico-dict')) return
+
+      event.preventDefault()
+      const vp = layerRef.current
+      if (!vp) return
+
+      const { left, top } = viewportSizeRef.current
+      const origin = { x: event.clientX - left, y: event.clientY - top }
+      const isPinch = event.ctrlKey || event.metaKey
+
+      if (isPinch) {
+        const factor = Math.exp(-event.deltaY * WHEEL_ZOOM_INTENSITY)
+        applyCamera((prev) => zoomAt(prev.scale * factor, origin))
+      } else {
+        event.stopPropagation()
+        applyCamera((prev) => ({
+          x: prev.x - event.deltaX,
+          y: prev.y - event.deltaY,
+          scale: prev.scale,
+        }))
       }
-      hiddenWordsRef.current.set(word.id, isHidden)
-      const anchor = FAMILY_META[word.familyId].anchor
-      const pos = project(anchor, word.localX, word.localY, word.z, camera.scale)
-      
-      const projectedX = (pos.x / 100) * safeW
-      const initialX = (word.x / 100) * safeW
-      const tx = projectedX - initialX
-      
-      const projectedY = (pos.y / 100) * safeH
-      const initialY = (word.y / 100) * safeH
-      const ty = projectedY - initialY
+    },
+    [applyCamera, zoomAt],
+  )
 
-      el.style.transform = `translate3d(${tx.toFixed(2)}px, ${ty.toFixed(2)}px, 0) translate(-50%, -50%) scale(${pos.scale.toFixed(3)})`
-      el.style.opacity = opacity
-      el.style.pointerEvents = isHidden ? 'none' : ''
-      if (el.tabIndex !== (isHidden ? -1 : 0)) el.tabIndex = isHidden ? -1 : 0
-    }
-  }, [wordOpacityFor])
-
-  // Ricalcola la proiezione (senza attendere un tick camera) quando cambia qualcosa che
-  // tocca opacità/visibilità ma non la camera stessa — es. filtro famiglia, ricerca.
-  useLayoutEffect(() => {
-    applyProjectionToDOM(cameraRef.current)
-  }, [applyProjectionToDOM, filterFamily, normalizedSearch])
-
-  // ── Camera helpers ─────────────────────────────────────────────────────────
-  // Nessun setState qui: la camera aggiorna solo cameraRef + il DOM (via rAF, come prima),
-  // mai lo state React — è questo a evitare un render/reconciliation ad ogni tick.
-  const applyCamera = useCallback((updater) => {
-    const next = typeof updater === 'function' ? updater(cameraRef.current) : updater
-    const { w, h } = viewportSizeRef.current
-    const clamped = clampCameraToViewport(next, w, h)
-    cameraRef.current = clamped
-
-    if (cameraRafRef.current) return
-    cameraRafRef.current = window.requestAnimationFrame(() => {
-      cameraRafRef.current = 0
-      applyProjectionToDOM(cameraRef.current)
-    })
-  }, [applyProjectionToDOM])
-
-  const beginCameraAnimation = useCallback(() => {
-    setCameraAnimating(true)
-    if (cameraAnimTimerRef.current) clearTimeout(cameraAnimTimerRef.current)
-    cameraAnimTimerRef.current = setTimeout(() => setCameraAnimating(false), 600)
-  }, [])
-
-  const resetCamera = useCallback(() => {
-    beginCameraAnimation()
-    cameraRef.current = CAMERA_RESET
-    applyProjectionToDOM(CAMERA_RESET)
-  }, [beginCameraAnimation, applyProjectionToDOM])
-
-  const zoomAt = useCallback((scale, origin, w, h, prev = cameraRef.current) => {
-    const clamped = clamp(scale, CAMERA_MIN_SCALE, CAMERA_MAX_SCALE)
-    const worldX = (origin.x - prev.x) / Math.max(prev.scale, 0.001)
-    const worldY = (origin.y - prev.y) / Math.max(prev.scale, 0.001)
-    return clampCameraToViewport({
-      x: origin.x - worldX * clamped,
-      y: origin.y - worldY * clamped,
-      scale: clamped,
-    }, w, h)
-  }, [])
-
-  const zoomStep = useCallback((direction) => {
-    const vp = layerRef.current
-    if (!vp) return
-    const rect = vp.getBoundingClientRect()
-    viewportSizeRef.current = { w: rect.width || 1, h: rect.height || 1, left: rect.left, top: rect.top }
-    // Se una parola è selezionata, lo zoom da bottone/tastiera punta verso di lei (non verso
-    // il centro del viewport): altrimenti, ad ogni click, si allontanerebbe progressivamente
-    // dal punto di zoom invece di restare a portata — il bottone "+" non segue il cursore
-    // come wheel/pinch, quindi senza questo la parola cliccata "scapperebbe" comunque, anche
-    // con il tetto sul font-size già applicato altrove.
-    const selectedEl = selectedWord ? wordButtonRefs.current.get(selectedWord.id) : null
-    const origin = selectedEl
-      ? (() => {
-          const wr = selectedEl.getBoundingClientRect()
-          return { x: wr.left + wr.width / 2 - rect.left, y: wr.top + wr.height / 2 - rect.top }
-        })()
-      : { x: rect.width / 2, y: rect.height / 2 }
-    const factor = direction > 0 ? CAMERA_ZOOM_STEP : 1 / CAMERA_ZOOM_STEP
-    beginCameraAnimation()
-    applyCamera((prev) => zoomAt(
-      prev.scale * factor,
-      origin,
-      rect.width,
-      rect.height,
-    ))
-  }, [applyCamera, beginCameraAnimation, zoomAt, selectedWord])
-
-  // ── Wheel (trackpad pinch + scroll pan) ───────────────────────────────────
-  const handleWheel = useCallback((event) => {
-    const target = event.target instanceof Element ? event.target : null
-    if (target?.closest('.lessico-dict')) return
-
-    event.preventDefault()
-    const vp = layerRef.current
-    if (!vp) return
-
-    // Niente getBoundingClientRect() qui: con ~217 parole riposizionate ad ogni frame da
-    // applyProjectionToDOM, una misura sincrona ad ogni singolo evento wheel forzerebbe un
-    // layout completo prima di poter rispondere ("layout thrashing"), il vero collo di
-    // bottiglia della fluidità. Il rettangolo è già tenuto aggiornato dal ResizeObserver.
-    const { w: width, h: height, left, top } = viewportSizeRef.current
-    const origin = { x: event.clientX - left, y: event.clientY - top }
-    const isPinch = event.ctrlKey || event.metaKey
-
-    if (isPinch) {
-      const intensity = event.deltaMode === 1 ? WHEEL_ZOOM_INTENSITY_LINE : WHEEL_ZOOM_INTENSITY_PX
-      applyCamera((prev) =>
-        zoomAt(prev.scale * Math.exp(-event.deltaY * intensity), origin, width, height),
-      )
-    } else {
-      event.stopPropagation()
-      applyCamera((prev) => ({
-        x: prev.x - event.deltaX,
-        y: prev.y - event.deltaY,
-        scale: prev.scale,
-      }))
-    }
-  }, [applyCamera, zoomAt])
-
-  // Register wheel with passive:false so preventDefault works
   useEffect(() => {
     const layer = layerRef.current
     if (!layer) return undefined
@@ -1085,38 +1036,17 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
     return () => layer.removeEventListener('wheel', handleWheel)
   }, [handleWheel])
 
-  useEffect(() => {
-    const layer = layerRef.current
-    if (!layer || typeof ResizeObserver === 'undefined') return undefined
-
-    const updateSize = () => {
-      const rect = layer.getBoundingClientRect()
-      viewportSizeRef.current = { w: rect.width || 1, h: rect.height || 1, left: rect.left, top: rect.top }
-    }
-    const observer = new ResizeObserver(updateSize)
-    updateSize()
-    observer.observe(layer)
-    return () => observer.disconnect()
-  }, [isMobile])
-
-  // ── WebKit gesture (Safari two-finger pinch) ───────────────────────────────
+  // WebKit Safari Gesture
   useEffect(() => {
     const layer = layerRef.current
     if (!layer) return undefined
 
     const onGestureStart = (e) => {
       e.preventDefault()
-      const vp = layer
-      const rect = vp.getBoundingClientRect()
-      const fallbackX = rect.left + rect.width / 2
-      const fallbackY = rect.top + rect.height / 2
-      const clientX = Number.isFinite(e.clientX) ? e.clientX : fallbackX
-      const clientY = Number.isFinite(e.clientY) ? e.clientY : fallbackY
-      viewportSizeRef.current = { w: rect.width || 1, h: rect.height || 1, left: rect.left, top: rect.top }
+      const rect = layer.getBoundingClientRect()
       webkitGestureRef.current = {
         camera: cameraRef.current,
-        origin: { x: clientX - rect.left, y: clientY - rect.top },
-        size: { w: rect.width || 1, h: rect.height || 1 },
+        origin: { x: e.clientX - rect.left, y: e.clientY - rect.top },
       }
     }
     const onGestureChange = (e) => {
@@ -1124,9 +1054,11 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
       const gesture = webkitGestureRef.current
       if (!gesture) return
       const nextScale = gesture.camera.scale * Math.pow(Number(e.scale) || 1, PINCH_DAMPING)
-      applyCamera(zoomAt(nextScale, gesture.origin, gesture.size.w, gesture.size.h))
+      applyCamera(zoomAt(nextScale, gesture.origin))
     }
-    const onGestureEnd = () => { webkitGestureRef.current = null }
+    const onGestureEnd = () => {
+      webkitGestureRef.current = null
+    }
 
     layer.addEventListener('gesturestart', onGestureStart, { passive: false })
     layer.addEventListener('gesturechange', onGestureChange, { passive: false })
@@ -1138,17 +1070,12 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
     }
   }, [applyCamera, zoomAt])
 
-  // ── Pointer drag (mouse pan) ───────────────────────────────────────────────
+  // Mouse / Pointer drag pan
   const handlePointerDown = useCallback((e) => {
     const target = e.target instanceof Element ? e.target : null
-    if (target?.closest('.lessico-dict')) return
-    const isControl = Boolean(target?.closest('.lessico-atlas__controls, .lessico-dict, .lessico-atlas__zoom-controls, .lessico-atlas__word'))
+    if (target?.closest('.lessico-dict, .lessico-atlas__controls')) return
 
-    pointersRef.current.set(e.pointerId, { pointerId: e.pointerId, clientX: e.clientX, clientY: e.clientY })
-
-    if (!isControl) {
-      if (e.currentTarget.setPointerCapture) e.currentTarget.setPointerCapture(e.pointerId)
-    }
+    pointersRef.current.set(e.pointerId, { clientX: e.clientX, clientY: e.clientY })
 
     if (pointersRef.current.size >= 2) {
       const pts = Array.from(pointersRef.current.values())
@@ -1158,54 +1085,57 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
       const my = (a.clientY + b.clientY) / 2
       const vp = layerRef.current
       const rect = vp?.getBoundingClientRect() || { left: 0, top: 0 }
-      viewportSizeRef.current = { w: rect.width || 1, h: rect.height || 1, left: rect.left, top: rect.top }
       pinchRef.current = {
         camera: cameraRef.current,
         distance: dist,
         midpoint: { x: mx - rect.left, y: my - rect.top },
-        size: { w: rect.width || 1, h: rect.height || 1 },
       }
       mouseDragRef.current = null
       return
     }
 
-    mouseDragRef.current = isControl
-      ? null
-      : {
-          camera: cameraRef.current,
-          clientX: e.clientX,
-          clientY: e.clientY,
-        }
+    const isInteractive = Boolean(target?.closest('.lessico-atlas__word, .lessico-atlas__family-badge'))
+    if (!isInteractive) {
+      mouseDragRef.current = {
+        camera: cameraRef.current,
+        clientX: e.clientX,
+        clientY: e.clientY,
+      }
+      if (e.currentTarget.setPointerCapture) {
+        e.currentTarget.setPointerCapture(e.pointerId)
+      }
+    }
   }, [])
 
-  const handlePointerMove = useCallback((e) => {
-    const stored = pointersRef.current.get(e.pointerId)
-    if (!stored) return
-    pointersRef.current.set(e.pointerId, { ...stored, clientX: e.clientX, clientY: e.clientY })
+  const handlePointerMove = useCallback(
+    (e) => {
+      if (!pointersRef.current.has(e.pointerId)) return
+      pointersRef.current.set(e.pointerId, { clientX: e.clientX, clientY: e.clientY })
 
-    if (pointersRef.current.size >= 2 && pinchRef.current) {
-      e.preventDefault()
-      const pts = Array.from(pointersRef.current.values())
-      const [a, b] = pts
-      const dist = Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY)
-      const gesture = pinchRef.current
-      const nextScale =
-        gesture.camera.scale * Math.pow(dist / Math.max(1, gesture.distance), PINCH_DAMPING)
-      applyCamera(zoomAt(nextScale, gesture.midpoint, gesture.size.w, gesture.size.h))
-      return
-    }
+      if (pointersRef.current.size >= 2 && pinchRef.current) {
+        e.preventDefault()
+        const pts = Array.from(pointersRef.current.values())
+        const [a, b] = pts
+        const dist = Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY)
+        const gesture = pinchRef.current
+        const nextScale =
+          gesture.camera.scale * Math.pow(dist / Math.max(1, gesture.distance), PINCH_DAMPING)
+        applyCamera(zoomAt(nextScale, gesture.midpoint))
+        return
+      }
 
-    if (pointersRef.current.size === 1 && mouseDragRef.current) {
-      e.preventDefault()
-      const drag = mouseDragRef.current
-      applyCamera({
-        x: drag.camera.x + e.clientX - drag.clientX,
-        y: drag.camera.y + e.clientY - drag.clientY,
-        scale: drag.camera.scale,
-      })
-    }
-
-  }, [applyCamera, zoomAt])
+      if (pointersRef.current.size === 1 && mouseDragRef.current) {
+        e.preventDefault()
+        const drag = mouseDragRef.current
+        applyCamera({
+          x: drag.camera.x + e.clientX - drag.clientX,
+          y: drag.camera.y + e.clientY - drag.clientY,
+          scale: drag.camera.scale,
+        })
+      }
+    },
+    [applyCamera, zoomAt],
+  )
 
   const endPointer = useCallback((e) => {
     pointersRef.current.delete(e.pointerId)
@@ -1217,63 +1147,115 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
   }, [])
 
   const closeDictionary = useCallback(() => {
-    const trigger = selectedWord ? wordButtonRefs.current.get(selectedWord.id) : null
     setSelectedWord(null)
-    if (trigger) window.requestAnimationFrame(() => trigger.focus())
-  }, [selectedWord])
+  }, [])
 
-  // ── Keyboard shortcuts ─────────────────────────────────────────────────────
+  // Keyboard navigation
   useEffect(() => {
     const onKey = (e) => {
       const tag = e.target?.tagName
       if (tag === 'INPUT' || tag === 'TEXTAREA') return
       if (e.key === 'Escape') {
-        if (selectedWord) { closeDictionary(); return }
-        if (showSearch) { setShowSearch(false); setSearchQuery(''); return }
+        if (selectedWord) {
+          closeDictionary()
+          return
+        }
+        if (showSearch) {
+          setShowSearch(false)
+          setSearchQuery('')
+          return
+        }
         resetCamera()
       }
-      if ((e.metaKey || e.ctrlKey) && e.key === 'f') { e.preventDefault(); setShowSearch(true) }
-      if (e.key === '+' || e.key === '=') { e.preventDefault(); zoomStep(1) }
-      if (e.key === '-' || e.key === '_') { e.preventDefault(); zoomStep(-1) }
-      if (e.key === '0') { e.preventDefault(); resetCamera() }
+      if ((e.metaKey || e.ctrlKey) && e.key === 'f') {
+        e.preventDefault()
+        setShowSearch(true)
+      }
+      if (e.key === '+' || e.key === '=') {
+        e.preventDefault()
+        zoomStep(1)
+      }
+      if (e.key === '-' || e.key === '_') {
+        e.preventDefault()
+        zoomStep(-1)
+      }
+      if (e.key === '0') {
+        e.preventDefault()
+        resetCamera()
+      }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [selectedWord, showSearch, resetCamera, zoomStep, closeDictionary])
 
-  // ── Search focus ───────────────────────────────────────────────────────────
   useEffect(() => {
     if (showSearch && searchInputRef.current) searchInputRef.current.focus()
   }, [showSearch])
 
-  // ── Cleanup ────────────────────────────────────────────────────────────────
   useEffect(() => () => {
     if (cameraAnimTimerRef.current) clearTimeout(cameraAnimTimerRef.current)
-    if (cameraRafRef.current) cancelAnimationFrame(cameraRafRef.current)
   }, [])
 
   const handleSearchToggle = useCallback(() => {
-    setShowSearch((prev) => { if (prev) setSearchQuery(''); return !prev })
+    setShowSearch((prev) => {
+      if (prev) setSearchQuery('')
+      return !prev
+    })
   }, [])
 
   return (
     <div className={`lessico-atlas${isMobile ? ' lessico-atlas--mobile' : ''}`}>
-
-      {/* Controls bar — below the chrome header */}
+      {/* ── Top Bar Controls ─────────────────────────────────────────────── */}
       <div className="lessico-atlas__controls">
-        <AtlasLegend filterFamily={filterFamily} onFilterChange={setFilterFamily} />
+        <AtlasLegend filterFamily={filterFamily} onFilterChange={handleFilterChange} />
 
-        {/* Zoom controls — same style as galassia-view__map-controls */}
         {!isMobile && (
-          <div className="galassia-view__map-controls lessico-atlas__zoom-controls" role="toolbar" aria-label="Zoom e navigazione atlante">
-            <button type="button" className="galassia-view__map-control" aria-label="Zoom avanti" onClick={(e) => { e.stopPropagation(); zoomStep(1) }}>+</button>
-            <button type="button" className="galassia-view__map-control" aria-label="Zoom indietro" onClick={(e) => { e.stopPropagation(); zoomStep(-1) }}>−</button>
-            <button type="button" className="galassia-view__map-control galassia-view__map-control--ghost" aria-label="Centra la vista" onClick={(e) => { e.stopPropagation(); resetCamera() }}>Centra</button>
+          <div
+            className="galassia-view__map-controls lessico-atlas__zoom-controls"
+            role="toolbar"
+            aria-label="Zoom e navigazione atlante"
+          >
+            <button
+              type="button"
+              className="galassia-view__map-control"
+              aria-label="Zoom avanti"
+              onClick={(e) => {
+                e.stopPropagation()
+                zoomStep(1)
+              }}
+            >
+              +
+            </button>
+            <button
+              type="button"
+              className="galassia-view__map-control"
+              aria-label="Zoom indietro"
+              onClick={(e) => {
+                e.stopPropagation()
+                zoomStep(-1)
+              }}
+            >
+              −
+            </button>
+            <button
+              type="button"
+              className="galassia-view__map-control galassia-view__map-control--ghost"
+              aria-label="Centra la vista"
+              onClick={(e) => {
+                e.stopPropagation()
+                resetCamera()
+              }}
+            >
+              Centra
+            </button>
           </div>
         )}
 
-        {/* Search & Analisi Toggle */}
-        <div className="lessico-atlas__search-wrap" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+        {/* Search & Dashboard toggle */}
+        <div
+          className="lessico-atlas__search-wrap"
+          style={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+        >
           {viewModel && !isMobile && (
             <button
               type="button"
@@ -1320,7 +1302,7 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
       </div>
 
       {!isMobile ? (
-        /* ── Desktop: zoomable word cloud ───────────────────────────────── */
+        /* ── Desktop: 120 FPS GPU Accelerated Constellation Network ──────── */
         <div
           ref={layerRef}
           className="lessico-atlas__layer"
@@ -1335,92 +1317,174 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
             ref={canvasRef}
             className={`lessico-atlas__canvas${cameraAnimating ? ' lessico-atlas__canvas--animating' : ''}`}
           >
-            {/* Nebula backgrounds — posizione/scala reali aggiornate da applyProjectionToDOM;
-                qui solo il valore a riposo (scale=1), per il primo paint. */}
-            {FAMILY_LIST.map((fam) => (
-              <div
-                key={fam.id}
-                ref={(node) => {
-                  if (node) nebulaRefs.current.set(fam.id, node)
-                  else nebulaRefs.current.delete(fam.id)
-                }}
-                className={`lessico-atlas__nebula${filterFamily && filterFamily !== fam.id ? ' is-dimmed' : ''}`}
-                style={{
-                  left: `${fam.anchor.x}%`,
-                  top: `${fam.anchor.y}%`,
-                  '--nebula-color': fam.nebula,
-                }}
-                aria-hidden
-              />
-            ))}
+            {/* 1. Constellation Network SVG Lines Layer */}
+            <svg
+              className="lessico-atlas__network-svg"
+              width={WORLD_WIDTH}
+              height={WORLD_HEIGHT}
+              viewBox={`0 0 ${WORLD_WIDTH} ${WORLD_HEIGHT}`}
+            >
+              <defs>
+                {FAMILY_LIST.map((fam) => (
+                  <radialGradient
+                    key={`grad-${fam.id}`}
+                    id={`grad-${fam.id}`}
+                    cx="50%"
+                    cy="50%"
+                    r="50%"
+                  >
+                    <stop offset="0%" stopColor={fam.baseColor} stopOpacity="0.32" />
+                    <stop offset="60%" stopColor={fam.baseColor} stopOpacity="0.08" />
+                    <stop offset="100%" stopColor={fam.baseColor} stopOpacity="0" />
+                  </radialGradient>
+                ))}
+              </defs>
 
-            {/* Family zone labels */}
-            {FAMILY_LIST.map((fam) => (
-              <div
-                key={fam.id}
-                ref={(node) => {
-                  if (node) labelRefs.current.set(fam.id, node)
-                  else labelRefs.current.delete(fam.id)
-                }}
-                className={`lessico-atlas__zone-label${filterFamily && filterFamily !== fam.id ? ' is-dimmed' : ''}`}
-                style={{ left: `${fam.anchor.x}%`, top: `${fam.anchor.y}%`, '--zone-color': fam.baseColor }}
-                aria-hidden
-              >
-                {fam.label}
-              </div>
-            ))}
+              {CONSTELLATION_DATA.edges.map((edge) => {
+                const isFamilyFiltered = filterFamily && filterFamily !== edge.familyId
+                const isHovered = hoveredWordId && edge.wordId === hoveredWordId
+                const isSelected = selectedWord && edge.wordId === selectedWord.id
+                const strokeColor = edge.color || '#6366f1'
 
-            {/* Words — left/top/fontSize/opacity qui sono il valore a riposo (scale=1):
-                applyProjectionToDOM li corregge subito con la camera reale (vedi useLayoutEffect
-                sopra), senza flash percepibile. Nessun ramo dimensionale speciale per la parola
-                selezionata: stessa geometria di qualunque altra parola, evidenziata solo via CSS
-                (.is-selected in galassia-view.css) — click non deve mai poter produrre un
-                font-size fuori controllo. */}
-            {ATLAS_WORDS.map((word) => {
-              const opacity = getRestOpacity(word)
-              const isSelected = selectedWord?.id === word.id
-              const isHovered = hoveredWordId === word.id
-              const normalizedName = word.nome.toLowerCase()
-              const isEmerged =
-                emergedWords.precise.has(`${word.familyId}|${word.subcurrentId}|${normalizedName}`)
-                || emergedWords.fallback.has(normalizedName)
-              const isFilteredOut = opacity <= 0.05
+                return (
+                  <line
+                    key={edge.id}
+                    x1={edge.x1}
+                    y1={edge.y1}
+                    x2={edge.x2}
+                    y2={edge.y2}
+                    className={`lessico-atlas__edge lessico-atlas__edge--${edge.type}${
+                      isHovered || isSelected ? ' is-highlighted' : ''
+                    }${isFamilyFiltered ? ' is-dimmed' : ''}`}
+                    stroke={strokeColor}
+                    strokeWidth={isHovered || isSelected ? 2.6 : edge.type === 'core-hub' ? 1.6 : 1.1}
+                    opacity={isHovered || isSelected ? 0.95 : edge.type === 'core-hub' ? 0.35 : 0.22}
+                  />
+                )
+              })}
+            </svg>
+
+            {/* 2. 5 Planetary Celestial Spheres */}
+            {CONSTELLATION_DATA.spheres.map((sphere) => {
+              const isDimmed = filterFamily && filterFamily !== sphere.id
+              const diam = sphere.radius * 2
+
+              return (
+                <div
+                  key={sphere.id}
+                  className={`lessico-atlas__sphere${isDimmed ? ' is-dimmed' : ''}`}
+                  style={{
+                    left: `${sphere.x}px`,
+                    top: `${sphere.y}px`,
+                    width: `${diam}px`,
+                    height: `${diam}px`,
+                    '--sphere-color': sphere.color,
+                  }}
+                  aria-hidden
+                >
+                  <div className="lessico-atlas__sphere-ring" />
+                  <div className="lessico-atlas__sphere-glow" />
+                </div>
+              )
+            })}
+
+            {/* 3. Family Title Badges */}
+            {CONSTELLATION_DATA.spheres.map((sphere) => {
+              const isDimmed = filterFamily && filterFamily !== sphere.id
+              const count = ATLAS_WORDS.filter((w) => w.familyId === sphere.id).length
+
               return (
                 <button
-                  ref={(node) => {
-                    if (node) wordButtonRefs.current.set(word.id, node)
-                    else wordButtonRefs.current.delete(word.id)
+                  key={`badge-${sphere.id}`}
+                  type="button"
+                  className={`lessico-atlas__family-badge${isDimmed ? ' is-dimmed' : ''}`}
+                  style={{
+                    left: `${sphere.x}px`,
+                    top: `${sphere.y - sphere.radius - 20}px`,
+                    '--badge-color': sphere.color,
                   }}
+                  onClick={() => handleFilterChange(sphere.id)}
+                  title={`Esplora la costellazione ${sphere.name}`}
+                >
+                  <span
+                    className="lessico-atlas__family-badge-dot"
+                    style={{ backgroundColor: sphere.color }}
+                  />
+                  <span>{sphere.name}</span>
+                  <span className="lessico-atlas__family-badge-count">{count} parole</span>
+                </button>
+              )
+            })}
+
+            {/* 4. Subcurrent Constellation Hubs */}
+            {CONSTELLATION_DATA.hubs.map((hub) => {
+              const isDimmed = filterFamily && filterFamily !== hub.familyId
+
+              return (
+                <div
+                  key={hub.id}
+                  className={`lessico-atlas__hub${isDimmed ? ' is-dimmed' : ''}`}
+                  style={{
+                    left: `${hub.x}px`,
+                    top: `${hub.y}px`,
+                    '--hub-color': hub.color,
+                  }}
+                  aria-hidden
+                >
+                  <div className="lessico-atlas__hub-dot" />
+                  <div className="lessico-atlas__hub-label">{hub.title}</div>
+                </div>
+              )
+            })}
+
+            {/* 5. Constellation Word Nodes */}
+            {CONSTELLATION_DATA.words.map((word) => {
+              const isSelected = selectedWord?.id === word.id
+              const isHovered = hoveredWordId === word.id
+              const isFamilyFiltered = filterFamily && filterFamily !== word.familyId
+              const matchesSearch =
+                !normalizedSearch || word.nome.toLowerCase().includes(normalizedSearch)
+              const isSearchFiltered = normalizedSearch && !matchesSearch
+              const isDimmed = isFamilyFiltered || isSearchFiltered
+
+              const normalizedName = word.nome.toLowerCase()
+              const isEmerged =
+                emergedWords.precise.has(`${word.familyId}|${word.subcurrentId}|${normalizedName}`) ||
+                emergedWords.fallback.has(normalizedName)
+
+              return (
+                <button
                   key={word.id}
                   type="button"
-                  tabIndex={isFilteredOut ? -1 : 0}
-                  className={`lessico-atlas__word${isSelected ? ' is-selected' : ''}${isEmerged ? ' is-emerged' : ''}${isHovered ? ' is-hovered' : ''}`}
+                  className={`lessico-atlas__word${isSelected ? ' is-selected' : ''}${
+                    isEmerged ? ' is-emerged' : ''
+                  }${isHovered ? ' is-hovered' : ''}${isDimmed ? ' is-dimmed' : ''}`}
                   style={{
-                    left: `${word.x}%`,
-                    top: `${word.y}%`,
-                    fontSize: `${clamp(word.fontSize, FONT_MIN, FONT_MAX)}px`,
+                    left: `${word.x}px`,
+                    top: `${word.y}px`,
+                    fontSize: `${word.fontSize}px`,
                     fontWeight: word.fontWeight,
                     '--word-color': word.color,
-                    color: word.color,
-                    opacity,
-                    pointerEvents: isFilteredOut ? 'none' : undefined,
-                    zIndex: isSelected ? 120 : isHovered ? 50 : word.tier === 'big' ? 20 : word.tier === 'medium' ? 15 : 10,
                   }}
                   onMouseEnter={() => setHoveredWordId(word.id)}
                   onMouseLeave={() => setHoveredWordId(null)}
                   onClick={() => setSelectedWord(word)}
                   aria-expanded={isSelected || undefined}
                   aria-controls={isSelected ? 'lessico-dictionary-popover' : undefined}
+                  tabIndex={isDimmed ? -1 : 0}
                 >
-                  {word.nome}
+                  <span
+                    className="lessico-atlas__word-dot"
+                    style={{ backgroundColor: word.color }}
+                  />
+                  <span>{word.nome}</span>
                 </button>
               )
             })}
           </div>
-
         </div>
       ) : (
-        /* ── Mobile: vertical card stack ────────────────────────────────── */
+        /* ── Mobile: Vertical Card Stack ────────────────────────────────── */
         <div className="lessico-atlas__mobile-stack">
           {viewModel && (
             <div
@@ -1430,15 +1494,23 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
               <button
                 type="button"
                 className="lessico-mobile-card__header"
-                onClick={() => setExpandedMobileFamily((prev) => (prev === 'dashboard' ? null : 'dashboard'))}
+                onClick={() =>
+                  setExpandedMobileFamily((prev) => (prev === 'dashboard' ? null : 'dashboard'))
+                }
                 aria-expanded={expandedMobileFamily === 'dashboard'}
               >
-                <span className="lessico-mobile-card__dot" style={{ backgroundColor: '#3b82f6' }} aria-hidden />
+                <span
+                  className="lessico-mobile-card__dot"
+                  style={{ backgroundColor: '#3b82f6' }}
+                  aria-hidden
+                />
                 <strong className="lessico-mobile-card__title">Analisi avanzata</strong>
                 <span className="lessico-mobile-card__count">
                   {viewModel.datiDisponibili ? 'Firma & Forze' : 'Vuoto'}
                 </span>
-                <span className="lessico-mobile-card__chevron" aria-hidden>{expandedMobileFamily === 'dashboard' ? '▲' : '▼'}</span>
+                <span className="lessico-mobile-card__chevron" aria-hidden>
+                  {expandedMobileFamily === 'dashboard' ? '▲' : '▼'}
+                </span>
               </button>
               {expandedMobileFamily === 'dashboard' && (
                 <div className="lessico-mobile-card__body" style={{ padding: '1rem' }}>
@@ -1458,15 +1530,20 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
               key={fam.id}
               fam={fam}
               isExpanded={expandedMobileFamily === fam.id}
-              onToggle={() => setExpandedMobileFamily((prev) => (prev === fam.id ? null : fam.id))}
-              onSelectWord={(w) => { setSelectedWord(w); setExpandedMobileFamily(null) }}
+              onToggle={() =>
+                setExpandedMobileFamily((prev) => (prev === fam.id ? null : fam.id))
+              }
+              onSelectWord={(w) => {
+                setSelectedWord(w)
+                setExpandedMobileFamily(null)
+              }}
               searchQuery={searchQuery}
             />
           ))}
         </div>
       )}
 
-      {/* Right-side panel: word detail when selected, otherwise the opt-in dashboard */}
+      {/* ── Dictionary Panel or Advanced Dashboard ───────────────────────── */}
       {selectedWord ? (
         <DictionaryPanel
           word={selectedWord}
@@ -1477,8 +1554,13 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
       ) : !isMobile && showDashboard && viewModel ? (
         <aside className="lessico-dict" aria-label="Analisi lessicale avanzata">
           <div className="lessico-dict__bezel" style={{ '--dict-color': '#3b82f6' }}>
-            <header className="lessico-dict__head" style={{ borderBottomColor: 'rgba(59, 130, 246, 0.2)' }}>
-              <p className="lessico-dict__kicker" style={{ color: '#60a5fa' }}>Analisi avanzata</p>
+            <header
+              className="lessico-dict__head"
+              style={{ borderBottomColor: 'rgba(59, 130, 246, 0.2)' }}
+            >
+              <p className="lessico-dict__kicker" style={{ color: '#60a5fa' }}>
+                Analisi avanzata
+              </p>
               <button
                 type="button"
                 className="lessico-dict__close"
@@ -1489,10 +1571,7 @@ export default function LessicoAtlasView({ paroleEmerse = [], isMobile = false, 
               </button>
             </header>
             <div className="lessico-dict__body" style={{ padding: '1rem', overflowY: 'auto' }}>
-              <AnalisiDashboard
-                viewModel={viewModel}
-                onSelectWord={(w) => setSelectedWord(w)}
-              />
+              <AnalisiDashboard viewModel={viewModel} onSelectWord={(w) => setSelectedWord(w)} />
             </div>
           </div>
         </aside>

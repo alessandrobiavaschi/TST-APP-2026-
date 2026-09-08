@@ -2,7 +2,7 @@ import React, { useMemo } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { HERO_UI } from './reportUiCopy.js'
 import { getFlowerStillByColor } from '../../colorAssets.js'
-import { computeColorTotals, formatDateShort, getDominantColorInfo } from '../../utils/reportRecordUtils.js'
+import { computeColorTotals, getDominantColorInfo } from '../../utils/reportRecordUtils.js'
 import { FAMILY_NAME_BY_KEY, FAMILY_THEME } from '../../config/reportFamilyTheme.js'
 
 // Il setup ESLint del progetto non riconosce l'uso di `motion.X` nel JSX come
@@ -77,7 +77,7 @@ export default function HeroScreen({
   naturaName = 'NATURA CONTEMPLATIVA',
   heroResult = null,
   _disposizione = 'CONTEMPLATIVA',
-  userName = '',
+  _userName = '',
   fraseChiave = '',
   correnteColore = '#16a34a',
   correnteColoreChiara,
@@ -89,7 +89,7 @@ export default function HeroScreen({
   onReadReport,
   onDownload,
   onNavigateArchive,
-  testDate,
+  _testDate,
 }) {
   const reduceMotion = useReducedMotion()
 
@@ -144,7 +144,6 @@ export default function HeroScreen({
   const familyText = toTitleCase(
     familyName || FAMILY_THEME[FAMILY_NAME_BY_KEY[colorKey]]?.family || 'Flemmatica',
   )
-  const formattedTestDate = formatDateShort(testDate)
 
   // Famiglia secondaria: mostrata solo quando la banda già calcolata a monte
   // (globalProfileContract, nessuna soglia nuova) segnala un pareggio esatto o un
@@ -156,7 +155,7 @@ export default function HeroScreen({
   const gradientStyle = {
     backgroundImage: `
       radial-gradient(circle at 50% 46%, ${rgba(colors.media, 0.08)} 0%, ${rgba(colors.mid, 0.22)} 42%, ${rgba(edgeColor, 0.48)} 84%),
-      linear-gradient(180deg, ${rgba(edgeColor, 0.14)} 0%, ${rgba(edgeColor, 0.02)} 48%, ${rgba(edgeColor, 0.3)} 100%)
+      linear-gradient(180deg, #020817 0%, rgba(2, 8, 23, 0.55) 5%, rgba(2, 8, 23, 0) 15%, ${rgba(edgeColor, 0.14)} 22%, ${rgba(edgeColor, 0.02)} 48%, ${rgba(edgeColor, 0.3)} 100%)
     `,
   }
 
@@ -180,6 +179,7 @@ export default function HeroScreen({
             backgroundColor: bgImage ? 'transparent' : edgeColor,
           }}
         />
+        {bgImage && <div className="hero-screen__legibility-overlay" />}
         <div
           className="hero-screen__noise"
           style={{ backgroundImage: `url("${NOISE_SVG}")` }}
@@ -190,13 +190,6 @@ export default function HeroScreen({
         className="report-tst-hero__content hero-screen__content flex w-full flex-col items-center justify-center px-6 py-10 z-10"
       >
         <div className="report-tst-hero__inner report-tst-hero__identity flex w-full max-w-4xl flex-col items-center">
-          {(userName || formattedTestDate) && (
-            <motion.p {...fade(0.1, 12)} className="hero-screen__metadata">
-              {userName ? <span>{userName}</span> : null}
-              {userName && formattedTestDate ? <span aria-hidden="true"> · </span> : null}
-              {formattedTestDate ? <span>Test del {formattedTestDate}</span> : null}
-            </motion.p>
-          )}
           <motion.h1
             {...fade(0.2, 24)}
             className="hero-screen__sintesi-title"
@@ -303,16 +296,20 @@ export default function HeroScreen({
           margin-bottom: 0.1em;
         }
         .hero-screen__secondary-family {
-          max-width: min(760px, 88vw);
-          margin: 0.6em 0 0;
+          max-width: min(560px, 92vw);
+          margin: 0.8em 0 0;
+          padding: var(--space-sm) var(--space-md);
+          background: #ffffff;
+          border-radius: 16px;
+          box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
           text-align: center;
-          font-size: clamp(0.95rem, 1.3vw, 1.15rem);
-          color: rgba(255, 255, 255, 0.82);
-          text-shadow: 0 2px 18px rgba(0, 0, 0, 0.6);
+          font-family: var(--font-body);
+          font-size: clamp(0.95rem, 1.3vw, 1.05rem);
+          color: #334155;
         }
         .hero-screen__secondary-family strong {
-          color: #ffffff;
-          font-weight: 650;
+          color: var(--corrente-media, #0f172a);
+          font-weight: 700;
         }
         .hero-screen__cta-primary,
         .hero-screen__cta-secondary {

@@ -5102,140 +5102,252 @@
 
 .lessico-atlas__canvas {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  width: 3400px;
+  height: 2400px;
+  left: 0;
+  top: 0;
   overflow: visible;
-  transition: margin-right 0.3s ease;
   transform-origin: 0 0;
   will-change: transform;
 }
 
 .lessico-atlas__canvas--animating {
-  transition:
-    margin-right 0.3s ease,
-    transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Posizione/dimensione delle parole sono ora calcolate per elemento (proiezione
-   prospettica in base a z), non più ereditate dalla scale() dell'ancestor: senza
-   queste regole uno zoom da bottone/tastiera "teletrasporterebbe" invece di animare. */
-.lessico-atlas__canvas--animating .lessico-atlas__word {
-  transition:
-    opacity 0.22s ease,
-    text-shadow 0.18s ease,
-    transform 0.14s ease,
-    left 0.24s cubic-bezier(0.22, 1, 0.36, 1),
-    top 0.24s cubic-bezier(0.22, 1, 0.36, 1),
-    font-size 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+/* ── SVG Rete di costellazioni ────────────────────────────────────────────── */
+
+.lessico-atlas__network-svg {
+  position: absolute;
+  inset: 0;
+  width: 3400px;
+  height: 2400px;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 1;
 }
 
-.lessico-atlas__canvas--animating .lessico-atlas__nebula,
-.lessico-atlas__canvas--animating .lessico-atlas__zone-label {
-  transition:
-    opacity 0.4s ease,
-    left 0.24s cubic-bezier(0.22, 1, 0.36, 1),
-    top 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+.lessico-atlas__edge {
+  stroke-linecap: round;
+  transition: stroke 0.25s ease, stroke-width 0.25s ease, opacity 0.25s ease;
 }
 
-/* Etichette zona famiglia */
-.lessico-atlas__zone-label {
+.lessico-atlas__edge--core-hub {
+  stroke-dasharray: 6 6;
+}
+
+.lessico-atlas__edge--hub-word {
+  stroke-dasharray: 3 4;
+}
+
+.lessico-atlas__edge.is-highlighted {
+  stroke-width: 2.5px !important;
+  stroke-dasharray: none !important;
+  opacity: 1 !important;
+  filter: drop-shadow(0 0 8px currentColor);
+}
+
+.lessico-atlas__edge.is-dimmed {
+  opacity: 0.08 !important;
+}
+
+/* ── Sfere planetarie delle 5 famiglie ─────────────────────────────────────── */
+
+.lessico-atlas__sphere {
   position: absolute;
   transform: translate(-50%, -50%);
-  color: var(--zone-color);
-  font-size: 0.58rem;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  opacity: 0.22;
+  border-radius: 50%;
   pointer-events: none;
+  z-index: 2;
+  transition: opacity 0.35s ease;
+}
+
+.lessico-atlas__sphere.is-dimmed {
+  opacity: 0.15;
+}
+
+.lessico-atlas__sphere-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px dashed color-mix(in srgb, var(--sphere-color) 40%, transparent);
+  box-shadow:
+    0 0 60px color-mix(in srgb, var(--sphere-color) 20%, transparent),
+    inset 0 0 50px color-mix(in srgb, var(--sphere-color) 12%, transparent);
+  animation: galassia-sphere-spin 180s linear infinite;
+}
+
+.lessico-atlas__sphere-glow {
+  position: absolute;
+  inset: 12%;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, color-mix(in srgb, var(--sphere-color) 20%, transparent) 0%, transparent 72%);
+  filter: blur(32px);
+}
+
+@keyframes galassia-sphere-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ── Badge titolo famiglia ─────────────────────────────────────────────────── */
+
+.lessico-atlas__family-badge {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 1rem;
+  border-radius: 999px;
+  background: rgba(2, 6, 23, 0.85);
+  border: 1.5px solid color-mix(in srgb, var(--badge-color) 45%, rgba(255, 255, 255, 0.15));
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.5),
+    0 0 15px color-mix(in srgb, var(--badge-color) 25%, transparent);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.22s ease;
+}
+
+.lessico-atlas__family-badge:hover {
+  transform: translate(-50%, -50%) scale(1.06);
+  border-color: var(--badge-color);
+  box-shadow:
+    0 6px 28px rgba(0, 0, 0, 0.6),
+    0 0 25px color-mix(in srgb, var(--badge-color) 60%, transparent);
+}
+
+.lessico-atlas__family-badge-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--badge-color);
+  box-shadow: 0 0 8px var(--badge-color);
+}
+
+.lessico-atlas__family-badge-count {
+  font-size: 0.68rem;
+  font-weight: 500;
+  opacity: 0.75;
+  padding-left: 0.2rem;
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* ── Hub sottocorrente ─────────────────────────────────────────────────────── */
+
+.lessico-atlas__hub {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 12;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+
+.lessico-atlas__hub-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--hub-color);
+  border: 2px solid #fff;
+  box-shadow: 0 0 14px var(--hub-color);
+}
+
+.lessico-atlas__hub-label {
+  margin-top: 6px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(10, 16, 32, 0.85);
+  border: 1px solid color-mix(in srgb, var(--hub-color) 35%, transparent);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.72rem;
+  font-weight: 600;
   white-space: nowrap;
-  transition:
-    opacity 0.35s ease;
-  z-index: 5;
-  text-shadow: 0 0 12px var(--zone-color);
-  will-change: opacity;
+  letter-spacing: 0.04em;
+  backdrop-filter: blur(4px);
 }
 
-.lessico-atlas__zone-label.is-dimmed {
-  opacity: 0.05;
-}
-
-/* ── Parola ─────────────────────────────────────────────────────────────────── */
+/* ── Nodi parola (costellazione) ───────────────────────────────────────────── */
 
 .lessico-atlas__word {
   position: absolute;
   transform: translate(-50%, -50%);
-  border: none;
-  background: none;
-  color: var(--word-color);
-  font-family: var(--font-body, Inter, ui-sans-serif, system-ui, sans-serif);
-  line-height: 1.2;
-  padding: 0.1rem 0.22rem;
+  border-radius: 999px;
+  padding: 0.24rem 0.68rem;
+  border: 1px solid color-mix(in srgb, var(--word-color) 35%, rgba(255, 255, 255, 0.12));
+  background: rgba(10, 16, 32, 0.74);
+  backdrop-filter: blur(6px);
+  color: color-mix(in srgb, var(--word-color) 75%, #ffffff 25%);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   white-space: nowrap;
-  cursor: grab;
-  transition:
-    opacity 0.22s ease,
-    text-shadow 0.18s ease,
-    transform 0.14s ease;
-  text-shadow: 0 0 6px color-mix(in srgb, var(--word-color) 20%, transparent);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  overflow: visible;
+  cursor: pointer;
   user-select: none;
-  will-change: transform, opacity;
+  z-index: 20;
+  transition:
+    transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1),
+    background 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    opacity 0.2s ease;
+  font-family: var(--font-body, Inter, ui-sans-serif, system-ui, sans-serif);
+  line-height: 1.15;
+  outline: none;
 }
 
-.lessico-atlas__word.is-hovered,
+.lessico-atlas__word-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--word-color);
+  box-shadow: 0 0 6px var(--word-color);
+  flex-shrink: 0;
+}
+
 .lessico-atlas__word:hover,
-.lessico-atlas__word:focus-visible {
-  opacity: 1 !important;
-  text-shadow:
-    0 0 10px color-mix(in srgb, var(--word-color) 62%, transparent),
-    0 0 3px rgba(255, 255, 255, 0.28);
-  transform: translate(-50%, -50%);
-  z-index: 50 !important;
-  outline: none;
-  transition:
-    text-shadow 0.12s ease,
-    transform 0.1s ease;
+.lessico-atlas__word.is-hovered {
+  transform: translate(-50%, -50%) scale(1.12);
+  background: rgba(15, 23, 42, 0.96);
+  border-color: var(--word-color);
+  color: #fff;
+  box-shadow:
+    0 0 18px color-mix(in srgb, var(--word-color) 70%, transparent),
+    0 4px 12px rgba(0, 0, 0, 0.5);
+  z-index: 100;
 }
 
 .lessico-atlas__word.is-selected {
-  opacity: 1 !important;
-  /* width:auto farebbe uno shrink-to-fit basato su "spazio disponibile da `left` al bordo
-     del contenitore": con la proiezione prospettica `left` può superare abbondantemente il
-     100% (parola vicina alla camera, lontana dal centro), lo spazio disponibile calcolato
-     crollerebbe a un valore minuscolo e il testo si spezzerebbe lettera per lettera. */
-  width: max-content;
-  max-width: min(34vw, 440px);
-  padding: 0.16em 0.32em 0.2em;
-  border: 1px solid color-mix(in srgb, var(--word-color) 54%, rgba(226, 232, 240, 0.2));
-  border-radius: 8px;
-  background:
-    linear-gradient(180deg, rgba(2, 6, 23, 0.94), rgba(15, 23, 42, 0.88));
-  color: color-mix(in srgb, var(--word-color) 82%, #ffffff 18%) !important;
-  line-height: 1.08;
-  text-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.16),
-    0 0 14px color-mix(in srgb, var(--word-color) 52%, transparent);
-  transform: translate(-50%, -50%);
-  z-index: 220 !important;
-  text-decoration: none;
+  transform: translate(-50%, -50%) scale(1.18);
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(2, 6, 23, 0.96));
+  border: 1.5px solid #fff;
+  color: #fff;
   box-shadow:
-    0 0 0 1px rgba(2, 6, 23, 0.75),
-    0 10px 28px rgba(0, 0, 0, 0.4),
-    0 0 24px color-mix(in srgb, var(--word-color) 22%, transparent);
-  white-space: normal;
-  overflow-wrap: anywhere;
+    0 0 28px var(--word-color),
+    0 8px 24px rgba(0, 0, 0, 0.6);
+  z-index: 150;
 }
 
 .lessico-atlas__word.is-emerged {
-  font-weight: 700 !important;
-  text-shadow:
-    0 0 14px var(--word-color),
-    0 0 4px rgba(255, 255, 255, 0.3);
+  border-width: 1.5px;
+  border-color: color-mix(in srgb, var(--word-color) 75%, #fff);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--word-color) 45%, transparent);
+  font-weight: 700;
+}
+
+.lessico-atlas__word.is-dimmed {
+  opacity: 0.14 !important;
+  pointer-events: none;
 }
 
 /* ── Dizionario pannello laterale ───────────────────────────────────────────── */
