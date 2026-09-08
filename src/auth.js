@@ -6,6 +6,7 @@
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  signInWithPopup,
   signInWithRedirect,
   getRedirectResult,
   setPersistence,
@@ -292,14 +293,21 @@ async function consumeGoogleRedirectResultImpl() {
       }
 
       clearGoogleRedirectPending()
+      const isLocal =
+        typeof window !== 'undefined' &&
+        (window.location.hostname === 'localhost' ||
+          window.location.hostname === '127.0.0.1' ||
+          window.location.hostname === '::1')
+      const redirectErrorMessage = isLocal
+        ? "Non siamo riusciti a confermare l'accesso Google dopo il reindirizzamento. Prova di nuovo con «Accedi con Google», oppure apri http://localhost:5173 in Chrome/Safari (non nel pannello interno dell'editor). In Firebase Console verifica che localhost sia tra i domini autorizzati."
+        : "Non siamo riusciti a confermare l'accesso Google dopo il reindirizzamento. Safari o le impostazioni del browser potrebbero bloccare lo scambio tra domini: riprova con «Accedi con Google», oppure accedi con email e password."
       if (typeof window !== 'undefined') {
         window.dispatchEvent(
           new CustomEvent(GOOGLE_AUTH_DIAGNOSTIC_EVENT, {
             detail: {
               stage: 'redirect-result-empty',
               code: 'auth/redirect-result-empty',
-              message:
-                "Non siamo riusciti a confermare l'accesso Google dopo il reindirizzamento. Prova di nuovo con «Accedi con Google», oppure apri http://localhost:5173 in Chrome/Safari (non nel pannello interno dell'editor). In Firebase Console verifica che localhost sia tra i domini autorizzati.",
+              message: redirectErrorMessage,
               rawMessage: '',
             },
           }),
@@ -380,6 +388,46 @@ export async function signInWithGoogle() {
       message: 'Apro la versione localhost autorizzata per completare l\'accesso Google...',
     })
   }
+  await setSafeAuthPersistence()
+
+  // 1. Prova prima con signInWithPopup (risolve i blocchi ITP/cookie cross-origin di Safari e browser WebKit)
+  try {
+    const cred = await signInWithPopup(auth, googleProvider)
+    if (cred?.user) {
+      await ensureUserProfile(cred.user)
+      clearGoogleRedirectPending()
+      return buildAuthResult({
+        success: true,
+        user: cred.user,
+        nextRoute: DEFAULT_HOME_ROUTE,
+      })
+    }
+  } catch (popupErr) {
+    const code = popupErr?.code || ''
+    // Utente ha chiuso il popup di proposito: non forzare redirect
+    if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
+      return buildAuthResult({
+        success: false,
+        message: 'Accesso con Google annullato.',
+        code,
+      })
+    }
+    // Errori di configurazione / domini: inutile fare redirect
+    if (
+      code === 'auth/unauthorized-domain' ||
+      code === 'auth/operation-not-allowed' ||
+      code === 'auth/configuration-not-found'
+    ) {
+      return buildAuthResult({
+        success: false,
+        message: getGoogleLoginErrorMessage(popupErr),
+        code,
+      })
+    }
+    console.warn('signInWithPopup non riuscito, tento il fallback con signInWithRedirect:', popupErr)
+  }
+
+  // 2. Fallback a signInWithRedirect
   try {
     return await startGoogleRedirectSignIn()
   } catch (err) {
