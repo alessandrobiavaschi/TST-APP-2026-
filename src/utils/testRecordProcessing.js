@@ -11,9 +11,9 @@ export const DISPOSITION_LABEL_BY_COLOR = Object.freeze({
 const CURRENT_KEYS_BY_COLOR = Object.freeze({
   blu: ['BLU_1_Depressiva', 'BLU_2_Lunare', 'BLU_3_Nostalgia', 'BLU_4_Solare'],
   rosso: ['ROSSO_1_Assertivita', 'ROSSO_2_Dubbio_Collera'],
-  verde: ['VERDE_1_Calma'],
+  verde: ['VERDE_1_CalmaContemplativa', 'VERDE_2_CalmaFisica'],
   giallo: ['GIALLO_1_Gioia_Entusiasmo', 'GIALLO_2_Volitivo_Passionale'],
-  grigio: ['GRIGIO_1_Distaccato_Nichilista', 'GRIGIO_2_Intellettuale_Saggio'],
+  grigio: ['GRIGIO_1_Anaffettiva'],
 })
 
 const SUBDISPOSITION_LABEL_BY_KEY = Object.freeze({
@@ -23,11 +23,11 @@ const SUBDISPOSITION_LABEL_BY_KEY = Object.freeze({
   BLU_4_Solare: 'Solare',
   ROSSO_1_Assertivita: 'Fermezza volitiva',
   ROSSO_2_Dubbio_Collera: 'Rabbia / Collera',
-  VERDE_1_Calma: 'Calma',
+  VERDE_1_CalmaContemplativa: 'Calma contemplativa',
+  VERDE_2_CalmaFisica: 'Calma fisica',
   GIALLO_1_Gioia_Entusiasmo: 'Gioia / Entusiasmo',
   GIALLO_2_Volitivo_Passionale: 'Volitivo / Passionale',
-  GRIGIO_1_Distaccato_Nichilista: 'Distaccato / Nichilista',
-  GRIGIO_2_Intellettuale_Saggio: 'Intellettuale / Saggio',
+  GRIGIO_1_Anaffettiva: 'Anaffettiva',
 })
 
 /**

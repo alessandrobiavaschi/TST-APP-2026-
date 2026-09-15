@@ -11,11 +11,11 @@ const SUBCURRENT_FAMILY_BY_KEY = {
   BLU_4_Solare: 'blu',
   ROSSO_1_Assertivita: 'rosso',
   ROSSO_2_Dubbio_Collera: 'rosso',
-  VERDE_1_Calma: 'verde',
+  VERDE_1_CalmaContemplativa: 'verde',
+  VERDE_2_CalmaFisica: 'verde',
   GIALLO_1_Gioia_Entusiasmo: 'giallo',
   GIALLO_2_Volitivo_Passionale: 'giallo',
-  GRIGIO_1_Distaccato_Nichilista: 'grigio',
-  GRIGIO_2_Intellettuale_Saggio: 'grigio',
+  GRIGIO_1_Anaffettiva: 'grigio',
 }
 
 let vite
@@ -396,7 +396,7 @@ test('un record parziale conserva le famiglie assenti a zero senza produrre NaN'
       raw: {
         BLU_1_Depressiva: 3,
         ROSSO_2_Dubbio_Collera: 1,
-        VERDE_1_Calma: null,
+        VERDE_1_CalmaContemplativa: null,
       },
     },
     dominantColorName: 'Blu',
@@ -600,9 +600,9 @@ test('i risultati storici derivano i totali dal record e rispettano la sottodisp
     BLU_3_Nostalgia: 1,
     BLU_4_Solare: 1,
     ROSSO_1_Assertivita: 3,
-    VERDE_1_Calma: 2,
+    VERDE_1_CalmaContemplativa: 2,
     GIALLO_1_Gioia_Entusiasmo: 1,
-    GRIGIO_1_Distaccato_Nichilista: 0,
+    GRIGIO_1_Anaffettiva: 0,
     Sottodisposizione_Prevalente: 'Solare',
   }
   const report = buildReportData({

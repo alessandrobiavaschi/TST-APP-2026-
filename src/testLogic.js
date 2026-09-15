@@ -20,11 +20,11 @@ export const CORRENTE_KEYS = {
   BLU_4: 'BLU_4_Solare',
   ROSSO_1: 'ROSSO_1_Assertivita',
   ROSSO_2: 'ROSSO_2_Dubbio_Collera',
-  VERDE_1: 'VERDE_1_Calma',
+  VERDE_1: 'VERDE_1_CalmaContemplativa',
+  VERDE_2: 'VERDE_2_CalmaFisica',
   GIALLO_1: 'GIALLO_1_Gioia_Entusiasmo',
   GIALLO_2: 'GIALLO_2_Volitivo_Passionale',
-  GRIGIO_1: 'GRIGIO_1_Distaccato_Nichilista',
-  GRIGIO_2: 'GRIGIO_2_Intellettuale_Saggio',
+  GRIGIO_1: 'GRIGIO_1_Anaffettiva',
 }
 
 // DIZIONARIO 1 (Le 15 Sensazioni). Valore base: +1 punto.
@@ -51,7 +51,7 @@ export const DIZIONARIO_1 = {
     baseValue: 1,
   },
   'Mi rilassa': {
-    correnteKey: CORRENTE_KEYS.VERDE_1,
+    correnteKey: CORRENTE_KEYS.VERDE_2,
     portatoKey: PORTATO_KEYS.SIMPATIA,
     baseValue: 1,
   },
@@ -109,18 +109,20 @@ export const DIZIONARIO_1 = {
 
 // DIZIONARIO 2 (I 14 Aggettivi Complessi). Valore base: +1 punto.
 // Chiave: etichetta mostrata in UI (Gruppo C).
+// Ogni triade usa solo aggettivi canonici della Natura corrispondente, tracciati a
+// src/content/paroleTst.js (fonte: PAROLE PER TST — Franco Mussida, 29/08/2026).
 export const DIZIONARIO_2 = {
   'Saldo - sicuro - volitivo': {
     correnteKey: CORRENTE_KEYS.ROSSO_1,
     portatoKey: PORTATO_KEYS.SIMPATIA,
     baseValue: 1,
   },
-  'Inquieto - chiuso - pauroso': {
-    correnteKey: CORRENTE_KEYS.BLU_1,
-    portatoKey: PORTATO_KEYS.ANTIPATIA,
+  'Sognante - meditativo - ascetico': {
+    correnteKey: CORRENTE_KEYS.VERDE_1,
+    portatoKey: PORTATO_KEYS.SIMPATIA,
     baseValue: 1,
   },
-  'Angosciato - ansioso - indifferente': {
+  'Angosciato - avvilito - sofferente': {
     correnteKey: CORRENTE_KEYS.BLU_1,
     portatoKey: PORTATO_KEYS.ANTIPATIA,
     baseValue: 1,
@@ -130,12 +132,12 @@ export const DIZIONARIO_2 = {
     portatoKey: PORTATO_KEYS.SIMPATIA,
     baseValue: 1,
   },
-  'Malinconico - triste - riflessivo': {
+  'Malinconico - triste - pensieroso': {
     correnteKey: CORRENTE_KEYS.BLU_2,
     portatoKey: PORTATO_KEYS.SIMPATIA,
     baseValue: 1,
   },
-  'Arrabbiato - distaccato - dubbioso': {
+  'Rabbioso - diffidente - dubbioso': {
     correnteKey: CORRENTE_KEYS.ROSSO_2,
     portatoKey: PORTATO_KEYS.ANTIPATIA,
     baseValue: 1,
@@ -145,22 +147,22 @@ export const DIZIONARIO_2 = {
     portatoKey: PORTATO_KEYS.ANTIPATIA,
     baseValue: 1,
   },
-  'Calmo - equilibrato - sognante': {
-    correnteKey: CORRENTE_KEYS.VERDE_1,
+  'Calmo - prudente - lento': {
+    correnteKey: CORRENTE_KEYS.VERDE_2,
     portatoKey: PORTATO_KEYS.SIMPATIA,
     baseValue: 1,
   },
-  'Gioioso - caloroso - entusiasta': {
+  'Gioioso - caloroso - festoso': {
     correnteKey: CORRENTE_KEYS.GIALLO_1,
     portatoKey: PORTATO_KEYS.SIMPATIA,
     baseValue: 1,
   },
   'Dinamico - curioso - fluido': {
-    correnteKey: CORRENTE_KEYS.GIALLO_1,
+    correnteKey: CORRENTE_KEYS.GIALLO_2,
     portatoKey: PORTATO_KEYS.SIMPATIA,
     baseValue: 1,
   },
-  'Nostalgico - consolato - afflitto': {
+  'Nostalgico - rimembrante - afflitto': {
     correnteKey: CORRENTE_KEYS.BLU_3,
     portatoKey: PORTATO_KEYS.SIMPATIA,
     baseValue: 1,
@@ -192,7 +194,7 @@ export const AFFINITA_BASE_OPZIONI = [
   },
   {
     id: 'opzione2',
-    correnteKey: CORRENTE_KEYS.VERDE_1,
+    correnteKey: CORRENTE_KEYS.VERDE_2,
     portatoKey: PORTATO_KEYS.SIMPATIA,
     baseValue: 1,
   },
@@ -231,7 +233,7 @@ export const AFFINITA_ECCEZIONE_OPZIONI = [
   },
   {
     id: 'opzione3',
-    correnteKey: CORRENTE_KEYS.VERDE_1,
+    correnteKey: CORRENTE_KEYS.VERDE_2,
     portatoKey: PORTATO_KEYS.SIMPATIA,
     baseValue: 2,
   },
@@ -264,7 +266,7 @@ export const AFFINITA_STANDARD_OPZIONI = [
   },
   {
     id: 'opzione3',
-    correnteKey: CORRENTE_KEYS.VERDE_1,
+    correnteKey: CORRENTE_KEYS.VERDE_2,
     portatoKey: PORTATO_KEYS.SIMPATIA,
     baseValue: 1,
   },
@@ -448,12 +450,12 @@ export const THEORETICAL_MAX_COLOR_TOTALS = {
   rosso:
     (THEORETICAL_MAX_SCORE_BY_CORRENTE_KEY[CK.ROSSO_1] || 0) +
     (THEORETICAL_MAX_SCORE_BY_CORRENTE_KEY[CK.ROSSO_2] || 0),
-  verde: THEORETICAL_MAX_SCORE_BY_CORRENTE_KEY[CK.VERDE_1] || 0,
+  verde:
+    (THEORETICAL_MAX_SCORE_BY_CORRENTE_KEY[CK.VERDE_1] || 0) +
+    (THEORETICAL_MAX_SCORE_BY_CORRENTE_KEY[CK.VERDE_2] || 0),
   giallo:
     (THEORETICAL_MAX_SCORE_BY_CORRENTE_KEY[CK.GIALLO_1] || 0) +
     (THEORETICAL_MAX_SCORE_BY_CORRENTE_KEY[CK.GIALLO_2] || 0),
-  grigio:
-    (THEORETICAL_MAX_SCORE_BY_CORRENTE_KEY[CK.GRIGIO_1] || 0) +
-    (THEORETICAL_MAX_SCORE_BY_CORRENTE_KEY[CK.GRIGIO_2] || 0),
+  grigio: THEORETICAL_MAX_SCORE_BY_CORRENTE_KEY[CK.GRIGIO_1] || 0,
 }
 

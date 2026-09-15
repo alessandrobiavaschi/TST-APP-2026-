@@ -630,11 +630,11 @@ function NewTestPage() {
           BLU_4_Solare: next.BLU_4_Solare,
           ROSSO_1_Assertivita: next.ROSSO_1_Assertivita,
           ROSSO_2_Dubbio_Collera: next.ROSSO_2_Dubbio_Collera,
-          VERDE_1_Calma: next.VERDE_1_Calma,
+          VERDE_1_CalmaContemplativa: next.VERDE_1_CalmaContemplativa,
+          VERDE_2_CalmaFisica: next.VERDE_2_CalmaFisica,
           GIALLO_1_Gioia_Entusiasmo: next.GIALLO_1_Gioia_Entusiasmo,
           GIALLO_2_Volitivo_Passionale: next.GIALLO_2_Volitivo_Passionale,
-          GRIGIO_1_Distaccato_Nichilista: next.GRIGIO_1_Distaccato_Nichilista,
-          GRIGIO_2_Intellettuale_Saggio: next.GRIGIO_2_Intellettuale_Saggio,
+          GRIGIO_1_Anaffettiva: next.GRIGIO_1_Anaffettiva,
         },
       })
 

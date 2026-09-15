@@ -18,7 +18,7 @@ test('Nessuna registra un delta e avanza in tutti i quattro ascolti iniziali', (
     })
 
     assert.deepEqual(delta, {
-      GRIGIO_1_Distaccato_Nichilista: 1,
+      GRIGIO_1_Anaffettiva: 1,
       PE_Indifferenza: 1,
     })
     assert.equal(getNextFileAfterAnswer(fileNumber, 72), fileNumber + 1)

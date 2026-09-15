@@ -35,7 +35,7 @@
  *   sottocorrenti: [{                  // 11 correnti — familyKey sempre esplicito
  *     rawKey, nome, familyName, familyKey, valore, maxTeorico,
  *     misurabile,                      // false se maxTeorico è 0: nessuna risposta del test può valorizzare questa corrente
- *                                       // (oggi solo GRIGIO_2_Intellettuale_Saggio) — non trattare come "0% di presenza reale"
+ *                                       // (oggi tutte le 11 correnti sono misurabili) — non trattare come "0% di presenza reale"
  *     percentuale, intervalNote,
  *   }],
  *   profiloEmotivo: { sezioni: [{ id, label, titolo, testo, correnteColore, correnteSecondaria? }] },
@@ -115,11 +115,11 @@ const SOTTOCORRENTE_META = [
   { rawKey: 'BLU_4_Solare', familyName: 'Blu', familyKey: 'blu' },
   { rawKey: 'ROSSO_1_Assertivita', familyName: 'Rosso', familyKey: 'rosso' },
   { rawKey: 'ROSSO_2_Dubbio_Collera', familyName: 'Rosso', familyKey: 'rosso' },
-  { rawKey: 'VERDE_1_Calma', familyName: 'Verde', familyKey: 'verde' },
+  { rawKey: 'VERDE_1_CalmaContemplativa', familyName: 'Verde', familyKey: 'verde' },
+  { rawKey: 'VERDE_2_CalmaFisica', familyName: 'Verde', familyKey: 'verde' },
   { rawKey: 'GIALLO_1_Gioia_Entusiasmo', familyName: 'Giallo', familyKey: 'giallo' },
   { rawKey: 'GIALLO_2_Volitivo_Passionale', familyName: 'Giallo', familyKey: 'giallo' },
-  { rawKey: 'GRIGIO_1_Distaccato_Nichilista', familyName: 'Grigio', familyKey: 'grigio' },
-  { rawKey: 'GRIGIO_2_Intellettuale_Saggio', familyName: 'Grigio', familyKey: 'grigio' },
+  { rawKey: 'GRIGIO_1_Anaffettiva', familyName: 'Grigio', familyKey: 'grigio' },
 ]
 
 const SOTTOCORRENTE_LABEL_BY_RAW_KEY = {
@@ -129,11 +129,11 @@ const SOTTOCORRENTE_LABEL_BY_RAW_KEY = {
   BLU_4_Solare: 'Solare',
   ROSSO_1_Assertivita: 'Fermezza volitiva',
   ROSSO_2_Dubbio_Collera: 'Rabbia / Collera',
-  VERDE_1_Calma: 'Calma',
+  VERDE_1_CalmaContemplativa: 'Calma contemplativa',
+  VERDE_2_CalmaFisica: 'Calma fisica',
   GIALLO_1_Gioia_Entusiasmo: 'Gioia / Entusiasmo',
   GIALLO_2_Volitivo_Passionale: 'Volitivo / Passionale',
-  GRIGIO_1_Distaccato_Nichilista: 'Distaccato / Nichilista',
-  GRIGIO_2_Intellettuale_Saggio: 'Intellettuale / Saggio',
+  GRIGIO_1_Anaffettiva: 'Anaffettiva',
 }
 
 // Nessun fallback verso una famiglia diversa (es. Verde): una scheda mancante resta
@@ -292,7 +292,7 @@ function buildSottocorrenti(rawRecord = {}) {
     const valore = Number(rawRecord?.[meta.rawKey]) || 0
     const max = Number(THEORETICAL_MAX_SCORE_BY_CORRENTE_KEY?.[meta.rawKey]) || 0
     // Se il massimo teorico è 0 (nessuna risposta del test può mai valorizzare
-    // questa corrente — es. GRIGIO_2_Intellettuale_Saggio), la percentuale resta 0
+    // questa corrente), la percentuale resta 0
     // ma `misurabile: false` distingue esplicitamente "non misurato dal test" da
     // "misurato, punteggio pari a zero": la UI non deve trattarli come equivalenti.
     const misurabile = max > 0

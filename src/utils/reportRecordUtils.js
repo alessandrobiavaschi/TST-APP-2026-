@@ -150,13 +150,13 @@ export function computeColorTotals(record = {}) {
   const rosso =
     n(record.ROSSO_1_Assertivita) +
     n(record.ROSSO_2_Dubbio_Collera)
-  const verde = n(record.VERDE_1_Calma)
+  const verde =
+    n(record.VERDE_1_CalmaContemplativa) +
+    n(record.VERDE_2_CalmaFisica)
   const giallo =
     n(record.GIALLO_1_Gioia_Entusiasmo) +
     n(record.GIALLO_2_Volitivo_Passionale)
-  const grigio =
-    n(record.GRIGIO_1_Distaccato_Nichilista) +
-    n(record.GRIGIO_2_Intellettuale_Saggio)
+  const grigio = n(record.GRIGIO_1_Anaffettiva)
 
   return { blu, rosso, verde, giallo, grigio }
 }

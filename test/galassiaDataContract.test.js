@@ -11,11 +11,11 @@ const EXPECTED_SUBCURRENT_FAMILY = {
   BLU_4_Solare: 'blu',
   ROSSO_1_Assertivita: 'rosso',
   ROSSO_2_Dubbio_Collera: 'rosso',
-  VERDE_1_Calma: 'verde',
+  VERDE_1_CalmaContemplativa: 'verde',
+  VERDE_2_CalmaFisica: 'verde',
   GIALLO_1_Gioia_Entusiasmo: 'giallo',
   GIALLO_2_Volitivo_Passionale: 'giallo',
-  GRIGIO_1_Distaccato_Nichilista: 'grigio',
-  GRIGIO_2_Intellettuale_Saggio: 'grigio',
+  GRIGIO_1_Anaffettiva: 'grigio',
 }
 
 function assertJsonSafe(value, path = 'root') {
@@ -182,7 +182,7 @@ test('mapping e relazioni restano deterministici, finiti e privi di duplicati', 
   const rawRecord = {
     BLU_1_Depressiva: 5,
     ROSSO_1_Assertivita: 3,
-    VERDE_1_Calma: 2,
+    VERDE_1_CalmaContemplativa: 2,
   }
   const totalsByKey = { blu: 5, rosso: 3, verde: 2, giallo: 0, grigio: 0 }
   const nodes = buildDispositionNodes({ rawRecord, totalsByKey })
@@ -280,7 +280,7 @@ test('output della Galassia e del lessico resta serializzabile e privo di valori
     BLU_1_Depressiva: '5',
     ROSSO_1_Assertivita: -10,
     GIALLO_1_Gioia_Entusiasmo: 999,
-    VERDE_1_Calma: undefined,
+    VERDE_1_CalmaContemplativa: undefined,
     CORRENTE_LEGACY_SCONOSCIUTA: 20,
   })
   const lexical = extractParoleDalTest({ File_29: 'Sereno - fiducioso - aperto' })

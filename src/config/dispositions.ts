@@ -35,7 +35,7 @@ export const DISPOSITIONS = [
     polarity: 'neutra',
     directionVector: { x: 0.05, y: 0.25, z: -0.2 },
     reportAnchorId: 'report-chapter-ombre',
-    rawKeys: ['VERDE_1_Calma'],
+    rawKeys: ['VERDE_1_CalmaContemplativa', 'VERDE_2_CalmaFisica'],
     narrativeShort:
       'La corrente flemmatica custodisce calma, lentezza e contemplazione. È una base di equilibrio che aiuta a modulare gli eccessi; se prevale troppo può diventare rinvio o passività.',
     strengths: ['stabilità emotiva', 'prudenza relazionale', 'capacità di creare pausa'],
@@ -63,7 +63,7 @@ export const DISPOSITIONS = [
     polarity: 'trasversale',
     directionVector: { x: -0.55, y: -0.35, z: 0.7 },
     reportAnchorId: 'report-lessico',
-    rawKeys: ['GRIGIO_1_Distaccato_Nichilista', 'GRIGIO_2_Intellettuale_Saggio'],
+    rawKeys: ['GRIGIO_1_Anaffettiva'],
     narrativeShort:
       'Questa corrente introduce distanza osservativa e calcolo. Se ben orientata favorisce lucidità e discernimento; se estrema può raffreddare i legami e ridurre il coinvolgimento affettivo.',
     strengths: ['capacità analitica', 'distacco regolativo', 'chiarezza decisionale'],

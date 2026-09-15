@@ -1,7 +1,11 @@
 /**
  * Testi «Il tuo profilo» tracciati alle fonti CPM in docs/fonti-scientifiche/.
  * Ogni campo sostituisce o si fonde col corrispondente in content_report.json.
+ * Il campo `lessico` di ogni famiglia deriva dai sostantivi di src/content/paroleTst.js
+ * (fonte: PAROLE PER TST — Franco Mussida, 29/08/2026), unica fonte del lessico TST.
  */
+
+import { getSostantiviForFamiglia } from './content/paroleTst.js'
 
 export const PROFILE_PDF_BLOCKS = {
   Grigio: {
@@ -37,10 +41,7 @@ export const PROFILE_PDF_BLOCKS = {
       '- La neutralità può diventare svalutazione: nulla sembra abbastanza vivo da meritare presenza.',
       '- La tecnologia o il ragionamento continuo possono alimentare una distrazione che evita l’incontro reale.',
     ].join('\n'),
-    lessico: [
-      'Anaffettivo', 'Apatico', 'Matematico', 'Lucido', 'Freddo', 'Insensibile', 'Indifferente', 'Nullista',
-      'Impotente', 'Distaccato', 'Imperturbabile', 'Saggio', 'Dedito', 'Devoto', 'Beato', 'Illuminato',
-    ],
+    lessico: getSostantiviForFamiglia('grigio'),
   },
   Rosso: {
     restituzione_caratteri_estesi:
@@ -75,16 +76,7 @@ export const PROFILE_PDF_BLOCKS = {
       '- La ripetitività o la lentezza possono essere vissute come intralcio invece che come maturazione.',
       '- Il bisogno di governare può far perdere il contributo delle parti più delicate del profilo.',
     ].join('\n'),
-    lessico: [
-      'Stabile', 'Saldo', 'Sicuro', 'Certo', 'Costante', 'Determinato', 'Decisionista', 'Fermo',
-      'Schietto', 'Sincero', 'Franco', 'Fiero', 'Risoluto', 'Fedele', 'Spavaldo', 'Altero',
-      'Ostinato', 'Orgoglioso', 'Coraggioso', 'Impavido',
-      'Incerto', 'Inquieto', 'Dubbioso', 'Esitante', 'Ambiguo', 'Misterioso', 'Indeciso', 'Oscillante',
-      'Precario', 'Perplesso', 'Irrisoluto', 'Smarrito', 'Elusivo', 'Equivoco', 'Criptico',
-      'Enigmatico', 'Infido', 'Subdolo',
-      'Rabbioso', 'Rancoroso', 'Irato', 'Furioso', 'Iracondo', 'Travagliato', 'Tribolato',
-      'Odioso', 'Diffidente', 'Sospettoso', 'Nevrotico',
-    ],
+    lessico: getSostantiviForFamiglia('rosso'),
   },
   Verde: {
     restituzione_caratteri_estesi:
@@ -119,12 +111,7 @@ export const PROFILE_PDF_BLOCKS = {
       '- La discrezione può trasformarsi in difficoltà a esporsi o improvvisare quando serve presenza.',
       '- La ricerca di quiete può diventare fastidio verso ogni suono, ritmo o relazione troppo viva.',
     ].join('\n'),
-    lessico: [
-      'Rilassato', 'Calmo', 'Gentile', 'Disteso', 'Pacato', 'Placido', 'Pacifico', 'Tranquillo',
-      'Estatico', 'Serafico', 'Contemplativo', 'Sognante', 'Equilibrato', 'Quieto', 'Tollerante',
-      'Mistico', 'Prudente', 'Meditativo', 'Riflessivo', 'Ammirato', 'Visionario', 'Olimpico',
-      'Annoiato', 'Pigro', 'Oziante', 'Svampito', 'Indolente', 'Ignavo',
-    ],
+    lessico: getSostantiviForFamiglia('verde'),
   },
   Giallo: {
     restituzione_caratteri_estesi:
@@ -159,13 +146,7 @@ export const PROFILE_PDF_BLOCKS = {
       '- La novità può diventare bisogno di cambiare stimolo prima che l’esperienza maturi.',
       '- Il desiderio di partecipare può spingere a occupare troppo spazio nel gruppo o nel tempo musicale.',
     ].join('\n'),
-    lessico: [
-      'Gioioso', 'Cinetico', 'Vivace', 'Veloce', 'Vitale', 'Fluido', 'Allegro', 'Felice', 'Festoso',
-      'Entusiasta', 'Esaltato', 'Ardente', 'Euforico', 'Caloroso', 'Reattivo', 'Curioso', 'Volitivo',
-      'Dinamico', 'Esuberante', 'Solare', 'Positivista', 'Irrefrenabile', 'Svampito',
-      'Innamorato', 'Amorevole', 'Ammirato', 'Appassionato', 'Infuocato', 'Impetuoso', 'Veemente',
-      'Deferente', 'Illuminato',
-    ],
+    lessico: getSostantiviForFamiglia('giallo'),
   },
   Blu: {
     restituzione_caratteri_estesi:
@@ -200,18 +181,6 @@ export const PROFILE_PDF_BLOCKS = {
       '- L’eccesso di profondità può rendere faticoso il movimento, la danza o l’esposizione sociale.',
       '- Il giudizio sulla sincerità altrui può diventare chiusura preventiva verso il contatto.',
     ].join('\n'),
-    lessico: [
-      'Terrorizzato', 'Inorridito', 'Angosciato', 'Sgomento', 'Depresso', 'Tormentato', 'Inquieto', 'Chiuso',
-      'Apatico', 'Scosso', 'Afflitto', 'Angustiato', 'Disgustato', 'Schifato', 'Pauroso', 'Timoroso',
-      'Ansioso', 'Raccapricciato', 'Fibrillante', 'Impressionabile', 'Triste rimuginante', 'Indifferente', 'Nullista',
-      'Pensieroso', 'Triste', 'Triste rimembrante', 'Timido riflessivo', 'Solitudine pessimista', 'Preoccupato',
-      'Demotivato', 'Amareggiato', 'Mesto', 'Ombroso', 'Sconfortato', 'Scoraggiato', 'Scombussolato', 'Avvilito',
-      'Vergognoso', 'Cupo', 'Fosco', 'Scuro', 'Plumbeo', 'Turbato', 'Impotente', 'Disfattista', 'Lunatico', 'Lamentoso',
-      'Pessimista', 'Nostalgico', 'Doloroso evocativo', 'Doloroso', 'Rimembrante', 'Rimpiangente', 'Rammaricato',
-      'Desolato', 'Disperato', 'Sconsolato', 'Straziato', 'Mortificato', 'Distaccato', 'Abbandonato',
-      'Ottimista', 'Aperto', 'Sereno', 'Positivista', 'Allegro', 'Festoso', 'Buono', 'Simpatico', 'Meravigliato',
-      'Benevolente', 'Lieto', 'Leggero', 'Mite', 'Contento', 'Chiaro', 'Compassionevole', 'Fiducioso', 'Solidale',
-      'Speranzoso', 'Affettuoso', 'Pietoso', 'Accorato', 'Desiderante', 'Riconoscente', 'Grato',
-    ],
+    lessico: getSostantiviForFamiglia('blu'),
   },
 }

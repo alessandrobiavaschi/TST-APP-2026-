@@ -121,9 +121,9 @@ const MATRICE_HEADERS = [
 const SOTTOCORRENTE_KEYS_BY_FAMILY = {
   blu: ['BLU_1_Depressiva', 'BLU_2_Lunare', 'BLU_3_Nostalgia', 'BLU_4_Solare'],
   rosso: ['ROSSO_1_Assertivita', 'ROSSO_2_Dubbio_Collera'],
-  verde: ['VERDE_1_Calma'],
+  verde: ['VERDE_1_CalmaContemplativa', 'VERDE_2_CalmaFisica'],
   giallo: ['GIALLO_1_Gioia_Entusiasmo', 'GIALLO_2_Volitivo_Passionale'],
-  grigio: ['GRIGIO_1_Distaccato_Nichilista', 'GRIGIO_2_Intellettuale_Saggio'],
+  grigio: ['GRIGIO_1_Anaffettiva'],
 }
 
 const SOTTOCORRENTE_LABEL_BY_KEY = {
@@ -133,11 +133,11 @@ const SOTTOCORRENTE_LABEL_BY_KEY = {
   BLU_4_Solare: 'Solare',
   ROSSO_1_Assertivita: 'Fermezza volitiva',
   ROSSO_2_Dubbio_Collera: 'Rabbia / Collera',
-  VERDE_1_Calma: 'Calma',
+  VERDE_1_CalmaContemplativa: 'Calma contemplativa',
+  VERDE_2_CalmaFisica: 'Calma fisica',
   GIALLO_1_Gioia_Entusiasmo: 'Gioia / Entusiasmo',
   GIALLO_2_Volitivo_Passionale: 'Volitivo / Passionale',
-  GRIGIO_1_Distaccato_Nichilista: 'Distaccato / Nichilista',
-  GRIGIO_2_Intellettuale_Saggio: 'Intellettuale / Saggio',
+  GRIGIO_1_Anaffettiva: 'Anaffettiva',
 }
 
 const DISPOSIZIONE_TO_FAMILY_KEY = {

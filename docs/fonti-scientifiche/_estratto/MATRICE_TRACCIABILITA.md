@@ -2,27 +2,73 @@
 
 Riferimento interno per la riscrittura testi. Ogni famiglia mappa alle fonti in `docs/fonti-scientifiche/`.
 
-| Famiglia | Periodo evolutivo | Vento / Rosa | Colore / sfumature | Orientamento (restituzione visiva) | Sotto-correnti | Intervalli (fonte) |
-|---|---|---|---|---|---|---|
-| Blu | Adolescenza (seconda nascita affettiva ~9-10 anni) | Ovest–Est, Luna | Blu notte/scuro, Blu medio, Blu reale, Celeste | passato | Depressiva, Lunare, Nostalgia, Solare | 2ª min/mag, 3ª min, 7ª min/mag, 3ª mag |
-| Rosso | Età adulta (~20 anni, Io governatore) | Est–Ovest, Sole | Rosso, Amaranto | presente | Assertività volitiva, Dubbio e Collera | 4ª, 4ª eccedente |
-| Verde | Neonatale | Centro rosa dei venti (occhio del ciclone) | Verde | oblio sospeso | Calma flemmatica | 5ª, 5ª eccedente |
-| Giallo | Pre-infanzia (dopo neonatale) | Sud–Nord, venti caldi | Giallo solare | futuro | Gioia/Entusiasmo, Volitivo passionale | Prima |
-| Grigio | Sedimentazione dagli anni Settanta; trasversale | Nord–Sud, venti gelidi | Grigio scuro | trasversale (linea del presente) | Anaffettiva, Agnostico intellettuale evolutivo | Ottava |
+## Fonte unica del lessico (dal 2026-09-15)
+
+**Tutto il lessico del TST — test, vocabolario del report, galassia — deriva da un'unica
+fonte: `src/content/paroleTst.js`**, trascrizione fedele del PDF **"PAROLE PER TST"
+(Franco Mussida, 29 agosto 2026)**. Nessun altro file deve contenere liste di aggettivi o
+sostantivi hardcoded: chi mostra parole (galassia, vocabolario, etichette del Dizionario 2
+del test) importa da quel modulo.
+
+Consumer di `paroleTst.js`:
+
+| File | Cosa deriva |
+|---|---|
+| `src/config/galaxyTheoryContent.ts` | `currents[].states` (aggettivi per sotto-corrente, usati dalla Galassia e dal profilo) |
+| `src/config/galaxyDocBridge.ts` | `RAW_DOC_VISUAL[...].lexiconChips` (chip della Galassia) |
+| `src/reportProfiloPdf.js` | `PROFILE_PDF_BLOCKS[...].lessico` (sostantivi per famiglia, via `getSostantiviForFamiglia`) |
+| `src/content/statiAnimoLessico.js` | `vocabolarioForme` + `vocabolarioAggettivi` (vocabolario del report) — nessuna logica propria, segue le due fonti sopra |
+| `src/testLogic.js` (`DIZIONARIO_2`) | le 14 etichette del test (Gruppo C) usano solo aggettivi canonici di una singola Natura, per garantire che le "parole emerse dal test" (`extractParoleDalTest`) coincidano sempre con il vocabolario/galassia |
+
+Le fonti PDF precedenti («Il Pianeta della Musica», «STATI D'ANIMO IN 4 FAMIGLIE», «parole
+- STATI D'ANIMO», «TEST DI RILEVAZIONE», «RESTITUZIONE VISIVA RISULTATI DEL TEST») restano
+fonte per la **prosa narrativa non coperta dal nuovo PDF**: `coreDescription`,
+`selfRelation`, `musicNotes`, periodo evolutivo, venti/rosa dei venti, metafore
+(occhio del ciclone, luce lunare, ecc.) in `galaxyTheoryContent.ts` e nei testi estesi di
+`reportProfiloPdf.js` (`natura_paragrafi`, `descrizione_estesa`, `risorse`, `ombre`). Il
+nuovo PDF non tocca questi campi, solo il lessico.
+
+## Struttura a 11 correnti (dal 2026-09-15)
+
+Il PDF "PAROLE PER TST" assegna alle famiglie un numero di Nature diverso da quello che il
+motore di scoring (`src/testLogic.js`, `CORRENTE_KEYS`) aveva storicamente per Flemmatica e
+Razionale. La struttura è stata allineata al PDF:
+
+| Famiglia | Nature (PDF) | `rawKey` prima | `rawKey` ora |
+|---|---|---|---|
+| Marziale | Volitiva, Collerica | `ROSSO_1_Assertivita`, `ROSSO_2_Dubbio_Collera` | invariati |
+| Malinconica | Lunare-Depressiva, Lunare-Introspettiva, Solare, Nostalgica | `BLU_1..4` | invariati |
+| Flemmatica | Calma Contemplativa, Calma Fisica | `VERDE_1_Calma` (1 sola corrente) | `VERDE_1_CalmaContemplativa` + `VERDE_2_CalmaFisica` (split) |
+| Entusiasta | Gioiosa-Solare, Sanguigna-Operosa | `GIALLO_1..2` | invariati |
+| Razionale | Anaffettiva (una sola) | `GRIGIO_1_Distaccato_Nichilista` + `GRIGIO_2_Intellettuale_Saggio` (2 correnti) | `GRIGIO_1_Anaffettiva` (merge) |
+
+Il totale resta 11 correnti. Impatto: `dbSchema.js` (Blocco D), `dispositions.ts`
+(`rawKeys` di `flemmatica`/`agnostica_anaffettiva`), `testLogic.js` (riassegnazione
+`correnteKey` di `DIZIONARIO_1`/`DIZIONARIO_2`/`AFFINITA_*_OPZIONI` per le risposte legate a
+Verde/Grigio), e ogni consumer con un `rawKey` esplicito (`semanticConcepts.ts`,
+`buildReportData.js`, `reportRecordUtils.js`, `testRecordProcessing.js`, `galassiaData.js`,
+pagine `ReportPage.jsx`/`ResultsPage.jsx`/`NewTestPage.jsx`).
+
+**Dati storici**: i documenti `test_results` già salvati usano ancora i vecchi nomi di
+campo. Non sono stati migrati in questo intervento — restano leggibili per `File_01..72`
+(risposte grezze, invariate) ma i vecchi campi `VERDE_1_Calma`/`GRIGIO_1_..`/`GRIGIO_2_..`
+non corrispondono più allo schema corrente. Una migrazione (ricalcolo deterministico dai
+`File_01..72` con la nuova logica di `testLogic.js`) è un intervento separato, da eseguire
+con dry-run esplicito prima di qualsiasi scrittura reale.
 
 ## Fonti scientifiche (autoritative)
 
-Il Pianeta della Musica - FM.pdf · STATI D'ANIMO IN 4 FAMIGLIE (Salvataggio automatico) · STATI_D_ANIMO_IN_4_FAMIGLIE_salvataggio_automatico (duplicato binario) · parole - STATI D'ANIMO · TEST DI RILEVAZIONE · RESTITUZIONE VISIVA RISULTATI DEL TEST.pptx.pdf
+Il Pianeta della Musica - FM.pdf · STATI D'ANIMO IN 4 FAMIGLIE (Salvataggio automatico) · STATI_D_ANIMO_IN_4_FAMIGLIE_salvataggio_automatico (duplicato binario) · parole - STATI D'ANIMO · TEST DI RILEVAZIONE · RESTITUZIONE VISIVA RISULTATI DEL TEST.pptx.pdf · **PAROLE PER TST (Franco Mussida, 29/08/2026) — fonte unica del lessico, vedi sopra**
 
-**Non fonte:** `lala.pdf` — vecchio report web usato solo come riferimento di stile/struttura (sintesi a 2 blocchi, capitoli trimmati, ordine sezioni). I fatti scientifici e il lessico canonico provengono esclusivamente da `docs/fonti-scientifiche/`.
+**Non fonte:** `lala.pdf` — vecchio report web usato solo come riferimento di stile/struttura (sintesi a 2 blocchi, capitoli trimmati, ordine sezioni). I fatti scientifici provengono da `docs/fonti-scientifiche/`; il lessico canonico proviene esclusivamente da `src/content/paroleTst.js`.
 
 ## Decisioni conflitti sorgente (2026-06-09)
 
 | # | Tema | Decisione | Implementazione |
 |---|---|---|---|
-| 1 | lala.pdf | Solo guideline UX/struttura, non fonte fatti | Architettura report invariata; matrice e lessico tracciati ai PDF scientifici |
-| 2 | Rosso «Inquieto» | Sì, in lessico Rosso (sotto-corrente Amaranto / Dubbio-Collera) | `content_report.json`, `reportProfiloPdf.js`; già in `galaxyTheoryContent` (STATI D'ANIMO IN 4 FAMIGLIE) |
-| 3 | Vocabolario canonico | Entrambe le fonti lessicali | **Forme** ← «parole - STATI D'ANIMO»; **Aggettivi** ← «STATI D'ANIMO IN 4 FAMIGLIE» (per sotto-corrente) |
+| 1 | lala.pdf | Solo guideline UX/struttura, non fonte fatti | Architettura report invariata |
+| 2 | Rosso «Inquieto» | Sì, in lessico Rosso (sotto-corrente Amaranto / Dubbio-Collera) | Confermato nel nuovo PDF (Natura Collerica, polo negativo) |
+| 3 | Vocabolario canonico | Sostituita dalla fonte unica 2026-09-15 | Vedi sezione sopra |
 | 4 | Verde etichetta natura | RESTITUZIONE_VISIVA forma singola | `restituzione_natura`: **NATURA FLEMMATICA** · `restituzione_caratteri`: **CONTEMPLATIVA** |
 | 5 | Blu etichetta natura | Campi separati (slide forma singola) | `restituzione_natura`: **NATURA LUNARE** · `restituzione_caratteri`: **MALINCONICO NOSTALGICA** (non stringa combinata) |
 
@@ -37,15 +83,6 @@ Il Pianeta della Musica - FM.pdf · STATI D'ANIMO IN 4 FAMIGLIE (Salvataggio aut
 | Grigio | NATURA ANAFFETTIVA | AGNOSTICO ANAFFETTIVA |
 
 Fonte slide: RESTITUZIONE VISIVA RISULTATI DEL TEST (pagine forma singola). Le slide «comune struttura emotiva» usano etichette fuse (es. NATURA CALMA FLEMMATICA, NATURA LUNARE MALINCONICO NOSTALGICA) — non adottate in UI report.
-
-## Lessico / stati d'animo nel report (2026-06)
-
-| Componente | Contenuto integrato |
-|---|---|
-| `src/content/statiAnimoLessico.js` | `vocabolarioForme` (parole - STATI D'ANIMO via `reportProfiloPdf`); `vocabolarioAggettivi` + `sottoCorrenti` (STATI D'ANIMO IN 4 FAMIGLIE via `galaxyTheoryContent`) |
-| `src/utils/buildReportData.js` | `extractParoleDalTest` (DIZIONARIO_2, file 29–42); `paroleEmerse` in nuvola; profilo con `natura` e `disposizione` separati |
-| `ParoleStatiAnimo.jsx` | Nuvola = parole emerse dal test; expand = sezioni **Forme** + **Aggettivi** (sotto-correnti) |
-| `reportProfiloPdf.js` / `content_report.json` | Capitoli profilo estesi ma trimmati (4§ natura/racconto, 2§+5 bullet risorse/ombre); elenchi nominali in lessico |
 
 ## Profilo emotivo — capitoli trimmati (2026-06-09)
 

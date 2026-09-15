@@ -50,7 +50,7 @@ export const SEMANTIC_CONCEPTS: Record<string, SemanticConcept> = {
     meaning: `${CORPUS_SCHEMA_ASSI_ORIENTAMENTO[2]}\n\n${CORPUS_RITMO_RAPPORTO_ANIMA_SLANCIO_REGOLAZIONE}`,
     reflectionQuestion: 'Questa calma apre spazio o evita il movimento?',
     relatedDispositions: ['flemmatica', 'agnostica_anaffettiva'],
-    relatedRawKeys: ['VERDE_1_Calma', 'GRIGIO_2_Intellettuale_Saggio'],
+    relatedRawKeys: ['VERDE_1_CalmaContemplativa', 'VERDE_2_CalmaFisica', 'GRIGIO_1_Anaffettiva'],
     relatedPortato: ['Indifferenza'],
     relatedConcepts: [],
     evidenceLabel: 'Cerca la presenza verde/grigia e il peso del portato di indifferenza come modalita di regolazione.',

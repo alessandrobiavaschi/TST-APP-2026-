@@ -101,11 +101,11 @@ export const testSchema = {
   BLU_4_Solare: 'number', // 86
   ROSSO_1_Assertivita: 'number', // 87
   ROSSO_2_Dubbio_Collera: 'number', // 88
-  VERDE_1_Calma: 'number', // 89
+  VERDE_1_CalmaContemplativa: 'number', // 89
+  VERDE_2_CalmaFisica: 'number', // 89b
   GIALLO_1_Gioia_Entusiasmo: 'number', // 90
   GIALLO_2_Volitivo_Passionale: 'number', // 91
-  GRIGIO_1_Distaccato_Nichilista: 'number', // 92
-  GRIGIO_2_Intellettuale_Saggio: 'number', // 93
+  GRIGIO_1_Anaffettiva: 'number', // 92
 
   // Blocco E: Feedback Finale allineato al test ufficiale
   Stato_Animo_Finale: 'string', // 94
