@@ -102,6 +102,14 @@ export const PROFILO_UI = {
   title: 'La tua natura emotiva di appartenenza',
   panelIntroTitle: 'Cosa trovi qui',
   chapterNavHint: 'Salta all’aspetto o scorri in ordine — tutti aperti.',
+  compositionIntro: 'Il tuo profilo non è fatto da una sola famiglia: ecco come vi entrano le altre.',
+  compositionCta: 'Approfondisci tutte le famiglie',
+}
+
+export const COMPOSIZIONE_UI = {
+  title: 'Le altre famiglie nel tuo profilo',
+  lead: PROFILO_UI.compositionIntro,
+  scopriDiPiu: 'Scopri di più',
 }
 
 export const APPROFONDIMENTO_AREAS = ['Timbro', 'Intervalli', 'Ritmo', 'Melodia', 'Armonia']
@@ -508,7 +516,7 @@ export const GALASSIA_RAPPORTI_UI = {
 }
 
 export const GALASSIA_MAP_MODES = [
-  { id: 'disposizioni', label: 'Disposizioni', shortLabel: 'Mappa', hint: 'Cinque famiglie · Rosa dei venti' },
+  { id: 'disposizioni', label: 'Disposizioni', shortLabel: 'Mappa', hint: 'Cinque famiglie · Energia Emotiva' },
   {
     id: 'portato',
     label: 'Portato',
@@ -525,8 +533,8 @@ export const GALASSIA_MAP_MODES = [
 
 export const GALASSIA_UI = {
   chromeTitle: 'Galassia',
-  sceneKicker: 'Mappa · Rosa dei venti',
-  sceneTitle: 'Rosa dei venti emotiva',
+  sceneKicker: 'Mappa · Energia Emotiva',
+  sceneTitle: 'Energia Emotiva',
   sceneSubtitle:
     'Cinque famiglie emotive con pesi del test: seleziona una corrente per vedere relazioni, sfumature e rapporti',
   guideToggleOpen: 'Guida',
@@ -690,7 +698,7 @@ export const GALASSIA_TUTORIAL_UI = {
   eyebrow: 'Prima volta sulla mappa',
   title: 'Come esplorare la Galassia',
   lead:
-    'Cinque famiglie emotive disposte come la Rosa dei venti del modello TST. Ecco come orientarti.',
+    'Cinque famiglie emotive disposte secondo l’Energia Emotiva del modello TST. Ecco come orientarti.',
   cta: 'Inizia l’esplorazione',
   dontShowAgainLabel: 'Non mostrare più all’apertura',
   dialogAria: 'Introduzione alla Galassia',

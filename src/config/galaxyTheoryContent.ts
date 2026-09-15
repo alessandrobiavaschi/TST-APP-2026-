@@ -30,7 +30,7 @@ export type GalaxyTheoryFamily = {
 export const GALAXY_THEORY_INTRO: string[] = [
   `Il Test usa la Musica come specchio della nostra organizzazione emotiva: i flussi sonori entrano dentro di noi attraverso l'orecchio e il respiro, "rendendo visibile l'invisibile come potrebbe fare una Tac".`,
   `Esiste una comune struttura emotiva: gli stati d'animo non vengono inventati di volta in volta, sono parti integranti di noi che la Musica illumina ed eccita finché non li facciamo vivere "in modo purissimo", senza una relazione esterna.`,
-  `La Rosa dei venti aiuta a immaginarli: ogni temperamento è un vento che soffia da una direzione precisa del nostro pianeta affettivo. I 13 intervalli musicali sono i suoi venti: a ogni corrente corrisponde un intervallo, un colore e una zona della Rosa.`,
+  `L'Energia Emotiva aiuta a immaginarli: ogni temperamento è un'energia che si muove da una direzione precisa del nostro pianeta affettivo. I 13 intervalli musicali sono le sue energie: a ogni corrente corrisponde un intervallo, un colore e una zona della mappa.`,
 ]
 
 export const GALAXY_THEORY_BY_DISPOSITION: Record<string, GalaxyTheoryFamily> = {
@@ -168,13 +168,13 @@ export const GALAXY_THEORY_BY_DISPOSITION: Record<string, GalaxyTheoryFamily> = 
   collerico_volitiva: {
     dispositionId: 'collerico_volitiva',
     familyLabel: 'Famiglia Marziale - natura Volitivo-collerica',
-    coreDescription: `Vento che soffia da Est a Ovest, seguendo il percorso del Sole: la forza dell'Io che vuole realizzare nel presente. È la corrente del finalizzatore — come il bomber che chiude la partita o il capitano del ciclismo che vince con l'aiuto dei gregari. "Io sono il padrone del mio destino" (Henley/Mandela). In polo positivo: saldezza, coraggio, decisione. In polo negativo: dubbio cronico, ambiguità, ira.`,
+    coreDescription: `Vento che soffia da Est a Ovest, seguendo il percorso del Sole: la forza dell'Io che vuole realizzare nel presente. È la corrente del finalizzatore — come il bomber che chiude la partita o il capitano del ciclismo che vince con l'aiuto dei gregari. "Io sono il padrone del mio destino" (Henley/Mandela). In polo positivo: saldezza, coraggio, decisione. In polo negativo: rigidità, ostinazione, ira.`,
     selfRelation: `Energia orizzontale, che agisce nel presente. L'Io diventa "governatore" attorno ai vent'anni; verso i trenta può attraversare il "deserto" o "periodo del Verme", quando i sentimenti si inabissano come fiume carsico, prima di riemergere più impetuosi. Da qui nasce la possibilità della saggezza, fatta di ironia e di equilibrio fra governatore e gregari interiori.`,
     musicNotes: `Timbri medi, centrali, incisivi: percussioni (tamburi, timpani, rullanti), trombe, sax, viole, pianoforte, batteria. Tempi forti e costanti, Rock 90-130 bpm. Ama unisoni potenti (l'inizio della Quinta di Beethoven), scale dure (seconda), improvvisazione — ma da ascoltatore, perché come musicista è organizzato e fatica a "lasciarsi andare".`,
     currents: [
       {
         rawKey: 'ROSSO_1_Assertivita',
-        title: 'Assertività volitiva',
+        title: 'Fermezza volitiva',
         interval: 'Quarta',
         color: 'Rosso',
         description: `Forza dell'Io che opera nel presente con volontà e sicurezza: piacere di fare, concretizzare, prendersi responsabilità per sé e per gli altri. Una forza che spinge ad andare oltre l'ostacolo, talvolta cercandolo apposta per superarlo.`,
@@ -203,10 +203,10 @@ export const GALAXY_THEORY_BY_DISPOSITION: Record<string, GalaxyTheoryFamily> = 
       },
       {
         rawKey: 'ROSSO_2_Dubbio_Collera',
-        title: 'Dubbio e collera',
+        title: 'Rabbia e collera',
         interval: 'Quarta eccedente',
         color: 'Amaranto',
-        description: `Il dubbio è una forza altalenante che alimenta indecisione, incertezza, ambiguità: paura di sbagliare che spinge a nascondersi nella poca chiarezza. Dall'inconciliabilità tra persone, da antipatie covate non manifestate, scaturisce una rabbia trattenuta o un'ira aperta.`,
+        description: `La collera è una forza che si accende quando l'azione trova ostacolo: rigidità, ostinazione, insofferenza per chi rallenta o si oppone. Dall'inconciliabilità tra persone, da antipatie covate non manifestate, scaturisce una rabbia trattenuta o un'ira aperta.`,
         states: [
           'Incerto',
           'Inquieto',
@@ -247,7 +247,7 @@ export const GALAXY_THEORY_BY_DISPOSITION: Record<string, GalaxyTheoryFamily> = 
   flemmatica: {
     dispositionId: 'flemmatica',
     familyLabel: 'Famiglia Flemmatica - natura Contemplativa',
-    coreDescription: `Vento gentile e contemplativo che nasce nel centro della Rosa dei venti, come stare nell'occhio del ciclone: bonaccia, leggerezza del non-movimento, calma. Si forma nel periodo neonatale, quando le tre attività essenziali sono dormire, mangiare, sognare. Ippocrate la chiamava "flegma": un terreno verde in cui il sentire dorme della grossa, come accade per le piante.`,
+    coreDescription: `Qualità gentile e contemplativa che nasce nel centro dell'Energia Emotiva, come stare nell'occhio del ciclone: bonaccia, leggerezza del non-movimento, calma. Si forma nel periodo neonatale, quando le tre attività essenziali sono dormire, mangiare, sognare. Ippocrate la chiamava "flegma": un terreno verde in cui il sentire dorme della grossa, come accade per le piante.`,
     selfRelation: `Il flemmatico ama riposare e contemplare; non cerca tanto la riflessione su di sé, quanto un clima di calma e di equilibrio affettivo. Difficile incontrarlo in gare di snowboard — più facile nello sci di fondo. Quando la gentilezza è gratuita è qualità etica; quando è programmata per evitare conflitti, scivola in pigrizia.`,
     musicNotes: `Timbri scuri e quieti, medio-bassi: corni, fagotti, controfagotto, flauto in sol, clarini, marimba, arpa, chitarra classica. Adagio/Andante fino a 70 bpm; armonie sospese con poche terze, niente bruschi cambi di tonalità. Predilige Easy Listening e cadenze etniche tonali (es. musica irlandese).`,
     currents: [

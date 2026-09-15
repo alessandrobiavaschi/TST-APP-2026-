@@ -41,11 +41,11 @@ export const FAMILY_THEME = {
     corrente: 'Marziale',
     disposition: 'VOLITIVO-COLLERICA',
     macro: 'Volitività',
-    tagline: 'Caratteri emotivi in cui prevalgono assertività e spinta all’azione',
+    tagline: 'Caratteri emotivi in cui prevalgono volontà e spinta all’azione',
     gradient: { from: '#991b1b', to: '#7f1d1d' },
     dot: '#f87171',
     personalizedTitles: {
-      natura: 'La Natura Volitivo-collerica',
+      natura: 'La Natura Volitiva-Collerica',
       racconto: 'Memoria, Esperienza ed essere Musica',
       risorse: 'Risorse della famiglia Marziale',
       ombre: 'Ombre della famiglia Marziale',

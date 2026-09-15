@@ -6,8 +6,6 @@ import { PROFILO_CHAPTER_EVENT, chapterAnchorId } from './profiloChapterNav.js'
 import { scrollElementToReportCenter } from './reportSectionNavUtils.js'
 import { getPersonalizedTitles } from '../../config/reportFamilyTheme.js'
 import { PROFILO_UI } from './reportUiCopy.js'
-import CalculationDisclosure from './CalculationDisclosure.jsx'
-import { CompositionFamilyCards } from './CompositionContentCards.jsx'
 import { buildProgressiveContentViewModel } from '../../utils/buildProgressiveContentViewModel.js'
 
 void motion
@@ -60,7 +58,23 @@ function PanelBody({ display }) {
   )
 }
 
-function ChapterBlock({ sezione, index, famiglia, profilo, reduceMotion, title }) {
+function ChapterComposition({ onOpenAllFamilies, entryBtnRef }) {
+  return (
+    <div className="profilo-composition-extra">
+      <p className="report-room-preview-lead">{PROFILO_UI.compositionIntro}</p>
+      <button
+        ref={entryBtnRef}
+        type="button"
+        className="report-room-preview-cta"
+        onClick={onOpenAllFamilies}
+      >
+        {PROFILO_UI.compositionCta}
+      </button>
+    </div>
+  )
+}
+
+function ChapterBlock({ sezione, index, famiglia, profilo, reduceMotion, title, composition }) {
   const accent = sezione.correnteColore || '#4ade80'
   const display = getProfiloPanelDisplay({
     panelId: sezione.id,
@@ -68,6 +82,7 @@ function ChapterBlock({ sezione, index, famiglia, profilo, reduceMotion, title }
     rawTesto: sezione.testo,
     profilo,
   })
+  const showComposition = sezione.id === 'natura' && composition?.visible
   return (
     <article
       className="profilo-chapter-block"
@@ -95,6 +110,12 @@ function ChapterBlock({ sezione, index, famiglia, profilo, reduceMotion, title }
           <p className="profilo-panel__connector">{display.panelIntro}</p>
         ) : null}
         <PanelBody display={display} />
+        {showComposition ? (
+          <ChapterComposition
+            onOpenAllFamilies={composition.onOpenAllFamilies}
+            entryBtnRef={composition.entryBtnRef}
+          />
+        ) : null}
       </motion.div>
     </article>
   )
@@ -107,6 +128,8 @@ export default function ProfiloEmotivo({
   contentCards = null,
   globalRanking = null,
   dominantFamilyKey = '',
+  onOpenAllFamilies = () => {},
+  allFamiliesEntryBtnRef = null,
 }) {
   const reduceMotion = useReducedMotion()
   // La famiglia dominante è già raccontata per intero nei 4 capitoli sopra: esclusa qui
@@ -290,42 +313,14 @@ export default function ProfiloEmotivo({
               profilo={profilo}
               reduceMotion={reduceMotion}
               title={personalizedTitles[activeSezione.id]}
+              composition={{
+                visible: hasExtraPrimary || compositionViewModel.hasCompanion || hasFullComposition,
+                onOpenAllFamilies,
+                entryBtnRef: allFamiliesEntryBtnRef,
+              }}
             />
           ) : null}
         </div>
-
-        {hasExtraPrimary || compositionViewModel.hasCompanion || hasFullComposition ? (
-          <div className="profilo-composition-extra">
-            {hasExtraPrimary ? (
-              <section aria-labelledby="profilo-composition-primary-heading">
-                <h4 id="profilo-composition-primary-heading" className="profilo-composition-extra__heading">
-                  {compositionViewModel.primaryFamilies.length > 1 ? 'Famiglie principali' : 'Famiglia principale'}
-                </h4>
-                <CompositionFamilyCards cards={compositionViewModel.primaryFamilies} />
-              </section>
-            ) : null}
-
-            {compositionViewModel.hasCompanion ? (
-              <section aria-labelledby="profilo-composition-companion-heading">
-                <h4 id="profilo-composition-companion-heading" className="profilo-composition-extra__heading">
-                  componente secondaria
-                </h4>
-                <CompositionFamilyCards cards={compositionViewModel.companionFamilies} />
-              </section>
-            ) : null}
-
-            {hasFullComposition ? (
-              <CalculationDisclosure
-                label="Composizione completa"
-                className="profilo-composition-extra__full"
-              >
-                <CompositionFamilyCards
-                  cards={[...compositionViewModel.theoreticalFamilies, ...compositionViewModel.marginalFamilies]}
-                />
-              </CalculationDisclosure>
-            ) : null}
-          </div>
-        ) : null}
       </div>
     </section>
   )

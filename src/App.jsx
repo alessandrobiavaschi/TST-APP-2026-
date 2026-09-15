@@ -399,7 +399,13 @@ function App() {
       return
     }
     if (location.pathname === '/' && typeof window !== 'undefined') {
+      // Già sulla landing: l'evento custom basta (LandingPage apre e scrolla al pannello da sé).
+      // Una navigate() qui in più farebbe scattare anche gli effetti di LandingPage che
+      // reagiscono a location.state/location.search, richiamando openAccessBox() una seconda
+      // (e terza) volta in corsa con questa — la causa dello scroll-to-login che non si fermava
+      // in una posizione coerente (o non partiva affatto).
       window.dispatchEvent(new CustomEvent('tst:open-access'))
+      return
     }
     const loginParams = new URLSearchParams(
       location.pathname === '/' ? location.search.replace(/^\?/, '') : '',
@@ -430,7 +436,9 @@ function App() {
       return
     }
     if (location.pathname === '/' && typeof window !== 'undefined') {
+      // Vedi handleLoginClick: già sulla landing, l'evento custom basta.
       window.dispatchEvent(new CustomEvent('tst:open-access-register'))
+      return
     }
     const loginParams = new URLSearchParams(
       location.pathname === '/' ? location.search.replace(/^\?/, '') : '',
@@ -504,7 +512,7 @@ function App() {
 
   const skyTone = visualProfile?.tone || 'medium'
   const skyWarmth = visualProfile?.warmth || 'neutral'
-  const isReportPage = location.pathname === '/risultati/report'
+  const isReportPage = location.pathname === '/risultati/report' || location.pathname === '/report-preview'
   const isTestFlowPage = location.pathname === '/nuovo-test'
 
   return (
@@ -529,7 +537,7 @@ function App() {
         data-sky-tone={skyTone}
         data-sky-warmth={skyWarmth}
       >
-        {location.pathname !== '/' && location.pathname !== '/risultati/report' && (
+        {location.pathname !== '/' && !isReportPage && (
           <SkyBackground />
         )}
         <header
@@ -647,7 +655,7 @@ function App() {
                 </button>
               )}
               {location.pathname !== '/' &&
-                location.pathname !== '/risultati/report' &&
+                !isReportPage &&
                 currentUser && (
                 <button
                   type="button"
@@ -905,14 +913,14 @@ function App() {
         </div>
         <main
           className={`app-main${
-            location.pathname === '/' || location.pathname === '/risultati/report'
+            location.pathname === '/' || isReportPage
               ? ' app-main--landing'
               : ''
           }${location.pathname === '/' ? ' app-main--landing-home' : ''}`}
         >
           <div
             className={`app-main-inner${
-              location.pathname === '/' || location.pathname === '/risultati/report'
+              location.pathname === '/' || isReportPage
                 ? ' app-main-inner--landing'
                 : ''
             }`}
@@ -942,6 +950,7 @@ function App() {
                   }
                 />
                 <Route path="/risultati/report" element={<ReportPage />} />
+                <Route path="/report-preview" element={<ReportPage />} />
                 <Route path="/dashboard-operatore" element={<Navigate to="/home" replace />} />
                 <Route
                   path="/profilo"

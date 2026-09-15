@@ -354,6 +354,14 @@
   z-index: 1;
 }
 
+.hero-screen__legibility-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: rgba(127, 20, 20, 0.45);
+  pointer-events: none;
+}
+
 .hero-screen__noise {
   position: absolute;
   inset: 0;
@@ -698,7 +706,6 @@
   max-width: 20rem;
 }
 
-.hero-screen__metadata,
 .hero-screen__frase-chiave {
   position: relative;
   z-index: 1;
@@ -707,11 +714,6 @@
   color: rgba(255, 255, 255, 0.82);
   font-family: var(--font-body);
   text-align: center;
-}
-
-.hero-screen__metadata {
-  margin-bottom: var(--space-sm);
-  font-size: 1rem;
 }
 
 .hero-screen__frase-chiave {
@@ -3646,7 +3648,9 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-md, 32px);
-  margin-top: var(--space-lg, 64px);
+  margin-top: var(--space-md, 32px);
+  padding-top: var(--space-md, 32px);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .profilo-composition-extra__heading {
@@ -3660,7 +3664,31 @@
 }
 
 .profilo-composition-extra__full {
-  margin-top: 0;
+  margin-top: 0.75rem;
+}
+
+/* Trigger "mostra il resto": deliberatamente diverso dalle pillole famiglia
+   sopra (link discreto, non un'altra pillola) — è un contenitore catch-all,
+   non un nome di famiglia, e non deve sembrare equivalente agli altri. */
+.profilo-composition-extra__full > .calculation-disclosure__trigger {
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.62);
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(255, 255, 255, 0.28);
+}
+
+.profilo-composition-extra__full > .calculation-disclosure__trigger:hover,
+.profilo-composition-extra__full > .calculation-disclosure__trigger:focus-visible,
+.profilo-composition-extra__full > .calculation-disclosure__trigger[aria-expanded='true'] {
+  background: transparent;
+  border-color: transparent;
+  color: #fff;
+  text-decoration-color: rgba(255, 255, 255, 0.7);
 }
 
 .profilo-panel__connector {
@@ -5795,6 +5823,12 @@
 .report-room-section--preview {
   min-height: auto;
   padding-block: var(--space-md);
+}
+
+/* Hero (STANZA 00): resta full-bleed sotto l'header, niente padding-block
+   ereditato da .report-room-section — vedi .report-tst-hero-wrap. */
+.report-room-section--home {
+  padding-block: 0;
 }
 
 .report-room-header {

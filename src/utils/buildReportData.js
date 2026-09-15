@@ -127,8 +127,8 @@ const SOTTOCORRENTE_LABEL_BY_RAW_KEY = {
   BLU_2_Lunare: 'Lunare',
   BLU_3_Nostalgia: MALINCONICA_NOSTALGICA_LABEL,
   BLU_4_Solare: 'Solare',
-  ROSSO_1_Assertivita: 'Assertività',
-  ROSSO_2_Dubbio_Collera: 'Dubbio / Collera',
+  ROSSO_1_Assertivita: 'Fermezza volitiva',
+  ROSSO_2_Dubbio_Collera: 'Rabbia / Collera',
   VERDE_1_Calma: 'Calma',
   GIALLO_1_Gioia_Entusiasmo: 'Gioia / Entusiasmo',
   GIALLO_2_Volitivo_Passionale: 'Volitivo / Passionale',
@@ -812,7 +812,7 @@ export function buildReportData({
       composizioneSemplice:
         'Questa parte guarda quanto il tuo sentire diventa movimento concreto: iniziativa, decisione e capacità di agire.',
       definizione:
-        'L’energia del fare: Acqua sonora (Tempo) e Aria sonora (Melodia). Mostra come trasformi emozioni in movimento, iniziativa o sosta.',
+        'L’energia del fare: la spinta che trasforma il sentire in azione. Mostra come trasformi emozioni in movimento, iniziativa o sosta.',
       cosaIndica:
         'La spinta volitiva: quanto sei portato ad agire, muoverti o lasciare scorrere.',
     },

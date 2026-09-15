@@ -388,7 +388,9 @@ export async function signInWithGoogle() {
       message: 'Apro la versione localhost autorizzata per completare l\'accesso Google...',
     })
   }
-  await setSafeAuthPersistence()
+  // Non fare await prima di signInWithPopup: qualsiasi await invalida il contesto
+  // del click utente ("user gesture context") su Safari, causando il blocco del popup.
+  setSafeAuthPersistence().catch(() => {})
 
   // 1. Prova prima con signInWithPopup (risolve i blocchi ITP/cookie cross-origin di Safari e browser WebKit)
   try {

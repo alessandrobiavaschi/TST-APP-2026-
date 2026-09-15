@@ -143,7 +143,7 @@ const DISPLAY_BY_FAMILY = {
   Rosso: {
     natura: {
       inSintesi:
-        'Nella famiglia Marziale emerge il piacere del fare, di realizzare ciò che si desidera, di governarsi e mettersi alla prova. Le nature Volitiva e Collerica prediligono assertività, costanza, sincerità e impegno nel qui e ora, con orientamento al presente.',
+        'Nella famiglia Marziale emerge il piacere del fare, di realizzare ciò che si desidera, di governarsi e mettersi alla prova. La Natura Volitiva-Collerica predilige costanza, sincerità e impegno nel qui e ora, con orientamento al presente.',
       corpo: [],
     },
   },

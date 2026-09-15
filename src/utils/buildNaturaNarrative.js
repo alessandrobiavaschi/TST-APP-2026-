@@ -283,7 +283,7 @@ function buildNaturaStoryParagraphs({ status, leader, leaderCopy, influenceFamil
     return [
       opening,
       [
-        `La presenza di più componenti con percentuali apprezzabili conferisce al tuo profilo temperamentale una complessità che unisce profondità con leggerezza${tiedHarmonyClause}.`,
+        `La presenza di più componenti con percentuali apprezzabili conferisce al tuo profilo temperamentale una complessità che unisce profondità (la componente Malinconica) con leggerezza (la componente Flemmatica, di calma e riposo)${tiedHarmonyClause}.`,
         tiedPracticalParagraph,
       ].filter(Boolean).join(' '),
     ]
@@ -324,14 +324,29 @@ function buildNaturaStoryParagraphs({ status, leader, leaderCopy, influenceFamil
   const secondaryCopy = familyCopy(chosen.item.familyKey)
   const gap = percentGap(leader.distributionPercent, chosen.item.distributionPercent)
 
-  const compresenzaSentence = tensionMatch
+  const tiedWithChosen = narrativeFamilies.filter(
+    (entry) => entry.familyKey !== chosen.item.familyKey && entry.rawValue === chosen.item.rawValue,
+  )
+  const tiedClause = tiedWithChosen.length
+    ? ` La natura ${secondaryCopy.family} è a pari merito, con lo stesso punteggio, ${formatItalianList(tiedWithChosen.map((entry) => `della natura ${familyCopy(entry.familyKey).family}`))}: la scelta tra loro non riflette quindi una prevalenza reale.`
+    : ''
+
+  const otherForeground = narrativeFamilies.filter(
+    (entry) => entry.familyKey !== chosen.item.familyKey && !tiedWithChosen.includes(entry),
+  )
+  const otherForegroundSentence = otherForeground.length
+    ? `Accanto a queste, resta presente anche ${formatItalianList(otherForeground.map((entry) => `la natura ${familyCopy(entry.familyKey).family}`))}, con un peso minore ma non trascurabile.`
+    : ''
+
+  const compresenzaSentence = (tensionMatch
     ? `Nel tuo profilo compaiono componenti sia in accordo che in tensione ${resolveTensionDescriptor(gap)}: emerge infatti anche la natura ${secondaryCopy.family}, che ${chosen.rule.copy}.`
     : `Il tuo profilo rivela anche la presenza della natura ${secondaryCopy.family}: ${chosen.rule.copy}.`
+  ) + tiedClause
 
   const harmonyClause = harmonyGap !== null
     ? `, rivelando ${resolveHarmonyDescriptor(harmonyGap)} tra le diverse componenti`
     : ''
-  const harmonySentence = `La presenza di più componenti con percentuali apprezzabili conferisce al tuo profilo temperamentale una complessità che unisce profondità con leggerezza${harmonyClause}.`
+  const harmonySentence = `La presenza di più componenti con percentuali apprezzabili conferisce al tuo profilo temperamentale una complessità che unisce profondità (la componente Malinconica) con leggerezza (la componente Flemmatica, di calma e riposo)${harmonyClause}.`
 
   const baseSentence = NATURA_PRACTICAL_BASE[leader.familyKey]
   const relationPractical = resolvePracticalRelation(leader.familyKey, chosen.item.familyKey)
@@ -342,8 +357,9 @@ function buildNaturaStoryParagraphs({ status, leader, leaderCopy, influenceFamil
   return [
     opening,
     compresenzaSentence,
+    otherForegroundSentence,
     [harmonySentence, practicalSentence].filter(Boolean).join(' '),
-  ]
+  ].filter(Boolean)
 }
 
 function buildShadesParagraph(shades = [], familyKey) {

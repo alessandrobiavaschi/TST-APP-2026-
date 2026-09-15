@@ -81,7 +81,7 @@ export const FAMIGLIA_APPROFONDIMENTO = {
     nome: 'Marziale',
     natura: [
       'Ciò che contraddistingue il temperamento volitivo, collerico è il piacere del fare, realizzare ciò a cui si ambisce, il piacere di governarsi e governare, di mettersi alla prova.',
-      'Da Est verso Ovest soffiano i venti che seguono l’azione vitale per eccellenza, che invitano a muoversi, venti che seguono il percorso del Sole. Una forza che spinge a vivere il piacere del fare: questo è il flusso Volitivo.',
+      'Da Est verso Ovest si muove l’energia che segue l’azione vitale per eccellenza, che invita a muoversi, energia che segue il percorso del Sole. Una forza che spinge a vivere il piacere del fare: questo è il flusso Volitivo.',
       '«Io» sono il padrone del mio destino: «Io» sono il capitano della mia anima (William Ernest Henley, Invictus) — parole che esprimono una superiore coscienza dell’Io, della sua piena maturità individuale.',
       'A guidare il temperamento volitivo-collerico è la forza di un Io che opera nel presente, con volontà e sicurezza di sé.',
     ],
@@ -123,14 +123,14 @@ export const FAMIGLIA_APPROFONDIMENTO = {
       },
     ],
     immaginiSimboliche:
-      'I venti che seguono il percorso del Sole; il finalizzatore — il bomber che segna, il capitano del ciclismo che vince con l’aiuto dei gregari; il governatore di sé stesso; la Volontà come «un vulcano in perenne eruzione»; il colore rosso come simbolo del coraggio.',
+      'Le energie che seguono il percorso del Sole; il finalizzatore — il bomber che segna, il capitano del ciclismo che vince con l’aiuto dei gregari; il governatore di sé stesso; la Volontà come «un vulcano in perenne eruzione»; il colore rosso come simbolo del coraggio.',
   },
 
   Verde: {
     nome: 'Flemmatica',
     natura: [
       'Ciò che contraddistingue il temperamento flemmatico è il piacere della lentezza, del silenzio, della calma, del riposo e della contemplazione.',
-      'Ai flussi provenienti dai punti cardinali si aggiunge un vento gentile, calmo e contemplativo, che nasce e domina la parte centrale della Rosa dei venti. Occorre immaginarla come se si fosse nell’occhio del ciclone, dove ogni movimento si placa e si vive la sensazione di pausa, silenziosa bonaccia, la leggerezza del non movimento, quello della calma: il nome che si potrebbe dare a questa corrente è corrente flemmatica.',
+      'Ai flussi provenienti dai punti cardinali si aggiunge un’energia gentile, calma e contemplativa, che nasce e domina la parte centrale dell’Energia Emotiva. Occorre immaginarla come se si fosse nell’occhio del ciclone, dove ogni movimento si placa e si vive la sensazione di pausa, silenziosa bonaccia, la leggerezza del non movimento, quello della calma: il nome che si potrebbe dare a questa corrente è corrente flemmatica.',
       'Il flemmatico ama riposare e contemplare. Utilizza l’energia di questa corrente emotiva orientandola verso la propria interiorità, ma lo fa non tanto per riflettere su di sé, quanto per indursi un clima di calma e di equilibrio affettivo.',
       'Nel descrivere i caratteri e i comportamenti della persona attraverso la sua teoria degli umori, Ippocrate associava all’adulto che cede al piacere del riposo e dell’alimentazione il termine flegmatico, da flegma.',
       'La «Flemma», la tendenza a rifuggire dall’agitazione e a coltivare la calma, è una qualità importante che nella vita serve come il pane.',
@@ -161,14 +161,14 @@ export const FAMIGLIA_APPROFONDIMENTO = {
       },
     ],
     immaginiSimboliche:
-      'L’occhio del ciclone; la silenziosa bonaccia; la parte centrale della Rosa dei venti; le sfumature di verde di purezza clorofilliana; il sentire che «dorme della grossa» come le piante.',
+      'L’occhio del ciclone; la silenziosa bonaccia; la parte centrale dell’Energia Emotiva; le sfumature di verde di purezza clorofilliana; il sentire che «dorme della grossa» come le piante.',
   },
 
   Giallo: {
     nome: 'Entusiasta',
     natura: [
       'Ciò che contraddistingue la natura gioioso-sanguinica è il piacere del movimento, della curiosità, della scoperta del nuovo, dell’estroversione.',
-      'Da Sud verso Nord soffiano venti caldi: un flusso emotivo gioioso pervaso di solarità e di calore. Quel flusso si chiama Entusiasmo. Nel suo espandersi in un carattere in formazione, offre quello che di emotivo nasce dal nostro interiore Continente dell’Entusiasmo.',
+      'Da Sud verso Nord si muove un’energia calda: un flusso emotivo gioioso pervaso di solarità e di calore. Quel flusso si chiama Entusiasmo. Nel suo espandersi in un carattere in formazione, offre quello che di emotivo nasce dal nostro interiore Continente dell’Entusiasmo.',
       'L’esperienza affettiva che si vive con le forze dell’entusiasmo si manifesta con il piacere di uscire da sé stessi per abbracciare tutto ciò che è nuovo, che è fuori da noi: persone, natura, oggetti, le più svariate attività.',
       'È a questa tendenza che si agganciano le correnti musicali, orientando l’energia emotiva verso un moto centrifugo: un movimento che va verso il fuori, si disperde nel mondo e lo abbraccia, risvegliando e appagando la gioia di sentire questa propensione nel proprio carattere.',
     ],
@@ -210,14 +210,14 @@ export const FAMIGLIA_APPROFONDIMENTO = {
       },
     ],
     immaginiSimboliche:
-      'I venti caldi che soffiano da Sud a Nord; il Continente dell’Entusiasmo accanto a quello della Flemma; le tonalità solari del giallo; la scintilla di luminoso e ingenuo coraggio; la perenne ricerca di bagliori di bellezza.',
+      'Le energie calde che si muovono da Sud a Nord; il Continente dell’Entusiasmo accanto a quello della Flemma; le tonalità solari del giallo; la scintilla di luminoso e ingenuo coraggio; la perenne ricerca di bagliori di bellezza.',
   },
 
   Grigio: {
     nome: 'Razionale',
     natura: [
       'Ciò che contraddistingue il temperamento agnostico anaffettivo è il piacere del calcolo, della dubbiosità di origine intellettuale, dell’oggettività fisica.',
-      'Da Nord verso Sud soffiano venti gelidi: diventano un flusso emotivo che raffredda, raggela affettivamente. Possiamo chiamare questa corrente: agnostica anaffettiva.',
+      'Da Nord verso Sud si muove un’energia gelida: diventa un flusso emotivo che raffredda, raggela affettivamente. Possiamo chiamare questa corrente: agnostica anaffettiva.',
       'Tra le correnti emotive è l’unica che agisce in modo trasversale, gettando la sua ombra su ciascuna delle quattro aree essenziali del sistema temperamentale.',
       'Chi vive nel dubbio si aggira sulla stessa linea orizzontale del presente che contraddistingue la corrente Collerico volitiva, che manifesta calda passione. La corrente agnostico anaffettiva agisce invece in modo polare, con gelido distacco. È una corrente forte ma non luminosa, simile a una vibrante cometa scura: genera pensieri che tendono a raggelare, più che ad alimentare, l’insieme dell’area affettiva.',
     ],
@@ -261,7 +261,7 @@ export const FAMIGLIA_APPROFONDIMENTO = {
       },
     ],
     immaginiSimboliche:
-      'I venti gelidi che soffiano da Nord a Sud; la corrente che attraversa in modo trasversale le altre quattro aree; la vibrante cometa scura; il velo di grigio; il polo negativo della calamita che allontana.',
+      'Le energie gelide che si muovono da Nord a Sud; la corrente che attraversa in modo trasversale le altre quattro aree; la vibrante cometa scura; il velo di grigio; il polo negativo della calamita che allontana.',
   },
 }
 

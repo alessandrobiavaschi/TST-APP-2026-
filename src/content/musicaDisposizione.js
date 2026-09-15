@@ -133,7 +133,7 @@ export const MUSICISTI_SCHEDE = {
           nome: 'Corrente emotiva della calma flemmatica',
           intervallo: 'Quinta e quinta eccedente',
           significato:
-            'La corrente flemmatica richiama un vento gentile, calmo e contemplativo, simile all’occhio del ciclone dove ogni movimento si placa. È la sensazione della pausa, della bonaccia, della leggerezza del non movimento e di un equilibrio quasi perfetto. Nel rapporto con sé stessi, il flemmatico ama riposare e contemplare e orienta questa energia verso un clima di calma e di equilibrio affettivo.',
+            'La corrente flemmatica richiama un’energia gentile, calma e contemplativa, simile all’occhio del ciclone dove ogni movimento si placa. È la sensazione della pausa, della bonaccia, della leggerezza del non movimento e di un equilibrio quasi perfetto. Nel rapporto con sé stessi, il flemmatico ama riposare e contemplare e orienta questa energia verso un clima di calma e di equilibrio affettivo.',
           stati: ['Rilassato', 'Calmo', 'Gentile', 'Disteso', 'Pacato', 'Placido', 'Pacifico', 'Tranquillo', 'Estatico', 'Serafico', 'Contemplativo', 'Sognante', 'Equilibrato', 'Quieto', 'Tollerante', 'Mistico', 'Prudente', 'Meditativo', 'Ammirato', 'Annoiato', 'Pigro', 'Oziante', 'Svampito', 'Indolente', 'Ignavo'],
         },
       ],
@@ -251,9 +251,9 @@ export const MUSICISTI_SCHEDE = {
       timbri:
         `Chi appartiene alla famiglia Marziale predilige Timbri che si posizionano al centro dello spettro sonoro. Timbri medi, decisi, incisivi, fermi e poco modulanti. Non sente particolari fastidi rispetto alle tante diverse qualità e colori timbrici. Accetta bene sia quelle squillanti che ruvidi o sordi, l’importante è che mostrino viva personalità. A titolo esplicativo ma non esaustivo oltre a quelle emesse dalla voce e dal pianoforte, si possono inserire sax, trombe, tromboni. Tra le corde le viole, tra le percussioni la batteria specie il rullante e i tom.`,
       ritmo:
-        `La famiglia dei Marziali predilige tempi forti e costanti, intorno a 100 / 130 bpm. Ama la Musica con i piedi per terra, dalle sonorità chiare e leggibili. Tra Battere e Levare, i due elementi essenziali che costituiscono lo scandire fantasioso del ritmo, separati da un elemento centrale, orizzontale di silenzio, l’assertivo, il volitivo, predilige il Battere ma ama anche farsi spiazzare.`,
+        `La famiglia dei Marziali predilige tempi forti e costanti, intorno a 100 / 130 bpm. Ama la Musica con i piedi per terra, dalle sonorità chiare e leggibili. Tra Battere e Levare, i due elementi essenziali che costituiscono lo scandire fantasioso del ritmo, separati da un elemento centrale, orizzontale di silenzio, il volitivo-collerico predilige il Battere ma ama anche farsi spiazzare.`,
       melodiaArmonia:
-        `L’assertivo collerico subisce il fascino della melodia che memorizza con facilità così come i testi. Predilige melodie memorabili, frammenti anche brevi ma intensi, unisoni potenti, scale meno consuete e intervalli duri. Così com’è attento e attratto a tutto ciò che musicalmente è consequenziale specie dallo svolgimento delle melodie che, se si sviluppano a mo’ di racconto, ovvero melodie lunghe, segue con intenzione quasi meditativa. Se invece, com’è più consueto oggi, la melodia è fatta di brevi frammenti, la prende e l’accetta con leggerezza come un giochino divertente che colora il tempo in modo positivo ma leggero.`,
+        `Il volitivo-collerico subisce il fascino della melodia che memorizza con facilità così come i testi. Predilige melodie memorabili, frammenti anche brevi ma intensi, unisoni potenti, scale meno consuete e intervalli duri. Così com’è attento e attratto a tutto ciò che musicalmente è consequenziale specie dallo svolgimento delle melodie che, se si sviluppano a mo’ di racconto, ovvero melodie lunghe, segue con intenzione quasi meditativa. Se invece, com’è più consueto oggi, la melodia è fatta di brevi frammenti, la prende e l’accetta con leggerezza come un giochino divertente che colora il tempo in modo positivo ma leggero.`,
     },
     intervalli: {
       intro:

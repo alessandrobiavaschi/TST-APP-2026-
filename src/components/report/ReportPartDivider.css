@@ -4,7 +4,7 @@
 
 .report-part-divider {
   width: 100%;
-  padding: var(--space-lg, 64px) 1.5rem;
+  padding: var(--space-md, 32px) 1.5rem;
   display: flex;
   justify-content: center;
   text-align: center;

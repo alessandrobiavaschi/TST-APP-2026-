@@ -96,12 +96,12 @@ export const LEGAL_FOOTER = 'Il Pianeta della Musica · Franco Mussida'
 export const GLOSSARY = [
   {
     id: 'rosa-dei-venti',
-    term: 'Rosa dei venti',
+    term: 'Energia Emotiva',
     oneLine: 'Schema del modello che dispone le cinque famiglie emotive su cinque direzioni.',
     explain:
       'Ogni direzione corrisponde a una famiglia: Malinconica, Marziale, Flemmatica, Entusiasta o Razionale. Il grafico confronta i pesi relativi; i colori sono soltanto una convenzione visiva.',
     usefulFor:
-      'Usa la Rosa dei venti per confrontare le cinque famiglie nello stesso test, non per stabilire un’identità fissa.',
+      'Usa l’Energia Emotiva per confrontare le cinque famiglie nello stesso test, non per stabilire un’identità fissa.',
     tags: ['galassia'],
   },
   {
@@ -164,7 +164,7 @@ export const GLOSSARY = [
   {
     id: 'galassia',
     term: 'Galassia',
-    oneLine: 'Vista interattiva della Rosa dei venti con pesi delle correnti.',
+    oneLine: 'Vista interattiva dell’Energia Emotiva con pesi delle correnti.',
     explain:
       'Mostra le cinque famiglie e, per ciascuna, qualità e sotto-correnti con peso proporzionale alle risposte del test.',
     usefulFor:
@@ -211,14 +211,14 @@ export const GLOSSARY = [
 ]
 
 export const GALASSIA_INTRO = [
-  'La mappa riproduce la Rosa dei venti del modello TST: cinque famiglie emotive (Malinconica, Marziale, Flemmatica, Entusiasta, Razionale), ciascuna con una o più nature e sfumature.',
+  'La mappa riproduce l’Energia Emotiva del modello TST: cinque famiglie emotive (Malinconica, Marziale, Flemmatica, Entusiasta, Razionale), ciascuna con una o più nature e sfumature.',
   'Il cerchio principale indica la qualità dominante in quella famiglia; i cerchi secondari sono sotto-correnti. La dimensione è proporzionale al peso nelle risposte di questo test.',
   'Il colore distingue la famiglia ed è un codice di lettura, non un giudizio. Selezionando un elemento si apre il dettaglio testuale corrispondente.',
 ]
 
 export const GALASSIA_CRT = {
   idleTitle: 'Mappa delle correnti',
-  idleLead: 'Cinque famiglie sulla Rosa dei venti del modello TST.',
+  idleLead: 'Cinque famiglie nell’Energia Emotiva del modello TST.',
   idleTapHint: 'Tocca un mondo per aprire costellazione e lettura.',
   idleSteps: [],
   hierarchyPlanet: 'Corrente in questa direzione',
@@ -271,7 +271,7 @@ export const GROUP_INTROS = {
 export const SECTION_INTROS = {
   rapporti: {
     intro:
-      'Quattro lenti sullo stesso profilo, dal modello del Pianeta della Musica: Natura (Suono + Distanze tra le note + Accordi, il suolo emotivo), Sé (Distanze tra le note + Melodia, interiorità), Altro (Suono + Melodia, relazione), Agire (Tempo + Melodia, movimento). Ogni scheda usa una scala 1–7 — gli scarti tra lenti sono parte della lettura.',
+      'Quattro lenti sullo stesso profilo, dal modello del Pianeta della Musica: Natura (Suono + Distanze tra le note + Accordi, il suolo emotivo), Sé (Distanze tra le note + Melodia, interiorità), Altro (Suono + Melodia, relazione), Agire (scala 1–7, movimento). Ogni scheda usa una scala 1–7 — gli scarti tra lenti sono parte della lettura.',
   },
   portato: {
     lead:

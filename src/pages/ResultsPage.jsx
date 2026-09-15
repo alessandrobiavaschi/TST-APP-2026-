@@ -8,8 +8,10 @@ import {
   collection,
   doc,
   getDocs,
+  limit,
   orderBy,
   query,
+  startAfter,
   where,
   addDoc,
   updateDoc,
@@ -129,8 +131,8 @@ const SOTTOCORRENTE_LABEL_BY_KEY = {
   BLU_2_Lunare: 'Lunare',
   BLU_3_Nostalgia: MALINCONICA_NOSTALGICA_LABEL,
   BLU_4_Solare: 'Solare',
-  ROSSO_1_Assertivita: 'Assertività',
-  ROSSO_2_Dubbio_Collera: 'Dubbio / Collera',
+  ROSSO_1_Assertivita: 'Fermezza volitiva',
+  ROSSO_2_Dubbio_Collera: 'Rabbia / Collera',
   VERDE_1_Calma: 'Calma',
   GIALLO_1_Gioia_Entusiasmo: 'Gioia / Entusiasmo',
   GIALLO_2_Volitivo_Passionale: 'Volitivo / Passionale',
@@ -224,7 +226,7 @@ function IconDelete({ title, onClick, className = '' }) {
 
 const DISPOSIZIONI_SIGNIFICATO = {
   Malinconica: 'Famiglia introspettiva, orientata alla riflessione, alla memoria e al passato.',
-  Marziale: 'Famiglia orientata all’azione, alla prova e all’assertività nel presente.',
+  Marziale: 'Famiglia orientata all’azione, alla prova e alla volontà nel presente.',
   Entusiasta: 'Famiglia legata al movimento, alla curiosità e a ciò che è nuovo.',
   Flemmatica: 'Famiglia legata alla calma, al riposo, alla protezione e agli spazi di silenzio.',
   Razionale: 'Famiglia analitica, che tende a osservare e misurare prima di sentire.',
@@ -818,47 +820,74 @@ function ResultsPage() {
     }
     setLoading(true)
     setLoadError(null)
+    let cancelled = false
+    const PAGE_SIZE = 40
+
     const fetchData = async () => {
       try {
-        let q = query(
+        const baseQuery = query(
           collection(db, TEST_RESULTS_COLLECTION),
           where(TEST_RESULT_USER_ID_FIELD, '==', currentUser.uid),
           orderBy('Data_Ora_Fine_Test', 'desc'),
         )
-        let snapshot
-        try {
-          snapshot = await getDocs(q)
-        } catch (err) {
-          // In molti casi Firestore richiede un indice composto per where+orderBy.
-          // Se manca, facciamo un fallback ad una query senza orderBy così i risultati compaiono comunque.
-          if (err?.code === 'failed-precondition') {
-            console.warn(
-              'Query Firestore senza indice composto, eseguo fallback senza orderBy. Crea un indice su userId + Data_Ora_Fine_Test per riattivare l\'ordinamento.',
-              err,
-            )
-            q = query(
-              collection(db, TEST_RESULTS_COLLECTION),
-              where(TEST_RESULT_USER_ID_FIELD, '==', currentUser.uid),
-            )
+        let cursor = null
+        let isFirstPage = true
+
+        while (true) {
+          const pageConstraints = cursor ? [startAfter(cursor), limit(PAGE_SIZE)] : [limit(PAGE_SIZE)]
+          let q = query(baseQuery, ...pageConstraints)
+          let snapshot
+          try {
             snapshot = await getDocs(q)
-          } else {
+          } catch (err) {
+            // In molti casi Firestore richiede un indice composto per where+orderBy.
+            // Se manca, facciamo un fallback ad una query senza orderBy così i risultati compaiono comunque
+            // (senza paginazione: recupera tutto in un colpo solo, come prima di questa modifica).
+            if (err?.code === 'failed-precondition') {
+              console.warn(
+                'Query Firestore senza indice composto, eseguo fallback senza orderBy. Crea un indice su userId + Data_Ora_Fine_Test per riattivare l\'ordinamento.',
+                err,
+              )
+              q = query(
+                collection(db, TEST_RESULTS_COLLECTION),
+                where(TEST_RESULT_USER_ID_FIELD, '==', currentUser.uid),
+              )
+              snapshot = await getDocs(q)
+              if (cancelled) return
+              setRecords(snapshot.docs.map((doc) => buildResultRecord(doc.id, doc.data())))
+              return
+            }
             throw err
           }
+
+          if (cancelled) return
+          const pageDocs = snapshot.docs.map((doc) => buildResultRecord(doc.id, doc.data()))
+          setRecords((prev) => (isFirstPage ? pageDocs : [...prev, ...pageDocs]))
+          if (isFirstPage) {
+            // Prima pagina arrivata: sblocca subito la UI, il resto continua a caricarsi in background.
+            setLoading(false)
+            isFirstPage = false
+          }
+
+          if (snapshot.docs.length < PAGE_SIZE) break
+          cursor = snapshot.docs[snapshot.docs.length - 1]
         }
-        const docs = snapshot.docs.map((doc) => buildResultRecord(doc.id, doc.data()))
-        setRecords(docs)
       } catch (err) {
+        if (cancelled) return
         console.error('Errore durante il caricamento dei risultati:', err)
         setLoadError(
           err?.message ||
             'Impossibile caricare i risultati dal database. Controlla la connessione o la configurazione di Firestore.',
         )
       } finally {
-        setLoading(false)
+        if (!cancelled) setLoading(false)
       }
     }
 
     fetchData()
+    return () => {
+      cancelled = true
+    }
   }, [guestRecord, authReady, currentUser])
 
   useEffect(() => {

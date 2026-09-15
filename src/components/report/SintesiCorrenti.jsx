@@ -8,8 +8,8 @@ import { REPORT_CRITERION, SINTESI_UI, formatAttivazione } from './reportUiCopy.
 import { normalizeFamigliaName } from '../../content/reportRestitution.js'
 import { FAMILY_THEME } from '../../config/reportFamilyTheme.js'
 import { GlossaryLink } from './ReportGlossaryDrawer.jsx'
+import InfoTip from './InfoTip.jsx'
 import CalculationDisclosure from './CalculationDisclosure.jsx'
-import { CompositionBadgeRow } from './CompositionContentCards.jsx'
 import { buildProgressiveContentViewModel } from '../../utils/buildProgressiveContentViewModel.js'
 import './SintesiCorrenti.css'
 
@@ -361,6 +361,38 @@ function buildBriefSummary({ familyName, sottodisposizione, correnteDominante })
   }
 }
 
+function capitalizeSentence(text) {
+  if (!text) return ''
+  const trimmed = text.trim()
+  const capitalized = trimmed.charAt(0).toUpperCase() + trimmed.slice(1)
+  return /[.!?]$/.test(capitalized) ? capitalized : `${capitalized}.`
+}
+
+// Trasforma "Natura {Qualità}" in ipertesto con definizione solo quando il testo
+// editoriale della famiglia nomina esplicitamente entrambe le qualità in questo modo
+// (oggi: Rosso/Marziale). Per le altre famiglie il testo resta invariato.
+function renderCompositionSentence({ compositionParagraph, qualitiesByQuality, activeTip, onToggleTip, idPrefix }) {
+  const keys = qualitiesByQuality ? Object.keys(qualitiesByQuality) : []
+  const linkableKeys = keys.filter((key) => compositionParagraph.includes(`Natura ${key}`))
+  if (linkableKeys.length < 2) return compositionParagraph
+
+  const pattern = new RegExp(`(Natura (?:${linkableKeys.join('|')}))`, 'g')
+  return compositionParagraph.split(pattern).map((part, index) => {
+    const key = linkableKeys.find((k) => part === `Natura ${k}`)
+    if (!key) return part
+    const tipId = `${idPrefix}-${key}`
+    return (
+      <InfoTip
+        key={`${tipId}-${index}`}
+        term={part}
+        tip={capitalizeSentence(qualitiesByQuality[key])}
+        open={activeTip === tipId}
+        onToggle={() => onToggleTip(tipId)}
+      />
+    )
+  })
+}
+
 function familyPresenceLabel(item = {}, fallbackFamily = '') {
   const key = String(item.familyKey || '').toLowerCase()
   const normalized = normalizeFamigliaName(fallbackFamily || item.familyName || '')
@@ -374,7 +406,10 @@ function familyPresenceLabel(item = {}, fallbackFamily = '') {
 }
 
 function familySectionIntro() {
-  return ['Le percentuali di presenza delle cinque famiglie nel tuo profilo, dalla più alta alla più bassa.']
+  return [
+    'Il tuo profilo non è fatto da una sola famiglia: esplora come si compone il tuo profilo emotivo tramite i grafici.',
+    'Troverai le percentuali di presenza delle cinque famiglie nel tuo profilo, dalla più alta alla più bassa.',
+  ]
 }
 
 function SintesiDisclosure({ id, title, defaultOpen = false, children, className = '' }) {
@@ -412,6 +447,27 @@ function SintesiDisclosure({ id, title, defaultOpen = false, children, className
   )
 }
 
+function OtherFamiliesLine({ families = [] }) {
+  if (!families.length) return null
+  const nodes = families.map((f) => (
+    <strong key={f.name} style={f.colore ? { color: f.colore } : undefined}>
+      {f.name}
+    </strong>
+  ))
+  const joined = nodes.reduce((acc, node, i) => {
+    if (i === 0) return [node]
+    if (i === nodes.length - 1) return [...acc, ' e ', node]
+    return [...acc, ', ', node]
+  }, [])
+  const verb = families.length > 1 ? 'sono presenti le famiglie' : 'è presente la famiglia'
+  const suffix = families.length > 1 ? ', in ordine di intensità' : ''
+  return (
+    <p className="sintesi-editorial-body">
+      Nel tuo profilo {verb} {joined}{suffix}.
+    </p>
+  )
+}
+
 
 export default function SintesiCorrenti({
   correnti = [],
@@ -431,10 +487,10 @@ export default function SintesiCorrenti({
   const prefersReducedMotion = useReducedMotion()
   const [activeDetailFamily, setActiveDetailFamily] = useState(null)
   const [hoveredFamilyKey, setHoveredFamilyKey] = useState(null)
-  // Nature (qualità) esplorabili in progressive disclosure sotto la famiglia prevalente:
-  // parte sempre dalla natura realmente emersa dal test (briefSummary.introQuality),
-  // esplorabile ma non sostituita da quella frase fattuale.
-  const [selectedQuality, setSelectedQuality] = useState(null)
+  // Definizioni delle nature (Volitiva/Collerica, ecc.) esposte come ipertesto: un solo
+  // popover aperto alla volta tra i trigger InfoTip di questa sezione.
+  const [activeTip, setActiveTip] = useState(null)
+  const toggleTip = (id) => setActiveTip((cur) => (cur === id ? null : id))
 
   const [isMobileViewport, setIsMobileViewport] = useState(false)
   React.useEffect(() => {
@@ -557,23 +613,27 @@ export default function SintesiCorrenti({
     [globalProfileContract, contentCards],
   )
 
-  // Nature esplorabili per la famiglia prevalente (pillole): solo quando il testo editoriale
-  // ne definisce più di una per questa famiglia — nessuna pillola generata per famiglie senza
-  // qualitiesByQuality (es. Verde), niente tab vuoti.
-  const qualityKeys = briefSummary.qualitiesByQuality ? Object.keys(briefSummary.qualitiesByQuality) : []
-  const activeQuality = selectedQuality && qualityKeys.includes(selectedQuality)
-    ? selectedQuality
-    : briefSummary.introQuality
-  const activeQualityText = briefSummary.qualitiesByQuality?.[activeQuality]
-    ? `Nello specifico, si distinguono ${briefSummary.qualitiesByQuality[activeQuality]}.`
+  // Definizione della natura realmente emersa dal test (briefSummary.introQuality):
+  // esposta come ipertesto solo quando il testo editoriale la definisce (es. Verde non
+  // ha qualitiesByQuality, nessun ipertesto generato).
+  const personalQualityDefinition = briefSummary.qualitiesByQuality?.[briefSummary.introQuality]
+    ? capitalizeSentence(briefSummary.qualitiesByQuality[briefSummary.introQuality])
     : ''
 
-  // Famiglia secondaria realmente significativa (banda 'secondary' da globalProfileContract,
-  // stessa fonte dei badge sotto): al massimo una, per restare un ponte narrativo breve e non
-  // una lista di tutte le famiglie con valore > 0.
-  const modulatingFamilyName = compositionViewModel.compactCompanion
-    ? (compositionViewModel.compactCompanion.content?.nome || compositionViewModel.compactCompanion.familyName)
-    : null
+  // Altre famiglie realmente significative nel profilo (quasi paritarie tra le primary
+  // più l'eventuale companion), per la frase compatta finale: nome nel colore della
+  // famiglia, niente badge/etichette separate.
+  const otherFamiliesSeen = new Set([dominantFamilyName])
+  const otherFamilies = []
+  const addOtherFamily = (item) => {
+    if (!item) return
+    const name = item.content?.nome || item.familyName
+    if (!name || otherFamiliesSeen.has(name)) return
+    otherFamiliesSeen.add(name)
+    otherFamilies.push({ name, colore: item.colore })
+  }
+  compositionViewModel.primaryFamilies.forEach(addOtherFamily)
+  addOtherFamily(compositionViewModel.compactCompanion)
 
   const familySottocorrenti = (Array.isArray(sottocorrenti) ? sottocorrenti : [])
     .filter((sub) => normalizeFamigliaName(sub?.familyName) === dominantFamilyName)
@@ -622,40 +682,26 @@ export default function SintesiCorrenti({
                 {paragraph}
               </p>
             ))}
-            <p className="sintesi-editorial-body">{briefSummary.compositionParagraph}</p>
-            {modulatingFamilyName ? (
-              <p className="sintesi-editorial-body">
-                Il tuo profilo, guidato dalla famiglia {briefSummary.introFamily}, è modulato anche da una
-                presenza significativa della famiglia <strong>{modulatingFamilyName}</strong>.
-              </p>
-            ) : null}
-            <p className="sintesi-editorial-body sintesi-editorial-body--lead">
-              Nel tuo risultato prevale in particolare la natura (caratteristica emotiva){' '}
-              <strong className="sintesi-editorial-highlight">{briefSummary.introQuality}</strong>.
+            <p className="sintesi-editorial-body">
+              {renderCompositionSentence({
+                compositionParagraph: briefSummary.compositionParagraph,
+                qualitiesByQuality: briefSummary.qualitiesByQuality,
+                activeTip,
+                onToggleTip: toggleTip,
+                idPrefix: 'composition',
+              })}{' '}
+              Nel tuo caso, emerge in particolare la natura{' '}
+              {personalQualityDefinition ? (
+                <InfoTip
+                  term={briefSummary.introQuality}
+                  tip={personalQualityDefinition}
+                  open={activeTip === 'personal-quality'}
+                  onToggle={() => toggleTip('personal-quality')}
+                />
+              ) : (
+                <strong className="sintesi-editorial-highlight">{briefSummary.introQuality}</strong>
+              )}.
             </p>
-            {qualityKeys.length > 1 ? (
-              <div
-                className="sintesi-correnti__quality-pills"
-                role="tablist"
-                aria-label={`Nature della famiglia ${briefSummary.introFamily}`}
-              >
-                {qualityKeys.map((key) => (
-                  <button
-                    type="button"
-                    key={key}
-                    role="tab"
-                    aria-selected={activeQuality === key}
-                    className={`sintesi-correnti__quality-pill${activeQuality === key ? ' sintesi-correnti__quality-pill--active' : ''}`}
-                    onClick={() => setSelectedQuality(key)}
-                  >
-                    {key}
-                  </button>
-                ))}
-              </div>
-            ) : null}
-            {activeQualityText ? (
-              <p className="sintesi-editorial-body">{activeQualityText}</p>
-            ) : null}
             {briefSummary.deepDiveParagraphs.length > 0 ? (
               <SintesiDisclosure
                 id="sintesi-editorial-approfondisci"
@@ -668,11 +714,8 @@ export default function SintesiCorrenti({
                 ))}
               </SintesiDisclosure>
             ) : null}
+            <OtherFamiliesLine families={otherFamilies} />
           </div>
-          <CompositionBadgeRow
-            primaryFamilies={compositionViewModel.primaryFamilies}
-            compactCompanion={compositionViewModel.compactCompanion}
-          />
         </div>
 
         <SectionDivider />
@@ -854,40 +897,26 @@ export default function SintesiCorrenti({
                 {paragraph}
               </p>
             ))}
-            <p className="sintesi-editorial-body">{briefSummary.compositionParagraph}</p>
-            {modulatingFamilyName ? (
-              <p className="sintesi-editorial-body">
-                Il tuo profilo, guidato dalla famiglia {briefSummary.introFamily}, è modulato anche da una
-                presenza significativa della famiglia <strong>{modulatingFamilyName}</strong>.
-              </p>
-            ) : null}
-            <p className="sintesi-editorial-body sintesi-editorial-body--lead">
-              Nel tuo risultato prevale in particolare la natura (caratteristica emotiva){' '}
-              <strong className="sintesi-editorial-highlight">{briefSummary.introQuality}</strong>.
+            <p className="sintesi-editorial-body">
+              {renderCompositionSentence({
+                compositionParagraph: briefSummary.compositionParagraph,
+                qualitiesByQuality: briefSummary.qualitiesByQuality,
+                activeTip,
+                onToggleTip: toggleTip,
+                idPrefix: 'composition',
+              })}{' '}
+              Nel tuo caso, emerge in particolare la natura{' '}
+              {personalQualityDefinition ? (
+                <InfoTip
+                  term={briefSummary.introQuality}
+                  tip={personalQualityDefinition}
+                  open={activeTip === 'personal-quality'}
+                  onToggle={() => toggleTip('personal-quality')}
+                />
+              ) : (
+                <strong className="sintesi-editorial-highlight">{briefSummary.introQuality}</strong>
+              )}.
             </p>
-            {qualityKeys.length > 1 ? (
-              <div
-                className="sintesi-correnti__quality-pills"
-                role="tablist"
-                aria-label={`Nature della famiglia ${briefSummary.introFamily}`}
-              >
-                {qualityKeys.map((key) => (
-                  <button
-                    type="button"
-                    key={key}
-                    role="tab"
-                    aria-selected={activeQuality === key}
-                    className={`sintesi-correnti__quality-pill${activeQuality === key ? ' sintesi-correnti__quality-pill--active' : ''}`}
-                    onClick={() => setSelectedQuality(key)}
-                  >
-                    {key}
-                  </button>
-                ))}
-              </div>
-            ) : null}
-            {activeQualityText ? (
-              <p className="sintesi-editorial-body">{activeQualityText}</p>
-            ) : null}
             {briefSummary.deepDiveParagraphs.length > 0 ? (
               <SintesiDisclosure
                 id="sintesi-editorial-approfondisci"
@@ -900,11 +929,8 @@ export default function SintesiCorrenti({
                 ))}
               </SintesiDisclosure>
             ) : null}
+            <OtherFamiliesLine families={otherFamilies} />
           </div>
-          <CompositionBadgeRow
-            primaryFamilies={compositionViewModel.primaryFamilies}
-            compactCompanion={compositionViewModel.compactCompanion}
-          />
         </div>
 
         <div className="sintesi-divider-container" style={{ gridColumn: '1 / -1', width: '100%', marginBottom: '2.5rem' }}>

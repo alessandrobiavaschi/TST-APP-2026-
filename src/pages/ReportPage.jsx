@@ -12,12 +12,46 @@ import FinalFlowerTransition from '../components/report/FinalFlowerTransition'
 import ReportShell from '../components/report/ReportShell.jsx'
 import { buildReportData } from '../utils/buildReportData.js'
 import { getMergedReportBlock } from '../reportContentMerged.js'
+import { createEmptyTestRecord } from '../dbSchema.js'
 import '../styles/report-tst.css'
+
+// Record di esempio per /report-preview: stessa pipeline di calcolo dei report
+// reali (buildReportData, computeColorTotals, ecc.), nessun dato inventato nei
+// contenuti — solo punteggi di prova per una famiglia Marziale prevalente, utili
+// a verificare il layout senza dover passare da login/archivio Firebase.
+const SAMPLE_PREVIEW_RECORD = {
+  id: 'anteprima-report',
+  raw: {
+    ...createEmptyTestRecord(),
+    Nome: 'Anteprima',
+    Cognome: 'Report',
+    Data_Test: '2026-08-20',
+    Data_Ora_Fine_Test: '2026-08-20',
+    PE_Simpatia: 6,
+    PE_Antipatia: 2,
+    PE_Indifferenza: 3,
+    BLU_1_Depressiva: 3,
+    BLU_2_Lunare: 5,
+    BLU_3_Nostalgia: 3,
+    BLU_4_Solare: 2,
+    ROSSO_1_Assertivita: 14,
+    ROSSO_2_Dubbio_Collera: 6,
+    VERDE_1_Calma: 5,
+    GIALLO_1_Gioia_Entusiasmo: 4,
+    GIALLO_2_Volitivo_Passionale: 3,
+    GRIGIO_1_Distaccato_Nichilista: 2,
+    GRIGIO_2_Intellettuale_Saggio: 1,
+    Disposizione_Prevalente: 'Marziale',
+    Sottodisposizione_Prevalente: 'Assertivita',
+    Portato_Esperienziale_Prevalente: 'Simpatia',
+  },
+}
 
 function ReportPage() {
   const location = useLocation()
   const navigate = useNavigate()
-  const record = location.state?.record
+  const isPreviewRoute = location.pathname === '/report-preview'
+  const record = location.state?.record || (isPreviewRoute ? SAMPLE_PREVIEW_RECORD : undefined)
   const fromSubmit = Boolean(location.state?.fromSubmit)
   const skipReportTransition = Boolean(location.state?.skipReportTransition)
   const playSubmitTransition = fromSubmit && !skipReportTransition

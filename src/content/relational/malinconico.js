@@ -64,7 +64,7 @@ export const RELATIONS = [
         label: 'La dinamica',
         title: 'Malinconico ↔ Entusiasta',
         body: [
-          'Il malinconico vive nel riflesso interiore, orientato al passato e alla profondità; l\'entusiasta vive nel movimento, nel futuro e nell\'apertura. Sono venti opposti sulla Rosa dei venti che possono arricchirsi o scontrarsi.',
+          'Il malinconico vive nel riflesso interiore, orientato al passato e alla profondità; l\'entusiasta vive nel movimento, nel futuro e nell\'apertura. Sono energie opposte nell\'Energia Emotiva che possono arricchirsi o scontrarsi.',
           'L\'entusiasta può tirare il malinconico fuori dal chiuso, offrendo slancio e possibilità. Il malinconico può dare all\'entusiasta profondità e senso, impedendo che l\'energia si disperda in superficie.',
           'Il pericolo è la frustrazione reciproca: il malinconico si sente travolto e non compreso, l\'entusiasta si sente frenato e respinto.',
         ],
@@ -95,36 +95,36 @@ export const RELATIONS = [
   {
     key: 'as',
     icon: '⚡',
-    name: 'Con l\'Assertivo',
+    name: 'Con il Volitivo-Collerico',
     sub: 'Deciso · Diretto · Pratico',
     accent: RELATION_ACCENTS.assertivo,
     tabs: {
       dinamica: {
         label: 'La dinamica',
-        title: 'Malinconico ↔ Assertivo',
+        title: 'Malinconico ↔ Volitivo-Collerico',
         body: [
-          'Il malinconico riflette, elabora, cerca senso; l\'assertivo decide, agisce, punta al risultato. Il vento da Est (volontà) incontra il vento da Ovest (malinconia): presente e passato che si misurano.',
-          'L\'assertivo può dare al malinconico struttura e direzione quando il chiuso rischia di diventare paralisi. Il malinconico può richiamare l\'assertivo alla sensibilità quando il fare diventa troppo «martello».',
-          'Il pericolo è che il malinconico si senta schiacciato dalla forza decisionale dell\'altro, mentre l\'assertivo interpreti la lentezza come debolezza o indecisione.',
+          'Il malinconico riflette, elabora, cerca senso; il volitivo-collerico decide, agisce, punta al risultato. L\'energia da Est (volontà) incontra l\'energia da Ovest (malinconia): presente e passato che si misurano.',
+          'Il volitivo-collerico può dare al malinconico struttura e direzione quando il chiuso rischia di diventare paralisi. Il malinconico può richiamare il volitivo-collerico alla sensibilità quando il fare diventa troppo «martello».',
+          'Il pericolo è che il malinconico si senta schiacciato dalla forza decisionale dell\'altro, mentre il volitivo-collerico interpreti la lentezza come debolezza o indecisione.',
         ],
-        tip: 'Il malinconico esprime bisogni con chiarezza prima di chiudersi. L\'assertivo impara a fare pause e a chiedere «cosa stai provando?» senza voler risolvere subito.',
+        tip: 'Il malinconico esprime bisogni con chiarezza prima di chiudersi. Il volitivo-collerico impara a fare pause e a chiedere «cosa stai provando?» senza voler risolvere subito.',
       },
       frizioni: {
         label: 'Le frizioni',
         title: 'Dove nascono i conflitti',
         body: [
-          'L\'assertivo vuole risposte rapide; il malinconico ha bisogno di tempo e profondità. La frustrazione è frequente su entrambi i fronti.',
-          'Il malinconico può cedere per evitare il conflitto, accumulando risentimento silenzioso che l\'assertivo non percepisce.',
-          'Nei momenti di rabbia assertiva, il malinconico si ritira ulteriormente, e la distanza si allarga senza conciliazione.',
+          'Il volitivo-collerico vuole risposte rapide; il malinconico ha bisogno di tempo e profondità. La frustrazione è frequente su entrambi i fronti.',
+          'Il malinconico può cedere per evitare il conflitto, accumulando risentimento silenzioso che il volitivo-collerico non percepisce.',
+          'Nei momenti di collera, il malinconico si ritira ulteriormente, e la distanza si allarga senza conciliazione.',
         ],
-        tip: 'L\'assertivo riduce il tono e offre spazio temporale. Il malinconico impara a dire «ho bisogno di tempo» invece di sparire.',
+        tip: 'Il volitivo-collerico riduce il tono e offre spazio temporale. Il malinconico impara a dire «ho bisogno di tempo» invece di sparire.',
       },
       risorse: {
         label: 'Le risorse',
         title: 'Cosa si danno a vicenda',
         body: [
-          'L\'assertivo dà al malinconico slancio verso l\'azione e protezione nel mondo esterno.',
-          'Il malinconico restituisce all\'assertivo profondità affettiva, capacità di ascolto e richiamo al sentire quando la volontà si irrigidisce.',
+          'Il volitivo-collerico dà al malinconico slancio verso l\'azione e protezione nel mondo esterno.',
+          'Il malinconico restituisce al volitivo-collerico profondità affettiva, capacità di ascolto e richiamo al sentire quando la volontà si irrigidisce.',
           'La Musica malinconica può dialogare con la volitività forte: nel modello FM è una risorsa esplicita per riequilibrare l\'eccesso di fare.',
         ],
         tip: 'Usare la musica come mediatore: un ascolto condiviso può aprire dialogo dove le parole dirette si bloccano.',

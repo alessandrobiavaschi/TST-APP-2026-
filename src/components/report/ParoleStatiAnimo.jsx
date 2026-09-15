@@ -398,6 +398,7 @@ export default function ParoleStatiAnimo({
               isSelected={selectedWord?.parola === w.parola}
               prefersReducedMotion={prefersReducedMotion}
               onClick={() => handleWordClick(w)}
+              muted={selectedFamily !== famiglia}
             />
           ))}
         </motion.div>
@@ -449,11 +450,12 @@ export default function ParoleStatiAnimo({
   )
 }
 
-function WordPill({ word, isSelected, prefersReducedMotion, onClick }) {
+function WordPill({ word, isSelected, prefersReducedMotion, onClick, muted }) {
   const [hover, setHover] = useState(false)
-  const coloreTesto = lightenForDark(word.colore, 0.4)
-  const bgAlpha = hover || isSelected ? 0.2 : 0.08
-  const borderAlpha = hover || isSelected ? 0.5 : 0.2
+  const baseColor = muted ? '#64748b' : word.colore
+  const coloreTesto = muted ? '#94a3b8' : lightenForDark(word.colore, 0.4)
+  const bgAlpha = hover || isSelected ? (muted ? 0.12 : 0.2) : (muted ? 0.05 : 0.08)
+  const borderAlpha = hover || isSelected ? (muted ? 0.35 : 0.5) : (muted ? 0.15 : 0.2)
 
   return (
     <motion.button
@@ -464,7 +466,7 @@ function WordPill({ word, isSelected, prefersReducedMotion, onClick }) {
       animate={{
         opacity: 1,
         y: 0,
-        scale: hover && !prefersReducedMotion ? 1.05 : 1,
+        scale: hover && !prefersReducedMotion && !muted ? 1.05 : 1,
       }}
       transition={{ duration: 0.2 }}
       onClick={onClick}
@@ -472,8 +474,8 @@ function WordPill({ word, isSelected, prefersReducedMotion, onClick }) {
       onMouseLeave={() => setHover(false)}
       aria-label={`${word.parola}${word.sub ? ` — ${word.sub.titolo}` : ''}. Clicca per la definizione.`}
       style={{
-        background: withAlpha(word.colore, bgAlpha),
-        border: `1px solid ${withAlpha(word.colore, borderAlpha)}`,
+        background: withAlpha(baseColor, bgAlpha),
+        border: `1px solid ${withAlpha(baseColor, borderAlpha)}`,
         borderRadius: '999px',
         padding: '6px 12px',
         margin: 4,

@@ -8,8 +8,8 @@ export const PROFILE_PDF_BLOCKS = {
     restituzione_caratteri_estesi:
       'Nella famiglia Razionale, la natura Intellettuale-Razionale esprime il piacere del calcolo, della dubbiosità di origine intellettuale e dell’oggettività fisica. Agisce in modo trasversale sulle altre quattro famiglie: può raffreddare l’affetto o, nel versante evoluto, orientare l’intelletto verso saggezza e dedizione.',
     natura_paragrafi: [
-      'Da Nord verso Sud soffiano venti gelidi: sul piano emotivo diventano la corrente agnostico-anaffettiva — colore Grigio scuro, intervallo di ottava — che raffredda e raggela affettivamente.',
-      'Nella Rosa dei venti questa corrente è trasversale: getta la sua ombra sulle quattro macro-aree, sulla linea orizzontale del presente ma con distacco polare — osservazione, non passione. Accanto al polo anaffettivo esiste il versante agnostico-intellettuale evolutivo: saggezza, devozione, dedizione.',
+      'Da Nord verso Sud si muove un’energia gelida: sul piano emotivo diventa la corrente agnostico-anaffettiva — colore Grigio scuro, intervallo di ottava — che raffredda e raggela affettivamente.',
+      'Nell’Energia Emotiva questa corrente è trasversale: getta la sua ombra sulle quattro macro-aree, sulla linea orizzontale del presente ma con distacco polare — osservazione, non passione. Accanto al polo anaffettivo esiste il versante agnostico-intellettuale evolutivo: saggezza, devozione, dedizione.',
       'È una natura che può abitare il mondo guardandolo da una quota alta e separata: misura, analizza, scompone, ma rischia di non lasciarsi toccare. Nel profilo non va letta solo come freddezza: segnala anche la forza del pensiero quando cerca un ordine davanti alla complessità affettiva.',
       'Quando il pensiero resta collegato al sentire, questa corrente diventa capacità di osservare senza essere travolti. Quando si separa troppo, invece, il dubbio si trasforma in distanza e il mondo emotivo appare banale, eccessivo o poco degno di coinvolgimento.',
     ].join('\n'),
@@ -44,16 +44,16 @@ export const PROFILE_PDF_BLOCKS = {
   },
   Rosso: {
     restituzione_caratteri_estesi:
-      'Nella famiglia Marziale emerge il piacere del fare, di realizzare ciò che si desidera, di governarsi e mettersi alla prova. Le nature Volitiva e Collerica prediligono assertività, costanza, sincerità e impegno nel qui e ora, con orientamento al presente.',
+      'Nella famiglia Marziale emerge il piacere del fare, di realizzare ciò che si desidera, di governarsi e mettersi alla prova. La Natura Volitiva-Collerica predilige costanza, sincerità e impegno nel qui e ora, con orientamento al presente.',
     natura_paragrafi: [
-      'Da Est verso Ovest soffiano i venti che seguono l’azione vitale sul percorso del Sole. Sul piano emotivo diventano il flusso Volitivo — colore Rosso, intervallo di quarta —: il piacere del fare, impulso che agisce nel presente.',
+      'Da Est verso Ovest si muove l’energia che segue l’azione vitale sul percorso del Sole. Sul piano emotivo diventa il flusso Volitivo — colore Rosso, intervallo di quarta —: il piacere del fare, impulso che agisce nel presente.',
       'Nel rapporto con te stesso, chi ama agire sente l’Io come alleato: responsabilità, prove da superare, sicurezza nel qui e ora. Sport e Musica condividono la sincerità dell’emozione autentica; dopo l’adolescenza quel finalizzatore sei tu, governatore di te stesso.',
       'Questa corrente ha una direzione orizzontale e concreta: vuole misurarsi con ostacoli, decisioni, risultati. Non cerca prima di tutto il riparo o l’introspezione, ma il punto in cui l’energia emotiva può diventare gesto efficace.',
       'Nel carattere il Rosso non vive da solo: ha bisogno dei «gregari» interiori — calma, entusiasmo, riflessività — per non trasformare il governo di sé in dominio. Quando dialoga con le altre correnti, la volontà diventa forza organizzatrice e non semplice durezza.',
     ].join('\n'),
     descrizione_estesa: [
       'L’energia dell’Io matura e si mostra pienamente intorno al ventesimo anno: governatore di sé e delle disposizioni diventate carattere. I «gregari» — le altre correnti — contano sulla saldezza e sulla volontà di realizzare il futuro desiderato.',
-      'Nel temperamento volitivo-collerico convivono due sotto-correnti: l’Assertività volitiva (Rosso, quarta) con stabilità, schiettezza, coraggio; il Dubbio e la Collera (Amaranto, quarta eccedente) con incertezza e rabbia quando il dialogo si inceppa.',
+      'Nella Natura Volitiva-Collerica convivono due sotto-correnti: la fermezza volitiva (Rosso, quarta) con stabilità, schiettezza, coraggio; la collera (Amaranto, quarta eccedente) con rabbia e reattività quando il dialogo si inceppa.',
       'Sul piano dell’ascolto questa natura cerca spesso timbri concreti, centrali, decisi: suoni che svegliano, incidono, dichiarano una presenza. Può amare la forza di percussioni, fiati, pianoforte, batteria e unisoni capaci di dare forma immediata all’energia.',
       'La Musica viene vissuta come campo di prova: ritmo stabile, melodie memorabili, testi chiari, improvvisazione osservata con interesse ma anche bisogno di struttura. Quando l’energia è equilibrata, il Rosso trova nel suono una disciplina vitale; quando si irrigidisce, fatica a lasciarsi andare.',
     ].join('\n'),
@@ -69,7 +69,7 @@ export const PROFILE_PDF_BLOCKS = {
     ombre: [
       'Quando questa corrente si irrigidisce, l’Io può «egoizzarsi» e smettere di nutrire i gregari interiori.',
       'Il rischio non è avere forza, ma usarla senza ascolto: la volontà diventa martello, la prova diventa sfida continua e la relazione viene letta solo come ostacolo o conferma.',
-      '- La dubbiosità deformata diventa indecisione cronica e oscillazione, non più interrogativo fecondo.',
+      '- La volontà deformata diventa rigidità e ostinazione cieca, incapace di adattarsi o cedere.',
       '- Rabbia e ira esplodono là dove il dialogo è impossibile e l’antipatia è stata a lungo covata.',
       '- Nella fase del «deserto» emotivo si può sentire vuoto dentro pur mantenendo attività esterna intensa.',
       '- La ripetitività o la lentezza possono essere vissute come intralcio invece che come maturazione.',
@@ -90,7 +90,7 @@ export const PROFILE_PDF_BLOCKS = {
     restituzione_caratteri_estesi:
       'Nella famiglia Flemmatica, la natura Contemplativa esprime il piacere della lentezza, del silenzio, della calma, del riposo e della contemplazione. Predilige il certo, la ripetitività e l’assenza di eccitazione, con orientamento all’«oblio sospeso», il tempo della bonaccia interiore.',
     natura_paragrafi: [
-      'Al centro della Rosa dei venti domina un vento calmo e contemplativo — come l’occhio del ciclone, bonaccia silenziosa. Sul piano emotivo è la corrente flemmatica, colore Verde, orientata all’«oblio sospeso».',
+      'Al centro dell’Energia Emotiva domina una qualità calma e contemplativa — come l’occhio del ciclone, bonaccia silenziosa. Sul piano emotivo è la corrente flemmatica, colore Verde, orientata all’«oblio sospeso».',
       'La flemmaticità si forma nel periodo neonatale: riposo, nutrimento, sognare e assaporare sedimentano moderazione, prudenza e gentilezza gratuita. Chi ha propensioni flemmatiche orienta l’energia verso calma ed equilibrio affettivo.',
       'Questa natura non corre verso un altrove: custodisce il tempo, lo rallenta, lo rende abitabile. Nel carattere può apparire come amore per il certo, per la ripetizione buona, per i climi in cui non serve difendersi.',
       'La Flemma ha anche una funzione regolatrice: smussa l’eccesso di collera, raffredda l’agitazione dell’entusiasmo, protegge l’interiorità malinconica quando diventa troppo intensa. È una qualità di riposo, ma anche di cura dello spazio emotivo.',
@@ -130,7 +130,7 @@ export const PROFILE_PDF_BLOCKS = {
     restituzione_caratteri_estesi:
       'Nella famiglia Entusiasta, la natura Gioioso-Sanguinico esprime il piacere del movimento, della curiosità, della scoperta del nuovo e dell’estroversione. Guarda al futuro attraverso slancio vitale, partecipazione e ricerca di bagliori di bellezza.',
     natura_paragrafi: [
-      'Da Sud verso Nord soffiano venti caldi: interiormente diventano il flusso dell’Entusiasmo — colore Giallo, continente dell’Entusiasmo — con orientamento al futuro.',
+      'Da Sud verso Nord si muove un’energia calda: interiormente diventa il flusso dell’Entusiasmo — colore Giallo, continente dell’Entusiasmo — con orientamento al futuro.',
       'Nel pre-infantile il bambino accumula energia da spendere; ritmo e ripetizione guidano un apprendimento rapidissimo. La soddisfazione per i successi, anche piccoli, accende l’Entusiasmo come area affettiva strutturata.',
       'Questa corrente muove l’energia verso fuori: persone, natura, oggetti, attività, novità. Il suo piacere è uscire da sé, fiutare possibilità, provare, associare gesto ed effetto, sentire il mondo come campo aperto.',
       'Nel profilo il Giallo segnala una forza centrifuga: non vuole restare troppo a lungo nel chiuso dell’interiorità, cerca bagliori, movimento e conferme vitali. Quando è ben regolato porta luce anche alle zone più fredde o spente del carattere.',

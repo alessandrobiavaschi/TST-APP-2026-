@@ -25,9 +25,9 @@ const LETTURA_BY_FAMILY = {
   Blu:
     'Emerge il piacere di stare con sé stessi: introversione che non teme la solitudine scelta, luce lunare che rimanda indietro ciò che è stato vissuto. La tristezza è un volto della malinconia, non l\'intera corrente; accanto al chiuso più cupo convivono nostalgia, timore riflesso e una breccia solare verso fiducia e speranza.',
   Rosso:
-    'Emerge il piacere del fare nel presente: l\'Io che si mette alla prova, assume responsabilità, cerca ostacoli da superare. La stessa energia che realizza può oscillare verso dubbio e collera quando il dialogo si inceppa — due versanti della volitività, non due persone diverse.',
+    'Emerge il piacere del fare nel presente: l\'Io che si mette alla prova, assume responsabilità, cerca ostacoli da superare. La stessa energia che realizza può oscillare verso rigidità e collera quando il dialogo si inceppa — due versanti della volitività, non due persone diverse.',
   Verde:
-    'Emerge il piacere della lentezza e del riposo: bonaccia al centro della Rosa dei venti, come l\'occhio del ciclone. La calma flemmatica non è assenza di sentire, ma orientamento verso equilibrio e contemplazione; quando si irrigidisce, la stessa qualità scivola in pigrizia o in evitamento del conflitto.',
+    'Emerge il piacere della lentezza e del riposo: bonaccia al centro dell\'Energia Emotiva, come l\'occhio del ciclone. La calma flemmatica non è assenza di sentire, ma orientamento verso equilibrio e contemplazione; quando si irrigidisce, la stessa qualità scivola in pigrizia o in evitamento del conflitto.',
   Giallo:
     'Emerge il piacere del movimento verso il fuori: curiosità, scoperta, slancio vitale che premia ogni piccolo successo. La gioia cinetica convive con una passione più profonda — innamoramento, ardore, adesione totale —; insieme costituiscono antidoto al gelo dell\'apatia e dell\'indifferenza.',
   Grigio:

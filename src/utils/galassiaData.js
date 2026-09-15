@@ -151,7 +151,7 @@ export const EXAMPLE_CORRENT_DATA = [
     sottoCorrenti: [
       {
         id: 'ROSSO_1_Assertivita',
-        nome: 'Assertivita',
+        nome: 'Fermezza volitiva',
         colore: '#dc2626',
         peso: 46,
         descrizione: 'Quarta · Rosso',
@@ -159,7 +159,7 @@ export const EXAMPLE_CORRENT_DATA = [
       },
       {
         id: 'ROSSO_2_Dubbio_Collera',
-        nome: 'Dubbio Collera',
+        nome: 'Rabbia Collera',
         colore: '#9f2b68',
         peso: 31,
         descrizione: 'Quarta eccedente · Amaranto',

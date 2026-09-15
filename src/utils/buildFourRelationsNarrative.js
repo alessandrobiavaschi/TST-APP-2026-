@@ -332,7 +332,7 @@ const ACTION_CONTEXT_BY_FAMILY = {
 export function buildActionNarrative({ dominantFamilyKey = '', ranking = [] } = {}) {
   const measurable = ranking.filter((item) => (Number(item.rawValue) || 0) > 0)
   if (!measurable.length) {
-    return emptyNarrative("Le risposte in Tempo e Melodia non sono sufficienti per descrivere il rapporto con l'Agire.")
+    return emptyNarrative("Le risposte raccolte non sono sufficienti per descrivere il rapporto con l'Agire.")
   }
 
   const martial = rankingItem(ranking, 'rosso')
