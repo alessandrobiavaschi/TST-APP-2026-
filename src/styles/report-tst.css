@@ -3653,44 +3653,6 @@
   border-top: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-.profilo-composition-extra__heading {
-  margin: 0 0 var(--space-sm, 16px);
-  font-family: var(--font-body);
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.profilo-composition-extra__full {
-  margin-top: 0.75rem;
-}
-
-/* Trigger "mostra il resto": deliberatamente diverso dalle pillole famiglia
-   sopra (link discreto, non un'altra pillola) — è un contenitore catch-all,
-   non un nome di famiglia, e non deve sembrare equivalente agli altri. */
-.profilo-composition-extra__full > .calculation-disclosure__trigger {
-  padding: 0;
-  border: none;
-  border-radius: 0;
-  background: transparent;
-  color: rgba(255, 255, 255, 0.62);
-  font-weight: 500;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  text-decoration-color: rgba(255, 255, 255, 0.28);
-}
-
-.profilo-composition-extra__full > .calculation-disclosure__trigger:hover,
-.profilo-composition-extra__full > .calculation-disclosure__trigger:focus-visible,
-.profilo-composition-extra__full > .calculation-disclosure__trigger[aria-expanded='true'] {
-  background: transparent;
-  border-color: transparent;
-  color: #fff;
-  text-decoration-color: rgba(255, 255, 255, 0.7);
-}
-
 .profilo-panel__connector {
   margin: 0 0 20px;
   font-family: var(--font-body);

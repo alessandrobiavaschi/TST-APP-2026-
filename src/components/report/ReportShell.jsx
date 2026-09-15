@@ -21,12 +21,14 @@ import TracceReport from './TracceReport'
 import SezionePortatoEsperienziale from './SezionePortatoEsperienziale'
 import ParoleStatiAnimo from './ParoleStatiAnimo'
 import EmotionalIntegrations from './EmotionalIntegrations.jsx'
+import FamilyBrowseCarousel from './FamilyBrowseCarousel.jsx'
 import SectionDivider from './SectionDivider'
 import ReportPartDivider from './ReportPartDivider.jsx'
 import FioreCorrenti from './FioreCorrenti'
 import { buildCorrentDataFromRecord } from '../../utils/galassiaData.js'
 import { buildLessicoAnaliticoViewModel } from '../../utils/galassiaLessicoViewModel.js'
-import { REPORT_NAV_UI, REPORT_SHELL_UI, SINTESI_UI } from './reportUiCopy.js'
+import { buildProgressiveContentViewModel } from '../../utils/buildProgressiveContentViewModel.js'
+import { REPORT_NAV_UI, REPORT_SHELL_UI, SINTESI_UI, COMPOSIZIONE_UI } from './reportUiCopy.js'
 import { SECTION_INTROS } from '../../content/reportRestitution.js'
 
 // Il flat-config ESLint del repo non rileva l'uso di `motion` via JSX member.
@@ -92,6 +94,7 @@ function readModalitaFromHash() {
   }
   if (window.location.hash === '#for-musicians') return 'for-musicians'
   if (window.location.hash === '#famiglie') return 'famiglie'
+  if (window.location.hash === '#tutte-famiglie') return 'tutte-famiglie'
   return 'report'
 }
 
@@ -138,6 +141,8 @@ export default function ReportShell({
   // Refs for accessibility focus restoration
   const famiglieEntryBtnRef = useRef(null)
   const famiglieBackButtonRef = useRef(null)
+  const tutteFamiglieEntryBtnRef = useRef(null)
+  const tutteFamiglieBackButtonRef = useRef(null)
   const musiciansEntryBtnRef = useRef(null)
   const musiciansBackButtonRef = useRef(null)
   const galassiaEntryBtnRef = useRef(null)
@@ -234,6 +239,8 @@ export default function ReportShell({
     if (modalita === 'report') {
       if (previousMode === 'famiglie') {
         requestAnimationFrame(() => famiglieEntryBtnRef.current?.focus())
+      } else if (previousMode === 'tutte-famiglie') {
+        requestAnimationFrame(() => tutteFamiglieEntryBtnRef.current?.focus())
       } else if (previousMode === 'for-musicians') {
         requestAnimationFrame(() => musiciansEntryBtnRef.current?.focus())
       } else if (previousMode === 'galassia') {
@@ -243,6 +250,8 @@ export default function ReportShell({
       requestAnimationFrame(() => musiciansBackButtonRef.current?.focus())
     } else if (modalita === 'famiglie') {
       requestAnimationFrame(() => famiglieBackButtonRef.current?.focus())
+    } else if (modalita === 'tutte-famiglie') {
+      requestAnimationFrame(() => tutteFamiglieBackButtonRef.current?.focus())
     } else if (modalita === 'galassia') {
       requestAnimationFrame(() => galassiaLayerRef.current?.focus())
     }
@@ -321,6 +330,31 @@ export default function ReportShell({
     () => Object.fromEntries(getReportGroups(profilo).map((group) => [group.id, group])),
     [profilo],
   )
+
+  // Stessa fonte già usata da ProfiloEmotivo per il blocco "Le altre famiglie del tuo
+  // profilo" (contentCards + globalProfileContract.ranking, dominante escluso): qui
+  // si riunisce in un'unica lista, ordinata per presenza, per la stanza sfogliabile
+  // aperta dal pulsante "Approfondisci tutte le famiglie".
+  const allOtherFamilies = useMemo(() => {
+    const dominantFamilyKey = profiloEmotivo?.dominantFamilyKey
+    const viewModel = buildProgressiveContentViewModel({
+      ranking: globalProfileContract?.ranking,
+      contentCards: profiloEmotivo?.contentCards || {},
+      excludeFamilyKeys: dominantFamilyKey ? [dominantFamilyKey] : [],
+    })
+    const merged = [
+      ...viewModel.primaryFamilies,
+      ...viewModel.companionFamilies,
+      ...viewModel.theoreticalFamilies,
+      ...viewModel.marginalFamilies,
+    ]
+    const seen = new Set()
+    return merged.filter((card) => {
+      if (seen.has(card.familyKey)) return false
+      seen.add(card.familyKey)
+      return true
+    })
+  }, [profiloEmotivo?.dominantFamilyKey, profiloEmotivo?.contentCards, globalProfileContract?.ranking])
 
   const correntData = useMemo(
     () => buildCorrentDataFromRecord(rawRecord || {}),
@@ -652,6 +686,8 @@ export default function ReportShell({
                     contentCards={profiloEmotivo?.contentCards}
                     globalRanking={globalProfileContract?.ranking}
                     dominantFamilyKey={profiloEmotivo?.dominantFamilyKey}
+                    onOpenAllFamilies={(event) => openModalita('tutte-famiglie', event)}
+                    allFamiliesEntryBtnRef={tutteFamiglieEntryBtnRef}
                   />
                 </RoomRevealContent>
               </section>
@@ -828,6 +864,53 @@ export default function ReportShell({
                 correnti={correnti}
                 rawRecord={rawRecord}
                 profilo={profilo}
+              />
+            </div>
+
+            <footer className="report-dettaglio-footer">
+              <button
+                type="button"
+                className="report-dettaglio-back-btn report-dettaglio-back-btn--bottom"
+                onClick={() => changeModalita('report')}
+              >
+                ← Torna al report principale
+              </button>
+            </footer>
+          </div>
+        </div>
+      ) : null}
+
+      {/* ── STANZA SEPARATA: LE ALTRE FAMIGLIE DEL PROFILO ──────────────────── */}
+      {allOtherFamilies.length > 0 ? (
+        <div
+          tabIndex="-1"
+          className={`report-tst-dettaglio-layer${modalita === 'tutte-famiglie' ? ' is-open' : ''}`}
+          data-report-mode="tutte-famiglie"
+          role="dialog"
+          aria-modal={modalita === 'tutte-famiglie'}
+          aria-label={COMPOSIZIONE_UI.title}
+          aria-hidden={modalita !== 'tutte-famiglie'}
+          inert={modalita !== 'tutte-famiglie' ? true : undefined}
+        >
+          <div className="report-tst-dettaglio-container">
+            <header className="report-dettaglio-header">
+              <button
+                ref={tutteFamiglieBackButtonRef}
+                type="button"
+                className="report-dettaglio-back-btn"
+                onClick={() => changeModalita('report')}
+              >
+                ← Torna al report principale
+              </button>
+              <p className="report-dettaglio-eyebrow">TST — Livello di Approfondimento</p>
+              <h1 className="report-dettaglio-title">{COMPOSIZIONE_UI.title}</h1>
+              <p className="report-dettaglio-lead">{COMPOSIZIONE_UI.lead}</p>
+            </header>
+
+            <div className="report-detail-navigation__workspace">
+              <FamilyBrowseCarousel
+                families={allOtherFamilies}
+                isActive={modalita === 'tutte-famiglie'}
               />
             </div>
 

@@ -16,6 +16,9 @@ export function buildProgressiveContentViewModel({
   const bandByKey = Object.fromEntries(
     (Array.isArray(ranking) ? ranking : []).map((item) => [item.familyKey, item.band]),
   )
+  const percentByKey = Object.fromEntries(
+    (Array.isArray(ranking) ? ranking : []).map((item) => [item.familyKey, item.percent]),
+  )
   const leaderKey = ranking?.[0]?.familyKey ?? null
   const isExactTie = (ranking || []).some((item) => item.band === 'exact_tie')
   const hasNearParity = (ranking || []).some((item) => item.band === 'near_parity')
@@ -33,6 +36,7 @@ export function buildProgressiveContentViewModel({
     ...card,
     colore: FAMILY_THEME[card.familyName]?.dot || null,
     isQuasiParitaria: card.familyKey !== leaderKey && COMPOSITE_BANDS.has(bandByKey[card.familyKey]),
+    presencePercent: typeof percentByKey[card.familyKey] === 'number' ? percentByKey[card.familyKey] : null,
   })
 
   const primaryFamilies = withoutExcluded(contentCards.primary).map(annotate)

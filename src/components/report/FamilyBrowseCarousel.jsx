@@ -5,6 +5,9 @@ import { useUiSounds } from '../../UiSoundProvider.jsx'
 import { COMPOSIZIONE_UI } from './reportUiCopy.js'
 import './FamilyBrowseCarousel.css'
 
+// Il flat-config ESLint del repo non rileva l'uso di `motion` via JSX member.
+void motion
+
 const PANEL_FIELDS = [
   { key: 'natura', heading: 'Natura' },
   { key: 'racconto', heading: 'Racconto' },

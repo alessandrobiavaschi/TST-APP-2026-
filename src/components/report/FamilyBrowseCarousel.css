@@ -6,12 +6,18 @@
 
 .family-browse__stage {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--space-sm, 16px);
 }
 
 .family-browse__nav {
+  /* Ancorate in alto (non centrate sull'intera card) apposta: l'altezza della card
+     varia con "Scopri di più" e con la lunghezza della sintesi per famiglia — se le
+     freccette fossero centrate sull'altezza totale, apri/chiudi il dettaglio le
+     sposta proprio mentre l'utente le sta cliccando (mousedown chiude il dettaglio,
+     il layout si sposta prima del mouseup, il click non arriva più al bottone). */
   flex: 0 0 auto;
+  margin-top: 28px;
   width: 44px;
   height: 44px;
   border: 1px solid rgba(255, 255, 255, 0.16);
