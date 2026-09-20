@@ -10,6 +10,31 @@ const CAMERA_MAX_SCALE = 2.8
 const CAMERA_ZOOM_STEP = 1.25
 const WHEEL_ZOOM_INTENSITY = 0.002
 const PINCH_DAMPING = 0.55
+const BASE_PITCH = 22
+const FOCUS_PITCH = 13
+const LERP_FACTOR = 0.10
+
+// Exact Cubic-Bezier solver for fly-to transitions: cubic-bezier(0.16, 1, 0.3, 1)
+function solveCubicBezier(x1, y1, x2, y2) {
+  return function (x) {
+    if (x <= 0) return 0
+    if (x >= 1) return 1
+    let s = x
+    for (let i = 0; i < 6; i++) {
+      const currentX = 3 * (1 - s) * (1 - s) * s * x1 + 3 * (1 - s) * s * s * x2 + s * s * s
+      const dx = 3 * (1 - s) * (1 - s) * x1 + 6 * (1 - s) * s * (x2 - x1) + 3 * s * s * (1 - x2)
+      if (Math.abs(currentX - x) < 1e-5 || Math.abs(dx) < 1e-6) break
+      s -= (currentX - x) / dx
+    }
+    s = Math.max(0, Math.min(1, s))
+    return 3 * (1 - s) * (1 - s) * s * y1 + 3 * (1 - s) * s * s * y2 + s * s * s
+  }
+}
+const flyEasing = solveCubicBezier(0.16, 1, 0.3, 1)
+
+function createCamera(x = 0, y = 0, scale = 0.5, pitch = BASE_PITCH, yaw = 0, roll = 0, z = 0) {
+  return { x, y, z, scale, pitch, yaw, roll }
+}
 
 function clamp(v, min, max) {
   return Math.max(min, Math.min(max, v))
@@ -38,7 +63,7 @@ const FAMILY_CONFIG = {
     x: 1700,
     y: 1250,
     radius: 380,
-    subSpread: 0,
+    subSpread: 175,
     compass: 'Centro · Acqua / Calma',
   },
   agnostica_anaffettiva: {
@@ -103,7 +128,53 @@ const ATLAS_FAMILY_ID_BY_KEY = Object.fromEntries(
 
 const FAMILY_LIST = FAMILY_ORDER.map((id) => ({ id, ...FAMILY_CONFIG[id] }))
 
-// ─── Build Constellation Network (Computed once with 0 overlaps) ─────────────
+// ─── Bézier Curve Calculation for Filament Edges ────────────────────────────
+function computeBézierPath(x1, y1, x2, y2, sphereX, sphereY, sagVariation = 0) {
+  const mx = (x1 + x2) * 0.5
+  const my = (y1 + y2) * 0.5
+  const sx = sphereX ?? mx
+  const sy = sphereY ?? my
+
+  const lx = x2 - x1
+  const ly = y2 - y1
+  const lDist = Math.hypot(lx, ly)
+
+  // Natural gravitational sag (15-35px) influenced by chord distance and variation
+  const baseSag = lDist > 0 ? Math.min(30, Math.max(18, lDist * 0.16)) : 22
+  const sag = Math.max(15, Math.min(35, baseSag + sagVariation * 2.5))
+
+  let cx = mx
+  let cy = my
+
+  if (lDist > 0.001) {
+    // Normal perpendicular to the chord (x1, y1) -> (x2, y2)
+    const px = -ly / lDist
+    const py = lx / lDist
+
+    // Vector from celestial sphere center to chord midpoint
+    const dx = mx - sx
+    const dy = my - sy
+    const distFromCenter = Math.hypot(dx, dy)
+
+    if (distFromCenter > 0.001) {
+      // Determine orientation so curvature bows naturally with the gravitational field
+      const dot = px * dx + py * dy
+      const sign = dot >= 0 ? 1 : -1
+      cx = mx + px * sign * sag
+      cy = my + py * sign * sag
+    } else {
+      cx = mx + px * sag
+      cy = my + py * sag
+    }
+  } else {
+    cx += sag
+    cy += sag
+  }
+
+  return `M ${x1.toFixed(1)} ${y1.toFixed(1)} Q ${cx.toFixed(1)} ${cy.toFixed(1)} ${x2.toFixed(1)} ${y2.toFixed(1)}`
+}
+
+// ─── Build Constellation Network (Concentric Elliptical Orbits) ──────────────
 function buildConstellationData() {
   const words = []
   const hubs = []
@@ -148,6 +219,10 @@ function buildConstellationData() {
           y2: hubY,
           type: 'core-hub',
           color: cfg.baseColor,
+          targetColor: cfg.baseColor,
+          sphereX: cfg.x,
+          sphereY: cfg.y,
+          sagVariation: 0,
         })
       }
 
@@ -161,113 +236,213 @@ function buildConstellationData() {
         color: cfg.baseColor,
       })
 
-      const states = c.states
+      const states = c.states || []
       const numStates = states.length
+      if (numStates === 0) return
 
+      // Partition words across 3 concentric hierarchical rings:
+      // Ring 0 (inner ~40% maxR): dominant / high-salience words (font size 17, weight 700)
+      // Ring 1 (middle ~70% maxR): intermediate words (font size 14, weight 600)
+      // Ring 2 (outer 100% maxR): remaining words (font size 12.5, weight 500)
+      let count0 = 2
+      let count1 = 4
+      if (numStates <= 5) {
+        count0 = Math.min(2, numStates)
+        count1 = numStates - count0
+      } else if (numStates <= 9) {
+        count0 = 2
+        count1 = 3
+      } else if (numStates <= 12) {
+        count0 = 3
+        count1 = 4
+      } else {
+        count0 = 3
+        count1 = 5
+      }
+
+      const ringAssignments = []
       states.forEach((state, si) => {
-        const phi = 2.3999632
-        const maxR = numCurrents === 1 ? cfg.radius * 0.76 : cfg.subSpread * 0.74
-        const r = 44 + Math.sqrt((si + 1) / (numStates + 1)) * maxR
-        const angle = si * phi + (numCurrents > 1 ? (ci * Math.PI) / 2 : 0)
+        let ringIndex = 0
+        if (si < count0) {
+          ringIndex = 0
+        } else if (si < count0 + count1) {
+          ringIndex = 1
+        } else {
+          ringIndex = 2
+        }
 
-        const wx = hubX + Math.cos(angle) * r
-        const wy = hubY + Math.sin(angle) * (r * 0.88)
-
-        const fontSize = si < 2 ? 18 : si < 7 ? 15 : 13
-        const estWidth = state.length * fontSize * 0.64 + 28
+        const fontSize = ringIndex === 0 ? 17 : ringIndex === 1 ? 14 : 12.5
+        const fontWeight = ringIndex === 0 ? 700 : ringIndex === 1 ? 600 : 500
+        const estWidth = state.length * fontSize * 0.65 + 32
         const estHeight = fontSize * 1.4 + 14
 
-        const wordId = `${famId}-${c.rawKey}-${si}`
-        words.push({
-          id: wordId,
-          nome: state,
-          familyId: famId,
-          familyLabel: cfg.label,
-          familyColor: cfg.baseColor,
-          subcurrentId: c.rawKey,
-          subcurrentTitle: c.title,
-          subcurrentDescription: c.description,
-          subcurrentInterval: c.interval,
-          hubId: c.rawKey,
-          hubX,
-          hubY,
-          x: wx,
-          y: wy,
-          width: estWidth,
-          height: estHeight,
+        ringAssignments.push({
+          state,
+          si,
+          ringIndex,
           fontSize,
-          fontWeight: si < 2 ? 700 : si < 7 ? 600 : 500,
-          color: cfg.colors[si % cfg.colors.length],
-        })
-
-        edges.push({
-          id: `edge-word-${wordId}`,
-          familyId: famId,
-          subcurrentId: c.rawKey,
-          wordId,
-          x1: hubX,
-          y1: hubY,
-          x2: wx,
-          y2: wy,
-          type: 'hub-word',
-          color: cfg.baseColor,
+          fontWeight,
+          estWidth,
+          estHeight,
         })
       })
+
+      const maxR =
+        numCurrents === 1
+          ? cfg.radius * 0.74
+          : Math.min(230, Math.max(160, cfg.subSpread * 0.74))
+
+      // Distribute each ring with proportional angular spacing weighted by text length
+      for (let rIdx = 0; rIdx <= 2; rIdx++) {
+        const ringWords = ringAssignments.filter((item) => item.ringIndex === rIdx)
+        if (ringWords.length === 0) continue
+
+        const ringFactor = rIdx === 0 ? 0.4 : rIdx === 1 ? 0.7 : 1.0
+        const r = maxR * ringFactor
+        const yFlatten = 0.85
+
+        // Alternating imperceptible cosmic drift speed (rad/frame)
+        const driftDirection = rIdx % 2 === 0 ? 1 : -1
+        const driftSpeed = driftDirection * (0.00022 - rIdx * 0.00004)
+
+        // Weighted angular allocation based on estimated text width
+        const totalRingWeight = ringWords.reduce((sum, item) => sum + item.estWidth, 0)
+        const ringPhaseOffset =
+          rIdx * 0.73 + ci * 1.25 + (famId.charCodeAt(0) % 7) * 0.41
+
+        let currentAngle = ringPhaseOffset
+        for (let j = 0; j < ringWords.length; j++) {
+          const item = ringWords[j]
+          const angularSpan = (item.estWidth / totalRingWeight) * (Math.PI * 2)
+          const angle = currentAngle + angularSpan / 2
+          currentAngle += angularSpan
+
+          const wx = hubX + Math.cos(angle) * r
+          const wy = hubY + Math.sin(angle) * (r * yFlatten)
+
+          const wordId = `${famId}-${c.rawKey}-${item.si}`
+          const wordObj = {
+            id: wordId,
+            index: words.length,
+            nome: item.state,
+            familyId: famId,
+            familyLabel: cfg.label,
+            familyColor: cfg.baseColor,
+            subcurrentId: c.rawKey,
+            subcurrentTitle: c.title,
+            subcurrentDescription: c.description,
+            subcurrentInterval: c.interval,
+            hubId: c.rawKey,
+            hubX,
+            hubY,
+            x: wx,
+            y: wy,
+            width: item.estWidth,
+            height: item.estHeight,
+            fontSize: item.fontSize,
+            fontWeight: item.fontWeight,
+            color: cfg.colors[item.si % cfg.colors.length],
+            ringIndex: rIdx,
+            orbitRadius: r,
+            yFlatten,
+            baseAngle: angle,
+            driftSpeed,
+          }
+          words.push(wordObj)
+
+          edges.push({
+            id: `edge-word-${wordId}`,
+            familyId: famId,
+            subcurrentId: c.rawKey,
+            wordId,
+            wordIndex: words.length - 1,
+            x1: hubX,
+            y1: hubY,
+            x2: wx,
+            y2: wy,
+            type: 'hub-word',
+            color: cfg.baseColor,
+            targetColor: cfg.colors[item.si % cfg.colors.length],
+            sphereX: cfg.x,
+            sphereY: cfg.y,
+            sagVariation: ((wordId.charCodeAt(wordId.length - 1)) % 7) - 3,
+          })
+        }
+      }
     })
   }
 
-  // Strict collision relaxation pass in pixel space: guarantees 0 overlaps
-  const iterations = 320
-  for (let iter = 0; iter < iterations; iter++) {
-    let moved = false
-    for (let i = 0; i < words.length; i++) {
-      const a = words[i]
-      for (let j = i + 1; j < words.length; j++) {
-        const b = words[j]
-
-        const minDx = (a.width + b.width) / 2 + 10
-        const minDy = (a.height + b.height) / 2 + 8
-        const dx = b.x - a.x
-        const dy = b.y - a.y
-
-        const absDx = Math.abs(dx)
-        const absDy = Math.abs(dy)
-
-        if (absDx < minDx && absDy < minDy) {
-          const overlapX = minDx - absDx
-          const overlapY = minDy - absDy
-
-          let pushX = 0
-          let pushY = 0
-          if (overlapX / minDx < overlapY / minDy) {
-            const dir = dx >= 0 ? 1 : -1
-            pushX = dir * overlapX * 0.52
-          } else {
-            const dir = dy >= 0 ? 1 : -1
-            pushY = dir * overlapY * 0.52
-          }
-
-          a.x -= pushX
-          a.y -= pushY
-          b.x += pushX
-          b.y += pushY
-          moved = true
-        }
-      }
-    }
-    if (!moved) break
+  // Quick 16-step pre-settle of Euler/Verlet spring & anti-overlap to ensure clean initial layout
+  const numWords = words.length
+  const pX = new Float32Array(numWords)
+  const pY = new Float32Array(numWords)
+  const vX = new Float32Array(numWords)
+  const vY = new Float32Array(numWords)
+  for (let i = 0; i < numWords; i++) {
+    pX[i] = words[i].x
+    pY[i] = words[i].y
   }
 
-  // Synchronize edge endpoints to relaxed word positions
-  const wordPosMap = new Map(words.map((w) => [w.id, w]))
+  const aspect = 2.2
+  const kSpring = 0.05
+  const damping = 0.88
+  for (let step = 0; step < 16; step++) {
+    for (let i = 0; i < numWords; i++) {
+      const w = words[i]
+      let fx = -kSpring * (pX[i] - w.x)
+      let fy = -kSpring * (pY[i] - w.y)
+
+      for (let j = i + 1; j < numWords; j++) {
+        if (words[j].familyId !== w.familyId) continue
+        const dx = pX[j] - pX[i]
+        const dy = pY[j] - pY[i]
+        const minDist = (w.width + words[j].width) * 0.5 + 12
+        if (Math.abs(dx) > minDist) continue
+        const scaledDy = dy * aspect
+        if (Math.abs(scaledDy) > minDist) continue
+
+        const d = Math.hypot(dx, scaledDy)
+        if (d < minDist && d > 0.001) {
+          const rawF = Math.min(8, 1800 / ((d + 1) * (d + 1)))
+          const nx = dx / d
+          const ny = (scaledDy / d) / aspect
+          fx -= nx * rawF
+          fy -= ny * rawF
+          vX[j] += nx * rawF * damping
+          vY[j] += ny * rawF * damping
+        }
+      }
+
+      vX[i] = (vX[i] + fx) * damping
+      vY[i] = (vY[i] + fy) * damping
+      pX[i] += vX[i]
+      pY[i] += vY[i]
+    }
+  }
+
+  for (let i = 0; i < numWords; i++) {
+    words[i].x = pX[i]
+    words[i].y = pY[i]
+  }
+
+  // Synchronize initial edge endpoints and compute initial Bézier paths
   for (const edge of edges) {
-    if (edge.wordId) {
-      const target = wordPosMap.get(edge.wordId)
+    if (edge.wordIndex !== undefined) {
+      const target = words[edge.wordIndex]
       if (target) {
         edge.x2 = target.x
         edge.y2 = target.y
       }
     }
+    edge.d = computeBézierPath(
+      edge.x1,
+      edge.y1,
+      edge.x2,
+      edge.y2,
+      edge.sphereX,
+      edge.sphereY,
+      edge.sagVariation,
+    )
   }
 
   // Populate nearby words for dictionary panel
@@ -830,20 +1005,42 @@ export default function LessicoAtlasView({
   const [searchQuery, setSearchQuery] = useState('')
   const [showSearch, setShowSearch] = useState(false)
   const [expandedMobileFamily, setExpandedMobileFamily] = useState(null)
-  const [cameraAnimating, setCameraAnimating] = useState(false)
   const [showDashboard, setShowDashboard] = useState(false)
 
   const canvasRef = useRef(null)
   const layerRef = useRef(null)
-  const cameraRef = useRef({ x: 0, y: 0, scale: 0.5 })
-  const initialCameraRef = useRef({ x: 0, y: 0, scale: 0.5 })
+  const bgRef = useRef(null)
+  const cameraRef = useRef(createCamera(0, 0, 0.5, BASE_PITCH, 0, 0, 0))
+  const targetCameraRef = useRef(createCamera(0, 0, 0.5, BASE_PITCH, 0, 0, 0))
+  const initialCameraRef = useRef(createCamera(0, 0, 0.5, BASE_PITCH, 0, 0, 0))
+  const velocityRef = useRef({ vx: 0, vy: 0 })
+  const pointerTiltRef = useRef({ pitch: 0, yaw: 0, roll: 0, bgX: 0, bgY: 0 })
+  const currentTiltRef = useRef({ pitch: 0, yaw: 0, roll: 0, bgX: 0, bgY: 0 })
+  const flightRef = useRef(null)
   const viewportSizeRef = useRef({ w: 0, h: 0, left: 0, top: 0 })
   const pointersRef = useRef(new Map())
   const pinchRef = useRef(null)
   const mouseDragRef = useRef(null)
   const webkitGestureRef = useRef(null)
-  const cameraAnimTimerRef = useRef(null)
   const searchInputRef = useRef(null)
+  const wordRefs = useRef([])
+  const edgeRefs = useRef([])
+  const mouseWorldRef = useRef({ x: -9999, y: -9999, active: false })
+  const hoveredWordIdRef = useRef(null)
+
+  const [camera, setCamera] = useState(() => ({ scale: 0.5 }))
+  const [activeClosestFamily, setActiveClosestFamily] = useState('BLU')
+  const currentLodTierRef = useRef('macro')
+  const lastReportedScaleRef = useRef(0.5)
+  const closestFamilyRef = useRef('BLU')
+
+  const lodTier = useMemo(() => {
+    if (camera.scale < 0.72) return 'macro'
+    if (camera.scale < 1.35) return 'meso'
+    return 'micro'
+  }, [camera.scale])
+
+  const activeFamilyId = filterFamily || activeClosestFamily
 
   const normalizedSearch = searchQuery.trim().toLowerCase()
 
@@ -865,67 +1062,98 @@ export default function LessicoAtlasView({
     return { precise, fallback }
   }, [paroleEmerse])
 
-  // 120 FPS Single DOM update: applies GPU hardware transform to the entire world canvas
-  const applyCameraToDOM = useCallback((camera) => {
-    if (canvasRef.current) {
-      canvasRef.current.style.transform = `translate3d(${camera.x}px, ${camera.y}px, 0) scale(${camera.scale})`
+  const emergedWordIds = useMemo(() => {
+    const ids = new Set()
+    for (const w of CONSTELLATION_DATA.words) {
+      const normalizedName = w.nome.toLowerCase()
+      if (
+        emergedWords.precise.has(`${w.familyId}|${w.subcurrentId}|${normalizedName}`) ||
+        emergedWords.fallback.has(normalizedName)
+      ) {
+        ids.add(w.id)
+      }
+    }
+    return ids
+  }, [emergedWords])
+
+  const activeCoreHubIds = useMemo(() => {
+    const hubs = new Set()
+    for (const w of CONSTELLATION_DATA.words) {
+      if (emergedWordIds.has(w.id)) {
+        hubs.add(w.subcurrentId)
+      }
+    }
+    return hubs
+  }, [emergedWordIds])
+
+  const resetCamera = useCallback(() => {
+    const initial = initialCameraRef.current
+    velocityRef.current = { vx: 0, vy: 0 }
+    flightRef.current = {
+      active: true,
+      startTime: performance.now(),
+      duration: 850,
+      startCamera: { ...cameraRef.current },
+      endCamera: {
+        ...initial,
+        pitch: BASE_PITCH,
+        yaw: 0,
+        roll: 0,
+        z: 0,
+      },
+      swoopRoll: -3.0,
     }
   }, [])
 
-  const applyCamera = useCallback(
-    (updater) => {
-      const next = typeof updater === 'function' ? updater(cameraRef.current) : updater
-      const clampedScale = clamp(next.scale, CAMERA_MIN_SCALE, CAMERA_MAX_SCALE)
-      const clamped = {
-        x: next.x,
-        y: next.y,
-        scale: clampedScale,
-      }
-      cameraRef.current = clamped
-      applyCameraToDOM(clamped)
-    },
-    [applyCameraToDOM],
-  )
+  // Orbital Fly-to word target (Section 3.E)
+  const focusWord = useCallback((word) => {
+    if (!word) return
+    const vp = layerRef.current
+    if (!vp) return
+    const rect = vp.getBoundingClientRect()
+    const targetScale = clamp(rect.width < 900 ? 1.25 : 1.5, 1.2, 1.6)
 
-  const beginCameraAnimation = useCallback(() => {
-    setCameraAnimating(true)
-    if (cameraAnimTimerRef.current) clearTimeout(cameraAnimTimerRef.current)
-    cameraAnimTimerRef.current = setTimeout(() => setCameraAnimating(false), 500)
+    const targetX = rect.width / 2 - WORLD_WIDTH / 2 - (word.x - WORLD_WIDTH / 2) * targetScale
+    const targetY = rect.height / 2 - WORLD_HEIGHT / 2 - (word.y - WORLD_HEIGHT / 2) * targetScale
+
+    const currentX = cameraRef.current.x
+    const swoopRoll = targetX < currentX ? -3.8 : 3.8
+
+    velocityRef.current = { vx: 0, vy: 0 }
+    flightRef.current = {
+      active: true,
+      startTime: performance.now(),
+      duration: 800,
+      startCamera: { ...cameraRef.current },
+      endCamera: {
+        x: targetX,
+        y: targetY,
+        z: 0,
+        scale: targetScale,
+        pitch: FOCUS_PITCH,
+        yaw: 0,
+        roll: 0,
+      },
+      swoopRoll,
+    }
   }, [])
 
-  const zoomAt = useCallback(
-    (targetScale, origin) => {
-      const current = cameraRef.current
-      const clampedScale = clamp(targetScale, CAMERA_MIN_SCALE, CAMERA_MAX_SCALE)
-      const ratio = clampedScale / current.scale
-      return {
-        x: origin.x - (origin.x - current.x) * ratio,
-        y: origin.y - (origin.y - current.y) * ratio,
-        scale: clampedScale,
+  // Intelligent search: auto fly-to matching word
+  useEffect(() => {
+    if (!normalizedSearch || normalizedSearch.length < 2) return
+    const timer = setTimeout(() => {
+      const matched = CONSTELLATION_DATA.words.find((w) =>
+        w.nome.toLowerCase().includes(normalizedSearch),
+      )
+      if (matched) {
+        setSelectedWord(matched)
+        focusWord(matched)
       }
-    },
-    [],
-  )
+    }, 400)
+    return () => clearTimeout(timer)
+  }, [normalizedSearch, focusWord])
 
-  const resetCamera = useCallback(() => {
-    beginCameraAnimation()
-    applyCamera(initialCameraRef.current)
-  }, [applyCamera, beginCameraAnimation])
-
-  const zoomStep = useCallback(
-    (direction) => {
-      const vp = layerRef.current
-      if (!vp) return
-      const rect = vp.getBoundingClientRect()
-      const origin = { x: rect.width / 2, y: rect.height / 2 }
-      const factor = direction > 0 ? CAMERA_ZOOM_STEP : 1 / CAMERA_ZOOM_STEP
-      beginCameraAnimation()
-      applyCamera((prev) => zoomAt(prev.scale * factor, origin))
-    },
-    [applyCamera, beginCameraAnimation, zoomAt],
-  )
-
-  // Smoothly glide camera to frame a specific family sphere
+  // Smoothly glide camera to frame a specific family sphere with orbital swoop (Section 3.E)
   const focusFamily = useCallback(
     (familyId) => {
       const vp = layerRef.current
@@ -940,21 +1168,60 @@ export default function LessicoAtlasView({
       const padding = 1.35
       const targetScale = clamp(
         Math.min(rect.width / (fam.radius * 2 * padding), rect.height / (fam.radius * 2 * padding)),
-        0.5,
-        1.6,
+        1.1,
+        1.55,
       )
 
-      const targetX = rect.width / 2 - fam.x * targetScale
-      const targetY = rect.height / 2 - fam.y * targetScale
+      const targetX = rect.width / 2 - WORLD_WIDTH / 2 - (fam.x - WORLD_WIDTH / 2) * targetScale
+      const targetY = rect.height / 2 - WORLD_HEIGHT / 2 - (fam.y - WORLD_HEIGHT / 2) * targetScale
 
-      beginCameraAnimation()
-      applyCamera({
-        x: targetX,
-        y: targetY,
-        scale: targetScale,
-      })
+      const currentX = cameraRef.current.x
+      const swoopRoll = targetX < currentX ? -4.0 : 4.0
+
+      velocityRef.current = { vx: 0, vy: 0 }
+      flightRef.current = {
+        active: true,
+        startTime: performance.now(),
+        duration: 850,
+        startCamera: { ...cameraRef.current },
+        endCamera: {
+          x: targetX,
+          y: targetY,
+          z: 0,
+          scale: targetScale,
+          pitch: FOCUS_PITCH,
+          yaw: 0,
+          roll: 0,
+        },
+        swoopRoll,
+      }
     },
-    [applyCamera, beginCameraAnimation, resetCamera],
+    [resetCamera],
+  )
+
+  const zoomStep = useCallback(
+    (direction) => {
+      const vp = layerRef.current
+      if (!vp) return
+      const rect = vp.getBoundingClientRect()
+      const origin = { x: rect.width / 2, y: rect.height / 2 }
+      const factor = direction > 0 ? CAMERA_ZOOM_STEP : 1 / CAMERA_ZOOM_STEP
+
+      const current = targetCameraRef.current
+      const clampedScale = clamp(current.scale * factor, CAMERA_MIN_SCALE, CAMERA_MAX_SCALE)
+      const ratio = clampedScale / current.scale
+      const newX = origin.x - WORLD_WIDTH / 2 - (origin.x - WORLD_WIDTH / 2 - current.x) * ratio
+      const newY = origin.y - WORLD_HEIGHT / 2 - (origin.y - WORLD_HEIGHT / 2 - current.y) * ratio
+
+      flightRef.current = null
+      targetCameraRef.current = {
+        ...current,
+        x: newX,
+        y: newY,
+        scale: clampedScale,
+      }
+    },
+    [],
   )
 
   const handleFilterChange = useCallback(
@@ -969,7 +1236,7 @@ export default function LessicoAtlasView({
     [focusFamily, resetCamera],
   )
 
-  // Initial viewport fit
+  // Initial viewport fit & camera initialization
   useLayoutEffect(() => {
     const layer = layerRef.current
     if (!layer) return
@@ -985,12 +1252,20 @@ export default function LessicoAtlasView({
 
       if (rect.width > 0 && rect.height > 0) {
         const fitScale = Math.min(rect.width / WORLD_WIDTH, rect.height / WORLD_HEIGHT) * 0.94
-        const initX = (rect.width - WORLD_WIDTH * fitScale) / 2
-        const initY = (rect.height - WORLD_HEIGHT * fitScale) / 2
-        const initial = { x: initX, y: initY, scale: fitScale }
+        const initX = rect.width / 2 - WORLD_WIDTH / 2
+        const initY = rect.height / 2 - WORLD_HEIGHT / 2
+        const initial = createCamera(initX, initY, fitScale, BASE_PITCH, 0, 0, 0)
         initialCameraRef.current = initial
-        cameraRef.current = initial
-        applyCameraToDOM(initial)
+        targetCameraRef.current = initial
+        cameraRef.current = { ...initial }
+        lastReportedScaleRef.current = fitScale
+        currentLodTierRef.current =
+          fitScale < 0.72 ? 'macro' : fitScale < 1.35 ? 'meso' : 'micro'
+        setCamera({ scale: fitScale })
+
+        if (canvasRef.current) {
+          canvasRef.current.style.transform = `translate3d(${initX.toFixed(2)}px, ${initY.toFixed(2)}px, 0px) rotateX(${BASE_PITCH}deg) rotateY(0deg) rotateZ(0deg) scale(${fitScale.toFixed(4)})`
+        }
       }
     }
 
@@ -998,7 +1273,7 @@ export default function LessicoAtlasView({
     const observer = new ResizeObserver(updateFit)
     observer.observe(layer)
     return () => observer.disconnect()
-  }, [applyCameraToDOM, isMobile])
+  }, [isMobile])
 
   // Wheel zoom and pan
   const handleWheel = useCallback(
@@ -1014,19 +1289,32 @@ export default function LessicoAtlasView({
       const origin = { x: event.clientX - left, y: event.clientY - top }
       const isPinch = event.ctrlKey || event.metaKey
 
+      flightRef.current = null
+
       if (isPinch) {
         const factor = Math.exp(-event.deltaY * WHEEL_ZOOM_INTENSITY)
-        applyCamera((prev) => zoomAt(prev.scale * factor, origin))
+        const current = targetCameraRef.current
+        const clampedScale = clamp(current.scale * factor, CAMERA_MIN_SCALE, CAMERA_MAX_SCALE)
+        const ratio = clampedScale / current.scale
+        const newX = origin.x - WORLD_WIDTH / 2 - (origin.x - WORLD_WIDTH / 2 - current.x) * ratio
+        const newY = origin.y - WORLD_HEIGHT / 2 - (origin.y - WORLD_HEIGHT / 2 - current.y) * ratio
+
+        targetCameraRef.current = {
+          ...current,
+          x: newX,
+          y: newY,
+          scale: clampedScale,
+        }
       } else {
         event.stopPropagation()
-        applyCamera((prev) => ({
-          x: prev.x - event.deltaX,
-          y: prev.y - event.deltaY,
-          scale: prev.scale,
-        }))
+        targetCameraRef.current = {
+          ...targetCameraRef.current,
+          x: targetCameraRef.current.x - event.deltaX,
+          y: targetCameraRef.current.y - event.deltaY,
+        }
       }
     },
-    [applyCamera, zoomAt],
+    [],
   )
 
   useEffect(() => {
@@ -1043,9 +1331,10 @@ export default function LessicoAtlasView({
 
     const onGestureStart = (e) => {
       e.preventDefault()
+      flightRef.current = null
       const rect = layer.getBoundingClientRect()
       webkitGestureRef.current = {
-        camera: cameraRef.current,
+        camera: { ...targetCameraRef.current },
         origin: { x: e.clientX - rect.left, y: e.clientY - rect.top },
       }
     }
@@ -1053,8 +1342,21 @@ export default function LessicoAtlasView({
       e.preventDefault()
       const gesture = webkitGestureRef.current
       if (!gesture) return
-      const nextScale = gesture.camera.scale * Math.pow(Number(e.scale) || 1, PINCH_DAMPING)
-      applyCamera(zoomAt(nextScale, gesture.origin))
+      const nextScale = clamp(
+        gesture.camera.scale * Math.pow(Number(e.scale) || 1, PINCH_DAMPING),
+        CAMERA_MIN_SCALE,
+        CAMERA_MAX_SCALE,
+      )
+      const ratio = nextScale / gesture.camera.scale
+      const origin = gesture.origin
+      const newX = origin.x - WORLD_WIDTH / 2 - (origin.x - WORLD_WIDTH / 2 - gesture.camera.x) * ratio
+      const newY = origin.y - WORLD_HEIGHT / 2 - (origin.y - WORLD_HEIGHT / 2 - gesture.camera.y) * ratio
+      targetCameraRef.current = {
+        ...targetCameraRef.current,
+        x: newX,
+        y: newY,
+        scale: nextScale,
+      }
     }
     const onGestureEnd = () => {
       webkitGestureRef.current = null
@@ -1068,9 +1370,9 @@ export default function LessicoAtlasView({
       layer.removeEventListener('gesturechange', onGestureChange)
       layer.removeEventListener('gestureend', onGestureEnd)
     }
-  }, [applyCamera, zoomAt])
+  }, [])
 
-  // Mouse / Pointer drag pan
+  // Mouse / Pointer drag pan & world coordinate tracking for physics interaction
   const handlePointerDown = useCallback((e) => {
     const target = e.target instanceof Element ? e.target : null
     if (target?.closest('.lessico-dict, .lessico-atlas__controls')) return
@@ -1078,6 +1380,9 @@ export default function LessicoAtlasView({
     pointersRef.current.set(e.pointerId, { clientX: e.clientX, clientY: e.clientY })
 
     if (pointersRef.current.size >= 2) {
+      mouseWorldRef.current.active = false
+      flightRef.current = null
+      velocityRef.current = { vx: 0, vy: 0 }
       const pts = Array.from(pointersRef.current.values())
       const [a, b] = pts
       const dist = Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY)
@@ -1086,7 +1391,7 @@ export default function LessicoAtlasView({
       const vp = layerRef.current
       const rect = vp?.getBoundingClientRect() || { left: 0, top: 0 }
       pinchRef.current = {
-        camera: cameraRef.current,
+        camera: { ...targetCameraRef.current },
         distance: dist,
         midpoint: { x: mx - rect.left, y: my - rect.top },
       }
@@ -1096,10 +1401,17 @@ export default function LessicoAtlasView({
 
     const isInteractive = Boolean(target?.closest('.lessico-atlas__word, .lessico-atlas__family-badge'))
     if (!isInteractive) {
+      mouseWorldRef.current.active = false
+      flightRef.current = null
+      velocityRef.current = { vx: 0, vy: 0 }
       mouseDragRef.current = {
-        camera: cameraRef.current,
+        startX: targetCameraRef.current.x,
+        startY: targetCameraRef.current.y,
         clientX: e.clientX,
         clientY: e.clientY,
+        lastClientX: e.clientX,
+        lastClientY: e.clientY,
+        lastTime: performance.now(),
       }
       if (e.currentTarget.setPointerCapture) {
         e.currentTarget.setPointerCapture(e.pointerId)
@@ -1107,43 +1419,100 @@ export default function LessicoAtlasView({
     }
   }, [])
 
-  const handlePointerMove = useCallback(
-    (e) => {
-      if (!pointersRef.current.has(e.pointerId)) return
-      pointersRef.current.set(e.pointerId, { clientX: e.clientX, clientY: e.clientY })
+  const handlePointerMove = useCallback((e) => {
+    const vp = layerRef.current
+    if (vp && !mouseDragRef.current && pointersRef.current.size <= 1) {
+      const rect = vp.getBoundingClientRect()
+      const cam = cameraRef.current
+      mouseWorldRef.current.x =
+        WORLD_WIDTH / 2 + (e.clientX - rect.left - WORLD_WIDTH / 2 - cam.x) / cam.scale
+      mouseWorldRef.current.y =
+        WORLD_HEIGHT / 2 + (e.clientY - rect.top - WORLD_HEIGHT / 2 - cam.y) / cam.scale
+      mouseWorldRef.current.active = true
 
-      if (pointersRef.current.size >= 2 && pinchRef.current) {
-        e.preventDefault()
-        const pts = Array.from(pointersRef.current.values())
-        const [a, b] = pts
-        const dist = Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY)
-        const gesture = pinchRef.current
-        const nextScale =
-          gesture.camera.scale * Math.pow(dist / Math.max(1, gesture.distance), PINCH_DAMPING)
-        applyCamera(zoomAt(nextScale, gesture.midpoint))
-        return
-      }
+      // Section 3.C: Micro-tilt calculation
+      const cx = rect.left + rect.width / 2
+      const cy = rect.top + rect.height / 2
+      const nx = clamp((e.clientX - cx) / (rect.width / 2), -1, 1)
+      const ny = clamp((e.clientY - cy) / (rect.height / 2), -1, 1)
 
-      if (pointersRef.current.size === 1 && mouseDragRef.current) {
-        e.preventDefault()
-        const drag = mouseDragRef.current
-        applyCamera({
-          x: drag.camera.x + e.clientX - drag.clientX,
-          y: drag.camera.y + e.clientY - drag.clientY,
-          scale: drag.camera.scale,
-        })
+      pointerTiltRef.current.pitch = ny * -2.5
+      pointerTiltRef.current.yaw = nx * 3.0
+      pointerTiltRef.current.roll = nx * -1.2
+      pointerTiltRef.current.bgX = -nx * 18
+      pointerTiltRef.current.bgY = -ny * 12
+    }
+
+    if (!pointersRef.current.has(e.pointerId)) return
+    pointersRef.current.set(e.pointerId, { clientX: e.clientX, clientY: e.clientY })
+
+    if (pointersRef.current.size >= 2 && pinchRef.current) {
+      mouseWorldRef.current.active = false
+      e.preventDefault()
+      const pts = Array.from(pointersRef.current.values())
+      const [a, b] = pts
+      const dist = Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY)
+      const gesture = pinchRef.current
+      const nextScale = clamp(
+        gesture.camera.scale * Math.pow(dist / Math.max(1, gesture.distance), PINCH_DAMPING),
+        CAMERA_MIN_SCALE,
+        CAMERA_MAX_SCALE,
+      )
+      const ratio = nextScale / gesture.camera.scale
+      const origin = gesture.midpoint
+      const newX = origin.x - WORLD_WIDTH / 2 - (origin.x - WORLD_WIDTH / 2 - gesture.camera.x) * ratio
+      const newY = origin.y - WORLD_HEIGHT / 2 - (origin.y - WORLD_HEIGHT / 2 - gesture.camera.y) * ratio
+
+      targetCameraRef.current = {
+        ...targetCameraRef.current,
+        x: newX,
+        y: newY,
+        scale: nextScale,
       }
-    },
-    [applyCamera, zoomAt],
-  )
+      return
+    }
+
+    if (pointersRef.current.size === 1 && mouseDragRef.current) {
+      mouseWorldRef.current.active = false
+      e.preventDefault()
+      const drag = mouseDragRef.current
+      const now = performance.now()
+      const dt = Math.max(1, now - drag.lastTime)
+
+      const instVx = (e.clientX - drag.lastClientX) / (dt / 16.67)
+      const instVy = (e.clientY - drag.lastClientY) / (dt / 16.67)
+      velocityRef.current.vx = velocityRef.current.vx * 0.4 + instVx * 0.6
+      velocityRef.current.vy = velocityRef.current.vy * 0.4 + instVy * 0.6
+
+      drag.lastClientX = e.clientX
+      drag.lastClientY = e.clientY
+      drag.lastTime = now
+
+      targetCameraRef.current = {
+        ...targetCameraRef.current,
+        x: drag.startX + (e.clientX - drag.clientX),
+        y: drag.startY + (e.clientY - drag.clientY),
+      }
+    }
+  }, [])
 
   const endPointer = useCallback((e) => {
     pointersRef.current.delete(e.pointerId)
     pinchRef.current = null
-    mouseDragRef.current = null
+    if (mouseDragRef.current) {
+      velocityRef.current.vx = clamp(velocityRef.current.vx, -45, 45)
+      velocityRef.current.vy = clamp(velocityRef.current.vy, -45, 45)
+      mouseDragRef.current = null
+    }
+    mouseWorldRef.current.active = false
     if (e.currentTarget.releasePointerCapture && e.currentTarget.hasPointerCapture?.(e.pointerId)) {
       e.currentTarget.releasePointerCapture(e.pointerId)
     }
+  }, [])
+
+  const handlePointerLeave = useCallback(() => {
+    mouseWorldRef.current.active = false
+    pointerTiltRef.current = { pitch: 0, yaw: 0, roll: 0, bgX: 0, bgY: 0 }
   }, [])
 
   const closeDictionary = useCallback(() => {
@@ -1192,9 +1561,6 @@ export default function LessicoAtlasView({
     if (showSearch && searchInputRef.current) searchInputRef.current.focus()
   }, [showSearch])
 
-  useEffect(() => () => {
-    if (cameraAnimTimerRef.current) clearTimeout(cameraAnimTimerRef.current)
-  }, [])
 
   const handleSearchToggle = useCallback(() => {
     setShowSearch((prev) => {
@@ -1203,8 +1569,326 @@ export default function LessicoAtlasView({
     })
   }, [])
 
+  // ─── 60/120 FPS Spring-Dampened Physics Simulation Loop ───────────────────
+  useEffect(() => {
+    if (isMobile) return undefined
+
+    const words = CONSTELLATION_DATA.words
+    const edges = CONSTELLATION_DATA.edges
+    const numWords = words.length
+    const numEdges = edges.length
+
+    // Zero-GC typed arrays
+    const posX = new Float32Array(numWords)
+    const posY = new Float32Array(numWords)
+    const velX = new Float32Array(numWords)
+    const velY = new Float32Array(numWords)
+    const forceX = new Float32Array(numWords)
+    const forceY = new Float32Array(numWords)
+
+    const baseAngles = new Float32Array(numWords)
+    const radii = new Float32Array(numWords)
+    const driftSpeeds = new Float32Array(numWords)
+    const hubXs = new Float32Array(numWords)
+    const hubYs = new Float32Array(numWords)
+    const yFlattens = new Float32Array(numWords)
+    const widths = new Float32Array(numWords)
+
+    // Pre-group words by family to optimize collision checks
+    const familyIndicesMap = new Map()
+    for (let f = 0; f < FAMILY_ORDER.length; f++) {
+      familyIndicesMap.set(FAMILY_ORDER[f], [])
+    }
+
+    for (let i = 0; i < numWords; i++) {
+      const w = words[i]
+      posX[i] = w.x
+      posY[i] = w.y
+      baseAngles[i] = w.baseAngle
+      radii[i] = w.orbitRadius
+      driftSpeeds[i] = w.driftSpeed
+      hubXs[i] = w.hubX
+      hubYs[i] = w.hubY
+      yFlattens[i] = w.yFlatten
+      widths[i] = w.width
+      const famArr = familyIndicesMap.get(w.familyId)
+      if (famArr) famArr.push(i)
+    }
+
+    const familyWordGroups = Array.from(familyIndicesMap.values())
+
+    let rafId = null
+    let frameCount = 0
+    const kSpring = 0.05
+    const damping = 0.90
+    const repulsionStrength = 1800
+    const aspect = 2.2
+
+    const tick = () => {
+      frameCount++
+
+      // 0. Smooth Camera 3D Interpolation & Flight Dynamics (Sections 3.D & 3.E)
+      if (flightRef.current?.active) {
+        const flight = flightRef.current
+        const elapsed = performance.now() - flight.startTime
+        const rawT = Math.min(1, elapsed / flight.duration)
+        const easedT = flyEasing(rawT)
+
+        targetCameraRef.current.x =
+          flight.startCamera.x + (flight.endCamera.x - flight.startCamera.x) * easedT
+        targetCameraRef.current.y =
+          flight.startCamera.y + (flight.endCamera.y - flight.startCamera.y) * easedT
+        targetCameraRef.current.z =
+          (flight.startCamera.z || 0) +
+          ((flight.endCamera.z || 0) - (flight.startCamera.z || 0)) * easedT
+        targetCameraRef.current.scale =
+          flight.startCamera.scale +
+          (flight.endCamera.scale - flight.startCamera.scale) * easedT
+        targetCameraRef.current.pitch =
+          flight.startCamera.pitch +
+          (flight.endCamera.pitch - flight.startCamera.pitch) * easedT
+        targetCameraRef.current.yaw =
+          flight.startCamera.yaw +
+          (flight.endCamera.yaw - flight.startCamera.yaw) * easedT
+
+        // Orbital swoop: sinusoidal roll peaking in mid-flight and returning to 0
+        const swoop = Math.sin(rawT * Math.PI) * flight.swoopRoll
+        targetCameraRef.current.roll =
+          flight.startCamera.roll +
+          (flight.endCamera.roll - flight.startCamera.roll) * easedT +
+          swoop
+
+        if (rawT >= 1) {
+          flight.active = false
+          targetCameraRef.current.roll = flight.endCamera.roll
+        }
+      } else if (!mouseDragRef.current) {
+        // Friction momentum decay on release
+        const vel = velocityRef.current
+        if (Math.hypot(vel.vx, vel.vy) > 0.05) {
+          targetCameraRef.current.x += vel.vx
+          targetCameraRef.current.y += vel.vy
+          vel.vx *= 0.92
+          vel.vy *= 0.92
+        } else {
+          vel.vx = 0
+          vel.vy = 0
+        }
+      }
+
+      // Continuous 60/120 FPS Lerp Damping (Section 3.D)
+      const cur = cameraRef.current
+      const tgt = targetCameraRef.current
+      cur.x += (tgt.x - cur.x) * LERP_FACTOR
+      cur.y += (tgt.y - cur.y) * LERP_FACTOR
+      cur.z = (cur.z || 0) + ((tgt.z || 0) - (cur.z || 0)) * LERP_FACTOR
+      cur.scale += (tgt.scale - cur.scale) * LERP_FACTOR
+      cur.pitch += (tgt.pitch - cur.pitch) * LERP_FACTOR
+      cur.yaw += (tgt.yaw - cur.yaw) * LERP_FACTOR
+      cur.roll += (tgt.roll - cur.roll) * LERP_FACTOR
+
+      // Semantic LOD & Closest Family synchronization
+      const newTier = cur.scale < 0.72 ? 'macro' : cur.scale < 1.35 ? 'meso' : 'micro'
+      if (
+        newTier !== currentLodTierRef.current ||
+        Math.abs(cur.scale - lastReportedScaleRef.current) > 0.08 ||
+        (Math.abs(tgt.scale - cur.scale) < 0.001 && Math.abs(cur.scale - lastReportedScaleRef.current) > 0.005)
+      ) {
+        currentLodTierRef.current = newTier
+        lastReportedScaleRef.current = cur.scale
+        setCamera((prev) => (Math.abs(prev.scale - cur.scale) < 0.001 ? prev : { ...prev, scale: cur.scale }))
+      }
+
+      if (frameCount % 6 === 0) {
+        const vp = viewportSizeRef.current
+        const screenCenterX = vp.w ? vp.w / 2 : 0
+        const screenCenterY = vp.h ? vp.h / 2 : 0
+        const currentScale = cur.scale || 1
+        const worldCenterX = WORLD_WIDTH / 2 + (screenCenterX - WORLD_WIDTH / 2 - cur.x) / currentScale
+        const worldCenterY = WORLD_HEIGHT / 2 + (screenCenterY - WORLD_HEIGHT / 2 - cur.y) / currentScale
+
+        let closestId = 'BLU'
+        let minDistSq = Infinity
+        for (let sIdx = 0; sIdx < CONSTELLATION_DATA.spheres.length; sIdx++) {
+          const sphere = CONSTELLATION_DATA.spheres[sIdx]
+          const dx = sphere.x - worldCenterX
+          const dy = sphere.y - worldCenterY
+          const distSq = dx * dx + dy * dy
+          if (distSq < minDistSq) {
+            minDistSq = distSq
+            closestId = sphere.id
+          }
+        }
+        if (closestId !== closestFamilyRef.current) {
+          closestFamilyRef.current = closestId
+          setActiveClosestFamily(closestId)
+        }
+      }
+
+      // Reactive Micro-Tilt & Background Parallax Lerp (Section 3.C)
+      const pTilt = pointerTiltRef.current
+      const cTilt = currentTiltRef.current
+      cTilt.pitch += (pTilt.pitch - cTilt.pitch) * 0.08
+      cTilt.yaw += (pTilt.yaw - cTilt.yaw) * 0.08
+      cTilt.roll += (pTilt.roll - cTilt.roll) * 0.08
+      cTilt.bgX += (pTilt.bgX - cTilt.bgX) * 0.08
+      cTilt.bgY += (pTilt.bgY - cTilt.bgY) * 0.08
+
+      const totalPitch = cur.pitch + cTilt.pitch
+      const totalYaw = cur.yaw + cTilt.yaw
+      const totalRoll = cur.roll + cTilt.roll
+
+      if (canvasRef.current) {
+        canvasRef.current.style.transform = `translate3d(${cur.x.toFixed(2)}px, ${cur.y.toFixed(2)}px, ${(cur.z || 0).toFixed(2)}px) rotateX(${totalPitch.toFixed(2)}deg) rotateY(${totalYaw.toFixed(2)}deg) rotateZ(${totalRoll.toFixed(2)}deg) scale(${cur.scale.toFixed(4)})`
+      }
+
+      if (bgRef.current) {
+        bgRef.current.style.transform = `translate3d(${cTilt.bgX.toFixed(2)}px, ${cTilt.bgY.toFixed(2)}px, 0)`
+      }
+
+      // 1. Reset forces
+      forceX.fill(0)
+      forceY.fill(0)
+
+      // 2. Spring Force towards drifting orbit
+      for (let i = 0; i < numWords; i++) {
+        const theta = baseAngles[i] + driftSpeeds[i] * frameCount
+        const targetX = hubXs[i] + Math.cos(theta) * radii[i]
+        const targetY = hubYs[i] + Math.sin(theta) * (radii[i] * yFlattens[i])
+
+        forceX[i] += -kSpring * (posX[i] - targetX)
+        forceY[i] += -kSpring * (posY[i] - targetY)
+      }
+
+      // 3. Proximity Repulsion (Soft Coulomb Anti-Overlap) within each family
+      const currentScale = cameraRef.current.scale
+      const pad = 12
+
+      for (let g = 0; g < familyWordGroups.length; g++) {
+        const group = familyWordGroups[g]
+        const count = group.length
+        for (let aIdx = 0; aIdx < count; aIdx++) {
+          const i = group[aIdx]
+          const wi = widths[i]
+          const xi = posX[i]
+          const yi = posY[i]
+
+          for (let bIdx = aIdx + 1; bIdx < count; bIdx++) {
+            const j = group[bIdx]
+            const dx = posX[j] - xi
+            const dy = posY[j] - yi
+
+            const minDistance = (wi + widths[j]) * 0.5 + pad
+            if (Math.abs(dx) > minDistance) continue
+            const scaledDy = dy * aspect
+            if (Math.abs(scaledDy) > minDistance) continue
+
+            const dScaled = Math.hypot(dx, scaledDy)
+            if (dScaled < minDistance && dScaled > 0.001) {
+              const rawForce = Math.min(10, repulsionStrength / ((dScaled + 1) * (dScaled + 1)))
+              const nx = dx / dScaled
+              const ny = (scaledDy / dScaled) / aspect
+
+              const fx = nx * rawForce
+              const fy = ny * rawForce
+
+              forceX[i] -= fx
+              forceY[i] -= fy
+              forceX[j] += fx
+              forceY[j] += fy
+            }
+          }
+        }
+      }
+
+      // 4. Mouse / Cursor Interaction: scosta delicatamente le parole attorno al cursore
+      if (mouseWorldRef.current.active) {
+        const mx = mouseWorldRef.current.x
+        const my = mouseWorldRef.current.y
+        const worldInfluence = 50 / currentScale
+        const worldInfluenceSq = worldInfluence * worldInfluence
+        const hoveredId = hoveredWordIdRef.current
+
+        for (let i = 0; i < numWords; i++) {
+          // Do not push the hovered word itself so it remains steady under the cursor
+          if (hoveredId && words[i].id === hoveredId) continue
+
+          const dx = posX[i] - mx
+          const dy = posY[i] - my
+          const distSq = dx * dx + dy * dy
+          if (distSq < worldInfluenceSq && distSq > 0.001) {
+            const dist = Math.sqrt(distSq)
+            const factor = (1 - dist / worldInfluence) * (6.0 / currentScale)
+            forceX[i] += (dx / dist) * factor
+            forceY[i] += (dy / dist) * factor
+          }
+        }
+      }
+
+      // 5. Velocity and Position Integration with Damping
+      for (let i = 0; i < numWords; i++) {
+        velX[i] = (velX[i] + forceX[i]) * damping
+        velY[i] = (velY[i] + forceY[i]) * damping
+
+        posX[i] += velX[i]
+        posY[i] += velY[i]
+
+        words[i].x = posX[i]
+        words[i].y = posY[i]
+        words[i].vx = velX[i]
+        words[i].vy = velY[i]
+
+        const wordEl = wordRefs.current[i]
+        if (wordEl) {
+          wordEl.style.left = `${posX[i]}px`
+          wordEl.style.top = `${posY[i]}px`
+        }
+      }
+
+      // 6. Synchronize SVG edges (both base filament and pulse stream)
+      for (let e = 0; e < numEdges; e++) {
+        const edge = edges[e]
+        if (edge.wordIndex !== undefined) {
+          const wIdx = edge.wordIndex
+          const wx = posX[wIdx]
+          const wy = posY[wIdx]
+          edge.x2 = wx
+          edge.y2 = wy
+
+          const d = computeBézierPath(
+            edge.x1,
+            edge.y1,
+            wx,
+            wy,
+            edge.sphereX,
+            edge.sphereY,
+            edge.sagVariation,
+          )
+          edge.d = d
+
+          const edgeEl = edgeRefs.current[e]
+          if (edgeEl) {
+            if (edgeEl.base) edgeEl.base.setAttribute('d', d)
+            if (edgeEl.pulse) edgeEl.pulse.setAttribute('d', d)
+          }
+        }
+      }
+
+      rafId = requestAnimationFrame(tick)
+    }
+
+    rafId = requestAnimationFrame(tick)
+
+    return () => {
+      if (rafId) cancelAnimationFrame(rafId)
+    }
+  }, [isMobile])
+
   return (
-    <div className={`lessico-atlas${isMobile ? ' lessico-atlas--mobile' : ''}`}>
+    <div
+      className={`lessico-atlas${isMobile ? ' lessico-atlas--mobile' : ''} lessico-atlas--lod-${lodTier}`}
+      data-lod-tier={lodTier}
+    >
       {/* ── Top Bar Controls ─────────────────────────────────────────────── */}
       <div className="lessico-atlas__controls">
         <AtlasLegend filterFamily={filterFamily} onFilterChange={handleFilterChange} />
@@ -1287,6 +1971,17 @@ export default function LessicoAtlasView({
               placeholder="Cerca una parola…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && normalizedSearch) {
+                  const matched = CONSTELLATION_DATA.words.find((w) =>
+                    w.nome.toLowerCase().includes(normalizedSearch),
+                  )
+                  if (matched) {
+                    setSelectedWord(matched)
+                    focusWord(matched)
+                  }
+                }
+              }}
               aria-label="Cerca nel lessico emotivo"
             />
           )}
@@ -1311,12 +2006,36 @@ export default function LessicoAtlasView({
           onPointerUp={endPointer}
           onPointerCancel={endPointer}
           onLostPointerCapture={endPointer}
+          onPointerLeave={handlePointerLeave}
           aria-label="Galassia degli stati d'animo"
         >
           <div
             ref={canvasRef}
-            className={`lessico-atlas__canvas${cameraAnimating ? ' lessico-atlas__canvas--animating' : ''}`}
+            className="lessico-atlas__canvas"
           >
+            {/* 0. Background Layer (Cosmic Nebulae & Star Dust with 3D Depth) */}
+            <div ref={bgRef} className="lessico-atlas__bg" aria-hidden>
+              <div className="lessico-atlas__stars" />
+              {CONSTELLATION_DATA.spheres.map((sphere) => {
+                const isDimmed = filterFamily && filterFamily !== sphere.id
+                const isBackgroundBlurred =
+                  lodTier === 'micro' && activeFamilyId && sphere.id !== activeFamilyId
+                return (
+                  <div
+                    key={`nebula-${sphere.id}`}
+                    className={`lessico-atlas__nebula${isDimmed ? ' is-dimmed' : ''}${
+                      isBackgroundBlurred ? ' is-background-blurred' : ''
+                    }`}
+                    style={{
+                      left: `${sphere.x}px`,
+                      top: `${sphere.y}px`,
+                      '--nebula-color': sphere.color,
+                    }}
+                  />
+                )
+              })}
+            </div>
+
             {/* 1. Constellation Network SVG Lines Layer */}
             <svg
               className="lessico-atlas__network-svg"
@@ -1338,28 +2057,85 @@ export default function LessicoAtlasView({
                     <stop offset="100%" stopColor={fam.baseColor} stopOpacity="0" />
                   </radialGradient>
                 ))}
+
+                {CONSTELLATION_DATA.edges.map((edge) => (
+                  <React.Fragment key={`edge-defs-${edge.id}`}>
+                    <linearGradient
+                      id={`edge-grad-${edge.id}`}
+                      gradientUnits="userSpaceOnUse"
+                      x1={edge.x1}
+                      y1={edge.y1}
+                      x2={edge.x2}
+                      y2={edge.y2}
+                    >
+                      <stop offset="0%" stopColor={edge.color} stopOpacity="0.9" />
+                      <stop offset="70%" stopColor={edge.targetColor || edge.color} stopOpacity="0.7" />
+                      <stop offset="100%" stopColor={edge.targetColor || edge.color} stopOpacity="0.2" />
+                    </linearGradient>
+                    <linearGradient
+                      id={`edge-pulse-grad-${edge.id}`}
+                      gradientUnits="userSpaceOnUse"
+                      x1={edge.x1}
+                      y1={edge.y1}
+                      x2={edge.x2}
+                      y2={edge.y2}
+                    >
+                      <stop offset="0%" stopColor="#ffffff" stopOpacity="1" />
+                      <stop offset="60%" stopColor={edge.targetColor || edge.color} stopOpacity="0.95" />
+                      <stop offset="100%" stopColor={edge.targetColor || edge.color} stopOpacity="0.25" />
+                    </linearGradient>
+                  </React.Fragment>
+                ))}
               </defs>
 
-              {CONSTELLATION_DATA.edges.map((edge) => {
+              {CONSTELLATION_DATA.edges.map((edge, edgeIdx) => {
                 const isFamilyFiltered = filterFamily && filterFamily !== edge.familyId
                 const isHovered = hoveredWordId && edge.wordId === hoveredWordId
                 const isSelected = selectedWord && edge.wordId === selectedWord.id
-                const strokeColor = edge.color || '#6366f1'
+                const isEmerged = edge.wordId
+                  ? emergedWordIds.has(edge.wordId)
+                  : edge.type === 'core-hub' && activeCoreHubIds.has(edge.subcurrentId)
+                const isBackgroundBlurred =
+                  lodTier === 'micro' && activeFamilyId && edge.familyId !== activeFamilyId
 
                 return (
-                  <line
+                  <g
                     key={edge.id}
-                    x1={edge.x1}
-                    y1={edge.y1}
-                    x2={edge.x2}
-                    y2={edge.y2}
-                    className={`lessico-atlas__edge lessico-atlas__edge--${edge.type}${
-                      isHovered || isSelected ? ' is-highlighted' : ''
-                    }${isFamilyFiltered ? ' is-dimmed' : ''}`}
-                    stroke={strokeColor}
-                    strokeWidth={isHovered || isSelected ? 2.6 : edge.type === 'core-hub' ? 1.6 : 1.1}
-                    opacity={isHovered || isSelected ? 0.95 : edge.type === 'core-hub' ? 0.35 : 0.22}
-                  />
+                    className={`lessico-atlas__edge-group${isHovered || isSelected ? ' is-highlighted' : ''}${
+                      isEmerged ? ' is-emerged' : ''
+                    }${isFamilyFiltered ? ' is-dimmed' : ''}${
+                      isBackgroundBlurred ? ' is-background-blurred' : ''
+                    }`}
+                    style={{ '--edge-color': edge.color, '--target-color': edge.targetColor || edge.color }}
+                  >
+                    {/* 1. Strato Base (Filamento Guida) */}
+                    <path
+                      ref={(el) => {
+                        if (!edgeRefs.current[edgeIdx]) edgeRefs.current[edgeIdx] = {}
+                        edgeRefs.current[edgeIdx].base = el
+                      }}
+                      d={edge.d}
+                      className={`lessico-atlas__edge lessico-atlas__edge--${edge.type}${
+                        isHovered || isSelected ? ' is-highlighted' : ''
+                      }${isEmerged ? ' is-emerged' : ''}${isFamilyFiltered ? ' is-dimmed' : ''}`}
+                      stroke={`url(#edge-grad-${edge.id})`}
+                      fill="none"
+                    />
+
+                    {/* 2. Strato Energetico Superiore (Photon Pulse Stream) */}
+                    <path
+                      ref={(el) => {
+                        if (!edgeRefs.current[edgeIdx]) edgeRefs.current[edgeIdx] = {}
+                        edgeRefs.current[edgeIdx].pulse = el
+                      }}
+                      d={edge.d}
+                      className={`lessico-atlas__edge-pulse lessico-atlas__edge-pulse--${edge.type}${
+                        isHovered || isSelected ? ' is-highlighted' : ''
+                      }${isEmerged ? ' is-emerged' : ''}${isFamilyFiltered ? ' is-dimmed' : ''}`}
+                      stroke={`url(#edge-pulse-grad-${edge.id})`}
+                      fill="none"
+                    />
+                  </g>
                 )
               })}
             </svg>
@@ -1367,12 +2143,16 @@ export default function LessicoAtlasView({
             {/* 2. 5 Planetary Celestial Spheres */}
             {CONSTELLATION_DATA.spheres.map((sphere) => {
               const isDimmed = filterFamily && filterFamily !== sphere.id
+              const isBackgroundBlurred =
+                lodTier === 'micro' && activeFamilyId && sphere.id !== activeFamilyId
               const diam = sphere.radius * 2
 
               return (
                 <div
                   key={sphere.id}
-                  className={`lessico-atlas__sphere${isDimmed ? ' is-dimmed' : ''}`}
+                  className={`lessico-atlas__sphere${isDimmed ? ' is-dimmed' : ''}${
+                    isBackgroundBlurred ? ' is-background-blurred' : ''
+                  }`}
                   style={{
                     left: `${sphere.x}px`,
                     top: `${sphere.y}px`,
@@ -1391,13 +2171,17 @@ export default function LessicoAtlasView({
             {/* 3. Family Title Badges */}
             {CONSTELLATION_DATA.spheres.map((sphere) => {
               const isDimmed = filterFamily && filterFamily !== sphere.id
+              const isBackgroundBlurred =
+                lodTier === 'micro' && activeFamilyId && sphere.id !== activeFamilyId
               const count = ATLAS_WORDS.filter((w) => w.familyId === sphere.id).length
 
               return (
                 <button
                   key={`badge-${sphere.id}`}
                   type="button"
-                  className={`lessico-atlas__family-badge${isDimmed ? ' is-dimmed' : ''}`}
+                  className={`lessico-atlas__family-badge${isDimmed ? ' is-dimmed' : ''}${
+                    isBackgroundBlurred ? ' is-background-blurred' : ''
+                  }`}
                   style={{
                     left: `${sphere.x}px`,
                     top: `${sphere.y - sphere.radius - 20}px`,
@@ -1419,11 +2203,15 @@ export default function LessicoAtlasView({
             {/* 4. Subcurrent Constellation Hubs */}
             {CONSTELLATION_DATA.hubs.map((hub) => {
               const isDimmed = filterFamily && filterFamily !== hub.familyId
+              const isBackgroundBlurred =
+                lodTier === 'micro' && activeFamilyId && hub.familyId !== activeFamilyId
 
               return (
                 <div
                   key={hub.id}
-                  className={`lessico-atlas__hub${isDimmed ? ' is-dimmed' : ''}`}
+                  className={`lessico-atlas__hub${isDimmed ? ' is-dimmed' : ''}${
+                    isBackgroundBlurred ? ' is-background-blurred' : ''
+                  }`}
                   style={{
                     left: `${hub.x}px`,
                     top: `${hub.y}px`,
@@ -1432,18 +2220,23 @@ export default function LessicoAtlasView({
                   aria-hidden
                 >
                   <div className="lessico-atlas__hub-dot" />
-                  <div className="lessico-atlas__hub-label">{hub.title}</div>
+                  <div className="lessico-atlas__hub-label">
+                    <span className="lessico-atlas__hub-title">{hub.title}</span>
+                    {hub.interval && (
+                      <span className="lessico-atlas__hub-interval">{hub.interval}</span>
+                    )}
+                  </div>
                 </div>
               )
             })}
 
             {/* 5. Constellation Word Nodes */}
-            {CONSTELLATION_DATA.words.map((word) => {
+            {CONSTELLATION_DATA.words.map((word, wordIdx) => {
               const isSelected = selectedWord?.id === word.id
               const isHovered = hoveredWordId === word.id
               const isFamilyFiltered = filterFamily && filterFamily !== word.familyId
               const matchesSearch =
-                !normalizedSearch || word.nome.toLowerCase().includes(normalizedSearch)
+                Boolean(normalizedSearch) && word.nome.toLowerCase().includes(normalizedSearch)
               const isSearchFiltered = normalizedSearch && !matchesSearch
               const isDimmed = isFamilyFiltered || isSearchFiltered
 
@@ -1452,13 +2245,21 @@ export default function LessicoAtlasView({
                 emergedWords.precise.has(`${word.familyId}|${word.subcurrentId}|${normalizedName}`) ||
                 emergedWords.fallback.has(normalizedName)
 
+              const isBackgroundBlurred =
+                lodTier === 'micro' && activeFamilyId && word.familyId !== activeFamilyId
+
               return (
                 <button
                   key={word.id}
+                  ref={(el) => {
+                    wordRefs.current[wordIdx] = el
+                  }}
                   type="button"
                   className={`lessico-atlas__word${isSelected ? ' is-selected' : ''}${
                     isEmerged ? ' is-emerged' : ''
-                  }${isHovered ? ' is-hovered' : ''}${isDimmed ? ' is-dimmed' : ''}`}
+                  }${isHovered ? ' is-hovered' : ''}${isDimmed ? ' is-dimmed' : ''}${
+                    isBackgroundBlurred ? ' is-background-blurred' : ''
+                  }${matchesSearch ? ' is-search-matched' : ''}`}
                   style={{
                     left: `${word.x}px`,
                     top: `${word.y}px`,
@@ -1466,9 +2267,18 @@ export default function LessicoAtlasView({
                     fontWeight: word.fontWeight,
                     '--word-color': word.color,
                   }}
-                  onMouseEnter={() => setHoveredWordId(word.id)}
-                  onMouseLeave={() => setHoveredWordId(null)}
-                  onClick={() => setSelectedWord(word)}
+                  onMouseEnter={() => {
+                    setHoveredWordId(word.id)
+                    hoveredWordIdRef.current = word.id
+                  }}
+                  onMouseLeave={() => {
+                    setHoveredWordId(null)
+                    hoveredWordIdRef.current = null
+                  }}
+                  onClick={() => {
+                    setSelectedWord(word)
+                    focusWord(word)
+                  }}
                   aria-expanded={isSelected || undefined}
                   aria-controls={isSelected ? 'lessico-dictionary-popover' : undefined}
                   tabIndex={isDimmed ? -1 : 0}
@@ -1477,7 +2287,14 @@ export default function LessicoAtlasView({
                     className="lessico-atlas__word-dot"
                     style={{ backgroundColor: word.color }}
                   />
-                  <span>{word.nome}</span>
+                  <span className="lessico-atlas__word-label">{word.nome}</span>
+                  {lodTier === 'micro' && (
+                    <span
+                      className={`lessico-atlas__word-tag${isEmerged ? ' is-emerged' : ''}`}
+                    >
+                      {isEmerged ? 'Emersa' : word.ringIndex === 0 ? 'Cardine' : null}
+                    </span>
+                  )}
                 </button>
               )
             })}
@@ -1548,7 +2365,10 @@ export default function LessicoAtlasView({
         <DictionaryPanel
           word={selectedWord}
           onClose={closeDictionary}
-          onSelectWord={setSelectedWord}
+          onSelectWord={(w) => {
+            setSelectedWord(w)
+            focusWord(w)
+          }}
           viewModel={viewModel}
         />
       ) : !isMobile && showDashboard && viewModel ? (
@@ -1571,7 +2391,13 @@ export default function LessicoAtlasView({
               </button>
             </header>
             <div className="lessico-dict__body" style={{ padding: '1rem', overflowY: 'auto' }}>
-              <AnalisiDashboard viewModel={viewModel} onSelectWord={(w) => setSelectedWord(w)} />
+              <AnalisiDashboard
+                viewModel={viewModel}
+                onSelectWord={(w) => {
+                  setSelectedWord(w)
+                  focusWord(w)
+                }}
+              />
             </div>
           </div>
         </aside>
