@@ -1009,7 +1009,10 @@ export default function LessicoAtlasView({
 
   const canvasRef = useRef(null)
   const layerRef = useRef(null)
-  const bgRef = useRef(null)
+  const starfieldRef = useRef(null)
+  const nebulaeRef = useRef(null)
+  const constellationLayerRef = useRef(null)
+  const wordsLayerRef = useRef(null)
   const cameraRef = useRef(createCamera(0, 0, 0.5, BASE_PITCH, 0, 0, 0))
   const targetCameraRef = useRef(createCamera(0, 0, 0.5, BASE_PITCH, 0, 0, 0))
   const initialCameraRef = useRef(createCamera(0, 0, 0.5, BASE_PITCH, 0, 0, 0))
@@ -1742,8 +1745,19 @@ export default function LessicoAtlasView({
         canvasRef.current.style.transform = `translate3d(${cur.x.toFixed(2)}px, ${cur.y.toFixed(2)}px, ${(cur.z || 0).toFixed(2)}px) rotateX(${totalPitch.toFixed(2)}deg) rotateY(${totalYaw.toFixed(2)}deg) rotateZ(${totalRoll.toFixed(2)}deg) scale(${cur.scale.toFixed(4)})`
       }
 
-      if (bgRef.current) {
-        bgRef.current.style.transform = `translate3d(${cTilt.bgX.toFixed(2)}px, ${cTilt.bgY.toFixed(2)}px, 0)`
+      // Parallasse Multilivello a 4 Strati (Z-Layering)
+      // Layer 0: Deep Starfield (0.12x pan/tilt, translateZ(-400px) scale(1.4))
+      if (starfieldRef.current) {
+        const sX = cTilt.bgX * 0.12 - cur.x * (1 - 0.12)
+        const sY = cTilt.bgY * 0.12 - cur.y * (1 - 0.12)
+        starfieldRef.current.style.transform = `translate3d(${sX.toFixed(2)}px, ${sY.toFixed(2)}px, -400px) scale(1.4)`
+      }
+
+      // Layer 1: Volumetric Nebulae (0.35x pan/tilt, translateZ(-200px) scale(1.2))
+      if (nebulaeRef.current) {
+        const nX = cTilt.bgX * 0.35 - cur.x * (1 - 0.35)
+        const nY = cTilt.bgY * 0.35 - cur.y * (1 - 0.35)
+        nebulaeRef.current.style.transform = `translate3d(${nX.toFixed(2)}px, ${nY.toFixed(2)}px, -200px) scale(1.2)`
       }
 
       // 1. Reset forces
@@ -2013,19 +2027,25 @@ export default function LessicoAtlasView({
             ref={canvasRef}
             className="lessico-atlas__canvas"
           >
-            {/* 0. Background Layer (Cosmic Nebulae & Star Dust with 3D Depth) */}
-            <div ref={bgRef} className="lessico-atlas__bg" aria-hidden>
-              <div className="lessico-atlas__stars" />
+            {/* Layer 0: Deep Starfield (Z-Depth -400px, 0.12x Parallax) */}
+            <div ref={starfieldRef} className="lessico-atlas__layer-stars" aria-hidden>
+              <div className="lessico-atlas__deep-stars" />
+              <div className="lessico-atlas__cosmic-dust" />
+            </div>
+
+            {/* Layer 1: Volumetric Gas Nebulae (Z-Depth -200px, 0.35x Parallax) */}
+            <div ref={nebulaeRef} className="lessico-atlas__layer-nebulae" aria-hidden>
               {CONSTELLATION_DATA.spheres.map((sphere) => {
                 const isDimmed = filterFamily && filterFamily !== sphere.id
                 const isBackgroundBlurred =
                   lodTier === 'micro' && activeFamilyId && sphere.id !== activeFamilyId
+                const isFocused = activeFamilyId === sphere.id
                 return (
                   <div
                     key={`nebula-${sphere.id}`}
                     className={`lessico-atlas__nebula${isDimmed ? ' is-dimmed' : ''}${
                       isBackgroundBlurred ? ' is-background-blurred' : ''
-                    }`}
+                    }${isFocused ? ' is-focused-family' : ''}`}
                     style={{
                       left: `${sphere.x}px`,
                       top: `${sphere.y}px`,
@@ -2036,268 +2056,305 @@ export default function LessicoAtlasView({
               })}
             </div>
 
-            {/* 1. Constellation Network SVG Lines Layer */}
-            <svg
-              className="lessico-atlas__network-svg"
-              width={WORLD_WIDTH}
-              height={WORLD_HEIGHT}
-              viewBox={`0 0 ${WORLD_WIDTH} ${WORLD_HEIGHT}`}
-            >
-              <defs>
-                {FAMILY_LIST.map((fam) => (
-                  <radialGradient
-                    key={`grad-${fam.id}`}
-                    id={`grad-${fam.id}`}
-                    cx="50%"
-                    cy="50%"
-                    r="50%"
-                  >
-                    <stop offset="0%" stopColor={fam.baseColor} stopOpacity="0.32" />
-                    <stop offset="60%" stopColor={fam.baseColor} stopOpacity="0.08" />
-                    <stop offset="100%" stopColor={fam.baseColor} stopOpacity="0" />
-                  </radialGradient>
-                ))}
-
-                {CONSTELLATION_DATA.edges.map((edge) => (
-                  <React.Fragment key={`edge-defs-${edge.id}`}>
-                    <linearGradient
-                      id={`edge-grad-${edge.id}`}
-                      gradientUnits="userSpaceOnUse"
-                      x1={edge.x1}
-                      y1={edge.y1}
-                      x2={edge.x2}
-                      y2={edge.y2}
+            {/* Layer 2: Constellation Network, Holographic Astrolabes & Hubs (Z-Depth 0px) */}
+            <div ref={constellationLayerRef} className="lessico-atlas__layer-constellation">
+              {/* 1. Constellation Network SVG Lines Layer */}
+              <svg
+                className="lessico-atlas__network-svg"
+                width={WORLD_WIDTH}
+                height={WORLD_HEIGHT}
+                viewBox={`0 0 ${WORLD_WIDTH} ${WORLD_HEIGHT}`}
+              >
+                <defs>
+                  {FAMILY_LIST.map((fam) => (
+                    <radialGradient
+                      key={`grad-${fam.id}`}
+                      id={`grad-${fam.id}`}
+                      cx="50%"
+                      cy="50%"
+                      r="50%"
                     >
-                      <stop offset="0%" stopColor={edge.color} stopOpacity="0.9" />
-                      <stop offset="70%" stopColor={edge.targetColor || edge.color} stopOpacity="0.7" />
-                      <stop offset="100%" stopColor={edge.targetColor || edge.color} stopOpacity="0.2" />
-                    </linearGradient>
-                    <linearGradient
-                      id={`edge-pulse-grad-${edge.id}`}
-                      gradientUnits="userSpaceOnUse"
-                      x1={edge.x1}
-                      y1={edge.y1}
-                      x2={edge.x2}
-                      y2={edge.y2}
-                    >
-                      <stop offset="0%" stopColor="#ffffff" stopOpacity="1" />
-                      <stop offset="60%" stopColor={edge.targetColor || edge.color} stopOpacity="0.95" />
-                      <stop offset="100%" stopColor={edge.targetColor || edge.color} stopOpacity="0.25" />
-                    </linearGradient>
-                  </React.Fragment>
-                ))}
-              </defs>
+                      <stop offset="0%" stopColor={fam.baseColor} stopOpacity="0.32" />
+                      <stop offset="60%" stopColor={fam.baseColor} stopOpacity="0.08" />
+                      <stop offset="100%" stopColor={fam.baseColor} stopOpacity="0" />
+                    </radialGradient>
+                  ))}
 
-              {CONSTELLATION_DATA.edges.map((edge, edgeIdx) => {
-                const isFamilyFiltered = filterFamily && filterFamily !== edge.familyId
-                const isHovered = hoveredWordId && edge.wordId === hoveredWordId
-                const isSelected = selectedWord && edge.wordId === selectedWord.id
-                const isEmerged = edge.wordId
-                  ? emergedWordIds.has(edge.wordId)
-                  : edge.type === 'core-hub' && activeCoreHubIds.has(edge.subcurrentId)
+                  {CONSTELLATION_DATA.edges.map((edge) => (
+                    <React.Fragment key={`edge-defs-${edge.id}`}>
+                      <linearGradient
+                        id={`edge-grad-${edge.id}`}
+                        gradientUnits="userSpaceOnUse"
+                        x1={edge.x1}
+                        y1={edge.y1}
+                        x2={edge.x2}
+                        y2={edge.y2}
+                      >
+                        <stop offset="0%" stopColor={edge.color} stopOpacity="0.9" />
+                        <stop offset="70%" stopColor={edge.targetColor || edge.color} stopOpacity="0.7" />
+                        <stop offset="100%" stopColor={edge.targetColor || edge.color} stopOpacity="0.2" />
+                      </linearGradient>
+                      <linearGradient
+                        id={`edge-pulse-grad-${edge.id}`}
+                        gradientUnits="userSpaceOnUse"
+                        x1={edge.x1}
+                        y1={edge.y1}
+                        x2={edge.x2}
+                        y2={edge.y2}
+                      >
+                        <stop offset="0%" stopColor="#ffffff" stopOpacity="1" />
+                        <stop offset="60%" stopColor={edge.targetColor || edge.color} stopOpacity="0.95" />
+                        <stop offset="100%" stopColor={edge.targetColor || edge.color} stopOpacity="0.25" />
+                      </linearGradient>
+                    </React.Fragment>
+                  ))}
+                </defs>
+
+                {CONSTELLATION_DATA.edges.map((edge, edgeIdx) => {
+                  const isFamilyFiltered = filterFamily && filterFamily !== edge.familyId
+                  const isHovered = hoveredWordId && edge.wordId === hoveredWordId
+                  const isSelected = selectedWord && edge.wordId === selectedWord.id
+                  const isEmerged = edge.wordId
+                    ? emergedWordIds.has(edge.wordId)
+                    : edge.type === 'core-hub' && activeCoreHubIds.has(edge.subcurrentId)
+                  const isBackgroundBlurred =
+                    lodTier === 'micro' && activeFamilyId && edge.familyId !== activeFamilyId
+
+                  return (
+                    <g
+                      key={edge.id}
+                      className={`lessico-atlas__edge-group${isHovered || isSelected ? ' is-highlighted' : ''}${
+                        isEmerged ? ' is-emerged' : ''
+                      }${isFamilyFiltered ? ' is-dimmed' : ''}${
+                        isBackgroundBlurred ? ' is-background-blurred' : ''
+                      }`}
+                      style={{ '--edge-color': edge.color, '--target-color': edge.targetColor || edge.color }}
+                    >
+                      {/* 1. Strato Base (Filamento Guida) */}
+                      <path
+                        ref={(el) => {
+                          if (!edgeRefs.current[edgeIdx]) edgeRefs.current[edgeIdx] = {}
+                          edgeRefs.current[edgeIdx].base = el
+                        }}
+                        d={edge.d}
+                        className={`lessico-atlas__edge lessico-atlas__edge--${edge.type}${
+                          isHovered || isSelected ? ' is-highlighted' : ''
+                        }${isEmerged ? ' is-emerged' : ''}${isFamilyFiltered ? ' is-dimmed' : ''}`}
+                        stroke={`url(#edge-grad-${edge.id})`}
+                        fill="none"
+                      />
+
+                      {/* 2. Strato Energetico Superiore (Photon Pulse Stream) */}
+                      <path
+                        ref={(el) => {
+                          if (!edgeRefs.current[edgeIdx]) edgeRefs.current[edgeIdx] = {}
+                          edgeRefs.current[edgeIdx].pulse = el
+                        }}
+                        d={edge.d}
+                        className={`lessico-atlas__edge-pulse lessico-atlas__edge-pulse--${edge.type}${
+                          isHovered || isSelected ? ' is-highlighted' : ''
+                        }${isEmerged ? ' is-emerged' : ''}${isFamilyFiltered ? ' is-dimmed' : ''}`}
+                        stroke={`url(#edge-pulse-grad-${edge.id})`}
+                        fill="none"
+                      />
+                    </g>
+                  )
+                })}
+              </svg>
+
+              {/* 2. 5 Planetary Celestial Spheres (Sci-Fi Holographic Astrolabes) */}
+              {CONSTELLATION_DATA.spheres.map((sphere) => {
+                const isDimmed = filterFamily && filterFamily !== sphere.id
                 const isBackgroundBlurred =
-                  lodTier === 'micro' && activeFamilyId && edge.familyId !== activeFamilyId
+                  lodTier === 'micro' && activeFamilyId && sphere.id !== activeFamilyId
+                const isFocused = activeFamilyId === sphere.id
+                const diam = sphere.radius * 2
 
                 return (
-                  <g
-                    key={edge.id}
-                    className={`lessico-atlas__edge-group${isHovered || isSelected ? ' is-highlighted' : ''}${
-                      isEmerged ? ' is-emerged' : ''
-                    }${isFamilyFiltered ? ' is-dimmed' : ''}${
+                  <div
+                    key={sphere.id}
+                    className={`lessico-atlas__sphere${isDimmed ? ' is-dimmed' : ''}${
                       isBackgroundBlurred ? ' is-background-blurred' : ''
-                    }`}
-                    style={{ '--edge-color': edge.color, '--target-color': edge.targetColor || edge.color }}
+                    }${isFocused ? ' is-focused-family' : ''}`}
+                    style={{
+                      left: `${sphere.x}px`,
+                      top: `${sphere.y}px`,
+                      width: `${diam}px`,
+                      height: `${diam}px`,
+                      '--sphere-color': sphere.color,
+                    }}
+                    aria-hidden
                   >
-                    {/* 1. Strato Base (Filamento Guida) */}
-                    <path
-                      ref={(el) => {
-                        if (!edgeRefs.current[edgeIdx]) edgeRefs.current[edgeIdx] = {}
-                        edgeRefs.current[edgeIdx].base = el
-                      }}
-                      d={edge.d}
-                      className={`lessico-atlas__edge lessico-atlas__edge--${edge.type}${
-                        isHovered || isSelected ? ' is-highlighted' : ''
-                      }${isEmerged ? ' is-emerged' : ''}${isFamilyFiltered ? ' is-dimmed' : ''}`}
-                      stroke={`url(#edge-grad-${edge.id})`}
-                      fill="none"
-                    />
+                    {/* 1. Atmospheric Haze (Volumetric Wide Bloom) */}
+                    <div className="lessico-astrolabe__haze" />
 
-                    {/* 2. Strato Energetico Superiore (Photon Pulse Stream) */}
-                    <path
-                      ref={(el) => {
-                        if (!edgeRefs.current[edgeIdx]) edgeRefs.current[edgeIdx] = {}
-                        edgeRefs.current[edgeIdx].pulse = el
-                      }}
-                      d={edge.d}
-                      className={`lessico-atlas__edge-pulse lessico-atlas__edge-pulse--${edge.type}${
-                        isHovered || isSelected ? ' is-highlighted' : ''
-                      }${isEmerged ? ' is-emerged' : ''}${isFamilyFiltered ? ' is-dimmed' : ''}`}
-                      stroke={`url(#edge-pulse-grad-${edge.id})`}
-                      fill="none"
-                    />
-                  </g>
+                    {/* 2. Outer Reticle & Ticks (Graduated Ring with Polar Coordinates) */}
+                    <svg className="lessico-astrolabe__reticle" viewBox="0 0 200 200">
+                      <circle cx="100" cy="100" r="96" className="lessico-astrolabe__reticle-ring" />
+                      {/* 8 Graduated Tick marks (0°, 45°, 90°, 135°, 180°, 225°, 270°, 315°) */}
+                      <line x1="100" y1="4" x2="100" y2="12" className="lessico-astrolabe__tick is-major" />
+                      <line x1="168" y1="32" x2="162" y2="38" className="lessico-astrolabe__tick" />
+                      <line x1="196" y1="100" x2="188" y2="100" className="lessico-astrolabe__tick is-major" />
+                      <line x1="168" y1="168" x2="162" y2="162" className="lessico-astrolabe__tick" />
+                      <line x1="100" y1="196" x2="100" y2="188" className="lessico-astrolabe__tick is-major" />
+                      <line x1="32" y1="168" x2="38" y2="162" className="lessico-astrolabe__tick" />
+                      <line x1="4" y1="100" x2="12" y2="100" className="lessico-astrolabe__tick is-major" />
+                      <line x1="32" y1="32" x2="38" y2="38" className="lessico-astrolabe__tick" />
+                      {/* Micro Polar Labels */}
+                      <text x="100" y="22" className="lessico-astrolabe__polar-label">N · 000°</text>
+                      <text x="176" y="103" className="lessico-astrolabe__polar-label">E · 090°</text>
+                      <text x="100" y="184" className="lessico-astrolabe__polar-label">S · 180°</text>
+                      <text x="24" y="103" className="lessico-astrolabe__polar-label">W · 270°</text>
+                    </svg>
+
+                    {/* 3. Orbital Rotor (Segmented Counter-rotating Ring) */}
+                    <div className="lessico-astrolabe__rotor" />
+
+                    {/* 4. 360° Conic Radar Sweep */}
+                    <div className="lessico-astrolabe__radar" />
+
+                    {/* 5. Neon Corona (Intermediate Vibrant Ring) */}
+                    <div className="lessico-astrolabe__corona" />
+
+                    {/* 6. Pulsar Core (Warm-White breathing core) */}
+                    <div className="lessico-astrolabe__core" />
+                  </div>
                 )
               })}
-            </svg>
 
-            {/* 2. 5 Planetary Celestial Spheres */}
-            {CONSTELLATION_DATA.spheres.map((sphere) => {
-              const isDimmed = filterFamily && filterFamily !== sphere.id
-              const isBackgroundBlurred =
-                lodTier === 'micro' && activeFamilyId && sphere.id !== activeFamilyId
-              const diam = sphere.radius * 2
+              {/* 3. Family Title Badges */}
+              {CONSTELLATION_DATA.spheres.map((sphere) => {
+                const isDimmed = filterFamily && filterFamily !== sphere.id
+                const isBackgroundBlurred =
+                  lodTier === 'micro' && activeFamilyId && sphere.id !== activeFamilyId
+                const count = ATLAS_WORDS.filter((w) => w.familyId === sphere.id).length
 
-              return (
-                <div
-                  key={sphere.id}
-                  className={`lessico-atlas__sphere${isDimmed ? ' is-dimmed' : ''}${
-                    isBackgroundBlurred ? ' is-background-blurred' : ''
-                  }`}
-                  style={{
-                    left: `${sphere.x}px`,
-                    top: `${sphere.y}px`,
-                    width: `${diam}px`,
-                    height: `${diam}px`,
-                    '--sphere-color': sphere.color,
-                  }}
-                  aria-hidden
-                >
-                  <div className="lessico-atlas__sphere-ring" />
-                  <div className="lessico-atlas__sphere-glow" />
-                </div>
-              )
-            })}
-
-            {/* 3. Family Title Badges */}
-            {CONSTELLATION_DATA.spheres.map((sphere) => {
-              const isDimmed = filterFamily && filterFamily !== sphere.id
-              const isBackgroundBlurred =
-                lodTier === 'micro' && activeFamilyId && sphere.id !== activeFamilyId
-              const count = ATLAS_WORDS.filter((w) => w.familyId === sphere.id).length
-
-              return (
-                <button
-                  key={`badge-${sphere.id}`}
-                  type="button"
-                  className={`lessico-atlas__family-badge${isDimmed ? ' is-dimmed' : ''}${
-                    isBackgroundBlurred ? ' is-background-blurred' : ''
-                  }`}
-                  style={{
-                    left: `${sphere.x}px`,
-                    top: `${sphere.y - sphere.radius - 20}px`,
-                    '--badge-color': sphere.color,
-                  }}
-                  onClick={() => handleFilterChange(sphere.id)}
-                  title={`Esplora la costellazione ${sphere.name}`}
-                >
-                  <span
-                    className="lessico-atlas__family-badge-dot"
-                    style={{ backgroundColor: sphere.color }}
-                  />
-                  <span>{sphere.name}</span>
-                  <span className="lessico-atlas__family-badge-count">{count} parole</span>
-                </button>
-              )
-            })}
-
-            {/* 4. Subcurrent Constellation Hubs */}
-            {CONSTELLATION_DATA.hubs.map((hub) => {
-              const isDimmed = filterFamily && filterFamily !== hub.familyId
-              const isBackgroundBlurred =
-                lodTier === 'micro' && activeFamilyId && hub.familyId !== activeFamilyId
-
-              return (
-                <div
-                  key={hub.id}
-                  className={`lessico-atlas__hub${isDimmed ? ' is-dimmed' : ''}${
-                    isBackgroundBlurred ? ' is-background-blurred' : ''
-                  }`}
-                  style={{
-                    left: `${hub.x}px`,
-                    top: `${hub.y}px`,
-                    '--hub-color': hub.color,
-                  }}
-                  aria-hidden
-                >
-                  <div className="lessico-atlas__hub-dot" />
-                  <div className="lessico-atlas__hub-label">
-                    <span className="lessico-atlas__hub-title">{hub.title}</span>
-                    {hub.interval && (
-                      <span className="lessico-atlas__hub-interval">{hub.interval}</span>
-                    )}
-                  </div>
-                </div>
-              )
-            })}
-
-            {/* 5. Constellation Word Nodes */}
-            {CONSTELLATION_DATA.words.map((word, wordIdx) => {
-              const isSelected = selectedWord?.id === word.id
-              const isHovered = hoveredWordId === word.id
-              const isFamilyFiltered = filterFamily && filterFamily !== word.familyId
-              const matchesSearch =
-                Boolean(normalizedSearch) && word.nome.toLowerCase().includes(normalizedSearch)
-              const isSearchFiltered = normalizedSearch && !matchesSearch
-              const isDimmed = isFamilyFiltered || isSearchFiltered
-
-              const normalizedName = word.nome.toLowerCase()
-              const isEmerged =
-                emergedWords.precise.has(`${word.familyId}|${word.subcurrentId}|${normalizedName}`) ||
-                emergedWords.fallback.has(normalizedName)
-
-              const isBackgroundBlurred =
-                lodTier === 'micro' && activeFamilyId && word.familyId !== activeFamilyId
-
-              return (
-                <button
-                  key={word.id}
-                  ref={(el) => {
-                    wordRefs.current[wordIdx] = el
-                  }}
-                  type="button"
-                  className={`lessico-atlas__word${isSelected ? ' is-selected' : ''}${
-                    isEmerged ? ' is-emerged' : ''
-                  }${isHovered ? ' is-hovered' : ''}${isDimmed ? ' is-dimmed' : ''}${
-                    isBackgroundBlurred ? ' is-background-blurred' : ''
-                  }${matchesSearch ? ' is-search-matched' : ''}`}
-                  style={{
-                    left: `${word.x}px`,
-                    top: `${word.y}px`,
-                    fontSize: `${word.fontSize}px`,
-                    fontWeight: word.fontWeight,
-                    '--word-color': word.color,
-                  }}
-                  onMouseEnter={() => {
-                    setHoveredWordId(word.id)
-                    hoveredWordIdRef.current = word.id
-                  }}
-                  onMouseLeave={() => {
-                    setHoveredWordId(null)
-                    hoveredWordIdRef.current = null
-                  }}
-                  onClick={() => {
-                    setSelectedWord(word)
-                    focusWord(word)
-                  }}
-                  aria-expanded={isSelected || undefined}
-                  aria-controls={isSelected ? 'lessico-dictionary-popover' : undefined}
-                  tabIndex={isDimmed ? -1 : 0}
-                >
-                  <span
-                    className="lessico-atlas__word-dot"
-                    style={{ backgroundColor: word.color }}
-                  />
-                  <span className="lessico-atlas__word-label">{word.nome}</span>
-                  {lodTier === 'micro' && (
+                return (
+                  <button
+                    key={`badge-${sphere.id}`}
+                    type="button"
+                    className={`lessico-atlas__family-badge${isDimmed ? ' is-dimmed' : ''}${
+                      isBackgroundBlurred ? ' is-background-blurred' : ''
+                    }`}
+                    style={{
+                      left: `${sphere.x}px`,
+                      top: `${sphere.y - sphere.radius - 20}px`,
+                      '--badge-color': sphere.color,
+                    }}
+                    onClick={() => handleFilterChange(sphere.id)}
+                    title={`Esplora la costellazione ${sphere.name}`}
+                  >
                     <span
-                      className={`lessico-atlas__word-tag${isEmerged ? ' is-emerged' : ''}`}
-                    >
-                      {isEmerged ? 'Emersa' : word.ringIndex === 0 ? 'Cardine' : null}
-                    </span>
-                  )}
-                </button>
-              )
-            })}
+                      className="lessico-atlas__family-badge-dot"
+                      style={{ backgroundColor: sphere.color }}
+                    />
+                    <span>{sphere.name}</span>
+                    <span className="lessico-atlas__family-badge-count">{count} parole</span>
+                  </button>
+                )
+              })}
+
+              {/* 4. Subcurrent Constellation Hubs */}
+              {CONSTELLATION_DATA.hubs.map((hub) => {
+                const isDimmed = filterFamily && filterFamily !== hub.familyId
+                const isBackgroundBlurred =
+                  lodTier === 'micro' && activeFamilyId && hub.familyId !== activeFamilyId
+
+                return (
+                  <div
+                    key={hub.id}
+                    className={`lessico-atlas__hub${isDimmed ? ' is-dimmed' : ''}${
+                      isBackgroundBlurred ? ' is-background-blurred' : ''
+                    }`}
+                    style={{
+                      left: `${hub.x}px`,
+                      top: `${hub.y}px`,
+                      '--hub-color': hub.color,
+                    }}
+                    aria-hidden
+                  >
+                    <div className="lessico-atlas__hub-dot" />
+                    <div className="lessico-atlas__hub-label">
+                      <span className="lessico-atlas__hub-title">{hub.title}</span>
+                      {hub.interval && (
+                        <span className="lessico-atlas__hub-interval">{hub.interval}</span>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Layer 3: Interactive Word Nodes (Z-Depth 25px - 60px) */}
+            <div ref={wordsLayerRef} className="lessico-atlas__layer-words">
+              {CONSTELLATION_DATA.words.map((word, wordIdx) => {
+                const isSelected = selectedWord?.id === word.id
+                const isHovered = hoveredWordId === word.id
+                const isFamilyFiltered = filterFamily && filterFamily !== word.familyId
+                const matchesSearch =
+                  Boolean(normalizedSearch) && word.nome.toLowerCase().includes(normalizedSearch)
+                const isSearchFiltered = normalizedSearch && !matchesSearch
+                const isDimmed = isFamilyFiltered || isSearchFiltered
+
+                const normalizedName = word.nome.toLowerCase()
+                const isEmerged =
+                  emergedWords.precise.has(`${word.familyId}|${word.subcurrentId}|${normalizedName}`) ||
+                  emergedWords.fallback.has(normalizedName)
+
+                const isBackgroundBlurred =
+                  lodTier === 'micro' && activeFamilyId && word.familyId !== activeFamilyId
+
+                return (
+                  <button
+                    key={word.id}
+                    ref={(el) => {
+                      wordRefs.current[wordIdx] = el
+                    }}
+                    type="button"
+                    className={`lessico-atlas__word${isSelected ? ' is-selected' : ''}${
+                      isEmerged ? ' is-emerged' : ''
+                    }${isHovered ? ' is-hovered' : ''}${isDimmed ? ' is-dimmed' : ''}${
+                      isBackgroundBlurred ? ' is-background-blurred' : ''
+                    }${matchesSearch ? ' is-search-matched' : ''}`}
+                    style={{
+                      left: `${word.x}px`,
+                      top: `${word.y}px`,
+                      fontSize: `${word.fontSize}px`,
+                      fontWeight: word.fontWeight,
+                      '--word-color': word.color,
+                    }}
+                    onMouseEnter={() => {
+                      setHoveredWordId(word.id)
+                      hoveredWordIdRef.current = word.id
+                    }}
+                    onMouseLeave={() => {
+                      setHoveredWordId(null)
+                      hoveredWordIdRef.current = null
+                    }}
+                    onClick={() => {
+                      setSelectedWord(word)
+                      focusWord(word)
+                    }}
+                    aria-expanded={isSelected || undefined}
+                    aria-controls={isSelected ? 'lessico-dictionary-popover' : undefined}
+                    tabIndex={isDimmed ? -1 : 0}
+                  >
+                    <span
+                      className="lessico-atlas__word-dot"
+                      style={{ backgroundColor: word.color }}
+                    />
+                    <span className="lessico-atlas__word-label">{word.nome}</span>
+                    {lodTier === 'micro' && (
+                      <span
+                        className={`lessico-atlas__word-tag${isEmerged ? ' is-emerged' : ''}`}
+                      >
+                        {isEmerged ? 'Emersa' : word.ringIndex === 0 ? 'Cardine' : null}
+                      </span>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
           </div>
         </div>
       ) : (

@@ -4935,57 +4935,98 @@
   z-index: 10;
 }
 
-/* ── Sfondo nebulose ────────────────────────────────────────────────────────── */
+/* ── Parallasse Multilivello a 4 Strati (Z-Layering) ────────────────────────── */
 
-.lessico-atlas__bg {
+.lessico-atlas__layer-stars {
+  position: absolute;
+  inset: -40%;
+  pointer-events: none;
+  transform-style: preserve-3d;
+  will-change: transform;
+  z-index: 0;
+}
+
+.lessico-atlas__deep-stars {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 0;
-  transform-style: preserve-3d;
-  will-change: transform;
+  background-image:
+    radial-gradient(1px 1px at 80px 120px, rgba(255, 255, 255, 0.45), transparent),
+    radial-gradient(1.5px 1.5px at 260px 420px, rgba(255, 255, 255, 0.35), transparent),
+    radial-gradient(1px 1px at 580px 220px, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(1.5px 1.5px at 840px 720px, rgba(255, 255, 255, 0.4), transparent),
+    radial-gradient(1px 1px at 1190px 320px, rgba(255, 255, 255, 0.3), transparent),
+    radial-gradient(2px 2px at 1540px 840px, rgba(255, 255, 255, 0.55), transparent),
+    radial-gradient(1.5px 1.5px at 1940px 420px, rgba(255, 255, 255, 0.35), transparent),
+    radial-gradient(1px 1px at 2340px 920px, rgba(255, 255, 255, 0.4), transparent),
+    radial-gradient(2px 2px at 2740px 260px, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(1.5px 1.5px at 3140px 780px, rgba(255, 255, 255, 0.35), transparent);
+  background-size: 800px 800px;
 }
 
-.lessico-atlas__stars {
+.lessico-atlas__cosmic-dust {
   position: absolute;
-  inset: -35%;
+  inset: 0;
   pointer-events: none;
-  transform: translateZ(-500px);
   background-image:
-    radial-gradient(1.5px 1.5px at 120px 180px, rgba(255, 255, 255, 0.45), transparent),
-    radial-gradient(1px 1px at 320px 480px, rgba(255, 255, 255, 0.35), transparent),
-    radial-gradient(2px 2px at 640px 280px, rgba(255, 255, 255, 0.5), transparent),
-    radial-gradient(1.5px 1.5px at 900px 780px, rgba(255, 255, 255, 0.4), transparent),
-    radial-gradient(1px 1px at 1250px 380px, rgba(255, 255, 255, 0.3), transparent),
-    radial-gradient(2px 2px at 1600px 900px, rgba(255, 255, 255, 0.5), transparent),
-    radial-gradient(1.5px 1.5px at 2000px 480px, rgba(255, 255, 255, 0.35), transparent),
-    radial-gradient(1px 1px at 2400px 980px, rgba(255, 255, 255, 0.4), transparent),
-    radial-gradient(2px 2px at 2800px 320px, rgba(255, 255, 255, 0.5), transparent),
-    radial-gradient(1.5px 1.5px at 3200px 840px, rgba(255, 255, 255, 0.35), transparent);
-  background-size: 900px 900px;
+    radial-gradient(180px 180px at 450px 350px, rgba(59, 130, 246, 0.04), transparent),
+    radial-gradient(220px 220px at 1650px 750px, rgba(239, 68, 68, 0.035), transparent),
+    radial-gradient(200px 200px at 2450px 400px, rgba(234, 179, 8, 0.03), transparent),
+    radial-gradient(240px 240px at 1200px 1400px, rgba(34, 197, 94, 0.035), transparent);
+  background-size: 1600px 1600px;
+}
+
+.lessico-atlas__layer-nebulae {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transform-style: preserve-3d;
   will-change: transform;
+  z-index: 1;
+}
+
+.lessico-atlas__layer-constellation {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transform-style: preserve-3d;
+  z-index: 2;
+}
+
+.lessico-atlas__layer-words {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transform-style: preserve-3d;
+  transform: translateZ(25px);
+  z-index: 3;
 }
 
 .lessico-atlas__nebula {
   position: absolute;
-  width: 28%;
-  height: 32%;
-  transform: translate(-50%, -50%) translateZ(-250px);
+  width: 32%;
+  height: 36%;
+  transform: translate(-50%, -50%);
   border-radius: 50%;
   background: radial-gradient(
     ellipse at center,
-    var(--nebula-color) 0%,
-    transparent 68%
+    color-mix(in srgb, var(--nebula-color) 45%, transparent) 0%,
+    color-mix(in srgb, var(--nebula-color) 20%, transparent) 40%,
+    transparent 72%
   );
-  filter: blur(32px);
-  transition:
-    opacity 0.4s ease;
+  filter: blur(40px);
+  transition: opacity 0.4s ease, filter 0.4s ease;
   pointer-events: none;
   will-change: opacity, transform;
 }
 
 .lessico-atlas__nebula.is-dimmed {
   opacity: 0.12;
+}
+
+.lessico-atlas__nebula.is-focused-family {
+  opacity: 0.85;
+  filter: blur(48px);
 }
 
 /* ── Barra controlli ────────────────────────────────────────────────────────── */
@@ -5266,43 +5307,175 @@
   will-change: auto !important;
 }
 
-/* ── Sfere planetarie delle 5 famiglie ─────────────────────────────────────── */
+/* ── Astrolabi Sci-Fi Olografici & Bloom Volumetrico ────────────────────────── */
 
 .lessico-atlas__sphere {
   position: absolute;
   transform: translate(-50%, -50%);
   border-radius: 50%;
   pointer-events: none;
-  z-index: 2;
-  transition: opacity 0.35s ease;
+  z-index: 5;
+  transition: opacity 0.4s ease, filter 0.4s ease;
+  transform-style: preserve-3d;
 }
 
 .lessico-atlas__sphere.is-dimmed {
   opacity: 0.15;
 }
 
-.lessico-atlas__sphere-ring {
+/* 1. Atmospheric Haze (Volumetric Wide Bloom) */
+.lessico-astrolabe__haze {
+  position: absolute;
+  inset: -20%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--sphere-color) 42%, transparent) 0%,
+    color-mix(in srgb, var(--sphere-color) 18%, transparent) 40%,
+    transparent 70%
+  );
+  filter: blur(45px);
+  pointer-events: none;
+  opacity: 0.65;
+  transition: opacity 0.4s ease, filter 0.4s ease;
+}
+
+/* 2. Outer Reticle & Ticks (Graduated Ring with Polar Coordinates) */
+.lessico-astrolabe__reticle {
   position: absolute;
   inset: 0;
-  border-radius: 50%;
-  border: 1.5px dashed color-mix(in srgb, var(--sphere-color) 40%, transparent);
-  box-shadow:
-    0 0 60px color-mix(in srgb, var(--sphere-color) 20%, transparent),
-    inset 0 0 50px color-mix(in srgb, var(--sphere-color) 12%, transparent);
-  animation: galassia-sphere-spin 180s linear infinite;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.75;
+  transition: opacity 0.3s ease;
 }
 
-.lessico-atlas__sphere-glow {
+.lessico-astrolabe__reticle-ring {
+  fill: none;
+  stroke: color-mix(in srgb, var(--sphere-color) 45%, rgba(255, 255, 255, 0.25));
+  stroke-width: 1px;
+}
+
+.lessico-astrolabe__tick {
+  stroke: color-mix(in srgb, var(--sphere-color) 70%, #ffffff);
+  stroke-width: 1px;
+}
+
+.lessico-astrolabe__tick.is-major {
+  stroke-width: 1.5px;
+  stroke: #ffffff;
+}
+
+.lessico-astrolabe__polar-label {
+  font-family: var(--font-mono, monospace);
+  font-size: 6px;
+  font-weight: 700;
+  fill: color-mix(in srgb, var(--sphere-color) 75%, #ffffff);
+  text-anchor: middle;
+  dominant-baseline: middle;
+  letter-spacing: 0.08em;
+  opacity: 0.85;
+}
+
+/* 3. Orbital Rotor (Segmented Counter-rotating Ring) */
+.lessico-astrolabe__rotor {
   position: absolute;
-  inset: 12%;
+  inset: 9%;
   border-radius: 50%;
-  background: radial-gradient(circle at center, color-mix(in srgb, var(--sphere-color) 20%, transparent) 0%, transparent 72%);
-  filter: blur(32px);
+  border: 1.5px dashed color-mix(in srgb, var(--sphere-color) 50%, transparent);
+  box-shadow:
+    0 0 20px color-mix(in srgb, var(--sphere-color) 25%, transparent),
+    inset 0 0 16px color-mix(in srgb, var(--sphere-color) 18%, transparent);
+  animation: astrolabe-spin-cw 120s linear infinite;
+  will-change: transform;
 }
 
-@keyframes galassia-sphere-spin {
+@keyframes astrolabe-spin-cw {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+
+/* 4. 360° Conic Radar Sweep */
+.lessico-astrolabe__radar {
+  position: absolute;
+  inset: 14%;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    color-mix(in srgb, var(--sphere-color) 18%, transparent) 40deg,
+    color-mix(in srgb, var(--sphere-color) 38%, transparent) 55deg,
+    transparent 56deg
+  );
+  animation: radar-sweep 12s linear infinite;
+  pointer-events: none;
+  will-change: transform;
+}
+
+@keyframes radar-sweep {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* 5. Neon Corona (Intermediate Vibrant Ring) */
+.lessico-astrolabe__corona {
+  position: absolute;
+  inset: 22%;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--sphere-color) 65%, rgba(255, 255, 255, 0.4));
+  box-shadow:
+    0 0 24px color-mix(in srgb, var(--sphere-color) 70%, transparent),
+    0 0 48px color-mix(in srgb, var(--sphere-color) 45%, transparent),
+    inset 0 0 20px color-mix(in srgb, var(--sphere-color) 35%, transparent);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* 6. Pulsar Core (Warm-White breathing core) */
+.lessico-astrolabe__core {
+  position: absolute;
+  inset: 38%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    #ffffff 0%,
+    color-mix(in srgb, var(--sphere-color) 80%, #ffffff) 30%,
+    color-mix(in srgb, var(--sphere-color) 50%, transparent) 55%,
+    transparent 72%
+  );
+  animation: pulsar-breath 4.5s ease-in-out infinite alternate;
+  will-change: transform, opacity, filter;
+}
+
+@keyframes pulsar-breath {
+  0% {
+    transform: scale(0.96);
+    opacity: 0.85;
+    filter: brightness(1);
+  }
+  100% {
+    transform: scale(1.04);
+    opacity: 1;
+    filter: brightness(1.3);
+  }
+}
+
+/* Focused Family Astrolabe State */
+.lessico-atlas__sphere.is-focused-family .lessico-astrolabe__corona {
+  box-shadow:
+    0 0 36px color-mix(in srgb, var(--sphere-color) 85%, transparent),
+    0 0 72px color-mix(in srgb, var(--sphere-color) 60%, transparent),
+    inset 0 0 30px color-mix(in srgb, var(--sphere-color) 50%, transparent);
+  border-color: color-mix(in srgb, var(--sphere-color) 90%, #ffffff);
+}
+
+.lessico-atlas__sphere.is-focused-family .lessico-astrolabe__reticle {
+  opacity: 1;
+}
+
+.lessico-atlas__sphere.is-focused-family .lessico-astrolabe__haze {
+  opacity: 0.95;
+  filter: blur(55px);
 }
 
 /* ── Badge titolo famiglia ─────────────────────────────────────────────────── */
@@ -5485,7 +5658,7 @@
 
 .lessico-atlas__word:hover,
 .lessico-atlas__word.is-hovered {
-  transform: translate(-50%, -50%) scale(1.12);
+  transform: translate(-50%, -50%) translateZ(35px) scale(1.12);
   background: rgba(15, 23, 42, 0.96);
   border-color: var(--word-color);
   color: #fff;
@@ -5496,7 +5669,7 @@
 }
 
 .lessico-atlas__word.is-selected {
-  transform: translate(-50%, -50%) scale(1.18);
+  transform: translate(-50%, -50%) translateZ(40px) scale(1.18);
   background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(2, 6, 23, 0.96));
   border: 1.5px solid #fff;
   color: #fff;
@@ -5507,10 +5680,19 @@
 }
 
 .lessico-atlas__word.is-emerged {
+  transform: translate(-50%, -50%) translateZ(20px);
   border-width: 1.5px;
   border-color: color-mix(in srgb, var(--word-color) 75%, #fff);
   box-shadow: 0 0 12px color-mix(in srgb, var(--word-color) 45%, transparent);
   font-weight: 700;
+}
+
+.lessico-atlas__word.is-emerged.is-selected {
+  transform: translate(-50%, -50%) translateZ(40px) scale(1.18);
+}
+
+.lessico-atlas__word.is-emerged:hover {
+  transform: translate(-50%, -50%) translateZ(35px) scale(1.12);
 }
 
 .lessico-atlas__word.is-dimmed {
