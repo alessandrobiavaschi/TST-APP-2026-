@@ -212,14 +212,16 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
-  border-radius: 0.65rem 0.65rem 0.5rem 0.5rem;
-  border: 2px solid rgba(100, 116, 139, 0.55);
-  border-top-color: rgba(203, 213, 225, 0.45);
-  background: linear-gradient(165deg, #1e293b 0%, #0f172a 55%, #020617 100%);
+  border-radius: 14px;
+  border: 1px solid rgba(56, 189, 248, 0.32);
+  background: rgba(2, 6, 23, 0.84);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    0 12px 28px rgba(0, 0, 0, 0.45);
-  padding: 0.42rem 0.48rem 0.5rem;
+    0 20px 50px rgba(0, 0, 0, 0.7),
+    0 0 32px rgba(56, 189, 248, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  padding: 0.55rem 0.65rem 0.65rem;
 }
 
 .galassia-view__crt-head {
@@ -227,31 +229,36 @@
   align-items: center;
   gap: 0.45rem;
   flex-shrink: 0;
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.45rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .galassia-view__crt-dots {
   display: inline-flex;
-  gap: 0.22rem;
+  gap: 0.25rem;
 }
 
 .galassia-view__crt-dots span {
   width: 0.42rem;
   height: 0.42rem;
   border-radius: 999px;
-  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.35);
+  box-shadow: 0 0 6px currentColor;
 }
 
-.galassia-view__crt-dots span:nth-child(1) { background: #fb7185; }
-.galassia-view__crt-dots span:nth-child(2) { background: #fbbf24; }
-.galassia-view__crt-dots span:nth-child(3) { background: #34d399; }
+.galassia-view__crt-dots span:nth-child(1) { background: #fb7185; color: #fb7185; }
+.galassia-view__crt-dots span:nth-child(2) { background: #fbbf24; color: #fbbf24; }
+.galassia-view__crt-dots span:nth-child(3) { background: #38bdf8; color: #38bdf8; }
 
 .galassia-view__crt-kicker {
   margin: 0;
-  font-size: 0.62rem;
-  letter-spacing: 0.1em;
+  font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, monospace);
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--galassia-crt-muted);
+  color: #38bdf8;
+  text-shadow: 0 0 8px rgba(56, 189, 248, 0.5);
 }
 
 .galassia-view__crt-screen {
@@ -415,26 +422,41 @@
 
 .galassia-view__crt-btn {
   min-height: 2rem;
-  padding: 0.28rem 0.62rem;
-  border-radius: 0.25rem;
-  border: 1px solid rgba(158, 240, 26, 0.35);
-  background: rgba(158, 240, 26, 0.08);
-  color: var(--galassia-crt-text);
-  font: inherit;
-  font-size: 0.65rem;
+  padding: 0.32rem 0.72rem;
+  border-radius: 6px;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  background: rgba(14, 116, 144, 0.75);
+  color: #ffffff;
+  font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, monospace);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
   cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .galassia-view__crt-btn:hover,
 .galassia-view__crt-btn:focus-visible {
-  background: rgba(158, 240, 26, 0.16);
+  background: rgba(14, 116, 144, 0.95);
+  border-color: #38bdf8;
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.5);
+  transform: translateY(-1px);
   outline: none;
 }
 
 .galassia-view__crt-btn--ghost {
-  border-color: rgba(148, 163, 184, 0.35);
-  background: transparent;
+  border-color: rgba(148, 163, 184, 0.28);
+  background: rgba(15, 23, 42, 0.65);
   color: rgba(203, 213, 225, 0.85);
+}
+
+.galassia-view__crt-btn--ghost:hover,
+.galassia-view__crt-btn--ghost:focus-visible {
+  background: rgba(30, 41, 59, 0.85);
+  border-color: rgba(56, 189, 248, 0.45);
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
 }
 
 /* Spazio per il monitor su mobile — evita sovrapposizione con griglia pianeti */
@@ -1013,13 +1035,14 @@
   margin-top: 0.15rem;
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
-  padding: 0.24rem;
+  gap: 0.35rem;
+  padding: 0.28rem;
   border-radius: 999px;
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  background: rgba(2, 6, 23, 0.55);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  background: rgba(2, 6, 23, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08);
   pointer-events: auto;
 }
 
@@ -1028,29 +1051,38 @@
   min-height: 2.1rem;
   padding: 0 0.55rem;
   border-radius: 999px;
-  border: 1px solid rgba(125, 211, 252, 0.35);
-  background: rgba(8, 47, 73, 0.75);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  background: rgba(15, 23, 42, 0.72);
   color: rgba(240, 249, 255, 0.96);
-  font-family: var(--font-body, Inter, ui-sans-serif, system-ui, sans-serif);
-  font-size: 1rem;
-  font-weight: 650;
+  font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, monospace);
+  font-size: 0.95rem;
+  font-weight: 700;
   line-height: 1;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .galassia-view__map-control--ghost {
   min-width: auto;
-  padding: 0 0.72rem;
-  font-size: 0.76rem;
-  font-weight: 600;
-  border-color: rgba(148, 163, 184, 0.32);
-  background: rgba(2, 6, 23, 0.45);
+  padding: 0 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-color: rgba(148, 163, 184, 0.28);
+  background: rgba(15, 23, 42, 0.55);
 }
 
 .galassia-view__map-control:hover,
 .galassia-view__map-control:focus-visible {
-  border-color: rgba(125, 211, 252, 0.55);
-  background: rgba(14, 116, 144, 0.82);
+  border-color: rgba(56, 189, 248, 0.75);
+  background: rgba(14, 116, 144, 0.85);
+  color: #ffffff;
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.5);
+  transform: scale(1.05);
   outline: none;
 }
 
@@ -3772,36 +3804,54 @@
 .galassia-view__mode-switch {
   /* Layout in-flow dentro .galassia-view__chrome — vedi blocco chrome compatto sopra */
   z-index: 40;
-  display: flex;
+  display: inline-flex;
+  align-items: center;
   flex-wrap: wrap;
   gap: 0.35rem;
+  padding: 0.28rem !important;
+  background: rgba(2, 6, 23, 0.72) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(56, 189, 248, 0.22);
+  border-radius: 999px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08);
   pointer-events: auto;
 }
 
 .galassia-view__mode-tab {
   flex: 1 1 auto;
   min-width: 0;
-  padding: 0.42rem 0.62rem;
-  border: 1px solid rgba(148, 163, 184, 0.18);
+  padding: 0.38rem 0.85rem;
+  border: 1px solid transparent;
   border-radius: 999px;
-  background: rgba(15, 23, 42, 0.62);
-  color: rgba(203, 213, 225, 0.82);
-  font-family: var(--font-body, Inter, ui-sans-serif, system-ui, sans-serif);
+  background: transparent;
+  color: rgba(203, 213, 225, 0.75);
+  font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, monospace);
   font-size: 0.72rem;
   font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
   line-height: 1.2;
   cursor: pointer;
-  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.galassia-view__mode-tab:hover {
+  color: #ffffff;
+  background: rgba(30, 41, 59, 0.55);
+  border-color: rgba(56, 189, 248, 0.3);
 }
 
 .galassia-view__mode-tab[data-active='true'] {
-  border-color: rgba(125, 211, 252, 0.42);
-  background: rgba(12, 74, 110, 0.52);
-  color: rgba(248, 250, 252, 0.98);
+  border-color: rgba(56, 189, 248, 0.65) !important;
+  background: linear-gradient(135deg, rgba(14, 116, 144, 0.88), rgba(3, 105, 161, 0.92)) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+  text-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
 }
 
 .galassia-view__mode-tab:focus-visible {
-  outline: 2px solid rgba(125, 211, 252, 0.8);
+  outline: 2px solid rgba(56, 189, 248, 0.8);
   outline-offset: 2px;
 }
 
@@ -4532,15 +4582,15 @@
   line-height: 1.48;
 }
 
-/* Mode tab active state — stronger contrast */
+/* Mode tab active state — Tactical HUD Cyber-Astronomy */
 .galassia-view__mode-tab[data-active='true'] {
-  border-color: rgba(125, 211, 252, 0.6) !important;
+  border-color: rgba(56, 189, 248, 0.75) !important;
   background: linear-gradient(135deg,
-    rgba(8, 100, 130, 0.88) 0%,
-    rgba(7, 52, 82, 0.84) 100%) !important;
-  color: rgba(240, 249, 255, 1) !important;
-  box-shadow: 0 0 0 1px rgba(125, 211, 252, 0.18) inset,
-              0 2px 12px rgba(5, 60, 90, 0.55) !important;
+    rgba(14, 116, 144, 0.88) 0%,
+    rgba(3, 105, 161, 0.92) 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+  text-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
 }
 
 /* Planet label sub-text — more legible */
@@ -4555,9 +4605,9 @@
    ────────────────────────────────────────────────────────────────────────── */
 @media (min-width: 901px) {
 
-  /* Variabili base: pannello più largo, spazio riservato a destra */
+  /* Variabili base: pannello sottile (slender) e proporzioni finestra ariose per la mappa */
   .galassia-view {
-    --galassia-panel-width: clamp(380px, 36vw, 560px);
+    --galassia-panel-width: clamp(270px, 21vw, 320px);
     --galassia-panel-top: var(--galassia-edge);
     --galassia-panel-space: calc(
       var(--galassia-panel-width) + var(--galassia-edge) + var(--galassia-edge)
@@ -4571,12 +4621,12 @@
     --galassia-map-bottom: clamp(16px, 2vh, 26px);
   }
 
-  /* Stato idle: pannello nascosto, stessa viewport del pannello visibile per evitare jitter in hover */
+  /* Stato idle: stessa viewport del pannello visibile per evitare jitter in hover */
   .galassia-view--overview.galassia-view--idle {
     --galassia-map-bottom: clamp(16px, 2vh, 26px);
   }
 
-  /* Viewport mappa: si ferma prima del pannello a destra */
+  /* Viewport mappa: beneficia del pannello più sottile per allargarsi */
   .galassia-view__map-viewport {
     inset:
       var(--galassia-map-top)
@@ -4585,35 +4635,43 @@
       var(--galassia-edge);
   }
 
-  /* Pannello CRT: colonna destra, aderisce da edge-top a edge-bottom */
+  /* Pannello CRT / Holo-Slate: lungo e sottile, aderisce da edge-top a edge-bottom */
   .galassia-view__crt {
     top: var(--galassia-panel-top) !important;
     right: var(--galassia-edge) !important;
     bottom: var(--galassia-edge) !important;
     left: auto !important;
     width: var(--galassia-panel-width) !important;
+    height: calc(100% - var(--galassia-panel-top) - var(--galassia-edge)) !important;
     max-height: none !important;
-    height: auto;
     contain: unset;
+    display: flex !important;
+    flex-direction: column !important;
   }
 
   .galassia-view__crt-bezel {
-    height: 100%;
-    max-height: none;
+    height: 100% !important;
+    max-height: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 1 auto !important;
   }
 
-  /* Schermo interno: scroll verticale nel pannello, layout a colonna singola */
-  .galassia-view__crt-screen {
+  /* Schermo interno: scroll verticale nel pannello a tutta altezza, nessuna costrizione compact */
+  .galassia-view__crt-screen,
+  .galassia-view__crt-screen--compact {
     display: flex !important;
-    flex-direction: column;
+    flex-direction: column !important;
     grid-template-columns: unset !important;
     max-height: none !important;
-    overflow-y: auto;
-    overscroll-behavior: contain;
+    height: auto !important;
+    flex: 1 1 auto !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
     scrollbar-gutter: stable;
-    padding: 1rem 1.1rem 1.15rem;
-    font-size: 0.9rem;
-    line-height: 1.58;
+    padding: 0.85rem 0.95rem 1rem !important;
+    font-size: 0.84rem;
+    line-height: 1.5;
   }
 }
 
@@ -4941,7 +4999,6 @@
   position: absolute;
   inset: -40%;
   pointer-events: none;
-  transform-style: preserve-3d;
   will-change: transform;
   z-index: 0;
 }
@@ -4980,7 +5037,6 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  transform-style: preserve-3d;
   will-change: transform;
   z-index: 1;
 }
@@ -4989,7 +5045,6 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  transform-style: preserve-3d;
   z-index: 2;
 }
 
@@ -4997,36 +5052,34 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  transform-style: preserve-3d;
-  transform: translateZ(25px);
   z-index: 3;
 }
 
 .lessico-atlas__nebula {
   position: absolute;
-  width: 32%;
-  height: 36%;
+  width: 44%;
+  height: 48%;
   transform: translate(-50%, -50%);
   border-radius: 50%;
   background: radial-gradient(
     ellipse at center,
     color-mix(in srgb, var(--nebula-color) 45%, transparent) 0%,
-    color-mix(in srgb, var(--nebula-color) 20%, transparent) 40%,
-    transparent 72%
+    color-mix(in srgb, var(--nebula-color) 28%, transparent) 22%,
+    color-mix(in srgb, var(--nebula-color) 14%, transparent) 45%,
+    color-mix(in srgb, var(--nebula-color) 4%, transparent) 68%,
+    transparent 85%
   );
-  filter: blur(40px);
-  transition: opacity 0.4s ease, filter 0.4s ease;
+  transition: opacity 0.4s ease;
   pointer-events: none;
-  will-change: opacity, transform;
+  will-change: opacity;
 }
 
 .lessico-atlas__nebula.is-dimmed {
-  opacity: 0.12;
+  opacity: 0.10;
 }
 
 .lessico-atlas__nebula.is-focused-family {
-  opacity: 0.85;
-  filter: blur(48px);
+  opacity: 0.95;
 }
 
 /* ── Barra controlli ────────────────────────────────────────────────────────── */
@@ -5046,7 +5099,18 @@
   flex-shrink: 0;
 }
 
-/* ── Legenda / filtri famiglia ─────────────────────────────────────────────── */
+/* ── Tactical HUD Glassmorphism ─────────────────────────────────────────────── */
+
+.lessico-atlas__controls--tactical {
+  background: rgba(2, 6, 23, 0.68) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+  padding: 0.48rem 1.15rem 0.48rem 0.95rem;
+}
+
+/* ── Legenda / filtri famiglia come Spettri di Frequenza ───────────────────── */
 
 .lessico-legend {
   display: flex;
@@ -5054,6 +5118,10 @@
   gap: 0.3rem;
   flex-wrap: wrap;
   flex: 1;
+}
+
+.lessico-legend--tactical {
+  gap: 0.42rem;
 }
 
 .lessico-legend__item {
@@ -5074,19 +5142,83 @@
   white-space: nowrap;
 }
 
-.lessico-legend__item:hover,
-.lessico-legend__item:focus-visible {
-  border-color: var(--legend-color, rgba(148, 163, 184, 0.4));
+.lessico-legend__item--tactical {
+  gap: 0.38rem;
+  padding: 0.24rem 0.62rem;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(15, 23, 42, 0.65);
+  color: rgba(203, 213, 225, 0.78);
+  font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, monospace);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  transition: all 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.lessico-legend__item--tactical:hover,
+.lessico-legend__item--tactical:focus-visible {
+  border-color: var(--legend-color, rgba(255, 255, 255, 0.4));
   color: #fff;
-  background: rgba(15, 23, 42, 0.75);
+  background: rgba(30, 41, 59, 0.85);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--legend-color, #38bdf8) 40%, transparent);
   outline: none;
 }
 
-.lessico-legend__item.is-active {
-  border-color: var(--legend-color, rgba(148, 163, 184, 0.6));
+.lessico-legend__item--tactical.is-active {
+  border-color: var(--legend-color, #38bdf8);
   color: #fff;
-  background: color-mix(in srgb, var(--legend-color, #64748b) 18%, rgba(15, 23, 42, 0.85));
-  box-shadow: 0 0 10px color-mix(in srgb, var(--legend-color, #64748b) 28%, transparent);
+  background: color-mix(in srgb, var(--legend-color, #38bdf8) 22%, rgba(15, 23, 42, 0.9));
+  box-shadow:
+    0 0 16px color-mix(in srgb, var(--legend-color, #38bdf8) 55%, transparent),
+    inset 0 0 8px color-mix(in srgb, var(--legend-color, #38bdf8) 25%, transparent);
+}
+
+.lessico-legend__spectrum-bars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  width: 10px;
+  height: 12px;
+}
+
+.lessico-legend__spectrum-bars .bar {
+  width: 2px;
+  background-color: var(--legend-color, #94a3b8);
+  border-radius: 1px;
+  box-shadow: 0 0 4px var(--legend-color, #94a3b8);
+  transition: height 0.2s ease, background-color 0.2s ease;
+}
+
+.lessico-legend__spectrum-bars .bar-1 { height: 50%; }
+.lessico-legend__spectrum-bars .bar-2 { height: 100%; }
+.lessico-legend__spectrum-bars .bar-3 { height: 75%; }
+
+.lessico-legend__item--tactical.is-active .lessico-legend__spectrum-bars .bar {
+  animation: tactical-bar-pulse 1.2s ease-in-out infinite alternate;
+}
+
+.lessico-legend__item--tactical.is-active .lessico-legend__spectrum-bars .bar-2 {
+  animation-delay: 0.2s;
+}
+
+.lessico-legend__item--tactical.is-active .lessico-legend__spectrum-bars .bar-3 {
+  animation-delay: 0.4s;
+}
+
+@keyframes tactical-bar-pulse {
+  0% { transform: scaleY(0.7); }
+  100% { transform: scaleY(1.15); }
+}
+
+.lessico-legend__label {
+  font-weight: 700;
+}
+
+.lessico-legend__val {
+  font-size: 0.6rem;
+  opacity: 0.65;
+  margin-left: 2px;
 }
 
 .lessico-legend__dot {
@@ -5096,9 +5228,10 @@
   flex-shrink: 0;
 }
 
-/* ── Ricerca ────────────────────────────────────────────────────────────────── */
+/* ── Ricerca & Controlli Mappa Laser-Cut ─────────────────────────────────────── */
 
 .lessico-atlas__search-wrap {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 0.3rem;
@@ -5107,22 +5240,24 @@
 
 .lessico-atlas__search-input {
   background: rgba(15, 23, 42, 0.7);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 4px;
   color: #f1f5f9;
-  font-size: 0.78rem;
+  font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, monospace);
+  font-size: 0.76rem;
   padding: 0.28rem 0.6rem;
   width: 180px;
   outline: none;
-  transition: border-color 0.18s;
+  transition: all 0.18s ease;
 }
 
 .lessico-atlas__search-input:focus {
-  border-color: rgba(148, 163, 184, 0.48);
+  border-color: #38bdf8;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
 }
 
 .lessico-atlas__search-input::placeholder {
-  color: rgba(148, 163, 184, 0.4);
+  color: rgba(148, 163, 184, 0.45);
 }
 
 .lessico-atlas__search-btn {
@@ -5131,20 +5266,187 @@
   justify-content: center;
   width: 2rem;
   height: 2rem;
-  border-radius: 6px;
-  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
   background: rgba(15, 23, 42, 0.55);
-  color: rgba(203, 213, 225, 0.7);
+  color: rgba(203, 213, 225, 0.8);
   font-size: 0.9rem;
   cursor: pointer;
-  transition: all 0.18s;
+  transition: all 0.18s ease;
 }
 
 .lessico-atlas__search-btn:hover,
 .lessico-atlas__search-btn.is-active {
-  border-color: rgba(148, 163, 184, 0.4);
+  border-color: #38bdf8;
   color: #fff;
-  background: rgba(30, 41, 59, 0.8);
+  background: rgba(30, 41, 59, 0.85);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
+}
+
+/* Autocomplete Dropdown */
+.lessico-atlas__autocomplete {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 280px;
+  max-height: 320px;
+  overflow-y: auto;
+  background: linear-gradient(145deg, rgba(8, 14, 30, 0.95), rgba(4, 8, 20, 0.98));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-radius: 12px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(56, 189, 248, 0.15);
+  z-index: 1000;
+  padding: 0.35rem 0;
+  list-style: none;
+  margin: 0;
+}
+
+.lessico-atlas__autocomplete-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.45rem 0.75rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  border-left: 2px solid transparent;
+  color: #e2e8f0;
+  font-size: 0.78rem;
+  font-family: inherit;
+  width: 100%;
+  background: transparent;
+  border: none;
+  text-align: left;
+}
+
+.lessico-atlas__autocomplete-item:hover,
+.lessico-atlas__autocomplete-item.is-selected {
+  background: rgba(56, 189, 248, 0.15);
+  border-left: 2px solid var(--item-color, #38bdf8);
+}
+
+.lessico-atlas__autocomplete-item-left {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lessico-atlas__autocomplete-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.lessico-atlas__autocomplete-name {
+  font-weight: 600;
+  color: #f8fafc;
+}
+
+.lessico-atlas__autocomplete-family {
+  font-size: 0.65rem;
+  color: rgba(148, 163, 184, 0.8);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.lessico-atlas__autocomplete-tag {
+  font-size: 0.6rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.lessico-atlas__zoom-controls .galassia-view__map-control {
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  transition: all 0.18s ease;
+}
+
+.lessico-atlas__zoom-controls .galassia-view__map-control:hover {
+  border-color: #38bdf8;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+}
+
+/* ── Telemetria Olografica nei 4 Angoli della Viewport ─────────────────────── */
+
+.lessico-hud-telemetry {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, monospace);
+}
+
+.lessico-telemetry {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0.32rem 0.6rem;
+  background: rgba(2, 6, 23, 0.6);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  font-size: 0.62rem;
+  color: rgba(226, 232, 240, 0.88);
+  letter-spacing: 0.08em;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.lessico-telemetry__tag {
+  font-size: 0.52rem;
+  font-weight: 700;
+  color: #38bdf8;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.lessico-telemetry__val {
+  font-weight: 600;
+  color: rgba(248, 250, 252, 0.95);
+}
+
+.lessico-telemetry--tl {
+  top: 0.85rem;
+  left: 0.85rem;
+  border-left: 2px solid #38bdf8;
+}
+
+.lessico-telemetry--tr {
+  top: 0.85rem;
+  right: 0.85rem;
+  border-right: 2px solid #a855f7;
+  text-align: right;
+}
+
+.lessico-telemetry--bl {
+  bottom: 12.8rem;
+  left: 0.85rem;
+  border-left: 2px solid #22c55e;
+}
+
+.lessico-telemetry--br {
+  bottom: 0.85rem;
+  right: 0.85rem;
+  border-right: 2px solid #f59e0b;
+  text-align: right;
+}
+
+@media (max-width: 768px) {
+  .lessico-hud-telemetry {
+    display: none;
+  }
 }
 
 /* ── Canvas parole (desktop) ────────────────────────────────────────────────── */
@@ -5173,7 +5475,6 @@
   top: 0;
   overflow: visible;
   transform-origin: 50% 50%;
-  transform-style: preserve-3d;
   will-change: transform;
   backface-visibility: hidden;
 }
@@ -5232,14 +5533,12 @@
 /* Connessioni a Parole Emerse (isEmerged === true) */
 .lessico-atlas__edge.is-emerged {
   stroke-width: 2.4px;
-  opacity: 0.45;
-  filter: drop-shadow(0 0 5px var(--edge-color));
+  opacity: 0.65;
 }
 
 .lessico-atlas__edge--core-hub.is-emerged {
   stroke-width: 2.6px;
-  opacity: 0.55;
-  filter: drop-shadow(0 0 6px var(--edge-color));
+  opacity: 0.75;
 }
 
 /* Stato Hover o Selected (isHovered || isSelected) */
@@ -5251,8 +5550,26 @@
 
 /* Stato Dimmed (filtro per famiglia attivo altrove) */
 .lessico-atlas__edge.is-dimmed {
-  opacity: 0.03 !important;
+  opacity: 0.02 !important;
   filter: none !important;
+  transition: opacity 0.3s ease;
+}
+
+/* Stato Family Active (filtro per famiglia attivo su questo cluster) */
+.lessico-atlas__edge.is-family-active {
+  stroke-width: 2.4px !important;
+  opacity: 0.95 !important;
+  filter: drop-shadow(0 0 6px var(--edge-color)) drop-shadow(0 0 14px var(--edge-color)) !important;
+  transition: opacity 0.35s ease, stroke-width 0.35s ease, filter 0.35s ease;
+}
+
+.lessico-atlas__edge-pulse.is-family-active {
+  display: block !important;
+  opacity: 0.92 !important;
+  stroke-width: 2px !important;
+  stroke-dasharray: 10 26 !important;
+  filter: drop-shadow(0 0 6px var(--target-color, var(--edge-color))) !important;
+  transition: opacity 0.35s ease;
 }
 
 /* 2. Strato Energetico Superiore (Photon Pulse Stream) */
@@ -5266,35 +5583,29 @@
   transition: opacity 0.25s ease, stroke-width 0.25s ease, filter 0.25s ease;
 }
 
-/* Stream attivo su Parole Emerse */
+/* Stream attivo su Parole Emerse (statico ad alte prestazioni, zero re-rasterizzazione SVG) */
 .lessico-atlas__edge-pulse.is-emerged {
   display: block;
-  stroke-width: 2.4px;
-  stroke-dasharray: 10 40;
+  stroke-width: 2px;
+  stroke-dasharray: 8 20;
   stroke-dashoffset: 0;
-  opacity: 0.92;
-  filter: drop-shadow(0 0 6px var(--edge-color));
-  animation: photon-flow 3.2s linear infinite;
-  will-change: stroke-dashoffset;
+  opacity: 0.85;
 }
 
 .lessico-atlas__edge-pulse--core-hub.is-emerged {
   display: block;
-  stroke-width: 2.6px;
-  stroke-dasharray: 14 36;
-  opacity: 0.95;
-  filter: drop-shadow(0 0 7px var(--edge-color));
-  animation: photon-flow 3s linear infinite;
-  will-change: stroke-dashoffset;
+  stroke-width: 2.2px;
+  stroke-dasharray: 12 24;
+  opacity: 0.9;
 }
 
-/* Stream accelerato su Hover o Selected */
+/* Stream accelerato su Hover o Selected con glow mirato solo sul singolo nodo attivo */
 .lessico-atlas__edge-pulse.is-highlighted {
   display: block !important;
   stroke-width: 3px !important;
   stroke-dasharray: 12 38 !important;
   opacity: 1 !important;
-  filter: drop-shadow(0 0 8px #ffffff) drop-shadow(0 0 14px var(--edge-color)) !important;
+  filter: drop-shadow(0 0 6px var(--edge-color)) !important;
   animation: photon-flow 1.3s linear infinite !important;
   will-change: stroke-dashoffset;
 }
@@ -5307,7 +5618,7 @@
   will-change: auto !important;
 }
 
-/* ── Astrolabi Sci-Fi Olografici & Bloom Volumetrico ────────────────────────── */
+/* ── Nuclei Planetari Celesti & Bloom Armonico ────────────────────────── */
 
 .lessico-atlas__sphere {
   position: absolute;
@@ -5315,167 +5626,52 @@
   border-radius: 50%;
   pointer-events: none;
   z-index: 5;
-  transition: opacity 0.4s ease, filter 0.4s ease;
-  transform-style: preserve-3d;
-}
-
-.lessico-atlas__sphere.is-dimmed {
-  opacity: 0.15;
-}
-
-/* 1. Atmospheric Haze (Volumetric Wide Bloom) */
-.lessico-astrolabe__haze {
-  position: absolute;
-  inset: -20%;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    color-mix(in srgb, var(--sphere-color) 42%, transparent) 0%,
-    color-mix(in srgb, var(--sphere-color) 18%, transparent) 40%,
-    transparent 70%
-  );
-  filter: blur(45px);
-  pointer-events: none;
-  opacity: 0.65;
-  transition: opacity 0.4s ease, filter 0.4s ease;
-}
-
-/* 2. Outer Reticle & Ticks (Graduated Ring with Polar Coordinates) */
-.lessico-astrolabe__reticle {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  opacity: 0.75;
   transition: opacity 0.3s ease;
 }
 
-.lessico-astrolabe__reticle-ring {
-  fill: none;
-  stroke: color-mix(in srgb, var(--sphere-color) 45%, rgba(255, 255, 255, 0.25));
-  stroke-width: 1px;
+.lessico-atlas__sphere.is-dimmed {
+  opacity: 0.12;
 }
 
-.lessico-astrolabe__tick {
-  stroke: color-mix(in srgb, var(--sphere-color) 70%, #ffffff);
-  stroke-width: 1px;
-}
-
-.lessico-astrolabe__tick.is-major {
-  stroke-width: 1.5px;
-  stroke: #ffffff;
-}
-
-.lessico-astrolabe__polar-label {
-  font-family: var(--font-mono, monospace);
-  font-size: 6px;
-  font-weight: 700;
-  fill: color-mix(in srgb, var(--sphere-color) 75%, #ffffff);
-  text-anchor: middle;
-  dominant-baseline: middle;
-  letter-spacing: 0.08em;
-  opacity: 0.85;
-}
-
-/* 3. Orbital Rotor (Segmented Counter-rotating Ring) */
-.lessico-astrolabe__rotor {
+.lessico-nucleus__halo {
   position: absolute;
-  inset: 9%;
-  border-radius: 50%;
-  border: 1.5px dashed color-mix(in srgb, var(--sphere-color) 50%, transparent);
-  box-shadow:
-    0 0 20px color-mix(in srgb, var(--sphere-color) 25%, transparent),
-    inset 0 0 16px color-mix(in srgb, var(--sphere-color) 18%, transparent);
-  animation: astrolabe-spin-cw 120s linear infinite;
-  will-change: transform;
-}
-
-@keyframes astrolabe-spin-cw {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-/* 4. 360° Conic Radar Sweep */
-.lessico-astrolabe__radar {
-  position: absolute;
-  inset: 14%;
-  border-radius: 50%;
-  background: conic-gradient(
-    from 0deg,
-    transparent 0deg,
-    color-mix(in srgb, var(--sphere-color) 18%, transparent) 40deg,
-    color-mix(in srgb, var(--sphere-color) 38%, transparent) 55deg,
-    transparent 56deg
-  );
-  animation: radar-sweep 12s linear infinite;
-  pointer-events: none;
-  will-change: transform;
-}
-
-@keyframes radar-sweep {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-/* 5. Neon Corona (Intermediate Vibrant Ring) */
-.lessico-astrolabe__corona {
-  position: absolute;
-  inset: 22%;
-  border-radius: 50%;
-  border: 1px solid color-mix(in srgb, var(--sphere-color) 65%, rgba(255, 255, 255, 0.4));
-  box-shadow:
-    0 0 24px color-mix(in srgb, var(--sphere-color) 70%, transparent),
-    0 0 48px color-mix(in srgb, var(--sphere-color) 45%, transparent),
-    inset 0 0 20px color-mix(in srgb, var(--sphere-color) 35%, transparent);
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-/* 6. Pulsar Core (Warm-White breathing core) */
-.lessico-astrolabe__core {
-  position: absolute;
-  inset: 38%;
+  inset: -12%;
   border-radius: 50%;
   background: radial-gradient(
     circle,
-    #ffffff 0%,
-    color-mix(in srgb, var(--sphere-color) 80%, #ffffff) 30%,
-    color-mix(in srgb, var(--sphere-color) 50%, transparent) 55%,
+    color-mix(in srgb, var(--sphere-color) 30%, transparent) 0%,
+    color-mix(in srgb, var(--sphere-color) 10%, transparent) 45%,
     transparent 72%
   );
-  animation: pulsar-breath 4.5s ease-in-out infinite alternate;
-  will-change: transform, opacity, filter;
+  pointer-events: none;
+  opacity: 0.65;
+  transition: opacity 0.3s ease;
 }
 
-@keyframes pulsar-breath {
-  0% {
-    transform: scale(0.96);
-    opacity: 0.85;
-    filter: brightness(1);
-  }
-  100% {
-    transform: scale(1.04);
-    opacity: 1;
-    filter: brightness(1.3);
-  }
+.lessico-nucleus__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px dashed color-mix(in srgb, var(--sphere-color) 40%, rgba(255, 255, 255, 0.18));
+  pointer-events: none;
+  opacity: 0.45;
 }
 
-/* Focused Family Astrolabe State */
-.lessico-atlas__sphere.is-focused-family .lessico-astrolabe__corona {
-  box-shadow:
-    0 0 36px color-mix(in srgb, var(--sphere-color) 85%, transparent),
-    0 0 72px color-mix(in srgb, var(--sphere-color) 60%, transparent),
-    inset 0 0 30px color-mix(in srgb, var(--sphere-color) 50%, transparent);
-  border-color: color-mix(in srgb, var(--sphere-color) 90%, #ffffff);
+.lessico-nucleus__core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 26px;
+  height: 26px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffffff 15%, var(--sphere-color) 70%, transparent 100%);
+  box-shadow: 0 0 20px var(--sphere-color), 0 0 35px var(--sphere-color);
+  pointer-events: none;
 }
 
-.lessico-atlas__sphere.is-focused-family .lessico-astrolabe__reticle {
-  opacity: 1;
-}
-
-.lessico-atlas__sphere.is-focused-family .lessico-astrolabe__haze {
+.lessico-atlas__sphere.is-focused-family .lessico-nucleus__halo {
   opacity: 0.95;
-  filter: blur(55px);
 }
 
 /* ── Badge titolo famiglia ─────────────────────────────────────────────────── */
@@ -5494,7 +5690,6 @@
   box-shadow:
     0 4px 20px rgba(0, 0, 0, 0.5),
     0 0 15px color-mix(in srgb, var(--badge-color) 25%, transparent);
-  backdrop-filter: blur(8px);
   color: #fff;
   font-family: var(--font-mono, monospace);
   font-size: 0.82rem;
@@ -5555,14 +5750,13 @@
   margin-top: 6px;
   padding: 2px 8px;
   border-radius: 4px;
-  background: rgba(10, 16, 32, 0.85);
+  background: rgba(10, 16, 32, 0.92);
   border: 1px solid color-mix(in srgb, var(--hub-color) 35%, transparent);
   color: rgba(255, 255, 255, 0.9);
   font-size: 0.72rem;
   font-weight: 600;
   white-space: nowrap;
   letter-spacing: 0.04em;
-  backdrop-filter: blur(4px);
   transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
@@ -5582,10 +5776,9 @@
   position: absolute;
   transform: translate(-50%, -50%);
   border-radius: 999px;
-  padding: 0.24rem 0.68rem;
+  padding: 0.22rem 0.65rem;
   border: 1px solid color-mix(in srgb, var(--word-color) 35%, rgba(255, 255, 255, 0.12));
-  background: rgba(10, 16, 32, 0.74);
-  backdrop-filter: blur(6px);
+  background: rgba(10, 16, 32, 0.90);
   color: color-mix(in srgb, var(--word-color) 75%, #ffffff 25%);
   display: inline-flex;
   align-items: center;
@@ -5595,11 +5788,11 @@
   user-select: none;
   z-index: 20;
   transition:
-    transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1),
-    background 0.18s ease,
-    border-color 0.18s ease,
-    box-shadow 0.18s ease,
-    opacity 0.2s ease;
+    transform 0.18s ease-out,
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    opacity 0.25s ease;
   font-family: var(--font-body, Inter, ui-sans-serif, system-ui, sans-serif);
   line-height: 1.15;
   outline: none;
@@ -5612,25 +5805,25 @@
   background-color: var(--word-color);
   box-shadow: 0 0 6px var(--word-color);
   flex-shrink: 0;
-  transition: width 0.25s ease, height 0.25s ease, opacity 0.25s ease, box-shadow 0.25s ease;
+  transition: width 0.3s ease, height 0.3s ease, opacity 0.3s ease, box-shadow 0.3s ease;
 }
 
 .lessico-atlas__word-label {
   opacity: 0;
-  transform: scale(0.85);
-  transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transform: scale(0.88);
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   pointer-events: none;
 }
 
+.lessico-atlas--lod-meso .lessico-atlas__word-label,
 .lessico-atlas--lod-micro .lessico-atlas__word-label,
-.lessico-atlas--lod-meso .lessico-atlas__word.is-emerged .lessico-atlas__word-label,
 .lessico-atlas__word:hover .lessico-atlas__word-label,
 .lessico-atlas__word.is-hovered .lessico-atlas__word-label,
 .lessico-atlas__word.is-selected .lessico-atlas__word-label,
 .lessico-atlas__word.is-search-matched .lessico-atlas__word-label {
-  opacity: 1;
-  transform: scale(1);
-  pointer-events: auto;
+  opacity: 1 !important;
+  transform: scale(1) !important;
+  pointer-events: auto !important;
 }
 
 .lessico-atlas__word-tag {
@@ -5658,7 +5851,7 @@
 
 .lessico-atlas__word:hover,
 .lessico-atlas__word.is-hovered {
-  transform: translate(-50%, -50%) translateZ(35px) scale(1.12);
+  transform: translate(-50%, -50%) scale(1.10);
   background: rgba(15, 23, 42, 0.96);
   border-color: var(--word-color);
   color: #fff;
@@ -5669,7 +5862,7 @@
 }
 
 .lessico-atlas__word.is-selected {
-  transform: translate(-50%, -50%) translateZ(40px) scale(1.18);
+  transform: translate(-50%, -50%) scale(1.15);
   background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(2, 6, 23, 0.96));
   border: 1.5px solid #fff;
   color: #fff;
@@ -5680,7 +5873,6 @@
 }
 
 .lessico-atlas__word.is-emerged {
-  transform: translate(-50%, -50%) translateZ(20px);
   border-width: 1.5px;
   border-color: color-mix(in srgb, var(--word-color) 75%, #fff);
   box-shadow: 0 0 12px color-mix(in srgb, var(--word-color) 45%, transparent);
@@ -5688,19 +5880,640 @@
 }
 
 .lessico-atlas__word.is-emerged.is-selected {
-  transform: translate(-50%, -50%) translateZ(40px) scale(1.18);
+  transform: translate(-50%, -50%) scale(1.15);
 }
 
 .lessico-atlas__word.is-emerged:hover {
-  transform: translate(-50%, -50%) translateZ(35px) scale(1.12);
+  transform: translate(-50%, -50%) scale(1.10);
 }
 
 .lessico-atlas__word.is-dimmed {
-  opacity: 0.14 !important;
+  opacity: 0.15 !important;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.lessico-atlas__word.is-dimmed .lessico-atlas__word-label,
+.lessico-atlas__word.is-dimmed .lessico-atlas__word-tag {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.lessico-atlas__word.is-family-active {
+  opacity: 1 !important;
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--word-color) 50%, transparent));
+}
+
+/* ── Tactical Holographic Flight Helm (GTA VI / Cyber-Astronomy) ──────────── */
+
+/* ── Tactical Holographic Flight Helm (GTA VI / Cyber-Astronomy) ──────────── */
+
+.lessico-tactical-helm {
+  position: absolute;
+  right: 1.75rem;
+  bottom: 2rem;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.65rem 0.75rem;
+  background: linear-gradient(145deg, rgba(6, 12, 28, 0.88), rgba(2, 5, 16, 0.96));
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(56, 189, 248, 0.32);
+  border-radius: 18px;
+  box-shadow:
+    0 18px 48px rgba(0, 0, 0, 0.85),
+    0 0 24px rgba(56, 189, 248, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  user-select: none;
+  pointer-events: auto;
+  min-width: 148px;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.lessico-tactical-helm.is-shifted {
+  right: calc(320px + 1.25rem);
+  opacity: 0.95;
+  pointer-events: auto;
+}
+
+@media (max-width: 900px) {
+  .lessico-tactical-helm.is-shifted {
+    right: 1.25rem;
+    bottom: calc(var(--dict-height, 360px) + 1rem);
+  }
+}
+
+.lessico-tactical-helm__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+}
+
+.lessico-tactical-helm__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  color: #38bdf8;
+  text-transform: uppercase;
+}
+
+.lessico-tactical-helm__status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 8px #38bdf8;
+  animation: holo-status-pulse 2s ease-in-out infinite;
+}
+
+.lessico-tactical-helm__mag {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 0.64rem;
+  font-weight: 600;
+  color: rgba(226, 232, 240, 0.9);
+  letter-spacing: 0.05em;
+}
+
+/* Compass Flight Disc */
+.lessico-tactical-helm__compass {
+  display: grid;
+  grid-template-columns: repeat(3, 32px);
+  grid-template-rows: repeat(3, 30px);
+  gap: 4px;
+  justify-content: center;
+  align-items: center;
+  margin: 0.15rem auto;
+  position: relative;
+}
+
+.lessico-tactical-helm__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 7px;
+  color: #cbd5e1;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  padding: 0;
+}
+
+.lessico-tactical-helm__btn:hover {
+  background: rgba(56, 189, 248, 0.25);
+  border-color: #38bdf8;
+  color: #38bdf8;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+}
+
+.lessico-tactical-helm__btn:active {
+  transform: scale(0.92);
+}
+
+.lessico-tactical-helm__btn--n {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.lessico-tactical-helm__btn--w {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.lessico-tactical-helm__btn--center {
+  grid-column: 2;
+  grid-row: 2;
+  background: rgba(56, 189, 248, 0.16);
+  border-color: rgba(56, 189, 248, 0.5);
+  color: #38bdf8;
+  font-size: 0.85rem;
+}
+
+.lessico-tactical-helm__btn--center:hover {
+  background: rgba(56, 189, 248, 0.4);
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.6);
+}
+
+.lessico-tactical-helm__btn--e {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+.lessico-tactical-helm__btn--s {
+  grid-column: 2;
+  grid-row: 3;
+}
+
+/* Zoom Deck */
+.lessico-tactical-helm__zoom-deck {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  padding: 0.25rem 0.35rem;
+  background: rgba(10, 16, 32, 0.72);
+  border: 1px solid rgba(56, 189, 248, 0.18);
+  border-radius: 9px;
+}
+
+.lessico-tactical-helm__zoom-btn {
+  flex: 1;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 6px;
+  color: #f8fafc;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.lessico-tactical-helm__zoom-btn:hover {
+  background: rgba(56, 189, 248, 0.28);
+  border-color: #38bdf8;
+  color: #38bdf8;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+}
+
+.lessico-tactical-helm__zoom-btn:active {
+  transform: scale(0.92);
+}
+
+.lessico-tactical-helm__zoom-label {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: rgba(148, 163, 184, 0.85);
+  text-transform: uppercase;
+}
+
+/* Actions Row */
+.lessico-tactical-helm__actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.lessico-tactical-helm__action-btn {
+  flex: 1;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 7px;
+  color: rgba(226, 232, 240, 0.9);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.lessico-tactical-helm__action-btn:hover {
+  background: rgba(56, 189, 248, 0.25);
+  border-color: #38bdf8;
+  color: #38bdf8;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
+}
+
+.lessico-tactical-helm__action-btn:active {
+  transform: scale(0.94);
+}
+
+/* ── Tactical Radar Mini-Map (Space Navigation Console) ─────────────────── */
+
+.lessico-radar {
+  position: absolute;
+  left: 1.75rem;
+  bottom: 2rem;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.6rem 0.7rem;
+  background: linear-gradient(145deg, rgba(6, 12, 28, 0.88), rgba(2, 5, 16, 0.96));
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(56, 189, 248, 0.32);
+  border-radius: 16px;
+  box-shadow:
+    0 18px 48px rgba(0, 0, 0, 0.85),
+    0 0 24px rgba(56, 189, 248, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  user-select: none;
+  pointer-events: auto;
+  width: 176px;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.lessico-radar.is-obscured {
+  opacity: 0.85;
+}
+
+.lessico-radar__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+}
+
+.lessico-radar__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #38bdf8;
+  text-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
+}
+
+.lessico-radar__status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 8px #38bdf8;
+  animation: helm-pulse 2s ease-in-out infinite;
+}
+
+.lessico-radar__coord {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 0.6rem;
+  color: rgba(148, 163, 184, 0.8);
+}
+
+.lessico-radar__screen {
+  position: relative;
+  width: 160px;
+  height: 113px;
+  background: rgba(2, 6, 18, 0.85);
+  border-radius: 8px;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  overflow: hidden;
+  cursor: crosshair;
+}
+
+/* Radar Sweep Line */
+.lessico-radar__sweep {
+  position: absolute;
+  inset: 0;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    rgba(56, 189, 248, 0.15) 0deg,
+    transparent 60deg,
+    transparent 360deg
+  );
+  border-radius: 50%;
+  transform-origin: 50% 50%;
+  animation: radar-sweep-rotate 5s linear infinite;
   pointer-events: none;
 }
 
-/* ── Semantic LOD: Tier 1 Macro (0.0x - 0.7x) ────────────────────────────── */
+@keyframes radar-sweep-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.lessico-radar__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.lessico-radar__viewfinder {
+  position: absolute;
+  border: 1.5px solid #38bdf8;
+  background: rgba(56, 189, 248, 0.16);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.4), inset 0 0 8px rgba(56, 189, 248, 0.2);
+  border-radius: 3px;
+  pointer-events: none;
+  will-change: left, top, width, height;
+}
+
+/* ── Contextual Glassmorphic Hover Tooltip ───────────────────────────────── */
+
+.lessico-atlas__tooltip {
+  position: absolute;
+  z-index: 999;
+  pointer-events: none;
+  transform: translate(-50%, -100%) translateY(-14px);
+  width: 250px;
+  padding: 0.7rem 0.85rem;
+  background: linear-gradient(145deg, rgba(8, 15, 32, 0.92), rgba(3, 7, 18, 0.97));
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid color-mix(in srgb, var(--tooltip-color, #38bdf8) 45%, rgba(255, 255, 255, 0.12));
+  border-radius: 14px;
+  box-shadow:
+    0 16px 36px rgba(0, 0, 0, 0.85),
+    0 0 20px color-mix(in srgb, var(--tooltip-color, #38bdf8) 25%, transparent);
+  color: #f1f5f9;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  animation: lessico-tooltip-fade 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+}
+
+@keyframes lessico-tooltip-fade {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -95%) translateY(-10px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -100%) translateY(-14px) scale(1);
+  }
+}
+
+.lessico-atlas__tooltip-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.3rem;
+}
+
+.lessico-atlas__tooltip-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  box-shadow: 0 0 8px currentColor;
+  flex-shrink: 0;
+}
+
+.lessico-atlas__tooltip-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.01em;
+  flex: 1;
+}
+
+.lessico-atlas__tooltip-tag {
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 0.12rem 0.35rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+.lessico-atlas__tooltip-tag.is-emerged {
+  background: rgba(245, 158, 11, 0.25);
+  color: #fde68a;
+  border: 1px solid rgba(245, 158, 11, 0.6);
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.3);
+}
+
+.lessico-atlas__tooltip-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.68rem;
+  color: rgba(148, 163, 184, 0.9);
+  padding-bottom: 0.3rem;
+  margin-bottom: 0.35rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.lessico-atlas__tooltip-family {
+  font-weight: 600;
+  color: var(--tooltip-color, #38bdf8);
+}
+
+.lessico-atlas__tooltip-interval {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 0.62rem;
+  color: rgba(203, 213, 225, 0.7);
+}
+
+.lessico-atlas__tooltip-desc {
+  margin: 0;
+  font-size: 0.7rem;
+  color: rgba(226, 232, 240, 0.85);
+  line-height: 1.35;
+}
+
+/* ── Dynamic Breadcrumb in Telemetry HUD ─────────────────────────────────── */
+
+.lessico-telemetry__breadcrumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 600;
+  color: #38bdf8;
+}
+
+.lessico-telemetry__breadcrumb-node {
+  color: #fde047;
+  text-shadow: 0 0 8px rgba(253, 224, 71, 0.4);
+}
+
+/* ── Floating Tactical Map Controls (D-Pad, Zoom, Reset, Fullscreen) ──────── */
+.galassia-view__map-controls--floating {
+  position: absolute !important;
+  z-index: 45 !important;
+  bottom: clamp(1rem, 2.2vh, 1.8rem) !important;
+  right: calc(var(--galassia-panel-space, 320px) + clamp(0.75rem, 1.4vw, 1.4rem)) !important;
+  margin-top: 0 !important;
+  pointer-events: auto !important;
+}
+
+@media (max-width: 900px) {
+  .galassia-view__map-controls--floating {
+    right: clamp(0.75rem, 2vw, 1.25rem) !important;
+    bottom: calc(var(--galassia-panel-height, 200px) + 0.75rem) !important;
+  }
+}
+
+/* ── Tactical D-Pad Pan Controller ────────────────────────────────────────── */
+.lessico-atlas__dpad {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 0.15rem 0.2rem;
+  background: rgba(8, 14, 26, 0.7);
+  border-radius: 10px;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+}
+
+.lessico-atlas__dpad-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.lessico-atlas__dpad-btn {
+  min-width: 1.65rem !important;
+  min-height: 1.65rem !important;
+  width: 1.65rem !important;
+  height: 1.65rem !important;
+  padding: 0 !important;
+  font-size: 0.72rem !important;
+  border-radius: 6px !important;
+  line-height: 1 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: rgba(15, 23, 42, 0.85) !important;
+  border: 1px solid rgba(56, 189, 248, 0.25) !important;
+  color: #cbd5e1 !important;
+  transition: all 0.14s ease !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+
+.lessico-atlas__dpad-btn:hover {
+  background: rgba(56, 189, 248, 0.28) !important;
+  border-color: #38bdf8 !important;
+  color: #38bdf8 !important;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.5) !important;
+}
+
+.lessico-atlas__dpad-btn:active {
+  transform: scale(0.9) !important;
+}
+
+.lessico-atlas__dpad-btn--center {
+  background: rgba(56, 189, 248, 0.18) !important;
+  border-color: rgba(56, 189, 248, 0.5) !important;
+  color: #38bdf8 !important;
+  font-size: 0.8rem !important;
+}
+
+.lessico-atlas__dpad-btn--center:hover {
+  background: rgba(56, 189, 248, 0.45) !important;
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.7) !important;
+}
+
+/* Fullscreen immersive mode (Native WebKit, Blink, Gecko + CSS fallback) */
+:fullscreen .lessico-atlas,
+:-webkit-full-screen .lessico-atlas,
+.lessico-atlas:fullscreen,
+.lessico-atlas:-webkit-full-screen,
+.lessico-atlas.is-fullscreen {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  border-radius: 0 !important;
+  z-index: 999999 !important;
+  margin: 0 !important;
+  background: #020617 !important;
+}
+
+:fullscreen .galassia-view,
+:-webkit-full-screen .galassia-view,
+.galassia-view:fullscreen,
+.galassia-view:-webkit-full-screen {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  border-radius: 0 !important;
+}
+
+/* ── Onda d'Urto Cinematografica al Click (Shockwave Ring) ─────────────────── */
+
+.lessico-shockwave {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+  border: 2px solid var(--shockwave-color, #38bdf8);
+  box-shadow: 0 0 24px var(--shockwave-color, #38bdf8), inset 0 0 15px var(--shockwave-color, #38bdf8);
+  animation: shockwave-expand 0.45s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+  z-index: 190;
+}
+
+@keyframes shockwave-expand {
+  0% { width: 0; height: 0; opacity: 1; }
+  100% { width: 440px; height: 440px; opacity: 0; }
+}
+
+.lessico-atlas__word.is-shockwave-active {
+  box-shadow: 0 0 24px var(--word-color), 0 0 45px rgba(255, 255, 255, 0.45) !important;
+  border-color: #fff !important;
+  transition: box-shadow 0.1s ease, border-color 0.1s ease;
+}
+
+.lessico-atlas__edge.is-shockwave-active {
+  stroke: #fff !important;
+  stroke-width: 2.5px !important;
+  filter: drop-shadow(0 0 10px #fff);
+  transition: stroke 0.1s ease;
+}
+
+/* ── Semantic LOD: Tier 1 Macro (0.0x - 0.48x) ───────────────────────────── */
 
 .lessico-atlas--lod-macro .lessico-atlas__word:not(:hover):not(.is-hovered):not(.is-selected):not(.is-search-matched) {
   background: transparent;
@@ -5708,30 +6521,20 @@
   box-shadow: none;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
-  padding: 0;
 }
 
 .lessico-atlas--lod-macro .lessico-atlas__word:not(:hover):not(.is-hovered):not(.is-selected):not(.is-search-matched) .lessico-atlas__word-dot {
   width: 3.5px;
   height: 3.5px;
-  opacity: 0.55;
-  box-shadow: 0 0 5px var(--word-color);
-  animation: lessico-twinkle 3s ease-in-out infinite alternate;
+  opacity: 0.65;
+  box-shadow: 0 0 4px var(--word-color);
 }
 
-.lessico-atlas--lod-macro .lessico-atlas__word:nth-child(2n) .lessico-atlas__word-dot {
-  animation-duration: 2.4s;
-  animation-delay: 0.3s;
-}
-
-.lessico-atlas--lod-macro .lessico-atlas__word:nth-child(3n) .lessico-atlas__word-dot {
-  animation-duration: 3.6s;
-  animation-delay: 1.1s;
-}
-
-.lessico-atlas--lod-macro .lessico-atlas__word:nth-child(5n) .lessico-atlas__word-dot {
-  animation-duration: 1.8s;
-  animation-delay: 0.7s;
+.lessico-atlas--lod-macro .lessico-atlas__word.is-emerged:not(:hover):not(.is-hovered):not(.is-selected):not(.is-search-matched) .lessico-atlas__word-dot {
+  width: 7px;
+  height: 7px;
+  opacity: 1;
+  box-shadow: 0 0 10px var(--word-color), 0 0 18px var(--word-color);
 }
 
 .lessico-atlas--lod-macro .lessico-atlas__hub-label {
@@ -5753,21 +6556,32 @@
   opacity: 0.45;
 }
 
-/* ── Semantic LOD: Tier 2 Meso (0.7x - 1.3x) ─────────────────────────────── */
+/* ── Semantic LOD: Tier 2 Meso-Wide (0.48x - 0.85x) — Via di Mezzo ──────── */
 
-.lessico-atlas--lod-meso .lessico-atlas__hub-label {
+.lessico-atlas--lod-meso-wide .lessico-atlas__hub-label {
+  opacity: 0.85;
+  transform: scale(0.95);
+}
+
+/* Emerged words and Cardine (Ring 0) words show full readable pills with labels */
+.lessico-atlas--lod-meso-wide .lessico-atlas__word.is-emerged,
+.lessico-atlas--lod-meso-wide .lessico-atlas__word[data-ring="0"] {
+  opacity: 1;
+  padding: 0.22rem 0.65rem;
+  background: rgba(10, 16, 32, 0.88);
+  border-color: color-mix(in srgb, var(--word-color) 60%, rgba(255, 255, 255, 0.16));
+  box-shadow: 0 0 12px color-mix(in srgb, var(--word-color) 40%, transparent);
+}
+
+.lessico-atlas--lod-meso-wide .lessico-atlas__word.is-emerged .lessico-atlas__word-label,
+.lessico-atlas--lod-meso-wide .lessico-atlas__word[data-ring="0"] .lessico-atlas__word-label {
   opacity: 1;
   transform: scale(1);
+  pointer-events: auto;
 }
 
-.lessico-atlas--lod-meso .lessico-atlas__word.is-emerged {
-  box-shadow:
-    0 0 16px color-mix(in srgb, var(--word-color) 70%, transparent),
-    0 0 30px color-mix(in srgb, var(--word-color) 35%, transparent);
-  border-color: color-mix(in srgb, var(--word-color) 85%, #fff);
-}
-
-.lessico-atlas--lod-meso .lessico-atlas__word:not(.is-emerged):not(:hover):not(.is-hovered):not(.is-selected):not(.is-search-matched) {
+/* Remaining satellite words are refined glowing star dots */
+.lessico-atlas--lod-meso-wide .lessico-atlas__word:not(.is-emerged):not([data-ring="0"]):not(:hover):not(.is-hovered):not(.is-selected):not(.is-search-matched) {
   background: transparent;
   border-color: transparent;
   box-shadow: none;
@@ -5776,11 +6590,52 @@
   padding: 0;
 }
 
-.lessico-atlas--lod-meso .lessico-atlas__word:not(.is-emerged):not(:hover):not(.is-hovered):not(.is-selected):not(.is-search-matched) .lessico-atlas__word-dot {
+.lessico-atlas--lod-meso-wide .lessico-atlas__word:not(.is-emerged):not([data-ring="0"]):not(:hover):not(.is-hovered):not(.is-selected):not(.is-search-matched) .lessico-atlas__word-label {
+  opacity: 0;
+  transform: scale(0.85);
+  pointer-events: none;
+}
+
+.lessico-atlas--lod-meso-wide .lessico-atlas__word:not(.is-emerged):not([data-ring="0"]):not(:hover):not(.is-hovered):not(.is-selected):not(.is-search-matched) .lessico-atlas__word-dot {
   width: 5px;
   height: 5px;
-  opacity: 0.65;
-  box-shadow: 0 0 6px var(--word-color);
+  opacity: 0.70;
+  box-shadow: 0 0 7px var(--word-color);
+}
+
+.lessico-atlas--lod-meso-wide .lessico-atlas__edge--hub-word:not(.is-emerged):not(.is-highlighted) {
+  opacity: 0.10;
+}
+
+.lessico-atlas--lod-meso-wide .lessico-atlas__edge.is-emerged {
+  opacity: 0.75;
+}
+
+/* ── Semantic LOD: Tier 3 Meso (0.85x - 1.40x) ────────────────────────────── */
+
+.lessico-atlas--lod-meso .lessico-atlas__hub-label {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.lessico-atlas--lod-meso .lessico-atlas__word {
+  opacity: 0.94;
+  padding: 0.22rem 0.65rem;
+}
+
+.lessico-atlas--lod-meso .lessico-atlas__word-label {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+.lessico-atlas--lod-meso .lessico-atlas__word.is-emerged {
+  opacity: 1;
+  box-shadow:
+    0 0 16px color-mix(in srgb, var(--word-color) 70%, transparent),
+    0 0 30px color-mix(in srgb, var(--word-color) 35%, transparent);
+  border-color: color-mix(in srgb, var(--word-color) 85%, #fff);
+  font-weight: 600;
 }
 
 .lessico-atlas--lod-meso .lessico-atlas__edge--hub-word:not(.is-emerged):not(.is-highlighted) {
@@ -5796,7 +6651,7 @@
   opacity: 1;
 }
 
-/* ── Semantic LOD: Tier 3 Micro (1.3x+) ──────────────────────────────────── */
+/* ── Semantic LOD: Tier 4 Micro (1.40x+) ──────────────────────────────────── */
 
 .lessico-atlas--lod-micro .lessico-atlas__hub-label {
   opacity: 1;
@@ -5804,26 +6659,18 @@
 }
 
 .lessico-atlas--lod-micro .lessico-atlas__word {
-  padding: 0.28rem 0.72rem;
+  padding: 0.22rem 0.65rem;
+  opacity: 1;
 }
 
-/* Depth of Field (Sfocatura Cinematografica per Famiglie Non a Fuoco) */
-.lessico-atlas__sphere.is-background-blurred,
-.lessico-atlas__word.is-background-blurred,
-.lessico-atlas__hub.is-background-blurred,
-.lessico-atlas__family-badge.is-background-blurred,
-.lessico-atlas__nebula.is-background-blurred {
-  filter: blur(6px) brightness(0.4);
-  opacity: 0.18;
-  pointer-events: none;
-  transition: filter 0.4s ease, opacity 0.4s ease;
+.lessico-atlas--lod-micro .lessico-atlas__word-label {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
 }
 
-.lessico-atlas__edge-group.is-background-blurred {
-  filter: blur(4px);
-  opacity: 0.1;
-  pointer-events: none;
-  transition: filter 0.4s ease, opacity 0.4s ease;
+.lessico-atlas--lod-micro .lessico-atlas__word-tag {
+  display: inline-block;
 }
 
 /* ── Semantic LOD: Intelligent Search Override ────────────────────────────── */
@@ -5861,7 +6708,354 @@
   }
 }
 
-/* ── Dizionario pannello laterale ───────────────────────────────────────────── */
+/* ── Floating Holographic Slate (Cyber-Astronomy & GTA VI Style) ──────────── */
+
+.lessico-holo-slate {
+  position: absolute;
+  right: 1.5rem;
+  top: 4.2rem;
+  width: min(380px, calc(100vw - 3rem));
+  max-height: calc(100% - 5.5rem);
+  z-index: 230;
+  display: flex;
+  flex-direction: column;
+  transform: translate3d(0, 0, 80px);
+  animation: holo-slate-appear 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  box-sizing: border-box;
+}
+
+@keyframes holo-slate-appear {
+  0% {
+    opacity: 0;
+    transform: translate3d(28px, 0, 80px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 80px) scale(1);
+  }
+}
+
+.lessico-holo-slate__bezel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: calc(100vh - 11rem);
+  background: rgba(2, 6, 23, 0.84);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--slate-color, #38bdf8) 45%, rgba(255, 255, 255, 0.14));
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.7),
+    0 0 32px color-mix(in srgb, var(--slate-color, #38bdf8) 25%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+}
+
+.lessico-holo-slate__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(15, 23, 42, 0.5);
+  flex-shrink: 0;
+}
+
+.lessico-holo-slate__head-tag {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.lessico-holo-slate__status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--slate-color, #38bdf8);
+  box-shadow: 0 0 8px var(--slate-color, #38bdf8);
+  animation: holo-status-pulse 1.8s ease-in-out infinite alternate;
+}
+
+@keyframes holo-status-pulse {
+  0% { opacity: 0.45; transform: scale(0.85); }
+  100% { opacity: 1; transform: scale(1.2); }
+}
+
+.lessico-holo-slate__kicker {
+  font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, monospace);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: color-mix(in srgb, var(--slate-color, #38bdf8) 80%, #fff);
+  text-transform: uppercase;
+}
+
+.lessico-holo-slate__close {
+  width: 1.6rem;
+  height: 1.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(15, 23, 42, 0.6);
+  color: rgba(203, 213, 225, 0.85);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.lessico-holo-slate__close:hover,
+.lessico-holo-slate__close:focus-visible {
+  border-color: #fff;
+  color: #fff;
+  background: rgba(30, 41, 59, 0.9);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  outline: none;
+}
+
+.lessico-holo-slate__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 1.15rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+}
+
+.lessico-holo-slate__hero {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.lessico-holo-slate__word {
+  font-family: var(--font-display, ui-serif, Georgia, serif);
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 0 16px var(--slate-color, #38bdf8);
+  margin: 0;
+  line-height: 1.15;
+}
+
+.lessico-holo-slate__badge-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.lessico-holo-slate__badge {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, monospace);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.18rem 0.5rem;
+  border-radius: 999px;
+}
+
+.lessico-holo-slate__badge.is-situational {
+  background: rgba(34, 197, 94, 0.16);
+  border: 1px solid rgba(34, 197, 94, 0.5);
+  color: #4ade80;
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.25);
+  animation: holo-status-pulse 2s ease-in-out infinite alternate;
+}
+
+.lessico-holo-slate__badge.is-stable {
+  background: rgba(148, 163, 184, 0.14);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  color: #cbd5e1;
+}
+
+.lessico-holo-slate__count-pill {
+  font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, monospace);
+  font-size: 0.58rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.lessico-holo-slate__scope-wrap {
+  background: rgba(2, 6, 23, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 0.55rem 0.7rem 0.65rem;
+}
+
+.lessico-holo-slate__scope-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, monospace);
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: rgba(148, 163, 184, 0.8);
+  margin-bottom: 0.35rem;
+}
+
+.lessico-holo-slate__scope-title {
+  color: color-mix(in srgb, var(--slate-color, #38bdf8) 75%, #fff);
+}
+
+.lessico-holo-slate__scope-freq {
+  color: #38bdf8;
+}
+
+.lessico-holo-slate__oscilloscope {
+  width: 100%;
+  height: 48px;
+  display: block;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.lessico-holo-slate__specs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin: 0;
+  font-size: 0.78rem;
+}
+
+.lessico-holo-slate__spec-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 0.3rem;
+}
+
+.lessico-holo-slate__spec-row dt {
+  font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, monospace);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: rgba(148, 163, 184, 0.65);
+}
+
+.lessico-holo-slate__spec-row dd {
+  margin: 0;
+  font-weight: 600;
+  color: #f1f5f9;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.lessico-holo-slate__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.lessico-holo-slate__tracks {
+  display: inline-flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.lessico-holo-slate__track-badge {
+  font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, monospace);
+  font-size: 0.62rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  background: rgba(59, 130, 246, 0.2);
+  border: 1px solid rgba(59, 130, 246, 0.45);
+  color: #60a5fa;
+}
+
+.lessico-holo-slate__desc {
+  background: rgba(15, 23, 42, 0.45);
+  border-left: 2px solid var(--slate-color, #38bdf8);
+  padding: 0.5rem 0.65rem;
+  border-radius: 0 6px 6px 0;
+}
+
+.lessico-holo-slate__desc h3,
+.lessico-holo-slate__constellation h3 {
+  font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, monospace);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(148, 163, 184, 0.7);
+  margin: 0 0 0.3rem;
+}
+
+.lessico-holo-slate__desc p {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: rgba(226, 232, 240, 0.88);
+}
+
+.lessico-holo-slate__constellation {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.lessico-holo-slate__satellites {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.lessico-holo-slate__satellite-node {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.22rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--sat-color, #38bdf8) 40%, rgba(255, 255, 255, 0.1));
+  background: rgba(15, 23, 42, 0.65);
+  color: color-mix(in srgb, var(--sat-color, #38bdf8) 85%, #fff);
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.lessico-holo-slate__satellite-node:hover,
+.lessico-holo-slate__satellite-node:focus-visible {
+  border-color: #fff;
+  background: color-mix(in srgb, var(--sat-color, #38bdf8) 25%, rgba(15, 23, 42, 0.85));
+  box-shadow: 0 0 10px color-mix(in srgb, var(--sat-color, #38bdf8) 45%, transparent);
+  color: #fff;
+  outline: none;
+}
+
+.lessico-holo-slate__satellite-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: var(--sat-color, #38bdf8);
+  box-shadow: 0 0 6px var(--sat-color, #38bdf8);
+}
+
+@media (max-width: 768px) {
+  .lessico-holo-slate {
+    position: fixed;
+    right: 0.5rem;
+    left: 0.5rem;
+    top: auto;
+    bottom: 0.5rem;
+    width: auto;
+    max-height: 75vh;
+  }
+}
+
+/* ── Dizionario pannello laterale (Legacy / Fallback) ──────────────────────── */
 
 .lessico-dict {
   position: absolute;
@@ -6247,7 +7441,8 @@
 }
 
 .galassia-view__mode-switch {
-  width: 100%;
+  width: auto;
+  max-width: 100%;
 }
 
 .galassia-view--mode-parole {

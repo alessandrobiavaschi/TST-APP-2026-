@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect, useLayoutEffect, useMemo } from 'react'
 import { GALAXY_THEORY_BY_DISPOSITION } from '../../config/galaxyTheoryContent.ts'
+import { useUiSounds } from '../../UiSoundProvider.jsx'
 
 // ─── Virtual World Dimensions ────────────────────────────────────────────────
 const WORLD_WIDTH = 3400
@@ -7,12 +8,12 @@ const WORLD_HEIGHT = 2400
 
 const CAMERA_MIN_SCALE = 0.22
 const CAMERA_MAX_SCALE = 2.8
-const CAMERA_ZOOM_STEP = 1.25
-const WHEEL_ZOOM_INTENSITY = 0.002
-const PINCH_DAMPING = 0.55
-const BASE_PITCH = 22
-const FOCUS_PITCH = 13
-const LERP_FACTOR = 0.10
+const CAMERA_ZOOM_STEP = 1.28
+const WHEEL_ZOOM_INTENSITY = 0.024
+const PINCH_DAMPING = 0.70
+const BASE_PITCH = 0
+const FOCUS_PITCH = 0
+const LERP_FACTOR = 0.45
 
 // Exact Cubic-Bezier solver for fly-to transitions: cubic-bezier(0.16, 1, 0.3, 1)
 function solveCubicBezier(x1, y1, x2, y2) {
@@ -49,9 +50,9 @@ const FAMILY_CONFIG = {
     baseColor: '#f59e0b',
     glowColor: 'rgba(245, 158, 11, 0.24)',
     x: 1700,
-    y: 480,
-    radius: 390,
-    subSpread: 210,
+    y: 440,
+    radius: 440,
+    subSpread: 240,
     compass: 'Nord · Fuoco / Luce',
   },
   flemmatica: {
@@ -61,9 +62,9 @@ const FAMILY_CONFIG = {
     baseColor: '#22c55e',
     glowColor: 'rgba(34, 197, 94, 0.22)',
     x: 1700,
-    y: 1250,
-    radius: 380,
-    subSpread: 175,
+    y: 1300,
+    radius: 420,
+    subSpread: 210,
     compass: 'Centro · Acqua / Calma',
   },
   agnostica_anaffettiva: {
@@ -73,9 +74,9 @@ const FAMILY_CONFIG = {
     baseColor: '#94a3b8',
     glowColor: 'rgba(148, 163, 184, 0.22)',
     x: 1700,
-    y: 2020,
-    radius: 340,
-    subSpread: 180,
+    y: 2160,
+    radius: 400,
+    subSpread: 230,
     compass: 'Sud · Terra / Distacco',
   },
   malinconica_nostalgica: {
@@ -84,10 +85,10 @@ const FAMILY_CONFIG = {
     colors: ['#818cf8', '#6366f1', '#7c3aed', '#a5b4fc', '#4338ca', '#c084fc'],
     baseColor: '#6366f1',
     glowColor: 'rgba(99, 102, 241, 0.24)',
-    x: 740,
-    y: 1250,
-    radius: 620,
-    subSpread: 320,
+    x: 680,
+    y: 1300,
+    radius: 660,
+    subSpread: 350,
     compass: 'Ovest · Aria / Memoria',
   },
   collerico_volitiva: {
@@ -96,10 +97,10 @@ const FAMILY_CONFIG = {
     colors: ['#f87171', '#ef4444', '#dc2626', '#fb7185', '#be123c', '#c026d3'],
     baseColor: '#ef4444',
     glowColor: 'rgba(239, 68, 68, 0.24)',
-    x: 2660,
-    y: 1250,
-    radius: 510,
-    subSpread: 260,
+    x: 2720,
+    y: 1300,
+    radius: 540,
+    subSpread: 290,
     compass: 'Est · Fuoco / Decisione',
   },
 }
@@ -124,6 +125,10 @@ const VIEW_MODEL_FAMILIES = [
 
 const ATLAS_FAMILY_ID_BY_KEY = Object.fromEntries(
   VIEW_MODEL_FAMILIES.map(({ familyKey, familyId }) => [familyKey, familyId]),
+)
+
+const ATLAS_FAMILY_KEY_BY_ID = Object.fromEntries(
+  VIEW_MODEL_FAMILIES.map(({ familyKey, familyId }) => [familyId, familyKey]),
 )
 
 const FAMILY_LIST = FAMILY_ORDER.map((id) => ({ id, ...FAMILY_CONFIG[id] }))
@@ -287,23 +292,19 @@ function buildConstellationData() {
         })
       })
 
-      const maxR =
-        numCurrents === 1
-          ? cfg.radius * 0.74
-          : Math.min(230, Math.max(160, cfg.subSpread * 0.74))
+      const baseR = numCurrents === 1 ? cfg.radius * 0.88 : cfg.subSpread * 0.96
+      const maxR = Math.max(220, Math.min(420, baseR + (numStates > 8 ? (numStates - 8) * 14 : 0)))
 
       // Distribute each ring with proportional angular spacing weighted by text length
       for (let rIdx = 0; rIdx <= 2; rIdx++) {
         const ringWords = ringAssignments.filter((item) => item.ringIndex === rIdx)
         if (ringWords.length === 0) continue
 
-        const ringFactor = rIdx === 0 ? 0.4 : rIdx === 1 ? 0.7 : 1.0
+        const ringFactor = rIdx === 0 ? 0.46 : rIdx === 1 ? 0.76 : 1.06
         const r = maxR * ringFactor
-        const yFlatten = 0.85
+        const yFlatten = 0.90
 
-        // Alternating imperceptible cosmic drift speed (rad/frame)
-        const driftDirection = rIdx % 2 === 0 ? 1 : -1
-        const driftSpeed = driftDirection * (0.00022 - rIdx * 0.00004)
+        // Words are anchored stably to their celestial positions
 
         // Weighted angular allocation based on estimated text width
         const totalRingWeight = ringWords.reduce((sum, item) => sum + item.estWidth, 0)
@@ -346,7 +347,7 @@ function buildConstellationData() {
             orbitRadius: r,
             yFlatten,
             baseAngle: angle,
-            driftSpeed,
+            driftSpeed: 0,
           }
           words.push(wordObj)
 
@@ -372,7 +373,7 @@ function buildConstellationData() {
     })
   }
 
-  // Quick 16-step pre-settle of Euler/Verlet spring & anti-overlap to ensure clean initial layout
+  // Pre-settle relaxation with guaranteed separation
   const numWords = words.length
   const pX = new Float32Array(numWords)
   const pY = new Float32Array(numWords)
@@ -383,10 +384,10 @@ function buildConstellationData() {
     pY[i] = words[i].y
   }
 
-  const aspect = 2.2
-  const kSpring = 0.05
-  const damping = 0.88
-  for (let step = 0; step < 16; step++) {
+  const aspect = 1.8
+  const kSpring = 0.04
+  const damping = 0.86
+  for (let step = 0; step < 60; step++) {
     for (let i = 0; i < numWords; i++) {
       const w = words[i]
       let fx = -kSpring * (pX[i] - w.x)
@@ -396,14 +397,14 @@ function buildConstellationData() {
         if (words[j].familyId !== w.familyId) continue
         const dx = pX[j] - pX[i]
         const dy = pY[j] - pY[i]
-        const minDist = (w.width + words[j].width) * 0.5 + 12
+        const minDist = (w.width + words[j].width) * 0.5 + 26
         if (Math.abs(dx) > minDist) continue
         const scaledDy = dy * aspect
         if (Math.abs(scaledDy) > minDist) continue
 
         const d = Math.hypot(dx, scaledDy)
         if (d < minDist && d > 0.001) {
-          const rawF = Math.min(8, 1800 / ((d + 1) * (d + 1)))
+          const rawF = Math.min(12, 2800 / ((d + 1) * (d + 1)))
           const nx = dx / d
           const ny = (scaledDy / d) / aspect
           fx -= nx * rawF
@@ -420,9 +421,32 @@ function buildConstellationData() {
     }
   }
 
+  // Hard anti-overlap separation pass to guarantee zero overlap
+  for (let pass = 0; pass < 8; pass++) {
+    for (let i = 0; i < numWords; i++) {
+      for (let j = i + 1; j < numWords; j++) {
+        if (words[j].familyId !== words[i].familyId) continue
+        const dx = pX[j] - pX[i]
+        const dy = pY[j] - pY[i]
+        const reqW = (words[i].width + words[j].width) * 0.5 + 16
+        const reqH = (words[i].height + words[j].height) * 0.5 + 12
+        if (Math.abs(dx) < reqW && Math.abs(dy) < reqH) {
+          const overlapX = reqW - Math.abs(dx)
+          const overlapY = reqH - Math.abs(dy)
+          const pushX = (overlapX * 0.55) * (dx >= 0 ? 1 : -1)
+          const pushY = (overlapY * 0.55) * (dy >= 0 ? 1 : -1)
+          pX[i] -= pushX * 0.5
+          pY[i] -= pushY * 0.5
+          pX[j] += pushX * 0.5
+          pY[j] += pushY * 0.5
+        }
+      }
+    }
+  }
+
   for (let i = 0; i < numWords; i++) {
-    words[i].x = pX[i]
-    words[i].y = pY[i]
+    words[i].x = Math.round(pX[i])
+    words[i].y = Math.round(pY[i])
   }
 
   // Synchronize initial edge endpoints and compute initial Bézier paths
@@ -464,8 +488,192 @@ function buildConstellationData() {
 const CONSTELLATION_DATA = buildConstellationData()
 const ATLAS_WORDS = CONSTELLATION_DATA.words
 
-// ─── Dictionary Panel ────────────────────────────────────────────────────────
-function DictionaryPanel({ word, onClose, onSelectWord, viewModel }) {
+// ─── TST Web Audio Harmonic Synthesizer ──────────────────────────────────────
+const INTERVAL_SEMITONES = {
+  'unisono': 0,
+  'seconda minore': 1,
+  'seconda maggiore': 2,
+  'terza minore': 3,
+  'terza maggiore': 4,
+  'quarta giusta': 5,
+  'tritono': 6,
+  'quinta diminuita': 6,
+  'quinta giusta': 7,
+  'sesta minore': 8,
+  'sesta maggiore': 9,
+  'settima minore': 10,
+  'settima maggiore': 11,
+  'ottava': 12,
+}
+
+const FAMILY_BASE_FREQS = {
+  malinconica_nostalgica: 220,   // La (A3)
+  collerico_volitiva: 330,       // Mi (E4)
+  flemmatica: 261.63,            // Do (C4)
+  entusiasmo: 392,               // Sol (G4)
+  agnostica_anaffettiva: 293.66, // Re (D4)
+}
+
+let atlasAudioCtx = null
+function getAtlasAudioContext() {
+  if (typeof window === 'undefined') return null
+  const AudioCtx = window.AudioContext || window.webkitAudioContext
+  if (!AudioCtx) return null
+  if (!atlasAudioCtx) {
+    atlasAudioCtx = new AudioCtx()
+  }
+  if (atlasAudioCtx.state === 'suspended') {
+    atlasAudioCtx.resume().catch(() => {})
+  }
+  return atlasAudioCtx
+}
+
+function playHarmonicChime(intervalName, familyId, isSoundEnabled) {
+  if (!isSoundEnabled) return
+  const ctx = getAtlasAudioContext()
+  if (!ctx) return
+
+  const f1 = FAMILY_BASE_FREQS[familyId] || 261.63
+  const norm = (intervalName || '').toLowerCase().trim()
+  let semitones = 7
+  for (const [key, val] of Object.entries(INTERVAL_SEMITONES)) {
+    if (norm.includes(key)) {
+      semitones = val
+      break
+    }
+  }
+  const f2 = f1 * Math.pow(2, semitones / 12)
+
+  const now = ctx.currentTime
+  const duration = 0.35
+
+  try {
+    const osc1 = ctx.createOscillator()
+    const osc2 = ctx.createOscillator()
+    const gain1 = ctx.createGain()
+    const gain2 = ctx.createGain()
+
+    osc1.type = 'sine'
+    osc1.frequency.setValueAtTime(f1, now)
+    gain1.gain.setValueAtTime(0.0001, now)
+    gain1.gain.linearRampToValueAtTime(0.12, now + 0.02)
+    gain1.gain.exponentialRampToValueAtTime(0.0001, now + duration)
+
+    osc2.type = 'triangle'
+    osc2.frequency.setValueAtTime(f2, now + 0.035)
+    gain2.gain.setValueAtTime(0.0001, now)
+    gain2.gain.setValueAtTime(0.0001, now + 0.035)
+    gain2.gain.linearRampToValueAtTime(0.09, now + 0.055)
+    gain2.gain.exponentialRampToValueAtTime(0.0001, now + duration)
+
+    osc1.connect(gain1)
+    gain1.connect(ctx.destination)
+    osc2.connect(gain2)
+    gain2.connect(ctx.destination)
+
+    osc1.start(now)
+    osc2.start(now + 0.035)
+    osc1.stop(now + duration + 0.05)
+    osc2.stop(now + duration + 0.05)
+  } catch {
+    // ignore audio context errors
+  }
+}
+
+// ─── Mini-Oscilloscopio Audio Waveform ───────────────────────────────────────
+function OscilloscopeCanvas({ intervalName, familyColor }) {
+  const canvasRef = useRef(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return undefined
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return undefined
+
+    const norm = (intervalName || '').toLowerCase().trim()
+    let semitones = 7
+    for (const [key, val] of Object.entries(INTERVAL_SEMITONES)) {
+      if (norm.includes(key)) {
+        semitones = val
+        break
+      }
+    }
+
+    let animId = null
+    let t = 0
+    const color = familyColor || '#38bdf8'
+
+    const render = () => {
+      t += 0.04
+      const w = canvas.width
+      const h = canvas.height
+      ctx.clearRect(0, 0, w, h)
+
+      // Zero-crossing central guide
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)'
+      ctx.lineWidth = 1
+      ctx.beginPath()
+      ctx.moveTo(0, h / 2)
+      ctx.lineTo(w, h / 2)
+      ctx.stroke()
+
+      // Primary sine wave (fundamental)
+      ctx.save()
+      ctx.strokeStyle = color
+      ctx.lineWidth = 2
+      ctx.shadowColor = color
+      ctx.shadowBlur = 8
+      ctx.beginPath()
+      const midY = h / 2
+      const amp1 = 12
+      const freq1 = 0.038
+      for (let x = 0; x < w; x++) {
+        const y = midY + Math.sin(x * freq1 + t) * amp1
+        if (x === 0) ctx.moveTo(x, y)
+        else ctx.lineTo(x, y)
+      }
+      ctx.stroke()
+      ctx.restore()
+
+      // Secondary harmonic wave (interval ratio)
+      ctx.save()
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)'
+      ctx.lineWidth = 1.2
+      ctx.shadowColor = '#ffffff'
+      ctx.shadowBlur = 4
+      ctx.beginPath()
+      const amp2 = 7.5
+      const freq2 = 0.038 * (1 + semitones / 12)
+      for (let x = 0; x < w; x++) {
+        const y = midY + Math.sin(x * freq2 - t * 1.25) * amp2
+        if (x === 0) ctx.moveTo(x, y)
+        else ctx.lineTo(x, y)
+      }
+      ctx.stroke()
+      ctx.restore()
+
+      animId = requestAnimationFrame(render)
+    }
+
+    animId = requestAnimationFrame(render)
+    return () => {
+      if (animId) cancelAnimationFrame(animId)
+    }
+  }, [intervalName, familyColor])
+
+  return (
+    <canvas
+      ref={canvasRef}
+      width={280}
+      height={48}
+      className="lessico-holo-slate__oscilloscope"
+      aria-hidden="true"
+    />
+  )
+}
+
+// ─── Floating Holographic Slate (Cyber-Astronomy & GTA VI Style) ────────────
+function FloatingHolographicSlate({ word, onClose, onSelectWord, viewModel }) {
   const closeButtonRef = useRef(null)
 
   useEffect(() => {
@@ -482,64 +690,112 @@ function DictionaryPanel({ word, onClose, onSelectWord, viewModel }) {
       p.correnteKey === word.subcurrentId,
   )
 
+  const isSituational = Boolean(dynamicWordInfo)
   const hasApprofondimento = Boolean(word.subcurrentInterval || dynamicWordInfo)
 
   return (
     <aside
       id="lessico-dictionary-popover"
-      className="lessico-dict"
-      aria-label="Dizionario emotivo"
+      className="lessico-holo-slate"
+      style={{ '--slate-color': word.color || meta?.baseColor }}
+      aria-label="Tavoletta olografica lessicale"
     >
-      <div className="lessico-dict__bezel" style={{ '--dict-color': word.familyColor }}>
-        <header className="lessico-dict__head">
-          <p className="lessico-dict__kicker">Dizionario emotivo</p>
+      <div className="lessico-holo-slate__bezel">
+        <header className="lessico-holo-slate__head">
+          <div className="lessico-holo-slate__head-tag">
+            <span className="lessico-holo-slate__status-dot" />
+            <span className="lessico-holo-slate__kicker">HOLO-SLATE // TST DICTIONARY</span>
+          </div>
           <button
             ref={closeButtonRef}
             type="button"
-            className="lessico-dict__close"
+            className="lessico-holo-slate__close"
             onClick={onClose}
-            aria-label="Chiudi dizionario"
+            aria-label="Chiudi scheda olografica"
           >
             ✕
           </button>
         </header>
-        <div className="lessico-dict__body">
-          <h2 className="lessico-dict__word" style={{ color: word.color }}>
-            {word.nome}
-          </h2>
-          <dl className="lessico-dict__meta">
-            <div>
-              <dt>Famiglia</dt>
+
+        <div className="lessico-holo-slate__body">
+          {/* Word Title & Pulsing Badge */}
+          <div className="lessico-holo-slate__hero">
+            <h2 className="lessico-holo-slate__word">{word.nome}</h2>
+            <div className="lessico-holo-slate__badge-wrap">
+              <span
+                className={`lessico-holo-slate__badge${
+                  isSituational ? ' is-situational' : ' is-stable'
+                }`}
+              >
+                {isSituational ? 'SITUAZIONALE (EMERSA DAL TEST)' : 'STABILE (TEORIA TST)'}
+              </span>
+              {dynamicWordInfo?.conteggio && (
+                <span className="lessico-holo-slate__count-pill">
+                  {dynamicWordInfo.conteggio} {dynamicWordInfo.conteggio === 1 ? 'risposta' : 'risposte'}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Mini-Oscilloscope Audio */}
+          <div className="lessico-holo-slate__scope-wrap">
+            <div className="lessico-holo-slate__scope-header">
+              <span className="lessico-holo-slate__scope-title">
+                SPETTRO FORMA D'ONDA // {word.subcurrentInterval ? word.subcurrentInterval.toUpperCase() : 'QUINTA GIUSTA'}
+              </span>
+              <span className="lessico-holo-slate__scope-freq">
+                HARMONIC RES.
+              </span>
+            </div>
+            <OscilloscopeCanvas
+              intervalName={word.subcurrentInterval}
+              familyColor={word.color || meta?.baseColor}
+            />
+          </div>
+
+          {/* Meta specs */}
+          <dl className="lessico-holo-slate__specs">
+            <div className="lessico-holo-slate__spec-row">
+              <dt>FAMIGLIA</dt>
               <dd>
                 <span
-                  className="lessico-dict__dot"
+                  className="lessico-holo-slate__dot"
                   style={{ backgroundColor: meta?.baseColor }}
-                  aria-hidden
+                  aria-hidden="true"
                 />
                 {word.familyLabel}
               </dd>
             </div>
-            <div>
-              <dt>Sottocorrente</dt>
+            <div className="lessico-holo-slate__spec-row">
+              <dt>SOTTOCORRENTE</dt>
               <dd>{word.subcurrentTitle}</dd>
             </div>
-            <div>
-              <dt>Fonte Lessico</dt>
-              <dd style={{ color: dynamicWordInfo ? '#22c55e' : '#cbd5e1', fontWeight: 600 }}>
-                {dynamicWordInfo ? 'Situazionale (dal test)' : 'Stabile (teoria)'}
-              </dd>
-            </div>
+            {dynamicWordInfo?.fileKeys && dynamicWordInfo.fileKeys.length > 0 && (
+              <div className="lessico-holo-slate__spec-row">
+                <dt>TRACCE TEST</dt>
+                <dd className="lessico-holo-slate__tracks">
+                  {dynamicWordInfo.fileKeys.map((f) => (
+                    <span key={f} className="lessico-holo-slate__track-badge">
+                      {f.replace('File_', 'Traccia ')}
+                    </span>
+                  ))}
+                </dd>
+              </div>
+            )}
           </dl>
+
           {word.subcurrentDescription && (
-            <div className="lessico-dict__def">
-              <h3>Descrizione</h3>
+            <div className="lessico-holo-slate__desc">
+              <h3>Risonanza Emotiva</h3>
               <p>{word.subcurrentDescription}</p>
             </div>
           )}
+
+          {/* Satelliti & Costellazioni Vicine */}
           {word.nearbyWords.length > 0 && (
-            <div className="lessico-dict__nearby">
-              <h3>Parole vicine</h3>
-              <div className="lessico-dict__nearby-list">
+            <div className="lessico-holo-slate__constellation">
+              <h3>Nodi Satellite in Costellazione</h3>
+              <div className="lessico-holo-slate__satellites">
                 {word.nearbyWords.map((nome) => {
                   const w = ATLAS_WORDS.find(
                     (v) =>
@@ -551,47 +807,39 @@ function DictionaryPanel({ word, onClose, onSelectWord, viewModel }) {
                     <button
                       key={nome}
                       type="button"
-                      className="lessico-dict__nearby-word"
-                      style={{ '--nearby-color': w?.color || meta?.baseColor }}
+                      className="lessico-holo-slate__satellite-node"
+                      style={{ '--sat-color': w?.color || meta?.baseColor }}
                       onClick={() => w && onSelectWord(w)}
                     >
-                      {nome}
+                      <span className="lessico-holo-slate__satellite-dot" />
+                      <span>{nome}</span>
                     </button>
                   )
                 })}
               </div>
             </div>
           )}
+
           {hasApprofondimento && (
-            <details className="lessico-dashboard__details lessico-dict__approfondisci">
+            <details className="lessico-dashboard__details lessico-holo-slate__details">
               <summary className="text-xs cursor-pointer select-none text-slate-400 hover:text-slate-200">
-                Approfondisci
+                Specifiche Tecniche TST
               </summary>
-              <dl className="lessico-dict__meta mt-2">
+              <dl className="lessico-holo-slate__specs mt-2">
                 {word.subcurrentInterval && (
-                  <div>
-                    <dt>Intervallo musicale</dt>
+                  <div className="lessico-holo-slate__spec-row">
+                    <dt>INTERVALLO</dt>
                     <dd>{word.subcurrentInterval}</dd>
-                  </div>
-                )}
-                {dynamicWordInfo?.fileKeys && dynamicWordInfo.fileKeys.length > 0 && (
-                  <div>
-                    <dt>Tracce collegate</dt>
-                    <dd style={{ color: '#60a5fa' }}>
-                      {dynamicWordInfo.fileKeys
-                        .map((f) => `Traccia ${f.replace('File_', '')}`)
-                        .join(', ')}
-                    </dd>
                   </div>
                 )}
                 {dynamicWordInfo && (
                   <>
-                    <div>
-                      <dt>Corrente TST</dt>
+                    <div className="lessico-holo-slate__spec-row">
+                      <dt>CORRENTE</dt>
                       <dd style={{ fontSize: '0.85rem' }}>{dynamicWordInfo.correnteKey}</dd>
                     </div>
-                    <div>
-                      <dt>Famiglia Key</dt>
+                    <div className="lessico-holo-slate__spec-row">
+                      <dt>FAMIGLIA KEY</dt>
                       <dd>{dynamicWordInfo.familyKey}</dd>
                     </div>
                   </>
@@ -605,33 +853,63 @@ function DictionaryPanel({ word, onClose, onSelectWord, viewModel }) {
   )
 }
 
-// ─── Family Filter Legend ───────────────────────────────────────────────────
-function AtlasLegend({ filterFamily, onFilterChange }) {
+// ─── Tactical HUD Frequency Spectrum Filters ────────────────────────────────
+function AtlasLegend({ filterFamily, onFilterChange, viewModel }) {
+  const totalWords = ATLAS_WORDS.length
+
+  const userPercentages = useMemo(() => {
+    if (!viewModel?.datiDisponibili || !viewModel?.campoDiForze?.perFamiglia) {
+      return null
+    }
+    const map = {}
+    for (const item of viewModel.campoDiForze.perFamiglia) {
+      if (item.familyKey && typeof item.peso === 'number') {
+        map[item.familyKey] = Math.round(item.peso)
+      }
+    }
+    return map
+  }, [viewModel])
+
   return (
-    <nav className="lessico-legend" aria-label="Filtra per famiglia emotiva">
+    <nav className="lessico-legend lessico-legend--tactical" aria-label="Filtra per frequenza e famiglia">
       <button
         type="button"
-        className={`lessico-legend__item${!filterFamily ? ' is-active' : ''}`}
+        className={`lessico-legend__item lessico-legend__item--tactical${!filterFamily ? ' is-active' : ''}`}
         onClick={() => onFilterChange(null)}
       >
-        Tutte
+        <span className="lessico-legend__spectrum-bars" aria-hidden="true">
+          <span className="bar bar-1" />
+          <span className="bar bar-2" />
+          <span className="bar bar-3" />
+        </span>
+        <span className="lessico-legend__label">ALL</span>
+        <span className="lessico-legend__val">{totalWords}W</span>
       </button>
-      {FAMILY_LIST.map((fam) => (
-        <button
-          key={fam.id}
-          type="button"
-          className={`lessico-legend__item${filterFamily === fam.id ? ' is-active' : ''}`}
-          style={{ '--legend-color': fam.baseColor }}
-          onClick={() => onFilterChange(filterFamily === fam.id ? null : fam.id)}
-        >
-          <span
-            className="lessico-legend__dot"
-            style={{ backgroundColor: fam.baseColor }}
-            aria-hidden
-          />
-          {fam.label}
-        </button>
-      ))}
+      {FAMILY_LIST.map((fam) => {
+        const famWords = ATLAS_WORDS.filter((w) => w.familyId === fam.id).length
+        const key = ATLAS_FAMILY_KEY_BY_ID[fam.id]
+        const userPct = userPercentages && key ? userPercentages[key] : null
+        const pct = userPct !== null && userPct !== undefined ? userPct : Math.round((famWords / totalWords) * 100)
+        const isActive = filterFamily === fam.id
+
+        return (
+          <button
+            key={fam.id}
+            type="button"
+            className={`lessico-legend__item lessico-legend__item--tactical${isActive ? ' is-active' : ''}`}
+            style={{ '--legend-color': fam.baseColor }}
+            onClick={() => onFilterChange(isActive ? null : fam.id)}
+          >
+            <span className="lessico-legend__spectrum-bars" aria-hidden="true">
+              <span className="bar bar-1" />
+              <span className="bar bar-2" />
+              <span className="bar bar-3" />
+            </span>
+            <span className="lessico-legend__label">{fam.label.toUpperCase()}</span>
+            <span className="lessico-legend__val">{pct}%</span>
+          </button>
+        )
+      })}
     </nav>
   )
 }
@@ -999,10 +1277,16 @@ export default function LessicoAtlasView({
   isMobile = false,
   viewModel = null,
 }) {
+  const uiSounds = useUiSounds()
   const [selectedWord, setSelectedWord] = useState(null)
   const [hoveredWordId, setHoveredWordId] = useState(null)
+  const [hoveredWord, setHoveredWord] = useState(null)
+  const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 })
+  const [shockwave, setShockwave] = useState(null)
+  const [shockwaveActiveIds, setShockwaveActiveIds] = useState(() => new Set())
   const [filterFamily, setFilterFamily] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1)
   const [showSearch, setShowSearch] = useState(false)
   const [expandedMobileFamily, setExpandedMobileFamily] = useState(null)
   const [showDashboard, setShowDashboard] = useState(false)
@@ -1013,12 +1297,10 @@ export default function LessicoAtlasView({
   const nebulaeRef = useRef(null)
   const constellationLayerRef = useRef(null)
   const wordsLayerRef = useRef(null)
-  const cameraRef = useRef(createCamera(0, 0, 0.5, BASE_PITCH, 0, 0, 0))
-  const targetCameraRef = useRef(createCamera(0, 0, 0.5, BASE_PITCH, 0, 0, 0))
-  const initialCameraRef = useRef(createCamera(0, 0, 0.5, BASE_PITCH, 0, 0, 0))
+  const cameraRef = useRef(createCamera(0, 0, 0.5, 0, 0, 0, 0))
+  const targetCameraRef = useRef(createCamera(0, 0, 0.5, 0, 0, 0, 0))
+  const initialCameraRef = useRef(createCamera(0, 0, 0.5, 0, 0, 0, 0))
   const velocityRef = useRef({ vx: 0, vy: 0 })
-  const pointerTiltRef = useRef({ pitch: 0, yaw: 0, roll: 0, bgX: 0, bgY: 0 })
-  const currentTiltRef = useRef({ pitch: 0, yaw: 0, roll: 0, bgX: 0, bgY: 0 })
   const flightRef = useRef(null)
   const viewportSizeRef = useRef({ w: 0, h: 0, left: 0, top: 0 })
   const pointersRef = useRef(new Map())
@@ -1026,26 +1308,39 @@ export default function LessicoAtlasView({
   const mouseDragRef = useRef(null)
   const webkitGestureRef = useRef(null)
   const searchInputRef = useRef(null)
-  const wordRefs = useRef([])
-  const edgeRefs = useRef([])
-  const mouseWorldRef = useRef({ x: -9999, y: -9999, active: false })
   const hoveredWordIdRef = useRef(null)
+  const telemetryMagRef = useRef(null)
+  const helmMagRef = useRef(null)
+  const radarViewfinderRef = useRef(null)
+  const radarCoordRef = useRef(null)
+  const hoverTimerRef = useRef(null)
+  const atlasRootRef = useRef(null)
 
-  const [camera, setCamera] = useState(() => ({ scale: 0.5 }))
-  const [activeClosestFamily, setActiveClosestFamily] = useState('BLU')
   const currentLodTierRef = useRef('macro')
-  const lastReportedScaleRef = useRef(0.5)
-  const closestFamilyRef = useRef('BLU')
+  const telemetryLodRef = useRef(null)
 
-  const lodTier = useMemo(() => {
-    if (camera.scale < 0.72) return 'macro'
-    if (camera.scale < 1.35) return 'meso'
-    return 'micro'
-  }, [camera.scale])
+  useEffect(() => {
+    return () => {
+      if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current)
+    }
+  }, [])
 
-  const activeFamilyId = filterFamily || activeClosestFamily
+  const activeFamilyId = filterFamily || 'malinconica_nostalgica'
 
   const normalizedSearch = searchQuery.trim().toLowerCase()
+
+  const userPercentages = useMemo(() => {
+    if (!viewModel?.datiDisponibili || !viewModel?.campoDiForze?.perFamiglia) {
+      return null
+    }
+    const map = {}
+    for (const item of viewModel.campoDiForze.perFamiglia) {
+      if (item.familyKey && typeof item.peso === 'number') {
+        map[item.familyKey] = Math.round(item.peso)
+      }
+    }
+    return map
+  }, [viewModel])
 
   const emergedWords = useMemo(() => {
     const precise = new Set()
@@ -1089,57 +1384,140 @@ export default function LessicoAtlasView({
     return hubs
   }, [emergedWordIds])
 
+  const searchSuggestions = useMemo(() => {
+    if (!normalizedSearch) return []
+    const q = normalizedSearch
+    const matches = CONSTELLATION_DATA.words.filter((w) =>
+      w.nome.toLowerCase().includes(q),
+    )
+    return matches.sort((a, b) => {
+      const aExact = a.nome.toLowerCase() === q
+      const bExact = b.nome.toLowerCase() === q
+      if (aExact && !bExact) return -1
+      if (!aExact && bExact) return 1
+      const aStarts = a.nome.toLowerCase().startsWith(q)
+      const bStarts = b.nome.toLowerCase().startsWith(q)
+      if (aStarts && !bStarts) return -1
+      if (!aStarts && bStarts) return 1
+      const aEmerged = emergedWordIds.has(a.id)
+      const bEmerged = emergedWordIds.has(b.id)
+      if (aEmerged && !bEmerged) return -1
+      if (!aEmerged && bEmerged) return 1
+      return a.nome.localeCompare(b.nome)
+    }).slice(0, 8)
+  }, [normalizedSearch, emergedWordIds])
+
   const resetCamera = useCallback(() => {
     const initial = initialCameraRef.current
     velocityRef.current = { vx: 0, vy: 0 }
     flightRef.current = {
       active: true,
       startTime: performance.now(),
-      duration: 850,
+      duration: 600,
       startCamera: { ...cameraRef.current },
       endCamera: {
         ...initial,
-        pitch: BASE_PITCH,
+        pitch: 0,
         yaw: 0,
         roll: 0,
         z: 0,
       },
-      swoopRoll: -3.0,
     }
   }, [])
 
-  // Orbital Fly-to word target (Section 3.E)
+  // Smoothly center on word target with automatic magnification to 1.27x
   const focusWord = useCallback((word) => {
     if (!word) return
     const vp = layerRef.current
     if (!vp) return
     const rect = vp.getBoundingClientRect()
-    const targetScale = clamp(rect.width < 900 ? 1.25 : 1.5, 1.2, 1.6)
+    const targetScale = clamp(rect.width < 900 ? 1.22 : 1.27, 1.2, 1.45)
 
     const targetX = rect.width / 2 - WORLD_WIDTH / 2 - (word.x - WORLD_WIDTH / 2) * targetScale
     const targetY = rect.height / 2 - WORLD_HEIGHT / 2 - (word.y - WORLD_HEIGHT / 2) * targetScale
-
-    const currentX = cameraRef.current.x
-    const swoopRoll = targetX < currentX ? -3.8 : 3.8
 
     velocityRef.current = { vx: 0, vy: 0 }
     flightRef.current = {
       active: true,
       startTime: performance.now(),
-      duration: 800,
+      duration: 650,
       startCamera: { ...cameraRef.current },
       endCamera: {
         x: targetX,
         y: targetY,
         z: 0,
         scale: targetScale,
-        pitch: FOCUS_PITCH,
+        pitch: 0,
         yaw: 0,
         roll: 0,
       },
-      swoopRoll,
     }
   }, [])
+
+  // Smoothly fly camera to world coordinates (e.g. from Radar click)
+  const flyToWorldCoord = useCallback((worldX, worldY) => {
+    const vp = layerRef.current
+    if (!vp) return
+    const rect = vp.getBoundingClientRect()
+    const targetScale = clamp(cameraRef.current.scale, 0.5, 1.4)
+    const targetX = rect.width / 2 - WORLD_WIDTH / 2 - (worldX - WORLD_WIDTH / 2) * targetScale
+    const targetY = rect.height / 2 - WORLD_HEIGHT / 2 - (worldY - WORLD_HEIGHT / 2) * targetScale
+
+    velocityRef.current = { vx: 0, vy: 0 }
+    flightRef.current = {
+      active: true,
+      startTime: performance.now(),
+      duration: 650,
+      startCamera: { ...cameraRef.current },
+      endCamera: {
+        x: targetX,
+        y: targetY,
+        z: 0,
+        scale: targetScale,
+        pitch: 0,
+        yaw: 0,
+        roll: 0,
+      },
+    }
+  }, [])
+
+  const handleSelectWord = useCallback(
+    (word) => {
+      if (!word) return
+      setSelectedWord(word)
+      focusWord(word)
+
+      // 1. Shockwave ring centered on word
+      setShockwave({
+        id: Date.now(),
+        x: word.x,
+        y: word.y,
+        color: word.color,
+      })
+
+      // 2. Temporarily illuminate nearby words within 220px
+      const nearbyIds = new Set()
+      const shockwaveRadius = 220
+      for (let i = 0; i < CONSTELLATION_DATA.words.length; i++) {
+        const w = CONSTELLATION_DATA.words[i]
+        const dx = w.x - word.x
+        const dy = w.y - word.y
+        if (Math.hypot(dx, dy) <= shockwaveRadius) {
+          nearbyIds.add(w.id)
+        }
+      }
+      setShockwaveActiveIds(nearbyIds)
+
+      setTimeout(() => {
+        setShockwave(null)
+        setShockwaveActiveIds(new Set())
+      }, 450)
+
+      // 3. Audio harmonic chime
+      playHarmonicChime(word.subcurrentInterval, word.familyId, uiSounds.enabled)
+    },
+    [focusWord, uiSounds.enabled],
+  )
 
   // Intelligent search: auto fly-to matching word
   useEffect(() => {
@@ -1156,7 +1534,7 @@ export default function LessicoAtlasView({
     return () => clearTimeout(timer)
   }, [normalizedSearch, focusWord])
 
-  // Smoothly glide camera to frame a specific family sphere with orbital swoop (Section 3.E)
+  // Smoothly glide camera to frame a specific family sphere without 3D wobble
   const focusFamily = useCallback(
     (familyId) => {
       const vp = layerRef.current
@@ -1178,25 +1556,21 @@ export default function LessicoAtlasView({
       const targetX = rect.width / 2 - WORLD_WIDTH / 2 - (fam.x - WORLD_WIDTH / 2) * targetScale
       const targetY = rect.height / 2 - WORLD_HEIGHT / 2 - (fam.y - WORLD_HEIGHT / 2) * targetScale
 
-      const currentX = cameraRef.current.x
-      const swoopRoll = targetX < currentX ? -4.0 : 4.0
-
       velocityRef.current = { vx: 0, vy: 0 }
       flightRef.current = {
         active: true,
         startTime: performance.now(),
-        duration: 850,
+        duration: 600,
         startCamera: { ...cameraRef.current },
         endCamera: {
           x: targetX,
           y: targetY,
           z: 0,
           scale: targetScale,
-          pitch: FOCUS_PITCH,
+          pitch: 0,
           yaw: 0,
           roll: 0,
         },
-        swoopRoll,
       }
     },
     [resetCamera],
@@ -1226,6 +1600,123 @@ export default function LessicoAtlasView({
     },
     [],
   )
+
+  const [isFullscreen, setIsFullscreen] = useState(false)
+
+  const toggleFullscreen = useCallback(() => {
+    const el =
+      atlasRootRef.current ||
+      layerRef.current?.closest('.lessico-atlas') ||
+      document.documentElement
+    const fsDoc = document
+    const fsEl =
+      fsDoc.fullscreenElement ||
+      fsDoc.webkitFullscreenElement ||
+      fsDoc.mozFullScreenElement ||
+      fsDoc.msFullscreenElement
+
+    if (!fsEl && !isFullscreen) {
+      const req =
+        el.requestFullscreen ||
+        el.webkitRequestFullscreen ||
+        el.mozRequestFullScreen ||
+        el.msRequestFullscreen ||
+        fsDoc.documentElement.requestFullscreen ||
+        fsDoc.documentElement.webkitRequestFullscreen
+      if (req) {
+        try {
+          const res = req.call(el)
+          if (res && res.catch) {
+            res.catch(() => {
+              setIsFullscreen(true)
+            })
+          }
+        } catch {
+          setIsFullscreen(true)
+        }
+      } else {
+        setIsFullscreen(true)
+      }
+    } else {
+      const exit =
+        fsDoc.exitFullscreen ||
+        fsDoc.webkitExitFullscreen ||
+        fsDoc.mozCancelFullScreen ||
+        fsDoc.msExitFullscreen
+      if (exit) {
+        try {
+          const res = exit.call(fsDoc)
+          if (res && res.catch) {
+            res.catch(() => {})
+          }
+        } catch {
+          /* ignore exit error */
+        }
+      }
+      setIsFullscreen(false)
+    }
+  }, [isFullscreen])
+
+  useEffect(() => {
+    const onFsChange = () => {
+      const fsEl =
+        document.fullscreenElement ||
+        document.webkitFullscreenElement ||
+        document.mozFullScreenElement ||
+        document.msFullscreenElement
+      setIsFullscreen(Boolean(fsEl))
+    }
+    document.addEventListener('fullscreenchange', onFsChange)
+    document.addEventListener('webkitfullscreenchange', onFsChange)
+    document.addEventListener('mozfullscreenchange', onFsChange)
+    document.addEventListener('MSFullscreenChange', onFsChange)
+    return () => {
+      document.removeEventListener('fullscreenchange', onFsChange)
+      document.removeEventListener('webkitfullscreenchange', onFsChange)
+      document.removeEventListener('mozfullscreenchange', onFsChange)
+      document.removeEventListener('MSFullscreenChange', onFsChange)
+    }
+  }, [])
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && isFullscreen) {
+        const fsDoc = document
+        const fsEl =
+          fsDoc.fullscreenElement ||
+          fsDoc.webkitFullscreenElement ||
+          fsDoc.mozFullScreenElement ||
+          fsDoc.msFullscreenElement
+        if (fsEl) {
+          const exit =
+            fsDoc.exitFullscreen ||
+            fsDoc.webkitExitFullscreen ||
+            fsDoc.mozCancelFullScreen ||
+            fsDoc.msExitFullscreen
+          try {
+            exit?.call(fsDoc)
+          } catch {
+            /* ignore exit error */
+          }
+        }
+        setIsFullscreen(false)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isFullscreen])
+
+  const panBy = useCallback((dx, dy) => {
+    flightRef.current = null
+    velocityRef.current = { vx: 0, vy: 0 }
+    mouseDragRef.current = null
+    const cur = targetCameraRef.current
+    targetCameraRef.current = {
+      ...cur,
+      x: cur.x + dx,
+      y: cur.y + dy,
+    }
+  }, [])
 
   const handleFilterChange = useCallback(
     (famId) => {
@@ -1257,17 +1748,15 @@ export default function LessicoAtlasView({
         const fitScale = Math.min(rect.width / WORLD_WIDTH, rect.height / WORLD_HEIGHT) * 0.94
         const initX = rect.width / 2 - WORLD_WIDTH / 2
         const initY = rect.height / 2 - WORLD_HEIGHT / 2
-        const initial = createCamera(initX, initY, fitScale, BASE_PITCH, 0, 0, 0)
+        const initial = createCamera(initX, initY, fitScale, 0, 0, 0, 0)
         initialCameraRef.current = initial
         targetCameraRef.current = initial
-        cameraRef.current = { ...initial }
-        lastReportedScaleRef.current = fitScale
-        currentLodTierRef.current =
-          fitScale < 0.72 ? 'macro' : fitScale < 1.35 ? 'meso' : 'micro'
-        setCamera({ scale: fitScale })
+        const initialTier =
+          fitScale < 0.48 ? 'macro' : fitScale < 0.85 ? 'meso-wide' : fitScale < 1.40 ? 'meso' : 'micro'
+        currentLodTierRef.current = initialTier
 
         if (canvasRef.current) {
-          canvasRef.current.style.transform = `translate3d(${initX.toFixed(2)}px, ${initY.toFixed(2)}px, 0px) rotateX(${BASE_PITCH}deg) rotateY(0deg) rotateZ(0deg) scale(${fitScale.toFixed(4)})`
+          canvasRef.current.style.transform = `translate3d(${initX.toFixed(2)}px, ${initY.toFixed(2)}px, 0px) scale(${fitScale.toFixed(4)})`
         }
       }
     }
@@ -1282,7 +1771,7 @@ export default function LessicoAtlasView({
   const handleWheel = useCallback(
     (event) => {
       const target = event.target instanceof Element ? event.target : null
-      if (target?.closest('.lessico-dict')) return
+      if (target?.closest('.lessico-dict, .lessico-holo-slate')) return
 
       event.preventDefault()
       const vp = layerRef.current
@@ -1295,6 +1784,7 @@ export default function LessicoAtlasView({
       flightRef.current = null
 
       if (isPinch) {
+        // Trackpad pinch zoom (fast, responsive 0.024 intensity)
         const factor = Math.exp(-event.deltaY * WHEEL_ZOOM_INTENSITY)
         const current = targetCameraRef.current
         const clampedScale = clamp(current.scale * factor, CAMERA_MIN_SCALE, CAMERA_MAX_SCALE)
@@ -1308,12 +1798,39 @@ export default function LessicoAtlasView({
           y: newY,
           scale: clampedScale,
         }
+        cameraRef.current.x = newX
+        cameraRef.current.y = newY
+        cameraRef.current.scale = clampedScale
       } else {
-        event.stopPropagation()
-        targetCameraRef.current = {
-          ...targetCameraRef.current,
-          x: targetCameraRef.current.x - event.deltaX,
-          y: targetCameraRef.current.y - event.deltaY,
+        // If deltaX is 0 and deltaY has large discrete steps, user is using a traditional mouse scroll wheel to zoom
+        const isMouseWheel = Math.abs(event.deltaY) >= 40 && event.deltaX === 0
+        if (isMouseWheel) {
+          const factor = event.deltaY < 0 ? 1.28 : 0.78
+          const current = targetCameraRef.current
+          const clampedScale = clamp(current.scale * factor, CAMERA_MIN_SCALE, CAMERA_MAX_SCALE)
+          const ratio = clampedScale / current.scale
+          const newX = origin.x - WORLD_WIDTH / 2 - (origin.x - WORLD_WIDTH / 2 - current.x) * ratio
+          const newY = origin.y - WORLD_HEIGHT / 2 - (origin.y - WORLD_HEIGHT / 2 - current.y) * ratio
+
+          targetCameraRef.current = {
+            ...current,
+            x: newX,
+            y: newY,
+            scale: clampedScale,
+          }
+        } else {
+          // Trackpad 2-finger pan - responsive 1.35x speed
+          event.stopPropagation()
+          const current = targetCameraRef.current
+          const nextX = current.x - event.deltaX * 1.35
+          const nextY = current.y - event.deltaY * 1.35
+          targetCameraRef.current = {
+            ...current,
+            x: nextX,
+            y: nextY,
+          }
+          cameraRef.current.x = nextX
+          cameraRef.current.y = nextY
         }
       }
     },
@@ -1360,6 +1877,9 @@ export default function LessicoAtlasView({
         y: newY,
         scale: nextScale,
       }
+      cameraRef.current.x = newX
+      cameraRef.current.y = newY
+      cameraRef.current.scale = nextScale
     }
     const onGestureEnd = () => {
       webkitGestureRef.current = null
@@ -1375,15 +1895,20 @@ export default function LessicoAtlasView({
     }
   }, [])
 
-  // Mouse / Pointer drag pan & world coordinate tracking for physics interaction
+  // Mouse / Pointer drag pan
   const handlePointerDown = useCallback((e) => {
     const target = e.target instanceof Element ? e.target : null
-    if (target?.closest('.lessico-dict, .lessico-atlas__controls')) return
+    if (
+      target?.closest(
+        '.lessico-tactical-helm, .lessico-radar, .lessico-dict, .lessico-holo-slate, .lessico-atlas__controls',
+      )
+    ) {
+      return
+    }
 
     pointersRef.current.set(e.pointerId, { clientX: e.clientX, clientY: e.clientY })
 
     if (pointersRef.current.size >= 2) {
-      mouseWorldRef.current.active = false
       flightRef.current = null
       velocityRef.current = { vx: 0, vy: 0 }
       const pts = Array.from(pointersRef.current.values())
@@ -1404,7 +1929,6 @@ export default function LessicoAtlasView({
 
     const isInteractive = Boolean(target?.closest('.lessico-atlas__word, .lessico-atlas__family-badge'))
     if (!isInteractive) {
-      mouseWorldRef.current.active = false
       flightRef.current = null
       velocityRef.current = { vx: 0, vy: 0 }
       mouseDragRef.current = {
@@ -1423,34 +1947,10 @@ export default function LessicoAtlasView({
   }, [])
 
   const handlePointerMove = useCallback((e) => {
-    const vp = layerRef.current
-    if (vp && !mouseDragRef.current && pointersRef.current.size <= 1) {
-      const rect = vp.getBoundingClientRect()
-      const cam = cameraRef.current
-      mouseWorldRef.current.x =
-        WORLD_WIDTH / 2 + (e.clientX - rect.left - WORLD_WIDTH / 2 - cam.x) / cam.scale
-      mouseWorldRef.current.y =
-        WORLD_HEIGHT / 2 + (e.clientY - rect.top - WORLD_HEIGHT / 2 - cam.y) / cam.scale
-      mouseWorldRef.current.active = true
-
-      // Section 3.C: Micro-tilt calculation
-      const cx = rect.left + rect.width / 2
-      const cy = rect.top + rect.height / 2
-      const nx = clamp((e.clientX - cx) / (rect.width / 2), -1, 1)
-      const ny = clamp((e.clientY - cy) / (rect.height / 2), -1, 1)
-
-      pointerTiltRef.current.pitch = ny * -2.5
-      pointerTiltRef.current.yaw = nx * 3.0
-      pointerTiltRef.current.roll = nx * -1.2
-      pointerTiltRef.current.bgX = -nx * 18
-      pointerTiltRef.current.bgY = -ny * 12
-    }
-
     if (!pointersRef.current.has(e.pointerId)) return
     pointersRef.current.set(e.pointerId, { clientX: e.clientX, clientY: e.clientY })
 
     if (pointersRef.current.size >= 2 && pinchRef.current) {
-      mouseWorldRef.current.active = false
       e.preventDefault()
       const pts = Array.from(pointersRef.current.values())
       const [a, b] = pts
@@ -1476,7 +1976,6 @@ export default function LessicoAtlasView({
     }
 
     if (pointersRef.current.size === 1 && mouseDragRef.current) {
-      mouseWorldRef.current.active = false
       e.preventDefault()
       const drag = mouseDragRef.current
       const now = performance.now()
@@ -1496,6 +1995,8 @@ export default function LessicoAtlasView({
         x: drag.startX + (e.clientX - drag.clientX),
         y: drag.startY + (e.clientY - drag.clientY),
       }
+      cameraRef.current.x = targetCameraRef.current.x
+      cameraRef.current.y = targetCameraRef.current.y
     }
   }, [])
 
@@ -1507,15 +2008,13 @@ export default function LessicoAtlasView({
       velocityRef.current.vy = clamp(velocityRef.current.vy, -45, 45)
       mouseDragRef.current = null
     }
-    mouseWorldRef.current.active = false
     if (e.currentTarget.releasePointerCapture && e.currentTarget.hasPointerCapture?.(e.pointerId)) {
       e.currentTarget.releasePointerCapture(e.pointerId)
     }
   }, [])
 
   const handlePointerLeave = useCallback(() => {
-    mouseWorldRef.current.active = false
-    pointerTiltRef.current = { pitch: 0, yaw: 0, roll: 0, bgX: 0, bgY: 0 }
+    // Clean exit
   }, [])
 
   const closeDictionary = useCallback(() => {
@@ -1551,6 +2050,26 @@ export default function LessicoAtlasView({
         e.preventDefault()
         zoomStep(-1)
       }
+      if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        panBy(0, 260)
+        return
+      }
+      if (e.key === 'ArrowDown') {
+        e.preventDefault()
+        panBy(0, -260)
+        return
+      }
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault()
+        panBy(260, 0)
+        return
+      }
+      if (e.key === 'ArrowRight') {
+        e.preventDefault()
+        panBy(-260, 0)
+        return
+      }
       if (e.key === '0') {
         e.preventDefault()
         resetCamera()
@@ -1558,7 +2077,7 @@ export default function LessicoAtlasView({
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [selectedWord, showSearch, resetCamera, zoomStep, closeDictionary])
+  }, [selectedWord, showSearch, resetCamera, zoomStep, closeDictionary, panBy])
 
   useEffect(() => {
     if (showSearch && searchInputRef.current) searchInputRef.current.focus()
@@ -1572,65 +2091,14 @@ export default function LessicoAtlasView({
     })
   }, [])
 
-  // ─── 60/120 FPS Spring-Dampened Physics Simulation Loop ───────────────────
+  // ─── Butter-Smooth 60/120 FPS Camera & LOD Interpolation Loop ─────────────
   useEffect(() => {
     if (isMobile) return undefined
 
-    const words = CONSTELLATION_DATA.words
-    const edges = CONSTELLATION_DATA.edges
-    const numWords = words.length
-    const numEdges = edges.length
-
-    // Zero-GC typed arrays
-    const posX = new Float32Array(numWords)
-    const posY = new Float32Array(numWords)
-    const velX = new Float32Array(numWords)
-    const velY = new Float32Array(numWords)
-    const forceX = new Float32Array(numWords)
-    const forceY = new Float32Array(numWords)
-
-    const baseAngles = new Float32Array(numWords)
-    const radii = new Float32Array(numWords)
-    const driftSpeeds = new Float32Array(numWords)
-    const hubXs = new Float32Array(numWords)
-    const hubYs = new Float32Array(numWords)
-    const yFlattens = new Float32Array(numWords)
-    const widths = new Float32Array(numWords)
-
-    // Pre-group words by family to optimize collision checks
-    const familyIndicesMap = new Map()
-    for (let f = 0; f < FAMILY_ORDER.length; f++) {
-      familyIndicesMap.set(FAMILY_ORDER[f], [])
-    }
-
-    for (let i = 0; i < numWords; i++) {
-      const w = words[i]
-      posX[i] = w.x
-      posY[i] = w.y
-      baseAngles[i] = w.baseAngle
-      radii[i] = w.orbitRadius
-      driftSpeeds[i] = w.driftSpeed
-      hubXs[i] = w.hubX
-      hubYs[i] = w.hubY
-      yFlattens[i] = w.yFlatten
-      widths[i] = w.width
-      const famArr = familyIndicesMap.get(w.familyId)
-      if (famArr) famArr.push(i)
-    }
-
-    const familyWordGroups = Array.from(familyIndicesMap.values())
-
     let rafId = null
-    let frameCount = 0
-    const kSpring = 0.05
-    const damping = 0.90
-    const repulsionStrength = 1800
-    const aspect = 2.2
 
     const tick = () => {
-      frameCount++
-
-      // 0. Smooth Camera 3D Interpolation & Flight Dynamics (Sections 3.D & 3.E)
+      // 1. Flight Dynamics (Smooth glide to target word or family)
       if (flightRef.current?.active) {
         const flight = flightRef.current
         const elapsed = performance.now() - flight.startTime
@@ -1641,251 +2109,111 @@ export default function LessicoAtlasView({
           flight.startCamera.x + (flight.endCamera.x - flight.startCamera.x) * easedT
         targetCameraRef.current.y =
           flight.startCamera.y + (flight.endCamera.y - flight.startCamera.y) * easedT
-        targetCameraRef.current.z =
-          (flight.startCamera.z || 0) +
-          ((flight.endCamera.z || 0) - (flight.startCamera.z || 0)) * easedT
         targetCameraRef.current.scale =
           flight.startCamera.scale +
           (flight.endCamera.scale - flight.startCamera.scale) * easedT
-        targetCameraRef.current.pitch =
-          flight.startCamera.pitch +
-          (flight.endCamera.pitch - flight.startCamera.pitch) * easedT
-        targetCameraRef.current.yaw =
-          flight.startCamera.yaw +
-          (flight.endCamera.yaw - flight.startCamera.yaw) * easedT
-
-        // Orbital swoop: sinusoidal roll peaking in mid-flight and returning to 0
-        const swoop = Math.sin(rawT * Math.PI) * flight.swoopRoll
-        targetCameraRef.current.roll =
-          flight.startCamera.roll +
-          (flight.endCamera.roll - flight.startCamera.roll) * easedT +
-          swoop
 
         if (rawT >= 1) {
           flight.active = false
-          targetCameraRef.current.roll = flight.endCamera.roll
         }
       } else if (!mouseDragRef.current) {
-        // Friction momentum decay on release
+        // Friction momentum decay on drag release
         const vel = velocityRef.current
         if (Math.hypot(vel.vx, vel.vy) > 0.05) {
           targetCameraRef.current.x += vel.vx
           targetCameraRef.current.y += vel.vy
-          vel.vx *= 0.92
-          vel.vy *= 0.92
+          vel.vx *= 0.90
+          vel.vy *= 0.90
         } else {
           vel.vx = 0
           vel.vy = 0
         }
       }
 
-      // Continuous 60/120 FPS Lerp Damping (Section 3.D)
+      // 2. Camera Lerp Damping
       const cur = cameraRef.current
       const tgt = targetCameraRef.current
-      cur.x += (tgt.x - cur.x) * LERP_FACTOR
-      cur.y += (tgt.y - cur.y) * LERP_FACTOR
-      cur.z = (cur.z || 0) + ((tgt.z || 0) - (cur.z || 0)) * LERP_FACTOR
-      cur.scale += (tgt.scale - cur.scale) * LERP_FACTOR
-      cur.pitch += (tgt.pitch - cur.pitch) * LERP_FACTOR
-      cur.yaw += (tgt.yaw - cur.yaw) * LERP_FACTOR
-      cur.roll += (tgt.roll - cur.roll) * LERP_FACTOR
-
-      // Semantic LOD & Closest Family synchronization
-      const newTier = cur.scale < 0.72 ? 'macro' : cur.scale < 1.35 ? 'meso' : 'micro'
-      if (
-        newTier !== currentLodTierRef.current ||
-        Math.abs(cur.scale - lastReportedScaleRef.current) > 0.08 ||
-        (Math.abs(tgt.scale - cur.scale) < 0.001 && Math.abs(cur.scale - lastReportedScaleRef.current) > 0.005)
-      ) {
-        currentLodTierRef.current = newTier
-        lastReportedScaleRef.current = cur.scale
-        setCamera((prev) => (Math.abs(prev.scale - cur.scale) < 0.001 ? prev : { ...prev, scale: cur.scale }))
+      if (mouseDragRef.current) {
+        cur.x = tgt.x
+        cur.y = tgt.y
+      } else {
+        if (Math.abs(tgt.x - cur.x) < 0.05) cur.x = tgt.x
+        else cur.x += (tgt.x - cur.x) * LERP_FACTOR
+        if (Math.abs(tgt.y - cur.y) < 0.05) cur.y = tgt.y
+        else cur.y += (tgt.y - cur.y) * LERP_FACTOR
       }
+      if (Math.abs(tgt.scale - cur.scale) < 0.0005) cur.scale = tgt.scale
+      else cur.scale += (tgt.scale - cur.scale) * LERP_FACTOR
 
-      if (frameCount % 6 === 0) {
-        const vp = viewportSizeRef.current
-        const screenCenterX = vp.w ? vp.w / 2 : 0
-        const screenCenterY = vp.h ? vp.h / 2 : 0
-        const currentScale = cur.scale || 1
-        const worldCenterX = WORLD_WIDTH / 2 + (screenCenterX - WORLD_WIDTH / 2 - cur.x) / currentScale
-        const worldCenterY = WORLD_HEIGHT / 2 + (screenCenterY - WORLD_HEIGHT / 2 - cur.y) / currentScale
-
-        let closestId = 'BLU'
-        let minDistSq = Infinity
-        for (let sIdx = 0; sIdx < CONSTELLATION_DATA.spheres.length; sIdx++) {
-          const sphere = CONSTELLATION_DATA.spheres[sIdx]
-          const dx = sphere.x - worldCenterX
-          const dy = sphere.y - worldCenterY
-          const distSq = dx * dx + dy * dy
-          if (distSq < minDistSq) {
-            minDistSq = distSq
-            closestId = sphere.id
-          }
-        }
-        if (closestId !== closestFamilyRef.current) {
-          closestFamilyRef.current = closestId
-          setActiveClosestFamily(closestId)
-        }
-      }
-
-      // Reactive Micro-Tilt & Background Parallax Lerp (Section 3.C)
-      const pTilt = pointerTiltRef.current
-      const cTilt = currentTiltRef.current
-      cTilt.pitch += (pTilt.pitch - cTilt.pitch) * 0.08
-      cTilt.yaw += (pTilt.yaw - cTilt.yaw) * 0.08
-      cTilt.roll += (pTilt.roll - cTilt.roll) * 0.08
-      cTilt.bgX += (pTilt.bgX - cTilt.bgX) * 0.08
-      cTilt.bgY += (pTilt.bgY - cTilt.bgY) * 0.08
-
-      const totalPitch = cur.pitch + cTilt.pitch
-      const totalYaw = cur.yaw + cTilt.yaw
-      const totalRoll = cur.roll + cTilt.roll
-
+      // 3. Transform Canvas
       if (canvasRef.current) {
-        canvasRef.current.style.transform = `translate3d(${cur.x.toFixed(2)}px, ${cur.y.toFixed(2)}px, ${(cur.z || 0).toFixed(2)}px) rotateX(${totalPitch.toFixed(2)}deg) rotateY(${totalYaw.toFixed(2)}deg) rotateZ(${totalRoll.toFixed(2)}deg) scale(${cur.scale.toFixed(4)})`
+        canvasRef.current.style.transform = `translate3d(${cur.x.toFixed(2)}px, ${cur.y.toFixed(2)}px, 0px) scale(${cur.scale.toFixed(4)})`
       }
 
-      // Parallasse Multilivello a 4 Strati (Z-Layering)
-      // Layer 0: Deep Starfield (0.12x pan/tilt, translateZ(-400px) scale(1.4))
+      // 4. Parallax Layers (deep starfield and nebulae)
       if (starfieldRef.current) {
-        const sX = cTilt.bgX * 0.12 - cur.x * (1 - 0.12)
-        const sY = cTilt.bgY * 0.12 - cur.y * (1 - 0.12)
-        starfieldRef.current.style.transform = `translate3d(${sX.toFixed(2)}px, ${sY.toFixed(2)}px, -400px) scale(1.4)`
+        const sX = -cur.x * 0.06
+        const sY = -cur.y * 0.06
+        starfieldRef.current.style.transform = `translate3d(${sX.toFixed(2)}px, ${sY.toFixed(2)}px, 0px) scale(1.2)`
       }
-
-      // Layer 1: Volumetric Nebulae (0.35x pan/tilt, translateZ(-200px) scale(1.2))
       if (nebulaeRef.current) {
-        const nX = cTilt.bgX * 0.35 - cur.x * (1 - 0.35)
-        const nY = cTilt.bgY * 0.35 - cur.y * (1 - 0.35)
-        nebulaeRef.current.style.transform = `translate3d(${nX.toFixed(2)}px, ${nY.toFixed(2)}px, -200px) scale(1.2)`
+        const nX = -cur.x * 0.14
+        const nY = -cur.y * 0.14
+        nebulaeRef.current.style.transform = `translate3d(${nX.toFixed(2)}px, ${nY.toFixed(2)}px, 0px) scale(1.12)`
       }
 
-      // 1. Reset forces
-      forceX.fill(0)
-      forceY.fill(0)
-
-      // 2. Spring Force towards drifting orbit
-      for (let i = 0; i < numWords; i++) {
-        const theta = baseAngles[i] + driftSpeeds[i] * frameCount
-        const targetX = hubXs[i] + Math.cos(theta) * radii[i]
-        const targetY = hubYs[i] + Math.sin(theta) * (radii[i] * yFlattens[i])
-
-        forceX[i] += -kSpring * (posX[i] - targetX)
-        forceY[i] += -kSpring * (posY[i] - targetY)
-      }
-
-      // 3. Proximity Repulsion (Soft Coulomb Anti-Overlap) within each family
-      const currentScale = cameraRef.current.scale
-      const pad = 12
-
-      for (let g = 0; g < familyWordGroups.length; g++) {
-        const group = familyWordGroups[g]
-        const count = group.length
-        for (let aIdx = 0; aIdx < count; aIdx++) {
-          const i = group[aIdx]
-          const wi = widths[i]
-          const xi = posX[i]
-          const yi = posY[i]
-
-          for (let bIdx = aIdx + 1; bIdx < count; bIdx++) {
-            const j = group[bIdx]
-            const dx = posX[j] - xi
-            const dy = posY[j] - yi
-
-            const minDistance = (wi + widths[j]) * 0.5 + pad
-            if (Math.abs(dx) > minDistance) continue
-            const scaledDy = dy * aspect
-            if (Math.abs(scaledDy) > minDistance) continue
-
-            const dScaled = Math.hypot(dx, scaledDy)
-            if (dScaled < minDistance && dScaled > 0.001) {
-              const rawForce = Math.min(10, repulsionStrength / ((dScaled + 1) * (dScaled + 1)))
-              const nx = dx / dScaled
-              const ny = (scaledDy / dScaled) / aspect
-
-              const fx = nx * rawForce
-              const fy = ny * rawForce
-
-              forceX[i] -= fx
-              forceY[i] -= fy
-              forceX[j] += fx
-              forceY[j] += fy
-            }
-          }
-        }
-      }
-
-      // 4. Mouse / Cursor Interaction: scosta delicatamente le parole attorno al cursore
-      if (mouseWorldRef.current.active) {
-        const mx = mouseWorldRef.current.x
-        const my = mouseWorldRef.current.y
-        const worldInfluence = 50 / currentScale
-        const worldInfluenceSq = worldInfluence * worldInfluence
-        const hoveredId = hoveredWordIdRef.current
-
-        for (let i = 0; i < numWords; i++) {
-          // Do not push the hovered word itself so it remains steady under the cursor
-          if (hoveredId && words[i].id === hoveredId) continue
-
-          const dx = posX[i] - mx
-          const dy = posY[i] - my
-          const distSq = dx * dx + dy * dy
-          if (distSq < worldInfluenceSq && distSq > 0.001) {
-            const dist = Math.sqrt(distSq)
-            const factor = (1 - dist / worldInfluence) * (6.0 / currentScale)
-            forceX[i] += (dx / dist) * factor
-            forceY[i] += (dy / dist) * factor
-          }
-        }
-      }
-
-      // 5. Velocity and Position Integration with Damping
-      for (let i = 0; i < numWords; i++) {
-        velX[i] = (velX[i] + forceX[i]) * damping
-        velY[i] = (velY[i] + forceY[i]) * damping
-
-        posX[i] += velX[i]
-        posY[i] += velY[i]
-
-        words[i].x = posX[i]
-        words[i].y = posY[i]
-        words[i].vx = velX[i]
-        words[i].vy = velY[i]
-
-        const wordEl = wordRefs.current[i]
-        if (wordEl) {
-          wordEl.style.left = `${posX[i]}px`
-          wordEl.style.top = `${posY[i]}px`
-        }
-      }
-
-      // 6. Synchronize SVG edges (both base filament and pulse stream)
-      for (let e = 0; e < numEdges; e++) {
-        const edge = edges[e]
-        if (edge.wordIndex !== undefined) {
-          const wIdx = edge.wordIndex
-          const wx = posX[wIdx]
-          const wy = posY[wIdx]
-          edge.x2 = wx
-          edge.y2 = wy
-
-          const d = computeBézierPath(
-            edge.x1,
-            edge.y1,
-            wx,
-            wy,
-            edge.sphereX,
-            edge.sphereY,
-            edge.sagVariation,
+      // 5. Semantic LOD Tier Update (instant DOM class swap - zero React re-render overhead)
+      const newTier =
+        cur.scale < 0.48 ? 'macro' : cur.scale < 0.85 ? 'meso-wide' : cur.scale < 1.40 ? 'meso' : 'micro'
+      if (newTier !== currentLodTierRef.current) {
+        currentLodTierRef.current = newTier
+        if (atlasRootRef.current) {
+          atlasRootRef.current.dataset.lodTier = newTier
+          atlasRootRef.current.classList.remove(
+            'lessico-atlas--lod-macro',
+            'lessico-atlas--lod-meso-wide',
+            'lessico-atlas--lod-meso',
+            'lessico-atlas--lod-micro',
           )
-          edge.d = d
-
-          const edgeEl = edgeRefs.current[e]
-          if (edgeEl) {
-            if (edgeEl.base) edgeEl.base.setAttribute('d', d)
-            if (edgeEl.pulse) edgeEl.pulse.setAttribute('d', d)
-          }
+          atlasRootRef.current.classList.add(`lessico-atlas--lod-${newTier}`)
         }
+        if (telemetryLodRef.current) {
+          telemetryLodRef.current.textContent = newTier.toUpperCase()
+        }
+      }
+
+      // 6. Direct DOM update for Optics Telemetry (zero React re-render overhead)
+      if (telemetryMagRef.current) {
+        telemetryMagRef.current.textContent = cur.scale.toFixed(2)
+      }
+      if (helmMagRef.current) {
+        helmMagRef.current.textContent = cur.scale.toFixed(2)
+      }
+
+      // 7. Tactical Radar Viewfinder Update (Zero React re-render overhead)
+      if (radarViewfinderRef.current && viewportSizeRef.current.w > 0) {
+        const vpW = viewportSizeRef.current.w
+        const vpH = viewportSizeRef.current.h
+        const scale = cur.scale
+        const wx1 = 1700 - (1700 + cur.x) / scale
+        const wy1 = 1200 - (1200 + cur.y) / scale
+        const worldW = vpW / scale
+        const worldH = vpH / scale
+
+        const rx = clamp(wx1 * (160 / WORLD_WIDTH), 0, 160)
+        const ry = clamp(wy1 * (113 / WORLD_HEIGHT), 0, 113)
+        const rw = clamp(worldW * (160 / WORLD_WIDTH), 12, 160 - rx)
+        const rh = clamp(worldH * (113 / WORLD_HEIGHT), 10, 113 - ry)
+
+        radarViewfinderRef.current.style.left = `${rx.toFixed(1)}px`
+        radarViewfinderRef.current.style.top = `${ry.toFixed(1)}px`
+        radarViewfinderRef.current.style.width = `${rw.toFixed(1)}px`
+        radarViewfinderRef.current.style.height = `${rh.toFixed(1)}px`
+      }
+      if (radarCoordRef.current) {
+        const centerWx = Math.round(1700 - cur.x / cur.scale)
+        const centerWy = Math.round(1200 - cur.y / cur.scale)
+        radarCoordRef.current.textContent = `${centerWx},${centerWy}`
       }
 
       rafId = requestAnimationFrame(tick)
@@ -1898,56 +2226,38 @@ export default function LessicoAtlasView({
     }
   }, [isMobile])
 
+  const handleRadarClick = useCallback(
+    (e) => {
+      e.stopPropagation()
+      const rect = e.currentTarget.getBoundingClientRect()
+      const clickX = clamp(e.clientX - rect.left, 0, 160)
+      const clickY = clamp(e.clientY - rect.top, 0, 113)
+      const targetWorldX = (clickX / 160) * WORLD_WIDTH
+      const targetWorldY = (clickY / 113) * WORLD_HEIGHT
+      flyToWorldCoord(targetWorldX, targetWorldY)
+    },
+    [flyToWorldCoord],
+  )
+
+  const activeFamConfig = FAMILY_CONFIG[activeFamilyId] || FAMILY_CONFIG.malinconica_nostalgica
+  const telemetrySectorName = activeFamConfig.label.toUpperCase()
+  const telemetrySectorCompass = (activeFamConfig.compass || '').split('·')[0].trim().toUpperCase()
+  const telemetryFreq =
+    activeFamilyId === 'entusiasmo' || activeFamilyId === 'collerico_volitiva' ? 528 : 432
+
   return (
     <div
-      className={`lessico-atlas${isMobile ? ' lessico-atlas--mobile' : ''} lessico-atlas--lod-${lodTier}`}
-      data-lod-tier={lodTier}
+      ref={atlasRootRef}
+      className={`lessico-atlas${isMobile ? ' lessico-atlas--mobile' : ''} lessico-atlas--lod-macro${isFullscreen ? ' is-fullscreen' : ''}`}
+      data-lod-tier="macro"
     >
-      {/* ── Top Bar Controls ─────────────────────────────────────────────── */}
-      <div className="lessico-atlas__controls">
-        <AtlasLegend filterFamily={filterFamily} onFilterChange={handleFilterChange} />
-
-        {!isMobile && (
-          <div
-            className="galassia-view__map-controls lessico-atlas__zoom-controls"
-            role="toolbar"
-            aria-label="Zoom e navigazione atlante"
-          >
-            <button
-              type="button"
-              className="galassia-view__map-control"
-              aria-label="Zoom avanti"
-              onClick={(e) => {
-                e.stopPropagation()
-                zoomStep(1)
-              }}
-            >
-              +
-            </button>
-            <button
-              type="button"
-              className="galassia-view__map-control"
-              aria-label="Zoom indietro"
-              onClick={(e) => {
-                e.stopPropagation()
-                zoomStep(-1)
-              }}
-            >
-              −
-            </button>
-            <button
-              type="button"
-              className="galassia-view__map-control galassia-view__map-control--ghost"
-              aria-label="Centra la vista"
-              onClick={(e) => {
-                e.stopPropagation()
-                resetCamera()
-              }}
-            >
-              Centra
-            </button>
-          </div>
-        )}
+      {/* ── Top Bar Controls: Tactical HUD Glassmorphism ─────────────────── */}
+      <div className="lessico-atlas__controls lessico-atlas__controls--tactical">
+        <AtlasLegend
+          filterFamily={filterFamily}
+          onFilterChange={handleFilterChange}
+          viewModel={viewModel}
+        />
 
         {/* Search & Dashboard toggle */}
         <div
@@ -1978,26 +2288,90 @@ export default function LessicoAtlasView({
             </button>
           )}
           {showSearch && (
-            <input
-              ref={searchInputRef}
-              type="search"
-              className="lessico-atlas__search-input"
-              placeholder="Cerca una parola…"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && normalizedSearch) {
-                  const matched = CONSTELLATION_DATA.words.find((w) =>
-                    w.nome.toLowerCase().includes(normalizedSearch),
-                  )
-                  if (matched) {
-                    setSelectedWord(matched)
-                    focusWord(matched)
+            <>
+              <input
+                ref={searchInputRef}
+                type="search"
+                className="lessico-atlas__search-input"
+                placeholder="Cerca una parola…"
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value)
+                  setActiveSuggestionIndex(-1)
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'ArrowDown') {
+                    e.preventDefault()
+                    setActiveSuggestionIndex((prev) =>
+                      Math.min(prev + 1, searchSuggestions.length - 1),
+                    )
+                  } else if (e.key === 'ArrowUp') {
+                    e.preventDefault()
+                    setActiveSuggestionIndex((prev) => Math.max(prev - 1, -1))
+                  } else if (e.key === 'Enter') {
+                    e.preventDefault()
+                    const targetWord =
+                      activeSuggestionIndex >= 0 && searchSuggestions[activeSuggestionIndex]
+                        ? searchSuggestions[activeSuggestionIndex]
+                        : searchSuggestions.length > 0
+                        ? searchSuggestions[0]
+                        : CONSTELLATION_DATA.words.find((w) =>
+                            w.nome.toLowerCase().includes(normalizedSearch),
+                          )
+                    if (targetWord) {
+                      setSearchQuery('')
+                      setShowSearch(false)
+                      handleSelectWord(targetWord)
+                    }
+                  } else if (e.key === 'Escape') {
+                    setShowSearch(false)
+                    setSearchQuery('')
                   }
-                }
-              }}
-              aria-label="Cerca nel lessico emotivo"
-            />
+                }}
+                aria-label="Cerca nel lessico emotivo"
+                aria-autocomplete="list"
+                aria-controls="lessico-autocomplete-list"
+              />
+              {searchSuggestions.length > 0 && (
+                <ul
+                  id="lessico-autocomplete-list"
+                  className="lessico-atlas__autocomplete"
+                  role="listbox"
+                >
+                  {searchSuggestions.map((sug, idx) => {
+                    const isSugSelected = idx === activeSuggestionIndex
+                    const isSugEmerged = emergedWordIds.has(sug.id)
+                    return (
+                      <li key={sug.id} role="option" aria-selected={isSugSelected}>
+                        <button
+                          type="button"
+                          className={`lessico-atlas__autocomplete-item${isSugSelected ? ' is-selected' : ''}`}
+                          style={{ '--item-color': sug.color || sug.familyColor }}
+                          onClick={() => {
+                            setSearchQuery('')
+                            setShowSearch(false)
+                            handleSelectWord(sug)
+                          }}
+                          onMouseEnter={() => setActiveSuggestionIndex(idx)}
+                        >
+                          <span className="lessico-atlas__autocomplete-item-left">
+                            <span
+                              className="lessico-atlas__autocomplete-dot"
+                              style={{ backgroundColor: sug.color || sug.familyColor }}
+                            />
+                            <span className="lessico-atlas__autocomplete-name">{sug.nome}</span>
+                            <span className="lessico-atlas__autocomplete-family">{sug.familyLabel}</span>
+                          </span>
+                          {isSugEmerged && (
+                            <span className="lessico-atlas__autocomplete-tag">Emersa</span>
+                          )}
+                        </button>
+                      </li>
+                    )
+                  })}
+                </ul>
+              )}
+            </>
           )}
           <button
             type="button"
@@ -2023,6 +2397,179 @@ export default function LessicoAtlasView({
           onPointerLeave={handlePointerLeave}
           aria-label="Galassia degli stati d'animo"
         >
+          {/* ── Floating Tactical Flight Helm (GTA VI / Cyber-Astronomy) ──── */}
+          <div
+            className={`lessico-tactical-helm${selectedWord ? ' is-shifted' : ''}`}
+            role="toolbar"
+            aria-label="Tactical Navigation Helm"
+            onPointerDown={(e) => e.stopPropagation()}
+          >
+            <div className="lessico-tactical-helm__head">
+              <span className="lessico-tactical-helm__tag">
+                <span className="lessico-tactical-helm__status-dot" aria-hidden="true" />
+                NAV // ORBIT
+              </span>
+              <span className="lessico-tactical-helm__mag">
+                MAG: <span ref={helmMagRef}>0.50</span>x
+              </span>
+            </div>
+
+            {/* Compass Flight Disc */}
+            <div className="lessico-tactical-helm__compass" role="group" aria-label="Orbital Compass">
+              <button
+                type="button"
+                className="lessico-tactical-helm__btn lessico-tactical-helm__btn--n"
+                title="Pan Nord (▲)"
+                aria-label="Pan Nord"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  panBy(0, 260)
+                }}
+              >
+                ▲
+              </button>
+              <button
+                type="button"
+                className="lessico-tactical-helm__btn lessico-tactical-helm__btn--w"
+                title="Pan Ovest (◄)"
+                aria-label="Pan Ovest"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  panBy(260, 0)
+                }}
+              >
+                ◄
+              </button>
+              <button
+                type="button"
+                className="lessico-tactical-helm__btn lessico-tactical-helm__btn--center"
+                title="Target Lock / Centra Galassia"
+                aria-label="Centra visuale"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  resetCamera()
+                }}
+              >
+                ⊕
+              </button>
+              <button
+                type="button"
+                className="lessico-tactical-helm__btn lessico-tactical-helm__btn--e"
+                title="Pan Est (►)"
+                aria-label="Pan Est"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  panBy(-260, 0)
+                }}
+              >
+                ►
+              </button>
+              <button
+                type="button"
+                className="lessico-tactical-helm__btn lessico-tactical-helm__btn--s"
+                title="Pan Sud (▼)"
+                aria-label="Pan Sud"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  panBy(0, -260)
+                }}
+              >
+                ▼
+              </button>
+            </div>
+
+            {/* Zoom Deck */}
+            <div className="lessico-tactical-helm__zoom-deck">
+              <button
+                type="button"
+                className="lessico-tactical-helm__zoom-btn"
+                title="Zoom indietro (−)"
+                aria-label="Zoom indietro"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  zoomStep(-1)
+                }}
+              >
+                −
+              </button>
+              <span className="lessico-tactical-helm__zoom-label">ZOOM</span>
+              <button
+                type="button"
+                className="lessico-tactical-helm__zoom-btn"
+                title="Zoom avanti (+)"
+                aria-label="Zoom avanti"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  zoomStep(1)
+                }}
+              >
+                +
+              </button>
+            </div>
+
+            {/* Actions Row */}
+            <div className="lessico-tactical-helm__actions">
+              <button
+                type="button"
+                className="lessico-tactical-helm__action-btn"
+                title="Centra la visuale"
+                aria-label="Centra galassia"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  resetCamera()
+                }}
+              >
+                ⌖ Centra
+              </button>
+              <button
+                type="button"
+                className={`lessico-tactical-helm__action-btn${isFullscreen ? ' is-active' : ''}`}
+                title={isFullscreen ? 'Esci da schermo intero (Esc)' : 'Schermo intero (⛶)'}
+                aria-label={isFullscreen ? 'Esci da schermo intero' : 'Schermo intero'}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  toggleFullscreen()
+                }}
+              >
+                {isFullscreen ? '✕ Esci' : '⛶ Full'}
+              </button>
+            </div>
+          </div>
+
+          {/* ── 4-Corner Holographic Telemetry Overlay ─────────────────────── */}
+          <div className="lessico-hud-telemetry" aria-hidden="true">
+            <div className="lessico-telemetry lessico-telemetry--tl">
+              <span className="lessico-telemetry__tag">SYS // COORD</span>
+              <span className="lessico-telemetry__val">RA 18h 42m | DEC +26° 14' | EPOCH 2026.4</span>
+            </div>
+            <div className="lessico-telemetry lessico-telemetry--tr">
+              <span className="lessico-telemetry__tag">SECTOR // ROUTE</span>
+              <span className="lessico-telemetry__val">
+                <span className="lessico-telemetry__breadcrumb">
+                  <span>ROTTA: [{telemetrySectorName} · {telemetrySectorCompass}]</span>
+                  {(selectedWord || hoveredWord) && (
+                    <span className="lessico-telemetry__breadcrumb-node">
+                      {' '}&gt; NODO: {(selectedWord || hoveredWord).nome}
+                    </span>
+                  )}
+                </span>
+                {' '}// FREQ: {telemetryFreq}Hz
+              </span>
+            </div>
+            <div className="lessico-telemetry lessico-telemetry--bl">
+              <span className="lessico-telemetry__tag">OPTICS</span>
+              <span className="lessico-telemetry__val">
+                MAG: <span ref={telemetryMagRef}>0.50</span>x | FOV: 68° | LOD: <span ref={telemetryLodRef}>MACRO</span>
+              </span>
+            </div>
+            <div className="lessico-telemetry lessico-telemetry--br">
+              <span className="lessico-telemetry__tag">TEST TELEMETRY</span>
+              <span className="lessico-telemetry__val">
+                {emergedWordIds.size} PAROLE EMERSE RILEVATE // TRACCE SINCRONIZZATE
+              </span>
+            </div>
+          </div>
+
           <div
             ref={canvasRef}
             className="lessico-atlas__canvas"
@@ -2037,15 +2584,13 @@ export default function LessicoAtlasView({
             <div ref={nebulaeRef} className="lessico-atlas__layer-nebulae" aria-hidden>
               {CONSTELLATION_DATA.spheres.map((sphere) => {
                 const isDimmed = filterFamily && filterFamily !== sphere.id
-                const isBackgroundBlurred =
-                  lodTier === 'micro' && activeFamilyId && sphere.id !== activeFamilyId
                 const isFocused = activeFamilyId === sphere.id
                 return (
                   <div
                     key={`nebula-${sphere.id}`}
                     className={`lessico-atlas__nebula${isDimmed ? ' is-dimmed' : ''}${
-                      isBackgroundBlurred ? ' is-background-blurred' : ''
-                    }${isFocused ? ' is-focused-family' : ''}`}
+                      isFocused ? ' is-focused-family' : ''
+                    }`}
                     style={{
                       left: `${sphere.x}px`,
                       top: `${sphere.y}px`,
@@ -2079,82 +2624,49 @@ export default function LessicoAtlasView({
                       <stop offset="100%" stopColor={fam.baseColor} stopOpacity="0" />
                     </radialGradient>
                   ))}
-
-                  {CONSTELLATION_DATA.edges.map((edge) => (
-                    <React.Fragment key={`edge-defs-${edge.id}`}>
-                      <linearGradient
-                        id={`edge-grad-${edge.id}`}
-                        gradientUnits="userSpaceOnUse"
-                        x1={edge.x1}
-                        y1={edge.y1}
-                        x2={edge.x2}
-                        y2={edge.y2}
-                      >
-                        <stop offset="0%" stopColor={edge.color} stopOpacity="0.9" />
-                        <stop offset="70%" stopColor={edge.targetColor || edge.color} stopOpacity="0.7" />
-                        <stop offset="100%" stopColor={edge.targetColor || edge.color} stopOpacity="0.2" />
-                      </linearGradient>
-                      <linearGradient
-                        id={`edge-pulse-grad-${edge.id}`}
-                        gradientUnits="userSpaceOnUse"
-                        x1={edge.x1}
-                        y1={edge.y1}
-                        x2={edge.x2}
-                        y2={edge.y2}
-                      >
-                        <stop offset="0%" stopColor="#ffffff" stopOpacity="1" />
-                        <stop offset="60%" stopColor={edge.targetColor || edge.color} stopOpacity="0.95" />
-                        <stop offset="100%" stopColor={edge.targetColor || edge.color} stopOpacity="0.25" />
-                      </linearGradient>
-                    </React.Fragment>
-                  ))}
                 </defs>
 
-                {CONSTELLATION_DATA.edges.map((edge, edgeIdx) => {
+                {CONSTELLATION_DATA.edges.map((edge) => {
                   const isFamilyFiltered = filterFamily && filterFamily !== edge.familyId
+                  const isFamilyActive = filterFamily && filterFamily === edge.familyId
                   const isHovered = hoveredWordId && edge.wordId === hoveredWordId
                   const isSelected = selectedWord && edge.wordId === selectedWord.id
+                  const isShockwaveActive = edge.wordId && shockwaveActiveIds.has(edge.wordId)
                   const isEmerged = edge.wordId
                     ? emergedWordIds.has(edge.wordId)
                     : edge.type === 'core-hub' && activeCoreHubIds.has(edge.subcurrentId)
-                  const isBackgroundBlurred =
-                    lodTier === 'micro' && activeFamilyId && edge.familyId !== activeFamilyId
 
                   return (
                     <g
                       key={edge.id}
                       className={`lessico-atlas__edge-group${isHovered || isSelected ? ' is-highlighted' : ''}${
                         isEmerged ? ' is-emerged' : ''
-                      }${isFamilyFiltered ? ' is-dimmed' : ''}${
-                        isBackgroundBlurred ? ' is-background-blurred' : ''
-                      }`}
+                      }${isShockwaveActive ? ' is-shockwave-active' : ''}${
+                        isFamilyFiltered ? ' is-dimmed' : ''
+                      }${isFamilyActive ? ' is-family-active' : ''}`}
                       style={{ '--edge-color': edge.color, '--target-color': edge.targetColor || edge.color }}
                     >
                       {/* 1. Strato Base (Filamento Guida) */}
                       <path
-                        ref={(el) => {
-                          if (!edgeRefs.current[edgeIdx]) edgeRefs.current[edgeIdx] = {}
-                          edgeRefs.current[edgeIdx].base = el
-                        }}
                         d={edge.d}
                         className={`lessico-atlas__edge lessico-atlas__edge--${edge.type}${
                           isHovered || isSelected ? ' is-highlighted' : ''
-                        }${isEmerged ? ' is-emerged' : ''}${isFamilyFiltered ? ' is-dimmed' : ''}`}
-                        stroke={`url(#edge-grad-${edge.id})`}
+                        }${isEmerged ? ' is-emerged' : ''}${
+                          isShockwaveActive ? ' is-shockwave-active' : ''
+                        }${isFamilyFiltered ? ' is-dimmed' : ''}${isFamilyActive ? ' is-family-active' : ''}`}
+                        stroke={edge.color}
                         fill="none"
                       />
 
                       {/* 2. Strato Energetico Superiore (Photon Pulse Stream) */}
                       <path
-                        ref={(el) => {
-                          if (!edgeRefs.current[edgeIdx]) edgeRefs.current[edgeIdx] = {}
-                          edgeRefs.current[edgeIdx].pulse = el
-                        }}
                         d={edge.d}
                         className={`lessico-atlas__edge-pulse lessico-atlas__edge-pulse--${edge.type}${
                           isHovered || isSelected ? ' is-highlighted' : ''
-                        }${isEmerged ? ' is-emerged' : ''}${isFamilyFiltered ? ' is-dimmed' : ''}`}
-                        stroke={`url(#edge-pulse-grad-${edge.id})`}
+                        }${isEmerged ? ' is-emerged' : ''}${
+                          isShockwaveActive ? ' is-shockwave-active' : ''
+                        }${isFamilyFiltered ? ' is-dimmed' : ''}${isFamilyActive ? ' is-family-active' : ''}`}
+                        stroke={edge.targetColor || edge.color}
                         fill="none"
                       />
                     </g>
@@ -2162,20 +2674,18 @@ export default function LessicoAtlasView({
                 })}
               </svg>
 
-              {/* 2. 5 Planetary Celestial Spheres (Sci-Fi Holographic Astrolabes) */}
+              {/* 2. 5 Celestial Star Cores (Clean Harmonic Planetary Nuclei) */}
               {CONSTELLATION_DATA.spheres.map((sphere) => {
                 const isDimmed = filterFamily && filterFamily !== sphere.id
-                const isBackgroundBlurred =
-                  lodTier === 'micro' && activeFamilyId && sphere.id !== activeFamilyId
-                const isFocused = activeFamilyId === sphere.id
+                const isFocused = filterFamily === sphere.id
                 const diam = sphere.radius * 2
 
                 return (
                   <div
                     key={sphere.id}
                     className={`lessico-atlas__sphere${isDimmed ? ' is-dimmed' : ''}${
-                      isBackgroundBlurred ? ' is-background-blurred' : ''
-                    }${isFocused ? ' is-focused-family' : ''}`}
+                      isFocused ? ' is-focused-family' : ''
+                    }`}
                     style={{
                       left: `${sphere.x}px`,
                       top: `${sphere.y}px`,
@@ -2185,39 +2695,12 @@ export default function LessicoAtlasView({
                     }}
                     aria-hidden
                   >
-                    {/* 1. Atmospheric Haze (Volumetric Wide Bloom) */}
-                    <div className="lessico-astrolabe__haze" />
-
-                    {/* 2. Outer Reticle & Ticks (Graduated Ring with Polar Coordinates) */}
-                    <svg className="lessico-astrolabe__reticle" viewBox="0 0 200 200">
-                      <circle cx="100" cy="100" r="96" className="lessico-astrolabe__reticle-ring" />
-                      {/* 8 Graduated Tick marks (0°, 45°, 90°, 135°, 180°, 225°, 270°, 315°) */}
-                      <line x1="100" y1="4" x2="100" y2="12" className="lessico-astrolabe__tick is-major" />
-                      <line x1="168" y1="32" x2="162" y2="38" className="lessico-astrolabe__tick" />
-                      <line x1="196" y1="100" x2="188" y2="100" className="lessico-astrolabe__tick is-major" />
-                      <line x1="168" y1="168" x2="162" y2="162" className="lessico-astrolabe__tick" />
-                      <line x1="100" y1="196" x2="100" y2="188" className="lessico-astrolabe__tick is-major" />
-                      <line x1="32" y1="168" x2="38" y2="162" className="lessico-astrolabe__tick" />
-                      <line x1="4" y1="100" x2="12" y2="100" className="lessico-astrolabe__tick is-major" />
-                      <line x1="32" y1="32" x2="38" y2="38" className="lessico-astrolabe__tick" />
-                      {/* Micro Polar Labels */}
-                      <text x="100" y="22" className="lessico-astrolabe__polar-label">N · 000°</text>
-                      <text x="176" y="103" className="lessico-astrolabe__polar-label">E · 090°</text>
-                      <text x="100" y="184" className="lessico-astrolabe__polar-label">S · 180°</text>
-                      <text x="24" y="103" className="lessico-astrolabe__polar-label">W · 270°</text>
-                    </svg>
-
-                    {/* 3. Orbital Rotor (Segmented Counter-rotating Ring) */}
-                    <div className="lessico-astrolabe__rotor" />
-
-                    {/* 4. 360° Conic Radar Sweep */}
-                    <div className="lessico-astrolabe__radar" />
-
-                    {/* 5. Neon Corona (Intermediate Vibrant Ring) */}
-                    <div className="lessico-astrolabe__corona" />
-
-                    {/* 6. Pulsar Core (Warm-White breathing core) */}
-                    <div className="lessico-astrolabe__core" />
+                    {/* Atmospheric Stellar Halo */}
+                    <div className="lessico-nucleus__halo" />
+                    {/* Orbital Boundary Ring */}
+                    <div className="lessico-nucleus__ring" />
+                    {/* Radiant Core Star */}
+                    <div className="lessico-nucleus__core" />
                   </div>
                 )
               })}
@@ -2225,17 +2708,13 @@ export default function LessicoAtlasView({
               {/* 3. Family Title Badges */}
               {CONSTELLATION_DATA.spheres.map((sphere) => {
                 const isDimmed = filterFamily && filterFamily !== sphere.id
-                const isBackgroundBlurred =
-                  lodTier === 'micro' && activeFamilyId && sphere.id !== activeFamilyId
                 const count = ATLAS_WORDS.filter((w) => w.familyId === sphere.id).length
 
                 return (
                   <button
                     key={`badge-${sphere.id}`}
                     type="button"
-                    className={`lessico-atlas__family-badge${isDimmed ? ' is-dimmed' : ''}${
-                      isBackgroundBlurred ? ' is-background-blurred' : ''
-                    }`}
+                    className={`lessico-atlas__family-badge${isDimmed ? ' is-dimmed' : ''}`}
                     style={{
                       left: `${sphere.x}px`,
                       top: `${sphere.y - sphere.radius - 20}px`,
@@ -2257,15 +2736,11 @@ export default function LessicoAtlasView({
               {/* 4. Subcurrent Constellation Hubs */}
               {CONSTELLATION_DATA.hubs.map((hub) => {
                 const isDimmed = filterFamily && filterFamily !== hub.familyId
-                const isBackgroundBlurred =
-                  lodTier === 'micro' && activeFamilyId && hub.familyId !== activeFamilyId
 
                 return (
                   <div
                     key={hub.id}
-                    className={`lessico-atlas__hub${isDimmed ? ' is-dimmed' : ''}${
-                      isBackgroundBlurred ? ' is-background-blurred' : ''
-                    }`}
+                    className={`lessico-atlas__hub${isDimmed ? ' is-dimmed' : ''}`}
                     style={{
                       left: `${hub.x}px`,
                       top: `${hub.y}px`,
@@ -2285,12 +2760,28 @@ export default function LessicoAtlasView({
               })}
             </div>
 
-            {/* Layer 3: Interactive Word Nodes (Z-Depth 25px - 60px) */}
+            {/* Layer 3: Interactive Word Nodes & Shockwaves (Z-Depth 25px) */}
             <div ref={wordsLayerRef} className="lessico-atlas__layer-words">
-              {CONSTELLATION_DATA.words.map((word, wordIdx) => {
+              {/* Shockwave Ring on Selection */}
+              {shockwave && (
+                <div
+                  key={shockwave.id}
+                  className="lessico-shockwave"
+                  style={{
+                    left: `${shockwave.x}px`,
+                    top: `${shockwave.y}px`,
+                    '--shockwave-color': shockwave.color,
+                  }}
+                  aria-hidden="true"
+                />
+              )}
+
+              {CONSTELLATION_DATA.words.map((word) => {
                 const isSelected = selectedWord?.id === word.id
                 const isHovered = hoveredWordId === word.id
+                const isShockwaveActive = shockwaveActiveIds.has(word.id)
                 const isFamilyFiltered = filterFamily && filterFamily !== word.familyId
+                const isFamilyActive = filterFamily && filterFamily === word.familyId
                 const matchesSearch =
                   Boolean(normalizedSearch) && word.nome.toLowerCase().includes(normalizedSearch)
                 const isSearchFiltered = normalizedSearch && !matchesSearch
@@ -2301,21 +2792,18 @@ export default function LessicoAtlasView({
                   emergedWords.precise.has(`${word.familyId}|${word.subcurrentId}|${normalizedName}`) ||
                   emergedWords.fallback.has(normalizedName)
 
-                const isBackgroundBlurred =
-                  lodTier === 'micro' && activeFamilyId && word.familyId !== activeFamilyId
-
                 return (
                   <button
                     key={word.id}
-                    ref={(el) => {
-                      wordRefs.current[wordIdx] = el
-                    }}
                     type="button"
+                    data-ring={word.ringIndex}
                     className={`lessico-atlas__word${isSelected ? ' is-selected' : ''}${
                       isEmerged ? ' is-emerged' : ''
-                    }${isHovered ? ' is-hovered' : ''}${isDimmed ? ' is-dimmed' : ''}${
-                      isBackgroundBlurred ? ' is-background-blurred' : ''
-                    }${matchesSearch ? ' is-search-matched' : ''}`}
+                    }${isHovered ? ' is-hovered' : ''}${
+                      isShockwaveActive ? ' is-shockwave-active' : ''
+                    }${isDimmed ? ' is-dimmed' : ''}${isFamilyActive ? ' is-family-active' : ''}${
+                      matchesSearch ? ' is-search-matched' : ''
+                    }`}
                     style={{
                       left: `${word.x}px`,
                       top: `${word.y}px`,
@@ -2323,17 +2811,33 @@ export default function LessicoAtlasView({
                       fontWeight: word.fontWeight,
                       '--word-color': word.color,
                     }}
-                    onMouseEnter={() => {
-                      setHoveredWordId(word.id)
+                    onMouseEnter={(e) => {
                       hoveredWordIdRef.current = word.id
+                      const clientX = e.clientX
+                      const clientY = e.clientY
+                      if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current)
+                      hoverTimerRef.current = setTimeout(() => {
+                        setHoveredWordId(word.id)
+                        setHoveredWord(word)
+                        const layer = layerRef.current
+                        if (layer) {
+                          const rect = layer.getBoundingClientRect()
+                          const x = clamp(clientX - rect.left, 130, rect.width - 130)
+                          const y = Math.max(70, clientY - rect.top)
+                          setTooltipPos({ x, y })
+                        }
+                      }, 35)
                     }}
                     onMouseLeave={() => {
-                      setHoveredWordId(null)
                       hoveredWordIdRef.current = null
+                      if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current)
+                      hoverTimerRef.current = setTimeout(() => {
+                        setHoveredWordId(null)
+                        setHoveredWord(null)
+                      }, 35)
                     }}
                     onClick={() => {
-                      setSelectedWord(word)
-                      focusWord(word)
+                      handleSelectWord(word)
                     }}
                     aria-expanded={isSelected || undefined}
                     aria-controls={isSelected ? 'lessico-dictionary-popover' : undefined}
@@ -2344,16 +2848,125 @@ export default function LessicoAtlasView({
                       style={{ backgroundColor: word.color }}
                     />
                     <span className="lessico-atlas__word-label">{word.nome}</span>
-                    {lodTier === 'micro' && (
+                    {(isEmerged || word.ringIndex === 0) && (
                       <span
                         className={`lessico-atlas__word-tag${isEmerged ? ' is-emerged' : ''}`}
                       >
-                        {isEmerged ? 'Emersa' : word.ringIndex === 0 ? 'Cardine' : null}
+                        {isEmerged ? 'Emersa' : 'Cardine'}
                       </span>
                     )}
                   </button>
                 )
               })}
+            </div>
+          </div>
+
+          {/* ── Contextual Glassmorphic Hover Tooltip ─────────────────────── */}
+          {hoveredWord && !selectedWord && (
+            <div
+              className="lessico-atlas__tooltip"
+              style={{
+                left: `${tooltipPos.x}px`,
+                top: `${tooltipPos.y}px`,
+                '--tooltip-color': hoveredWord.color || hoveredWord.familyColor,
+              }}
+              aria-hidden="true"
+            >
+              <div className="lessico-atlas__tooltip-header">
+                <span
+                  className="lessico-atlas__tooltip-dot"
+                  style={{ backgroundColor: hoveredWord.color || hoveredWord.familyColor }}
+                />
+                <strong className="lessico-atlas__tooltip-title">{hoveredWord.nome}</strong>
+                {emergedWordIds.has(hoveredWord.id) ? (
+                  <span className="lessico-atlas__tooltip-tag is-emerged">Emersa</span>
+                ) : hoveredWord.ringIndex === 0 ? (
+                  <span className="lessico-atlas__tooltip-tag">Cardine</span>
+                ) : null}
+              </div>
+              <div className="lessico-atlas__tooltip-meta">
+                <span className="lessico-atlas__tooltip-family">
+                  {hoveredWord.familyLabel.toUpperCase()}
+                  {userPercentages &&
+                  ATLAS_FAMILY_KEY_BY_ID[hoveredWord.familyId] &&
+                  userPercentages[ATLAS_FAMILY_KEY_BY_ID[hoveredWord.familyId]] !== undefined
+                    ? ` · ${userPercentages[ATLAS_FAMILY_KEY_BY_ID[hoveredWord.familyId]]}%`
+                    : ''}
+                </span>
+                {hoveredWord.subcurrentInterval && (
+                  <span className="lessico-atlas__tooltip-interval">
+                    {hoveredWord.subcurrentInterval}
+                  </span>
+                )}
+              </div>
+              {hoveredWord.subcurrentDescription && (
+                <p className="lessico-atlas__tooltip-desc">
+                  {hoveredWord.subcurrentDescription}
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* ── Tactical Radar Mini-Map (Space Navigation Console) ─────────── */}
+          <div
+            className="lessico-radar"
+            role="region"
+            aria-label="Radar Galattico e Mini-mappa"
+            onPointerDown={(e) => e.stopPropagation()}
+          >
+            <div className="lessico-radar__head">
+              <span className="lessico-radar__tag">
+                <span className="lessico-radar__status-dot" aria-hidden="true" />
+                RADAR // MAP
+              </span>
+              <span className="lessico-radar__coord">
+                <span ref={radarCoordRef}>1700,1200</span>
+              </span>
+            </div>
+
+            <div
+              className="lessico-radar__screen"
+              onClick={handleRadarClick}
+              title="Clicca per spostare la telecamera nella galassia"
+            >
+              {/* Animated sweeping line */}
+              <div className="lessico-radar__sweep" />
+
+              {/* Miniature Galaxy SVG */}
+              <svg className="lessico-radar__svg" viewBox="0 0 160 113">
+                {CONSTELLATION_DATA.spheres.map((s) => {
+                  const sx = s.x * (160 / WORLD_WIDTH)
+                  const sy = s.y * (113 / WORLD_HEIGHT)
+                  const isDimmed = filterFamily && filterFamily !== s.id
+                  return (
+                    <g key={`radar-sphere-${s.id}`} opacity={isDimmed ? 0.25 : 0.9}>
+                      <circle
+                        cx={sx}
+                        cy={sy}
+                        r={s.id === filterFamily ? 6.5 : 4.5}
+                        fill={s.color}
+                        stroke="rgba(255,255,255,0.4)"
+                        strokeWidth="0.8"
+                      />
+                      {s.id === filterFamily && (
+                        <circle
+                          cx={sx}
+                          cy={sy}
+                          r={10}
+                          fill="none"
+                          stroke={s.color}
+                          strokeWidth="1"
+                          strokeDasharray="2 2"
+                          opacity="0.8"
+                        />
+                      )}
+                    </g>
+                  )
+                })}
+              </svg>
+
+              {/* Viewfinder rectangle indicating currently framed area */}
+              <div ref={radarViewfinderRef} className="lessico-radar__viewfinder" />
             </div>
           </div>
         </div>
@@ -2391,7 +3004,7 @@ export default function LessicoAtlasView({
                   <AnalisiDashboard
                     viewModel={viewModel}
                     onSelectWord={(w) => {
-                      setSelectedWord(w)
+                      handleSelectWord(w)
                       setExpandedMobileFamily(null)
                     }}
                   />
@@ -2408,7 +3021,7 @@ export default function LessicoAtlasView({
                 setExpandedMobileFamily((prev) => (prev === fam.id ? null : fam.id))
               }
               onSelectWord={(w) => {
-                setSelectedWord(w)
+                handleSelectWord(w)
                 setExpandedMobileFamily(null)
               }}
               searchQuery={searchQuery}
@@ -2417,43 +3030,40 @@ export default function LessicoAtlasView({
         </div>
       )}
 
-      {/* ── Dictionary Panel or Advanced Dashboard ───────────────────────── */}
+      {/* ── Floating Holographic Slate or Advanced Dashboard ────────────── */}
       {selectedWord ? (
-        <DictionaryPanel
+        <FloatingHolographicSlate
           word={selectedWord}
           onClose={closeDictionary}
-          onSelectWord={(w) => {
-            setSelectedWord(w)
-            focusWord(w)
-          }}
+          onSelectWord={handleSelectWord}
           viewModel={viewModel}
         />
       ) : !isMobile && showDashboard && viewModel ? (
-        <aside className="lessico-dict" aria-label="Analisi lessicale avanzata">
-          <div className="lessico-dict__bezel" style={{ '--dict-color': '#3b82f6' }}>
+        <aside className="lessico-holo-slate lessico-holo-slate--dashboard" aria-label="Analisi lessicale avanzata">
+          <div className="lessico-holo-slate__bezel" style={{ '--slate-color': '#3b82f6' }}>
             <header
-              className="lessico-dict__head"
+              className="lessico-holo-slate__head"
               style={{ borderBottomColor: 'rgba(59, 130, 246, 0.2)' }}
             >
-              <p className="lessico-dict__kicker" style={{ color: '#60a5fa' }}>
-                Analisi avanzata
-              </p>
+              <div className="lessico-holo-slate__head-tag">
+                <span className="lessico-holo-slate__status-dot" style={{ backgroundColor: '#3b82f6', boxShadow: '0 0 8px #3b82f6' }} />
+                <span className="lessico-holo-slate__kicker" style={{ color: '#60a5fa' }}>
+                  HOLO-SLATE // ADVANCED TELEMETRY
+                </span>
+              </div>
               <button
                 type="button"
-                className="lessico-dict__close"
+                className="lessico-holo-slate__close"
                 onClick={() => setShowDashboard(false)}
                 aria-label="Nascondi analisi avanzata"
               >
                 ✕
               </button>
             </header>
-            <div className="lessico-dict__body" style={{ padding: '1rem', overflowY: 'auto' }}>
+            <div className="lessico-holo-slate__body" style={{ padding: '1rem', overflowY: 'auto' }}>
               <AnalisiDashboard
                 viewModel={viewModel}
-                onSelectWord={(w) => {
-                  setSelectedWord(w)
-                  focusWord(w)
-                }}
+                onSelectWord={handleSelectWord}
               />
             </div>
           </div>

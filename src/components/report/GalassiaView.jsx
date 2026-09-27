@@ -111,9 +111,10 @@ function clampCamera(camera, width, height) {
   const scale = clamp(camera.scale || 1, CAMERA_MIN_SCALE, CAMERA_MAX_SCALE)
   const safeW = width || 960
   const safeH = height || 640
-  const slack = 180
-  const limitX = Math.max(slack, safeW * (scale - 1) * 0.58 + slack)
-  const limitY = Math.max(slack, safeH * (scale - 1) * 0.58 + slack)
+  const baseSlackX = Math.max(700, safeW * 0.8)
+  const baseSlackY = Math.max(500, safeH * 0.8)
+  const limitX = Math.max(baseSlackX, safeW * Math.abs(scale - 1) * 0.75 + baseSlackX)
+  const limitY = Math.max(baseSlackY, safeH * Math.abs(scale - 1) * 0.75 + baseSlackY)
 
   return {
     x: clamp(camera.x || 0, -limitX, limitX),
@@ -2694,6 +2695,7 @@ export default function GalassiaView({
   const isMobile = useIsMobile()
   const containerRef = useRef(null)
   const mapLayerRef = useRef(null)
+  const mapViewportRef = useRef(null)
   const mapCanvasRef = useRef(null)
   const cameraRef = useRef(CAMERA_RESET)
   const pointersRef = useRef(new Map())
@@ -2701,7 +2703,7 @@ export default function GalassiaView({
   const mouseDragRef = useRef(null)
   const webkitGestureRef = useRef(null)
   const { w, h } = useElementSize(containerRef)
-  const { w: mapW, h: mapH } = useElementSize(mapCanvasRef)
+  const { w: mapW, h: mapH } = useElementSize(mapViewportRef)
 
   const [mapMode, setMapMode] = useState('disposizioni')
   const [selectedId, setSelectedId] = useState(null)
@@ -2898,21 +2900,33 @@ export default function GalassiaView({
     cameraAnimTimerRef.current = setTimeout(() => setCameraAnimating(false), CAMERA_ANIM_MS)
   }, [reducedMotion])
 
-  const applyCamera = useCallback((nextCamera) => {
+  const wheelSyncTimerRef = useRef(null)
+
+  const updateCanvasTransform = useCallback((cam) => {
+    if (mapCanvasRef.current) {
+      mapCanvasRef.current.style.transform = `translate(${cam.x.toFixed(2)}px, ${cam.y.toFixed(2)}px) scale(${cam.scale.toFixed(4)})`
+    }
+  }, [])
+
+  const applyCamera = useCallback((nextCamera, immediateState = false) => {
     const next = typeof nextCamera === 'function' ? nextCamera(cameraRef.current) : nextCamera
     const clamped = clampCamera(next, mapW, mapH)
     cameraRef.current = clamped
-    setCamera(clamped)
-  }, [mapW, mapH])
+    updateCanvasTransform(clamped)
+    if (immediateState) {
+      setCamera(clamped)
+    }
+  }, [mapW, mapH, updateCanvasTransform])
 
-  const resetCamera = () => {
+  const resetCamera = useCallback(() => {
     pointersRef.current.clear()
     pinchGestureRef.current = null
     mouseDragRef.current = null
     webkitGestureRef.current = null
     cameraRef.current = CAMERA_RESET
+    updateCanvasTransform(CAMERA_RESET)
     setCamera(CAMERA_RESET)
-  }
+  }, [updateCanvasTransform])
 
   const focusCameraOnPercentage = useCallback((px, py, targetScale = 2.0) => {
     pointersRef.current.clear()
@@ -2967,7 +2981,7 @@ export default function GalassiaView({
       return nextId
     })
     setActiveSubId(null)
-  }, [mapNodes, focusCameraOnPercentage])
+  }, [mapNodes, focusCameraOnPercentage, resetCamera])
 
   const selectFamilyAndSub = useCallback((familyId, subId) => {
     setSelectedId(familyId)
@@ -3079,6 +3093,10 @@ export default function GalassiaView({
       const intensity = event.deltaMode === 1 ? 0.18 : 0.0055
       const nextScale = cameraRef.current.scale * Math.exp(-event.deltaY * intensity)
       applyCamera((prev) => zoomCameraAt(prev, nextScale, origin, mapW, mapH))
+      if (wheelSyncTimerRef.current) clearTimeout(wheelSyncTimerRef.current)
+      wheelSyncTimerRef.current = setTimeout(() => {
+        setCamera(cameraRef.current)
+      }, 80)
       return
     }
 
@@ -3088,6 +3106,10 @@ export default function GalassiaView({
       x: prev.x - event.deltaX * panFactor,
       y: prev.y - event.deltaY * panFactor,
     }))
+    if (wheelSyncTimerRef.current) clearTimeout(wheelSyncTimerRef.current)
+    wheelSyncTimerRef.current = setTimeout(() => {
+      setCamera(cameraRef.current)
+    }, 80)
   }
 
   const handleMapPointerDown = (event) => {
@@ -3175,6 +3197,8 @@ export default function GalassiaView({
 
     if (pointersRef.current.size >= 2) {
       beginPinchGesture()
+    } else {
+      setCamera(cameraRef.current)
     }
   }
 
@@ -3209,11 +3233,12 @@ export default function GalassiaView({
       const nextScale = gesture.camera.scale * (Number(event.scale) || 1)
       const clamped = zoomCameraAt(gesture.camera, nextScale, gesture.origin, mapW, mapH)
       cameraRef.current = clamped
-      setCamera(clamped)
+      updateCanvasTransform(clamped)
     }
 
     const handleGestureEnd = () => {
       webkitGestureRef.current = null
+      setCamera(cameraRef.current)
     }
 
     layer.addEventListener('gesturestart', handleGestureStart, { passive: false })
@@ -3225,7 +3250,7 @@ export default function GalassiaView({
       layer.removeEventListener('gesturechange', handleGestureChange)
       layer.removeEventListener('gestureend', handleGestureEnd)
     }
-  }, [mapW, mapH])
+  }, [mapW, mapH, updateCanvasTransform])
 
   const zoomCameraByStep = (direction) => {
     const viewport = mapCanvasRef.current || mapLayerRef.current
@@ -3234,10 +3259,43 @@ export default function GalassiaView({
     const origin = { x: 0, y: 0 }
     const factor = direction > 0 ? CAMERA_ZOOM_STEP : 1 / CAMERA_ZOOM_STEP
     beginCameraAnimation()
-    applyCamera((prev) =>
-      zoomCameraAt(prev, prev.scale * factor, origin, rect.width, rect.height),
+    applyCamera(
+      (prev) => zoomCameraAt(prev, prev.scale * factor, origin, rect.width, rect.height),
+      true,
     )
   }
+
+  const panCameraBy = useCallback((dx, dy) => {
+    pointersRef.current.clear()
+    pinchGestureRef.current = null
+    mouseDragRef.current = null
+    beginCameraAnimation()
+    applyCamera(
+      (prev) => ({
+        ...prev,
+        x: prev.x + dx,
+        y: prev.y + dy,
+      }),
+      true,
+    )
+  }, [beginCameraAnimation, applyCamera])
+
+  const [isFullscreen, setIsFullscreen] = useState(false)
+
+  const toggleFullscreen = useCallback(() => {
+    const el = containerRef.current || document.querySelector('.galassia-view') || document.documentElement
+    if (!document.fullscreenElement) {
+      el.requestFullscreen?.().catch(() => {})
+    } else {
+      document.exitFullscreen?.().catch(() => {})
+    }
+  }, [])
+
+  useEffect(() => {
+    const onFsChange = () => setIsFullscreen(Boolean(document.fullscreenElement))
+    document.addEventListener('fullscreenchange', onFsChange)
+    return () => document.removeEventListener('fullscreenchange', onFsChange)
+  }, [])
 
   useEffect(() => {
     const onKey = (event) => {
@@ -3247,6 +3305,27 @@ export default function GalassiaView({
       if (event.key === 'Escape') {
         if (activeSubId) setActiveSubId(null)
         else if (effectiveSelectedId) backToMap()
+        return
+      }
+
+      if (event.key === 'ArrowUp') {
+        event.preventDefault()
+        panCameraBy(0, 160)
+        return
+      }
+      if (event.key === 'ArrowDown') {
+        event.preventDefault()
+        panCameraBy(0, -160)
+        return
+      }
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault()
+        panCameraBy(160, 0)
+        return
+      }
+      if (event.key === 'ArrowRight') {
+        event.preventDefault()
+        panCameraBy(-160, 0)
         return
       }
 
@@ -3285,7 +3364,7 @@ export default function GalassiaView({
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [effectiveSelectedId, activeSubId, mapW, mapH, backToMap])
+  }, [effectiveSelectedId, activeSubId, mapW, mapH, backToMap, panCameraBy, resetCamera])
 
   const planetLayout = useMemo(() => {
     return mapNodes.map((node, index) => {
@@ -3607,46 +3686,6 @@ export default function GalassiaView({
                 {showGuideDeck ? GALASSIA_UI.guideToggleClose : GALASSIA_UI.guideToggleOpen}
               </button>
             ) : null}
-            <div
-              className="galassia-view__map-controls"
-              role="toolbar"
-              aria-label="Navigazione mappa: più e meno per zoomare, Centra per ripristinare la vista"
-            >
-            <button
-              type="button"
-              className="galassia-view__map-control"
-              aria-label="Zoom avanti"
-              onClick={(event) => {
-                event.stopPropagation()
-                zoomCameraByStep(1)
-              }}
-            >
-              +
-            </button>
-            <button
-              type="button"
-              className="galassia-view__map-control"
-              aria-label="Zoom indietro"
-              onClick={(event) => {
-                event.stopPropagation()
-                zoomCameraByStep(-1)
-              }}
-            >
-              −
-            </button>
-            <button
-              type="button"
-              className="galassia-view__map-control galassia-view__map-control--ghost"
-              aria-label={isZoomedView ? GALASSIA_UI.backToMap : GALASSIA_UI.resetCamera}
-              onClick={(event) => {
-                event.stopPropagation()
-                if (isZoomedView || effectiveSelectedId) backToMap()
-                else resetCamera()
-              }}
-            >
-              {isZoomedView || effectiveSelectedId ? GALASSIA_UI.backToMap : GALASSIA_UI.resetCamera}
-            </button>
-            </div>
           </div>
         </header>
 
@@ -3676,6 +3715,141 @@ export default function GalassiaView({
           ))}
         </nav>
       </div>
+
+      {/* Floating Tactical Map Controls (D-Pad, Zoom, Reset, Fullscreen) */}
+      {!isMobile && mapMode !== 'parole' ? (
+        <div
+          className="galassia-view__map-controls galassia-view__map-controls--floating"
+          role="toolbar"
+          aria-label="Navigazione mappa: controlli direzionali, zoom e schermo intero"
+          onPointerDown={(e) => e.stopPropagation()}
+        >
+          {/* Directional D-Pad Pan Cursor */}
+          <div
+            className="lessico-atlas__dpad"
+            role="group"
+            aria-label="Controlli di navigazione direzionale"
+            onPointerDown={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="galassia-view__map-control lessico-atlas__dpad-btn lessico-atlas__dpad-btn--up"
+              aria-label="Sposta verso l'alto"
+              title="Pan verso l'alto (▲)"
+              onClick={(e) => {
+                e.stopPropagation()
+                panCameraBy(0, 160)
+              }}
+            >
+              ▲
+            </button>
+            <div className="lessico-atlas__dpad-row">
+              <button
+                type="button"
+                className="galassia-view__map-control lessico-atlas__dpad-btn lessico-atlas__dpad-btn--left"
+                aria-label="Sposta a sinistra"
+                title="Pan a sinistra (◄)"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  panCameraBy(160, 0)
+                }}
+              >
+                ◄
+              </button>
+              <button
+                type="button"
+                className="galassia-view__map-control lessico-atlas__dpad-btn lessico-atlas__dpad-btn--center"
+                aria-label="Centra visuale"
+                title="Centra mappa (0)"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  if (isZoomedView || effectiveSelectedId) backToMap()
+                  else resetCamera()
+                }}
+              >
+                ⊕
+              </button>
+              <button
+                type="button"
+                className="galassia-view__map-control lessico-atlas__dpad-btn lessico-atlas__dpad-btn--right"
+                aria-label="Sposta a destra"
+                title="Pan a destra (►)"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  panCameraBy(-160, 0)
+                }}
+              >
+                ►
+              </button>
+            </div>
+            <button
+              type="button"
+              className="galassia-view__map-control lessico-atlas__dpad-btn lessico-atlas__dpad-btn--down"
+              aria-label="Sposta verso il basso"
+              title="Pan verso il basso (▼)"
+              onClick={(e) => {
+                e.stopPropagation()
+                panCameraBy(0, -160)
+              }}
+            >
+              ▼
+            </button>
+          </div>
+
+          <div className="lessico-atlas__controls-divider" aria-hidden="true" />
+
+          <button
+            type="button"
+            className="galassia-view__map-control"
+            aria-label="Zoom avanti"
+            title="Zoom avanti (+)"
+            onClick={(event) => {
+              event.stopPropagation()
+              zoomCameraByStep(1)
+            }}
+          >
+            +
+          </button>
+          <button
+            type="button"
+            className="galassia-view__map-control"
+            aria-label="Zoom indietro"
+            title="Zoom indietro (−)"
+            onClick={(event) => {
+              event.stopPropagation()
+              zoomCameraByStep(-1)
+            }}
+          >
+            −
+          </button>
+          <button
+            type="button"
+            className="galassia-view__map-control galassia-view__map-control--ghost"
+            aria-label={isZoomedView ? GALASSIA_UI.backToMap : GALASSIA_UI.resetCamera}
+            title="Reimposta visuale"
+            onClick={(event) => {
+              event.stopPropagation()
+              if (isZoomedView || effectiveSelectedId) backToMap()
+              else resetCamera()
+            }}
+          >
+            {isZoomedView || effectiveSelectedId ? GALASSIA_UI.backToMap : GALASSIA_UI.resetCamera}
+          </button>
+
+          <button
+            type="button"
+            className={`galassia-view__map-control lessico-atlas__fullscreen-btn${isFullscreen ? ' is-active' : ''}`}
+            aria-label={isFullscreen ? 'Esci da schermo intero' : 'Schermo intero'}
+            title={isFullscreen ? 'Esci da schermo intero (Esc)' : 'Schermo intero immersivo'}
+            onClick={(event) => {
+              event.stopPropagation()
+              toggleFullscreen()
+            }}
+          >
+            {isFullscreen ? '✕' : '⛶'}
+          </button>
+        </div>
+      ) : null}
 
       {guideDeckOpen ? (
         <GalassiaOperatorGuide mapMode={mapMode} onDismiss={closeGuidePermanently} />
@@ -3712,8 +3886,9 @@ export default function GalassiaView({
               <span>Tocca un pianeta per leggere il profilo</span>
             </div>
           )}
-          <div ref={mapCanvasRef} className="galassia-view__map-viewport">
+          <div ref={mapViewportRef} className="galassia-view__map-viewport">
             <div
+              ref={mapCanvasRef}
               className={`galassia-view__map-canvas${cameraAnimating ? ' galassia-view__map-canvas--animating' : ''}`}
               style={{
                 transform: `translate(${camera.x}px, ${camera.y}px) scale(${camera.scale})`,
