@@ -533,11 +533,6 @@
   filter: blur(0) !important;
 }
 
-.tst-nebula-card-paragraph.is-pending {
-  opacity: 0;
-  min-height: 1.68em;
-  pointer-events: none;
-}
 
 .tst-nebula-card-footnote {
   font-size: 14px;
@@ -548,40 +543,25 @@
   text-wrap: pretty;
 }
 
-/* Cursore della macchina da scrivere */
-@keyframes tstCursorPulse {
-  0%, 100% { opacity: 0.95; }
-  50% { opacity: 0.12; }
+/* Entrata del testo: tutto il blocco insieme, paragrafi con sfasamento minimo */
+@keyframes tstNebulaTextReveal {
+  from { opacity: 0; transform: translateY(10px); filter: blur(4px); }
+  to   { opacity: var(--reveal-opacity, 1); transform: none; filter: blur(0); }
 }
 
-.tst-typewriter-cursor {
-  display: inline-block;
-  width: 2px;
-  height: 1.15em;
-  vertical-align: -0.15em;
-  margin-left: 2px;
-  border-radius: 1px;
-  box-shadow: 0 0 8px currentColor;
-  animation: tstCursorPulse 0.85s ease-in-out infinite;
+.tst-nebula-reveal {
+  animation: tstNebulaTextReveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation-delay: calc(var(--reveal-index, 0) * 60ms + 120ms);
 }
 
-.tst-typewriter-hint {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.4);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 4px;
-  letter-spacing: 0.04em;
-  user-select: none;
+.tst-nebula-card-paragraph.is-dimmed.tst-nebula-reveal {
+  --reveal-opacity: 0.58;
 }
 
-.tst-typewriter-hint-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--panel-accent, #8b5cf6);
-  box-shadow: 0 0 6px var(--panel-accent, #8b5cf6);
+/* Prima che la sezione entri nello schermo il testo resta nascosto,
+   così l'entrata parte quando il lettore arriva */
+.tst-nebula-reveal-wait {
+  opacity: 0;
 }
 
 /* Parole chiave interattive */
@@ -848,8 +828,7 @@ body.tst-keyword-active .tst-nebula-bg-stars--glow {
   .tst-nebula-hero-word span,
   .tst-nebula-chevron,
   .tst-nebula-bg-stars,
-  .tst-nebula-back-top svg,
-  .tst-typewriter-cursor {
+  .tst-nebula-back-top svg {
     animation: none;
   }
 

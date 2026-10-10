@@ -7,8 +7,6 @@ export default function LandingPanelsShowcase({ panels, onActivePanelChange }) {
   const [activePanelIndex, setActivePanelIndex] = useState(0)
   const [direction, setDirection] = useState(1) // 1 = avanti, -1 = indietro
   const [transitionKey, setTransitionKey] = useState(0)
-  const [revealedChars, setRevealedChars] = useState(0)
-  const [isTypingComplete, setIsTypingComplete] = useState(false)
   const [hoveredPoint, setHoveredPoint] = useState(null)
   const [focusedParagraphIndex, setFocusedParagraphIndex] = useState(0)
   const [isSectionInView, setIsSectionInView] = useState(false)
@@ -16,7 +14,6 @@ export default function LandingPanelsShowcase({ panels, onActivePanelChange }) {
   const containerRef = useRef(null)
   const stageRef = useRef(null)
   const isProgrammaticScrollRef = useRef(false)
-  const animTimerRef = useRef(null)
 
   const activePanel = panels[activePanelIndex] || panels[0]
 
@@ -25,79 +22,8 @@ export default function LandingPanelsShowcase({ panels, onActivePanelChange }) {
     return activePanel.paragraphs.map((text) => ({
       rawText: text,
       tokens: parseParagraphTokens(text, activePanel.num),
-      length: text.length,
     }))
   }, [activePanel])
-
-  // Calcola offset cumulativi per ciascun paragrafo
-  const paragraphOffsets = useMemo(() => {
-    const offsets = []
-    let current = 0
-    parsedParagraphs.forEach((p) => {
-      offsets.push({
-        start: current,
-        end: current + p.length,
-        length: p.length,
-      })
-      current += p.length
-    })
-    return offsets
-  }, [parsedParagraphs])
-
-  const totalChars = useMemo(() => {
-    return parsedParagraphs.reduce((acc, p) => acc + p.length, 0)
-  }, [parsedParagraphs])
-
-  // Gestione Effetto Scrittura (Typewriter Effect)
-  useEffect(() => {
-    if (!isSectionInView) return undefined
-
-    // Controllo per utenti che preferiscono ridotto movimento
-    const prefersReducedMotion =
-      typeof window !== 'undefined' &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
-    if (prefersReducedMotion) {
-      setRevealedChars(totalChars)
-      setIsTypingComplete(true)
-      return undefined
-    }
-
-    setRevealedChars(0)
-    setIsTypingComplete(false)
-
-    let current = 0
-    // Cadenza di scrittura elegante: ~12ms a carattere, a blocchetti di 1-2 char per fluidità a 60fps
-    const intervalMs = 16
-    const step = 2
-
-    const timer = setInterval(() => {
-      current += step
-      if (current >= totalChars) {
-        setRevealedChars(totalChars)
-        setIsTypingComplete(true)
-        clearInterval(timer)
-      } else {
-        setRevealedChars(current)
-      }
-    }, intervalMs)
-
-    animTimerRef.current = timer
-
-    return () => clearInterval(timer)
-  }, [activePanelIndex, isSectionInView, totalChars, transitionKey])
-
-  // Calcola il paragrafo attualmente in digitazione o lettura
-  useEffect(() => {
-    if (!isTypingComplete && totalChars > 0) {
-      const idx = paragraphOffsets.findIndex(
-        (off) => revealedChars >= off.start && revealedChars <= off.end
-      )
-      if (idx !== -1) {
-        setFocusedParagraphIndex(idx)
-      }
-    }
-  }, [revealedChars, isTypingComplete, paragraphOffsets, totalChars])
 
   // Notifica il genitore del pannello attivo per coordinare video o altro
   useEffect(() => {
@@ -148,20 +74,18 @@ export default function LandingPanelsShowcase({ panels, onActivePanelChange }) {
         setTransitionKey((k) => k + 1)
       }
 
-      // Se la digitazione è completa, aggiorna il paragrafo a fuoco in base allo scroll locale
-      if (isTypingComplete) {
-        const localProg = (progress * (panels.length - 1)) % 1
-        const pIdx = Math.min(
-          activePanel.paragraphs.length - 1,
-          Math.max(0, Math.floor(localProg * activePanel.paragraphs.length))
-        )
-        setFocusedParagraphIndex(pIdx)
-      }
+      // Paragrafo a fuoco in base allo scroll locale
+      const localProg = (progress * (panels.length - 1)) % 1
+      const pIdx = Math.min(
+        activePanel.paragraphs.length - 1,
+        Math.max(0, Math.floor(localProg * activePanel.paragraphs.length))
+      )
+      setFocusedParagraphIndex(pIdx)
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [activePanelIndex, panels.length, isTypingComplete, activePanel.paragraphs.length])
+  }, [activePanelIndex, panels.length, activePanel.paragraphs.length])
 
   // Navigazione a click sui numeri/punti laterali
   const goToPanel = useCallback(
@@ -171,6 +95,7 @@ export default function LandingPanelsShowcase({ panels, onActivePanelChange }) {
       setDirection(dir)
       setActivePanelIndex(nextIdx)
       setTransitionKey((k) => k + 1)
+      setFocusedParagraphIndex(0)
 
       const container = containerRef.current
       if (container && typeof window !== 'undefined') {
@@ -187,15 +112,6 @@ export default function LandingPanelsShowcase({ panels, onActivePanelChange }) {
     },
     [activePanelIndex]
   )
-
-  // Salta immediatamente alla fine della digitazione al click sul testo
-  const handleFastForwardTyping = useCallback(() => {
-    if (!isTypingComplete) {
-      if (animTimerRef.current) clearInterval(animTimerRef.current)
-      setRevealedChars(totalChars)
-      setIsTypingComplete(true)
-    }
-  }, [isTypingComplete, totalChars])
 
   // Gestione Hover sulle Parole Chiave
   const handleKeywordEnter = useCallback((e, keywordText) => {
@@ -217,11 +133,10 @@ export default function LandingPanelsShowcase({ panels, onActivePanelChange }) {
     document.body.classList.remove('tst-keyword-active')
   }, [])
 
-  // Calcolo progresso lettura (0 a 1)
-  const readingProgress = useMemo(() => {
-    if (totalChars === 0) return 0
-    return Math.min(1, revealedChars / totalChars)
-  }, [revealedChars, totalChars])
+  // Progresso lettura (0 a 1): segue il paragrafo a fuoco
+  const paragraphCount = activePanel.paragraphs.length
+  const revealClass = isSectionInView ? 'tst-nebula-reveal' : 'tst-nebula-reveal-wait'
+  const readingProgress = paragraphCount > 0 ? (focusedParagraphIndex + 1) / paragraphCount : 0
 
   return (
     <div
@@ -288,16 +203,14 @@ export default function LandingPanelsShowcase({ panels, onActivePanelChange }) {
             accentColor={activePanel.color}
           />
 
-          {/* Area testuale con transizione Fade & Slide e Typewriter */}
+          {/* Area testuale: il testo entra tutto insieme (dissolvenza + leggera salita) */}
           <div
             key={`content-${activePanel.num}-${transitionKey}`}
             className={`tst-nebula-text-card ${
               direction > 0 ? 'is-entering-forward' : 'is-entering-backward'
             }`}
-            onClick={handleFastForwardTyping}
             role="region"
             aria-live="polite"
-            title={!isTypingComplete ? 'Fai clic per visualizzare tutto il testo' : undefined}
           >
             {activePanel.eyebrow && (
               <span
@@ -314,100 +227,30 @@ export default function LandingPanelsShowcase({ panels, onActivePanelChange }) {
 
             <div className="tst-nebula-paragraphs-stack">
               {parsedParagraphs.map((paragraph, pIdx) => {
-                const offset = paragraphOffsets[pIdx]
-                const isStarted = revealedChars > offset.start
-                const isFull = revealedChars >= offset.end
-                const isCurrentlyTyping = isStarted && !isFull
                 const isFocused = pIdx === focusedParagraphIndex
-
-                if (!isStarted && !isTypingComplete) {
-                  return (
-                    <p
-                      key={`p-${pIdx}`}
-                      className="tst-nebula-card-paragraph is-pending"
-                      aria-hidden="true"
-                    >
-                      &nbsp;
-                    </p>
-                  )
-                }
-
-                // Caratteri visibili all'interno di questo specifico paragrafo
-                let charsToRevealInP = Math.max(0, revealedChars - offset.start)
-                let cursorRendered = false
-
                 return (
                   <p
                     key={`p-${pIdx}`}
-                    className={`tst-nebula-card-paragraph ${
+                    className={`tst-nebula-card-paragraph ${revealClass} ${
                       isFocused ? 'is-focused' : 'is-dimmed'
-                    } ${isCurrentlyTyping ? 'is-typing' : ''}`}
+                    }`}
+                    style={{ '--reveal-index': pIdx + 1 }}
                     onMouseEnter={() => setFocusedParagraphIndex(pIdx)}
                   >
-                    {paragraph.tokens.map((token, tIdx) => {
-                      if (charsToRevealInP <= 0 && !isFull) {
-                        return null
-                      }
-
-                      let tokenTextToRender = token.text
-                      let showCursorHere = false
-
-                      if (!isFull) {
-                        if (charsToRevealInP >= token.text.length) {
-                          charsToRevealInP -= token.text.length
-                        } else {
-                          tokenTextToRender = token.text.slice(0, charsToRevealInP)
-                          charsToRevealInP = 0
-                          if (!cursorRendered && !isTypingComplete) {
-                            showCursorHere = true
-                            cursorRendered = true
-                          }
-                        }
-                      }
-
-                      if (token.isKeyword) {
-                        return (
-                          <React.Fragment key={`tok-${tIdx}`}>
-                            <span
-                              className="tst-keyword"
-                              data-keyword={token.keywordKey}
-                              onMouseEnter={(e) => handleKeywordEnter(e, token.text)}
-                              onMouseLeave={handleKeywordLeave}
-                            >
-                              {tokenTextToRender}
-                            </span>
-                            {showCursorHere && (
-                              <span
-                                className="tst-typewriter-cursor"
-                                aria-hidden="true"
-                                style={{ background: activePanel.color }}
-                              />
-                            )}
-                          </React.Fragment>
-                        )
-                      }
-
-                      return (
-                        <React.Fragment key={`tok-${tIdx}`}>
-                          <span>{tokenTextToRender}</span>
-                          {showCursorHere && (
-                            <span
-                              className="tst-typewriter-cursor"
-                              aria-hidden="true"
-                              style={{ background: activePanel.color }}
-                            />
-                          )}
-                        </React.Fragment>
+                    {paragraph.tokens.map((token, tIdx) =>
+                      token.isKeyword ? (
+                        <span
+                          key={`tok-${tIdx}`}
+                          className="tst-keyword"
+                          data-keyword={token.keywordKey}
+                          onMouseEnter={(e) => handleKeywordEnter(e, token.text)}
+                          onMouseLeave={handleKeywordLeave}
+                        >
+                          {token.text}
+                        </span>
+                      ) : (
+                        <span key={`tok-${tIdx}`}>{token.text}</span>
                       )
-                    })}
-
-                    {/* Cursore alla fine del paragrafo se esattamente al termine */}
-                    {isCurrentlyTyping && !cursorRendered && !isTypingComplete && (
-                      <span
-                        className="tst-typewriter-cursor"
-                        aria-hidden="true"
-                        style={{ background: activePanel.color }}
-                      />
                     )}
                   </p>
                 )
@@ -415,14 +258,9 @@ export default function LandingPanelsShowcase({ panels, onActivePanelChange }) {
             </div>
 
             {activePanel.footnote && (
-              <p className="tst-nebula-card-footnote">{activePanel.footnote}</p>
+              <p className={`tst-nebula-card-footnote ${revealClass}`} style={{ '--reveal-index': paragraphCount + 1 }}>{activePanel.footnote}</p>
             )}
 
-            {!isTypingComplete && (
-              <div className="tst-typewriter-hint" aria-hidden="true">
-                <span className="tst-typewriter-hint-dot" /> Clicca per mostrare tutto
-              </div>
-            )}
           </div>
         </div>
       </div>
