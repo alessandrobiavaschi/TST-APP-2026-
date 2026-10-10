@@ -135,7 +135,7 @@ export default function LandingPanelsShowcase({ panels, onActivePanelChange }) {
 
   // Progresso lettura (0 a 1): segue il paragrafo a fuoco
   const paragraphCount = activePanel.paragraphs.length
-  const revealClass = isSectionInView ? 'tst-nebula-reveal' : 'tst-nebula-reveal-wait'
+  const revealClass = isSectionInView ? 'tst-panel-text-in' : 'tst-panel-text-wait'
   const readingProgress = paragraphCount > 0 ? (focusedParagraphIndex + 1) / paragraphCount : 0
 
   return (

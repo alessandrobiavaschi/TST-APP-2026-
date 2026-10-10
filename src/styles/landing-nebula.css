@@ -458,7 +458,6 @@
   display: flex;
   flex-direction: column;
   gap: clamp(14px, 1.8vw, 22px);
-  cursor: pointer;
   user-select: text;
   width: 100%;
 }
@@ -549,18 +548,18 @@
   to   { opacity: var(--reveal-opacity, 1); transform: none; filter: blur(0); }
 }
 
-.tst-nebula-reveal {
+.tst-panel-text-in {
   animation: tstNebulaTextReveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) backwards;
   animation-delay: calc(var(--reveal-index, 0) * 60ms + 120ms);
 }
 
-.tst-nebula-card-paragraph.is-dimmed.tst-nebula-reveal {
+.tst-nebula-card-paragraph.is-dimmed.tst-panel-text-in {
   --reveal-opacity: 0.58;
 }
 
 /* Prima che la sezione entri nello schermo il testo resta nascosto,
    così l'entrata parte quando il lettore arriva */
-.tst-nebula-reveal-wait {
+.tst-panel-text-wait {
   opacity: 0;
 }
 
@@ -835,7 +834,8 @@ body.tst-keyword-active .tst-nebula-bg-stars--glow {
   .tst-nebula-text-card.is-entering-forward,
   .tst-nebula-text-card.is-entering-backward,
   .tst-nebula-giant-number,
-  .tst-nebula-reveal {
+  .tst-nebula-reveal,
+  .tst-panel-text-in {
     animation: none;
     transition: none;
   }
