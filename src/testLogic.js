@@ -46,7 +46,7 @@ function toOpzioni(regole) {
 // DIZIONARIO 1 (le 15 sensazioni) — l'ordine delle chiavi è l'ordine dei bottoni.
 export const DIZIONARIO_1 = toDizionario(REGOLE_RISPOSTE.SENSAZIONI)
 
-// DIZIONARIO 2 (i 14 aggettivi).
+// DIZIONARIO 2 (le 15 terzine di aggettivi).
 export const DIZIONARIO_2 = toDizionario(REGOLE_RISPOSTE.AGGETTIVI)
 
 export const AFFINITA_BASE_OPZIONI = toOpzioni(REGOLE_RISPOSTE.AFFINITA_BASE)

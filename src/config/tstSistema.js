@@ -110,40 +110,46 @@ const N = Object.fromEntries(NATURE.map((n) => [n.id, n.id]))
 const r = (risposta, naturaId, portato, punti = 1) => Object.freeze({ risposta, natura: naturaId, portato, punti })
 
 export const REGOLE_RISPOSTE = {
-  /** Le 15 sensazioni. */
+  /** Le 15 sensazioni. Famiglia e portato dal modello Excel 2025 (natura scelta con le parole del PDF). */
   SENSAZIONI: Object.freeze([
     r('Mi dà gioia', N.giallo_entusiasta_gioiosa_solare, 'simpatia'),
-    r('Mi inquieta', N.rosso_marziale_collerica, 'antipatia'),
-    r('Mi spegne', N.blu_malinconica_lunare_depressiva, 'antipatia'),
+    r('Mi inquieta', N.giallo_entusiasta_sanguigna_operosa, 'antipatia'),
+    r('Mi spegne', N.grigio_razionale_anaffettiva, 'indifferenza'),
     r('Mi stupisce', N.giallo_entusiasta_gioiosa_solare, 'simpatia'),
     r('Mi rilassa', N.verde_flemmatica_calma_fisica, 'simpatia'),
-    r('Mi disturba / mi repelle', N.rosso_marziale_collerica, 'antipatia'),
+    r('Mi disturba / mi repelle', N.verde_flemmatica_calma_fisica, 'antipatia'),
     r('Mi è indifferente', N.grigio_razionale_distaccata, 'indifferenza'),
     r('Mi calma / mi fa sognare', N.verde_flemmatica_calma_contemplativa, 'simpatia'),
     r('Mi accende / mi motiva', N.rosso_marziale_volitiva, 'simpatia'),
     r('Mi irrita / mi infastidisce', N.rosso_marziale_collerica, 'antipatia'),
-    r('Mi annoia / mi stufa', N.grigio_razionale_distaccata, 'antipatia'),
+    r('Mi annoia / mi stufa', N.grigio_razionale_distaccata, 'indifferenza'),
     r('Mi completa / mi incoraggia', N.rosso_marziale_volitiva, 'simpatia'),
     r('Mi fa riflettere / mi porta a ricordare', N.blu_malinconica_nostalgica, 'simpatia'),
     r('Mi arrovella / mi rattrista', N.blu_malinconica_lunare_introspettiva, 'antipatia'),
     r('Mi accompagna / mi consola', N.blu_malinconica_solare, 'simpatia'),
   ]),
 
-  /** I 14 aggettivi (triadi). Parole da verificare sul PDF: vedi DA_DECIDERE. */
+  /**
+   * Le 15 terzine di aggettivi (passi degli intervalli). Famiglia e portato dal
+   * modello Excel 2025; dove l'Excel e il PDF «Parole per TST» divergono vale il PDF
+   * (Sereno - fiducioso - aperto → Solare; Dinamico - curioso - fluido → Sanguigna;
+   * Inquieto - chiuso - pauroso → Lunare Depressiva).
+   */
   AGGETTIVI: Object.freeze([
     r('Saldo - sicuro - volitivo', N.rosso_marziale_volitiva, 'simpatia'),
     r('Sognante - meditativo - ascetico', N.verde_flemmatica_calma_contemplativa, 'simpatia'),
-    r('Angosciato - avvilito - sofferente', N.blu_malinconica_lunare_depressiva, 'antipatia'),
+    r('Inquieto - chiuso - pauroso', N.blu_malinconica_lunare_depressiva, 'antipatia'),
+    r('Angosciato - avvilito - sofferente', N.blu_malinconica_lunare_depressiva, 'indifferenza'),
     r('Sereno - fiducioso - aperto', N.blu_malinconica_solare, 'simpatia'),
     r('Malinconico - triste - pensieroso', N.blu_malinconica_lunare_introspettiva, 'simpatia'),
     r('Rabbioso - diffidente - dubbioso', N.rosso_marziale_collerica, 'antipatia'),
-    r('Ambiguo - incerto - equivoco', N.rosso_marziale_collerica, 'antipatia'),
+    r('Ambiguo - incerto - equivoco', N.rosso_marziale_collerica, 'indifferenza'),
     r('Calmo - prudente - lento', N.verde_flemmatica_calma_fisica, 'simpatia'),
     r('Gioioso - caloroso - festoso', N.giallo_entusiasta_gioiosa_solare, 'simpatia'),
     r('Dinamico - curioso - fluido', N.giallo_entusiasta_sanguigna_operosa, 'simpatia'),
     r('Nostalgico - rimembrante - afflitto', N.blu_malinconica_nostalgica, 'simpatia'),
     r('Desolato - rimpiangente - abbandonato', N.blu_malinconica_nostalgica, 'antipatia'),
-    r('Illuminato - amorevole - passionale', N.giallo_entusiasta_sanguigna_operosa, 'simpatia'),
+    r('Illuminato - amorevole - passionale', N.giallo_entusiasta_sanguigna_operosa, 'simpatia', 0), // «conferma» nel modello Excel: nessun punto
     r('Mi è indifferente', N.grigio_razionale_distaccata, 'indifferenza'),
   ]),
 
