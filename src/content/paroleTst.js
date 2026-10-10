@@ -42,7 +42,7 @@ export const FAMIGLIE_TST = [
           'Ambizione', 'Assertività', 'Autorità', 'Calcolo', 'Caparbietà', 'Certezza', 'Combattività',
           'Decisionismo', 'Dominanza', 'Esuberanza', 'Operosità', 'Fermezza', 'Fierezza', 'Focosità',
           'Franchezza', 'Impazienza', 'Indubitabilità', 'Intraprendenza', 'Irritabilità', 'Orgoglio',
-          'Passione', 'Perseveranza', 'Saggezza', 'Saldezza', 'Schiettezza', 'Sicurezza', 'Sincerità',
+          'Passione', 'Perseveranza', 'Risolutezza', 'Saggezza', 'Saldezza', 'Schiettezza', 'Sicurezza', 'Sincerità',
           'Stabilità', 'Volizione', 'Vulcanicità',
         ],
         paroleChiave: [
@@ -92,7 +92,7 @@ export const FAMIGLIE_TST = [
           { parola: 'Rancoroso', nota: 'collera trattenuta, covata nel tempo, meno esplosiva ma più radicata' },
         ],
         sostantiviSintesi: [
-          'Dubbiosità', 'Incertezza', 'Esitazione', 'Ambiguità', 'Precarietà', 'Rabbiosità', 'Inquietudine',
+          'Dubbiosità', 'Incertezza', 'Esitazione', 'Ambiguità', 'Precarietà', 'Rabbia', 'Inquietudine',
         ],
         poloPositivo: {
           aggettivi: [
