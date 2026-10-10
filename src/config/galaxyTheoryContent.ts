@@ -10,6 +10,10 @@
  */
 
 import { getAggettiviForRawKey } from '../content/paroleTst.js'
+import { getNaturaByCampo } from './tstSistema.js'
+
+/** Intervallo/parametro: si legge sempre dal sistema unico (config/tstSistema.js). */
+const intervalloDi = (rawKey: string): string => getNaturaByCampo(rawKey)?.intervallo || ''
 
 export type GalaxyTheoryCurrent = {
   rawKey: string
@@ -46,7 +50,7 @@ export const GALAXY_THEORY_BY_DISPOSITION: Record<string, GalaxyTheoryFamily> = 
       {
         rawKey: 'BLU_1_Depressiva',
         title: 'Malinconia depressiva',
-        interval: 'Seconda minore e maggiore',
+        interval: intervalloDi('BLU_1_Depressiva'),
         color: 'Blu notte / Blu scuro',
         description: `Forza che agisce nel chiuso dell'interiorità scandagliandone gli aspetti più cupi: paura dell'inconosciuto, sensazione che tutto possa farci male. La depressione è il lato più oscuro della solitudine, può provocare il blocco totale dei movimenti.`,
         states: getAggettiviForRawKey('BLU_1_Depressiva'),
@@ -54,7 +58,7 @@ export const GALAXY_THEORY_BY_DISPOSITION: Record<string, GalaxyTheoryFamily> = 
       {
         rawKey: 'BLU_2_Lunare',
         title: 'Malinconia lunare',
-        interval: 'Terza minore',
+        interval: intervalloDi('BLU_2_Lunare'),
         color: 'Blu medio',
         description: `Opera nel chiuso dell'interiorità con visione riflessa. La paura si trasforma in timore, e nella tristezza di non potersi liberare da quel vivere al chiuso: la luce delle relazioni arriva solo di riflesso, come la luce solare che illumina la Luna — una luce fredda e distaccata.`,
         states: getAggettiviForRawKey('BLU_2_Lunare'),
@@ -62,7 +66,7 @@ export const GALAXY_THEORY_BY_DISPOSITION: Record<string, GalaxyTheoryFamily> = 
       {
         rawKey: 'BLU_3_Nostalgia',
         title: 'Nostalgica (Solare o Lunare)',
-        interval: 'Settima minore e maggiore',
+        interval: intervalloDi('BLU_3_Nostalgia'),
         color: 'Blu reale',
         description: `Nel modello TST questa natura descrive il rapporto con i ricordi e con ciò che si sente perduto o lontano. La forma lunare porta verso il rimpianto; quella solare verso la riconoscenza per ciò che si è vissuto. Non indica tristezza in senso clinico, bensì una memoria affettiva intensa.`,
         states: getAggettiviForRawKey('BLU_3_Nostalgia'),
@@ -70,7 +74,7 @@ export const GALAXY_THEORY_BY_DISPOSITION: Record<string, GalaxyTheoryFamily> = 
       {
         rawKey: 'BLU_4_Solare',
         title: 'Malinconia solare',
-        interval: 'Terza maggiore',
+        interval: intervalloDi('BLU_4_Solare'),
         color: 'Celeste',
         description: `Apre una breccia verso il mondo: dalla riflessione interiore filtra la luce diretta del Sole, l'esperienza dell'esteriorità. Si accende un clima emotivo positivo — speranza, serenità, fiducia nel futuro — senza perdere la profondità dell'interiorità.`,
         states: getAggettiviForRawKey('BLU_4_Solare'),
@@ -87,7 +91,7 @@ export const GALAXY_THEORY_BY_DISPOSITION: Record<string, GalaxyTheoryFamily> = 
       {
         rawKey: 'ROSSO_1_Assertivita',
         title: 'Fermezza volitiva',
-        interval: 'Quarta',
+        interval: intervalloDi('ROSSO_1_Assertivita'),
         color: 'Rosso',
         description: `Forza dell'Io che opera nel presente con volontà e sicurezza: piacere di fare, concretizzare, prendersi responsabilità per sé e per gli altri. Una forza che spinge ad andare oltre l'ostacolo, talvolta cercandolo apposta per superarlo.`,
         states: getAggettiviForRawKey('ROSSO_1_Assertivita'),
@@ -95,7 +99,7 @@ export const GALAXY_THEORY_BY_DISPOSITION: Record<string, GalaxyTheoryFamily> = 
       {
         rawKey: 'ROSSO_2_Dubbio_Collera',
         title: 'Rabbia e collera',
-        interval: 'Quarta eccedente',
+        interval: intervalloDi('ROSSO_2_Dubbio_Collera'),
         color: 'Amaranto',
         description: `La collera è una forza che si accende quando l'azione trova ostacolo: rigidità, ostinazione, insofferenza per chi rallenta o si oppone. Dall'inconciliabilità tra persone, da antipatie covate non manifestate, scaturisce una rabbia trattenuta o un'ira aperta.`,
         states: getAggettiviForRawKey('ROSSO_2_Dubbio_Collera'),
@@ -112,7 +116,7 @@ export const GALAXY_THEORY_BY_DISPOSITION: Record<string, GalaxyTheoryFamily> = 
       {
         rawKey: 'VERDE_1_CalmaContemplativa',
         title: 'Calma contemplativa',
-        interval: 'Quinta',
+        interval: intervalloDi('VERDE_1_CalmaContemplativa'),
         color: 'Verde',
         description: `Qualità raccolta e contemplativa: ammirazione, meditazione, distacco sereno da ciò che agita. Da qui nascono misticismo e visionarietà — uno sguardo che osserva senza bisogno di intervenire.`,
         states: getAggettiviForRawKey('VERDE_1_CalmaContemplativa'),
@@ -120,7 +124,7 @@ export const GALAXY_THEORY_BY_DISPOSITION: Record<string, GalaxyTheoryFamily> = 
       {
         rawKey: 'VERDE_2_CalmaFisica',
         title: 'Calma fisica',
-        interval: 'Quinta eccedente',
+        interval: intervalloDi('VERDE_2_CalmaFisica'),
         color: 'Verde',
         description: `Bonaccia emotiva del corpo e del ritmo: rilassamento, prudenza, ripetitività buona. Da qui nascono pazienza e gentilezza autentica — ma anche, in polarità negativa, pigrizia, ozio fino a indolenza e torpore.`,
         states: getAggettiviForRawKey('VERDE_2_CalmaFisica'),
@@ -137,7 +141,7 @@ export const GALAXY_THEORY_BY_DISPOSITION: Record<string, GalaxyTheoryFamily> = 
       {
         rawKey: 'GIALLO_1_Gioia_Entusiasmo',
         title: 'Gioia e entusiasmo',
-        interval: 'Sesta',
+        interval: intervalloDi('GIALLO_1_Gioia_Entusiasmo'),
         color: 'Giallo',
         description: `Spinta espansiva, vitale, cinetica: piacere di uscire da sé per abbracciare il nuovo. Si attiva con il successo, anche minimo, e sedimenta come continente affettivo dell'Entusiasmo accanto a quello della Flemma.`,
         states: getAggettiviForRawKey('GIALLO_1_Gioia_Entusiasmo'),
@@ -145,7 +149,7 @@ export const GALAXY_THEORY_BY_DISPOSITION: Record<string, GalaxyTheoryFamily> = 
       {
         rawKey: 'GIALLO_2_Volitivo_Passionale',
         title: 'Entusiasmo volitivo passionale',
-        interval: 'Prima',
+        interval: intervalloDi('GIALLO_2_Volitivo_Passionale'),
         color: 'Giallo dorato',
         description: `Componente passionale dell'entusiasmo: calore, adesione totale, investimento emotivo diretto. È il momento in cui l'Io vibra all'unisono con ciò che ama — una persona, una causa, un'idea, una visione che illumina.`,
         states: getAggettiviForRawKey('GIALLO_2_Volitivo_Passionale'),
@@ -157,15 +161,23 @@ export const GALAXY_THEORY_BY_DISPOSITION: Record<string, GalaxyTheoryFamily> = 
     familyLabel: 'Famiglia Razionale - natura Intellettuale-Razionale',
     coreDescription: `Venti gelidi che soffiano da Nord a Sud, l'unica corrente trasversale che getta la sua ombra sulle altre quattro famiglie. Si è sedimentata come temperamento dagli anni Settanta: laicismo intellettuale anaffettivo, tempo della distrazione, uso compulsivo della tecnologia. Distacco e calcolo invece di passione.`,
     selfRelation: `Variabile della Volitività ma senza calore: una "cometa scura" che raggela l'affettivo. Tutto viene osservato senza vero interesse, con un piacere astratto, intellettuale, di tipo numerico-matematico. È però anche la soglia da cui può nascere la saggezza: quando l'intelletto si orienta eticamente, diventa "ecologia dei sentimenti" e senso del Noi.`,
-    musicNotes: `Si associa all'intervallo di Ottava, polo del raffreddamento affettivo. La Musica, in questo periodo di massima anaffettività, lavora silenziosamente alla costruzione di un domani: aiuta a sviluppare sensibilità ed equilibrio, fa maturare le qualità interiori che riemergeranno dopo il deserto.`,
+    musicNotes: `Si associa ai timbri non naturali, che tendono ad essere tradotti come informazioni. La Musica, in questo periodo di massima anaffettività, lavora silenziosamente alla costruzione di un domani: aiuta a sviluppare sensibilità ed equilibrio, fa maturare le qualità interiori che riemergeranno dopo il deserto.`,
     currents: [
       {
         rawKey: 'GRIGIO_1_Anaffettiva',
         title: 'Anaffettiva',
-        interval: 'Ottava',
+        interval: intervalloDi('GRIGIO_1_Anaffettiva'),
         color: 'Grigio',
         description: `L'Io si purifica nella sola dimensione pensante: distacco, calcolo, osservazione senza coinvolgimento. Nel suo polo evolutivo, la stessa lucidità può orientarsi eticamente e diventare saggezza, dedizione, devozione.`,
         states: getAggettiviForRawKey('GRIGIO_1_Anaffettiva'),
+      },
+      {
+        rawKey: 'GRIGIO_2_Distaccata',
+        title: 'Distaccata',
+        interval: intervalloDi('GRIGIO_2_Distaccata'),
+        color: 'Grigio chiaro',
+        description: `La distanza del distaccato si nota come sforzo o come gesto: c'è un movimento di allontanamento e qualcosa da cui allontanarsi. Dove l'anaffettivo non ha affetto da tenere lontano, il distaccato ne ha e lo sposta.`,
+        states: getAggettiviForRawKey('GRIGIO_2_Distaccata'),
       },
     ],
   },

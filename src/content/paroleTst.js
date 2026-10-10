@@ -11,6 +11,13 @@
  * motore di scoring (testLogic.js, CORRENTE_KEYS).
  */
 
+import { getNaturaByCampo } from '../config/tstSistema.js'
+
+/** Intervallo/parametro musicale: si legge sempre dal sistema unico (config/tstSistema.js). */
+function intervalloDi(rawKey) {
+  return getNaturaByCampo(rawKey)?.intervallo || ''
+}
+
 export const PAROLE_TST_FONTE = 'PAROLE PER TST — Franco Mussida, 29 agosto 2026'
 
 export const FAMIGLIE_TST = [
@@ -23,7 +30,7 @@ export const FAMIGLIE_TST = [
       {
         rawKey: 'ROSSO_1_Assertivita',
         nome: 'Natura Volitiva',
-        intervallo: 'Prima',
+        intervallo: intervalloDi('ROSSO_1_Assertivita'),
         aggettivi: [
           'Ambizioso', 'Assertivo', 'Autoritario', 'Battagliero', 'Calcolatore', 'Caparbio', 'Certo',
           'Combattivo', 'Decisionista', 'Dominante', 'Esuberante', 'Fattivo', 'Fermo', 'Fiero', 'Focoso',
@@ -65,7 +72,7 @@ export const FAMIGLIE_TST = [
       {
         rawKey: 'ROSSO_2_Dubbio_Collera',
         nome: 'Natura Collerica',
-        intervallo: 'Quarta e quarta eccedente (negativo) · Ottava (positivo)',
+        intervallo: intervalloDi('ROSSO_2_Dubbio_Collera'),
         // Set di default (polo negativo): usato per chip/vocabolario, coerente con l'uso storico della corrente.
         aggettivi: [
           'Ambiguo', 'Diffidente', 'Dubbioso', 'Elusivo', 'Enigmatico', 'Equivoco', 'Esitante', 'Furioso',
@@ -123,7 +130,7 @@ export const FAMIGLIE_TST = [
       {
         rawKey: 'BLU_1_Depressiva',
         nome: 'Natura Lunare — Depressiva',
-        intervallo: 'Seconda minore',
+        intervallo: intervalloDi('BLU_1_Depressiva'),
         aggettivi: [
           'Angosciato', 'Avvilito', 'Cupo', 'Chiuso', 'Depresso', 'Desolato', 'Fosco', 'Impotente', 'Nero',
           'Negativo', 'Nostalgico', 'Ombroso', 'Pauroso', 'Rimuginante', 'Scombussolato', 'Sconfortato',
@@ -156,7 +163,7 @@ export const FAMIGLIE_TST = [
       {
         rawKey: 'BLU_2_Lunare',
         nome: 'Natura Lunare — Introspettiva',
-        intervallo: 'Terza minore',
+        intervallo: intervalloDi('BLU_2_Lunare'),
         aggettivi: [
           'Amareggiato', 'Ansioso', 'Assorto', 'Deluso', 'Demotivato', 'Disilluso', 'Introverso',
           'Introspettivo', 'Lunatico', 'Malinconico', 'Mesto', 'Ombroso', 'Pensieroso', 'Pessimista',
@@ -189,7 +196,7 @@ export const FAMIGLIE_TST = [
       {
         rawKey: 'BLU_4_Solare',
         nome: 'Natura Solare',
-        intervallo: 'Terza maggiore',
+        intervallo: intervalloDi('BLU_4_Solare'),
         aggettivi: [
           'Accogliente', 'Aperto', 'Armonioso', 'Amorevole', 'Ammirato', 'Benevolo', 'Chiaro', 'Confidente',
           'Confortato', 'Consolato', 'Contento', 'Delicato', 'Disteso', 'Devoto', 'Deferente', 'Fervente',
@@ -224,7 +231,7 @@ export const FAMIGLIE_TST = [
       {
         rawKey: 'BLU_3_Nostalgia',
         nome: 'Natura Nostalgica',
-        intervallo: 'Settima minore e maggiore',
+        intervallo: intervalloDi('BLU_3_Nostalgia'),
         aggettivi: [
           'Abbandonato', 'Afflitto', 'Amareggiato', 'Assente', 'Congedato', 'Deluso', 'Desolato', 'Disperato',
           'Dissolto', 'Distante', 'Esiliato', 'Evocativo', 'Inconsolabile', 'Isolato', 'Mortificato',
@@ -266,7 +273,7 @@ export const FAMIGLIE_TST = [
       {
         rawKey: 'VERDE_1_CalmaContemplativa',
         nome: 'Natura — Calma Contemplativa',
-        intervallo: 'Quinta',
+        intervallo: intervalloDi('VERDE_1_CalmaContemplativa'),
         aggettivi: [
           'Ammirato', 'Ascetico', 'Beato', 'Contemplativo', 'Devoto', 'Estatico', 'Fatalista', 'Meditativo',
           'Olimpico', 'Pacato', 'Meravigliato', 'Mistico', 'Serafico', 'Sognante', 'Trascendente', 'Visionario',
@@ -288,7 +295,7 @@ export const FAMIGLIE_TST = [
       {
         rawKey: 'VERDE_2_CalmaFisica',
         nome: 'Natura — Calma Fisica',
-        intervallo: 'Quinta eccedente',
+        intervallo: intervalloDi('VERDE_2_CalmaFisica'),
         aggettivi: [
           'Apatico', 'Calmo', 'Bonario', 'Indolente', 'Inerte', 'Lento', 'Ozioso', 'Meticoloso', 'Metodico',
           'Pacifico', 'Paziente', 'Pigro', 'Placido', 'Quieto', 'Rilassato', 'Rimandatario', 'Ripetitivo',
@@ -329,7 +336,7 @@ export const FAMIGLIE_TST = [
       {
         rawKey: 'GIALLO_1_Gioia_Entusiasmo',
         nome: 'Natura Gioiosa — Solare',
-        intervallo: 'Sesta',
+        intervallo: intervalloDi('GIALLO_1_Gioia_Entusiasmo'),
         aggettivi: [
           'Allegro', 'Dinamico', 'Brioso', 'Caloroso', 'Effervescente', 'Espansivo', 'Euforico', 'Felice',
           'Frizzante', 'Giocoso', 'Gioioso', 'Socievole', 'Spensierato', 'Trascinante', 'Vivace', 'Ammirato',
@@ -359,7 +366,7 @@ export const FAMIGLIE_TST = [
       {
         rawKey: 'GIALLO_2_Volitivo_Passionale',
         nome: 'Natura Sanguigna — Operosa',
-        intervallo: 'Settima minore',
+        intervallo: intervalloDi('GIALLO_2_Volitivo_Passionale'),
         aggettivi: [
           'Ardente', 'Comunicativo', 'Coraggioso', 'Curioso', 'Entusiasta', 'Esaltato', 'Esuberante', 'Fluido',
           'Impavido', 'Impaziente', 'Innamorato', 'Intraprendente', 'Intrepido', 'Irrefrenabile', 'Infuocato',
@@ -398,7 +405,7 @@ export const FAMIGLIE_TST = [
       {
         rawKey: 'GRIGIO_1_Anaffettiva',
         nome: 'Natura Anaffettiva',
-        intervallo: 'Ottava',
+        intervallo: intervalloDi('GRIGIO_1_Anaffettiva'),
         aggettivi: [
           'Algido', 'Anaffettivo', 'Analitico', 'Autocontrollato', 'Calcolatore', 'Contenuto', 'Disincantato',
           'Distaccato', 'Distante', 'Ermetico', 'Freddo', 'Glaciale', 'Impassibile', 'Impersonale',
@@ -425,6 +432,38 @@ export const FAMIGLIE_TST = [
           entusiasta: ['Spassionato', 'Distratto (dall’emozione)', 'Superficiale', 'Leggero-indifferente', 'Anestetizzato'],
           flemmatica: ['Inerte-emotivamente', 'Neutro', 'Passivo', 'Opaco', 'Sospeso-affettivamente'],
         },
+      },
+      {
+        rawKey: 'GRIGIO_2_Distaccata',
+        nome: 'Natura Distaccata',
+        intervallo: intervalloDi('GRIGIO_2_Distaccata'),
+        aggettivi: [
+          'Analitico', 'Appartato', 'Cauto', 'Cinico', 'Composto', 'Contenuto', 'Controllato', 'Critico',
+          'Disincantato', 'Distaccato', 'Distante', 'Ironico', 'Lucido', 'Obiettivo', 'Osservatore', 'Razionale',
+          'Riflessivo', 'Riservato', 'Scettico', 'Schermato', 'Sobrio', 'Trattenuto', 'Vigile',
+        ],
+        sostantivi: [
+          'Analiticità', 'Autocontrollo', 'Cautela', 'Chiarezza', 'Cinismo', 'Compostezza', 'Contenimento',
+          'Controllo', 'Disincanto', 'Distacco', 'Distanza', 'Intellettualizzazione', 'Ironia', 'Lucidità',
+          'Obiettività', 'Osservazione', 'Pensiero puro', 'Prevedibilità', 'Realismo', 'Riflessione', 'Ritegno',
+          'Riservatezza', 'Ritiro', 'Scetticismo', 'Schermatura', 'Sobrietà', 'Spirito critico', 'Vigilanza',
+        ],
+        paroleChiave: [
+          { parola: 'Lucido' }, { parola: 'Disincantato' }, { parola: 'Osservatore' }, { parola: 'Controllato' },
+          { parola: 'Riservato' },
+        ],
+        sostantiviSintesi: [
+          'Distacco', 'Lucidità', 'Autocontrollo', 'Osservazione', 'Disincanto', 'Riservatezza', 'Ironia',
+          'Prevedibilità', 'Intellettualizzazione', 'Scetticismo',
+        ],
+        associazioni: {
+          marziale: ['Rigoroso', 'Calcolatore', 'Autodisciplinato', 'Lucido (nella decisione)', 'Imperturbabile-vigile'],
+          malinconica: ['Cinico', 'Disincantato-pensoso', 'Scettico', 'Appartato', 'Ironico-amaro'],
+          entusiasta: ['Ironico', 'Sarcastico', 'Frenato (nell’entusiasmo)', 'Contenuto (nella gioia)', 'Sornione'],
+          flemmatica: ['Pacato', 'Paziente', 'Composto', 'Sobrio', 'Tranquillo-vigile'],
+        },
+        segnaleDistintivo:
+          'La distanza del distaccato si nota come sforzo o come gesto: c’è un movimento di allontanamento e qualcosa da cui allontanarsi. Dove l’anaffettivo non ha affetto da tenere lontano, il distaccato ne ha e lo sposta.',
       },
     ],
   },

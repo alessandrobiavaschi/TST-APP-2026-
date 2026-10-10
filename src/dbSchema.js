@@ -94,7 +94,7 @@ export const testSchema = {
   PE_Antipatia: 'number', // 81
   PE_Indifferenza: 'number', // 82
 
-  // Blocco D: 11 Correnti Emotive (83–93)
+  // Blocco D: 12 nature (contatori; nomi e regole in src/config/tstSistema.js)
   BLU_1_Depressiva: 'number', // 83
   BLU_2_Lunare: 'number', // 84
   BLU_3_Nostalgia: 'number', // 85
@@ -106,6 +106,7 @@ export const testSchema = {
   GIALLO_1_Gioia_Entusiasmo: 'number', // 90
   GIALLO_2_Volitivo_Passionale: 'number', // 91
   GRIGIO_1_Anaffettiva: 'number', // 92
+  GRIGIO_2_Distaccata: 'number', // 92b
 
   // Blocco E: Feedback Finale allineato al test ufficiale
   Stato_Animo_Finale: 'string', // 94

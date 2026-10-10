@@ -88,6 +88,8 @@ import {
   THEORETICAL_MAX_SCORE_BY_CORRENTE_KEY,
 } from '../testLogic.js'
 import { RAW_DOC_VISUAL } from '../config/galaxyDocBridge.ts'
+import { FAMIGLIA_BY_COLOR, NATURE } from '../config/tstSistema.js'
+import { normalizzaSuMassimo, percentualeNatura } from './cesteTst.js'
 import {
   buildNaturaNarrative,
   buildRelationBreakdown,
@@ -108,33 +110,16 @@ import { buildReportContentSelection } from './buildReportContentSelection.js'
 
 const PESO_RANK_LABEL = ['dominante', 'secondaria', 'minore', 'marginale', 'marginale']
 
-const SOTTOCORRENTE_META = [
-  { rawKey: 'BLU_1_Depressiva', familyName: 'Blu', familyKey: 'blu' },
-  { rawKey: 'BLU_2_Lunare', familyName: 'Blu', familyKey: 'blu' },
-  { rawKey: 'BLU_3_Nostalgia', familyName: 'Blu', familyKey: 'blu' },
-  { rawKey: 'BLU_4_Solare', familyName: 'Blu', familyKey: 'blu' },
-  { rawKey: 'ROSSO_1_Assertivita', familyName: 'Rosso', familyKey: 'rosso' },
-  { rawKey: 'ROSSO_2_Dubbio_Collera', familyName: 'Rosso', familyKey: 'rosso' },
-  { rawKey: 'VERDE_1_CalmaContemplativa', familyName: 'Verde', familyKey: 'verde' },
-  { rawKey: 'VERDE_2_CalmaFisica', familyName: 'Verde', familyKey: 'verde' },
-  { rawKey: 'GIALLO_1_Gioia_Entusiasmo', familyName: 'Giallo', familyKey: 'giallo' },
-  { rawKey: 'GIALLO_2_Volitivo_Passionale', familyName: 'Giallo', familyKey: 'giallo' },
-  { rawKey: 'GRIGIO_1_Anaffettiva', familyName: 'Grigio', familyKey: 'grigio' },
-]
+/** Nature dal sistema unico (src/config/tstSistema.js): campo Firestore, famiglia, nome PDF. */
+const SOTTOCORRENTE_META = NATURE.map((n) => ({
+  rawKey: n.campoDb,
+  familyName: FAMIGLIA_BY_COLOR[n.colorKey].colore,
+  familyKey: n.colorKey,
+}))
 
-const SOTTOCORRENTE_LABEL_BY_RAW_KEY = {
-  BLU_1_Depressiva: 'Depressiva',
-  BLU_2_Lunare: 'Lunare',
-  BLU_3_Nostalgia: MALINCONICA_NOSTALGICA_LABEL,
-  BLU_4_Solare: 'Solare',
-  ROSSO_1_Assertivita: 'Fermezza volitiva',
-  ROSSO_2_Dubbio_Collera: 'Rabbia / Collera',
-  VERDE_1_CalmaContemplativa: 'Calma contemplativa',
-  VERDE_2_CalmaFisica: 'Calma fisica',
-  GIALLO_1_Gioia_Entusiasmo: 'Gioia / Entusiasmo',
-  GIALLO_2_Volitivo_Passionale: 'Volitivo / Passionale',
-  GRIGIO_1_Anaffettiva: 'Anaffettiva',
-}
+const SOTTOCORRENTE_LABEL_BY_RAW_KEY = Object.fromEntries(
+  NATURE.map((n) => [n.campoDb, n.campoDb === 'BLU_3_Nostalgia' ? MALINCONICA_NOSTALGICA_LABEL : n.nome]),
+)
 
 // Nessun fallback verso una famiglia diversa (es. Verde): una scheda mancante resta
 // mancante (null) e viene segnalata a chi chiama, mai sostituita con una scheda simile.
@@ -250,7 +235,7 @@ function resolveSottodisposizionePrevalente(rawRecord = {}, dominantColorName) {
   let bestKey = ''
   let bestValue = -Infinity
   candidateKeys.forEach((key) => {
-    const value = Number(rawRecord[key]) || 0
+    const value = percentualeNatura(key, rawRecord[key])
     if (value > bestValue) {
       bestValue = value
       bestKey = key
@@ -580,7 +565,7 @@ export function buildReportData({
   // "Grafici dei risultati" (floor a 1 quando il punteggio o il massimo del profilo
   // sono 0). Esposta qui per avere un'unica fonte di verità invece di ricalcolarla
   // nel componente di presentazione.
-  const scala1a7ByKey = normalizeLevels(totals)
+  const scala1a7ByKey = normalizeLevels(normalizzaSuMassimo(totals))
   const domTheme = getFamilyTheme(dominantColorName)
 
   /* ── Le 5 correnti (famiglie): valore assoluto, percentuale (presence) e

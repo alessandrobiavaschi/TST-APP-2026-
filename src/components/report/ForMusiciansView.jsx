@@ -1,6 +1,7 @@
 import React from 'react'
 import SezioneMusica from './SezioneMusica.jsx'
 import ApprofondimentoSezioni from './ApprofondimentoSezioni.jsx'
+import AscoltoEmotivoConsapevole from './AscoltoEmotivoConsapevole.jsx'
 import { MUSICISTI_INTRO, MUSICISTI_SCHEDE } from '../../content/musicaDisposizione.js'
 
 export default function ForMusiciansView({
@@ -50,6 +51,8 @@ export default function ForMusiciansView({
           correnteColore={accentColor}
         />
       </div>
+
+      <AscoltoEmotivoConsapevole accentColor={accentColor} />
 
       {onClose ? (
         <div className="for-musicians-view__footer-nav">

@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { useScroll, useTransform } from 'framer-motion'
 import AuthBox from '../components/AuthBox.jsx'
 import VideoBackground0311 from '../components/VideoBackground0311.jsx'
+import LandingPanelsShowcase from '../components/landing/LandingPanelsShowcase.jsx'
 import { useSkyTheme } from '../SkyThemeContext.jsx'
 import { useAuth } from '../AuthContext.jsx'
 import {
@@ -146,15 +147,14 @@ function LandingPage() {
   const [resetMessage, setResetMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [revealed, setRevealed] = useState({})
-  const [activePanelIndex, setActivePanelIndex] = useState(-1)
   const hasAuthenticatedSession = Boolean(currentUser)
   const accessBoxRef = useRef(null)
   const accessSectionRef = useRef(null)
   const heroRef = useRef(null)
   const methodRef = useRef(null)
-  const starShadow = useMemo(() => buildStarShadow(320, { minOpacity: 0.25, maxOpacity: 0.75 }), [])
+  const starShadow = useMemo(() => buildStarShadow(60, { minOpacity: 0.35, maxOpacity: 0.85 }), [])
   const starGlowShadow = useMemo(
-    () => buildStarShadow(48, { blur: 2, minOpacity: 0.55, maxOpacity: 1 }),
+    () => buildStarShadow(12, { blur: 1, minOpacity: 0.6, maxOpacity: 1 }),
     [],
   )
 
@@ -400,22 +400,6 @@ function LandingPage() {
     return () => observer.disconnect()
   }, [])
 
-  // Pannello attivo per la dot-nav laterale
-  useEffect(() => {
-    if (typeof window === 'undefined') return undefined
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActivePanelIndex(parseInt(entry.target.getAttribute('data-panel-index'), 10))
-          }
-        })
-      },
-      { threshold: 0.5 },
-    )
-    document.querySelectorAll('[data-panel-index]').forEach((el) => observer.observe(el))
-    return () => observer.disconnect()
-  }, [])
 
   return (
     <div className="tst-nebula">
@@ -506,51 +490,7 @@ function LandingPage() {
           </h2>
         </section>
 
-        <div className="tst-nebula-panel-dots" aria-hidden="true">
-          {PANELS_DATA.map((panel, index) => (
-            <div
-              key={panel.num}
-              className={`tst-nebula-panel-dot ${activePanelIndex === index ? 'is-active' : ''}`}
-              style={{ '--dot-color': panel.color }}
-            />
-          ))}
-        </div>
-
-        {PANELS_DATA.map((panel, index) => {
-          const even = index % 2 === 0
-          const revealId = `panel-${index}`
-          return (
-            <section
-              key={panel.num}
-              data-screen-label={`Panel ${panel.num}`}
-              data-panel-index={index}
-              data-reveal-id={revealId}
-              className={`tst-nebula-panel ${even ? 'tst-nebula-panel--even' : 'tst-nebula-panel--odd'}`}
-            >
-              <div className="tst-nebula-panel-number">{panel.num}</div>
-              <div
-                className={`tst-nebula-panel-content ${revealed[revealId] ? 'is-revealed' : ''}`}
-              >
-                {panel.eyebrow && (
-                  <span className="tst-nebula-eyebrow tst-nebula-legible" style={{ color: panel.color }}>
-                    {panel.eyebrow}
-                  </span>
-                )}
-                {panel.title && (
-                  <h3 className="tst-nebula-panel-title tst-nebula-legible">{panel.title}</h3>
-                )}
-                {panel.paragraphs.map((paragraph) => (
-                  <p key={paragraph.slice(0, 24)} className="tst-nebula-panel-paragraph tst-nebula-legible">
-                    {paragraph}
-                  </p>
-                ))}
-                {panel.footnote && (
-                  <p className="tst-nebula-panel-footnote tst-nebula-legible">{panel.footnote}</p>
-                )}
-              </div>
-            </section>
-          )
-        })}
+        <LandingPanelsShowcase panels={PANELS_DATA} />
 
         <section
           data-screen-label="Metodologia"

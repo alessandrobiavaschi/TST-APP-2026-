@@ -303,7 +303,7 @@
 .sintesi-editorial-text {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: var(--space-sm, 16px);
   max-width: 780px;
   margin: 0;
   text-align: left;
@@ -328,45 +328,6 @@
 .sintesi-editorial-highlight {
   color: var(--sc-accent, #4ade80);
   font-weight: 700;
-}
-
-.sintesi-correnti__quality-pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin: 0.6rem 0 0.2rem;
-}
-
-.sintesi-correnti__quality-pill {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.35rem 0.85rem;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.03);
-  color: var(--sc-text);
-  font-family: var(--font-body);
-  font-size: 0.82rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-}
-
-.sintesi-correnti__quality-pill:hover {
-  background: rgba(255, 255, 255, 0.07);
-  border-color: rgba(255, 255, 255, 0.22);
-}
-
-.sintesi-correnti__quality-pill--active {
-  border-color: color-mix(in srgb, var(--sc-accent, #4ade80) 60%, transparent);
-  background: color-mix(in srgb, var(--sc-accent, #4ade80) 16%, rgba(255, 255, 255, 0.035));
-  color: var(--sc-accent, #4ade80);
-  font-weight: 800;
-}
-
-.sintesi-correnti__quality-pill:focus-visible {
-  outline: 2px solid var(--sc-accent, #4ade80);
-  outline-offset: 2px;
 }
 
 .sintesi-family-intro {

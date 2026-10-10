@@ -32,6 +32,9 @@ import {
   downloadCsvSingleRecord,
 } from '../utils/reportRecordUtils.js'
 import { parseMatriceCsv } from '../utils/matriceCsv.js'
+import { CAMPI_PER_COLORE, NATURE, colorKeyDaEtichetta } from '../config/tstSistema.js'
+import { normalizzaRecordTst } from '../utils/testRecordProcessing.js'
+import { percentualeNatura } from '../utils/cesteTst.js'
 import { MALINCONICA_NOSTALGICA_LABEL, formatSubcategoryLabel } from '../utils/reportTaxonomy.js'
 
 export function computeAgeFromBirthDate(dateValue) {
@@ -89,7 +92,9 @@ function downloadCsvFromRecords(records, filename = 'tst_matrice_archivio.csv') 
   URL.revokeObjectURL(url)
 }
 
-function buildResultRecord(docId, data) {
+function buildResultRecord(docId, rawData) {
+  // Riallinea il test salvato alle regole attuali (fonte unica tstSistema.js).
+  const data = normalizzaRecordTst(rawData)
   const age = computeAgeFromBirthDate(data.Data_Nascita)
   const { blu, rosso, verde, giallo, grigio } = computeColorTotals(data)
   return {
@@ -118,37 +123,12 @@ const MATRICE_HEADERS = [
   { key: 'grigio', label: 'Razionale' },
 ]
 
-const SOTTOCORRENTE_KEYS_BY_FAMILY = {
-  blu: ['BLU_1_Depressiva', 'BLU_2_Lunare', 'BLU_3_Nostalgia', 'BLU_4_Solare'],
-  rosso: ['ROSSO_1_Assertivita', 'ROSSO_2_Dubbio_Collera'],
-  verde: ['VERDE_1_CalmaContemplativa', 'VERDE_2_CalmaFisica'],
-  giallo: ['GIALLO_1_Gioia_Entusiasmo', 'GIALLO_2_Volitivo_Passionale'],
-  grigio: ['GRIGIO_1_Anaffettiva'],
-}
+/** Nature per famiglia e nomi: dal sistema unico (src/config/tstSistema.js). */
+const SOTTOCORRENTE_KEYS_BY_FAMILY = CAMPI_PER_COLORE
 
-const SOTTOCORRENTE_LABEL_BY_KEY = {
-  BLU_1_Depressiva: 'Depressiva',
-  BLU_2_Lunare: 'Lunare',
-  BLU_3_Nostalgia: MALINCONICA_NOSTALGICA_LABEL,
-  BLU_4_Solare: 'Solare',
-  ROSSO_1_Assertivita: 'Fermezza volitiva',
-  ROSSO_2_Dubbio_Collera: 'Rabbia / Collera',
-  VERDE_1_CalmaContemplativa: 'Calma contemplativa',
-  VERDE_2_CalmaFisica: 'Calma fisica',
-  GIALLO_1_Gioia_Entusiasmo: 'Gioia / Entusiasmo',
-  GIALLO_2_Volitivo_Passionale: 'Volitivo / Passionale',
-  GRIGIO_1_Anaffettiva: 'Anaffettiva',
-}
-
-const DISPOSIZIONE_TO_FAMILY_KEY = {
-  malinconia: 'blu',
-  'volitivita': 'rosso',
-  'volitività': 'rosso',
-  calma: 'verde',
-  entusiasmo: 'giallo',
-  'anaffettivita': 'grigio',
-  'anaffettività': 'grigio',
-}
+const SOTTOCORRENTE_LABEL_BY_KEY = Object.fromEntries(
+  NATURE.map((n) => [n.campoDb, n.campoDb === 'BLU_3_Nostalgia' ? MALINCONICA_NOSTALGICA_LABEL : n.nome]),
+)
 
 function normalizeSottocorrenteLabel(value) {
   return String(value || '')
@@ -160,15 +140,15 @@ function normalizeSottocorrenteLabel(value) {
 }
 
 function getResolvedSottodisposizione(raw = {}) {
-  const disposizioneKey = normalizeSottocorrenteLabel(raw.Disposizione_Prevalente)
-  const familyKey = DISPOSIZIONE_TO_FAMILY_KEY[disposizioneKey]
+  const familyKey = colorKeyDaEtichetta(raw.Disposizione_Prevalente)
   const candidateKeys = SOTTOCORRENTE_KEYS_BY_FAMILY[familyKey] || []
   if (candidateKeys.length === 0) return formatSubcategoryLabel(raw.Sottodisposizione_Prevalente)
 
   const savedNormalized = normalizeSottocorrenteLabel(raw.Sottodisposizione_Prevalente)
   const savedKeyInFamily = candidateKeys.find((key) => {
     const label = SOTTOCORRENTE_LABEL_BY_KEY[key] || key
-    const aliases = [key, label, ...(key === 'BLU_3_Nostalgia' ? ['Nostalgia', 'Nostalgica'] : [])]
+    const legacy = key.split('_').slice(2).join(' ')
+    const aliases = [key, label, legacy, ...(key === 'BLU_3_Nostalgia' ? ['Nostalgia', 'Nostalgica'] : [])]
     return aliases.some((alias) => normalizeSottocorrenteLabel(alias) === savedNormalized)
   })
   if (savedKeyInFamily) {
@@ -178,7 +158,7 @@ function getResolvedSottodisposizione(raw = {}) {
   let bestKey = ''
   let bestValue = -Infinity
   candidateKeys.forEach((key) => {
-    const value = Number(raw[key]) || 0
+    const value = percentualeNatura(key, raw[key])
     if (value > bestValue) {
       bestValue = value
       bestKey = key
@@ -255,7 +235,7 @@ function getDispColor(val) {
   if (v.includes('malinconic')) return '#60a5fa'
   if (v.includes('volitiv') || v.includes('marzial')) return '#f87171'
   if (v.includes('calma') || v.includes('flemmatic')) return '#4ade80'
-  if (v.includes('entusiasm')) return '#fde047'
+  if (v.includes('entusias')) return '#fde047'
   if (v.includes('anaffettiv') || v.includes('razional')) return '#9ca3af'
   return '#94a3b8'
 }

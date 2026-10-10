@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import reportContent from '../content_report.json'
 import {
@@ -6,13 +6,14 @@ import {
   normalizeLevels,
   downloadCsvSingleRecord,
   getDominantColorInfo,
-  computeRapportiTotalsFromRaw,
+  computeSezioniTotalsFromRaw,
 } from '../utils/reportRecordUtils.js'
 import FinalFlowerTransition from '../components/report/FinalFlowerTransition'
 import ReportShell from '../components/report/ReportShell.jsx'
 import { buildReportData } from '../utils/buildReportData.js'
 import { getMergedReportBlock } from '../reportContentMerged.js'
 import { createEmptyTestRecord } from '../dbSchema.js'
+import { normalizzaRecordTst } from '../utils/testRecordProcessing.js'
 import '../styles/report-tst.css'
 
 // Record di esempio per /report-preview: stessa pipeline di calcolo dei report
@@ -40,9 +41,10 @@ const SAMPLE_PREVIEW_RECORD = {
     VERDE_2_CalmaFisica: 2,
     GIALLO_1_Gioia_Entusiasmo: 4,
     GIALLO_2_Volitivo_Passionale: 3,
-    GRIGIO_1_Anaffettiva: 3,
+    GRIGIO_1_Anaffettiva: 1,
+    GRIGIO_2_Distaccata: 2,
     Disposizione_Prevalente: 'Marziale',
-    Sottodisposizione_Prevalente: 'Assertivita',
+    Sottodisposizione_Prevalente: 'Volitiva',
     Portato_Esperienziale_Prevalente: 'Simpatia',
   },
 }
@@ -51,7 +53,15 @@ function ReportPage() {
   const location = useLocation()
   const navigate = useNavigate()
   const isPreviewRoute = location.pathname === '/report-preview'
-  const record = location.state?.record || (isPreviewRoute ? SAMPLE_PREVIEW_RECORD : undefined)
+  const incomingRecord = location.state?.record || (isPreviewRoute ? SAMPLE_PREVIEW_RECORD : undefined)
+  // Riallinea il test alle regole attuali (fonte unica tstSistema.js) prima di ogni calcolo.
+  const record = useMemo(
+    () =>
+      incomingRecord && incomingRecord.raw && typeof incomingRecord.raw === 'object'
+        ? { ...incomingRecord, raw: normalizzaRecordTst(incomingRecord.raw) }
+        : incomingRecord,
+    [incomingRecord],
+  )
   const fromSubmit = Boolean(location.state?.fromSubmit)
   const skipReportTransition = Boolean(location.state?.skipReportTransition)
   const playSubmitTransition = fromSubmit && !skipReportTransition
@@ -120,15 +130,17 @@ function ReportPage() {
   let rapportiLevels
   let rapportiTotals
   try {
-    rapportiTotals = computeRapportiTotalsFromRaw(record.raw || {})
+    const sezioni = computeSezioniTotalsFromRaw(record.raw || {})
+    rapportiTotals = sezioni.rapporti
+    // Livelli 1–7 sui punteggi normalizzati al massimo teorico di ogni rapporto.
     rapportiLevels = {
-      natura: normalizeLevels(rapportiTotals.natura),
-      se: normalizeLevels(rapportiTotals.se),
-      altro: normalizeLevels(rapportiTotals.altro),
-      agire: normalizeLevels(rapportiTotals.agire),
+      natura: normalizeLevels(sezioni.rapportiPunteggi.natura),
+      se: normalizeLevels(sezioni.rapportiPunteggi.se),
+      altro: normalizeLevels(sezioni.rapportiPunteggi.altro),
+      agire: normalizeLevels(sezioni.rapportiPunteggi.agire),
     }
   } catch (err) {
-    console.warn('computeRapportiTotalsFromRaw failed, radar rapporti a 0', err)
+    console.warn('computeSezioniTotalsFromRaw failed, radar rapporti a 0', err)
     rapportiLevels = {
       natura: normalizeLevels({ blu: 0, rosso: 0, verde: 0, giallo: 0, grigio: 0 }),
       se: normalizeLevels({ blu: 0, rosso: 0, verde: 0, giallo: 0, grigio: 0 }),

@@ -381,7 +381,13 @@ export default function QuattroRapporti({
                   : 'Radar dei rapporti'
               }
             >
-              <ResponsiveContainer width="100%" height="100%" debounce={100}>
+              <ResponsiveContainer
+                width="100%"
+                height="100%"
+                minWidth={0}
+                initialDimension={{ width: 320, height: 380 }}
+                debounce={100}
+              >
                 <RadarChart data={radarData} outerRadius="64%">
                   <PolarGrid stroke="#334155" strokeOpacity={0.5} />
                   <PolarAngleAxis

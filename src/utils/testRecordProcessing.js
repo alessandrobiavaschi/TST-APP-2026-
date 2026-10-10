@@ -1,34 +1,18 @@
-import { computeColorTotals } from './reportRecordUtils.js'
+import { computeColorScores, hasRawAnswers } from './reportRecordUtils.js'
+import { CAMPI_PER_COLORE, FAMIGLIE, NATURE } from '../config/tstSistema.js'
+import { calcolaCeste, percentualeNatura } from './cesteTst.js'
 
-export const DISPOSITION_LABEL_BY_COLOR = Object.freeze({
-  blu: 'Malinconia',
-  rosso: 'Volitività',
-  giallo: 'Entusiasmo',
-  verde: 'Calma',
-  grigio: 'Anaffettività',
-})
+/** Etichetta salvata in Disposizione_Prevalente: nome della famiglia dal PDF. */
+export const DISPOSITION_LABEL_BY_COLOR = Object.freeze(
+  Object.fromEntries(FAMIGLIE.map((f) => [f.colorKey, f.nome])),
+)
 
-const CURRENT_KEYS_BY_COLOR = Object.freeze({
-  blu: ['BLU_1_Depressiva', 'BLU_2_Lunare', 'BLU_3_Nostalgia', 'BLU_4_Solare'],
-  rosso: ['ROSSO_1_Assertivita', 'ROSSO_2_Dubbio_Collera'],
-  verde: ['VERDE_1_CalmaContemplativa', 'VERDE_2_CalmaFisica'],
-  giallo: ['GIALLO_1_Gioia_Entusiasmo', 'GIALLO_2_Volitivo_Passionale'],
-  grigio: ['GRIGIO_1_Anaffettiva'],
-})
+const CURRENT_KEYS_BY_COLOR = CAMPI_PER_COLORE
 
-const SUBDISPOSITION_LABEL_BY_KEY = Object.freeze({
-  BLU_1_Depressiva: 'Depressiva',
-  BLU_2_Lunare: 'Lunare',
-  BLU_3_Nostalgia: 'Nostalgica',
-  BLU_4_Solare: 'Solare',
-  ROSSO_1_Assertivita: 'Fermezza volitiva',
-  ROSSO_2_Dubbio_Collera: 'Rabbia / Collera',
-  VERDE_1_CalmaContemplativa: 'Calma contemplativa',
-  VERDE_2_CalmaFisica: 'Calma fisica',
-  GIALLO_1_Gioia_Entusiasmo: 'Gioia / Entusiasmo',
-  GIALLO_2_Volitivo_Passionale: 'Volitivo / Passionale',
-  GRIGIO_1_Anaffettiva: 'Anaffettiva',
-})
+/** Etichetta salvata in Sottodisposizione_Prevalente: nome della natura dal PDF. */
+const SUBDISPOSITION_LABEL_BY_KEY = Object.freeze(
+  Object.fromEntries(NATURE.map((n) => [n.campoDb, n.nome])),
+)
 
 /**
  * Politica metodologica per le parità. I campi storici accettano un solo
@@ -49,18 +33,20 @@ export function findPositiveMaximum(entries) {
   return bestKey
 }
 
+/** Famiglia prevalente: punteggi normalizzati sul massimo teorico di ogni famiglia. */
 export function getDominantDispositionKey(record = {}) {
-  return findPositiveMaximum(Object.entries(computeColorTotals(record)))
+  return findPositiveMaximum(Object.entries(computeColorScores(record)))
 }
 
 export function getDominantDisposition(record = {}) {
   return DISPOSITION_LABEL_BY_COLOR[getDominantDispositionKey(record)] || ''
 }
 
+/** Natura prevalente dentro la famiglia prevalente, normalizzata sul massimo teorico della natura. */
 export function getDominantSubdisposition(record = {}) {
   const colorKey = getDominantDispositionKey(record)
   const currentKey = findPositiveMaximum(
-    (CURRENT_KEYS_BY_COLOR[colorKey] || []).map((key) => [key, record[key]]),
+    (CURRENT_KEYS_BY_COLOR[colorKey] || []).map((key) => [key, percentualeNatura(key, record[key])]),
   )
   return SUBDISPOSITION_LABEL_BY_KEY[currentKey] || ''
 }
@@ -90,3 +76,17 @@ export function compactTestRecord(record = {}) {
     Object.entries(record).filter(([, value]) => value !== undefined && value !== null),
   )
 }
+
+/**
+ * Riallinea un record salvato alle regole attuali (fonte unica tstSistema.js):
+ * se ci sono le risposte grezze, ricalcola contatori delle nature, portato e
+ * campi prevalenti dalle ceste. I test senza risposte grezze restano com'erano.
+ * Aggiunge `_ceste` (tabella natura × portato) per report e Galassia.
+ */
+export function normalizzaRecordTst(record = {}) {
+  if (!record || !hasRawAnswers(record)) return record
+  const { ceste, campiNature, campiPortato } = calcolaCeste(record)
+  const ricalcolato = { ...record, ...campiNature, ...campiPortato }
+  return { ...ricalcolato, ...computeTestResultFields(ricalcolato), _ceste: ceste }
+}
+

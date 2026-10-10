@@ -63,7 +63,7 @@ export const DISPOSITIONS = [
     polarity: 'trasversale',
     directionVector: { x: -0.55, y: -0.35, z: 0.7 },
     reportAnchorId: 'report-lessico',
-    rawKeys: ['GRIGIO_1_Anaffettiva'],
+    rawKeys: ['GRIGIO_1_Anaffettiva', 'GRIGIO_2_Distaccata'],
     narrativeShort:
       'Questa corrente introduce distanza osservativa e calcolo. Se ben orientata favorisce lucidità e discernimento; se estrema può raffreddare i legami e ridurre il coinvolgimento affettivo.',
     strengths: ['capacità analitica', 'distacco regolativo', 'chiarezza decisionale'],

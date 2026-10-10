@@ -90,11 +90,21 @@ function waitForAuthUserViaObserver(maxWaitMs = 8000) {
   })
 }
 
+function isLocalNetworkHostname(hostname) {
+  if (!hostname) return false
+  if (hostname === '127.0.0.1' || hostname === '::1') return true
+  if (/^192\.168\.\d{1,3}\.\d{1,3}$/.test(hostname)) return true
+  if (/^10\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostname)) return true
+  if (/^172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3}$/.test(hostname)) return true
+  return false
+}
+
 function getCanonicalLocalGoogleAuthUrl() {
   if (typeof window === 'undefined') return ''
   try {
     const url = new URL(window.location.href)
-    if (url.hostname !== '127.0.0.1' && url.hostname !== '::1') return ''
+    if (url.hostname === 'localhost') return ''
+    if (!isLocalNetworkHostname(url.hostname)) return ''
     url.hostname = 'localhost'
     if (url.pathname === '/') {
       url.searchParams.set('accesso', '1')

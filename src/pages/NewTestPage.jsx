@@ -9,6 +9,7 @@ import {
   AFFINITA_ECCEZIONE_OPZIONI,
   AFFINITA_STANDARD_OPZIONI,
   getQuestionGroupForFile,
+  getAudioFileForStep,
   computeScoreDeltaForAnswer,
 } from '../testLogic.js'
 import { db } from '../firebaseConfig.js'
@@ -242,9 +243,9 @@ function NewTestPage() {
 
   // Sample da /audio in locale, oppure da VITE_AUDIO_BASE_URL (streaming, senza MP3 nel deploy).
   const audioSrc = buildTestAudioUrl(currentFile)
-  // Ai passi di riconferma (41/42) non esiste un file audio proprio: si riascolta il file di riferimento (29/40).
-  const reconfirmReferenceFile =
-    getQuestionGroupForFile(currentFile) === 'C_BIS' ? (currentFile === 41 ? 29 : 40) : null
+  // Ai passi di riconferma si riascolta il file di riferimento (vedi PASSI in config/tstSistema.js).
+  const stepAudioFile = getAudioFileForStep(currentFile)
+  const reconfirmReferenceFile = stepAudioFile !== currentFile ? stepAudioFile : null
   const playerAudioSrc = reconfirmReferenceFile ? buildTestAudioUrl(reconfirmReferenceFile) : audioSrc
   const audioSourceIssue = getAudioSourceIssue(playerAudioSrc)
   const currentFileKey = `File_${String(currentFile).padStart(2, '0')}`
@@ -635,6 +636,7 @@ function NewTestPage() {
           GIALLO_1_Gioia_Entusiasmo: next.GIALLO_1_Gioia_Entusiasmo,
           GIALLO_2_Volitivo_Passionale: next.GIALLO_2_Volitivo_Passionale,
           GRIGIO_1_Anaffettiva: next.GRIGIO_1_Anaffettiva,
+          GRIGIO_2_Distaccata: next.GRIGIO_2_Distaccata,
         },
       })
 

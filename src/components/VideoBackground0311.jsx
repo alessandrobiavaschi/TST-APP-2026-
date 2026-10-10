@@ -27,7 +27,9 @@ function VideoBackground0311({ className = '', showOverlay = false, style }) {
       el.loop = true
       /* 1.0: playback < 1 su H.264 espone macroblocchi / banding su zone scure */
       el.playbackRate = 1
-      el.play().catch(() => {})
+      if (el.paused) {
+        el.play().catch(() => {})
+      }
       /* Video da cache: 'loadeddata'/'canplay' possono scattare prima che React
          attacchi i listener, lasciando isReady bloccato a false (video opaco 0
          per sempre pur essendo già pronto). Controllo diretto come backstop. */
