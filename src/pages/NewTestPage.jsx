@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { createEmptyTestRecord } from '../dbSchema.js'
+import { VERSIONE_MODELLO } from '../config/tstSistema.js'
 import {
   DIZIONARIO_1,
   DIZIONARIO_2,
@@ -888,6 +889,7 @@ function NewTestPage() {
       ...autoFields,
       Stato_Consegna: shouldSaveAsDraft ? 'BOZZA' : 'CONSEGNATO',
       Bozza_Test: shouldSaveAsDraft,
+      versione_modello: VERSIONE_MODELLO,
     })
 
     setIsSubmitting(true)

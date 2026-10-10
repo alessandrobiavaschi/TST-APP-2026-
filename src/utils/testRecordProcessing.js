@@ -1,5 +1,11 @@
 import { computeColorScores, hasRawAnswers } from './reportRecordUtils.js'
-import { CAMPI_PER_COLORE, FAMIGLIE, NATURE } from '../config/tstSistema.js'
+import {
+  CAMPI_PER_COLORE,
+  FAMIGLIE,
+  NATURE,
+  VERSIONE_MODELLO,
+  VERSIONE_MODELLO_LEGACY,
+} from '../config/tstSistema.js'
 import { calcolaCeste, percentualeNatura } from './cesteTst.js'
 
 /** Etichetta salvata in Disposizione_Prevalente: nome della famiglia dal PDF. */
@@ -77,16 +83,40 @@ export function compactTestRecord(record = {}) {
   )
 }
 
+/** Versione del modello con cui è stato calcolato un record salvato. */
+export function versioneModelloDi(record = {}) {
+  return record?.versione_modello || VERSIONE_MODELLO_LEGACY
+}
+
 /**
- * Riallinea un record salvato alle regole attuali (fonte unica tstSistema.js):
- * se ci sono le risposte grezze, ricalcola contatori delle nature, portato e
- * campi prevalenti dalle ceste. I test senza risposte grezze restano com'erano.
- * Aggiunge `_ceste` (tabella natura × portato) per report e Galassia.
+ * Ricalcola un record con le regole del modello corrente (fonte unica
+ * tstSistema.js): contatori delle nature, portato e campi prevalenti dalle
+ * ceste. Aggiunge `_ceste` (tabella natura × portato) per report e Galassia.
+ * Non va applicato ai test di versioni precedenti senza una scelta esplicita:
+ * cambierebbe i risultati che la persona ha già ricevuto.
  */
-export function normalizzaRecordTst(record = {}) {
+export function ricalcolaRecordTst(record = {}) {
   if (!record || !hasRawAnswers(record)) return record
   const { ceste, campiNature, campiPortato } = calcolaCeste(record)
   const ricalcolato = { ...record, ...campiNature, ...campiPortato }
-  return { ...ricalcolato, ...computeTestResultFields(ricalcolato), _ceste: ceste }
+  return {
+    ...ricalcolato,
+    ...computeTestResultFields(ricalcolato),
+    _ceste: ceste,
+    versione_modello: VERSIONE_MODELLO,
+  }
 }
 
+/**
+ * Prepara un record salvato per la lettura (report, archivio risultati).
+ * - Test del modello corrente: ricalcolati dalle risposte grezze.
+ * - Test di versioni precedenti (o senza `versione_modello`): restituiti con i
+ *   punteggi e le prevalenze salvati, così i risultati storici non cambiano.
+ * Non scrive mai su Firestore.
+ */
+export function normalizzaRecordTst(record = {}) {
+  if (!record || typeof record !== 'object') return record
+  const versione = versioneModelloDi(record)
+  if (versione !== VERSIONE_MODELLO) return { ...record, versione_modello: versione }
+  return ricalcolaRecordTst(record)
+}

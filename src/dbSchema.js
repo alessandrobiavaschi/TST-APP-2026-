@@ -1,3 +1,5 @@
+import { VERSIONE_MODELLO } from './config/tstSistema.js'
+
 // Definizione piatta delle 100 colonne del test TST
 // Questa struttura non esegue logica: descrive in modo statico lo schema previsto in Firestore.
 
@@ -123,6 +125,9 @@ export const testSchema = {
 
   // Stato di archiviazione
   In_Cestino: 'boolean',
+
+  // Versione del modello di punteggio con cui il test è stato calcolato
+  versione_modello: 'string',
 }
 
 // Facoltativo: helper per inizializzare un documento "vuoto" con valori di default
@@ -136,6 +141,7 @@ export const createEmptyTestRecord = () => {
     else if (type === 'timestamp') base[key] = null
     else base[key] = ''
   })
+  base.versione_modello = VERSIONE_MODELLO
 
   return base
 }

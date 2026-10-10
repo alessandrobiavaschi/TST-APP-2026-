@@ -29,6 +29,18 @@
 
 export const FONTE_TEORICA = 'PAROLE PER TST — Franco Mussida, 29 agosto 2026'
 
+/* ── Versione del modello ──────────────────────────────────────────────── */
+
+/**
+ * Versione del modello di punteggio (12 nature, ceste). Ogni nuovo test la
+ * salva nel campo `versione_modello`. Va incrementata quando cambiano nature,
+ * pesi o regole, così i test già salvati restano leggibili col loro modello.
+ */
+export const VERSIONE_MODELLO = '2026_v2'
+
+/** Versione assunta per i test salvati prima che esistesse `versione_modello` (modello a 11 correnti). */
+export const VERSIONE_MODELLO_LEGACY = '2025_v1'
+
 /* ── Portato esperienziale ─────────────────────────────────────────────── */
 
 export const PORTATI = Object.freeze([
