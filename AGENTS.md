@@ -24,7 +24,7 @@ npm run preview      # preview dist/ locally
 npm run lint         # ESLint (flat config, eslint.config.js)
 ```
 
-No test suite is configured. There are no unit tests in this repo.
+A test suite exists under `test/` (Node's built-in runner): `npm test` runs it all, `node --test test/<name>.test.js` runs one file. Run it before and after any change to scoring or report logic, and do not edit assertions to make a failing test pass without the user's confirmation.
 
 ## Environment
 
@@ -85,6 +85,8 @@ Files 42–46 carry weight +2; all others +1. The key function is:
 computeScoreDeltaForAnswer({ fileNumber, answerLabel, affinitaOptionId, isConfirmation })
 // → { [correnteKey]: number, [portatoKey]: number }
 ```
+
+> **Outdated model description below.** The current model has 12 natures (adds `GRIGIO_2_Distaccata`) and lives in `src/config/tstSistema.js`, the single source of truth for names, keys and rules. Every saved test carries `versione_modello`; tests without it are `2025_v1` and are never recalculated. See `CLAUDE.md` for the canonical table.
 
 Each answer scores into one of 11 **correnti emotive** (e.g. `GIALLO_1_Gioia_Entusiasmo`) and one of 3 **portato esperienziale** keys (`PE_Simpatia`, `PE_Antipatia`, `PE_Indifferenza`). The 11 correnti aggregate into 5 colour families that produce `Disposizione_Prevalente`:
 
