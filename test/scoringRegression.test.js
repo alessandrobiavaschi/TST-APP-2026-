@@ -54,9 +54,10 @@ test('una fixture completa conserva esattamente i punteggi golden', () => {
   }
 
   assert.deepEqual(totals, {
-    GIALLO_1_Gioia_Entusiasmo: 58,
+    // 2026_v3: al passo 58 il Suono 1 (arpa ascendente maggiore) va alla Gioiosa Solare, non più alla Nostalgica.
+    GIALLO_1_Gioia_Entusiasmo: 59,
     PE_Simpatia: 79,
     ROSSO_1_Assertivita: 17,
-    BLU_3_Nostalgia: 4,
+    BLU_3_Nostalgia: 3,
   })
 })

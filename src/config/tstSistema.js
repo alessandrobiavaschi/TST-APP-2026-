@@ -36,7 +36,7 @@ export const FONTE_TEORICA = 'PAROLE PER TST — Franco Mussida, 29 agosto 2026'
  * salva nel campo `versione_modello`. Va incrementata quando cambiano nature,
  * pesi o regole, così i test già salvati restano leggibili col loro modello.
  */
-export const VERSIONE_MODELLO = '2026_v2'
+export const VERSIONE_MODELLO = '2026_v3'
 
 /** Versione assunta per i test salvati prima che esistesse `versione_modello` (modello a 11 correnti). */
 export const VERSIONE_MODELLO_LEGACY = '2025_v1'
@@ -109,7 +109,7 @@ const N = Object.fromEntries(NATURE.map((n) => [n.id, n.id]))
 
 const r = (risposta, naturaId, portato, punti = 1) => Object.freeze({ risposta, natura: naturaId, portato, punti })
 
-export const REGOLE_RISPOSTE = Object.freeze({
+export const REGOLE_RISPOSTE = {
   /** Le 15 sensazioni. */
   SENSAZIONI: Object.freeze([
     r('Mi dà gioia', N.giallo_entusiasta_gioiosa_solare, 'simpatia'),
@@ -147,33 +147,50 @@ export const REGOLE_RISPOSTE = Object.freeze({
     r('Mi è indifferente', N.grigio_razionale_distaccata, 'indifferenza'),
   ]),
 
-  /** Passi 1–4: quattro famiglie di strumenti, si sceglie il suono preferito. */
-  AFFINITA_BASE: Object.freeze([
-    r('opzione1', N.giallo_entusiasta_gioiosa_solare, 'simpatia'),
-    r('opzione2', N.verde_flemmatica_calma_fisica, 'simpatia'),
-    r('opzione3', N.rosso_marziale_volitiva, 'simpatia'),
-    r('opzione4', N.blu_malinconica_solare, 'simpatia'),
-    r('nessuna', N.grigio_razionale_anaffettiva, 'indifferenza'),
-  ]),
+  /*
+   * Affinità (passi 1–4, 46, 51, 58): i punti dipendono dal singolo suono,
+   * non dalla posizione del bottone. Le tabelle sono in AFFINITA_PER_PASSO;
+   * qui restano i riferimenti usati dall'interfaccia per disegnare i bottoni.
+   */
+}
 
-  /** Passo 46: riascolto groove (eccezione velocità), +2. */
-  AFFINITA_ECCEZIONE: Object.freeze([
-    r('opzione1', N.blu_malinconica_nostalgica, 'simpatia', 2),
-    r('opzione2', N.rosso_marziale_volitiva, 'simpatia', 2),
-    r('opzione3', N.verde_flemmatica_calma_fisica, 'simpatia', 2),
-    r('opzione4', N.giallo_entusiasta_gioiosa_solare, 'simpatia', 2),
-    r('nessuna', N.grigio_razionale_anaffettiva, 'indifferenza', 2),
-  ]),
 
-  /** Passi 51 e 58: riascolto ritmi / riascolto arpa. */
-  AFFINITA_STANDARD: Object.freeze([
-    r('opzione1', N.blu_malinconica_nostalgica, 'simpatia'),
-    r('opzione2', N.rosso_marziale_volitiva, 'simpatia'),
-    r('opzione3', N.verde_flemmatica_calma_fisica, 'simpatia'),
-    r('opzione4', N.giallo_entusiasta_gioiosa_solare, 'simpatia'),
-    r('nessuna', N.grigio_razionale_anaffettiva, 'indifferenza'),
-  ]),
+/* ── Affinità: ogni suono → la sua natura ────────────────────────────── */
+/*
+ * Fonte: modello Excel 2025 (rev. 11.04.2025), che assegna ogni suono a una
+ * corrente. L'ordine dei suoni dentro i file 46, 51 e 58 è stato verificato
+ * confrontando i riascolti con i file originali (somiglianza ≥ 0,9).
+ * Corrispondenza correnti 2025 → nature 2026 (convenzione già in uso):
+ * Entusiasmo → Gioiosa Solare, Calma → Calma Fisica, Volitività → Volitiva,
+ * Malinconia → Solare (passi 1–4) o Nostalgica (passi 46, 51, 58): da confermare con Mussida.
+ */
+
+const suono = (n, nome, naturaId, punti = 1) =>
+  Object.freeze({ risposta: `opzione${n}`, suono: nome, natura: naturaId, portato: 'simpatia', punti })
+const nessuna = (punti = 1) =>
+  Object.freeze({ risposta: 'nessuna', suono: 'Nessuna delle 4', natura: N.grigio_razionale_anaffettiva, portato: 'indifferenza', punti })
+
+const GIO = N.giallo_entusiasta_gioiosa_solare
+const CAF = N.verde_flemmatica_calma_fisica
+const VOL = N.rosso_marziale_volitiva
+const SOL = N.blu_malinconica_solare
+const NOS = N.blu_malinconica_nostalgica
+
+export const AFFINITA_PER_PASSO = Object.freeze({
+  1: Object.freeze([suono(1, 'Ottavino', GIO), suono(2, 'Oboe', CAF), suono(3, 'Tromba', VOL), suono(4, 'Violino', SOL), nessuna()]),
+  2: Object.freeze([suono(1, 'Flauto', GIO), suono(2, 'Clarinetto', VOL), suono(3, 'Corno', CAF), suono(4, 'Viola', SOL), nessuna()]),
+  3: Object.freeze([suono(1, 'Flauto basso', GIO), suono(2, 'Fagotto', VOL), suono(3, 'Trombone', CAF), suono(4, 'Violoncello', SOL), nessuna()]),
+  4: Object.freeze([suono(1, 'Triangolo', GIO), suono(2, 'Campana tibetana', CAF), suono(3, 'Celesta', VOL), suono(4, 'Vibrafono', SOL), nessuna()]),
+  46: Object.freeze([suono(1, 'Groove 57 bpm', NOS, 2), suono(2, 'Groove 77 bpm', CAF, 2), suono(3, 'Groove 105 bpm', VOL, 2), suono(4, 'Groove 150 bpm', GIO, 2), nessuna(2)]),
+  51: Object.freeze([suono(1, 'Ritmo ondulato', NOS), suono(2, 'Ritmo binario', VOL), suono(3, 'Ritmo ternario', CAF), suono(4, 'Ritmo sincopato', GIO), nessuna()]),
+  58: Object.freeze([suono(1, 'Arpa ascendente maggiore', GIO), suono(2, 'Arpa ascendente minore', NOS), suono(3, 'Arpa discendente maggiore', VOL), suono(4, 'Arpa discendente minore', CAF), nessuna()]),
 })
+
+// Riferimenti per l'interfaccia (servono solo gli id dei bottoni: opzione1…4, nessuna).
+REGOLE_RISPOSTE.AFFINITA_BASE = AFFINITA_PER_PASSO[1]
+REGOLE_RISPOSTE.AFFINITA_ECCEZIONE = AFFINITA_PER_PASSO[46]
+REGOLE_RISPOSTE.AFFINITA_STANDARD = AFFINITA_PER_PASSO[51]
+Object.freeze(REGOLE_RISPOSTE)
 
 /** Tipi di domanda che leggono un dizionario di parole (il peso del passo li moltiplica). */
 export const TIPI_A_DIZIONARIO = Object.freeze(['SENSAZIONI', 'AGGETTIVI'])
@@ -263,7 +280,8 @@ export function getPasso(numero) {
 
 export function getRegolePerPasso(numero) {
   const passo = getPasso(numero)
-  return passo ? REGOLE_RISPOSTE[passo.tipoDomanda] || [] : []
+  if (!passo) return []
+  return AFFINITA_PER_PASSO[passo.numero] || REGOLE_RISPOSTE[passo.tipoDomanda] || []
 }
 
 export function getNaturaByCampo(campoDb) {

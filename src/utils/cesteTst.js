@@ -13,10 +13,10 @@ import {
   PORTATI,
   PORTATO_BY_ID,
   RAPPORTI,
-  REGOLE_RISPOSTE,
   SEZIONI,
   TIPI_A_DIZIONARIO,
   getPasso,
+  getRegolePerPasso,
 } from '../config/tstSistema.js'
 
 /** Bonus della riconferma: +1 alla stessa cesta. */
@@ -34,7 +34,7 @@ function coloriVuoti() {
 export function trovaRegola(numeroPasso, rispostaGrezza) {
   const passo = getPasso(numeroPasso)
   if (!passo || !rispostaGrezza) return null
-  const regole = REGOLE_RISPOSTE[passo.tipoDomanda] || []
+  const regole = getRegolePerPasso(numeroPasso)
   return regole.find((regola) => regola.risposta === rispostaGrezza) || null
 }
 
@@ -103,7 +103,7 @@ export function calcolaCeste(record = {}) {
  */
 
 function massimiPerPasso(passo) {
-  const regole = REGOLE_RISPOSTE[passo.tipoDomanda] || []
+  const regole = getRegolePerPasso(passo.numero)
   const perCesta = {}
   const perNatura = {}
   const perColore = {}

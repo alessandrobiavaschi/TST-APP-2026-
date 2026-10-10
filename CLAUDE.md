@@ -41,7 +41,7 @@ Terminologia: "famiglia" è il livello colore, "natura" il sotto-livello. "Tempe
 
 ### Versioni del modello e dati storici
 
-- Ogni test salva `versione_modello` (corrente: `VERSIONE_MODELLO` in `tstSistema.js`, oggi `2026_v2`).
+- Ogni test salva `versione_modello` (corrente: `VERSIONE_MODELLO` in `tstSistema.js`, oggi `2026_v3`: affinità per suono, vedi `AFFINITA_PER_PASSO`).
 - I test senza versione valgono come `2025_v1` (modello a 11 correnti). `normalizzaRecordTst()` li restituisce con i punteggi salvati e non li ricalcola.
 - Se cambi nature, pesi o regole: incrementa `VERSIONE_MODELLO` e non ricalcolare i test delle versioni precedenti senza una decisione esplicita dell'utente.
 - Il report legge e non scrive su Firestore. Non scrivere script che modificano documenti in `test_results`.
