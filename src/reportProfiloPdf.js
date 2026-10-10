@@ -12,7 +12,7 @@ export const PROFILE_PDF_BLOCKS = {
     restituzione_caratteri_estesi:
       'Nella famiglia Razionale, la natura Intellettuale-Razionale esprime il piacere del calcolo, della dubbiosità di origine intellettuale e dell’oggettività fisica. Agisce in modo trasversale sulle altre quattro famiglie: può raffreddare l’affetto o, nel versante evoluto, orientare l’intelletto verso saggezza e dedizione.',
     natura_paragrafi: [
-      'Da Nord verso Sud si muove un’energia gelida: sul piano emotivo diventa la corrente agnostico-anaffettiva — colore Grigio scuro, intervallo di ottava — che raffredda e raggela affettivamente.',
+      'Da Nord verso Sud si muove un’energia gelida: sul piano emotivo diventa la corrente agnostico-anaffettiva — colore Grigio scuro — che raffredda e raggela affettivamente.',
       'Nell’Energia Emotiva questa corrente è trasversale: getta la sua ombra sulle quattro macro-aree, sulla linea orizzontale del presente ma con distacco polare — osservazione, non passione. Accanto al polo anaffettivo esiste il versante agnostico-intellettuale evolutivo: saggezza, devozione, dedizione.',
       'È una natura che può abitare il mondo guardandolo da una quota alta e separata: misura, analizza, scompone, ma rischia di non lasciarsi toccare. Nel profilo non va letta solo come freddezza: segnala anche la forza del pensiero quando cerca un ordine davanti alla complessità affettiva.',
       'Quando il pensiero resta collegato al sentire, questa corrente diventa capacità di osservare senza essere travolti. Quando si separa troppo, invece, il dubbio si trasforma in distanza e il mondo emotivo appare banale, eccessivo o poco degno di coinvolgimento.',
@@ -47,14 +47,14 @@ export const PROFILE_PDF_BLOCKS = {
     restituzione_caratteri_estesi:
       'Nella famiglia Marziale emerge il piacere del fare, di realizzare ciò che si desidera, di governarsi e mettersi alla prova. La Natura Volitiva-Collerica predilige costanza, sincerità e impegno nel qui e ora, con orientamento al presente.',
     natura_paragrafi: [
-      'Da Est verso Ovest si muove l’energia che segue l’azione vitale sul percorso del Sole. Sul piano emotivo diventa il flusso Volitivo — colore Rosso, intervallo di quarta —: il piacere del fare, impulso che agisce nel presente.',
+      'Da Est verso Ovest si muove l’energia che segue l’azione vitale sul percorso del Sole. Sul piano emotivo diventa il flusso Volitivo — colore Rosso, intervallo di prima —: il piacere del fare, impulso che agisce nel presente.',
       'Nel rapporto con te stesso, chi ama agire sente l’Io come alleato: responsabilità, prove da superare, sicurezza nel qui e ora. Sport e Musica condividono la sincerità dell’emozione autentica; dopo l’adolescenza quel finalizzatore sei tu, governatore di te stesso.',
       'Questa corrente ha una direzione orizzontale e concreta: vuole misurarsi con ostacoli, decisioni, risultati. Non cerca prima di tutto il riparo o l’introspezione, ma il punto in cui l’energia emotiva può diventare gesto efficace.',
       'Nel carattere il Rosso non vive da solo: ha bisogno dei «gregari» interiori — calma, entusiasmo, riflessività — per non trasformare il governo di sé in dominio. Quando dialoga con le altre correnti, la volontà diventa forza organizzatrice e non semplice durezza.',
     ].join('\n'),
     descrizione_estesa: [
       'L’energia dell’Io matura e si mostra pienamente intorno al ventesimo anno: governatore di sé e delle disposizioni diventate carattere. I «gregari» — le altre correnti — contano sulla saldezza e sulla volontà di realizzare il futuro desiderato.',
-      'Nella Natura Volitiva-Collerica convivono due sotto-correnti: la fermezza volitiva (Rosso, quarta) con stabilità, schiettezza, coraggio; la collera (Amaranto, quarta eccedente) con rabbia e reattività quando il dialogo si inceppa.',
+      'Nella Natura Volitiva-Collerica convivono due sotto-correnti: la fermezza volitiva (Rosso, prima) con stabilità, schiettezza, coraggio; la collera (Amaranto, quarta e quarta eccedente) con rabbia e reattività quando il dialogo si inceppa.',
       'Sul piano dell’ascolto questa natura cerca spesso timbri concreti, centrali, decisi: suoni che svegliano, incidono, dichiarano una presenza. Può amare la forza di percussioni, fiati, pianoforte, batteria e unisoni capaci di dare forma immediata all’energia.',
       'La Musica viene vissuta come campo di prova: ritmo stabile, melodie memorabili, testi chiari, improvvisazione osservata con interesse ma anche bisogno di struttura. Quando l’energia è equilibrata, il Rosso trova nel suono una disciplina vitale; quando si irrigidisce, fatica a lasciarsi andare.',
     ].join('\n'),

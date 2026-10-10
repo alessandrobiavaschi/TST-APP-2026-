@@ -93,8 +93,9 @@ export const NATURE = Object.freeze([
   natura('giallo_entusiasta', 'sanguigna_operosa', 'Sanguigna Operosa', 'GIALLO_2_Volitivo_Passionale', 'Settima minore'),
   natura('grigio_razionale', 'anaffettiva', 'Anaffettiva', 'GRIGIO_1_Anaffettiva',
     'Timbri non naturali (tradotti come informazioni)'),
-  natura('grigio_razionale', 'distaccata', 'Distaccata', 'GRIGIO_2_Distaccata',
-    'Timbri non naturali (tradotti come informazioni)'),
+  natura('grigio_razionale', 'distaccata', 'Distaccata', 'GRIGIO_2_Distaccata', '', {
+    notaIntervallo: 'Il PDF non indica un intervallo per la natura Distaccata — da confermare con Mussida.',
+  }),
 ])
 
 const N = Object.fromEntries(NATURE.map((n) => [n.id, n.id]))

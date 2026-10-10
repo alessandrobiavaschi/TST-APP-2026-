@@ -4,6 +4,14 @@
  * Chiavi famiglia: Blu | Verde | Giallo | Rosso | Grigio
  */
 
+import { getNaturaByCampo } from '../config/tstSistema.js'
+
+/** Intervallo di una o più nature: si legge sempre dalla fonte unica (config/tstSistema.js). */
+function intervalloDi(...campiDb) {
+  const valori = campiDb.map((c) => getNaturaByCampo(c)?.intervallo).filter(Boolean)
+  return [...new Set(valori)].join(' · ')
+}
+
 export const MUSICISTI_INTRO =
   'Una lettura musicale della famiglia emotiva emersa dal test: ascolto, suono, composizione e interpretazione come modi di organizzare l’esperienza.'
 
@@ -60,21 +68,21 @@ export const MUSICISTI_SCHEDE = {
       correnti: [
         {
           nome: 'Corrente emotiva malinconica lunare',
-          intervallo: 'Terza minore',
+          intervallo: intervalloDi('BLU_2_Lunare'),
           significato:
             'La Malinconia lunare è vista come una forza emotiva che opera nel chiuso dell’interiorità e agisce su una visione riflessa dell’esperienza emotiva. La paura si trasforma in timore e nella tristezza di non potersi liberare da quel vivere al chiuso, dove la luce delle esperienze di relazione arriva solo di riflesso.',
           stati: ['Pensieroso', 'Triste', 'Timido', 'Pessimista', 'Preoccupato', 'Demotivato', 'Amareggiato', 'Ombroso', 'Sconfortato', 'Scoraggiato', 'Scombussolato', 'Vergognoso', 'Cupo', 'Fosco', 'Turbato', 'Lunatico', 'Lamentoso'],
         },
         {
           nome: 'Corrente emotiva della nostalgia solare e lunare',
-          intervallo: 'Settima minore e maggiore',
+          intervallo: intervalloDi('BLU_3_Nostalgia'),
           significato:
             'Le forze emotive del temperamento nostalgico fanno vivere un’esperienza simile alla malinconia lunare, dalla quale riprendono il senso del dolore interiore. Qui però il dolore nasce da una perdita, da un senso di mancanza, dal sentirsi soli o abbandonati. La nostalgia può diventare rimpianto oppure riconoscenza verso ciò che si è ricevuto.',
           stati: ['Rimpiangente', 'Afflitto', 'Straziato', 'Rammaricato', 'Desolato', 'Disperato', 'Sconsolato', 'Mortificato', 'Abbandonato', 'Nostalgico', 'Compassionevole', 'Accorato', 'Rimembrante', 'Desiderante', 'Riconoscente', 'Grato'],
         },
         {
           nome: 'Corrente emotiva della malinconia solare',
-          intervallo: 'Terza maggiore',
+          intervallo: intervalloDi('BLU_4_Solare'),
           significato:
             'La Malinconia solare opera nello spazio interiore ma, diversamente dalla Malinconia lunare rivolta al passato, cerca di aprire una breccia verso il mondo. Da questa apertura nasce un clima positivo legato alla speranza, alla serenità e alla fiducia nel futuro.',
           stati: ['Ottimista', 'Aperto', 'Sereno', 'Positivista', 'Buono', 'Simpatico', 'Meravigliato', 'Benevolente', 'Lieto', 'Leggero', 'Mite', 'Contento', 'Chiaro', 'Compassionevole', 'Fiducioso', 'Solidale', 'Speranzoso', 'Affettuoso', 'Pietoso'],
@@ -131,7 +139,7 @@ export const MUSICISTI_SCHEDE = {
       correnti: [
         {
           nome: 'Corrente emotiva della calma flemmatica',
-          intervallo: 'Quinta e quinta eccedente',
+          intervallo: intervalloDi('VERDE_1_CalmaContemplativa', 'VERDE_2_CalmaFisica'),
           significato:
             'La corrente flemmatica richiama un’energia gentile, calma e contemplativa, simile all’occhio del ciclone dove ogni movimento si placa. È la sensazione della pausa, della bonaccia, della leggerezza del non movimento e di un equilibrio quasi perfetto. Nel rapporto con sé stessi, il flemmatico ama riposare e contemplare e orienta questa energia verso un clima di calma e di equilibrio affettivo.',
           stati: ['Rilassato', 'Calmo', 'Gentile', 'Disteso', 'Pacato', 'Placido', 'Pacifico', 'Tranquillo', 'Estatico', 'Serafico', 'Contemplativo', 'Sognante', 'Equilibrato', 'Quieto', 'Tollerante', 'Mistico', 'Prudente', 'Meditativo', 'Ammirato', 'Annoiato', 'Pigro', 'Oziante', 'Svampito', 'Indolente', 'Ignavo'],
@@ -188,16 +196,16 @@ export const MUSICISTI_SCHEDE = {
       correnti: [
         {
           nome: 'Corrente della gioia e dell’entusiasmo',
-          intervallo: 'Sesta',
+          intervallo: intervalloDi('GIALLO_1_Gioia_Entusiasmo'),
           significato:
             'L’Entusiasmo è descritto come un flusso emotivo gioioso, pervaso di solarità e calore. Nel rapporto con sé stessi orienta l’energia verso il mondo, avventurandosi con curiosità e alimentando il piacere di uscire da sé per abbracciare persone, natura, oggetti e attività nuove.',
           stati: ['Gioioso', 'Cinetico', 'Vivace', 'Veloce', 'Vitale', 'Fluido', 'Allegro', 'Felice', 'Festoso', 'Entusiasta', 'Esaltato', 'Ardente', 'Euforico', 'Caloroso', 'Reattivo', 'Curioso', 'Volitivo', 'Dinamico', 'Esuberante', 'Solare', 'Positivista', 'Irrefrenabile'],
         },
         {
           nome: 'Continente dell’entusiasmo volitivo passionale',
-          intervallo: 'Prima',
+          intervallo: intervalloDi('GIALLO_2_Volitivo_Passionale'),
           significato:
-            'La Prima è associata all’Entusiasmo volitivo passionale: una forma di partecipazione intensa in cui l’energia entusiasta acquista calore, slancio e adesione. Gli stati collegati descrivono il passaggio dall’ammirazione alla passione e alla veemenza.',
+            'L’Entusiasmo volitivo passionale è una forma di partecipazione intensa in cui l’energia entusiasta acquista calore, slancio e adesione. Gli stati collegati descrivono il passaggio dall’ammirazione alla passione e alla veemenza.',
           stati: ['Innamorato', 'Amorevole', 'Ammirato', 'Appassionato', 'Infuocato', 'Ardente', 'Impetuoso', 'Veemente', 'Deferente', 'Illuminato'],
         },
       ],
@@ -260,7 +268,7 @@ export const MUSICISTI_SCHEDE = {
         `La distanza, l’esperienza che si scatena dentro di noi quando elaboriamo la vibrazione simultanea di due suoni uno distante dall’altro, è per il Marziale un preludio di armonia. Percepisce la realtà immaginativa che esce dall’insieme di queste vibrazioni come qualcosa di magico, ma che non lo rassicura, in quanto le tante combinazioni possono evocare tante diverse correnti emotive che fanno sorgere stati d’animo diversi dal suo Mood emotivo.`,
       correnti: [
         {
-          intervallo: 'Prima',
+          intervallo: intervalloDi('ROSSO_1_Assertivita'),
           significato:
             `Se la volontà lo rende forte, affidabile, determinato, con la Musica si confronta nello stesso modo, affrontandola con fermezza e, in età adulta, con saggezza.`,
           stati: ['Stabile', 'Saggio', 'Sicuro', 'Fattivo', 'Certo', 'Volitivo', 'Assertivo', 'Indubitabile', 'Saldo', 'Fermo', 'Fiero', 'Schietto', 'Sincero', 'Franco', 'Decisionista', 'Risoluto', 'Irritabile', 'Calcolatore', 'Combattivo', 'Caparbio', 'Perseverante', 'Collerico'],
@@ -309,7 +317,7 @@ export const MUSICISTI_SCHEDE = {
       correnti: [
         {
           nome: 'Corrente agnostica anaffettiva',
-          intervallo: 'Ottava',
+          intervallo: intervalloDi('GRIGIO_1_Anaffettiva'),
           significato:
             'La corrente agnostica anaffettiva è descritta come un flusso che raffredda affettivamente e agisce in modo trasversale sulle altre aree temperamentali. Il suo centro è la dubbiosità di origine intellettuale: osservazione, calcolo e distacco. Lo stesso impulso può però orientarsi eticamente verso saggezza, dedizione e devozione.',
           stati: ['Anaffettivo', 'Apatico', 'Matematico', 'Lucido', 'Freddo', 'Insensibile', 'Indifferente', 'Nullista', 'Impotente', 'Distaccato', 'Imperturbabile', 'Saggio', 'Dedito', 'Devoto', 'Beato', 'Illuminato'],
