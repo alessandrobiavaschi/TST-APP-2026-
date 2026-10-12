@@ -4,6 +4,8 @@ import { useScroll, useTransform } from 'framer-motion'
 import AuthBox from '../components/AuthBox.jsx'
 import VideoBackground0311 from '../components/VideoBackground0311.jsx'
 import LandingPanelsShowcase from '../components/landing/LandingPanelsShowcase.jsx'
+import LandingIntroRackFocus from '../components/landing/LandingIntroRackFocus.jsx'
+import { shouldPlayLandingIntro } from '../components/landing/landingIntroStorage.js'
 import { useSkyTheme } from '../SkyThemeContext.jsx'
 import { useAuth } from '../AuthContext.jsx'
 import {
@@ -14,6 +16,9 @@ import {
   getGoogleAuthDiagnosticEventName,
 } from '../auth.js'
 import '../styles/landing-nebula.css'
+
+const HERO_TITLE = 'TST'
+const HERO_SUBTITLE = "Test Sonoro Temperamentale per la Rilevazione dell'Identità Emotiva"
 
 const PANELS_DATA = [
   {
@@ -151,6 +156,11 @@ function LandingPage() {
   const accessBoxRef = useRef(null)
   const accessSectionRef = useRef(null)
   const heroRef = useRef(null)
+  const heroTitleRef = useRef(null)
+  const heroSubRef = useRef(null)
+  // Intro rack-focus: solo alla prima visita (vedi LandingIntroRackFocus.jsx)
+  const [introState, setIntroState] = useState(() => (shouldPlayLandingIntro() ? 'playing' : 'off'))
+  const handleIntroDone = useCallback(() => setIntroState('done'), [])
   const methodRef = useRef(null)
   const starShadow = useMemo(() => buildStarShadow(60, { minOpacity: 0.35, maxOpacity: 0.85 }), [])
   const starGlowShadow = useMemo(
@@ -403,6 +413,15 @@ function LandingPage() {
 
   return (
     <div className="tst-nebula">
+      {introState === 'playing' && (
+        <LandingIntroRackFocus
+          title={HERO_TITLE}
+          subtitle={HERO_SUBTITLE}
+          targetTitleRef={heroTitleRef}
+          targetSubRef={heroSubRef}
+          onDone={handleIntroDone}
+        />
+      )}
       <div className="tst-nebula-bg" aria-hidden="true">
         <VideoBackground0311 className="tst-nebula-bg-video" style={{ opacity: bgVideoOpacity }} />
         <div className="tst-nebula-bg-corner-vignette" />
@@ -413,16 +432,20 @@ function LandingPage() {
       </div>
 
       <main className="tst-nebula-main">
-        <section data-screen-label="Hero" className="tst-nebula-hero" ref={heroRef}>
-          <div className="tst-nebula-hero-word">
-            {'TST'.split('').map((letter, index) => (
+        <section
+          data-screen-label="Hero"
+          className={`tst-nebula-hero${introState === 'playing' ? ' is-intro-playing' : ''}${introState !== 'off' ? ' is-intro-handoff' : ''}`}
+          ref={heroRef}
+        >
+          <div className="tst-nebula-hero-word" ref={heroTitleRef}>
+            {HERO_TITLE.split('').map((letter, index) => (
               <span key={letter + index} style={{ animationDelay: `${index * 130}ms` }}>
                 {letter}
               </span>
             ))}
           </div>
-          <p className="tst-nebula-hero-sub tst-nebula-legible">
-            Test Sonoro Temperamentale per la Rilevazione dell'Identità Emotiva
+          <p className="tst-nebula-hero-sub tst-nebula-legible" ref={heroSubRef}>
+            {HERO_SUBTITLE}
           </p>
           <button type="button" className="tst-nebula-hero-cta" onClick={scrollToPitch}>
             AVVIA
