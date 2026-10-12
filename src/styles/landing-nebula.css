@@ -773,6 +773,17 @@ body.tst-keyword-active .tst-nebula-bg-stars--glow {
   text-wrap: pretty;
 }
 
+/* Titoli della landing nel carattere previsto (Newsreader).
+   Serve perché in App.css la vecchia regola «.tst-route-landing h1/h2/h3»
+   imponeva Space Grotesk 700 a tutti i titoli della pagina. */
+.tst-route-landing .tst-nebula-slider-intro-title,
+.tst-route-landing .tst-nebula-method-title,
+.tst-route-landing .tst-nebula-card-title {
+  font-family: 'Newsreader', serif;
+  font-weight: 600;
+  letter-spacing: normal;
+}
+
 /* Footer */
 .tst-nebula-footer {
   padding: 60px 24px 80px;
