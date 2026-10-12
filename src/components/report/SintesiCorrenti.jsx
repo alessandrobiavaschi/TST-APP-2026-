@@ -10,6 +10,7 @@ import { FAMILY_THEME } from '../../config/reportFamilyTheme.js'
 import { GlossaryLink } from './ReportGlossaryDrawer.jsx'
 import InfoTip from './InfoTip.jsx'
 import CalculationDisclosure from './CalculationDisclosure.jsx'
+import PercorsoRisposte from './PercorsoRisposte.jsx'
 import { buildProgressiveContentViewModel } from '../../utils/buildProgressiveContentViewModel.js'
 import './SintesiCorrenti.css'
 
@@ -483,6 +484,7 @@ export default function SintesiCorrenti({
   stepPrefix = '1',
   globalProfileContract = null,
   contentCards = null,
+  rawRecord = null,
 }) {
   const prefersReducedMotion = useReducedMotion()
   const [activeDetailFamily, setActiveDetailFamily] = useState(null)
@@ -648,7 +650,7 @@ export default function SintesiCorrenti({
 
   const sottocorrenteDisplayName = (nome) => {
     if (nome === 'Lunare') return 'Caratteristica Lunare'
-    if (nome === 'Nostalgia' || nome === 'Nostalgica' || nome === 'Nostalgico') return 'Nostalgica (Solare o Lunare)'
+    if (nome === 'Nostalgia' || nome === 'Nostalgica' || nome === 'Nostalgico') return 'Nostalgica'
     return nome
   }
 
@@ -1131,6 +1133,7 @@ export default function SintesiCorrenti({
               ) : null}
             </div>
           </div>
+          <PercorsoRisposte record={rawRecord} />
         </div>
       </div>
     </section>

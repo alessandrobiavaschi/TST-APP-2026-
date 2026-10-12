@@ -27,13 +27,13 @@ export const CORPUS_RITMO_COSA_ATTIVA_SLANCIO_CALMA =
   'Ipotesi del modello TST: attiva energia volitiva e corpo nel tempo (slancio, calma, impazienza, pazienza).'
 
 export const CORPUS_MAPPING_BLU_REALE_NOSTALGIA =
-  'Blu reale — nostalgia solare e lunare (settime minori/maggiori; armonie collegate nel testo: terza maggiore, quinta, sesta).'
+  'Blu reale — natura Nostalgica (intervallo di settima maggiore).'
 
 export const CORPUS_MAPPING_CELESTE_SOLARE =
   'Celeste — malinconia solare (terza maggiore).'
 
 export const CORPUS_MAPPING_ROSSO_QUARTA =
-  'Associazione ipotizzata — Rosso: volontà decisa nel modello (intervallo di quarta).'
+  'Associazione ipotizzata — Rosso: natura Volitiva nel modello (intervallo di prima).'
 
 const gialloDisposition = DISPOSITIONS.find((d) => d.dispositionId === 'entusiasmo')
 

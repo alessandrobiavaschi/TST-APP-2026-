@@ -2,6 +2,17 @@ import assert from 'node:assert/strict'
 import { after, before, test } from 'node:test'
 
 import { createServer } from 'vite'
+import { FAMIGLIE_TST } from '../src/content/paroleTst.js'
+
+const PAROLE_PDF = new Set(
+  FAMIGLIE_TST.flatMap((f) =>
+    f.nature.flatMap((n) => [
+      ...n.aggettivi,
+      ...n.sostantivi,
+      ...Object.values(n.associazioni || {}).flat(),
+    ]),
+  ).map((w) => w.toLowerCase()),
+)
 
 const EXPECTED_FAMILY_KEYS = ['blu', 'rosso', 'verde', 'giallo', 'grigio']
 const EXPECTED_SUBCURRENT_FAMILY = {
@@ -247,6 +258,8 @@ test('ogni risposta lessicale mantiene corrente e famiglia scientifica di origin
       .split(' - ')
       .map((part) => part.trim())
       .filter((part) => part && part.toLowerCase() !== 'mi è indifferente')
+      // Si mostrano solo le parole presenti nel PDF «Parole per TST» (es. "Illuminato" non c'è).
+      .filter((part) => PAROLE_PDF.has(part.toLowerCase()))
     const expectedFamily = dictionaryEntry.correnteKey.split('_')[0].toLowerCase()
 
     assert.equal(words.length, expectedWords.length, answerLabel)

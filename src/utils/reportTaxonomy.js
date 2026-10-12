@@ -1,4 +1,4 @@
-export const MALINCONICA_NOSTALGICA_LABEL = 'Nostalgica (Solare o Lunare)'
+export const MALINCONICA_NOSTALGICA_LABEL = 'Nostalgica'
 
 const normalizeTaxonomyLabel = (value) =>
   String(value || '')
@@ -18,8 +18,7 @@ const NOSTALGICA_LEGACY_LABELS = new Set([
 
 /**
  * Presenta la tassonomia corrente senza migrare i valori storici salvati.
- * La famiglia resta Malinconica; Nostalgica è una natura e può
- * articolarsi in forma Solare o Lunare.
+ * La famiglia resta Malinconica; Nostalgica è una delle sue nature (Testi fissi).
  */
 export function formatSubcategoryLabel(value = '') {
   const normalized = normalizeTaxonomyLabel(value)

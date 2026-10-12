@@ -1310,11 +1310,12 @@ function buildProfileInfo({ corrente, rankedData, paroleEmerse, rapporti }) {
   }
 }
 
+// Solo parole presenti nel PDF «Parole per TST» per la famiglia indicata.
 const REPRESENTATIVE_WORDS = {
   'parole-entusiasmo': ['Gioioso', 'Curioso', 'Dinamico'],
   'parole-malinconica_nostalgica': ['Riflessivo', 'Nostalgico', 'Pensieroso'],
-  'parole-collerico_volitiva': ['Determinato', 'Fermo', 'Coraggioso'],
-  'parole-flemmatica': ['Pacifico', 'Contemplativo', 'Equilibrato'],
+  'parole-collerico_volitiva': ['Volitivo', 'Assertivo', 'Risoluto'],
+  'parole-flemmatica': ['Calmo', 'Contemplativo', 'Pacato'],
   'parole-agnostica_anaffettiva': ['Distaccato', 'Lucido', 'Indifferente'],
 }
 

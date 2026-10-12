@@ -118,7 +118,7 @@ export const GLOSSARY = [
     id: 'sotto-corrente',
     term: 'Sotto-corrente',
     oneLine: 'Sfumatura più fine dentro una corrente.',
-    explain: 'Articola il profilo oltre la famiglia principale: nella famiglia Malinconica, per esempio, la natura Nostalgica può essere Solare o Lunare.',
+    explain: 'Articola il profilo oltre la famiglia principale: nella famiglia Malinconica, per esempio, le nature sono Lunare Introspettiva, Lunare Depressiva, Solare e Nostalgica.',
     usefulFor:
       'Le sfumature affinano la lettura: due persone con la stessa famiglia dominante possono differire nella sotto-corrente prevalente.',
     tags: ['galassia'],

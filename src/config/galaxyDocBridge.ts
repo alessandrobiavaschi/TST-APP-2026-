@@ -1,6 +1,6 @@
 /**
  * Ponte verso i contenuti dei documenti CPM / Integrazioni
- * ("STATI D'ANIMO IN 4 FAMIGLIE", "TEST DI RILEVAZIONE...", liste parole).
+ * Parole: SOLO dal PDF «Parole per TST» (content/paroleTst.js); intervalli da config/tstSistema.js.
  * La galassia usa soprattutto `glyph` + colori; le parole restano per approfondimento opzionale.
  *
  * Le sfumature di accentHex riflettono le indicazioni di colore del PDF

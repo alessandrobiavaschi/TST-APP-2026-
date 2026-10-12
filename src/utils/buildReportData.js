@@ -89,6 +89,7 @@ import {
 } from '../testLogic.js'
 import { RAW_DOC_VISUAL } from '../config/galaxyDocBridge.ts'
 import { FAMIGLIA_BY_COLOR, NATURE } from '../config/tstSistema.js'
+import { FAMIGLIE_TST } from '../content/paroleTst.js'
 import { normalizzaSuMassimo, percentualeNatura } from './cesteTst.js'
 import {
   buildNaturaNarrative,
@@ -475,6 +476,20 @@ function resolveNaturaLevelLabel(status, harmonyDescriptor) {
  *
  * @param {object} rawRecord
  */
+/** Tutte le parole del PDF «Parole per TST» (minuscolo): le parole emerse che non vi compaiono non vengono mostrate. */
+const PAROLE_PDF_SET = new Set(
+  FAMIGLIE_TST.flatMap((famiglia) =>
+    famiglia.nature.flatMap((natura) => [
+      ...natura.aggettivi,
+      ...natura.sostantivi,
+      ...natura.sostantiviSintesi,
+      ...natura.paroleChiave.map((k) => (typeof k === 'string' ? k : k.parola)),
+      ...Object.values(natura.associazioni || {}).flat(),
+      ...(natura.poloPositivo ? [...natura.poloPositivo.aggettivi, ...natura.poloPositivo.sostantivi] : []),
+    ]),
+  ).map((w) => String(w).trim().toLowerCase()),
+)
+
 export function extractParoleDalTest(rawRecord = {}) {
   const byKey = new Map()
 
@@ -505,6 +520,7 @@ export function extractParoleDalTest(rawRecord = {}) {
         const raw = part.trim()
         if (!raw || raw.toLowerCase() === 'mi è indifferente') return
         const parola = titleCaseStato(raw)
+        if (!PAROLE_PDF_SET.has(parola.toLowerCase())) return
         // Identità univoca: parola + correnteKey specifico (es. BLU_4_Solare),
         // non il nome corrente di famiglia (es. "Lunare" per Blu, "Solare" per
         // Giallo — nomi che collidono per assonanza con le sotto-correnti
@@ -575,10 +591,9 @@ export function buildReportData({
     const theme = FAMILY_THEME[familyName]
     const key = theme.key
     const peso = relativePcts[key] ?? 0
-    const reportLessico = Array.isArray(reportContent?.[familyName]?.lessico)
-      ? reportContent[familyName].lessico
-      : []
-    const lessico = getFullLessicoForFamily(familyName, reportLessico)
+    // Solo il lessico del PDF «Parole per TST» (paroleTst.js): le vecchie liste
+    // `lessico` di content_report.json non vengono più aggiunte.
+    const lessico = getFullLessicoForFamily(familyName)
     const famigliaLessico = getFamigliaLessico(familyName)
     const familyContent = reportContent?.[familyName] || {}
     const descrizioneBreve =

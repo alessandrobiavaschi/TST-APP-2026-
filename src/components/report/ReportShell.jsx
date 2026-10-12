@@ -661,6 +661,7 @@ export default function ReportShell({
                       stepPrefix="1"
                       globalProfileContract={globalProfileContract}
                       contentCards={profiloEmotivo?.contentCards}
+                      rawRecord={rawRecord}
                     />
                   </Suspense>
                 </RoomRevealContent>
