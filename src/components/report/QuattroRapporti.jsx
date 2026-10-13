@@ -18,6 +18,7 @@ import {
   Tooltip,
 } from 'recharts'
 import '../../styles/quattro-rapporti.css'
+import { ensureContrast } from '../../utils/contrastSafeColor.js'
 
 const FALLBACK_COLOR = '#94a3b8'
 const FAMILY_THEME_BY_KEY = Object.fromEntries(
@@ -83,7 +84,7 @@ function RadarTooltipContent({ active, payload }) {
   return (
     <div
       className="quattro-rapporti-radar-tooltip"
-      style={{ '--qr-tooltip-color': item.colore || FALLBACK_COLOR }}
+      style={{ '--qr-tooltip-color': ensureContrast(item.colore || FALLBACK_COLOR) }}
     >
       <span className="quattro-rapporti-radar-tooltip__family">{item.corrente}</span>
       <strong className="quattro-rapporti-radar-tooltip__value">{item.valore}/7</strong>
@@ -121,8 +122,8 @@ function RadarPoint({ cx, cy, payload, index, selectedFamilyKey, onSelect }) {
         cx={cx}
         cy={cy}
         r={selected ? 7 : 5}
-        fill={payload.colore || FALLBACK_COLOR}
-        stroke={selected ? '#ffffff' : payload.colore || FALLBACK_COLOR}
+        fill={ensureContrast(payload.colore || FALLBACK_COLOR)}
+        stroke={selected ? '#ffffff' : ensureContrast(payload.colore || FALLBACK_COLOR)}
         strokeWidth={selected ? 2.5 : 1.5}
         pointerEvents="none"
       />
@@ -236,10 +237,11 @@ export default function QuattroRapporti({
     ? Math.min(Math.max(selectedIndex, 0), rapporti.length - 1)
     : 0
   const active = rapporti[activeIndex] || null
-  const activeColor =
+  const activeColor = ensureContrast(
     active?.correntePrincipale?.colore ||
     coloriCorrenti?.[active?.correntePrincipale?.nome] ||
     FALLBACK_COLOR
+  )
   const fadeDuration = reduceMotion ? 0 : 0.3
 
   const sintesiParagraphs = Array.isArray(active?.sintesiBreveParagrafi) && active.sintesiBreveParagrafi.length
@@ -349,7 +351,7 @@ export default function QuattroRapporti({
         >
           {rapporti.map((r, i) => {
             const selected = i === activeIndex
-            const color = r?.correntePrincipale?.colore || FALLBACK_COLOR
+            const color = ensureContrast(r?.correntePrincipale?.colore || FALLBACK_COLOR)
             return (
               <button
                 key={r?.id ?? i}
@@ -517,7 +519,7 @@ export default function QuattroRapporti({
                       key={item.familyKey}
                       type="button"
                       className={`quattro-rapporti-ranking__item${item.familyKey === selectedFamilyKey ? ' quattro-rapporti-ranking__item--selected' : ''}`}
-                      style={{ '--qr-family-color': item.colore || FALLBACK_COLOR }}
+                      style={{ '--qr-family-color': ensureContrast(item.colore || FALLBACK_COLOR) }}
                       aria-pressed={item.familyKey === selectedFamilyKey}
                       onClick={() => selectFamily(item.familyKey)}
                     >
