@@ -22212,3 +22212,39 @@ a:focus-visible {
   outline-offset: 2px;
 }
 
+/* Accessibility: Video background pause/play toggle */
+.video-bg-toggle {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 50;
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: var(--text-micro, 0.75rem);
+  padding: 0.35rem 0.7rem;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #f8fafc;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: opacity 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+  opacity: 0.65;
+}
+
+.video-bg-toggle:hover,
+.video-bg-toggle:focus-visible {
+  opacity: 1;
+  background: rgba(15, 23, 42, 0.95);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.video-bg-toggle:focus-visible {
+  outline: 2px solid var(--color-accent, #7a59f5);
+  outline-offset: 2px;
+}
+
+

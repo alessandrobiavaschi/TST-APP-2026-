@@ -9,9 +9,25 @@ const LANDING_FILE = 'SFONDO LANDING.mp4'
 // In Vite, files in `public/` are served from the app root (not `/public/...`).
 const LANDING_LOOP = `${import.meta.env.BASE_URL}${encodeURI(LANDING_FILE)}`
 
+const STORAGE_KEY_PAUSED = 'tst_video_bg_paused'
+
+function getInitialPaused() {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY_PAUSED)
+    if (stored !== null) return stored === 'true'
+  } catch {
+    // ignore
+  }
+  if (typeof window !== 'undefined' && window.matchMedia) {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  }
+  return false
+}
+
 function VideoBackground0311({ className = '', showOverlay = false, style }) {
   const videoRef = useRef(null)
   const [isReady, setIsReady] = useState(false)
+  const [isPaused, setIsPaused] = useState(getInitialPaused)
 
   const markReady = useCallback(() => {
     setIsReady(true)
@@ -27,6 +43,15 @@ function VideoBackground0311({ className = '', showOverlay = false, style }) {
       el.loop = true
       /* 1.0: playback < 1 su H.264 espone macroblocchi / banding su zone scure */
       el.playbackRate = 1
+
+      if (isPaused) {
+        if (!el.paused) {
+          el.pause()
+        }
+        if (el.readyState >= 2) markReady()
+        return
+      }
+
       if (el.paused) {
         el.play().catch(() => {})
       }
@@ -37,7 +62,37 @@ function VideoBackground0311({ className = '', showOverlay = false, style }) {
     } catch {
       // ignore
     }
-  }, [markReady])
+  }, [isPaused, markReady])
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const handleChange = (e) => {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY_PAUSED)
+        if (stored === null) {
+          setIsPaused(e.matches)
+        }
+      } catch {
+        setIsPaused(e.matches)
+      }
+    }
+    mediaQuery.addEventListener?.('change', handleChange)
+    return () => {
+      mediaQuery.removeEventListener?.('change', handleChange)
+    }
+  }, [])
+
+  useEffect(() => {
+    const el = videoRef.current
+    if (!el) return
+    if (isPaused) {
+      if (!el.paused) el.pause()
+      if (el.readyState >= 2) markReady()
+    } else {
+      el.play().catch(() => {})
+    }
+  }, [isPaused, markReady])
 
   useEffect(() => {
     ensurePlaying()
@@ -65,35 +120,60 @@ function VideoBackground0311({ className = '', showOverlay = false, style }) {
     }
   }, [ensurePlaying])
 
+  const togglePause = useCallback(() => {
+    setIsPaused((prev) => {
+      const next = !prev
+      try {
+        localStorage.setItem(STORAGE_KEY_PAUSED, String(next))
+      } catch {
+        // ignore
+      }
+      return next
+    })
+  }, [])
+
   return (
-    <motion.div className={`page-video-bg ${className}`} style={style}>
-      <video
-        ref={videoRef}
-        className={`page-video-bg__layer page-video-bg__landing-loop vb0311-video${isReady ? ' vb0311-video--ready' : ''}`}
-        src={LANDING_LOOP}
-        aria-hidden="true"
-        muted
-        loop
-        playsInline
-        autoPlay
-        preload="auto"
-        controls={false}
-        disablePictureInPicture
-        disableRemotePlayback
-        onLoadedData={() => {
-          ensurePlaying()
-          markReady()
-        }}
-        onCanPlay={() => {
-          ensurePlaying()
-          markReady()
-        }}
-        onError={(e) => {
-          console.warn('Video sfondo: caricamento fallito', LANDING_LOOP, e?.target?.error)
-        }}
-      />
-      {showOverlay && <div className="page-video-overlay" />}
-    </motion.div>
+    <>
+      <motion.div className={`page-video-bg ${className}`} style={style}>
+        <video
+          ref={videoRef}
+          className={`page-video-bg__layer page-video-bg__landing-loop vb0311-video${isReady ? ' vb0311-video--ready' : ''}`}
+          src={LANDING_LOOP}
+          aria-hidden="true"
+          muted
+          loop
+          playsInline
+          autoPlay={!isPaused}
+          preload="auto"
+          controls={false}
+          disablePictureInPicture
+          disableRemotePlayback
+          onLoadedData={() => {
+            ensurePlaying()
+            markReady()
+          }}
+          onCanPlay={() => {
+            ensurePlaying()
+            markReady()
+          }}
+          onError={(e) => {
+            console.warn('Video sfondo: caricamento fallito', LANDING_LOOP, e?.target?.error)
+          }}
+        />
+        {showOverlay && <div className="page-video-overlay" />}
+      </motion.div>
+      <button
+        type="button"
+        className="nav-button ghost video-bg-toggle"
+        aria-pressed={isPaused}
+        aria-label={isPaused ? 'Riproduci video di sfondo' : 'Metti in pausa il video di sfondo'}
+        title={isPaused ? 'Riproduci video di sfondo' : 'Metti in pausa il video di sfondo'}
+        onClick={togglePause}
+      >
+        <span aria-hidden="true">{isPaused ? '▶' : '⏸'}</span>
+        <span>{isPaused ? 'Riproduci sfondo' : 'Pausa sfondo'}</span>
+      </button>
+    </>
   )
 }
 
