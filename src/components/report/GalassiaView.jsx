@@ -2674,6 +2674,81 @@ function buildGalassiaDeepReading(rankedData) {
   return lines
 }
 
+/**
+ * CelestialPlanetSphere: Rappresentazione 3D volumetrica realistica dei corpi celesti delle Disposizioni
+ * - Gradiente sferico volumetrico e riflesso speculare ad alto angolo
+ * - Terminatore ombra giorno/notte curvo con luce radente
+ * - Corona e scattering di Rayleigh atmosferico
+ * - Anello di accrescimento 3D inclinato prospettico
+ * - Fluttuazione organica a gravità zero (onde armoniche differenziate)
+ */
+function CelestialPlanetSphere({
+  id,
+  color,
+  size,
+  isHovered,
+  isSelected,
+  isDominant,
+  floatIndex = 0,
+}) {
+  const baseSize = Math.max(34, size)
+  const ringWidth = Math.round(baseSize * 2.25)
+  const ringHeight = Math.round(baseSize * 0.74)
+  const familyKey = FAMILY_KEY_BY_DISPOSITION[id] || (typeof id === 'string' ? id.toLowerCase() : 'blu')
+
+  return (
+    <div
+      className={`celestial-sphere celestial-sphere--${familyKey} celestial-sphere--float-${floatIndex % 5}${isHovered ? ' is-hovered' : ''}${isSelected ? ' is-selected' : ''}${isDominant ? ' is-dominant' : ''}`}
+      style={{
+        width: `${baseSize}px`,
+        height: `${baseSize}px`,
+        '--planet-color': color,
+        '--planet-size': `${baseSize}px`,
+      }}
+      aria-hidden="true"
+    >
+      {/* Corona e alone gravitazionale atmosferico */}
+      <div className="celestial-sphere__corona" />
+
+      {/* Onde di compressione gravitazionale all'hover / selezione / dominante */}
+      {(isSelected || isDominant || isHovered) && (
+        <div className="celestial-sphere__pulse-wave" />
+      )}
+
+      {/* Anello di accrescimento 3D inclinato (polveri cosmiche) */}
+      <div
+        className="celestial-sphere__ring-system"
+        style={{ width: `${ringWidth}px`, height: `${ringHeight}px` }}
+      >
+        <div className="celestial-sphere__ring-disc" />
+      </div>
+
+      {/* Globo volumetrico con maschera sferica */}
+      <div className="celestial-sphere__globe">
+        {/* Fasce atmosferiche / nubi procedurali in deriva orizzontale lenta */}
+        <div className="celestial-sphere__surface" />
+
+        {/* Terminatore d'ombra curvo 3D (emisfero oscuro) */}
+        <div className="celestial-sphere__terminator" />
+
+        {/* Riflesso speculare ad alto angolo (illuminazione solare) */}
+        <div className="celestial-sphere__specular" />
+
+        {/* Bordo atmosferico / Scattering di Fresnel limb */}
+        <div className="celestial-sphere__limb" />
+      </div>
+
+      {/* Segnale di orientamento della Disposizione Prevalente */}
+      {isDominant && (
+        <div className="celestial-sphere__beacon" title="Disposizione Prevalente">
+          <span className="celestial-sphere__beacon-core" />
+          <span className="celestial-sphere__beacon-ring" />
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function GalassiaView({
   correntData,
   paroleEmerse = [],
@@ -3118,6 +3193,12 @@ export default function GalassiaView({
   const handleMapPointerDown = (event) => {
     const target = event.target instanceof Element ? event.target : null
     const isInteractive = Boolean(target?.closest(INTERACTIVE_MAP_SELECTOR))
+
+    // Se l'animazione di camera era attiva, cancellala immediatamente per evitare scatti o lag contro il trascinamento manuale
+    if (cameraAnimTimerRef.current) {
+      clearTimeout(cameraAnimTimerRef.current)
+    }
+    setCameraAnimating(false)
 
     // Capture solo per pan/zoom: su pianeti e costellazione il capture ruba il click al button.
     if (!isInteractive && event.currentTarget.setPointerCapture) {
@@ -3905,31 +3986,72 @@ export default function GalassiaView({
             </button>
           ) : null}
           {mapMode === 'disposizioni' ? (
-            <>
-          <svg
-            className="galassia-view__axis"
-            viewBox="0 0 100 100"
-            preserveAspectRatio="none"
-            aria-hidden="true"
-          >
-            <ellipse cx="50" cy="50" rx="29" ry="20" />
-            <ellipse cx="50" cy="50" rx="43" ry="30" />
-            <line x1="17" y1="52" x2="83" y2="52" />
-            <line x1="50" y1="18" x2="50" y2="82" />
-          </svg>
-          <svg
-            className="galassia-view__wind-field"
-            viewBox="0 0 100 100"
-            preserveAspectRatio="none"
-            aria-hidden="true"
-          >
-            <path className="galassia-view__wind-line galassia-view__wind-line--blu" d="M18 54 C31 45, 40 45, 50 51" />
-            <path className="galassia-view__wind-line galassia-view__wind-line--rosso" d="M82 54 C70 47, 61 47, 50 51" />
-            <path className="galassia-view__wind-line galassia-view__wind-line--giallo" d="M50 20 C56 34, 56 43, 50 51" />
-            <path className="galassia-view__wind-line galassia-view__wind-line--grigio" d="M50 84 C44 70, 44 60, 50 51" />
-            <path className="galassia-view__wind-line galassia-view__wind-line--verde" d="M38 50 C44 45, 56 45, 62 50 C56 57, 44 57, 38 50" />
-          </svg>
-            </>
+            <div className="galassia-3d-celestial-web" aria-hidden="true">
+              {/* Singolarità gravitazionale e pulsar centrale */}
+              <div className="galassia-3d-core">
+                <div className="galassia-3d-core__nebula" />
+                <div className="galassia-3d-core__rings" />
+                <div className="galassia-3d-core__singularity" />
+                <div className="galassia-3d-core__lens-flare" />
+              </div>
+
+              {/* Piani orbitali ellittici 3D e coordinate energetiche */}
+              <svg
+                className="galassia-3d-web__svg"
+                viewBox="0 0 100 100"
+                preserveAspectRatio="none"
+              >
+                <defs>
+                  <linearGradient id="streamGradBlu" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.85" />
+                    <stop offset="100%" stopColor="#818cf8" stopOpacity="0.2" />
+                  </linearGradient>
+                  <linearGradient id="streamGradRosso" x1="100%" y1="0%" x2="0%" y2="0%">
+                    <stop offset="0%" stopColor="#f43f5e" stopOpacity="0.85" />
+                    <stop offset="100%" stopColor="#fb7185" stopOpacity="0.2" />
+                  </linearGradient>
+                  <linearGradient id="streamGradGiallo" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="#fbbf24" stopOpacity="0.85" />
+                    <stop offset="100%" stopColor="#f59e0b" stopOpacity="0.2" />
+                  </linearGradient>
+                  <linearGradient id="streamGradGrigio" x1="0%" y1="100%" x2="0%" y2="0%">
+                    <stop offset="0%" stopColor="#94a3b8" stopOpacity="0.85" />
+                    <stop offset="100%" stopColor="#cbd5e1" stopOpacity="0.2" />
+                  </linearGradient>
+                  <radialGradient id="celestialCoreGlow" cx="50%" cy="51%" r="50%">
+                    <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.35" />
+                    <stop offset="45%" stopColor="#818cf8" stopOpacity="0.12" />
+                    <stop offset="100%" stopColor="#020817" stopOpacity="0" />
+                  </radialGradient>
+                </defs>
+
+                {/* Bagliore gravitazionale del nucleo */}
+                <circle cx="50" cy="51" r="28" fill="url(#celestialCoreGlow)" />
+
+                {/* Tracce orbitali concentriche in prospettiva 3D */}
+                <ellipse cx="50" cy="51" rx="16" ry="11" className="galassia-3d-orbit galassia-3d-orbit--inner" />
+                <ellipse cx="50" cy="51" rx="29" ry="20" className="galassia-3d-orbit galassia-3d-orbit--mid" />
+                <ellipse cx="50" cy="51" rx="43" ry="30" className="galassia-3d-orbit galassia-3d-orbit--outer" />
+                <ellipse cx="50" cy="51" rx="48" ry="34" className="galassia-3d-orbit galassia-3d-orbit--far" />
+
+                {/* Linee di coordinate cardinali */}
+                <line x1="12" y1="51" x2="88" y2="51" className="galassia-3d-axis-line galassia-3d-axis-line--horizontal" />
+                <line x1="50" y1="14" x2="50" y2="86" className="galassia-3d-axis-line galassia-3d-axis-line--vertical" />
+
+                {/* Flussi di fotoni luminosi verso la singolarità centrale */}
+                <path className="galassia-3d-stream galassia-3d-stream--blu" d="M18 54 C31 46, 41 46, 50 51" />
+                <path className="galassia-3d-stream galassia-3d-stream--rosso" d="M82 54 C69 46, 59 46, 50 51" />
+                <path className="galassia-3d-stream galassia-3d-stream--giallo" d="M50 20 C56 32, 56 42, 50 51" />
+                <path className="galassia-3d-stream galassia-3d-stream--grigio" d="M50 84 C44 72, 44 60, 50 51" />
+                <path className="galassia-3d-stream galassia-3d-stream--verde" d="M38 51 C44 45, 56 45, 62 51 C56 57, 44 57, 38 51" />
+
+                {/* Onde di impulso secondarie per profondità cinetica */}
+                <path className="galassia-3d-stream-pulse galassia-3d-stream-pulse--blu" d="M18 54 C31 46, 41 46, 50 51" />
+                <path className="galassia-3d-stream-pulse galassia-3d-stream-pulse--rosso" d="M82 54 C69 46, 59 46, 50 51" />
+                <path className="galassia-3d-stream-pulse galassia-3d-stream-pulse--giallo" d="M50 20 C56 32, 56 42, 50 51" />
+                <path className="galassia-3d-stream-pulse galassia-3d-stream-pulse--grigio" d="M50 84 C44 72, 44 60, 50 51" />
+              </svg>
+            </div>
           ) : null}
           {mapMode === 'portato' && portato?.hasData ? (
             <>
@@ -4197,10 +4319,11 @@ export default function GalassiaView({
             />
           ) : null}
 
-          {mapMode !== 'parole' && planetLayout.map((layout) => {
+          {mapMode !== 'parole' && planetLayout.map((layout, index) => {
             const c = layout.node
             if (!c) return null
             const isHovered = hoveredId === c.id
+            const isDominant = mapMode === 'disposizioni' && rankedData[0]?.id === c.id
             return (
               <motion.div
                 key={c.id}
@@ -4231,36 +4354,20 @@ export default function GalassiaView({
                   aria-label={`${c.nome}, ${layout.weight.display}`}
                   aria-pressed={layout.isSelected}
                 >
-                  <span className="relative flex items-center justify-center">
-                    <span
-                      aria-hidden
-                      className="absolute rounded-full"
-                      style={{
-                        width: layout.circle + 12,
-                        height: layout.circle + 12,
-                        border: `1px solid ${c.colore}`,
-                        opacity: isHovered ? 0.55 : 0.3,
-                      }}
-                    />
-                    <span
-                      aria-hidden
-                      className="rounded-full"
-                      style={{
-                        width: layout.circle,
-                        height: layout.circle,
-                        backgroundColor: c.colore,
-                        opacity: 0.85,
-                        boxShadow: isHovered
-                          ? `0 0 24px ${c.colore}, 0 0 8px ${c.colore}`
-                          : `0 0 14px ${c.colore}66`,
-                      }}
-                    />
-                  </span>
+                  <CelestialPlanetSphere
+                    id={c.id}
+                    color={c.colore}
+                    size={layout.circle}
+                    isHovered={isHovered}
+                    isSelected={layout.isSelected}
+                    isDominant={isDominant}
+                    floatIndex={index}
+                  />
                 </motion.button>
 
                 <span
                   className="galassia-view__planet-label"
-                  style={{ top: `calc(50% + ${layout.circle / 2 + 8}px)` }}
+                  style={{ top: `calc(50% + ${Math.max(34, layout.circle) / 2 + 10}px)` }}
                   title={`${c.nome} · ${layout.weight.display}`}
                 >
                   <strong>{c.nome}</strong>

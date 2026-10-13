@@ -227,6 +227,9 @@ function buildConstellationData() {
   const edges = []
   const spheres = []
 
+  // Temporary storage to group word occurrences across currents and families
+  const rawOccurrencesByWord = new Map()
+
   for (const famId of FAMILY_ORDER) {
     const theory = GALAXY_THEORY_BY_DISPOSITION[famId]
     const cfg = FAMILY_CONFIG[famId]
@@ -289,11 +292,6 @@ function buildConstellationData() {
       const numStates = states.length
       if (numStates === 0) return
 
-      // Partition words across 3 concentric hierarchical rings:
-      // Ring 0 (inner ~40% maxR): dominant / high-salience words (font size 17, weight 700)
-      // Ring 1 (middle ~70% maxR): intermediate words (font size 14, weight 600)
-      // Ring 2 (outer 100% maxR): remaining words (font size 12.5, weight 500)
-      // Anello interno = le parole chiave del PDF; il resto degli aggettivi sugli anelli esterni.
       const count0 = numChiave
       const count1 = Math.ceil((numStates - count0) / 2)
 
@@ -327,7 +325,6 @@ function buildConstellationData() {
       const baseR = numCurrents === 1 ? cfg.radius * 0.88 : cfg.subSpread * 0.96
       const maxR = Math.max(220, Math.min(420, baseR + (numStates > 8 ? (numStates - 8) * 14 : 0)))
 
-      // Distribute each ring with proportional angular spacing weighted by text length
       for (let rIdx = 0; rIdx <= 2; rIdx++) {
         const ringWords = ringAssignments.filter((item) => item.ringIndex === rIdx)
         if (ringWords.length === 0) continue
@@ -336,9 +333,6 @@ function buildConstellationData() {
         const r = maxR * ringFactor
         const yFlatten = 0.90
 
-        // Words are anchored stably to their celestial positions
-
-        // Weighted angular allocation based on estimated text width
         const totalRingWeight = ringWords.reduce((sum, item) => sum + item.estWidth, 0)
         const ringPhaseOffset =
           rIdx * 0.73 + ci * 1.25 + (famId.charCodeAt(0) % 7) * 0.41
@@ -353,59 +347,139 @@ function buildConstellationData() {
           const wx = hubX + Math.cos(angle) * r
           const wy = hubY + Math.sin(angle) * (r * yFlatten)
 
-          const wordId = `${famId}-${c.rawKey}-${item.si}`
-          const wordObj = {
-            id: wordId,
-            index: words.length,
-            nome: item.state,
+          const normName = String(item.state).toLowerCase().trim()
+          if (!rawOccurrencesByWord.has(normName)) {
+            rawOccurrencesByWord.set(normName, [])
+          }
+
+          rawOccurrencesByWord.get(normName).push({
+            state: item.state,
+            si: item.si,
             familyId: famId,
             familyLabel: cfg.label,
             familyColor: cfg.baseColor,
             subcurrentId: c.rawKey,
             subcurrentTitle: c.title,
-            subcurrentDescription: '',
             subcurrentInterval: c.interval,
-            isKey: item.ringIndex === 0,
-            keyNote: noteChiave[String(item.state).toLowerCase()] || '',
+            ringIndex: rIdx,
+            keyNote: noteChiave[normName] || '',
             sostantiviSintesi: naturaPdf?.sostantiviSintesi || [],
             famiglieCollegate: pdfFamiglieCollegate(naturaPdf, item.state),
             hubId: c.rawKey,
             hubX,
             hubY,
-            x: wx,
-            y: wy,
-            width: item.estWidth,
-            height: item.estHeight,
+            cfgX: cfg.x,
+            cfgY: cfg.y,
+            wx,
+            wy,
+            estWidth: item.estWidth,
+            estHeight: item.estHeight,
             fontSize: item.fontSize,
             fontWeight: item.fontWeight,
             color: cfg.colors[item.si % cfg.colors.length],
-            ringIndex: rIdx,
             orbitRadius: r,
             yFlatten,
             baseAngle: angle,
-            driftSpeed: 0,
-          }
-          words.push(wordObj)
-
-          edges.push({
-            id: `edge-word-${wordId}`,
-            familyId: famId,
-            subcurrentId: c.rawKey,
-            wordId,
-            wordIndex: words.length - 1,
-            x1: hubX,
-            y1: hubY,
-            x2: wx,
-            y2: wy,
-            type: 'hub-word',
-            color: cfg.baseColor,
-            targetColor: cfg.colors[item.si % cfg.colors.length],
-            sphereX: cfg.x,
-            sphereY: cfg.y,
-            sagVariation: ((wordId.charCodeAt(wordId.length - 1)) % 7) - 3,
           })
         }
       }
+    })
+  }
+
+  // Deduplicate words into unique nodes: multi-occurrence words become semantic intersection nodes ("incroci")
+  for (const [normName, occurrences] of rawOccurrencesByWord.entries()) {
+    const isIntersection = occurrences.length > 1
+    const first = occurrences[0]
+    const famIds = [...new Set(occurrences.map((o) => o.familyId))]
+    const connectedFamilies = famIds.map((fId) => ({
+      id: fId,
+      label: FAMILY_CONFIG[fId]?.label || fId,
+      color: FAMILY_CONFIG[fId]?.baseColor || '#38bdf8',
+    }))
+    const connectedNatures = occurrences.map((o) => ({
+      familyId: o.familyId,
+      familyLabel: o.familyLabel,
+      subcurrentId: o.subcurrentId,
+      title: o.subcurrentTitle,
+      interval: o.subcurrentInterval,
+    }))
+
+    // Calculate node coordinates: if intersection across families, position at barycenter of hubs
+    let targetX = first.wx
+    let targetY = first.wy
+    if (isIntersection) {
+      if (famIds.length > 1) {
+        const avgHubX = occurrences.reduce((s, o) => s + o.hubX, 0) / occurrences.length
+        const avgHubY = occurrences.reduce((s, o) => s + o.hubY, 0) / occurrences.length
+        targetX = Math.round(avgHubX)
+        targetY = Math.round(avgHubY)
+      } else {
+        targetX = Math.round(occurrences.reduce((s, o) => s + o.wx, 0) / occurrences.length)
+        targetY = Math.round(occurrences.reduce((s, o) => s + o.wy, 0) / occurrences.length)
+      }
+    }
+
+    const wordId = isIntersection
+      ? `bridge-${normName.replace(/[^a-z0-9]/g, '_')}`
+      : `${first.familyId}-${first.subcurrentId}-${first.si}`
+
+    const wordObj = {
+      id: wordId,
+      index: words.length,
+      nome: first.state,
+      familyId: first.familyId,
+      familyLabel: first.familyLabel,
+      familyColor: first.familyColor,
+      subcurrentId: first.subcurrentId,
+      subcurrentTitle: isIntersection
+        ? occurrences.map((o) => o.subcurrentTitle).join(' · ')
+        : first.subcurrentTitle,
+      subcurrentDescription: '',
+      subcurrentInterval: first.subcurrentInterval,
+      isKey: occurrences.some((o) => o.ringIndex === 0),
+      keyNote: occurrences.map((o) => o.keyNote).filter(Boolean)[0] || '',
+      sostantiviSintesi: [...new Set(occurrences.flatMap((o) => o.sostantiviSintesi))],
+      famiglieCollegate: [...new Set(occurrences.flatMap((o) => o.famiglieCollegate))],
+      hubId: first.hubId,
+      hubX: first.hubX,
+      hubY: first.hubY,
+      x: targetX,
+      y: targetY,
+      width: Math.max(...occurrences.map((o) => o.estWidth)) + (isIntersection ? 16 : 0),
+      height: Math.max(...occurrences.map((o) => o.estHeight)) + (isIntersection ? 4 : 0),
+      fontSize: isIntersection ? 13.5 : first.fontSize,
+      fontWeight: isIntersection ? 700 : first.fontWeight,
+      color: isIntersection ? '#f8fafc' : first.color,
+      ringIndex: Math.min(...occurrences.map((o) => o.ringIndex)),
+      isIntersection,
+      connectedFamilies,
+      connectedFamilyIds: famIds,
+      connectedNatures,
+      driftSpeed: 0,
+    }
+
+    words.push(wordObj)
+
+    // For every parent current/hub, create an edge connecting that hub to this word
+    occurrences.forEach((cand, cIdx) => {
+      edges.push({
+        id: `edge-word-${wordId}-${cand.subcurrentId}-${cIdx}`,
+        familyId: cand.familyId,
+        subcurrentId: cand.subcurrentId,
+        wordId,
+        wordIndex: wordObj.index,
+        x1: cand.hubX,
+        y1: cand.hubY,
+        x2: targetX,
+        y2: targetY,
+        type: 'hub-word',
+        color: cand.familyColor,
+        targetColor: isIntersection ? cand.familyColor : cand.color,
+        sphereX: cand.cfgX,
+        sphereY: cand.cfgY,
+        sagVariation: ((wordId.charCodeAt(0) + cand.subcurrentId.charCodeAt(0)) % 7) - 3,
+        isIntersectionEdge: isIntersection,
+      })
     })
   }
 
@@ -430,7 +504,10 @@ function buildConstellationData() {
       let fy = -kSpring * (pY[i] - w.y)
 
       for (let j = i + 1; j < numWords; j++) {
-        if (words[j].familyId !== w.familyId) continue
+        const isPeerFamily =
+          words[j].familyId === w.familyId ||
+          w.connectedFamilyIds?.some((fId) => words[j].connectedFamilyIds?.includes(fId))
+        if (!isPeerFamily && !w.isIntersection && !words[j].isIntersection) continue
         const dx = pX[j] - pX[i]
         const dy = pY[j] - pY[i]
         const minDist = (w.width + words[j].width) * 0.5 + 26
@@ -461,7 +538,10 @@ function buildConstellationData() {
   for (let pass = 0; pass < 8; pass++) {
     for (let i = 0; i < numWords; i++) {
       for (let j = i + 1; j < numWords; j++) {
-        if (words[j].familyId !== words[i].familyId) continue
+        const isPeerFamily =
+          words[j].familyId === words[i].familyId ||
+          words[i].connectedFamilyIds?.some((fId) => words[j].connectedFamilyIds?.includes(fId))
+        if (!isPeerFamily && !words[i].isIntersection && !words[j].isIntersection) continue
         const dx = pX[j] - pX[i]
         const dy = pY[j] - pY[i]
         const reqW = (words[i].width + words[j].width) * 0.5 + 16
@@ -508,7 +588,13 @@ function buildConstellationData() {
   // Populate nearby words for dictionary panel
   for (const w of words) {
     w.nearbyWords = words
-      .filter((v) => v.subcurrentId === w.subcurrentId && v.id !== w.id)
+      .filter((v) => {
+        if (v.id === w.id) return false
+        const sharesSub = (w.connectedNatures || []).some((wn) =>
+          (v.connectedNatures || []).some((vn) => vn.subcurrentId === wn.subcurrentId),
+        )
+        return sharesSub || v.subcurrentId === w.subcurrentId
+      })
       .slice(0, 6)
       .map((v) => v.nome)
   }
@@ -762,7 +848,7 @@ function FloatingHolographicSlate({ word, onClose, onSelectWord, viewModel }) {
                   isSituational ? ' is-situational' : ' is-stable'
                 }`}
               >
-                {isSituational ? 'EMERSA DAL TEST' : word.isKey ? 'PAROLA CHIAVE' : 'AGGETTIVO DELLA NATURA'}
+                {isSituational ? 'EMERSA DAL TEST' : word.isIntersection ? 'NODO D’INCROCIO' : 'AGGETTIVO DELLA NATURA'}
               </span>
               {dynamicWordInfo?.conteggio && (
                 <span className="lessico-holo-slate__count-pill">
@@ -771,6 +857,27 @@ function FloatingHolographicSlate({ word, onClose, onSelectWord, viewModel }) {
               )}
             </div>
           </div>
+
+          {word.isIntersection && word.connectedNatures?.length > 1 ? (
+            <div className="lessico-holo-slate__intersection-block">
+              <div className="lessico-holo-slate__intersection-badge">
+                <span className="lessico-holo-slate__intersection-icon">☍</span>
+                <span>NODO D’INCROCIO // {word.connectedFamilies?.map((f) => f.label.toUpperCase()).join(' & ')}</span>
+              </div>
+              <div className="lessico-holo-slate__intersection-list">
+                {word.connectedNatures.map((nat, nIdx) => (
+                  <div key={`${nat.subcurrentId}-${nIdx}`} className="lessico-holo-slate__intersection-item">
+                    <span
+                      className="lessico-holo-slate__dot"
+                      style={{ backgroundColor: FAMILY_CONFIG[nat.familyId]?.baseColor || '#38bdf8' }}
+                      aria-hidden="true"
+                    />
+                    <strong>{nat.familyLabel}</strong>: <span>{nat.title}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
 
           {/* Suono dell'intervallo della natura (dal PDF), se indicato */}
           {word.subcurrentInterval ? (
@@ -825,7 +932,7 @@ function FloatingHolographicSlate({ word, onClose, onSelectWord, viewModel }) {
 
           {word.keyNote ? (
             <div className="lessico-holo-slate__desc">
-              <h3>Parola chiave</h3>
+              <h3>Significato</h3>
               <p>{word.keyNote}</p>
             </div>
           ) : null}
@@ -1106,7 +1213,11 @@ export default function LessicoAtlasView({
     const ids = new Set()
     for (const w of CONSTELLATION_DATA.words) {
       const normalizedName = w.nome.toLowerCase()
+      const matchesConnected = (w.connectedNatures || []).some((nat) =>
+        emergedWords.precise.has(`${nat.familyId || w.familyId}|${nat.subcurrentId || w.subcurrentId}|${normalizedName}`),
+      )
       if (
+        matchesConnected ||
         emergedWords.precise.has(`${w.familyId}|${w.subcurrentId}|${normalizedName}`) ||
         emergedWords.fallback.has(normalizedName)
       ) {
@@ -1723,22 +1834,25 @@ export default function LessicoAtlasView({
       const now = performance.now()
       const dt = Math.max(1, now - drag.lastTime)
 
-      const instVx = (e.clientX - drag.lastClientX) / (dt / 16.67)
-      const instVy = (e.clientY - drag.lastClientY) / (dt / 16.67)
-      velocityRef.current.vx = velocityRef.current.vx * 0.4 + instVx * 0.6
-      velocityRef.current.vy = velocityRef.current.vy * 0.4 + instVy * 0.6
+      const instVx = (e.clientX - drag.lastClientX) / Math.max(0.6, dt / 16.67)
+      const instVy = (e.clientY - drag.lastClientY) / Math.max(0.6, dt / 16.67)
+      velocityRef.current.vx = velocityRef.current.vx * 0.3 + instVx * 0.7
+      velocityRef.current.vy = velocityRef.current.vy * 0.3 + instVy * 0.7
 
       drag.lastClientX = e.clientX
       drag.lastClientY = e.clientY
       drag.lastTime = now
 
+      const nextX = drag.startX + (e.clientX - drag.clientX)
+      const nextY = drag.startY + (e.clientY - drag.clientY)
+
       targetCameraRef.current = {
         ...targetCameraRef.current,
-        x: drag.startX + (e.clientX - drag.clientX),
-        y: drag.startY + (e.clientY - drag.clientY),
+        x: nextX,
+        y: nextY,
       }
-      cameraRef.current.x = targetCameraRef.current.x
-      cameraRef.current.y = targetCameraRef.current.y
+      cameraRef.current.x = nextX
+      cameraRef.current.y = nextY
     }
   }, [])
 
@@ -1746,13 +1860,22 @@ export default function LessicoAtlasView({
     pointersRef.current.delete(e.pointerId)
     pinchRef.current = null
     if (mouseDragRef.current) {
-      velocityRef.current.vx = clamp(velocityRef.current.vx, -45, 45)
-      velocityRef.current.vy = clamp(velocityRef.current.vy, -45, 45)
+      const timeSinceMove = performance.now() - mouseDragRef.current.lastTime
+      if (timeSinceMove > 55) {
+        // Stop momentum immediately if pointer was paused before release
+        velocityRef.current.vx = 0
+        velocityRef.current.vy = 0
+      } else {
+        velocityRef.current.vx = clamp(velocityRef.current.vx, -16, 16)
+        velocityRef.current.vy = clamp(velocityRef.current.vy, -16, 16)
+      }
       mouseDragRef.current = null
     }
-    if (e.currentTarget.releasePointerCapture && e.currentTarget.hasPointerCapture?.(e.pointerId)) {
-      e.currentTarget.releasePointerCapture(e.pointerId)
-    }
+    try {
+      if (e.currentTarget.releasePointerCapture && e.currentTarget.hasPointerCapture?.(e.pointerId)) {
+        e.currentTarget.releasePointerCapture(e.pointerId)
+      }
+    } catch {}
   }, [])
 
   const handlePointerLeave = useCallback(() => {
@@ -1864,12 +1987,15 @@ export default function LessicoAtlasView({
         if (Math.hypot(vel.vx, vel.vy) > 0.05) {
           targetCameraRef.current.x += vel.vx
           targetCameraRef.current.y += vel.vy
-          vel.vx *= 0.90
-          vel.vy *= 0.90
+          vel.vx *= 0.88
+          vel.vy *= 0.88
         } else {
           vel.vx = 0
           vel.vy = 0
         }
+        // Safety bound clamping
+        targetCameraRef.current.x = clamp(targetCameraRef.current.x, -2600, 2600)
+        targetCameraRef.current.y = clamp(targetCameraRef.current.y, -2000, 2000)
       }
 
       // 2. Camera Lerp Damping
@@ -2073,10 +2199,15 @@ export default function LessicoAtlasView({
                               style={{ backgroundColor: sug.color || sug.familyColor }}
                             />
                             <span className="lessico-atlas__autocomplete-name">{sug.nome}</span>
-                            <span className="lessico-atlas__autocomplete-family">{sug.familyLabel}</span>
+                            <span className="lessico-atlas__autocomplete-family">
+                              {sug.isIntersection ? sug.connectedFamilies.map((f) => f.label).join(' / ') : sug.familyLabel}
+                            </span>
                           </span>
                           {isSugEmerged && (
                             <span className="lessico-atlas__autocomplete-tag">Emersa</span>
+                          )}
+                          {sug.isIntersection && !isSugEmerged && (
+                            <span className="lessico-atlas__autocomplete-tag is-intersection">Incrocio</span>
                           )}
                         </button>
                       </li>
@@ -2403,7 +2534,7 @@ export default function LessicoAtlasView({
               {/* 3. Family Title Badges */}
               {CONSTELLATION_DATA.spheres.map((sphere) => {
                 const isDimmed = filterFamily && filterFamily !== sphere.id
-                const count = ATLAS_WORDS.filter((w) => w.familyId === sphere.id).length
+                const count = ATLAS_WORDS.filter((w) => w.connectedFamilyIds?.includes(sphere.id) || w.familyId === sphere.id).length
 
                 return (
                   <button
@@ -2446,9 +2577,6 @@ export default function LessicoAtlasView({
                     <div className="lessico-atlas__hub-dot" />
                     <div className="lessico-atlas__hub-label">
                       <span className="lessico-atlas__hub-title">{hub.title}</span>
-                      {hub.interval && (
-                        <span className="lessico-atlas__hub-interval">{hub.interval}</span>
-                      )}
                     </div>
                   </div>
                 )
@@ -2475,8 +2603,8 @@ export default function LessicoAtlasView({
                 const isSelected = selectedWord?.id === word.id
                 const isHovered = hoveredWordId === word.id
                 const isShockwaveActive = shockwaveActiveIds.has(word.id)
-                const isFamilyFiltered = filterFamily && filterFamily !== word.familyId
-                const isFamilyActive = filterFamily && filterFamily === word.familyId
+                const isFamilyFiltered = filterFamily && !word.connectedFamilyIds?.includes(filterFamily)
+                const isFamilyActive = filterFamily && word.connectedFamilyIds?.includes(filterFamily)
                 const matchesSearch =
                   Boolean(normalizedSearch) && word.nome.toLowerCase().includes(normalizedSearch)
                 const isSearchFiltered = normalizedSearch && !matchesSearch
@@ -2485,6 +2613,9 @@ export default function LessicoAtlasView({
                 const normalizedName = word.nome.toLowerCase()
                 const isEmerged =
                   emergedWords.precise.has(`${word.familyId}|${word.subcurrentId}|${normalizedName}`) ||
+                  (word.connectedNatures || []).some((nat) =>
+                    emergedWords.precise.has(`${nat.familyId}|${nat.subcurrentId}|${normalizedName}`)
+                  ) ||
                   emergedWords.fallback.has(normalizedName)
 
                 return (
@@ -2498,7 +2629,7 @@ export default function LessicoAtlasView({
                       isShockwaveActive ? ' is-shockwave-active' : ''
                     }${isDimmed ? ' is-dimmed' : ''}${isFamilyActive ? ' is-family-active' : ''}${
                       matchesSearch ? ' is-search-matched' : ''
-                    }`}
+                    }${word.isIntersection ? ' lessico-atlas__word--intersection' : ''}`}
                     style={{
                       left: `${word.x}px`,
                       top: `${word.y}px`,
@@ -2543,11 +2674,19 @@ export default function LessicoAtlasView({
                       style={{ backgroundColor: word.color }}
                     />
                     <span className="lessico-atlas__word-label">{word.nome}</span>
-                    {(isEmerged || word.ringIndex === 0) && (
+                    {isEmerged && (
                       <span
-                        className={`lessico-atlas__word-tag${isEmerged ? ' is-emerged' : ''}`}
+                        className="lessico-atlas__word-tag is-emerged"
                       >
-                        {isEmerged ? 'Emersa' : 'Parola chiave'}
+                        Emersa
+                      </span>
+                    )}
+                    {word.isIntersection && !isEmerged && (
+                      <span
+                        className="lessico-atlas__word-tag is-intersection"
+                        title="Incrocio tra più famiglie emotive"
+                      >
+                        Incrocio
                       </span>
                     )}
                   </button>
@@ -2575,14 +2714,17 @@ export default function LessicoAtlasView({
                 <strong className="lessico-atlas__tooltip-title">{hoveredWord.nome}</strong>
                 {emergedWordIds.has(hoveredWord.id) ? (
                   <span className="lessico-atlas__tooltip-tag is-emerged">Emersa</span>
-                ) : hoveredWord.isKey ? (
-                  <span className="lessico-atlas__tooltip-tag">Parola chiave</span>
+                ) : hoveredWord.isIntersection ? (
+                  <span className="lessico-atlas__tooltip-tag is-intersection">Incrocio</span>
                 ) : null}
               </div>
               <div className="lessico-atlas__tooltip-meta">
                 <span className="lessico-atlas__tooltip-family">
-                  {hoveredWord.familyLabel.toUpperCase()}
+                  {hoveredWord.isIntersection
+                    ? hoveredWord.connectedFamilies?.map((f) => f.label.toUpperCase()).join(' · ')
+                    : hoveredWord.familyLabel.toUpperCase()}
                   {userPercentages &&
+                  !hoveredWord.isIntersection &&
                   ATLAS_FAMILY_KEY_BY_ID[hoveredWord.familyId] &&
                   userPercentages[ATLAS_FAMILY_KEY_BY_ID[hoveredWord.familyId]] !== undefined
                     ? ` · ${userPercentages[ATLAS_FAMILY_KEY_BY_ID[hoveredWord.familyId]]}%`
