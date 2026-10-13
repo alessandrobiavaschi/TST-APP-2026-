@@ -439,13 +439,13 @@ function LandingPage() {
           className={`tst-nebula-hero${introState === 'playing' ? ' is-intro-playing' : ''}${introState !== 'off' ? ' is-intro-handoff' : ''}`}
           ref={heroRef}
         >
-          <div className="tst-nebula-hero-word" ref={heroTitleRef}>
+          <h1 className="tst-nebula-hero-word" ref={heroTitleRef}>
             {HERO_TITLE.split('').map((letter, index) => (
               <span key={letter + index} style={{ animationDelay: `${index * 130}ms` }}>
                 {letter}
               </span>
             ))}
-          </div>
+          </h1>
           <p className="tst-nebula-hero-sub tst-nebula-legible" ref={heroSubRef}>
             {HERO_SUBTITLE}
           </p>

@@ -125,6 +125,7 @@
 }
 
 .tst-nebula-hero-word {
+  margin: 0;
   font-family: 'Newsreader', serif;
   font-weight: 600;
   font-style: italic;

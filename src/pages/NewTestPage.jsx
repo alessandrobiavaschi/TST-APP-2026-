@@ -1273,7 +1273,7 @@ function NewTestPage() {
       {!showIntro && !profilingDone && !isGuestMode && (
         <section className="page-card" id="profilazione-utente">
           <form className="profilazione-form" onSubmit={handleStartTest}>
-            <h2 className="profilazione-title">Profilazione utente</h2>
+            <h1 className="profilazione-title">Profilazione utente</h1>
             <div className="profilazione-grid">
               <div className="profilazione-field">
                 <span>Data</span>
@@ -1390,6 +1390,7 @@ function NewTestPage() {
             >
               <div className="test-stage-main-card">
                 <header className="test-stage-progress-block" aria-label="Avanzamento test">
+                  <h1 className="sr-only">Test Temperamentale TST in corso</h1>
                   <div className="test-stage-topbar">
                     <p className="test-stage-step-label" aria-live="polite">
                       Passo {currentFile} di {TOTAL_STEPS} · Sezione: {getMacroSectionLabel(currentFile) || 'Panoramica sonora'}
