@@ -5,11 +5,11 @@ import { DISPOSITIONS } from './dispositions'
  * Aggiornare qui se si modificano quei testi nel JSON.
  */
 export const CORPUS_SCHEMA_ASSI_ORIENTAMENTO = [
-  'Blu (famiglia Malinconica, natura Lunare): riflessività, malinconia descrittiva, nostalgia (orientamento introspettivo).',
-  'Rosso (famiglia Marziale, natura Volitiva-Collerica): volontà, decisione, collera descrittiva (orientamento all’azione).',
+  'Blu (famiglia Malinconica, nature Lunare Introspettiva, Lunare Depressiva, Solare, Nostalgica): riflessività, malinconia descrittiva, nostalgia (orientamento introspettivo).',
+  'Rosso (famiglia Marziale, nature Volitiva, Collerica): volontà, decisione, collera descrittiva (orientamento all’azione).',
   'Verde (famiglia flemmatica nel modello): calma, regolazione, contemplazione (orientamento omeostatico).',
-  'Giallo (famiglia Entusiasta, natura Gioioso-Sanguinico): curiosità, slancio, partecipazione (orientamento esplorativo).',
-  'Grigio (famiglia Razionale, natura Intellettuale-Razionale): distacco osservativo vs saggezza riflessiva (orientamento cognitivo-analitico).',
+  'Giallo (famiglia Entusiasta, nature Gioiosa Solare, Sanguigna Operosa): curiosità, slancio, partecipazione (orientamento esplorativo).',
+  'Grigio (famiglia Razionale, nature Anaffettiva, Distaccata): distacco osservativo vs saggezza riflessiva (orientamento cognitivo-analitico).',
 ] as const
 
 export const CORPUS_SCHEMA_INTERPRETATIVO_TITOLO = 'Schema interpretativo (ipotesi del modello)'

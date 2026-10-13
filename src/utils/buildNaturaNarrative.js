@@ -1,3 +1,4 @@
+import { nomeNaturaPerFamiglia } from './naturePdf.js'
 import { FAMILY_THEME } from '../config/reportFamilyTheme.js'
 import {
   analyzeFamilyComposition,
@@ -112,11 +113,6 @@ export function resolveHarmonyDescriptor(gapPercent = 0) {
   return 'poca armonia'
 }
 
-function sentenceCase(value) {
-  const normalized = String(value || '').trim().toLowerCase()
-  return normalized ? normalized.charAt(0).toUpperCase() + normalized.slice(1) : ''
-}
-
 function formatPercent(value) {
   const numeric = Number(value) || 0
   return String(Number(numeric.toFixed(1))).replace('.', ',')
@@ -166,7 +162,8 @@ function familyCopy(familyKey) {
   const theme = FAMILY_THEME_BY_KEY[familyKey] || {}
   return {
     family: theme.family || 'famiglia non disponibile',
-    nature: sentenceCase(theme.characteristic || theme.disposition),
+    // Nome della natura SOLO dal PDF: natura prevalente della persona in questa famiglia.
+    nature: nomeNaturaPerFamiglia(familyKey),
   }
 }
 

@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect, useLayoutEffect, useMemo } from 'react'
 import { GALAXY_THEORY_BY_DISPOSITION } from '../../config/galaxyTheoryContent.ts'
+import { FAMIGLIE_TST } from '../../content/paroleTst.js'
 import { useUiSounds } from '../../UiSoundProvider.jsx'
 
 // ─── Virtual World Dimensions ────────────────────────────────────────────────
@@ -53,7 +54,7 @@ const FAMILY_CONFIG = {
     y: 440,
     radius: 440,
     subSpread: 240,
-    compass: 'Nord · Fuoco / Luce',
+    compass: '',
   },
   flemmatica: {
     id: 'flemmatica',
@@ -65,7 +66,7 @@ const FAMILY_CONFIG = {
     y: 1300,
     radius: 420,
     subSpread: 210,
-    compass: 'Centro · Acqua / Calma',
+    compass: '',
   },
   agnostica_anaffettiva: {
     id: 'agnostica_anaffettiva',
@@ -77,7 +78,7 @@ const FAMILY_CONFIG = {
     y: 2160,
     radius: 400,
     subSpread: 230,
-    compass: 'Sud · Terra / Distacco',
+    compass: '',
   },
   malinconica_nostalgica: {
     id: 'malinconica_nostalgica',
@@ -89,7 +90,7 @@ const FAMILY_CONFIG = {
     y: 1300,
     radius: 660,
     subSpread: 350,
-    compass: 'Ovest · Aria / Memoria',
+    compass: '',
   },
   collerico_volitiva: {
     id: 'collerico_volitiva',
@@ -101,7 +102,7 @@ const FAMILY_CONFIG = {
     y: 1300,
     radius: 540,
     subSpread: 290,
-    compass: 'Est · Fuoco / Decisione',
+    compass: '',
   },
 }
 
@@ -180,6 +181,46 @@ function computeBézierPath(x1, y1, x2, y2, sphereX, sphereY, sagVariation = 0) 
 }
 
 // ─── Build Constellation Network (Concentric Elliptical Orbits) ──────────────
+// ─── Contenuti SOLO dal PDF «Parole per TST» ─────────────────────────────────
+// Ordine delle nature, parole chiave (con la loro nota), sostantivi di sintesi,
+// polo positivo e «parole collegate alle altre famiglie», tutto dal PDF.
+const PDF_NATURA_BY_RAW_KEY = Object.fromEntries(
+  FAMIGLIE_TST.flatMap((famiglia) => famiglia.nature.map((n) => [n.rawKey, { ...n, famigliaNome: famiglia.nome }])),
+)
+const PDF_ORDINE_NATURE = FAMIGLIE_TST.flatMap((famiglia) => famiglia.nature.map((n) => n.rawKey))
+const PDF_ORDINE_PER_FAMIGLIA = {
+  blu: ['BLU_2_Lunare', 'BLU_1_Depressiva', 'BLU_4_Solare', 'BLU_3_Nostalgia'],
+}
+const ASSOCIAZIONE_LABEL = {
+  malinconica: 'Malinconica',
+  marziale: 'Marziale',
+  flemmatica: 'Flemmatica',
+  entusiasta: 'Entusiasta',
+  razionale: 'Razionale',
+  malinconicaIntrospettiva: 'Malinconica (Lunare Introspettiva)',
+}
+
+function pdfParoleChiave(natura) {
+  return (natura?.paroleChiave || []).map((k) => (typeof k === 'string' ? { parola: k, nota: '' } : { parola: k.parola, nota: k.nota || '' }))
+}
+
+/** Aggettivi della natura nell'ordine del PDF, con le parole chiave in testa. */
+function pdfStatiOrdinati(natura) {
+  const aggettivi = natura?.aggettivi || []
+  const chiaveNorm = pdfParoleChiave(natura).map((k) => k.parola.toLowerCase())
+  const chiave = aggettivi.filter((a) => chiaveNorm.includes(a.toLowerCase()))
+    .sort((a, b) => chiaveNorm.indexOf(a.toLowerCase()) - chiaveNorm.indexOf(b.toLowerCase()))
+  return { stati: [...chiave, ...aggettivi.filter((a) => !chiave.includes(a))], numChiave: chiave.length }
+}
+
+/** Famiglie a cui il PDF collega questa parola (sezione «parole collegate alle altre famiglie»). */
+function pdfFamiglieCollegate(natura, parola) {
+  const norm = String(parola).toLowerCase()
+  return Object.entries(natura?.associazioni || {})
+    .filter(([, lista]) => lista.some((w) => String(w).toLowerCase() === norm))
+    .map(([chiave]) => ASSOCIAZIONE_LABEL[chiave] || chiave)
+}
+
 function buildConstellationData() {
   const words = []
   const hubs = []
@@ -202,7 +243,8 @@ function buildConstellationData() {
       glowColor: cfg.glowColor,
     })
 
-    const currents = theory.currents
+    const ordine = PDF_ORDINE_PER_FAMIGLIA[ATLAS_FAMILY_KEY_BY_ID[famId]] || PDF_ORDINE_NATURE
+    const currents = [...theory.currents].sort((a, b) => ordine.indexOf(a.rawKey) - ordine.indexOf(b.rawKey))
     const numCurrents = currents.length
 
     currents.forEach((c, ci) => {
@@ -241,7 +283,9 @@ function buildConstellationData() {
         color: cfg.baseColor,
       })
 
-      const states = c.states || []
+      const naturaPdf = PDF_NATURA_BY_RAW_KEY[c.rawKey]
+      const { stati: states, numChiave } = pdfStatiOrdinati(naturaPdf)
+      const noteChiave = Object.fromEntries(pdfParoleChiave(naturaPdf).map((k) => [k.parola.toLowerCase(), k.nota]))
       const numStates = states.length
       if (numStates === 0) return
 
@@ -249,21 +293,9 @@ function buildConstellationData() {
       // Ring 0 (inner ~40% maxR): dominant / high-salience words (font size 17, weight 700)
       // Ring 1 (middle ~70% maxR): intermediate words (font size 14, weight 600)
       // Ring 2 (outer 100% maxR): remaining words (font size 12.5, weight 500)
-      let count0 = 2
-      let count1 = 4
-      if (numStates <= 5) {
-        count0 = Math.min(2, numStates)
-        count1 = numStates - count0
-      } else if (numStates <= 9) {
-        count0 = 2
-        count1 = 3
-      } else if (numStates <= 12) {
-        count0 = 3
-        count1 = 4
-      } else {
-        count0 = 3
-        count1 = 5
-      }
+      // Anello interno = le parole chiave del PDF; il resto degli aggettivi sugli anelli esterni.
+      const count0 = numChiave
+      const count1 = Math.ceil((numStates - count0) / 2)
 
       const ringAssignments = []
       states.forEach((state, si) => {
@@ -331,8 +363,12 @@ function buildConstellationData() {
             familyColor: cfg.baseColor,
             subcurrentId: c.rawKey,
             subcurrentTitle: c.title,
-            subcurrentDescription: c.description,
+            subcurrentDescription: '',
             subcurrentInterval: c.interval,
+            isKey: item.ringIndex === 0,
+            keyNote: noteChiave[String(item.state).toLowerCase()] || '',
+            sostantiviSintesi: naturaPdf?.sostantiviSintesi || [],
+            famiglieCollegate: pdfFamiglieCollegate(naturaPdf, item.state),
             hubId: c.rawKey,
             hubX,
             hubY,
@@ -691,7 +727,6 @@ function FloatingHolographicSlate({ word, onClose, onSelectWord, viewModel }) {
   )
 
   const isSituational = Boolean(dynamicWordInfo)
-  const hasApprofondimento = Boolean(word.subcurrentInterval || dynamicWordInfo)
 
   return (
     <aside
@@ -704,7 +739,7 @@ function FloatingHolographicSlate({ word, onClose, onSelectWord, viewModel }) {
         <header className="lessico-holo-slate__head">
           <div className="lessico-holo-slate__head-tag">
             <span className="lessico-holo-slate__status-dot" />
-            <span className="lessico-holo-slate__kicker">HOLO-SLATE // TST DICTIONARY</span>
+            <span className="lessico-holo-slate__kicker">PAROLE PER TST</span>
           </div>
           <button
             ref={closeButtonRef}
@@ -727,7 +762,7 @@ function FloatingHolographicSlate({ word, onClose, onSelectWord, viewModel }) {
                   isSituational ? ' is-situational' : ' is-stable'
                 }`}
               >
-                {isSituational ? 'SITUAZIONALE (EMERSA DAL TEST)' : 'STABILE (TEORIA TST)'}
+                {isSituational ? 'EMERSA DAL TEST' : word.isKey ? 'PAROLA CHIAVE' : 'AGGETTIVO DELLA NATURA'}
               </span>
               {dynamicWordInfo?.conteggio && (
                 <span className="lessico-holo-slate__count-pill">
@@ -737,23 +772,21 @@ function FloatingHolographicSlate({ word, onClose, onSelectWord, viewModel }) {
             </div>
           </div>
 
-          {/* Mini-Oscilloscope Audio */}
-          <div className="lessico-holo-slate__scope-wrap">
-            <div className="lessico-holo-slate__scope-header">
-              <span className="lessico-holo-slate__scope-title">
-                SPETTRO FORMA D'ONDA // {word.subcurrentInterval ? word.subcurrentInterval.toUpperCase() : 'QUINTA GIUSTA'}
-              </span>
-              <span className="lessico-holo-slate__scope-freq">
-                HARMONIC RES.
-              </span>
+          {/* Suono dell'intervallo della natura (dal PDF), se indicato */}
+          {word.subcurrentInterval ? (
+            <div className="lessico-holo-slate__scope-wrap">
+              <div className="lessico-holo-slate__scope-header">
+                <span className="lessico-holo-slate__scope-title">
+                  INTERVALLO // {word.subcurrentInterval.toUpperCase()}
+                </span>
+              </div>
+              <OscilloscopeCanvas
+                intervalName={word.subcurrentInterval}
+                familyColor={word.color || meta?.baseColor}
+              />
             </div>
-            <OscilloscopeCanvas
-              intervalName={word.subcurrentInterval}
-              familyColor={word.color || meta?.baseColor}
-            />
-          </div>
+          ) : null}
 
-          {/* Meta specs */}
           <dl className="lessico-holo-slate__specs">
             <div className="lessico-holo-slate__spec-row">
               <dt>FAMIGLIA</dt>
@@ -767,12 +800,18 @@ function FloatingHolographicSlate({ word, onClose, onSelectWord, viewModel }) {
               </dd>
             </div>
             <div className="lessico-holo-slate__spec-row">
-              <dt>SOTTOCORRENTE</dt>
+              <dt>NATURA</dt>
               <dd>{word.subcurrentTitle}</dd>
             </div>
+            {word.subcurrentInterval ? (
+              <div className="lessico-holo-slate__spec-row">
+                <dt>INTERVALLO</dt>
+                <dd>{word.subcurrentInterval}</dd>
+              </div>
+            ) : null}
             {dynamicWordInfo?.fileKeys && dynamicWordInfo.fileKeys.length > 0 && (
               <div className="lessico-holo-slate__spec-row">
-                <dt>TRACCE TEST</dt>
+                <dt>NEL TEST</dt>
                 <dd className="lessico-holo-slate__tracks">
                   {dynamicWordInfo.fileKeys.map((f) => (
                     <span key={f} className="lessico-holo-slate__track-badge">
@@ -784,17 +823,31 @@ function FloatingHolographicSlate({ word, onClose, onSelectWord, viewModel }) {
             )}
           </dl>
 
-          {word.subcurrentDescription && (
+          {word.keyNote ? (
             <div className="lessico-holo-slate__desc">
-              <h3>Risonanza Emotiva</h3>
-              <p>{word.subcurrentDescription}</p>
+              <h3>Parola chiave</h3>
+              <p>{word.keyNote}</p>
             </div>
-          )}
+          ) : null}
 
-          {/* Satelliti & Costellazioni Vicine */}
+          {word.famiglieCollegate?.length > 0 ? (
+            <div className="lessico-holo-slate__desc">
+              <h3>Collegata alle famiglie</h3>
+              <p>{word.famiglieCollegate.join(' · ')}</p>
+            </div>
+          ) : null}
+
+          {word.sostantiviSintesi?.length > 0 ? (
+            <div className="lessico-holo-slate__desc">
+              <h3>Sostantivi di sintesi della natura</h3>
+              <p>{word.sostantiviSintesi.join(' · ')}</p>
+            </div>
+          ) : null}
+
+          {/* Altre parole della stessa natura */}
           {word.nearbyWords.length > 0 && (
             <div className="lessico-holo-slate__constellation">
-              <h3>Nodi Satellite in Costellazione</h3>
+              <h3>Altre parole della natura</h3>
               <div className="lessico-holo-slate__satellites">
                 {word.nearbyWords.map((nome) => {
                   const w = ATLAS_WORDS.find(
@@ -818,34 +871,6 @@ function FloatingHolographicSlate({ word, onClose, onSelectWord, viewModel }) {
                 })}
               </div>
             </div>
-          )}
-
-          {hasApprofondimento && (
-            <details className="lessico-dashboard__details lessico-holo-slate__details">
-              <summary className="text-xs cursor-pointer select-none text-slate-400 hover:text-slate-200">
-                Specifiche Tecniche TST
-              </summary>
-              <dl className="lessico-holo-slate__specs mt-2">
-                {word.subcurrentInterval && (
-                  <div className="lessico-holo-slate__spec-row">
-                    <dt>INTERVALLO</dt>
-                    <dd>{word.subcurrentInterval}</dd>
-                  </div>
-                )}
-                {dynamicWordInfo && (
-                  <>
-                    <div className="lessico-holo-slate__spec-row">
-                      <dt>CORRENTE</dt>
-                      <dd style={{ fontSize: '0.85rem' }}>{dynamicWordInfo.correnteKey}</dd>
-                    </div>
-                    <div className="lessico-holo-slate__spec-row">
-                      <dt>FAMIGLIA KEY</dt>
-                      <dd>{dynamicWordInfo.familyKey}</dd>
-                    </div>
-                  </>
-                )}
-              </dl>
-            </details>
           )}
         </div>
       </div>
@@ -989,288 +1014,6 @@ function MobileAtlasCard({ fam, isExpanded, onToggle, onSelectWord, searchQuery 
   )
 }
 
-// ─── Analisi Dashboard ───────────────────────────────────────────────────────
-function AnalisiDashboard({ viewModel, onSelectWord }) {
-  if (!viewModel) return null
-
-  const {
-    datiDisponibili,
-    lessicoStabile = {},
-    lessicoSituazionale = [],
-    campoDiForze = {},
-    contrastiLessicali = [],
-    firmaPersonale = {},
-    costellazioniSemantiche = [],
-    _gap = [],
-  } = viewModel
-  const costellazioniAttive = costellazioniSemantiche.filter(
-    (costellazione) => costellazione.correntiUtenteCollegate?.length > 0,
-  )
-
-  return (
-    <div className="lessico-dashboard">
-      <div className="lessico-dashboard__section">
-        <h3 className="lessico-dashboard__title">1. Firma Personale</h3>
-        {!datiDisponibili ? (
-          <p className="lessico-dashboard__empty">Firma non disponibile (test non completato).</p>
-        ) : (
-          <div className="lessico-dashboard__firma">
-            <div className="lessico-dashboard__code-wrap">
-              <code className="lessico-dashboard__code">{firmaPersonale.codice}</code>
-            </div>
-            <ul className="lessico-dashboard__list text-xs opacity-90 mt-2 space-y-1">
-              <li>
-                • Natura Prevalente: <strong>{firmaPersonale.componenti.dominante}</strong>
-              </li>
-              {firmaPersonale.componenti.sottodisposizione && (
-                <li>
-                  • Sotto-disposizione: <strong>{firmaPersonale.componenti.sottodisposizione}</strong>
-                </li>
-              )}
-              <li>
-                • Top 3 Famiglie:{' '}
-                <strong>{firmaPersonale.componenti.rankingFamiglie.slice(0, 3).join(' · ')}</strong>
-              </li>
-            </ul>
-          </div>
-        )}
-      </div>
-
-      <div className="lessico-dashboard__section">
-        <h3 className="lessico-dashboard__title">2. Campo di Forze</h3>
-        {!datiDisponibili ? (
-          <p className="lessico-dashboard__empty">Campo di forze non disponibile.</p>
-        ) : (
-          <div className="lessico-dashboard__forze">
-            <div className="lessico-dashboard__vettore-risultante">
-              <span className="text-xs uppercase tracking-wider opacity-60">Vettore risultante</span>
-              <div className="flex space-x-3 font-mono text-sm mt-1">
-                <span>
-                  X: <strong>{campoDiForze.risultante.x.toFixed(2)}</strong>
-                </span>
-                <span>
-                  Y: <strong>{campoDiForze.risultante.y.toFixed(2)}</strong>
-                </span>
-                <span>
-                  Z: <strong>{campoDiForze.risultante.z.toFixed(2)}</strong>
-                </span>
-              </div>
-              <p className="text-xs opacity-75 mt-1">
-                Magnitudine: <strong>{campoDiForze.magnitudineRisultante.toFixed(2)}</strong>
-              </p>
-            </div>
-            {campoDiForze.polaritaDominante && (
-              <p className="text-xs mt-2">
-                Polarità Dominante:{' '}
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30 uppercase">
-                  {campoDiForze.polaritaDominante}
-                </span>
-              </p>
-            )}
-            <details className="lessico-dashboard__details mt-2">
-              <summary className="text-xs cursor-pointer select-none text-slate-400 hover:text-slate-200">
-                Mostra vettori per famiglia
-              </summary>
-              <div className="space-y-1 mt-1 text-[11px] font-mono opacity-80 pl-2 border-l border-slate-700">
-                {campoDiForze.perFamiglia.map((fam) => {
-                  const m = FAMILY_CONFIG[ATLAS_FAMILY_ID_BY_KEY[fam.familyKey]]
-                  return (
-                    <div key={fam.familyKey} className="flex justify-between">
-                      <span style={{ color: m?.baseColor }}>{fam.familyName}</span>
-                      <span>
-                        [{fam.vettore.x.toFixed(2)}, {fam.vettore.y.toFixed(2)},{' '}
-                        {fam.vettore.z.toFixed(2)}]
-                      </span>
-                    </div>
-                  )
-                })}
-              </div>
-            </details>
-          </div>
-        )}
-      </div>
-
-      <div className="lessico-dashboard__section">
-        <h3 className="lessico-dashboard__title">3. Costellazioni Semantiche</h3>
-        {costellazioniAttive.length === 0 ? (
-          <p className="lessico-dashboard__empty">Nessuna costellazione semantica attiva.</p>
-        ) : (
-          <div className="space-y-3">
-            {costellazioniAttive.map((c) => {
-              const activeCount = c.correntiUtenteCollegate.length
-              return (
-                <div
-                  key={c.conceptId}
-                  className="p-2 rounded bg-slate-950/40 border border-slate-800/60"
-                >
-                  <div className="flex justify-between items-center">
-                    <strong className="text-xs text-blue-300">{c.label}</strong>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-900 text-slate-400">
-                      {activeCount} {activeCount === 1 ? 'connessione' : 'connessioni'}
-                    </span>
-                  </div>
-                  {c.correntiUtenteCollegate.length > 0 ? (
-                    <div className="mt-1.5 space-y-1">
-                      {c.correntiUtenteCollegate.map((s) => (
-                        <div
-                          key={s.rawKey}
-                          className="flex justify-between items-center text-[10px] opacity-80"
-                        >
-                          <span>{s.nome}</span>
-                          <span className="font-mono text-blue-400">{s.percentuale}%</span>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-[10px] opacity-50 mt-1 italic">
-                      Nessuna corrente collegata attiva
-                    </p>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        )}
-      </div>
-
-      <div className="lessico-dashboard__section">
-        <h3 className="lessico-dashboard__title">4. Lessico Stabile e Situazionale</h3>
-        <div className="space-y-3">
-          <div>
-            <span className="text-[11px] uppercase tracking-wider opacity-60 block mb-1">
-              Situazionale (dal test)
-            </span>
-            {!datiDisponibili || lessicoSituazionale.length === 0 ? (
-              <p className="lessico-dashboard__empty">Nessuna parola emersa dal test.</p>
-            ) : (
-              <div className="flex flex-wrap gap-1.5">
-                {lessicoSituazionale.map((p) => {
-                  const familyId = ATLAS_FAMILY_ID_BY_KEY[p.familyKey]
-                  const match = ATLAS_WORDS.find(
-                    (w) =>
-                      w.nome.toLowerCase() === p.parola.toLowerCase() &&
-                      w.familyId === familyId &&
-                      w.subcurrentId === p.correnteKey,
-                  )
-                  const fColor = FAMILY_CONFIG[familyId]?.baseColor || '#fff'
-                  return (
-                    <button
-                      key={`${p.parola}-${p.correnteKey}`}
-                      type="button"
-                      className="lessico-dashboard__pill lessico-dashboard__pill--situational"
-                      style={{
-                        borderColor: `${fColor}33`,
-                        '--hover-border': fColor,
-                      }}
-                      onClick={() => match && onSelectWord(match)}
-                      title={`Parola: ${p.parola}. Clicca per selezionare. (${p.count} risposte, file: ${p.fileKeys.join(', ')})`}
-                    >
-                      <span>{p.parola}</span>
-                      <small className="ml-1 opacity-60 font-mono text-[9px]">{p.count}</small>
-                    </button>
-                  )
-                })}
-              </div>
-            )}
-          </div>
-
-          <div>
-            <span className="text-[11px] uppercase tracking-wider opacity-60 block mb-1">
-              Stabile (teorico di riferimento)
-            </span>
-            <details className="lessico-dashboard__details">
-              <summary className="text-xs cursor-pointer select-none text-slate-400 hover:text-slate-200">
-                Mostra dizionario teorico
-              </summary>
-              <div className="space-y-2 mt-1.5">
-                {VIEW_MODEL_FAMILIES.map(({ familyId, familyName }) => {
-                  const stabile = lessicoStabile[familyName]
-                  const meta = FAMILY_CONFIG[familyId]
-                  const forms = stabile?.vocabolarioAggettivi || []
-                  return (
-                    <div key={familyId} className="text-[11px]">
-                      <strong style={{ color: meta?.baseColor }}>{familyName}</strong>
-                      <p className="opacity-80 mt-0.5 leading-relaxed">
-                        {forms.slice(0, 10).join(', ')}...
-                      </p>
-                    </div>
-                  )
-                })}
-              </div>
-            </details>
-          </div>
-        </div>
-      </div>
-
-      <div className="lessico-dashboard__section">
-        <h3 className="lessico-dashboard__title">5. Contrasti Lessicali</h3>
-        {!datiDisponibili || contrastiLessicali.length === 0 ? (
-          <p className="lessico-dashboard__empty">Contrasti lessicali non disponibili.</p>
-        ) : (
-          <div className="space-y-2">
-            {contrastiLessicali.map((c, idx) => (
-              <div
-                key={idx}
-                className={`p-2 rounded bg-slate-950/30 border ${
-                  c.isContrastante
-                    ? 'border-amber-500/20 bg-amber-500/5'
-                    : 'border-slate-800/40 opacity-80'
-                }`}
-              >
-                <div className="flex justify-between items-center">
-                  <span className="text-xs font-semibold">
-                    {c.coppia[0]} <span className="opacity-40">vs</span> {c.coppia[1]}
-                  </span>
-                  <span
-                    className={`text-[9px] px-1.5 py-0.5 rounded font-bold uppercase ${
-                      c.isContrastante
-                        ? 'bg-amber-500/20 text-amber-300'
-                        : 'bg-slate-900 text-slate-500'
-                    }`}
-                  >
-                    {c.isContrastante ? 'Attivo' : 'Silente'}
-                  </span>
-                </div>
-                <div className="mt-1.5 grid grid-cols-2 gap-2 text-[10px]">
-                  <div>
-                    <span className="opacity-60 block font-semibold">{c.coppia[0]}</span>
-                    <span className="block italic opacity-95">
-                      {c.paroleA.slice(0, 3).join(', ') || 'Nessuna'}
-                    </span>
-                    <span className="text-[9px] opacity-40 font-mono">
-                      fonte: {c.fonteParoleA}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="opacity-60 block font-semibold">{c.coppia[1]}</span>
-                    <span className="block italic opacity-95">
-                      {c.paroleB.slice(0, 3).join(', ') || 'Nessuna'}
-                    </span>
-                    <span className="text-[9px] opacity-40 font-mono">
-                      fonte: {c.fonteParoleB}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {_gap && _gap.length > 0 && (
-        <div className="lessico-dashboard__section lessico-dashboard__section--gap">
-          <h3 className="lessico-dashboard__title opacity-50">Limiti dei dati & Gap</h3>
-          <ul className="space-y-1 pl-3 list-disc text-[10px] opacity-60 leading-normal">
-            {_gap.map((g, idx) => (
-              <li key={idx}>{g}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-    </div>
-  )
-}
-
 // ─── Main Component: LessicoAtlasView ────────────────────────────────────────
 export default function LessicoAtlasView({
   paroleEmerse = [],
@@ -1289,7 +1032,6 @@ export default function LessicoAtlasView({
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1)
   const [showSearch, setShowSearch] = useState(false)
   const [expandedMobileFamily, setExpandedMobileFamily] = useState(null)
-  const [showDashboard, setShowDashboard] = useState(false)
 
   const canvasRef = useRef(null)
   const layerRef = useRef(null)
@@ -2239,12 +1981,6 @@ export default function LessicoAtlasView({
     [flyToWorldCoord],
   )
 
-  const activeFamConfig = FAMILY_CONFIG[activeFamilyId] || FAMILY_CONFIG.malinconica_nostalgica
-  const telemetrySectorName = activeFamConfig.label.toUpperCase()
-  const telemetrySectorCompass = (activeFamConfig.compass || '').split('·')[0].trim().toUpperCase()
-  const telemetryFreq =
-    activeFamilyId === 'entusiasmo' || activeFamilyId === 'collerico_volitiva' ? 528 : 432
-
   return (
     <div
       ref={atlasRootRef}
@@ -2264,29 +2000,6 @@ export default function LessicoAtlasView({
           className="lessico-atlas__search-wrap"
           style={{ display: 'flex', gap: '8px', alignItems: 'center' }}
         >
-          {viewModel && !isMobile && (
-            <button
-              type="button"
-              className="lessico-atlas__search-btn"
-              style={{
-                width: 'auto',
-                padding: '0 12px',
-                fontSize: '0.75rem',
-                borderRadius: '9999px',
-                whiteSpace: 'nowrap',
-                height: '32px',
-                backgroundColor: showDashboard ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
-                borderColor: showDashboard ? '#3b82f6' : 'rgba(255,255,255,0.2)',
-                color: showDashboard ? '#60a5fa' : '#cbd5e1',
-                borderWidth: '1px',
-              }}
-              onClick={() => setShowDashboard((prev) => !prev)}
-              aria-label={showDashboard ? 'Nascondi analisi avanzata' : 'Mostra analisi avanzata'}
-              aria-pressed={showDashboard ? 'true' : 'false'}
-            >
-              {showDashboard ? 'Nascondi analisi avanzata' : 'Analisi avanzata'}
-            </button>
-          )}
           {showSearch && (
             <>
               <input
@@ -2536,36 +2249,18 @@ export default function LessicoAtlasView({
             </div>
           </div>
 
-          {/* ── 4-Corner Holographic Telemetry Overlay ─────────────────────── */}
+          {/* ── Indicatori: zoom e parole emerse dal test ───────────────────── */}
           <div className="lessico-hud-telemetry" aria-hidden="true">
-            <div className="lessico-telemetry lessico-telemetry--tl">
-              <span className="lessico-telemetry__tag">SYS // COORD</span>
-              <span className="lessico-telemetry__val">RA 18h 42m | DEC +26° 14' | EPOCH 2026.4</span>
-            </div>
-            <div className="lessico-telemetry lessico-telemetry--tr">
-              <span className="lessico-telemetry__tag">SECTOR // ROUTE</span>
-              <span className="lessico-telemetry__val">
-                <span className="lessico-telemetry__breadcrumb">
-                  <span>ROTTA: [{telemetrySectorName} · {telemetrySectorCompass}]</span>
-                  {(selectedWord || hoveredWord) && (
-                    <span className="lessico-telemetry__breadcrumb-node">
-                      {' '}&gt; NODO: {(selectedWord || hoveredWord).nome}
-                    </span>
-                  )}
-                </span>
-                {' '}// FREQ: {telemetryFreq}Hz
-              </span>
-            </div>
             <div className="lessico-telemetry lessico-telemetry--bl">
-              <span className="lessico-telemetry__tag">OPTICS</span>
+              <span className="lessico-telemetry__tag">ZOOM</span>
               <span className="lessico-telemetry__val">
-                MAG: <span ref={telemetryMagRef}>0.50</span>x | FOV: 68° | LOD: <span ref={telemetryLodRef}>MACRO</span>
+                <span ref={telemetryMagRef}>0.50</span>x
               </span>
             </div>
             <div className="lessico-telemetry lessico-telemetry--br">
-              <span className="lessico-telemetry__tag">TEST TELEMETRY</span>
+              <span className="lessico-telemetry__tag">FONTE</span>
               <span className="lessico-telemetry__val">
-                {emergedWordIds.size} PAROLE EMERSE RILEVATE // TRACCE SINCRONIZZATE
+                PDF «PAROLE PER TST»{emergedWordIds.size ? ` // ${emergedWordIds.size} PAROLE EMERSE DAL TEST` : ''}
               </span>
             </div>
           </div>
@@ -2852,7 +2547,7 @@ export default function LessicoAtlasView({
                       <span
                         className={`lessico-atlas__word-tag${isEmerged ? ' is-emerged' : ''}`}
                       >
-                        {isEmerged ? 'Emersa' : 'Cardine'}
+                        {isEmerged ? 'Emersa' : 'Parola chiave'}
                       </span>
                     )}
                   </button>
@@ -2880,8 +2575,8 @@ export default function LessicoAtlasView({
                 <strong className="lessico-atlas__tooltip-title">{hoveredWord.nome}</strong>
                 {emergedWordIds.has(hoveredWord.id) ? (
                   <span className="lessico-atlas__tooltip-tag is-emerged">Emersa</span>
-                ) : hoveredWord.ringIndex === 0 ? (
-                  <span className="lessico-atlas__tooltip-tag">Cardine</span>
+                ) : hoveredWord.isKey ? (
+                  <span className="lessico-atlas__tooltip-tag">Parola chiave</span>
                 ) : null}
               </div>
               <div className="lessico-atlas__tooltip-meta">
@@ -2899,10 +2594,8 @@ export default function LessicoAtlasView({
                   </span>
                 )}
               </div>
-              {hoveredWord.subcurrentDescription && (
-                <p className="lessico-atlas__tooltip-desc">
-                  {hoveredWord.subcurrentDescription}
-                </p>
+              {hoveredWord.keyNote && (
+                <p className="lessico-atlas__tooltip-desc">{hoveredWord.keyNote}</p>
               )}
             </div>
           )}
@@ -2973,45 +2666,6 @@ export default function LessicoAtlasView({
       ) : (
         /* ── Mobile: Vertical Card Stack ────────────────────────────────── */
         <div className="lessico-atlas__mobile-stack">
-          {viewModel && (
-            <div
-              className={`lessico-mobile-card${expandedMobileFamily === 'dashboard' ? ' is-expanded' : ''}`}
-              style={{ '--card-color': '#3b82f6' }}
-            >
-              <button
-                type="button"
-                className="lessico-mobile-card__header"
-                onClick={() =>
-                  setExpandedMobileFamily((prev) => (prev === 'dashboard' ? null : 'dashboard'))
-                }
-                aria-expanded={expandedMobileFamily === 'dashboard'}
-              >
-                <span
-                  className="lessico-mobile-card__dot"
-                  style={{ backgroundColor: '#3b82f6' }}
-                  aria-hidden
-                />
-                <strong className="lessico-mobile-card__title">Analisi avanzata</strong>
-                <span className="lessico-mobile-card__count">
-                  {viewModel.datiDisponibili ? 'Firma & Forze' : 'Vuoto'}
-                </span>
-                <span className="lessico-mobile-card__chevron" aria-hidden>
-                  {expandedMobileFamily === 'dashboard' ? '▲' : '▼'}
-                </span>
-              </button>
-              {expandedMobileFamily === 'dashboard' && (
-                <div className="lessico-mobile-card__body" style={{ padding: '1rem' }}>
-                  <AnalisiDashboard
-                    viewModel={viewModel}
-                    onSelectWord={(w) => {
-                      handleSelectWord(w)
-                      setExpandedMobileFamily(null)
-                    }}
-                  />
-                </div>
-              )}
-            </div>
-          )}
           {FAMILY_LIST.map((fam) => (
             <MobileAtlasCard
               key={fam.id}
@@ -3038,36 +2692,6 @@ export default function LessicoAtlasView({
           onSelectWord={handleSelectWord}
           viewModel={viewModel}
         />
-      ) : !isMobile && showDashboard && viewModel ? (
-        <aside className="lessico-holo-slate lessico-holo-slate--dashboard" aria-label="Analisi lessicale avanzata">
-          <div className="lessico-holo-slate__bezel" style={{ '--slate-color': '#3b82f6' }}>
-            <header
-              className="lessico-holo-slate__head"
-              style={{ borderBottomColor: 'rgba(59, 130, 246, 0.2)' }}
-            >
-              <div className="lessico-holo-slate__head-tag">
-                <span className="lessico-holo-slate__status-dot" style={{ backgroundColor: '#3b82f6', boxShadow: '0 0 8px #3b82f6' }} />
-                <span className="lessico-holo-slate__kicker" style={{ color: '#60a5fa' }}>
-                  HOLO-SLATE // ADVANCED TELEMETRY
-                </span>
-              </div>
-              <button
-                type="button"
-                className="lessico-holo-slate__close"
-                onClick={() => setShowDashboard(false)}
-                aria-label="Nascondi analisi avanzata"
-              >
-                ✕
-              </button>
-            </header>
-            <div className="lessico-holo-slate__body" style={{ padding: '1rem', overflowY: 'auto' }}>
-              <AnalisiDashboard
-                viewModel={viewModel}
-                onSelectWord={handleSelectWord}
-              />
-            </div>
-          </div>
-        </aside>
       ) : null}
     </div>
   )

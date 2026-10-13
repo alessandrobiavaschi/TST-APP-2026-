@@ -182,7 +182,7 @@ test('la lettura della Natura usa la prevalente della lente e racconta le second
 
   assert.equal(natura.correntePrincipale.nome, 'Flemmatica')
   assert.match(natura.definizioneParagrafi[0], /famiglia Flemmatica.*punteggio più alto.*famiglia prevalente/i)
-  assert.match(natura.definizioneParagrafi[1], /come Contemplativa.*natura emotiva di base/i)
+  assert.match(natura.definizioneParagrafi[1], /come Calma Contemplativa o Calma Fisica.*natura emotiva di base/i)
   assert.match(natura.definizione, /seconda componente.*Marziale.*influenza discreta.*tensione significativa/i)
 })
 
@@ -198,7 +198,7 @@ test('il contratto Natura ordina il peso reale prima delle opposizioni teoriche'
 
   assert.equal(natura.correntePrincipale.nome, 'Marziale')
   assert.equal(natura.sintesiBreveParagrafi.length, 3)
-  assert.match(natura.sintesiBreveParagrafi[0], /Marziale.*Volitivo-collerica/i)
+  assert.match(natura.sintesiBreveParagrafi[0], /Marziale.*Volitiva o Collerica/i)
   assert.match(natura.sintesiBreveParagrafi[1], /Malinconica.*riflessione.*consapevole/i)
   assert.doesNotMatch(natura.sintesiBreveParagrafi.join(' '), /natura Flemmatica/i)
   assert.match(natura.sintesiBreveParagrafi[2], /eccellente armonia/i)
@@ -244,7 +244,7 @@ test('correntePrincipale segue sempre la graduatoria locale del rapporto, non la
   assert.equal(agire.narrativaRapporto.metrics.dominantFamilyKey, 'verde')
   assert.match(se.definizione, /Malinconica e Flemmatica.*modulazione/i)
   assert.match(altro.definizione, /Flemmatica ed Entusiasta.*tensione/i)
-  assert.match(agire.definizione, /natura Contemplativa.*tensione/i)
+  assert.match(agire.definizione, /natura Calma Contemplativa o Calma Fisica.*tensione/i)
 })
 
 test('un pari livello grafico mantiene la famiglia con più punti grezzi', () => {
@@ -262,7 +262,7 @@ test('un pari livello grafico mantiene la famiglia con più punti grezzi', () =>
 
   assert.equal(natura.correntePrincipale.nome, 'Marziale')
   assert.match(natura.definizioneParagrafi[0], /famiglia Marziale/i)
-  assert.match(natura.definizioneParagrafi[1], /Volitivo-collerica/i)
+  assert.match(natura.definizioneParagrafi[1], /Volitiva o Collerica/i)
   assert.match(natura.definizione, /punti grezzi mantengono al primo posto la famiglia Marziale/i)
 })
 

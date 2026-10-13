@@ -95,36 +95,36 @@ export const RELATIONS = [
   {
     key: 'as',
     icon: '⚡',
-    name: 'Con il Volitivo-Collerico',
+    name: 'Con il Marziale',
     sub: 'Deciso · Diretto · Pratico',
     accent: RELATION_ACCENTS.assertivo,
     tabs: {
       dinamica: {
         label: 'La dinamica',
-        title: 'Malinconico ↔ Volitivo-Collerico',
+        title: 'Malinconico ↔ Marziale',
         body: [
-          'Il malinconico riflette, elabora, cerca senso; il volitivo-collerico decide, agisce, punta al risultato. L\'energia da Est (volontà) incontra l\'energia da Ovest (malinconia): presente e passato che si misurano.',
-          'Il volitivo-collerico può dare al malinconico struttura e direzione quando il chiuso rischia di diventare paralisi. Il malinconico può richiamare il volitivo-collerico alla sensibilità quando il fare diventa troppo «martello».',
-          'Il pericolo è che il malinconico si senta schiacciato dalla forza decisionale dell\'altro, mentre il volitivo-collerico interpreti la lentezza come debolezza o indecisione.',
+          'Il malinconico riflette, elabora, cerca senso; il marziale decide, agisce, punta al risultato. L\'energia da Est (volontà) incontra l\'energia da Ovest (malinconia): presente e passato che si misurano.',
+          'Il marziale può dare al malinconico struttura e direzione quando il chiuso rischia di diventare paralisi. Il malinconico può richiamare il marziale alla sensibilità quando il fare diventa troppo «martello».',
+          'Il pericolo è che il malinconico si senta schiacciato dalla forza decisionale dell\'altro, mentre il marziale interpreti la lentezza come debolezza o indecisione.',
         ],
-        tip: 'Il malinconico esprime bisogni con chiarezza prima di chiudersi. Il volitivo-collerico impara a fare pause e a chiedere «cosa stai provando?» senza voler risolvere subito.',
+        tip: 'Il malinconico esprime bisogni con chiarezza prima di chiudersi. Il marziale impara a fare pause e a chiedere «cosa stai provando?» senza voler risolvere subito.',
       },
       frizioni: {
         label: 'Le frizioni',
         title: 'Dove nascono i conflitti',
         body: [
-          'Il volitivo-collerico vuole risposte rapide; il malinconico ha bisogno di tempo e profondità. La frustrazione è frequente su entrambi i fronti.',
-          'Il malinconico può cedere per evitare il conflitto, accumulando risentimento silenzioso che il volitivo-collerico non percepisce.',
+          'Il marziale vuole risposte rapide; il malinconico ha bisogno di tempo e profondità. La frustrazione è frequente su entrambi i fronti.',
+          'Il malinconico può cedere per evitare il conflitto, accumulando risentimento silenzioso che il marziale non percepisce.',
           'Nei momenti di collera, il malinconico si ritira ulteriormente, e la distanza si allarga senza conciliazione.',
         ],
-        tip: 'Il volitivo-collerico riduce il tono e offre spazio temporale. Il malinconico impara a dire «ho bisogno di tempo» invece di sparire.',
+        tip: 'Il marziale riduce il tono e offre spazio temporale. Il malinconico impara a dire «ho bisogno di tempo» invece di sparire.',
       },
       risorse: {
         label: 'Le risorse',
         title: 'Cosa si danno a vicenda',
         body: [
-          'Il volitivo-collerico dà al malinconico slancio verso l\'azione e protezione nel mondo esterno.',
-          'Il malinconico restituisce al volitivo-collerico profondità affettiva, capacità di ascolto e richiamo al sentire quando la volontà si irrigidisce.',
+          'Il marziale dà al malinconico slancio verso l\'azione e protezione nel mondo esterno.',
+          'Il malinconico restituisce al marziale profondità affettiva, capacità di ascolto e richiamo al sentire quando la volontà si irrigidisce.',
           'La Musica malinconica può dialogare con la volitività forte: nel modello FM è una risorsa esplicita per riequilibrare l\'eccesso di fare.',
         ],
         tip: 'Usare la musica come mediatore: un ascolto condiviso può aprire dialogo dove le parole dirette si bloccano.',

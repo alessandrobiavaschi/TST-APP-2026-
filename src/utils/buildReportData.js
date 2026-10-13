@@ -91,6 +91,7 @@ import { RAW_DOC_VISUAL } from '../config/galaxyDocBridge.ts'
 import { FAMIGLIA_BY_COLOR, NATURE } from '../config/tstSistema.js'
 import { FAMIGLIE_TST } from '../content/paroleTst.js'
 import { normalizzaSuMassimo, percentualeNatura } from './cesteTst.js'
+import { conNaturePrevalenti, elencoNaturePdf, naturePrevalentiDaRecord } from './naturePdf.js'
 import {
   buildNaturaNarrative,
   buildRelationBreakdown,
@@ -490,6 +491,28 @@ const PAROLE_PDF_SET = new Set(
   ).map((w) => String(w).trim().toLowerCase()),
 )
 
+/**
+ * Natura del PDF di ogni aggettivo (minuscolo → rawKey delle nature che lo elencano).
+ * Le parole emerse si mostrano sotto la natura in cui le mette il PDF, anche se il
+ * bottone del test assegna il punto a un'altra natura (il punteggio non cambia).
+ */
+const NATURE_PDF_PER_AGGETTIVO = FAMIGLIE_TST.reduce((acc, famiglia) => {
+  famiglia.nature.forEach((natura) => {
+    ;[...natura.aggettivi, ...(natura.poloPositivo?.aggettivi || [])].forEach((parola) => {
+      const key = String(parola).trim().toLowerCase()
+      if (!acc[key]) acc[key] = []
+      if (!acc[key].includes(natura.rawKey)) acc[key].push(natura.rawKey)
+    })
+  })
+  return acc
+}, {})
+
+function naturaPdfPerParola(parola, correnteKeyDelTest) {
+  const nature = NATURE_PDF_PER_AGGETTIVO[String(parola).trim().toLowerCase()] || []
+  if (nature.length === 0 || nature.includes(correnteKeyDelTest)) return correnteKeyDelTest
+  return nature[0]
+}
+
 export function extractParoleDalTest(rawRecord = {}) {
   const byKey = new Map()
 
@@ -499,7 +522,7 @@ export function extractParoleDalTest(rawRecord = {}) {
     if (!answer || getLogicTypeForFile(fileNumber) !== 'DIZIONARIO_2') continue
 
     const delta = computeScoreDeltaForAnswer({ fileNumber, answerLabel: answer })
-    const correnteKey = Object.keys(delta).find(
+    const correnteKeyDelTest = Object.keys(delta).find(
       (k) =>
         k.startsWith('BLU_') ||
         k.startsWith('ROSSO_') ||
@@ -507,12 +530,7 @@ export function extractParoleDalTest(rawRecord = {}) {
         k.startsWith('GIALLO_') ||
         k.startsWith('GRIGIO_'),
     )
-    if (!correnteKey) continue
-
-    const familyKey = correnteKey.split('_')[0].toLowerCase()
-    const familyName = FAMILY_NAME_BY_KEY[familyKey]
-    const theme = FAMILY_THEME[familyName]
-    if (!theme) continue
+    if (!correnteKeyDelTest) continue
 
     String(answer)
       .split(' - ')
@@ -521,6 +539,12 @@ export function extractParoleDalTest(rawRecord = {}) {
         if (!raw || raw.toLowerCase() === 'mi è indifferente') return
         const parola = titleCaseStato(raw)
         if (!PAROLE_PDF_SET.has(parola.toLowerCase())) return
+        // Natura e famiglia della parola: quelle del PDF (es. «Inquieto» → Collerica).
+        const correnteKey = naturaPdfPerParola(parola, correnteKeyDelTest)
+        const familyKey = correnteKey.split('_')[0].toLowerCase()
+        const familyName = FAMILY_NAME_BY_KEY[familyKey]
+        const theme = FAMILY_THEME[familyName]
+        if (!theme) return
         // Identità univoca: parola + correnteKey specifico (es. BLU_4_Solare),
         // non il nome corrente di famiglia (es. "Lunare" per Blu, "Solare" per
         // Giallo — nomi che collidono per assonanza con le sotto-correnti
@@ -641,6 +665,14 @@ export function buildReportData({
   )
   const coloriCorrenti = Object.fromEntries(correnti.map((c) => [c.nome, c.colore]))
 
+  // Nature SOLO dal PDF: per ogni famiglia, la natura prevalente di questa persona.
+  // Per la famiglia dominante vale la stessa scelta della sottodisposizione prevalente.
+  const naturePrevalenti = {
+    ...naturePrevalentiDaRecord(rawRecord, percentualeNatura),
+    ...(sottodisposizionePrevalente && domTheme.key ? { [domTheme.key]: sottodisposizionePrevalente } : {}),
+  }
+  const naturaDominante = naturePrevalenti[domTheme.key] || elencoNaturePdf(domTheme.key)
+
   /* ── Hero: famiglia principale + eventuale famiglia secondaria (Fase report semplice/sotto
    * complesso). Riusa solo le bande già calcolate da classifyFamilyRanking sopra
    * (globalProfileContract): nessuna nuova soglia di "quasi pareggio" introdotta qui.
@@ -672,8 +704,9 @@ export function buildReportData({
     domTheme.tagline ||
     ''
   const profilo = {
-    natura: textBlock?.restituzione_natura || domTheme.nature,
-    disposizione: textBlock?.restituzione_caratteri || domTheme.disposition,
+    // Nome della natura SOLO dal PDF (natura prevalente nella famiglia dominante).
+    natura: naturaDominante ? `NATURA ${naturaDominante.toUpperCase()}` : '',
+    disposizione: naturaDominante ? naturaDominante.toUpperCase() : '',
     famiglia: dominantColorName || domTheme.label,
     correnteDominante: domTheme.corrente,
     fraseChiave,
@@ -852,7 +885,8 @@ export function buildReportData({
     { scope: 'nature', source: 'rapportiTotals.natura (natureScopeRanking)' },
   )
 
-  const rapporti = RAPPORTI_META.map((meta) => {
+  // Nei testi dei 4 rapporti cambia solo il nome della natura (dal PDF).
+  const rapporti = conNaturePrevalenti(naturePrevalenti, () => RAPPORTI_META.map((meta) => {
     const levels = rapportiLevels?.[meta.id] || {}
     const rawTotals = rapportiTotals?.[meta.id] || {}
     const rawSum = Object.values(rawTotals).reduce((sum, value) => sum + (Number(value) || 0), 0)
@@ -1043,7 +1077,7 @@ export function buildReportData({
       esitoComposizione,
       criterioRadar: 'livello_relativo',
     }
-  })
+  }))
 
   if (!rapportiLevels) fallbacks.push('rapporti: livelli assenti, radar a 0.')
 

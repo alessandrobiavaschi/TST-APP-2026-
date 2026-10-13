@@ -185,7 +185,7 @@ export const MUSICISTI_SCHEDE = {
   Giallo: {
     label: 'Entusiasta',
     profiloEmotivo:
-      'Ciò che contraddistingue la natura gioioso-sanguinica è il piacere del movimento, della curiosità, della scoperta del nuovo, dell’estroversione.',
+      'Ciò che contraddistingue le nature Gioiosa Solare e Sanguigna Operosa è il piacere del movimento, della curiosità, della scoperta del nuovo, dell’estroversione.',
     cosaCerca:
       'La famiglia entusiastica tende a cercare energia, movimento, luce e partecipazione immediata. La musica diventa spesso una spinta vitale: qualcosa che accende il corpo, porta fuori da sé e invita a cantare, ballare o condividere.',
     piaceriAscolto:
@@ -255,7 +255,7 @@ export const MUSICISTI_SCHEDE = {
     cosaCerca:
       `È solitamente un musicista ben organizzato, ma pensare di dover sempre fare la cosa giusta alimenta la fatica a «lasciarsi andare». La Musica lo coinvolge più mentalmente che fisicamente o sentimentalmente. Riserva molta attenzione ai concetti espressi dal testo. Ciò che contraddistingue le qualità del temperamento volitivo, collerico è il piacere del fare. Per chi ama suonare o cantare significa fare Musica: mettersi alla prova con sé stesso e con il pubblico, realizzare ciò che si desidera nei modi che decide lui e a cui ambisce, vivere il piacere di governarsi e governare.`,
     piaceriAscolto:
-      `Chi appartiene alla famiglia Marziale tende a dare concretezza e direzione all’energia della Musica, farla avvivare con forza e convinzione agli ascoltatori. È poco disposto ad abbracciare l’elemento sognante, spesso molto potente specie nelle composizioni per malinconici. Preferisce misurarsi con l’incisività, la potenza e l’intensità. La sua natura volitivo-collerica sente la Musica come occasione per vivere il qui e ora, per restare lucidi e desti. La voce e il pianoforte sono i due strumenti di riferimento della famiglia Marziale. Il primo rimarca la volontà di voler gestire lo strumento degli strumenti, lo strumento dell’essere umano per eccellenza. Il secondo è il grande gestore e organizzatore dei suoni, non solo nella versione acustica ma anche nell’infinito mondo delle tastiere.`,
+      `Chi appartiene alla famiglia Marziale tende a dare concretezza e direzione all’energia della Musica, farla avvivare con forza e convinzione agli ascoltatori. È poco disposto ad abbracciare l’elemento sognante, spesso molto potente specie nelle composizioni per malinconici. Preferisce misurarsi con l’incisività, la potenza e l’intensità. La sua natura, Volitiva o Collerica, sente la Musica come occasione per vivere il qui e ora, per restare lucidi e desti. La voce e il pianoforte sono i due strumenti di riferimento della famiglia Marziale. Il primo rimarca la volontà di voler gestire lo strumento degli strumenti, lo strumento dell’essere umano per eccellenza. Il secondo è il grande gestore e organizzatore dei suoni, non solo nella versione acustica ma anche nell’infinito mondo delle tastiere.`,
     pullQuote: {
       titolo: 'Il piacere del fare',
       testo:
@@ -265,9 +265,9 @@ export const MUSICISTI_SCHEDE = {
       timbri:
         `Chi appartiene alla famiglia Marziale predilige Timbri che si posizionano al centro dello spettro sonoro. Timbri medi, decisi, incisivi, fermi e poco modulanti. Non sente particolari fastidi rispetto alle tante diverse qualità e colori timbrici. Accetta bene sia quelle squillanti che ruvidi o sordi, l’importante è che mostrino viva personalità. A titolo esplicativo ma non esaustivo oltre a quelle emesse dalla voce e dal pianoforte, si possono inserire sax, trombe, tromboni. Tra le corde le viole, tra le percussioni la batteria specie il rullante e i tom.`,
       ritmo:
-        `La famiglia dei Marziali predilige tempi forti e costanti, intorno a 100 / 130 bpm. Ama la Musica con i piedi per terra, dalle sonorità chiare e leggibili. Tra Battere e Levare, i due elementi essenziali che costituiscono lo scandire fantasioso del ritmo, separati da un elemento centrale, orizzontale di silenzio, il volitivo-collerico predilige il Battere ma ama anche farsi spiazzare.`,
+        `La famiglia dei Marziali predilige tempi forti e costanti, intorno a 100 / 130 bpm. Ama la Musica con i piedi per terra, dalle sonorità chiare e leggibili. Tra Battere e Levare, i due elementi essenziali che costituiscono lo scandire fantasioso del ritmo, separati da un elemento centrale, orizzontale di silenzio, il marziale predilige il Battere ma ama anche farsi spiazzare.`,
       melodiaArmonia:
-        `Il volitivo-collerico subisce il fascino della melodia che memorizza con facilità così come i testi. Predilige melodie memorabili, frammenti anche brevi ma intensi, unisoni potenti, scale meno consuete e intervalli duri. Così com’è attento e attratto a tutto ciò che musicalmente è consequenziale specie dallo svolgimento delle melodie che, se si sviluppano a mo’ di racconto, ovvero melodie lunghe, segue con intenzione quasi meditativa. Se invece, com’è più consueto oggi, la melodia è fatta di brevi frammenti, la prende e l’accetta con leggerezza come un giochino divertente che colora il tempo in modo positivo ma leggero.`,
+        `Il marziale subisce il fascino della melodia che memorizza con facilità così come i testi. Predilige melodie memorabili, frammenti anche brevi ma intensi, unisoni potenti, scale meno consuete e intervalli duri. Così com’è attento e attratto a tutto ciò che musicalmente è consequenziale specie dallo svolgimento delle melodie che, se si sviluppano a mo’ di racconto, ovvero melodie lunghe, segue con intenzione quasi meditativa. Se invece, com’è più consueto oggi, la melodia è fatta di brevi frammenti, la prende e l’accetta con leggerezza come un giochino divertente che colora il tempo in modo positivo ma leggero.`,
     },
     intervalli: {
       intro:
@@ -289,7 +289,7 @@ export const MUSICISTI_SCHEDE = {
       comporre:
         `Chi della famiglia Marziale ha predisposizioni creative considera il tempo della composizione un tempo ben speso. Gli permette di precisare ciò che immagina, all’occorrenza di correggere per unire per bene l’immaginazione con il risultato finale. Nella composizione le regole matematiche per lui sono una guida sicura. Spesso cerca strutture che lo stimolano ad andare fuori dagli schemi. Nel Jazz e nel Pop strumentale una scrittura con misure e tempi irregolari, unisoni.`,
       improvvisare:
-        `La tendenza alla precisione e all’organizzazione, a tenere tutto sotto controllo non giocano a favore del temperamento volitivo collerico. In ambito improvvisativo il prodigio della composizione in tempo reale, in fondo questa è l’improvvisazione, si realizza quando la fantasia che nasce da impulsi emotivi, immaginativi, extracognitivi, arrivano d’istinto e trovano immediatamente modo di incarnarsi in suoni. Significa abbandonarsi, entrare in uno stato di flow dove quel controllo non c’è più. Significa connettersi con una immensa banca dati dove soggiorna nella memoria esperienziale di ciascuno il vissuto musicale, dalla conoscenza di scale accordi modulazioni fino a ricordi di esperienze emotive vissute. Il tutto da corroborare mischiando conoscenza passata, scale, accordi con il nuovo, con nuove visioni del suono e tensioni intervallari da sperimentare.`,
+        `La tendenza alla precisione e all’organizzazione, a tenere tutto sotto controllo non giocano a favore del temperamento marziale. In ambito improvvisativo il prodigio della composizione in tempo reale, in fondo questa è l’improvvisazione, si realizza quando la fantasia che nasce da impulsi emotivi, immaginativi, extracognitivi, arrivano d’istinto e trovano immediatamente modo di incarnarsi in suoni. Significa abbandonarsi, entrare in uno stato di flow dove quel controllo non c’è più. Significa connettersi con una immensa banca dati dove soggiorna nella memoria esperienziale di ciascuno il vissuto musicale, dalla conoscenza di scale accordi modulazioni fino a ricordi di esperienze emotive vissute. Il tutto da corroborare mischiando conoscenza passata, scale, accordi con il nuovo, con nuove visioni del suono e tensioni intervallari da sperimentare.`,
     },
     paroleChiave: [
       'forza',
@@ -306,9 +306,9 @@ export const MUSICISTI_SCHEDE = {
   Grigio: {
     label: 'Razionale',
     profiloEmotivo:
-      'Ciò che contraddistingue il temperamento agnostico anaffettivo è il piacere del calcolo, della dubbiosità di origine intellettuale, dell’oggettività fisica.',
+      'Ciò che contraddistingue il temperamento razionale anaffettivo è il piacere del calcolo, della dubbiosità di origine intellettuale, dell’oggettività fisica.',
     cosaCerca:
-      'La famiglia razionale tende a cercare distanza, sospensione, dubbio e osservazione. La sua natura intellettuale-razionale può vivere la musica come un territorio ambiguo e mentale, capace di stare tra dentro e fuori senza consegnarsi subito a una risposta emotiva netta.',
+      'La famiglia razionale tende a cercare distanza, sospensione, dubbio e osservazione. La sua natura, Anaffettiva o Distaccata, può vivere la musica come un territorio ambiguo e mentale, capace di stare tra dentro e fuori senza consegnarsi subito a una risposta emotiva netta.',
     piaceriAscolto:
       'Ogni cosa viene osservata ma senza vero interesse, con un distacco intellettuale anaffettivo che riduce tutto a qualcosa di banale, di poco appagante, di dissacrante. Si manifesta anch’essa come un piacere, ma è un piacere astratto, intellettuale, che si usa prevalentemente a livello numerico matematico.',
     linguaggioMusicale: {
@@ -322,10 +322,10 @@ export const MUSICISTI_SCHEDE = {
     intervalli: {
       correnti: [
         {
-          nome: 'Corrente agnostica anaffettiva',
+          nome: 'Corrente razionale anaffettiva',
           intervallo: intervalloDi('GRIGIO_1_Anaffettiva'),
           significato:
-            'La corrente agnostica anaffettiva è descritta come un flusso che raffredda affettivamente e agisce in modo trasversale sulle altre aree temperamentali. Il suo centro è la dubbiosità di origine intellettuale: osservazione, calcolo e distacco. Lo stesso impulso può però orientarsi eticamente verso saggezza, dedizione e devozione.',
+            'La corrente razionale anaffettiva è descritta come un flusso che raffredda affettivamente e agisce in modo trasversale sulle altre aree temperamentali. Il suo centro è la dubbiosità di origine intellettuale: osservazione, calcolo e distacco. Lo stesso impulso può però orientarsi eticamente verso saggezza, dedizione e devozione.',
           stati: aggettiviDi('GRIGIO_1_Anaffettiva'),
         },
       ],

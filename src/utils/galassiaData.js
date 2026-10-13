@@ -30,6 +30,7 @@
 
 import { computeColorTotals, computeRelativePercentages } from './reportRecordUtils.js'
 import { getTestoNatura, getSintesiFamiglia } from '../content/testiFissiTemperamenti.js'
+import { getNaturaByRawKey } from '../content/paroleTst.js'
 import { DISPOSITIONS } from '../config/dispositions'
 import { RAW_DOC_VISUAL } from '../config/galaxyDocBridge'
 import {
@@ -40,8 +41,9 @@ import {
 const clamp01 = (value) => Math.min(1, Math.max(0, value))
 
 /** Nome della natura dai «Testi fissi», es. 'ROSSO_2_Dubbio_Collera' -> 'Natura Collerica'. */
+// Nome della natura come nel PDF «Parole per TST» (es. «Natura Lunare — Depressiva»).
 function rawKeyToLabel(rawKey) {
-  return getTestoNatura(rawKey)?.titolo || String(rawKey)
+  return getNaturaByRawKey(rawKey)?.nome || getTestoNatura(rawKey)?.titolo || String(rawKey)
 }
 
 /** Primi N elementi unici (preserva l'ordine). */

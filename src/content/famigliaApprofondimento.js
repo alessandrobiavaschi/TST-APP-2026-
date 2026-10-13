@@ -4,10 +4,15 @@
  * - "IDENTIKIT DELLE 5 FAMIGLIE EMOTIVE — ESTRAZIONE INTEGRALE" (estrazione da
  *   "STATI D'ANIMO IN 4 FAMIGLIE" + "Il Pianeta della Musica" di Franco Mussida)
  * Interventi ammessi: taglio, riordino, correzione refusi/punteggiatura, titoli.
+ * Nomi di famiglie e nature: SOLO dai PDF «Parole per TST» / «Testi fissi»
+ * (le `sottocategorie` sono le nature del PDF, generate in fondo al file).
  * Nessuna parafrasi. Tecnica musicale e "4 rapporti" tagliati.
  * Campo `racconto` = Memoria, Esperienza ed essere Musica (pannello 1.3 del report).
  * Chiave: nome breve famiglia come in profilo.famiglia ('Blu' | 'Rosso' | 'Verde' | 'Giallo' | 'Grigio').
  */
+
+import { FAMIGLIE_TST } from './paroleTst.js'
+import { getTestoNatura } from './testiFissiTemperamenti.js'
 
 export const FAMIGLIA_APPROFONDIMENTO = {
   Blu: {
@@ -43,36 +48,6 @@ export const FAMIGLIA_APPROFONDIMENTO = {
       'Se riportiamo alla luce una delle immagini più suggestive dell’interiorità che i Beatles ci hanno offerto negli anni Sessanta, quella che vedeva il cervello come una cantina da raggiungere, nelle cui profondità si scende con delle scale: oltre al buio lì rappresentato, qualche gradino più sotto della tristezza, trovi il covo nero della depressione.',
       'Nell’esperienza musicale può perdersi in dimensioni troppo sognanti. Anche il movimento fisico non rappresenta il suo centro naturale: danzare è una sfida che accetta di malavoglia e che declina volentieri; quando l’accetta, deve ricorrere all’aiuto della volontà.',
     ],
-    sottocategorie: [
-      {
-        nome: 'Malinconia depressiva',
-        descrizione:
-          'La Malinconia depressiva è vista come una forza motiva che agisce nel chiuso dell’interiorità scandagliandola nei suoi aspetti più cupi e oscuri. In quest’area si sviluppa la paura dell’inconosciuto, la sensazione che tutto ci sia estraneo e che possa farci male, che possa mettere a rischio la vita stessa. La depressione è il lato più oscuro della solitudine, può provocare il blocco totale dei movimenti.',
-        statiAnimo: ['Terrorizzato', 'Inorridito', 'Angosciato', 'Sgomento', 'Afflitto', 'Tormentato', 'Scosso', 'Depresso', 'Pauroso', 'Timoroso', 'Inquieto', 'Ansioso', 'Angustiato', 'Mesto', 'Fibrillante', 'Avvilito', 'Chiuso'],
-        differenza: '«Agisce nel chiuso dell’interiorità scandagliandola nei suoi aspetti più cupi e oscuri», con «la paura dell’inconosciuto» e «il blocco totale dei movimenti» — mentre la Malinconia lunare «opera nel chiuso dell’interiorità, agisce su una visione riflessa dell’esperienza emotiva».',
-      },
-      {
-        nome: 'Malinconia lunare',
-        descrizione:
-          'La Malinconia lunare è vista come una forza motiva che opera nel chiuso dell’interiorità, agisce su una visione riflessa dell’esperienza emotiva. La paura si trasforma in timore e nella tristezza di non potersi liberare da quel vivere al chiuso, in cui la luce delle esperienze di relazione della vita arriva solo di riflesso — come accade per la luce solare che illumina di riflesso, una luce fredda e distaccata.',
-        statiAnimo: ['Pensieroso', 'Triste', 'Timido', 'Pessimista', 'Preoccupato', 'Demotivato', 'Amareggiato', 'Ombroso', 'Sconfortato', 'Scoraggiato', 'Scombussolato', 'Vergognoso', 'Cupo', 'Fosco', 'Turbato', 'Lunatico', 'Lamentoso'],
-        differenza: '«Opera nel chiuso dell’interiorità, agisce su una visione riflessa dell’esperienza emotiva» — mentre la Nostalgia è «il dolore interiore provocato da una perdita, da un senso di mancanza, da un sentirsi persi, un sentirsi soli, abbandonati».',
-      },
-      {
-        nome: 'Nostalgica',
-        descrizione:
-          'Le forze emotive che operano nel temperamento nostalgico fanno vivere un’esperienza emotiva molto simile a quella della malinconia lunare. Del sentire riflesso della malinconia lunare, la nostalgia mutua il senso del dolore interiore. Ma non è tristezza, né lo stordimento che provoca sentirsi vivere in un mondo chiuso: è il dolore interiore provocato da una perdita, da un senso di mancanza, da un sentirsi persi, soli, abbandonati. La corrente nostalgica — che i brasiliani chiamano saudade — porta a elaborare il passato in due modalità: fa riflettere visceralmente sul dolore provato, facendo provare un’esperienza amara, quella del rimpianto; oppure sollecita un gesto di amore e di riconoscenza verso ciò che si è perduto, permettendo di osservare quanta bellezza, quanto affetto si è dato e, soprattutto, quanto se ne è ricevuto. Questa seconda forma — la nostalgia solare — permette di aprire lo scrigno del cuore ad esperienze, luoghi, affetti ormai lasciati alle spalle, ma il cui ricordo porta una luminosità, un diverso senso di compagnia, una compagnia nostalgica che vive e riscalda il presente.',
-        statiAnimo: ['Rimpiangente', 'Afflitto', 'Straziato', 'Rammaricato', 'Desolato', 'Disperato', 'Sconsolato', 'Mortificato', 'Abbandonato', 'Nostalgico', 'Compassionevole', 'Accorato', 'Rimembrante', 'Desiderante', 'Riconoscente', 'Grato'],
-        differenza: '«Fanno vivere un’esperienza emotiva molto simile a quella della malinconia lunare», ma «non è tristezza, né lo stordimento che provoca sentirsi vivere in un mondo chiuso: è il dolore interiore provocato da una perdita».',
-      },
-      {
-        nome: 'Malinconia solare',
-        descrizione:
-          'Le forze emotive della natura temperamentale malinconico solare, come quelle della malinconia lunare, operano nel chiuso spazio interiore. Ma, diversamente dalla loro tendenza all’introspezione che elabora solo la realtà del passato, del già vissuto, mostrano la volontà di oltrepassare, aprendo una breccia verso il mondo. Una breccia da cui può entrare la luce diretta del Sole porta l’esperienza dell’esteriorità: si accoglie così la visione di ciò che vive oltre sé stessi, un tutto da accogliere e scoprire. Grazie alle forze della malinconia solare si accende un clima emotivo diverso, positivo, legato alla percezione del senso della speranza, della serenità, della fiducia nel futuro.',
-        statiAnimo: ['Ottimista', 'Aperto', 'Sereno', 'Positivista', 'Buono', 'Simpatico', 'Meravigliato', 'Benevolente', 'Lieto', 'Leggero', 'Mite', 'Contento', 'Chiaro', 'Compassionevole', 'Fiducioso', 'Solidale', 'Speranzoso', 'Affettuoso', 'Pietoso'],
-        differenza: '«Diversamente da questa loro tendenza all’introspezione, che tende ad elaborare solo la realtà del passato, del già vissuto» — la Malinconia solare «mostra invece la volontà di oltrepassare aprendo una breccia verso il mondo».',
-      },
-    ],
     immaginiSimboliche:
       'La Luna e l’azione riflessa della sua luce; il Continente della Malinconia; lo spazio semibuio dell’interiorità; la grande sala degli specchi; il taglio di luce lunare nelle tonalità del blu, dalle più chiare e speranzose alle violacee; la nostalgia come lontananza da ciò che amiamo; lo scrigno del cuore; la cantina e le scale che scendono verso il covo nero della depressione.',
   },
@@ -83,7 +58,7 @@ export const FAMIGLIA_APPROFONDIMENTO = {
       'Ciò che contraddistingue il temperamento volitivo, collerico è il piacere del fare, realizzare ciò a cui si ambisce, il piacere di governarsi e governare, di mettersi alla prova.',
       'Da Est verso Ovest si muove l’energia che segue l’azione vitale per eccellenza, che invita a muoversi, energia che segue il percorso del Sole. Una forza che spinge a vivere il piacere del fare: questo è il flusso Volitivo.',
       '«Io» sono il padrone del mio destino: «Io» sono il capitano della mia anima (William Ernest Henley, Invictus) — parole che esprimono una superiore coscienza dell’Io, della sua piena maturità individuale.',
-      'A guidare il temperamento volitivo-collerico è la forza di un Io che opera nel presente, con volontà e sicurezza di sé.',
+      'A guidare il temperamento marziale è la forza di un Io che opera nel presente, con volontà e sicurezza di sé.',
     ],
     racconto: [
       'Nel dispiegarsi delle facoltà della vita, l’energia dell’Io ha aiutato a superare ogni momento di crescita, facendoci provare un piacere unico per ogni disposizione temperamentale. Scalando di anno in anno posizioni, crescendo, maturando, arriva a mostrarsi davvero per quello che è attorno al ventesimo anno di età.',
@@ -98,29 +73,13 @@ export const FAMIGLIA_APPROFONDIMENTO = {
     qualita: [
       'Un aspetto della collericità è vivere il piacere di fare, di concretizzare, di realizzare. La forza di un procedere sicuro e determinato. Una forza che spinge a prendersi responsabilità per sé e per gli altri. Una tendenza a operare affrontando rischi, ad andare oltre l’ostacolo, spesso a cercarli per poterli superare.',
       'L’Io deve mettere la propria fermezza e la propria forza di volontà anche al servizio dei suoi gregari: la Calma, l’Entusiasmo e la Riflessività. La solidità dell’intelletto si oppone alla debolezza del pensiero; un sentire stabile e autentico protegge dall’instabilità affettiva; una volontà chiara rischiara invece i cammini, anche difficili, che permettono di realizzare ciò a cui si tiene. L’armonia del comportamento nasce dall’equilibrio tra queste forze.',
-      'Le forze emotive che contraddistinguono la natura temperamentale volitiva-collerica sono potenti, forti, in quanto il loro operare dà il via all’azione. Sono forze che agiscono al fine di concretizzare nella realtà sogni e ambizioni: fermezza, solidità, sicurezza, franchezza, costanza, determinazione.',
+      'Le forze emotive che contraddistinguono le nature Volitiva e Collerica sono potenti, forti, in quanto il loro operare dà il via all’azione. Sono forze che agiscono al fine di concretizzare nella realtà sogni e ambizioni: fermezza, solidità, sicurezza, franchezza, costanza, determinazione.',
       '- Per mantenere in equilibrio il governatore e i suoi gregari è necessaria anche la saggezza: occorre saper ridimensionare il proprio Io e guardare con un poco d’ironia al «grande governatore». D’altra parte, senza la Calma, l’Entusiasmo e la Riflessività, che cosa potrebbe governare?',
     ],
     ombre: [
       'Fermezza, solidità, sicurezza, franchezza, costanza, determinazione hanno però anche la loro ombra, un aspetto polare negativo che si rivela contrastante.',
       'Quando l’Io rivolge lo sguardo soltanto a sé stesso, perde armonia, si irrigidisce e si «egoicizza», fino a diventare incapace di riconoscere i propri gregari e di alimentarli con le sue qualità. Se il «sentire» non viene coltivato consapevolmente, finisce per inaridirsi e disidratarsi, privando la persona di uno strumento essenziale di conoscenza.',
-      'Una condizione della natura temperamentale volitiva-collerica è lo stato d’animo rabbioso, iracondo: forze che possono diventare esplosive quando la corrente emotiva della collericità si esaspera. Rabbia e ira nascono spesso da rapporti con visioni opposte, spesso dominate da reciproci istinti di antipatia covati ma non manifestati: da questa impossibilità di dialogo emerge un’energia egoica scaricata verso il contendente in termini di rabbia trattenuta, o di ira manifestata con violenza.',
-    ],
-    sottocategorie: [
-      {
-        nome: 'Determinazione volitiva',
-        descrizione:
-          'Un aspetto della collericità è vivere il piacere di fare, di concretizzare, di realizzare. La forza di un procedere sicuro e determinato. Una forza che spinge a prendersi responsabilità per sé e per gli altri, a operare affrontando rischi, ad andare oltre l’ostacolo, spesso a cercarli per poterli superare.',
-        statiAnimo: ['Stabile', 'Saldo', 'Sicuro', 'Certo', 'Costante', 'Determinato', 'Decisionista', 'Fermo', 'Schietto', 'Sincero', 'Franco', 'Fiero', 'Risoluto', 'Fedele', 'Spavaldo', 'Altero', 'Ostinato', 'Orgoglioso', 'Coraggioso', 'Impavido'],
-        differenza: '«Fermezza, solidità, sicurezza, franchezza, costanza, determinazione, hanno però anche la loro ombra, un aspetto polare negativo che si rivela contrastante»: la Collera.',
-      },
-      {
-        nome: 'Collera',
-        descrizione:
-          'La collera è lo stato d’animo rabbioso, iracondo: forze che diventano esplosive quando la corrente della collericità si esaspera, spesso a partire da un’inconciliabilità interiore tra persone che, non trovando vie d’uscita, smettono di sentire l’altro e riaffermano solo sé stesse.',
-        statiAnimo: ['Rabbioso', 'Rancoroso', 'Irato', 'Furioso', 'Iracondo', 'Travagliato', 'Tribolato', 'Odioso', 'Diffidente', 'Sospettoso', 'Nevrotico'],
-        differenza: 'La collera è lo «stato d’animo rabbioso iracondo», forza che «può diventare esplosiva quando la corrente emotiva della collericità si esaspera».',
-      },
+      'Una condizione della natura Collerica è lo stato d’animo rabbioso, iracondo: forze che possono diventare esplosive quando la corrente emotiva della collericità si esaspera. Rabbia e ira nascono spesso da rapporti con visioni opposte, spesso dominate da reciproci istinti di antipatia covati ma non manifestati: da questa impossibilità di dialogo emerge un’energia egoica scaricata verso il contendente in termini di rabbia trattenuta, o di ira manifestata con violenza.',
     ],
     immaginiSimboliche:
       'Le energie che seguono il percorso del Sole; il finalizzatore — il bomber che segna, il capitano del ciclismo che vince con l’aiuto dei gregari; il governatore di sé stesso; la Volontà come «un vulcano in perenne eruzione»; il colore rosso come simbolo del coraggio.',
@@ -151,15 +110,6 @@ export const FAMIGLIA_APPROFONDIMENTO = {
       'Molti vivono questa predisposizione con naturalezza, facendone una loro «caratteristica»; altri la combattono perché la percepiscono come un ostacolo al fare, all’esplorare, al riflettere. Tutti siamo un po’ flemmatici quando scegliamo di fare domani ciò che dovremmo invece fare oggi.',
       'Ci sono casi in cui la gentilezza è programmata allo scopo di prevenire ogni conflitto: non si tratta allora di Flemma, ma di un suo meno nobile derivato, la pigrizia.',
     ],
-    sottocategorie: [
-      {
-        nome: 'Calma flemmatica',
-        descrizione:
-          'Bonaccia, leggerezza del non movimento, calma: il flemmatico ama riposare e contemplare, indursi un clima di equilibrio affettivo. La traccia di questo piacere offre l’occasione di vivere pace, tranquillità, moderazione e prudenza. Quando la gentilezza che ne deriva non è più gratuita ma programmata per evitare ogni conflitto, scivola nel suo «meno nobile derivato»: la pigrizia.',
-        statiAnimo: ['Rilassato', 'Calmo', 'Gentile', 'Disteso', 'Pacato', 'Placido', 'Pacifico', 'Tranquillo', 'Estatico', 'Serafico', 'Contemplativo', 'Sognante', 'Equilibrato', 'Quieto', 'Tollerante', 'Mistico', 'Prudente', 'Meditativo', 'Ammirato', 'Annoiato', 'Pigro', 'Oziante', 'Svampito', 'Indolente', 'Ignavo'],
-        differenza: '«Quando è totalmente gratuita, la gentilezza rappresenta una qualità etica straordinaria»; quando invece «è programmata allo scopo di prevenire ogni conflitto: non si tratta allora di Flemma, ma di un suo meno nobile derivato, la pigrizia».',
-      },
-    ],
     immaginiSimboliche:
       'L’occhio del ciclone; la silenziosa bonaccia; la parte centrale dell’Energia Emotiva; le sfumature di verde di purezza clorofilliana; il sentire che «dorme della grossa» come le piante.',
   },
@@ -167,7 +117,7 @@ export const FAMIGLIA_APPROFONDIMENTO = {
   Giallo: {
     nome: 'Entusiasta',
     natura: [
-      'Ciò che contraddistingue la natura gioioso-sanguinica è il piacere del movimento, della curiosità, della scoperta del nuovo, dell’estroversione.',
+      'Ciò che contraddistingue le nature Gioiosa Solare e Sanguigna Operosa è il piacere del movimento, della curiosità, della scoperta del nuovo, dell’estroversione.',
       'Da Sud verso Nord si muove un’energia calda: un flusso emotivo gioioso pervaso di solarità e di calore. Quel flusso si chiama Entusiasmo. Nel suo espandersi in un carattere in formazione, offre quello che di emotivo nasce dal nostro interiore Continente dell’Entusiasmo.',
       'L’esperienza affettiva che si vive con le forze dell’entusiasmo si manifesta con il piacere di uscire da sé stessi per abbracciare tutto ciò che è nuovo, che è fuori da noi: persone, natura, oggetti, le più svariate attività.',
       'È a questa tendenza che si agganciano le correnti musicali, orientando l’energia emotiva verso un moto centrifugo: un movimento che va verso il fuori, si disperde nel mondo e lo abbraccia, risvegliando e appagando la gioia di sentire questa propensione nel proprio carattere.',
@@ -193,22 +143,6 @@ export const FAMIGLIA_APPROFONDIMENTO = {
       'L’eccitazione, l’entusiasmo e la voglia di affrontare un’attività possono generare uno stato d’animo inquieto e arrivare a non far dormire, come può accadere prima di una partita o di un’esibizione alla quale si tiene.',
       'Provare entusiasmo comporta un dispendio di energia emotiva. Come ogni energia, anche quella emotiva ha bisogno di essere controllata, talvolta limitata e soprattutto orientata.',
     ],
-    sottocategorie: [
-      {
-        nome: 'Gioia ed entusiasmo',
-        descrizione:
-          'Il piacere di uscire da sé stessi per abbracciare tutto ciò che è nuovo, che è fuori da noi: persone, natura, oggetti, le più svariate attività. La curiosità che porta a vivere un’esperienza di successo, anche piccolo, viene premiata con il sorgere dell’Entusiasmo.',
-        statiAnimo: ['Gioioso', 'Cinetico', 'Vivace', 'Veloce', 'Vitale', 'Fluido', 'Allegro', 'Felice', 'Festoso', 'Entusiasta', 'Esaltato', 'Ardente', 'Euforico', 'Caloroso', 'Reattivo', 'Curioso', 'Volitivo', 'Dinamico', 'Esuberante', 'Solare', 'Positivista', 'Irrefrenabile'],
-        differenza: '«Il piacere di uscire da sé stessi per abbracciare tutto ciò che è nuovo» — le fonti elencano separatamente gli stati d’animo dell’Entusiasmo volitivo passionale, legati a «Innamorato, Amorevole, Ammirato, Appassionato».',
-      },
-      {
-        nome: 'Entusiasmo volitivo passionale',
-        descrizione:
-          'La corrente dell’Entusiasmo, nel suo continente, comprende anche questa sfumatura, riportata nelle fonti con il proprio elenco di stati d’animo, legati all’adesione, all’ammirazione, alla passione.',
-        statiAnimo: ['Innamorato', 'Amorevole', 'Ammirato', 'Appassionato', 'Infuocato', 'Ardente', 'Impetuoso', 'Veemente', 'Deferente', 'Illuminato'],
-        differenza: 'Elenco a parte nelle fonti, sotto il nome «Continente dell’Entusiasmo volitivo passionale» — accanto a quello di «Gioia ed entusiasmo»: «Gioioso, Cinetico, Vivace, Veloce, Vitale».',
-      },
-    ],
     immaginiSimboliche:
       'Le energie calde che si muovono da Sud a Nord; il Continente dell’Entusiasmo accanto a quello della Flemma; le tonalità solari del giallo; la scintilla di luminoso e ingenuo coraggio; la perenne ricerca di bagliori di bellezza.',
   },
@@ -216,10 +150,10 @@ export const FAMIGLIA_APPROFONDIMENTO = {
   Grigio: {
     nome: 'Razionale',
     natura: [
-      'Ciò che contraddistingue il temperamento agnostico anaffettivo è il piacere del calcolo, della dubbiosità di origine intellettuale, dell’oggettività fisica.',
-      'Da Nord verso Sud si muove un’energia gelida: diventa un flusso emotivo che raffredda, raggela affettivamente. Possiamo chiamare questa corrente: agnostica anaffettiva.',
+      'Ciò che contraddistingue il temperamento razionale anaffettivo è il piacere del calcolo, della dubbiosità di origine intellettuale, dell’oggettività fisica.',
+      'Da Nord verso Sud si muove un’energia gelida: diventa un flusso emotivo che raffredda, raggela affettivamente. Possiamo chiamare questa corrente: razionale anaffettiva.',
       'Tra le correnti emotive è l’unica che agisce in modo trasversale, gettando la sua ombra su ciascuna delle quattro aree essenziali del sistema temperamentale.',
-      'Chi vive nel dubbio si aggira sulla stessa linea orizzontale del presente che contraddistingue la corrente Collerico volitiva, che manifesta calda passione. La corrente agnostico anaffettiva agisce invece in modo polare, con gelido distacco. È una corrente forte ma non luminosa, simile a una vibrante cometa scura: genera pensieri che tendono a raggelare, più che ad alimentare, l’insieme dell’area affettiva.',
+      'Chi vive nel dubbio si aggira sulla stessa linea orizzontale del presente che contraddistingue la corrente Collerico volitiva, che manifesta calda passione. La famiglia Razionale agisce invece in modo polare, con gelido distacco. È una corrente forte ma non luminosa, simile a una vibrante cometa scura: genera pensieri che tendono a raggelare, più che ad alimentare, l’insieme dell’area affettiva.',
     ],
     racconto: [
       'Da quando alle macchine è stato dato uno spazio sempre più ampio, nella nostra società si è costituita una speciale corrente temperamentale che oggi appare acquisire sempre maggiore forza: qualcosa che si è sedimentata come una vera e propria area temperamentale a partire dagli anni Settanta.',
@@ -244,25 +178,24 @@ export const FAMIGLIA_APPROFONDIMENTO = {
       'In quella condizione il Dubbio può trasformarsi in immobilismo: una posizione di indifferenza e staticità che rinuncia al positivo e si astiene continuamente dal prendere posizione.',
       'Il «sentire» può diventare qualcosa di cui non fidarsi. Si crea allora una sensazione asettica di equidistanza da tutto: il Continente del Dubbio agisce come un inibitore dell’Entusiasmo e della Volontà, limitando l’intensità delle altre disposizioni temperamentali.',
     ],
-    sottocategorie: [
-      {
-        nome: 'Distaccato nichilista',
-        descrizione:
-          'Il polo del gelo emotivo, in cui ogni cosa viene osservata senza vero interesse, con un distacco intellettuale anaffettivo che riduce tutto a qualcosa di banale, poco appagante, dissacrante: un clima di interiore distacco nichilista, in cui si continua a realizzare ma senza intimo piacere, vero interesse o sentimento.',
-        statiAnimo: ['Anaffettivo', 'Apatico', 'Matematico', 'Lucido', 'Freddo', 'Insensibile', 'Indifferente', 'Nullista', 'Impotente', 'Distaccato', 'Imperturbabile'],
-        differenza: '«Un flusso forte ma non luminoso», che «finisce per far nascere pensieri che tendono a raggelare più che ad alimentare l’insieme dell’area affettiva» — mentre esiste «un altro lato della medaglia, che mantiene la caratteristica della volitività del temperamento, ma lo eleva eticamente».',
-      },
-      {
-        nome: 'Intellettuale saggio',
-        descrizione:
-          'Mantiene la caratteristica della volitività del temperamento, ma la eleva eticamente attraverso un attento lavoro su sé stessi, sui pensieri e sulla natura dell’intelletto, orientato al mondo vivente e accolto con amorevolezza compassionevole verso le diversità altrui.',
-        statiAnimo: ['Saggio', 'Dedito', 'Devoto', 'Beato', 'Illuminato'],
-        differenza: '«Mantiene la caratteristica della volitività del temperamento, ma lo eleva eticamente», realizzando «una più evoluta armonia tra sentire e pensare, tra l’operare della calda passionalità affettiva e quello freddo e distaccato dell’intelletto».',
-      },
-    ],
     immaginiSimboliche:
       'Le energie gelide che si muovono da Nord a Sud; la corrente che attraversa in modo trasversale le altre quattro aree; la vibrante cometa scura; il velo di grigio; il polo negativo della calamita che allontana.',
   },
+}
+
+// Nature della famiglia SOLO dai PDF: nome e aggettivi da «Parole per TST»,
+// descrizione da «Testi fissi» (alla lettera). Il resto di ogni scheda viene da
+// «Il Pianeta della Musica».
+const COLOR_KEY_BY_NAME = { Blu: 'blu', Rosso: 'rosso', Verde: 'verde', Giallo: 'giallo', Grigio: 'grigio' }
+for (const [nome, scheda] of Object.entries(FAMIGLIA_APPROFONDIMENTO)) {
+  const famiglia = FAMIGLIE_TST.find((f) => f.colorKey === COLOR_KEY_BY_NAME[nome])
+  scheda.sottocategorie = (famiglia?.nature || []).map((n) => ({
+    rawKey: n.rawKey,
+    nome: n.nome,
+    descrizione: getTestoNatura(n.rawKey)?.testo || '',
+    statiAnimo: [...n.aggettivi],
+    differenza: '',
+  }))
 }
 
 export function getFamigliaApprofondimento(famiglia = '') {

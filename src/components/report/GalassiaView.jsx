@@ -1200,14 +1200,18 @@ function getRapportiForFamily(rapporti = [], familyKey = '') {
     .filter((item) => item.valore > 0)
 }
 
-function relationToneFromKeywords(keywords = []) {
-  const joined = keywords.join(' ').toLowerCase()
-  if (/calma|pazienza|stabil|rifless/.test(joined)) return 'calma'
-  if (/decisa|diretta|pratica|definita|indirizzata|direzionata/.test(joined)) return 'spinta'
-  if (/profonda|sensibile|ideale|meditativa/.test(joined)) return 'profondita'
-  if (/energia|creativ|impulsiv|dinamismo|inventiva|efficienza/.test(joined)) return 'energia'
-  if (/distante|razionale|chiusa|separata/.test(joined)) return 'distanza'
-  return 'misto'
+// Tono della relazione deciso dalla famiglia partner (le parole vengono dal PDF
+// e non servono più a dedurlo).
+const RELATION_TONE_BY_PARTNER = {
+  verde: 'calma',
+  rosso: 'spinta',
+  blu: 'profondita',
+  giallo: 'energia',
+  grigio: 'distanza',
+}
+
+function relationToneForPartner(partnerFamilyKey = '') {
+  return RELATION_TONE_BY_PARTNER[partnerFamilyKey] || 'misto'
 }
 
 function buildDispositionRelations(rankedData = [], limit = 4) {
@@ -1222,7 +1226,7 @@ function buildDispositionRelations(rankedData = [], limit = 4) {
       const partnerFamilyKey = familyKeyForCorrente(partner)
       const keywords = getDialogoKeywords(dominantFamilyKey, partnerFamilyKey)
       const reciprocalKeywords = getDialogoKeywords(partnerFamilyKey, dominantFamilyKey)
-      const tone = relationToneFromKeywords(keywords)
+      const tone = relationToneForPartner(partnerFamilyKey)
       return {
         id: `${dominant.id}-${partner.id}`,
         baseId: dominant.id,
@@ -1239,7 +1243,6 @@ function buildDispositionRelations(rankedData = [], limit = 4) {
         toneCopy: RELATION_TONE_COPY[tone] || RELATION_TONE_COPY.misto,
       }
     })
-    .filter((relation) => relation.keywords.length || relation.reciprocalKeywords.length)
 }
 
 function getParoleForFamily(paroleEmerse = [], familyKey = '') {
@@ -1265,10 +1268,9 @@ function buildProfileInfo({ corrente, rankedData, paroleEmerse, rapporti }) {
         colore: partner.colore || getFamigliaDot(partnerFamilyKey),
         keywords: getDialogoKeywords(familyKey, partnerFamilyKey).slice(0, 4),
         reciprocalKeywords: getDialogoKeywords(partnerFamilyKey, familyKey).slice(0, 4),
-        tone: relationToneFromKeywords(getDialogoKeywords(familyKey, partnerFamilyKey)),
+        tone: relationToneForPartner(partnerFamilyKey),
       }
     })
-    .filter((item) => item.keywords.length > 0)
 
   const subs = (Array.isArray(corrente.sottoCorrenti) ? corrente.sottoCorrenti : [])
     .map((sub) => ({
@@ -2593,10 +2595,10 @@ function GalassiaMobileAlternativeView({
 
 const DEEP_READ_FAMILY_META = {
   blu: { shortName: 'Malinconica', relationalKey: 'malinconico', essence: 'memoria, profondita e ricerca di senso' },
-  rosso: { shortName: 'Volitiva', relationalKey: 'assertivo', essence: 'direzione, decisione e presenza nel fare' },
+  rosso: { shortName: 'Marziale', relationalKey: 'assertivo', essence: 'direzione, decisione e presenza nel fare' },
   verde: { shortName: 'Flemmatica', relationalKey: 'flemmatico', essence: 'calma, continuita e capacita di depositare' },
   giallo: { shortName: 'Entusiasta', relationalKey: 'entusiasta', essence: 'slancio, apertura e movimento creativo' },
-  grigio: { shortName: 'Anaffettiva', relationalKey: 'anaffettivo', essence: 'distanza osservativa, lucidita e separazione' },
+  grigio: { shortName: 'Razionale', relationalKey: 'anaffettivo', essence: 'distanza osservativa, lucidita e separazione' },
 }
 
 const DEEP_READ_RELATION_KEYS = {

@@ -251,7 +251,16 @@ test('dominante, secondaria ed equilibrio globale gestiscono vuoti e casi estrem
   assert.equal(tie.contrastPercent, 0)
 })
 
-test('ogni risposta lessicale mantiene corrente e famiglia scientifica di origine', () => {
+// Le parole emerse si mostrano sotto la natura in cui le mette il PDF: tre parole
+// dei bottoni del test appartengono nel PDF a una natura diversa da quella che
+// riceve il punto (il punteggio non cambia).
+const NATURA_PDF_DIVERSA = {
+  Inquieto: 'ROSSO_2_Dubbio_Collera',
+  Dinamico: 'GIALLO_1_Gioia_Entusiasmo',
+  Amorevole: 'BLU_4_Solare',
+}
+
+test('ogni risposta lessicale mostra la parola nella natura del PDF', () => {
   Object.entries(dizionario2).forEach(([answerLabel, dictionaryEntry]) => {
     const words = extractParoleDalTest({ File_29: answerLabel })
     const expectedWords = answerLabel
@@ -260,12 +269,11 @@ test('ogni risposta lessicale mantiene corrente e famiglia scientifica di origin
       .filter((part) => part && part.toLowerCase() !== 'mi è indifferente')
       // Si mostrano solo le parole presenti nel PDF «Parole per TST» (es. "Illuminato" non c'è).
       .filter((part) => PAROLE_PDF.has(part.toLowerCase()))
-    const expectedFamily = dictionaryEntry.correnteKey.split('_')[0].toLowerCase()
-
     assert.equal(words.length, expectedWords.length, answerLabel)
     words.forEach((word) => {
-      assert.equal(word.familyKey, expectedFamily, `${answerLabel}: ${word.parola}`)
-      assert.equal(word.correnteKey, dictionaryEntry.correnteKey, `${answerLabel}: ${word.parola}`)
+      const expectedKey = NATURA_PDF_DIVERSA[word.parola] || dictionaryEntry.correnteKey
+      assert.equal(word.familyKey, expectedKey.split('_')[0].toLowerCase(), `${answerLabel}: ${word.parola}`)
+      assert.equal(word.correnteKey, expectedKey, `${answerLabel}: ${word.parola}`)
       assert.equal(word.count, 1, `${answerLabel}: ${word.parola}`)
       assert.equal(word.peso, 'emersa', `${answerLabel}: ${word.parola}`)
     })

@@ -9,12 +9,13 @@ import {
   formatSubcategoryLabel,
 } from '../src/utils/reportTaxonomy.js'
 
+// Nature SOLO dal PDF «Parole per TST»: ogni famiglia ne ha più d'una.
 const EXPECTED_TAXONOMY = {
-  Blu: ['Malinconica', 'LUNARE'],
-  Rosso: ['Marziale', 'VOLITIVO-COLLERICA'],
-  Verde: ['Flemmatica', 'CONTEMPLATIVA'],
-  Giallo: ['Entusiasta', 'GIOIOSO-SANGUINICO'],
-  Grigio: ['Razionale', 'INTELLETTUALE-RAZIONALE'],
+  Blu: ['Malinconica', 'LUNARE INTROSPETTIVA, LUNARE DEPRESSIVA, SOLARE O NOSTALGICA'],
+  Rosso: ['Marziale', 'VOLITIVA O COLLERICA'],
+  Verde: ['Flemmatica', 'CALMA CONTEMPLATIVA O CALMA FISICA'],
+  Giallo: ['Entusiasta', 'GIOIOSA SOLARE O SANGUIGNA OPEROSA'],
+  Grigio: ['Razionale', 'ANAFFETTIVA O DISTACCATA'],
 }
 
 test('separa le cinque famiglie dalle rispettive nature emotive', () => {
@@ -45,8 +46,8 @@ test('riconosce la natura Gioioso-Sanguinico mantenendo la compatibilità con il
   assert.notEqual(FAMILY_THEME.Giallo.characteristic, 'SOLARE')
 })
 
-test('presenta la natura Nostalgica come Solare o Lunare senza rompere i valori storici', () => {
+test('presenta la natura Nostalgica come natura a sé (PDF) senza rompere i valori storici', () => {
   assert.equal(formatSubcategoryLabel('Nostalgica'), MALINCONICA_NOSTALGICA_LABEL)
   assert.equal(formatSubcategoryLabel('Nostalgia'), MALINCONICA_NOSTALGICA_LABEL)
-  assert.match(reportContent.Blu.descrizione_estesa, /natura Nostalgica \(solare o lunare\)/i)
+  assert.match(reportContent.Blu.descrizione_estesa, /nature Lunare Introspettiva, Lunare Depressiva, Solare e Nostalgica/i)
 })

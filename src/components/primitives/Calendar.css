@@ -1,0 +1,209 @@
+/* Calendar — palette e misure del Calendar di Tremor (gray / blue-500). */
+.tst-cal {
+  --cal-text: #111827;
+  --cal-muted: #9ca3af;
+  --cal-faint: #d1d5db;
+  --cal-border: #d1d5db;
+  --cal-hover: #e5e7eb;
+  --cal-accent: #3b82f6;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.75rem;
+  color: var(--cal-text);
+  font-size: 0.875rem;
+  user-select: none;
+}
+
+.tst-cal__caption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.tst-cal__nav-group {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.tst-cal__nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 4px;
+  border: 1px solid var(--cal-border);
+  border-radius: 4px;
+  background: transparent;
+  color: #4b5563;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.tst-cal__nav:hover { background: #f9fafb; color: #1f2937; }
+.tst-cal__nav:active { background: #f3f4f6; }
+.tst-cal__nav:disabled {
+  pointer-events: none;
+  border-color: #e5e7eb;
+  color: var(--cal-muted);
+}
+
+.tst-cal__icon { width: 100%; height: 100%; }
+
+.tst-cal__title {
+  border: 0;
+  background: transparent;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font: inherit;
+  font-weight: 500;
+  text-transform: capitalize;
+  font-variant-numeric: tabular-nums;
+  color: var(--cal-text);
+  cursor: pointer;
+}
+
+.tst-cal__title:hover { background: var(--cal-hover); }
+
+.tst-cal__table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.tst-cal__head {
+  width: 2.25rem;
+  padding-bottom: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-align: center;
+  text-transform: capitalize;
+  color: var(--cal-muted);
+}
+
+.tst-cal__cell {
+  padding: 1px 0 0;
+  text-align: center;
+}
+
+.tst-cal__day {
+  position: relative;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--cal-text);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.tst-cal__day:hover { background: var(--cal-hover); }
+.tst-cal__day.is-outside { color: var(--cal-muted); }
+.tst-cal__day.is-today { font-weight: 600; }
+.tst-cal__day.is-selected,
+.tst-cal__day.is-selected:hover {
+  background: var(--cal-accent);
+  color: #fff;
+}
+.tst-cal__day:disabled {
+  color: var(--cal-faint);
+  text-decoration: line-through;
+  background: transparent;
+  cursor: default;
+}
+
+.tst-cal__today {
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  width: 1rem;
+  height: 2px;
+  border-radius: 2px;
+  transform: translateX(-50%);
+  background: var(--cal-accent);
+}
+
+.tst-cal__day.is-selected .tst-cal__today { background: #fff; }
+
+.tst-cal__day:focus-visible,
+.tst-cal__nav:focus-visible,
+.tst-cal__title:focus-visible,
+.tst-cal__year:focus-visible,
+.tst-datefield__trigger:focus-visible {
+  outline: 2px solid var(--cal-accent);
+  outline-offset: 2px;
+  z-index: 1;
+}
+
+.tst-cal__years {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.25rem;
+  min-width: 16.5rem;
+}
+
+.tst-cal__year {
+  height: 2.5rem;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  color: var(--cal-text);
+  cursor: pointer;
+}
+
+.tst-cal__year:hover { background: var(--cal-hover); }
+.tst-cal__year.is-current { font-weight: 600; }
+.tst-cal__year.is-selected { background: var(--cal-accent); color: #fff; }
+.tst-cal__year:disabled { color: var(--cal-faint); background: transparent; cursor: default; }
+
+/* ── DateField (campo + popover) ─────────────────────────────────────── */
+.tst-datefield { position: relative; }
+
+.tst-datefield__trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  border-radius: 0.7rem;
+  background: rgba(248, 250, 252, 0.85);
+  font: inherit;
+  font-size: var(--font-size-base, 1rem);
+  color: #111827;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.tst-datefield__trigger.is-empty { color: #9ca3af; }
+.tst-datefield__trigger[aria-expanded='true'] {
+  border-color: var(--color-accent-blue, #38bdf8);
+  box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.4);
+  background: #fff;
+}
+.tst-datefield__trigger:disabled { opacity: 0.65; cursor: not-allowed; }
+
+.tst-datefield__icon { width: 1rem; height: 1rem; flex-shrink: 0; color: #6b7280; }
+
+.tst-datefield__popover {
+  position: absolute;
+  z-index: 50;
+  top: calc(100% + 6px);
+  left: 0;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.25);
+}
+
+@media (max-width: 420px) {
+  .tst-datefield__popover { left: 50%; transform: translateX(-50%); }
+}

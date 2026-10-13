@@ -12,11 +12,12 @@ import {
 } from '../src/utils/buildNaturaNarrative.js'
 
 const FAMILY_CASES = [
-  ['blu', 'Malinconica', 'Lunare'],
-  ['rosso', 'Marziale', 'Volitivo-collerica'],
-  ['verde', 'Flemmatica', 'Contemplativa'],
-  ['giallo', 'Entusiasta', 'Gioioso-sanguinico'],
-  ['grigio', 'Razionale', 'Intellettuale-razionale'],
+  // Senza dati di natura della persona si elencano le nature della famiglia (PDF).
+  ['blu', 'Malinconica', 'Lunare Introspettiva, Lunare Depressiva, Solare o Nostalgica'],
+  ['rosso', 'Marziale', 'Volitiva o Collerica'],
+  ['verde', 'Flemmatica', 'Calma Contemplativa o Calma Fisica'],
+  ['giallo', 'Entusiasta', 'Gioiosa Solare o Sanguigna Operosa'],
+  ['grigio', 'Razionale', 'Anaffettiva o Distaccata'],
 ]
 
 function radarItem(familyKey, rawValue, distributionPercent, valore) {
@@ -121,7 +122,7 @@ test('il racconto in primo piano segue il peso prima delle opposizioni teoriche'
   })
 
   assert.equal(result.frontParagraphs.length, 3)
-  assert.match(result.frontParagraphs[0], /appartenenza alla famiglia Marziale.*Volitivo-collerica/i)
+  assert.match(result.frontParagraphs[0], /appartenenza alla famiglia Marziale.*Volitiva o Collerica/i)
   assert.match(result.frontParagraphs[1], /natura Malinconica.*riflessione.*consapevole/i)
   assert.doesNotMatch(result.frontParagraphs.join(' '), /natura Flemmatica/i)
   assert.match(result.frontParagraphs[2], /eccellente armonia tra le diverse componenti/i)
@@ -336,7 +337,7 @@ test('la graduatoria prevale su una chiave dominante esterna incoerente', () => 
     ranking: [radarItem('rosso', 19, 60, 7), radarItem('verde', 12, 40, 4)],
   })
 
-  assert.match(result.frontParagraphs[0], /famiglia Marziale.*Volitivo-collerica.*prevalenza/i)
+  assert.match(result.frontParagraphs[0], /famiglia Marziale.*Volitiva o Collerica.*prevalenza/i)
   assert.doesNotMatch(result.frontParagraphs[0], /Flemmatica/i)
 })
 

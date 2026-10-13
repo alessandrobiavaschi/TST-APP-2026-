@@ -9,7 +9,7 @@
  * fonti: nessun testo di famiglia/natura arriva più da documenti diversi dai due PDF.
  */
 
-import { getAggettiviForRawKey } from '../content/paroleTst.js'
+import { getAggettiviForRawKey, getNaturaByRawKey } from '../content/paroleTst.js'
 import { getNaturaByCampo } from './tstSistema.js'
 import { getTestoFamiglia, getTestoNatura } from '../content/testiFissiTemperamenti.js'
 
@@ -17,7 +17,8 @@ import { getTestoFamiglia, getTestoNatura } from '../content/testiFissiTemperame
 const intervalloDi = (rawKey: string): string => getNaturaByCampo(rawKey)?.intervallo || ''
 
 /** Titolo e descrizione di natura/famiglia: SOLO dai «Testi fissi» (content/testiFissiTemperamenti.js). */
-const titoloNatura = (rawKey: string): string => getTestoNatura(rawKey)?.titolo || ''
+// Nome della natura come nel PDF «Parole per TST» (es. «Natura Lunare — Depressiva»).
+const titoloNatura = (rawKey: string): string => getNaturaByRawKey(rawKey)?.nome || getTestoNatura(rawKey)?.titolo || ''
 const testoNatura = (rawKey: string): string => getTestoNatura(rawKey)?.testo || ''
 const etichettaFamiglia = (colorKey: string): string =>
   (getTestoFamiglia(colorKey)?.titolo || '').replace(/^La famiglia /, 'Famiglia ')

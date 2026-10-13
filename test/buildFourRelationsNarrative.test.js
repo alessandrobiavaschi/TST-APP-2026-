@@ -119,17 +119,17 @@ test('Agire applica le soglie percentuali concordate per la componente Marziale'
   const text = result.paragraphs.join(' ')
   assert.match(result.levelLabel, /Buona propensione all'azione/)
   assert.equal(result.frontParagraphs.length, 2)
-  assert.match(text, /natura Volitivo-collerica ha un rapporto simbiotico con la volontà/)
+  assert.match(text, /natura Volitiva o Collerica ha un rapporto simbiotico con la volontà/)
   assert.match(text, /Marziale raggiunge il 31%/)
   assert.match(text, /buona propensione all'azione/)
 })
 
 test('Agire modula il testo secondo tutte le famiglie di base', () => {
   const cases = [
-    ['blu', /natura Lunare.*rende più consapevoli/i],
-    ['verde', /natura Contemplativa.*tensione/i],
-    ['giallo', /natura di tipo Gioioso-sanguinico.*nuove possibilità/i],
-    ['grigio', /natura Intellettuale-razionale.*calcolo e controllo/i],
+    ['blu', /natura Lunare Introspettiva, Lunare Depressiva, Solare o Nostalgica.*rende più consapevoli/i],
+    ['verde', /natura Calma Contemplativa o Calma Fisica.*tensione/i],
+    ['giallo', /natura Gioiosa Solare o Sanguigna Operosa.*nuove possibilità/i],
+    ['grigio', /natura Anaffettiva o Distaccata.*calcolo e controllo/i],
   ]
 
   cases.forEach(([dominantFamilyKey, expectation]) => {

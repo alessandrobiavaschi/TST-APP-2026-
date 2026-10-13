@@ -109,9 +109,9 @@ export const GLOSSARY = [
     term: 'Natura (caratteristica emotiva)',
     oneLine: 'Natura che specifica come si esprime una famiglia emotiva.',
     explain:
-      'La famiglia è una delle cinque categorie del modello; la natura (caratteristica emotiva) ne descrive la qualità. Per esempio: famiglia Marziale, natura Volitivo-collerica.',
+      'La famiglia è una delle cinque categorie del modello; la natura (caratteristica emotiva) ne descrive la qualità. Per esempio: famiglia Marziale, natura Volitiva.',
     usefulFor:
-      'Leggi sempre i due livelli insieme: famiglia Flemmatica e natura Contemplativa.',
+      'Leggi sempre i due livelli insieme: famiglia Flemmatica e natura Calma Contemplativa.',
     tags: ['sintesi'],
   },
   {
@@ -138,7 +138,7 @@ export const GLOSSARY = [
     term: 'Natura',
     oneLine: 'Natura (caratteristica emotiva) con cui si esprime la famiglia prevalente.',
     explain:
-      'Specifica la famiglia prevalente: Lunare per la Malinconica, Volitivo-collerica per la Marziale, Contemplativa per la Flemmatica, Gioioso-Sanguinico per l’Entusiasta e Intellettuale-Razionale per la Razionale.',
+      'Specifica la famiglia prevalente. Malinconica: nature Lunare Introspettiva, Lunare Depressiva, Solare e Nostalgica; Marziale: Volitiva e Collerica; Flemmatica: Calma Contemplativa e Calma Fisica; Entusiasta: Gioiosa Solare e Sanguigna Operosa; Razionale: Anaffettiva e Distaccata.',
     usefulFor: 'Adatta ritmo, profondità e tipo di stimolo (movimento vs riflessione).',
     tags: ['profilo'],
   },

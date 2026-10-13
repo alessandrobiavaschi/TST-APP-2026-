@@ -74,9 +74,9 @@ const NOISE_SVG =
  */
 export default function HeroScreen({
   familyName = '',
-  naturaName = 'NATURA CONTEMPLATIVA',
+  naturaName = '',
   heroResult = null,
-  _disposizione = 'CONTEMPLATIVA',
+  _disposizione = '',
   _userName = '',
   fraseChiave = '',
   correnteColore = '#16a34a',

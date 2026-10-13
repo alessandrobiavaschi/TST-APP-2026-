@@ -23,6 +23,7 @@ import { getFlowerStillByColor } from '../colorAssets.js'
 import { compactTestRecord, computeTestResultFields } from '../utils/testRecordProcessing.js'
 import { getNextFileAfterAnswer } from '../utils/testAnswerNavigation.js'
 import '../styles/nuovo-test-flow.css'
+import { DateField } from '../components/primitives/Calendar.jsx'
 
 const STATO_ANIMO_OPTIONS = [
   { value: 'SA_SERENO', label: 'Sereno/a' },
@@ -1248,14 +1249,14 @@ function NewTestPage() {
           <form className="profilazione-form" onSubmit={handleStartTest}>
             <h2 className="profilazione-title">Profilazione utente</h2>
             <div className="profilazione-grid">
-              <label className="profilazione-field">
+              <div className="profilazione-field">
                 <span>Data</span>
-                <input
-                  type="date"
+                <DateField
                   value={testRecord.Data_Test || ''}
                   onChange={handleProfilazioneChange('Data_Test')}
+                  placeholder="Data del test"
                 />
-              </label>
+              </div>
               <label className="profilazione-field">
                 <span>Nome</span>
                 <input
@@ -1274,14 +1275,16 @@ function NewTestPage() {
                   placeholder="Cognome"
                 />
               </label>
-              <label className="profilazione-field">
+              <div className="profilazione-field">
                 <span>Data di nascita</span>
-                <input
-                  type="date"
+                <DateField
                   value={testRecord.Data_Nascita || ''}
                   onChange={handleProfilazioneChange('Data_Nascita')}
+                  placeholder="Data di nascita"
+                  max="today"
+                  defaultMonth="1990-01-01"
                 />
-              </label>
+              </div>
               <label className="profilazione-field">
                 <span>Titolo di studio</span>
                 <input

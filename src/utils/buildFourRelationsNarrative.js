@@ -1,3 +1,4 @@
+import { nomeNaturaPerFamiglia } from './naturePdf.js'
 import { FAMILY_THEME } from '../config/reportFamilyTheme.js'
 import { NATURA_RELATION_RULES } from './buildNaturaNarrative.js'
 import {
@@ -26,16 +27,12 @@ const SELF_PRESENCE_BANDS = [
   [0, 'limitata'],
 ]
 
-function sentenceCase(value) {
-  const normalized = String(value || '').trim().toLowerCase()
-  return normalized ? normalized.charAt(0).toUpperCase() + normalized.slice(1) : ''
-}
-
 function familyCopy(familyKey) {
   const theme = THEME_BY_KEY[familyKey] || {}
   return {
     family: theme.family || 'famiglia non disponibile',
-    nature: sentenceCase(theme.characteristic || theme.disposition),
+    // Nome della natura SOLO dal PDF: natura prevalente della persona in questa famiglia.
+    nature: nomeNaturaPerFamiglia(familyKey),
   }
 }
 
@@ -309,23 +306,23 @@ export function buildOtherNarrative({ dominantFamilyKey = '', ranking = [] } = {
 const ACTION_CONTEXT_BY_FAMILY = {
   rosso: {
     relation: 'rapporto simbiotico',
-    copy: 'La natura Volitivo-collerica, infatti, ha un rapporto simbiotico con la volontà. È l’elemento che la caratterizza, in quanto coinvolge direttamente l’azione dell’Io, la forza che opera per realizzare i propri obiettivi.',
+    copy: 'La natura {natura}, infatti, ha un rapporto simbiotico con la volontà. È l’elemento che la caratterizza, in quanto coinvolge direttamente l’azione dell’Io, la forza che opera per realizzare i propri obiettivi.',
   },
   blu: {
     relation: 'consapevolezza',
-    copy: 'La natura Lunare tende a elaborare interiormente ciò che vive prima di trasformarlo in azione. La componente Marziale introduce volontà, decisione e capacità di realizzazione, che la propensione alla riflessione rende più consapevoli.',
+    copy: 'La natura {natura} tende a elaborare interiormente ciò che vive prima di trasformarlo in azione. La componente Marziale introduce volontà, decisione e capacità di realizzazione, che la propensione alla riflessione rende più consapevoli.',
   },
   verde: {
     relation: 'tensione',
-    copy: 'La natura Contemplativa ricerca calma, moderazione e continuità, mentre la componente Marziale spinge verso decisione, iniziativa e realizzazione. Tra le due forze esiste una tensione tra il bisogno di pausa e la volontà di agire.',
+    copy: 'La natura {natura} ricerca calma, moderazione e continuità, mentre la componente Marziale spinge verso decisione, iniziativa e realizzazione. Tra le due forze esiste una tensione tra il bisogno di pausa e la volontà di agire.',
   },
   giallo: {
     relation: 'affinità dinamica',
-    copy: 'La natura di tipo Gioioso-sanguinico condivide con la componente Marziale il piacere del movimento, dello slancio e dell’iniziativa. L’Entusiasmo apre nuove possibilità, mentre la Volitività sostiene la decisione e la capacità di portarle a compimento.',
+    copy: 'La natura {natura} condivide con la componente Marziale il piacere del movimento, dello slancio e dell’iniziativa. L’Entusiasmo apre nuove possibilità, mentre la Volitività sostiene la decisione e la capacità di portarle a compimento.',
   },
   grigio: {
     relation: 'tensione',
-    copy: 'La natura Intellettuale-razionale tende a valutare l’esperienza attraverso osservazione, calcolo e controllo. La componente Marziale introduce invece decisione, volontà e capacità di intervenire concretamente.',
+    copy: 'La natura {natura} tende a valutare l’esperienza attraverso osservazione, calcolo e controllo. La componente Marziale introduce invece decisione, volontà e capacità di intervenire concretamente.',
   },
 }
 
@@ -337,7 +334,10 @@ export function buildActionNarrative({ dominantFamilyKey = '', ranking = [] } = 
 
   const martial = rankingItem(ranking, 'rosso')
   const result = resolveActionPropensity(martial.distributionPercent)
-  const context = ACTION_CONTEXT_BY_FAMILY[dominantFamilyKey] || ACTION_CONTEXT_BY_FAMILY.rosso
+  const contextBase = ACTION_CONTEXT_BY_FAMILY[dominantFamilyKey] || ACTION_CONTEXT_BY_FAMILY.rosso
+  const contextFamilyKey = ACTION_CONTEXT_BY_FAMILY[dominantFamilyKey] ? dominantFamilyKey : 'rosso'
+  const naturaContesto = familyCopy(contextFamilyKey).nature
+  const context = { ...contextBase, copy: contextBase.copy.replace('{natura}', naturaContesto) }
   const actionPractical = ACTION_PRACTICAL_BY_ADJECTIVE[result.adjective] || ''
   const lens = buildLensContext(ranking, 'rosso')
 
@@ -356,7 +356,7 @@ export function buildActionNarrative({ dominantFamilyKey = '', ranking = [] } = 
       ].filter(Boolean).join(' '),
     ],
     paragraphs: [
-      lens.supportsStrongReference ? context.copy.replace('Volitivo-collerica, infatti,', 'Volitivo-collerica') : lens.compositionCopy,
+      lens.supportsStrongReference ? context.copy.replace(`${naturaContesto}, infatti,`, naturaContesto) : lens.compositionCopy,
       `La componente Marziale raggiunge il ${formatPercent(martial.distributionPercent)}% dei punti della lente: ${lens.supportsStrongReference ? `suggerisce ${feminineIndefinite(result.adjective)} propensione all'azione` : 'il suo peso non consente una conclusione comportamentale forte sull\'azione'}.`,
       `La conclusione segue questo ordine: prima le famiglie con più punti, poi il ruolo teorico del Marziale, soltanto se il suo peso è sufficiente.`,
     ],

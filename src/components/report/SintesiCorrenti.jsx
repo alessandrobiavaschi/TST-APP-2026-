@@ -11,7 +11,11 @@ import { GlossaryLink } from './ReportGlossaryDrawer.jsx'
 import InfoTip from './InfoTip.jsx'
 import CalculationDisclosure from './CalculationDisclosure.jsx'
 import PercorsoRisposte from './PercorsoRisposte.jsx'
+import FamiglieDonut from './FamiglieDonut.jsx'
 import { buildProgressiveContentViewModel } from '../../utils/buildProgressiveContentViewModel.js'
+import { NATURE as NATURE_TST } from '../../config/tstSistema.js'
+import { getTestoNatura } from '../../content/testiFissiTemperamenti.js'
+import { naturePdfDiFamiglia } from '../../utils/naturePdf.js'
 import './SintesiCorrenti.css'
 
 void motion
@@ -46,12 +50,13 @@ const FAMILY_LAYOUT = {
   Grigio: { cx: 122, cy: 298, angle: 12 },
 }
 
+// Nature SOLO dal PDF «Parole per TST»: ogni famiglia ne ha più d'una.
 const FAMILY_PRESENCE_LABELS = {
-  verde: { title: 'Flemmatica', detail: 'natura contemplativa' },
-  giallo: { title: 'Entusiasta', detail: 'natura Gioioso-Sanguinico' },
-  rosso: { title: 'Marziale', detail: 'natura volitivo-collerica' },
-  grigio: { title: 'Razionale', detail: 'natura intellettuale-razionale' },
-  blu: { title: 'Malinconica', detail: 'natura lunare' },
+  verde: { title: 'Flemmatica', detail: 'nature Calma Contemplativa e Calma Fisica' },
+  giallo: { title: 'Entusiasta', detail: 'nature Gioiosa Solare e Sanguigna Operosa' },
+  rosso: { title: 'Marziale', detail: 'nature Volitiva e Collerica' },
+  grigio: { title: 'Razionale', detail: 'nature Anaffettiva e Distaccata' },
+  blu: { title: 'Malinconica', detail: 'nature Lunare Introspettiva, Lunare Depressiva, Solare e Nostalgica' },
 }
 
 // Fonti: docs/fonti-scientifiche/_estratto/MATRICE_TRACCIABILITA.md,
@@ -70,85 +75,67 @@ const BRIEF_SUMMARY_BY_FAMILY = {
     clarification: "La Malinconia non significa automaticamente tristezza o depressione.",
     fundamentalPleasure:
       "il piacere di stare con sé stessi, dell’introversione, dell’osservarsi interiormente e del riflettere su ciò che si è vissuto",
-    qualities: "nature (caratteristiche emotive) lunari, solari e nostalgiche",
-    qualitiesByQuality: {
-      Lunare:
-        "una caratteristica Lunare e una Solare. Quella Lunare opera nel chiuso dell’interiorità, su una visione riflessa dell’esperienza emotiva",
-      Solare:
-        "una caratteristica Lunare e una Solare. Quella Solare apre verso il mondo, portando speranza, serenità e fiducia nel futuro",
-      Nostalgica:
-        "una natura Nostalgica, che può essere Lunare o Solare. La forma Lunare elabora il passato attraverso il rimpianto; quella Solare attraverso la riconoscenza verso ciò che si è vissuto",
-      Depressiva:
-        "una caratteristica introspettiva e una depressiva. Quella Depressiva opera nel chiuso dell’interiorità, scandagliandone gli aspetti più scuri",
-    },
     orientation: "sé stessi, la memoria, la riflessione e l’interiorità",
     note: "La tristezza è solo uno dei volti dolorosi della malinconia.",
     deepDiveParagraphs: [
       "Il versante lunare della Malinconia, associato alla terza minore, orienta verso l’introspezione e il raccoglimento e, nelle forme più accentuate, verso la tristezza e la depressione. Il versante solare, associato alla terza maggiore, orienta invece verso l’apertura, la speranza, l’ottimismo e l’avvicinamento alla gioia.",
       "La natura specifica emersa dal test indica quale di queste manifestazioni risulta più presente nel tuo profilo: non esaurisce l’intera persona. Etichette come «Depressiva» appartengono al linguaggio del modello TST e non costituiscono una diagnosi clinica.",
     ],
-    defaultQuality: "Lunare",
   },
   Giallo: {
     family: 'Entusiasta',
     fundamentalPleasure:
       "il piacere del movimento, della curiosità, della scoperta del nuovo e dell’apertura verso il mondo",
-    qualities: "nature (caratteristiche emotive) legate alla gioia, all’entusiasmo, alla curiosità e alla solarità",
-    qualitiesByQuality: {
-      Solare:
-        "una caratteristica Gioioso-Sanguinico e una Passionale. Quella Gioioso-Sanguinico si esprime con vivacità, positività e un moto naturale verso il fuori e verso gli altri",
-      "Gioioso-Sanguinico":
-        "una caratteristica Gioioso-Sanguinico e una Passionale. Quella Gioioso-Sanguinico si esprime con vivacità, positività e un moto naturale verso il fuori e verso gli altri",
-      Passionale:
-        "una caratteristica Gioioso-Sanguinico e una Passionale. Quella Passionale si esprime con intensità affettiva, trasporto e un profondo senso di fusione con ciò che si ama",
-    },
     orientation: "il fuori, gli altri, la relazione, la natura, le attività e le possibilità",
     note: "",
-    defaultQuality: "Gioioso-Sanguinico",
   },
   Rosso: {
     family: 'Marziale',
     fundamentalPleasure:
       "il piacere del fare, del realizzare ciò che si desidera, del governarsi e del mettersi alla prova",
-    qualities: "nature (caratteristiche emotive) legate alla Natura Volitiva e alla Natura Collerica",
-    qualitiesByQuality: {
-      Volitiva:
-        "una Natura Volitiva e una Collerica. Quella Volitiva si esprime con fermezza, determinazione e volontà di concretizzare nel presente",
-      Collerica:
-        "una Natura Volitiva e una Collerica. Quella Collerica porta all’esitazione e all’ambiguità del dubbio; quando si esaspera, può trasformarsi in collera",
-    },
     orientation: "l’azione, la responsabilità, la decisione e la realizzazione",
     note: "",
-    defaultQuality: "Volitiva",
   },
   Verde: {
     family: 'Flemmatica',
     fundamentalPleasure: "il piacere della lentezza, del riposo, della calma e della contemplazione",
-    qualities:
-      "nature (caratteristiche emotive) legate alla pace interiore, alla moderazione, alla prudenza e all’osservazione contemplativa",
     orientation:
       "la calma interiore — non per riflettere su sé stessi, ma per trovare quiete ed equilibrio affettivo",
     note: "",
-    defaultQuality: 'Contemplativa',
   },
   Grigio: {
     family: 'Razionale',
     fundamentalPleasure:
       "il piacere del calcolo, della dubbiosità di origine intellettuale, dell’oggettività e della distanza affettiva",
-    qualities:
-      "nature (caratteristiche emotive) legate all’anaffettività, al distacco, al nichilismo e alla dimensione intellettuale",
-    qualitiesByQuality: {
-      Anaffettiva:
-        "una caratteristica Anaffettiva e una della Saggezza. Quella Anaffettiva agisce con gelido distacco intellettuale, osservando ogni cosa senza lasciarsi coinvolgere dalla sfera sentimentale",
-      Distaccata:
-        "una caratteristica Anaffettiva e una della Saggezza. Quella Anaffettiva agisce con gelido distacco intellettuale, osservando ogni cosa senza lasciarsi coinvolgere dalla sfera sentimentale",
-      "Intellettuale-saggia":
-        "una caratteristica Anaffettiva e una della Saggezza. Quella della Saggezza orienta lo stesso sguardo distaccato verso un’osservazione amorevole e compassionevole, aprendosi alla devozione e alla cura dell’altro",
-    },
     orientation: "il distacco, l’oggettività, l’analisi e la distanza dal coinvolgimento immediato",
     note: "",
-    defaultQuality: "Anaffettiva",
   },
+}
+
+// Nature di ogni famiglia SOLO dai PDF: nomi da «Parole per TST», definizione
+// (prima frase) da «Testi fissi». Il resto del riepilogo viene dal Pianeta della Musica.
+const COLOR_KEY_BY_FAMILY_NAME = { Blu: 'blu', Rosso: 'rosso', Verde: 'verde', Giallo: 'giallo', Grigio: 'grigio' }
+
+function primaFrase(testo = '') {
+  const m = String(testo).trim().match(/^.*?[.!?](?=\s|$)/)
+  return (m ? m[0] : String(testo)).trim()
+}
+
+function natureFamigliaPdf(familyName) {
+  const colorKey = COLOR_KEY_BY_FAMILY_NAME[familyName]
+  return NATURE_TST.filter((n) => n.colorKey === colorKey)
+    .map((n) => ({ nome: n.nome, definizione: primaFrase(getTestoNatura(n.campoDb)?.testo || '') }))
+    .sort((x, y) => naturePdfDiFamiglia(colorKey).indexOf(x.nome) - naturePdfDiFamiglia(colorKey).indexOf(y.nome))
+}
+
+function qualitiesPdf(familyName) {
+  const nomi = natureFamigliaPdf(familyName).map((n) => `alla Natura ${n.nome}`)
+  const elenco = nomi.length > 1 ? `${nomi.slice(0, -1).join(', ')} e ${nomi.at(-1)}` : nomi[0] || ''
+  return `nature (caratteristiche emotive) legate ${elenco}`
+}
+
+function qualitiesByQualityPdf(familyName) {
+  return Object.fromEntries(natureFamigliaPdf(familyName).map((n) => [n.nome, n.definizione]))
 }
 
 function renderBriefSummaryParagraph(paragraph) {
@@ -309,23 +296,11 @@ function buildTotalScoreRadarData(totalScores = {}, correnti = [], assignedFamil
   })
 }
 
-function resolveBriefQuality({ familyName, sottodisposizione, correnteDominante }) {
-  const haystack = `${sottodisposizione || ''} ${correnteDominante || ''}`.toLowerCase()
-
-  if (haystack.includes('nostalg')) return 'Nostalgica'
-  if (haystack.includes('depress')) return 'Depressiva'
-  if (haystack.includes('lunare')) return 'Lunare'
-  if (haystack.includes('solare')) return familyName === 'Giallo' ? 'Gioioso-Sanguinico' : 'Solare'
-  if (haystack.includes('assert') || haystack.includes('marziale')) return 'Volitiva'
-  if (haystack.includes('dubbio') || haystack.includes('collera')) return 'Collerica'
-  if (haystack.includes('flemm') || haystack.includes('contemplat')) return 'Contemplativa'
-  if (haystack.includes('gioia') || haystack.includes('entusiasm') || haystack.includes('sanguin')) return 'Gioioso-Sanguinico'
-  if (haystack.includes('passion')) return 'Passionale'
-  if (haystack.includes('saggio') || haystack.includes('intellett')) return 'Intellettuale-saggia'
-  if (haystack.includes('distacc')) return 'Distaccata'
-  if (haystack.includes('anaff')) return 'Anaffettiva'
-
-  return BRIEF_SUMMARY_BY_FAMILY[familyName]?.defaultQuality || 'Contemplativa'
+function resolveBriefQuality({ familyName, sottodisposizione }) {
+  // Natura prevalente con il nome del PDF; se manca, la prima natura della famiglia nel PDF.
+  const nature = natureFamigliaPdf(familyName).map((n) => n.nome)
+  const norm = (v) => String(v || '').trim().toLowerCase()
+  return nature.find((nome) => norm(nome) === norm(sottodisposizione)) || nature[0] || ''
 }
 
 function buildBriefSummary({ familyName, sottodisposizione, correnteDominante }) {
@@ -340,14 +315,12 @@ function buildBriefSummary({ familyName, sottodisposizione, correnteDominante })
   familyParagraphs.push(`Chi ne fa parte orienta la propria energia emotiva verso ${copy.orientation}.`)
 
   // Step 3 — la famiglia contiene più nature: testo generico originale.
-  const compositionParagraph = `Al suo interno si distinguono ${copy.qualities}.`
+  const qualitiesByQuality = qualitiesByQualityPdf(familyName in COLOR_KEY_BY_FAMILY_NAME ? familyName : 'Verde')
+  const compositionParagraph = `Al suo interno si distinguono ${qualitiesPdf(familyName in COLOR_KEY_BY_FAMILY_NAME ? familyName : 'Verde')}.`
 
-  // Step 5 — come la natura prevalente si colloca nella famiglia: testo originale
-  // per-qualità (qualitiesByQuality), invariato.
-  const qualitiesByQualityText = copy.qualitiesByQuality?.[quality]
-  const natureFitParagraph = qualitiesByQualityText
-    ? `Nello specifico, si distinguono ${qualitiesByQualityText}.`
-    : ''
+  // Step 5 — natura prevalente: prima frase del suo testo nei «Testi fissi».
+  const qualitiesByQualityText = qualitiesByQuality[quality]
+  const natureFitParagraph = qualitiesByQualityText ? qualitiesByQualityText : ''
 
   const deepDiveParagraphs = [...(copy.note ? [copy.note] : []), ...(copy.deepDiveParagraphs || [])]
 
@@ -357,7 +330,7 @@ function buildBriefSummary({ familyName, sottodisposizione, correnteDominante })
     familyParagraphs,
     compositionParagraph,
     natureFitParagraph,
-    qualitiesByQuality: copy.qualitiesByQuality || null,
+    qualitiesByQuality,
     deepDiveParagraphs,
   }
 }
@@ -872,6 +845,15 @@ export default function SintesiCorrenti({
               onFamilyHover={setHoveredFamilyKey}
             />
           </div>
+          <FamiglieDonut
+            data={totalScoreRadarData}
+            activeFamilyKey={hoveredFamilyKey || activeDetailFamily?.familyKey}
+            onFamilyHover={setHoveredFamilyKey}
+            onFamilySelect={(key) => {
+              const radarItem = totalScoreRadarData.find(d => d.familyKey === key)
+              if (radarItem) setActiveDetailFamily(radarItem)
+            }}
+          />
           {renderDetailPanel()}
         </div>
         </div>
@@ -1133,6 +1115,15 @@ export default function SintesiCorrenti({
               ) : null}
             </div>
           </div>
+          <FamiglieDonut
+            data={totalScoreRadarData}
+            activeFamilyKey={hoveredFamilyKey || activeDetailFamily?.familyKey}
+            onFamilyHover={setHoveredFamilyKey}
+            onFamilySelect={(key) => {
+              const radarItem = totalScoreRadarData.find(d => d.familyKey === key)
+              if (radarItem) setActiveDetailFamily(radarItem)
+            }}
+          />
           <PercorsoRisposte record={rawRecord} />
         </div>
       </div>
