@@ -1423,7 +1423,7 @@ function NewTestPage() {
                   </div>
                 </header>
                 {!testCompleted && reconfirmReferenceFile && (
-                  <div className="answers-c-bis" aria-live="polite">
+                  <div className="answers-c-bis">
                     <p className="answers-c-bis-title">Riascolto di conferma</p>
                     <p className="answers-c-bis-hint">
                       Stai risentendo il file {reconfirmReferenceFile}, già presentato durante il test. Il player qui sotto riproduce solo questo suono di riferimento: ascolta con calma e scegli l’aggettivo che senti più coerente.
@@ -1587,12 +1587,12 @@ function NewTestPage() {
                   </section>
                 )}
                 <div className="test-stage-step-content" key={currentFile}>
-                  <section className="test-stage-question-zone" role="status" aria-live="polite">
+                  <section className="test-stage-question-zone">
                     <h2 className="test-threshold-question-title test-threshold-question-title--compact">
                       {getQuestionTitleForFile(currentFile)}
                     </h2>
                   </section>
-                  <section className="test-stage-answers-shell" aria-live="polite">
+                  <section className="test-stage-answers-shell">
                     <div
                       ref={answersZoneRef}
                       className={`test-stage-answers-zone ${isChoicesVisible ? 'is-revealed' : 'is-hidden'}`}
