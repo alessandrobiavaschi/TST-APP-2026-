@@ -1200,7 +1200,7 @@
 
   --color-text: #1f2933;
   --color-text-soft: #4b6a75;
-  --color-text-muted: #7a98aa;
+  --color-text-muted: #58778a;
   --color-subtitle-readable: #27465a;
 
   /* Palette testi reattiva al cielo (armocromia emotiva) */
@@ -7241,8 +7241,12 @@ body {
 
 .results-area-select:focus {
   outline: none;
+}
+
+.results-area-select:focus-visible {
+  outline: 2px solid var(--color-accent, #7a59f5);
+  outline-offset: 2px;
   border-color: var(--color-accent, #7a59f5);
-  box-shadow: 0 0 0 3px rgba(122, 89, 245, 0.15);
 }
 
 @media (max-width: 900px) {
