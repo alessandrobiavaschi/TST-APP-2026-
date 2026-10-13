@@ -1,14 +1,19 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { useEffect, useId, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useLocation, useNavigate, Navigate } from 'react-router-dom'
 import { useAuth } from '../AuthContext.jsx'
+import { useDocumentTitle } from '../hooks/useDocumentTitle.js'
+import { useDialogFocus } from '../hooks/useDialogFocus.js'
 import { db } from '../firebaseConfig.js'
 import {
   collection,
   doc,
   getDocs,
+  limit,
   orderBy,
   query,
+  startAfter,
   where,
   addDoc,
   updateDoc,
@@ -29,6 +34,10 @@ import {
   downloadCsvSingleRecord,
 } from '../utils/reportRecordUtils.js'
 import { parseMatriceCsv } from '../utils/matriceCsv.js'
+import { CAMPI_PER_COLORE, NATURE, colorKeyDaEtichetta } from '../config/tstSistema.js'
+import { normalizzaRecordTst } from '../utils/testRecordProcessing.js'
+import { percentualeNatura } from '../utils/cesteTst.js'
+import { MALINCONICA_NOSTALGICA_LABEL, formatSubcategoryLabel } from '../utils/reportTaxonomy.js'
 
 export function computeAgeFromBirthDate(dateValue) {
   if (!dateValue) return null
@@ -85,7 +94,9 @@ function downloadCsvFromRecords(records, filename = 'tst_matrice_archivio.csv') 
   URL.revokeObjectURL(url)
 }
 
-function buildResultRecord(docId, data) {
+function buildResultRecord(docId, rawData) {
+  // Riallinea il test salvato alle regole attuali (fonte unica tstSistema.js).
+  const data = normalizzaRecordTst(rawData)
   const age = computeAgeFromBirthDate(data.Data_Nascita)
   const { blu, rosso, verde, giallo, grigio } = computeColorTotals(data)
   return {
@@ -96,55 +107,30 @@ function buildResultRecord(docId, data) {
   }
 }
 
-/* Ordine: Blu, Rosso, Giallo, Verde, Grigio – etichette = le 5 disposizioni (non "Lunare", che è sottosezione Blu) */
+/* Ordine: Blu, Rosso, Giallo, Verde, Grigio – etichette = le 5 famiglie emotive. */
 const RADAR_FAMIGLIE = [
-  { subject: 'Malinconia', key: 'blu', color: '#3b82f6' },
-  { subject: 'Volitività', key: 'rosso', color: '#ef4444' },
-  { subject: 'Entusiasmo', key: 'giallo', color: '#eab308' },
-  { subject: 'Calma', key: 'verde', color: '#22c55e' },
-  { subject: 'Anaffettività', key: 'grigio', color: '#6b7280' },
+  { subject: 'Malinconica', key: 'blu', color: '#60a5fa' },
+  { subject: 'Marziale', key: 'rosso', color: '#f87171' },
+  { subject: 'Entusiasta', key: 'giallo', color: '#fde047' },
+  { subject: 'Flemmatica', key: 'verde', color: '#4ade80' },
+  { subject: 'Razionale', key: 'grigio', color: '#9ca3af' },
 ]
 
 /** Etichette colonne matrice risultati: le 5 macro-aree cromatiche del punteggio. */
 const MATRICE_HEADERS = [
-  { key: 'blu', label: 'Malinconia' },
-  { key: 'rosso', label: 'Volitività' },
-  { key: 'verde', label: 'Calma' },
-  { key: 'giallo', label: 'Entusiasmo' },
-  { key: 'grigio', label: 'Anaffettività' },
+  { key: 'blu', label: 'Malinconica' },
+  { key: 'rosso', label: 'Marziale' },
+  { key: 'verde', label: 'Flemmatica' },
+  { key: 'giallo', label: 'Entusiasta' },
+  { key: 'grigio', label: 'Razionale' },
 ]
 
-const SOTTOCORRENTE_KEYS_BY_FAMILY = {
-  blu: ['BLU_1_Depressiva', 'BLU_2_Lunare', 'BLU_3_Nostalgia', 'BLU_4_Solare'],
-  rosso: ['ROSSO_1_Assertivita', 'ROSSO_2_Dubbio_Collera'],
-  verde: ['VERDE_1_Calma'],
-  giallo: ['GIALLO_1_Gioia_Entusiasmo', 'GIALLO_2_Volitivo_Passionale'],
-  grigio: ['GRIGIO_1_Distaccato_Nichilista', 'GRIGIO_2_Intellettuale_Saggio'],
-}
+/** Nature per famiglia e nomi: dal sistema unico (src/config/tstSistema.js). */
+const SOTTOCORRENTE_KEYS_BY_FAMILY = CAMPI_PER_COLORE
 
-const SOTTOCORRENTE_LABEL_BY_KEY = {
-  BLU_1_Depressiva: 'Depressiva',
-  BLU_2_Lunare: 'Lunare',
-  BLU_3_Nostalgia: 'Nostalgica',
-  BLU_4_Solare: 'Solare',
-  ROSSO_1_Assertivita: 'Assertività',
-  ROSSO_2_Dubbio_Collera: 'Dubbio / Collera',
-  VERDE_1_Calma: 'Calma',
-  GIALLO_1_Gioia_Entusiasmo: 'Gioia / Entusiasmo',
-  GIALLO_2_Volitivo_Passionale: 'Volitivo / Passionale',
-  GRIGIO_1_Distaccato_Nichilista: 'Distaccato / Nichilista',
-  GRIGIO_2_Intellettuale_Saggio: 'Intellettuale / Saggio',
-}
-
-const DISPOSIZIONE_TO_FAMILY_KEY = {
-  malinconia: 'blu',
-  'volitivita': 'rosso',
-  'volitività': 'rosso',
-  calma: 'verde',
-  entusiasmo: 'giallo',
-  'anaffettivita': 'grigio',
-  'anaffettività': 'grigio',
-}
+const SOTTOCORRENTE_LABEL_BY_KEY = Object.fromEntries(
+  NATURE.map((n) => [n.campoDb, n.campoDb === 'BLU_3_Nostalgia' ? MALINCONICA_NOSTALGICA_LABEL : n.nome]),
+)
 
 function normalizeSottocorrenteLabel(value) {
   return String(value || '')
@@ -156,29 +142,32 @@ function normalizeSottocorrenteLabel(value) {
 }
 
 function getResolvedSottodisposizione(raw = {}) {
-  const disposizioneKey = normalizeSottocorrenteLabel(raw.Disposizione_Prevalente)
-  const familyKey = DISPOSIZIONE_TO_FAMILY_KEY[disposizioneKey]
+  const familyKey = colorKeyDaEtichetta(raw.Disposizione_Prevalente)
   const candidateKeys = SOTTOCORRENTE_KEYS_BY_FAMILY[familyKey] || []
-  if (candidateKeys.length === 0) return String(raw.Sottodisposizione_Prevalente || '').trim()
+  if (candidateKeys.length === 0) return formatSubcategoryLabel(raw.Sottodisposizione_Prevalente)
 
   const savedNormalized = normalizeSottocorrenteLabel(raw.Sottodisposizione_Prevalente)
   const savedKeyInFamily = candidateKeys.find((key) => {
     const label = SOTTOCORRENTE_LABEL_BY_KEY[key] || key
-    return [key, label].some((alias) => normalizeSottocorrenteLabel(alias) === savedNormalized)
+    const legacy = key.split('_').slice(2).join(' ')
+    const aliases = [key, label, legacy, ...(key === 'BLU_3_Nostalgia' ? ['Nostalgia', 'Nostalgica'] : [])]
+    return aliases.some((alias) => normalizeSottocorrenteLabel(alias) === savedNormalized)
   })
-  if (savedKeyInFamily) return SOTTOCORRENTE_LABEL_BY_KEY[savedKeyInFamily] || savedKeyInFamily
+  if (savedKeyInFamily) {
+    return formatSubcategoryLabel(SOTTOCORRENTE_LABEL_BY_KEY[savedKeyInFamily] || savedKeyInFamily)
+  }
 
   let bestKey = ''
   let bestValue = -Infinity
   candidateKeys.forEach((key) => {
-    const value = Number(raw[key]) || 0
+    const value = percentualeNatura(key, raw[key])
     if (value > bestValue) {
       bestValue = value
       bestKey = key
     }
   })
   if (!bestKey || bestValue <= 0) return ''
-  return SOTTOCORRENTE_LABEL_BY_KEY[bestKey] || bestKey
+  return formatSubcategoryLabel(SOTTOCORRENTE_LABEL_BY_KEY[bestKey] || bestKey)
 }
 
 function IconEdit({ title, onClick, className = '' }) {
@@ -218,11 +207,24 @@ function IconDelete({ title, onClick, className = '' }) {
 }
 
 const DISPOSIZIONI_SIGNIFICATO = {
-  Malinconia: 'Introspettivo, orientato alla riflessione, alla memoria e al passato.',
-  Volitività: 'Energia volitiva, orientata all’azione, alla prova e all’assertività nel presente.',
-  Entusiasmo: 'Gioia del movimento, curiosità, entusiasmo verso ciò che è nuovo.',
-  Calma: 'Calma profonda, bisogno di riposo, protezione e spazi di silenzio.',
-  Anaffettività: 'Sguardo analitico, razionale, che tende a osservare e misurare prima di sentire.',
+  Malinconica: 'Famiglia introspettiva, orientata alla riflessione, alla memoria e al passato.',
+  Marziale: 'Famiglia orientata all’azione, alla prova e alla volontà nel presente.',
+  Entusiasta: 'Famiglia legata al movimento, alla curiosità e a ciò che è nuovo.',
+  Flemmatica: 'Famiglia legata alla calma, al riposo, alla protezione e agli spazi di silenzio.',
+  Razionale: 'Famiglia analitica, che tende a osservare e misurare prima di sentire.',
+}
+
+const FAMILY_DISPLAY_BY_STORED_DISPOSITION = {
+  malinconia: 'Malinconica',
+  volitivita: 'Marziale',
+  calma: 'Flemmatica',
+  entusiasmo: 'Entusiasta',
+  anaffettivita: 'Razionale',
+}
+
+function displayFamilyFromStoredDisposition(value) {
+  const key = normalizeSottocorrenteLabel(value)
+  return FAMILY_DISPLAY_BY_STORED_DISPOSITION[key] || String(value || '').trim()
 }
 
 const NORMALIZZAZIONE_SPIEGAZIONE =
@@ -231,11 +233,12 @@ const NORMALIZZAZIONE_SPIEGAZIONE =
 function getDispColor(val) {
   if (!val) return '#94a3b8'
   const v = val.toLowerCase()
-  if (v.includes('malinconia')) return '#3b82f6'
-  if (v.includes('volitiv')) return '#ef4444'
-  if (v.includes('calma')) return '#22c55e'
-  if (v.includes('entusiasmo')) return '#eab308'
-  if (v.includes('anaffettiv')) return '#6b7280'
+  if (v.includes('malinconia')) return '#60a5fa'
+  if (v.includes('malinconic')) return '#60a5fa'
+  if (v.includes('volitiv') || v.includes('marzial')) return '#f87171'
+  if (v.includes('calma') || v.includes('flemmatic')) return '#4ade80'
+  if (v.includes('entusias')) return '#fde047'
+  if (v.includes('anaffettiv') || v.includes('razional')) return '#9ca3af'
   return '#94a3b8'
 }
 
@@ -245,7 +248,7 @@ function DisposizioneBadge({ value }) {
   return (
     <span className="disp-badge" style={{ '--badge-color': color }}>
       <span className="disp-badge-dot" aria-hidden="true" />
-      {value}
+      {displayFamilyFromStoredDisposition(value)}
     </span>
   )
 }
@@ -663,7 +666,7 @@ export function FioreVisivo({ levels, totals, chartHeight = 280, dispositionAcce
               </div>
             ))}
           </div>
-          <p className="fiore-legend-hint">Ogni petalo rappresenta una disposizione; la lunghezza indica il livello 1–7 (più è lungo, più la risonanza in quell&apos;area).</p>
+          <p className="fiore-legend-hint">Ogni petalo rappresenta una famiglia; la lunghezza indica il livello 1–7 (più è lungo, più la risonanza in quell&apos;area).</p>
         </div>
       )}
     </div>
@@ -671,6 +674,7 @@ export function FioreVisivo({ levels, totals, chartHeight = 280, dispositionAcce
 }
 
 function ResultsPage() {
+  useDocumentTitle('I tuoi risultati')
   const location = useLocation()
   const { user: currentUser, authReady } = useAuth()
   const guestRecord = location.state && location.state.mode === 'guest' ? location.state.record : null
@@ -695,6 +699,7 @@ function ResultsPage() {
   const navigate = useNavigate()
   const filtersRef = useRef(null)
   const importFileInputRef = useRef(null)
+  const importTriggerRef = useRef(null)
 
   const [showImportModal, setShowImportModal] = useState(false)
   const [isImportDragActive, setIsImportDragActive] = useState(false)
@@ -751,6 +756,7 @@ function ResultsPage() {
       setTimeout(() => {
         setShowImportModal(false)
         setImportSuccess(null)
+        importTriggerRef.current?.focus()
       }, 1400)
     } catch (err) {
       console.error(err)
@@ -777,15 +783,17 @@ function ResultsPage() {
     if (importFileInputRef.current) {
       importFileInputRef.current.value = ''
     }
+    importTriggerRef.current?.focus()
   }
+
+  const importModalRef = useRef(null)
+  useDialogFocus(importModalRef, {
+    open: showImportModal,
+    onClose: closeImportModal,
+  })
 
   const openReport = (record) => {
     if (!record) return
-    try {
-      window.sessionStorage.setItem('tst_last_report_record', JSON.stringify(record))
-    } catch (error) {
-      console.warn('Impossibile salvare il fallback report in sessionStorage:', error)
-    }
     navigate('/risultati/report', { state: { record } })
   }
 
@@ -801,47 +809,74 @@ function ResultsPage() {
     }
     setLoading(true)
     setLoadError(null)
+    let cancelled = false
+    const PAGE_SIZE = 40
+
     const fetchData = async () => {
       try {
-        let q = query(
+        const baseQuery = query(
           collection(db, TEST_RESULTS_COLLECTION),
           where(TEST_RESULT_USER_ID_FIELD, '==', currentUser.uid),
           orderBy('Data_Ora_Fine_Test', 'desc'),
         )
-        let snapshot
-        try {
-          snapshot = await getDocs(q)
-        } catch (err) {
-          // In molti casi Firestore richiede un indice composto per where+orderBy.
-          // Se manca, facciamo un fallback ad una query senza orderBy così i risultati compaiono comunque.
-          if (err?.code === 'failed-precondition') {
-            console.warn(
-              'Query Firestore senza indice composto, eseguo fallback senza orderBy. Crea un indice su userId + Data_Ora_Fine_Test per riattivare l\'ordinamento.',
-              err,
-            )
-            q = query(
-              collection(db, TEST_RESULTS_COLLECTION),
-              where(TEST_RESULT_USER_ID_FIELD, '==', currentUser.uid),
-            )
+        let cursor = null
+        let isFirstPage = true
+
+        while (true) {
+          const pageConstraints = cursor ? [startAfter(cursor), limit(PAGE_SIZE)] : [limit(PAGE_SIZE)]
+          let q = query(baseQuery, ...pageConstraints)
+          let snapshot
+          try {
             snapshot = await getDocs(q)
-          } else {
+          } catch (err) {
+            // In molti casi Firestore richiede un indice composto per where+orderBy.
+            // Se manca, facciamo un fallback ad una query senza orderBy così i risultati compaiono comunque
+            // (senza paginazione: recupera tutto in un colpo solo, come prima di questa modifica).
+            if (err?.code === 'failed-precondition') {
+              console.warn(
+                'Query Firestore senza indice composto, eseguo fallback senza orderBy. Crea un indice su userId + Data_Ora_Fine_Test per riattivare l\'ordinamento.',
+                err,
+              )
+              q = query(
+                collection(db, TEST_RESULTS_COLLECTION),
+                where(TEST_RESULT_USER_ID_FIELD, '==', currentUser.uid),
+              )
+              snapshot = await getDocs(q)
+              if (cancelled) return
+              setRecords(snapshot.docs.map((doc) => buildResultRecord(doc.id, doc.data())))
+              return
+            }
             throw err
           }
+
+          if (cancelled) return
+          const pageDocs = snapshot.docs.map((doc) => buildResultRecord(doc.id, doc.data()))
+          setRecords((prev) => (isFirstPage ? pageDocs : [...prev, ...pageDocs]))
+          if (isFirstPage) {
+            // Prima pagina arrivata: sblocca subito la UI, il resto continua a caricarsi in background.
+            setLoading(false)
+            isFirstPage = false
+          }
+
+          if (snapshot.docs.length < PAGE_SIZE) break
+          cursor = snapshot.docs[snapshot.docs.length - 1]
         }
-        const docs = snapshot.docs.map((doc) => buildResultRecord(doc.id, doc.data()))
-        setRecords(docs)
       } catch (err) {
+        if (cancelled) return
         console.error('Errore durante il caricamento dei risultati:', err)
         setLoadError(
           err?.message ||
             'Impossibile caricare i risultati dal database. Controlla la connessione o la configurazione di Firestore.',
         )
       } finally {
-        setLoading(false)
+        if (!cancelled) setLoading(false)
       }
     }
 
     fetchData()
+    return () => {
+      cancelled = true
+    }
   }, [guestRecord, authReady, currentUser])
 
   useEffect(() => {
@@ -1355,7 +1390,7 @@ function ResultsPage() {
                 </div>
               </div>
               <div className="filter-field">
-                <label>Disposizione prevalente</label>
+                <label>Famiglia prevalente</label>
                 <select
                   value={dispFilter}
                   onChange={(e) => setDispFilter(e.target.value)}
@@ -1363,13 +1398,13 @@ function ResultsPage() {
                   <option value="">Tutte</option>
                   {filterOptions.disposizioni.map((option) => (
                     <option key={option} value={option}>
-                      {option}
+                      {displayFamilyFromStoredDisposition(option)}
                     </option>
                   ))}
                 </select>
               </div>
               <div className="filter-field">
-                <label>Sottodisposizione prevalente</label>
+                <label>Sfumatura prevalente</label>
                 <select
                   value={sottodispFilter}
                   onChange={(e) => setSottodispFilter(e.target.value)}
@@ -1411,6 +1446,7 @@ function ResultsPage() {
                 {selectedAreaId ? `Scarica matrice (${selectedAreaName})` : 'Scarica matrice (archivio totale)'}
               </button>
               <button
+                ref={importTriggerRef}
                 type="button"
                 className="nav-button primary"
                 onClick={() => setShowImportModal(true)}
@@ -1420,10 +1456,16 @@ function ResultsPage() {
             </div>
           </div>
 
-          {showImportModal && (
-            <div className="modal-overlay">
-              <div className="modal-content">
-                <h2>Importa Risultati</h2>
+          {showImportModal && createPortal(
+            <div className="modal-overlay results-import-modal-overlay">
+              <div
+                ref={importModalRef}
+                className="modal-content results-import-modal"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="results-import-modal-title"
+              >
+                <h2 id="results-import-modal-title">Importa Risultati</h2>
                 <div
                   className={`results-import-dropzone ${isImportDragActive ? 'results-import-dropzone--active' : ''}`}
                   onDragEnter={(e) => {
@@ -1466,6 +1508,7 @@ function ResultsPage() {
                     disabled={importing}
                   />
                   <button
+                    autoFocus
                     type="button"
                     className="nav-button primary"
                     onClick={() => importFileInputRef.current?.click()}
@@ -1484,7 +1527,8 @@ function ResultsPage() {
                   </button>
                 </div>
               </div>
-            </div>
+            </div>,
+            document.body,
           )}
 
           <div className="results-table-wrapper">
@@ -1507,8 +1551,8 @@ function ResultsPage() {
                     <th>Strumento</th>
                     <th>Data</th>
                     <th>Stato</th>
-                    <th>Disposizione prevalente</th>
-                    <th>Sottodisposizione prevalente</th>
+                    <th>Famiglia prevalente</th>
+                    <th>Sfumatura prevalente</th>
                     <th>Portato esp. prevalente</th>
                     <th>Archivio</th>
                     {MATRICE_HEADERS.map((h) => (

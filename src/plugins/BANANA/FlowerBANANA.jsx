@@ -8,11 +8,11 @@ import React, { useId } from 'react'
  */
 
 const BANANA_CORRENTI = [
-  { key: 'blu', label: 'Malinconia (Blu)', color: '#3b82f6' },
-  { key: 'rosso', label: 'Volitività (Rosso)', color: '#ef4444' },
-  { key: 'verde', label: 'Calma (Verde)', color: '#22c55e' },
-  { key: 'giallo', label: 'Entusiasmo (Giallo)', color: '#eab308' },
-  { key: 'grigio', label: 'Anaffettività (Grigio)', color: '#6b7280' },
+  { key: 'blu', label: 'Malinconia (Blu)', color: '#60a5fa' },
+  { key: 'rosso', label: 'Volitività (Rosso)', color: '#f87171' },
+  { key: 'verde', label: 'Calma (Verde)', color: '#4ade80' },
+  { key: 'giallo', label: 'Entusiasmo (Giallo)', color: '#fde047' },
+  { key: 'grigio', label: 'Anaffettività (Grigio)', color: '#9ca3af' },
 ]
 
 const ANGOLO_PER_PETALO = 360 / 5 // 72°

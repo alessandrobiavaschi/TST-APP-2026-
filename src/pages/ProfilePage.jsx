@@ -11,8 +11,10 @@ import {
   userHasPasswordProvider,
 } from '../auth.js'
 import SkySettingsPanel from '../components/SkySettingsPanel.jsx'
+import { useDocumentTitle } from '../hooks/useDocumentTitle.js'
 
 function ProfilePage() {
+  useDocumentTitle('Profilo')
   const { user: currentUser, authReady } = useAuth()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)

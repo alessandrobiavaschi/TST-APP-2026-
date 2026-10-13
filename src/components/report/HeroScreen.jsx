@@ -1,35 +1,13 @@
 import React, { useMemo } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { HERO_UI } from './reportUiCopy.js'
-import { scrollToReportSection } from './reportSectionNavUtils.js'
 import { getFlowerStillByColor } from '../../colorAssets.js'
 import { computeColorTotals, getDominantColorInfo } from '../../utils/reportRecordUtils.js'
+import { FAMILY_NAME_BY_KEY, FAMILY_THEME } from '../../config/reportFamilyTheme.js'
 
 // Il setup ESLint del progetto non riconosce l'uso di `motion.X` nel JSX come
 // riferimento alla variabile (stessa convenzione di HeroSummary.jsx).
 void motion
-
-/**
- * <HeroScreen /> — schermata d'apertura (100vh) del report TST.
- *
- * Componente puro presentazionale, data-driven dalle props. Nessuna chiamata
- * a scoring o DB. I colori della corrente dominante sono iniettati come
- * CSS custom properties sul nodo radice, così l'intera scena cambia tinta
- * automaticamente per ogni profilo.
- *
- * Props:
- *  - naturaName: string            es. "NATURA FLEMMATICA"
- *  - disposizione: string          es. "CONTEMPLATIVA"
- *  - userName: string              nome e cognome della persona
- *  - correnteColore: string        hex colore dominante (es. "#16a34a")
- *  - correnteColoreChiara?: string hex versione chiara (opzionale; default calcolato)
- *  - correnteColoreMedia?: string  hex versione media/scura (opzionale; default calcolato)
- *  - correnti: Array<{ nome: string, colore: string, peso: number }>  // 5 correnti
- */
-
-/* ------------------------------------------------------------------ */
-/* Utility colore: derivano le varianti chiara/media dal colore hex.  */
-/* ------------------------------------------------------------------ */
 
 function clamp255(n) {
   return Math.max(0, Math.min(255, Math.round(n)))
@@ -37,71 +15,81 @@ function clamp255(n) {
 
 function parseHex(hex) {
   if (typeof hex !== 'string') return null
-  let h = hex.trim().replace('#', '')
-  if (h.length === 3) h = h.split('').map((c) => c + c).join('')
-  if (h.length !== 6) return null
-  const r = parseInt(h.slice(0, 2), 16)
-  const g = parseInt(h.slice(2, 4), 16)
-  const b = parseInt(h.slice(4, 6), 16)
-  if ([r, g, b].some(Number.isNaN)) return null
-  return { r, g, b }
+  let value = hex.trim().replace('#', '')
+  if (value.length === 3) value = value.split('').map((char) => char + char).join('')
+  if (value.length !== 6) return null
+
+  const color = {
+    r: parseInt(value.slice(0, 2), 16),
+    g: parseInt(value.slice(2, 4), 16),
+    b: parseInt(value.slice(4, 6), 16),
+  }
+  return Object.values(color).some(Number.isNaN) ? null : color
 }
 
 function toHex({ r, g, b }) {
-  return '#' + [r, g, b].map((v) => clamp255(v).toString(16).padStart(2, '0')).join('')
+  return `#${[r, g, b].map((value) => clamp255(value).toString(16).padStart(2, '0')).join('')}`
 }
 
 const WHITE = { r: 255, g: 255, b: 255 }
 const BLACK = { r: 0, g: 0, b: 0 }
 
 function mixToward(hex, target, amount) {
-  const c = parseHex(hex)
-  if (!c) return hex
+  const color = parseHex(hex)
+  if (!color) return hex
   return toHex({
-    r: c.r + (target.r - c.r) * amount,
-    g: c.g + (target.g - c.g) * amount,
-    b: c.b + (target.b - c.b) * amount,
+    r: color.r + (target.r - color.r) * amount,
+    g: color.g + (target.g - color.g) * amount,
+    b: color.b + (target.b - color.b) * amount,
   })
 }
 
-const lighten = (hex, a) => mixToward(hex, WHITE, a)
-const darken = (hex, a) => mixToward(hex, BLACK, a)
+const lighten = (hex, amount) => mixToward(hex, WHITE, amount)
+const darken = (hex, amount) => mixToward(hex, BLACK, amount)
 
-function toTitleCase(str) {
-  return String(str || '').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase())
+function toTitleCase(value) {
+  return String(value || '').toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase())
 }
 
-function rgba(hex, a) {
-  const c = parseHex(hex)
-  if (!c) return hex
-  return `rgba(${c.r}, ${c.g}, ${c.b}, ${a})`
+function rgba(hex, alpha) {
+  const color = parseHex(hex)
+  if (!color) return hex
+  return `rgba(${color.r}, ${color.g}, ${color.b}, ${alpha})`
 }
 
-/* Texture noise via SVG feTurbulence (nessuna immagine stock). */
 const NOISE_SVG =
-  "data:image/svg+xml;utf8," +
+  'data:image/svg+xml;utf8,' +
   encodeURIComponent(
     "<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'>" +
       "<filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter>" +
       "<rect width='100%' height='100%' filter='url(%23n)'/></svg>",
   )
 
-const EDGE_COLOR = '#020817'
-
-/* ------------------------------------------------------------------ */
-/* Componente principale.                                             */
-/* ------------------------------------------------------------------ */
-
+/**
+ * <HeroScreen /> — schermata d'apertura (100vh) del report TST.
+ *
+ * Carta d'identità del risultato: nome/data, famiglia, natura e frase chiave.
+ * Mantiene una sola CTA primaria verso il percorso di lettura, con download e
+ * ritorno all'archivio come azioni secondarie.
+ */
 export default function HeroScreen({
-  naturaName = 'NATURA FLEMMATICA',
-  _disposizione = 'CONTEMPLATIVA',
+  familyName = '',
+  naturaName = '',
+  heroResult = null,
+  _disposizione = '',
   _userName = '',
+  fraseChiave = '',
   correnteColore = '#16a34a',
   correnteColoreChiara,
   correnteColoreMedia,
   _correnti = [],
   rawRecord = {},
   _portato = {},
+  onOpenGlossary,
+  onReadReport,
+  onDownload,
+  onNavigateArchive,
+  _testDate,
 }) {
   const reduceMotion = useReducedMotion()
 
@@ -116,33 +104,33 @@ export default function HeroScreen({
   }, [colorKey])
 
   const edgeColor = useMemo(() => {
-    // Derive a very dark, premium ambient background color from the family's dominant color
     return darken(correnteColore, 0.75)
   }, [correnteColore])
 
-  /* Varianti colore: usa le prop se fornite, altrimenti deriva dal dominante. */
   const colors = useMemo(() => {
     const media = correnteColoreMedia || darken(correnteColore, 0.32)
-    const chiara = correnteColoreChiara || lighten(correnteColore, 0.35)
-    // Stop intermedio OPACO (media → bordo), così lo sfondo non traspare mai.
+    const chiara = correnteColoreChiara || lighten(correnteColore, 0.16)
     const edgeRgb = parseHex(edgeColor) || BLACK
     const mid = mixToward(media, edgeRgb, 0.62)
     return { media, chiara, mid }
   }, [correnteColore, correnteColoreChiara, correnteColoreMedia, edgeColor])
 
-  /* CSS custom properties iniettate sul root → tutta la scena è data-driven. */
   const rootStyle = {
     '--corrente': correnteColore,
     '--corrente-chiara': colors.chiara,
     '--corrente-media': colors.media,
     '--hero-edge': edgeColor,
     position: 'relative',
-    overflow: 'visible',
-    paddingBottom: 'clamp(2rem, 4vh, 3rem)',
+    minHeight: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+    padding: 'clamp(2rem, 5vh, 4rem) 1.5rem',
     backgroundColor: edgeColor,
   }
 
-  /* Helper transizione fade-in (rispetta reduced-motion). */
   const fade = (delay, y = 0) =>
     reduceMotion
       ? { initial: false, animate: { opacity: 1, y: 0 } }
@@ -153,24 +141,21 @@ export default function HeroScreen({
         }
 
   const naturaText = toTitleCase(String(naturaName || '').replace(/^NATURA\s+/i, ''))
+  const familyText = toTitleCase(
+    familyName || FAMILY_THEME[FAMILY_NAME_BY_KEY[colorKey]]?.family || 'Flemmatica',
+  )
 
-  const handleSummaryClick = (event) => {
-    const targetId = 'prima-sintesi-risultato'
-    const target = document.getElementById(targetId)
-
-    if (!target) return
-
-    event.preventDefault()
-    window.history.pushState(null, '', `#${targetId}`)
-    // La prima sintesi appartiene al gruppo "Risultati del test": partendo
-    // dall'intestazione del gruppo, il titolo non resta sotto il chrome sticky.
-    scrollToReportSection('report-group-profilo-generale', { reduceMotion })
-  }
+  // Famiglia secondaria: mostrata solo quando la banda già calcolata a monte
+  // (globalProfileContract, nessuna soglia nuova) segnala un pareggio esatto o un
+  // quasi pareggio. In pareggio esatto il titolo non proclama un vincitore.
+  const isExactTie = heroResult?.band === 'exact_tie' && Boolean(heroResult?.secondary)
+  const isNearParity = heroResult?.band === 'near_parity' && Boolean(heroResult?.secondary)
+  const secondaryFamilyText = heroResult?.secondary ? toTitleCase(heroResult.secondary.famiglia) : ''
 
   const gradientStyle = {
     backgroundImage: `
-      radial-gradient(circle at 50% 46%, ${rgba(colors.media, 0.12)} 0%, ${rgba(colors.mid, 0.42)} 42%, ${rgba(edgeColor, 0.82)} 84%),
-      linear-gradient(180deg, ${rgba(edgeColor, 0.42)} 0%, ${rgba(edgeColor, 0.08)} 48%, ${rgba(edgeColor, 0.56)} 100%)
+      radial-gradient(circle at 50% 46%, ${rgba(colors.media, 0.08)} 0%, ${rgba(colors.mid, 0.22)} 42%, ${rgba(edgeColor, 0.48)} 84%),
+      linear-gradient(180deg, #020817 0%, rgba(2, 8, 23, 0.55) 5%, rgba(2, 8, 23, 0) 15%, ${rgba(edgeColor, 0.14)} 22%, ${rgba(edgeColor, 0.02)} 48%, ${rgba(edgeColor, 0.3)} 100%)
     `,
   }
 
@@ -178,18 +163,15 @@ export default function HeroScreen({
     <section
       style={rootStyle}
       aria-label={HERO_UI.ariaSection}
-      className="hero-screen relative w-full"
+      className="hero-screen relative w-full min-h-screen flex flex-col justify-center items-center"
     >
       <div className="hero-screen__backdrop" aria-hidden="true">
-        {/* Layer -1 — Nature background image matching the disposition */}
         {bgImage && (
           <div
             className="hero-screen__nature-bg"
             style={{ backgroundImage: `url(${bgImage})` }}
           />
         )}
-
-        {/* Layer 1 — Radial gradient overlay: ensures contrast for titles and text */}
         <div
           className="hero-screen__gradient"
           style={{
@@ -197,24 +179,17 @@ export default function HeroScreen({
             backgroundColor: bgImage ? 'transparent' : edgeColor,
           }}
         />
-        {/* Layer 2 — Noise overlay */}
+        {bgImage && <div className="hero-screen__legibility-overlay" />}
         <div
           className="hero-screen__noise"
           style={{ backgroundImage: `url("${NOISE_SVG}")` }}
         />
       </div>
 
-      {/* Layer 3 — contenuto essenziale: sintesi identitaria. */}
       <div
-        className="report-tst-hero__content hero-screen__content flex w-full flex-col items-center justify-center px-6 py-10 sm:py-12"
+        className="report-tst-hero__content hero-screen__content flex w-full flex-col items-center justify-center px-6 py-10 z-10"
       >
         <div className="report-tst-hero__inner report-tst-hero__identity flex w-full max-w-4xl flex-col items-center">
-          <motion.p
-            {...fade(0.1, 12)}
-            className="hero-screen__restituzione-label"
-          >
-            Restituzioni del Test
-          </motion.p>
           <motion.h1
             {...fade(0.2, 24)}
             className="hero-screen__sintesi-title"
@@ -226,20 +201,62 @@ export default function HeroScreen({
               textShadow: '0 2px 24px rgba(0, 0, 0, 0.75)',
             }}
           >
-            <span className="hero-screen__sintesi-bridge">La tua natura emotiva prevalente è</span>
-            <strong className="hero-screen__sintesi-family">{naturaText}</strong>
+            <span className="hero-screen__sintesi-bridge">
+              {isExactTie
+                ? 'Il tuo profilo emerge con pari intensità tra'
+                : 'La tua famiglia emotiva prevalente è'}
+            </span>
+            <strong className="hero-screen__sintesi-family">
+              {isExactTie ? `${familyText} e ${secondaryFamilyText}` : familyText}
+            </strong>
+            <span className="hero-screen__sintesi-bridge">
+              <button
+                type="button"
+                className="hero-screen__glossary-trigger-inline"
+                onClick={() => onOpenGlossary?.('corrente-emotiva')}
+              >
+                Natura
+              </button>{' '}
+              (caratteristica emotiva): {naturaText}
+            </span>
           </motion.h1>
-          <motion.div {...fade(0.45, 8)} className="hero-screen__cta-sintesi">
-            <a
-              href="#prima-sintesi-risultato"
-              className="nav-button primary hero-screen__cta-sintesi-link"
-              onClick={handleSummaryClick}
+          {isNearParity ? (
+            <motion.p {...fade(0.28, 10)} className="hero-screen__secondary-family">
+              Nel tuo profilo è molto presente anche la famiglia{' '}
+              <strong>{secondaryFamilyText}</strong>.
+            </motion.p>
+          ) : null}
+          {fraseChiave ? (
+            <motion.p {...fade(0.35, 12)} className="hero-screen__frase-chiave">
+              {fraseChiave}
+            </motion.p>
+          ) : null}
+          <motion.div {...fade(0.45, 8)} className="hero-screen__cta-container">
+            <button
+              type="button"
+              className="hero-screen__cta-primary hero-screen-btn-primary"
+              onClick={onReadReport}
             >
-              Leggi la prima sintesi del risultato del test
-            </a>
+              Leggi il tuo report
+            </button>
+            <button
+              type="button"
+              className="hero-screen__cta-secondary hero-screen-btn-secondary"
+              onClick={onDownload}
+            >
+              Scarica i dati
+            </button>
+            <button
+              type="button"
+              className="hero-screen__cta-tertiary"
+              onClick={onNavigateArchive}
+            >
+              Torna ai risultati
+            </button>
           </motion.div>
         </div>
       </div>
+
 
       {/* Stili hover (scoped via classi dedicate). Usa la CSS custom property
           --corrente per la box-shadow del bottone primario. */}
@@ -271,24 +288,38 @@ export default function HeroScreen({
         .hero-screen__sintesi-title span {
           display: inline;
         }
-        .hero-screen__restituzione-label {
-          font-size: clamp(0.68rem, 1vw, 0.82rem);
-          letter-spacing: 0.14em;
-          text-transform: uppercase;
-          color: var(--report-structural-accent, #c4b5fd);
-          font-weight: 500;
-          margin: 0 0 clamp(0.85rem, 2vh, 1.3rem) 0;
-          opacity: 0.82;
-          text-align: center;
-        }
         .hero-screen__sintesi-bridge {
           display: block;
           font-size: clamp(1.05rem, 1.6vw, 1.65rem);
-          color: color-mix(in srgb, var(--corrente-chiara, #fde68a) 78%, #ffffff);
+          color: color-mix(in srgb, var(--corrente-chiara, #fde68a) 92%, #ffffff);
           font-weight: 420;
           margin-bottom: 0.1em;
         }
+        .hero-screen__secondary-family {
+          max-width: min(560px, 92vw);
+          margin: 0.8em 0 0;
+          padding: var(--space-sm) var(--space-md);
+          background: #ffffff;
+          border-radius: 16px;
+          box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+          text-align: center;
+          font-family: var(--font-body);
+          font-size: clamp(0.95rem, 1.3vw, 1.05rem);
+          color: #334155;
+        }
+        .hero-screen__secondary-family strong {
+          color: var(--corrente-media, #0f172a);
+          font-weight: 700;
+        }
+        .hero-screen__cta-primary,
+        .hero-screen__cta-secondary {
+          font-family: var(--font-display);
+        }
         .hero-screen__cta-sintesi {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: var(--space-sm, 16px);
           margin-top: clamp(1.4rem, 3vh, 2rem);
         }
         .hero-screen__cta-sintesi-link {
@@ -306,6 +337,10 @@ export default function HeroScreen({
           box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
           transition: transform 0.2s, filter 0.2s, box-shadow 0.2s;
         }
+        .hero-screen__cta-sintesi-link.secondary {
+          background: rgba(2, 8, 23, 0.52);
+          border-color: rgba(255, 255, 255, 0.45);
+        }
         .hero-screen__cta-sintesi-link:hover {
           color: #ffffff;
           transform: translateY(-2px);
@@ -321,7 +356,7 @@ export default function HeroScreen({
           margin-top: clamp(0.85rem, 1.8vh, 1.35rem);
           font-size: clamp(1.85rem, 3.2vw, 3.75rem);
           line-height: 1.05;
-          color: color-mix(in srgb, var(--corrente-chiara, #fde68a) 82%, #ffffff);
+          color: color-mix(in srgb, var(--corrente-chiara, #fde68a) 94%, #ffffff);
         }
         .hero-screen__sintesi-nature-label {
           display: inline;
@@ -340,7 +375,7 @@ export default function HeroScreen({
         .hero-screen__sintesi-nature {
           display: inline;
           font-size: inherit;
-          color: color-mix(in srgb, var(--corrente-chiara, #fde68a) 72%, #ffffff);
+          color: color-mix(in srgb, var(--corrente-chiara, #fde68a) 88%, #ffffff);
         }
         @media (max-width: 768px) {
           .hero-screen__flower-container {

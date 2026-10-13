@@ -14,17 +14,23 @@ function BulletList({ items }) {
   )
 }
 
-function DetailRows({ items }) {
-  const availableItems = items.filter((item) => item.text)
-  if (!availableItems.length) return null
+function SoundModule({ kicker, text }) {
+  if (!text) return null
   return (
-    <div className="fm-music-rows">
-      {availableItems.map((item) => (
-        <div className="fm-music-row" key={item.title}>
-          <h3>{item.title}</h3>
-          <p>{item.text}</p>
-        </div>
-      ))}
+    <div className="fm-landscape__module">
+      <p className="fm-kicker">{kicker}</p>
+      <p>{text}</p>
+    </div>
+  )
+}
+
+function PracticeItem({ index, title, text }) {
+  if (!text) return null
+  return (
+    <div className="fm-practice__item">
+      <span className="fm-practice__index">{index}</span>
+      <h3>{title}</h3>
+      <p>{text}</p>
     </div>
   )
 }
@@ -33,24 +39,17 @@ function Intervals({ data }) {
   if (!data?.correnti?.length) return null
   return (
     <section className="fm-section" aria-labelledby="fm-intervals-title">
-      <h2 id="fm-intervals-title">Cosa evocano gli intervalli</h2>
-      <p className="fm-section-lead">
-        Un intervallo è la distanza tra due note. Nel modello, ogni distanza può evocare
-        una corrente emotiva, espressa attraverso diversi stati d’animo.
-      </p>
+      <h2 id="fm-intervals-title">Cosa gli evocano gli intervalli</h2>
       {data.intro ? <p className="fm-section-lead">{data.intro}</p> : null}
+      <h3 className="fm-subsection-title">Il suo intervallo musicale di riferimento</h3>
       <div className="fm-interval-list">
-        {data.correnti.map((item) => (
-          <article className="fm-interval-item" key={`${item.nome}-${item.intervallo}`}>
-            <p className="fm-interval-item__label">Intervallo musicale</p>
-            <span>{item.intervallo}</span>
-            <p className="fm-interval-item__label">Corrente emotiva associata</p>
-            <strong>{item.nome}</strong>
+        {data.correnti.map((item, index) => (
+          <article className="fm-interval-item" key={`${item.intervallo}-${index}`}>
+            <p className="fm-kicker">Intervallo musicale di riferimento</p>
+            <p className="fm-interval-item__name">{item.intervallo}</p>
+            {item.nome ? <p className="fm-interval-item__subtitle">{item.nome}</p> : null}
             {item.significato ? (
-              <div className="fm-interval-item__meaning">
-                <p className="fm-interval-item__label">Che cosa significa</p>
-                <p>{item.significato}</p>
-              </div>
+              <p className="fm-interval-item__meaning">{item.significato}</p>
             ) : null}
             {item.stati?.length ? (
               <div className="fm-interval-item__states">
@@ -72,67 +71,75 @@ export default function SezioneMusica({ profilo = {} }) {
   const approfondimento = MUSICISTI_APPROFONDIMENTO[profilo?.famiglia || ''] || []
   if (!scheda) return null
 
+  const narrativa = [scheda.profiloEmotivo, scheda.cosaCerca, scheda.piaceriAscolto, ...approfondimento]
+    .filter(Boolean)
+  const hasSummaryLists = Boolean(scheda.valorizza?.length || scheda.difficolta?.length)
+
   return (
     <>
       <section className="fm-section" aria-labelledby="fm-profile-title">
         <h2 id="fm-profile-title">Il suo modo di incontrare la Musica</h2>
-        <div className="fm-narrative-block">
-          <h3>Cosa caratterizza questa corrente</h3>
-          <p>{scheda.profiloEmotivo}</p>
-          <h3>Cosa cerca nella Musica</h3>
-          <p>{scheda.cosaCerca}</p>
+        <div className={`fm-narrative${scheda.pullQuote ? ' fm-narrative--with-quote' : ''}`}>
+          <div className="fm-narrative__main">
+            {narrativa.map((paragrafo) => <p key={paragrafo}>{paragrafo}</p>)}
+          </div>
+          {scheda.pullQuote ? (
+            <aside className="fm-pullquote">
+              <p className="fm-pullquote__title">{scheda.pullQuote.titolo}</p>
+              <p className="fm-pullquote__text">{scheda.pullQuote.testo}</p>
+            </aside>
+          ) : null}
         </div>
-        <h3 className="fm-subsection-title">Che cosa preferisce</h3>
-        <DetailRows items={[
-          { title: 'Timbri', text: scheda.linguaggioMusicale?.timbri },
-          { title: 'Ritmo', text: scheda.linguaggioMusicale?.ritmo },
-          { title: 'Melodia e armonia', text: scheda.linguaggioMusicale?.melodiaArmonia },
-        ]} />
-        {scheda.piaceriAscolto ? (
-          <div className="fm-narrative-block fm-narrative-block--closing">
-            <h3>Perché queste qualità musicali la attraggono</h3>
-            <p>{scheda.piaceriAscolto}</p>
-          </div>
-        ) : null}
-        {approfondimento.length ? (
-          <div className="fm-narrative-block fm-narrative-block--closing">
-            <h3>Approfondimento musicale</h3>
-            {approfondimento.map((paragrafo) => (
-              <p key={paragrafo}>{paragrafo}</p>
-            ))}
-          </div>
-        ) : null}
       </section>
+
+      {scheda.linguaggioMusicale ? (
+        <section className="fm-section" aria-labelledby="fm-landscape-title">
+          <h2 id="fm-landscape-title">Il suo paesaggio sonoro</h2>
+          <div className="fm-landscape">
+            <SoundModule kicker="Timbri" text={scheda.linguaggioMusicale.timbri} />
+            <SoundModule kicker="Ritmo" text={scheda.linguaggioMusicale.ritmo} />
+            <SoundModule kicker="Melodia" text={scheda.linguaggioMusicale.melodiaArmonia} />
+          </div>
+        </section>
+      ) : null}
 
       <Intervals data={scheda.intervalli} />
 
-      <section className="fm-section" aria-labelledby="fm-practice-title">
-        <h2 id="fm-practice-title">Quando ascolta e fa Musica</h2>
-        {scheda.fareMusica ? (
-          <>
-            <h3 className="fm-subsection-title">Il rapporto con la pratica musicale</h3>
-          <DetailRows items={[
-            { title: 'Suonare', text: scheda.fareMusica.suonare },
-            { title: 'Interpretare', text: scheda.fareMusica.interpretare },
-            { title: 'Comporre', text: scheda.fareMusica.comporre },
-          ]} />
-          </>
+      {scheda.fareMusica ? (
+        <section className="fm-section" aria-labelledby="fm-practice-title">
+          <h2 id="fm-practice-title">Quando ascolta e fa Musica</h2>
+          <p className="fm-section-lead">Il rapporto con la pratica musicale</p>
+          <div className="fm-practice">
+            <PracticeItem index="01" title="Eseguire" text={scheda.fareMusica.suonare} />
+            <PracticeItem index="02" title="Interpretare" text={scheda.fareMusica.interpretare} />
+            <PracticeItem index="03" title="Comporre" text={scheda.fareMusica.comporre} />
+            <PracticeItem index="04" title="Improvvisare" text={scheda.fareMusica.improvvisare} />
+          </div>
+        </section>
+      ) : null}
+
+      <section className="fm-section fm-section--summary" aria-labelledby="fm-summary-title">
+        <h2 id="fm-summary-title">In sintesi</h2>
+        {hasSummaryLists ? (
+          <div className="fm-summary__grid">
+            {scheda.valorizza?.length ? (
+              <div>
+                <h3>Cosa valorizza</h3>
+                <BulletList items={scheda.valorizza} />
+              </div>
+            ) : null}
+            {scheda.difficolta?.length ? (
+              <div>
+                <h3>Attenzioni</h3>
+                <BulletList items={scheda.difficolta} />
+              </div>
+            ) : null}
+          </div>
         ) : null}
-        <h3 className="fm-subsection-title">In sintesi</h3>
-        <div className="fm-summary__grid">
-          <div>
-            <h3>Cosa valorizza</h3>
-            <BulletList items={scheda.valorizza} />
-          </div>
-          <div>
-            <h3>Attenzioni</h3>
-            <BulletList items={scheda.difficolta} />
-          </div>
-        </div>
         {scheda.paroleChiave?.length ? (
           <div className="sezione-musica__keyword-block">
-            <h3>Parole chiave</h3>
-            <p className="sezione-musica__keywords">{scheda.paroleChiave.join(' • ')}</p>
+            <p className="fm-kicker">Parole chiave</p>
+            <p className="sezione-musica__keywords">{scheda.paroleChiave.join(' · ')}</p>
           </div>
         ) : null}
       </section>

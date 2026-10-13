@@ -22,12 +22,19 @@ const DOMINANT_CODES = {
 
 const TAB_ORDER = ['dinamica', 'frizioni', 'risorse']
 
-function RelationalDeductionsSection({ correnteDominante, famiglia }) {
+function RelationalDeductionsSection({ correnteDominante, famiglia, significantRelationCodes }) {
   const corpus = useMemo(
     () => getRelationalCorpusForDominant(correnteDominante, famiglia),
     [correnteDominante, famiglia],
   )
-  const relations = corpus.available ? corpus.relations : []
+  // Mostra solo la coppia dominante↔famiglia realmente significativa nel profilo (non le 4
+  // relazioni teoriche): se il filtro risulta vuoto per dati inattesi, si preferisce mostrare
+  // tutto il corpus piuttosto che una sezione vuota.
+  const allRelations = corpus.available ? corpus.relations : []
+  const relations =
+    significantRelationCodes && significantRelationCodes.length
+      ? allRelations.filter((item) => significantRelationCodes.includes(item.key))
+      : allRelations
   const [activeRelation, setActiveRelation] = useState(relations[0]?.key || null)
   const [activeTab, setActiveTab] = useState('dinamica')
 
@@ -103,14 +110,12 @@ function RelationalDeductionsSection({ correnteDominante, famiglia }) {
                 <span className="emotional-integrations__relation-info">
                   <strong>{item.name}</strong>
                 </span>
-                <span className="emotional-integrations__relation-code">{`INT-${item.key.toUpperCase()}`}</span>
               </button>
             ))}
           </div>
 
           <div className="emotional-integrations__map-card">
             <div className="emotional-integrations__map-header">
-              <span className="emotional-integrations__map-tag">// GRAFO DELLE INTERAZIONI</span>
               <h4 className="emotional-integrations__map-title">Mappa dei Vettori Relazionali</h4>
             </div>
             <div className="emotional-integrations__map-svg-wrap">
@@ -296,6 +301,22 @@ export default function EmotionalIntegrations({
 }) {
   const accentColor = profilo?.colore || '#4ade80'
 
+  // Coppia realmente significativa nel profilo (famiglie in banda 'exact_tie'/'near_parity'/
+  // 'secondary' oltre alla leader, da globalProfileContract): filtra le 4 relazioni teoriche
+  // del corpus a quella sola coppia. Stessa fonte già usata da shouldShowEmotionalIntegrations
+  // per decidere se mostrare la stanza — nessuna nuova soglia introdotta qui.
+  const significantRelationCodes = useMemo(() => {
+    const ranking = profilo?.globalProfileContract?.ranking
+    if (!Array.isArray(ranking)) return null
+    const NARRATABLE_BANDS = new Set(['exact_tie', 'near_parity', 'secondary'])
+    const codes = ranking
+      .filter((item) => item.rank > 1 && NARRATABLE_BANDS.has(item.band))
+      .map((item) => DOMINANT_TO_RELATIONS_KEY[String(item.familyKey || '').trim()])
+      .filter(Boolean)
+      .map((corpusKey) => corpusKey.slice(0, 2))
+    return codes.length ? Array.from(new Set(codes)) : null
+  }, [profilo?.globalProfileContract])
+
   return (
     <section
       id="report-tst-mappa"
@@ -317,6 +338,7 @@ export default function EmotionalIntegrations({
             key={`${profilo?.correnteDominante || ''}-${profilo?.famiglia || ''}`}
             correnteDominante={profilo?.correnteDominante}
             famiglia={profilo?.famiglia}
+            significantRelationCodes={significantRelationCodes}
           />
         </div>
       </div>

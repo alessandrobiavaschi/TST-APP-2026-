@@ -1,31 +1,26 @@
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
-import { PORTATO_UI } from './reportUiCopy.js'
+import { PORTATO_UI, GALASSIA_PORTATO_UI } from './reportUiCopy.js'
 import ReportPassageHeader from './ReportPassageHeader.jsx'
+import CalculationDisclosure from './CalculationDisclosure.jsx'
+import {
+  buildPortatoInterpretation,
+  buildPortatoViewData,
+} from '../../utils/portatoPadViewData.js'
 
 void motion
 
-const PORTATO_ACCENT = {
-  Simpatia: '#4ade80',
-  Antipatia: '#64748b',
-  Indifferenza: '#94a3b8',
-}
+const MEANING_BY_KEY = Object.fromEntries(
+  GALASSIA_PORTATO_UI.cards.map((card) => [card.id, card.meaning]),
+)
 
-function formatValore(n) {
-  const v = Number(n)
-  if (!Number.isFinite(v) || v <= 0) return '—'
-  return String(v)
+function formatPoints(value) {
+  return `${value} ${value === 1 ? 'punto' : 'punti'}`
 }
 
 /**
- * SezionePortatoEsperienziale — Blocco C (portato esperienziale) nel Report TST.
- *
- * Presenta Simpatia, Antipatia e Indifferenza con punteggi, barre proporzionali,
- * prevalenza e testi da content_report (nessun nuovo scoring).
- *
- * Props:
- *   portato: oggetto da buildReportData.portato
- *   correnteColore: hex accento UI (corrente dominante)
+ * Presenta i tre punteggi PE in un unico campo triangolare. Le chiavi dati
+ * storiche restano invariate; Sintonia, Distonia e Distanza sono sole etichette UI.
  */
 export default function SezionePortatoEsperienziale({
   portato,
@@ -33,26 +28,49 @@ export default function SezionePortatoEsperienziale({
   step = '3',
 }) {
   const reduceMotion = useReducedMotion()
-  const dimensioni = useMemo(
-    () => (Array.isArray(portato?.dimensioni) ? portato.dimensioni : []),
+  const accent = correnteColore || '#4ade80'
+  const [openVertexKey, setOpenVertexKey] = useState(null)
+  const padRef = useRef(null)
+
+  useEffect(() => {
+    if (!openVertexKey) return undefined
+    function handlePointerDown(event) {
+      if (padRef.current && !padRef.current.contains(event.target)) {
+        setOpenVertexKey(null)
+      }
+    }
+    function handleKeyDown(event) {
+      if (event.key === 'Escape') setOpenVertexKey(null)
+    }
+    document.addEventListener('pointerdown', handlePointerDown)
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown)
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [openVertexKey])
+
+  const viewData = useMemo(
+    () => buildPortatoViewData(portato, PORTATO_UI.labels),
     [portato],
   )
-  const hasData = Boolean(portato?.hasData)
-  const prevalente = portato?.prevalente || ''
-  const accent = correnteColore || '#4ade80'
 
-  const maxValore = useMemo(() => {
-    if (!dimensioni.length) return 0
-    return Math.max(...dimensioni.map((d) => Number(d.valore) || 0), 0)
-  }, [dimensioni])
-
+  const interpretation = portato?.sintesiInterpretativa || portato?.interpretation ||
+    (viewData.hasData ? buildPortatoInterpretation(viewData.dimensions) : '')
+  const dominant = portato?.prevalente
+    ? viewData.dimensions.find((dimension) => dimension.key === portato.prevalente)
+    : null
+  const leadText = portato?.descrizione || interpretation
+  const hasApprofondimento = Boolean(portato?.descrizione) && Boolean(interpretation) && interpretation !== leadText
+  const chartSummary = viewData.dimensions
+    .map((dimension) => `${dimension.ui.label}: ${formatPoints(dimension.value)}, ${dimension.percentage} per cento`)
+    .join('; ')
   const sectionVariants = reduceMotion
     ? { hidden: { opacity: 1 }, visible: { opacity: 1 } }
-    : { hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0 } }
+    : { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }
 
   return (
     <section
-      id="report-tst-portato"
       className="report-tst-portato report-tst-section-anchor"
       aria-labelledby="report-tst-portato-heading"
     >
@@ -62,116 +80,152 @@ export default function SezionePortatoEsperienziale({
           eyebrow={PORTATO_UI.eyebrow}
           title={PORTATO_UI.title}
           titleVisuallyHidden
-          lead={PORTATO_UI.lead}
           accentColor={accent}
           titleId="report-tst-portato-heading"
         />
 
-        {prevalente && hasData ? (
-          <motion.p
-            className="report-tst-portato__prevalente-pill"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-60px' }}
-            variants={sectionVariants}
-            transition={{ duration: 0.4, ease: 'easeOut', delay: 0.05 }}
-          >
-            <span className="report-tst-portato__prevalente-label">{PORTATO_UI.prevalenteLabel}</span>
-            <span className="report-tst-portato__prevalente-value">
-              {portato.prevalenteLabel || prevalente}
-            </span>
-          </motion.p>
-        ) : null}
-
-        <motion.div
-          className="report-tst-portato__grid"
-          role="list"
-          aria-label={PORTATO_UI.gridAria}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-60px' }}
-          variants={sectionVariants}
-          transition={{ duration: 0.45, ease: 'easeOut', delay: 0.08 }}
-        >
-          {dimensioni.map((dim, i) => {
-            const isPrevalente = dim.key === prevalente && hasData
-            const barColor = PORTATO_ACCENT[dim.key] || accent
-            const valore = Number(dim.valore) || 0
-            const barWidth =
-              maxValore > 0 ? Math.round((valore / maxValore) * 100) : 0
-            return (
-              <article
-                key={dim.key}
-                role="listitem"
-                className={`report-tst-portato__card${isPrevalente ? ' report-tst-portato__card--prevalente' : ''}`}
+        {viewData.hasData ? (
+          <div className="report-tst-portato__layout">
+            <div className="report-tst-portato__text">
+              <motion.div
+                className="report-tst-portato__result"
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: '-40px' }}
+                variants={sectionVariants}
+                transition={{ duration: reduceMotion ? 0 : 0.4, ease: 'easeOut' }}
               >
-                <div className="report-tst-portato__card-top">
-                  <p className="report-tst-portato__dim-label">{dim.label}</p>
-                  {isPrevalente ? (
-                    <span className="report-tst-portato__badge" title={PORTATO_UI.prevalenteLabel}>
-                      {PORTATO_UI.badgePrevalente}
+                {leadText ? (
+                  <p
+                    className="report-tst-portato__result-lead"
+                    style={{ '--narrative-accent': accent }}
+                  >
+                    {leadText}
+                  </p>
+                ) : null}
+                {dominant ? (
+                  <p className="report-tst-portato__result-stat">
+                    <span className="report-tst-portato__result-stat-value" style={{ color: accent }}>
+                      {dominant.percentage}%
                     </span>
-                  ) : null}
-                </div>
-                <p
-                  className="report-tst-portato__valore"
-                  aria-label={`${dim.label}: ${hasData && valore > 0 ? valore : 'non disponibile'}`}
+                    <span className="report-tst-portato__result-stat-label">{dominant.ui.label}</span>
+                  </p>
+                ) : null}
+              </motion.div>
+
+              {hasApprofondimento ? (
+                <CalculationDisclosure
+                  label="Approfondisci il risultato"
+                  className="report-tst-portato__approfondisci"
                 >
-                  {formatValore(valore)}
-                </p>
-                {hasData && valore > 0 ? (
-                  <p className="report-tst-portato__percent">
-                    <span className="report-tst-portato__percent-label">{PORTATO_UI.quotaLabel}</span>
-                    <span aria-hidden="true">{dim.percentuale}%</span>
-                    <span className="sr-only">
-                      {PORTATO_UI.quotaLabel}: {dim.percentuale} per cento
-                    </span>
-                  </p>
-                ) : (
-                  <p className="report-tst-portato__percent report-tst-portato__percent--ghost" aria-hidden="true">
-                    —
-                  </p>
-                )}
-                <div
-                  className="report-tst-portato__bar-track"
-                  role="presentation"
+                  <p className="report-tst-portato__interpretation">{interpretation}</p>
+                </CalculationDisclosure>
+              ) : null}
+            </div>
+
+            <motion.figure
+              className="report-tst-portato__figure"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: '-40px' }}
+              variants={sectionVariants}
+              transition={{ duration: reduceMotion ? 0 : 0.45, ease: 'easeOut', delay: 0.05 }}
+              aria-labelledby="report-tst-portato-map-title"
+              aria-describedby="report-tst-portato-map-summary"
+            >
+              <p id="report-tst-portato-map-summary" className="sr-only">{chartSummary}</p>
+              <div className="report-tst-portato__pad" ref={padRef}>
+                <div className="report-tst-portato__field" aria-hidden="true" />
+                <svg
+                  className="report-tst-portato__mesh"
+                  viewBox="0 0 100 100"
+                  preserveAspectRatio="none"
                   aria-hidden="true"
                 >
-                  <motion.div
-                    className="report-tst-portato__bar-fill"
-                    style={{ backgroundColor: barColor }}
-                    initial={{ width: 0 }}
-                    whileInView={{ width: `${barWidth}%` }}
-                    viewport={{ once: true }}
-                    transition={
-                      reduceMotion
-                        ? { duration: 0 }
-                        : { duration: 0.6, ease: 'easeOut', delay: i * 0.06 }
-                    }
-                  />
-                </div>
-                <p className="report-tst-portato__def">{dim.definizioneBreve}</p>
-              </article>
-            )
-          })}
-        </motion.div>
-
-        {portato?.descrizione ? (
-          <motion.div
-            className="report-tst-portato__narrative"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-40px' }}
-            variants={sectionVariants}
-            transition={{ duration: 0.45, ease: 'easeOut', delay: 0.12 }}
-          >
-            <p className="report-tst-portato__narrative-text">{portato.descrizione}</p>
-          </motion.div>
+                  <polygon points="8,8 92,8 50,92" />
+                  <line x1="50" y1="36" x2="8" y2="8" />
+                  <line x1="50" y1="36" x2="92" y2="8" />
+                  <line x1="50" y1="36" x2="50" y2="92" />
+                </svg>
+                <button
+                  type="button"
+                  className={`report-tst-portato__puck${openVertexKey === 'puck' ? ' report-tst-portato__puck--open' : ''}`}
+                  aria-expanded={openVertexKey === 'puck'}
+                  aria-controls="report-tst-portato-puck-popover"
+                  aria-label={PORTATO_UI.padCenterLabel || 'Compresenza'}
+                  onClick={() =>
+                    setOpenVertexKey((current) => (current === 'puck' ? null : 'puck'))
+                  }
+                  style={{ '--puck-x': `${viewData.point.x}%`, '--puck-y': `${viewData.point.y}%` }}
+                />
+                {openVertexKey === 'puck' ? (
+                  <div
+                    id="report-tst-portato-puck-popover"
+                    role="note"
+                    className="report-tst-portato__puck-popover"
+                    style={{ '--puck-x': `${viewData.point.x}%`, '--puck-y': `${viewData.point.y}%` }}
+                  >
+                    <p className="report-tst-portato__vertex-popover-meaning">
+                      {PORTATO_UI.lead}
+                    </p>
+                  </div>
+                ) : null}
+                {!reduceMotion && (
+                  <>
+                    <span
+                      className="report-tst-portato__puck-ripple report-tst-portato__puck-ripple--1"
+                      aria-hidden="true"
+                      style={{ '--puck-x': `${viewData.point.x}%`, '--puck-y': `${viewData.point.y}%` }}
+                    />
+                    <span
+                      className="report-tst-portato__puck-ripple report-tst-portato__puck-ripple--2"
+                      aria-hidden="true"
+                      style={{ '--puck-x': `${viewData.point.x}%`, '--puck-y': `${viewData.point.y}%` }}
+                    />
+                  </>
+                )}
+                {viewData.dimensions.map((dimension) => {
+                  const isOpen = openVertexKey === dimension.key
+                  const popoverId = `report-tst-portato-detail-${dimension.key}`
+                  return (
+                    <div
+                      key={dimension.key}
+                      className={`report-tst-portato__vertex-wrap report-tst-portato__vertex-wrap--${dimension.ui.className}`}
+                    >
+                      <button
+                        type="button"
+                        className={`report-tst-portato__vertex${isOpen ? ' report-tst-portato__vertex--open' : ''}`}
+                        aria-expanded={isOpen}
+                        aria-controls={popoverId}
+                        onClick={() =>
+                          setOpenVertexKey((current) => (current === dimension.key ? null : dimension.key))
+                        }
+                      >
+                        <span className="report-tst-portato__vertex-label">{dimension.ui.label}</span>
+                        <span className="report-tst-portato__vertex-percent">{dimension.percentage}%</span>
+                      </button>
+                      {isOpen ? (
+                        <div id={popoverId} role="note" className="report-tst-portato__vertex-popover">
+                          <p className="report-tst-portato__vertex-popover-stats">
+                            <strong>{dimension.percentage}%</strong> · {formatPoints(dimension.value)}
+                          </p>
+                          <p className="report-tst-portato__vertex-popover-meaning">
+                            {MEANING_BY_KEY[dimension.key]}
+                          </p>
+                        </div>
+                      ) : null}
+                    </div>
+                  )
+                })}
+              </div>
+              <figcaption id="report-tst-portato-map-title" className="report-tst-portato__figure-caption">
+                Il triangolo mostra come hai reagito istintivamente alla somministrazione del test.
+              </figcaption>
+            </motion.figure>
+          </div>
         ) : (
-          <p className="report-tst-portato__empty">
-            {hasData
-              ? 'Restituzione testuale non disponibile per questo profilo.'
-              : 'Punteggi portato esperienziale non disponibili per questo test.'}
+          <p className="report-tst-portato__empty" role="status">
+            I dati di sintonia, distonia e distanza non sono disponibili per questo ascolto.
           </p>
         )}
       </div>

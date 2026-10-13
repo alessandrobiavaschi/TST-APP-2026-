@@ -1,7 +1,7 @@
 /**
  * Matrice delle relazioni interne al profilo TST.
- * Fonte: documento comitato scientifico TST
- * "Come si Relazionano le dimensioni temperamentali tra di loro all'interno della persona"
+ * Fonte: PDF «Parole per TST» (Franco Mussida), sezioni «Parole collegate alle
+ * altre famiglie». Sostituisce il vecchio documento del comitato scientifico.
  *
  * DIALOGO_MATRIX[base][partner] = keyword[] che descrivono come la dimensione `base`
  * si qualifica quando incontra la dimensione `partner` all'interno dello stesso profilo.
@@ -11,39 +11,32 @@
  */
 
 import { FAMILY_THEME, FAMILY_NAME_BY_KEY } from '../config/reportFamilyTheme.js'
+import { FAMIGLIE_TST } from './paroleTst.js'
 
-const DIALOGO_MATRIX = {
-  grigio: {
-    verde: ['calma', 'pazienza', 'stabilità', 'remissività'],
-    giallo: ['energia', 'creatività', 'impulsività', 'efficienza'],
-    rosso: ['decisa', 'diretta', 'pratica', 'indirizzata'],
-    blu: ['profonda', 'sensibile', 'ideale', 'astratta'],
-  },
-  verde: {
-    giallo: ['energia', 'creatività', 'impulsività', 'inventiva'],
-    rosso: ['decisa', 'diretta', 'pratica', 'definita'],
-    blu: ['profonda', 'sensibile', 'riflessiva', 'meditativa'],
-    grigio: ['distante', 'razionale', 'chiusa', 'separata'],
-  },
-  blu: {
-    verde: ['calma', 'pazienza', 'stabilità', 'fermezza'],
-    giallo: ['energia', 'creativa', 'impulsività', 'dinamismo'],
-    rosso: ['decisa', 'diretta', 'pratica', 'direzionata'],
-    grigio: ['distante', 'razionale', 'chiusa', 'separata'],
-  },
-  giallo: {
-    verde: ['calma', 'pazienza', 'stabilità', 'riflessività'],
-    rosso: ['decisa', 'diretta', 'pratica', 'direzionata'],
-    blu: ['profonda', 'sensibile', 'ideale'],
-    grigio: ['distante', 'razionale', 'chiusa', 'separata'],
-  },
-  rosso: {
-    verde: ['pazienza', 'stabilità', 'adattabilità', 'definita'],
-    giallo: ['energia', 'creativa', 'impulsività'],
-    blu: ['profonda', 'sensibile', 'riflessiva'],
-    grigio: ['distante', 'razionale', 'chiusa', 'separata'],
-  },
+// Parole SOLO dal PDF «Parole per TST»: per ogni famiglia di base, le «parole
+// collegate alle altre famiglie» di tutte le sue nature (senza ripetizioni).
+// Quando il PDF non ha parole per una coppia, la lista resta vuota.
+const ASSOCIAZIONE_PER_FAMIGLIA = {
+  blu: 'malinconica',
+  verde: 'flemmatica',
+  giallo: 'entusiasta',
+  grigio: 'razionale',
+  rosso: 'marziale',
 }
+
+const DIALOGO_MATRIX = Object.fromEntries(
+  FAMIGLIE_TST.map((famiglia) => [
+    famiglia.colorKey,
+    Object.fromEntries(
+      Object.entries(ASSOCIAZIONE_PER_FAMIGLIA)
+        .filter(([partner]) => partner !== famiglia.colorKey)
+        .map(([partner, chiave]) => [
+          partner,
+          [...new Set(famiglia.nature.flatMap((n) => n.associazioni?.[chiave] || []))],
+        ]),
+    ),
+  ]),
+)
 
 const SECONDARY_THRESHOLD = 10
 const MAX_COPPIE = 3
@@ -90,7 +83,7 @@ export function getFamigliaLabel(familyKey) {
 
 export function getFamigliaDot(familyKey) {
   const name = FAMILY_NAME_BY_KEY[String(familyKey).toLowerCase()] || ''
-  return FAMILY_THEME[name]?.dot || '#6b7280'
+  return FAMILY_THEME[name]?.dot || '#9ca3af'
 }
 
 export function getDialogoKeywords(baseFamilyKey, partnerFamilyKey) {

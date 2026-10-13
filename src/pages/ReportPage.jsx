@@ -6,33 +6,64 @@ import {
   normalizeLevels,
   downloadCsvSingleRecord,
   getDominantColorInfo,
-  computeRapportiTotalsFromRaw,
+  computeSezioniTotalsFromRaw,
 } from '../utils/reportRecordUtils.js'
 import FinalFlowerTransition from '../components/report/FinalFlowerTransition'
 import ReportShell from '../components/report/ReportShell.jsx'
 import { buildReportData } from '../utils/buildReportData.js'
 import { getMergedReportBlock } from '../reportContentMerged.js'
+import { createEmptyTestRecord } from '../dbSchema.js'
+import { useDocumentTitle } from '../hooks/useDocumentTitle.js'
+import { normalizzaRecordTst } from '../utils/testRecordProcessing.js'
 import '../styles/report-tst.css'
 
+// Record di esempio per /report-preview: stessa pipeline di calcolo dei report
+// reali (buildReportData, computeColorTotals, ecc.), nessun dato inventato nei
+// contenuti — solo punteggi di prova per una famiglia Marziale prevalente, utili
+// a verificare il layout senza dover passare da login/archivio Firebase.
+const SAMPLE_PREVIEW_RECORD = {
+  id: 'anteprima-report',
+  raw: {
+    ...createEmptyTestRecord(),
+    Nome: 'Anteprima',
+    Cognome: 'Report',
+    Data_Test: '2026-08-20',
+    Data_Ora_Fine_Test: '2026-08-20',
+    PE_Simpatia: 6,
+    PE_Antipatia: 2,
+    PE_Indifferenza: 3,
+    BLU_1_Depressiva: 3,
+    BLU_2_Lunare: 5,
+    BLU_3_Nostalgia: 3,
+    BLU_4_Solare: 2,
+    ROSSO_1_Assertivita: 14,
+    ROSSO_2_Dubbio_Collera: 6,
+    VERDE_1_CalmaContemplativa: 3,
+    VERDE_2_CalmaFisica: 2,
+    GIALLO_1_Gioia_Entusiasmo: 4,
+    GIALLO_2_Volitivo_Passionale: 3,
+    GRIGIO_1_Anaffettiva: 1,
+    GRIGIO_2_Distaccata: 2,
+    Disposizione_Prevalente: 'Marziale',
+    Sottodisposizione_Prevalente: 'Volitiva',
+    Portato_Esperienziale_Prevalente: 'Simpatia',
+  },
+}
+
 function ReportPage() {
+  useDocumentTitle('Il tuo report')
   const location = useLocation()
   const navigate = useNavigate()
-  const routedRecord = location.state?.record
-  const persistedRecord = useMemo(() => {
-    if (routedRecord) return null
-    try {
-      const raw = window.sessionStorage.getItem('tst_last_report_record')
-      if (!raw) return null
-      const parsed = JSON.parse(raw)
-      if (!parsed || typeof parsed !== 'object') return null
-      if (!parsed.raw || typeof parsed.raw !== 'object') return null
-      return parsed
-    } catch (error) {
-      console.warn('Impossibile leggere il fallback report da sessionStorage:', error)
-      return null
-    }
-  }, [routedRecord])
-  const record = routedRecord || persistedRecord
+  const isPreviewRoute = location.pathname === '/report-preview'
+  const incomingRecord = location.state?.record || (isPreviewRoute ? SAMPLE_PREVIEW_RECORD : undefined)
+  // Riallinea il test alle regole attuali (fonte unica tstSistema.js) prima di ogni calcolo.
+  const record = useMemo(
+    () =>
+      incomingRecord && incomingRecord.raw && typeof incomingRecord.raw === 'object'
+        ? { ...incomingRecord, raw: normalizzaRecordTst(incomingRecord.raw) }
+        : incomingRecord,
+    [incomingRecord],
+  )
   const fromSubmit = Boolean(location.state?.fromSubmit)
   const skipReportTransition = Boolean(location.state?.skipReportTransition)
   const playSubmitTransition = fromSubmit && !skipReportTransition
@@ -46,15 +77,6 @@ function ReportPage() {
     return () => window.clearTimeout(timer)
   }, [resultRevealPhase])
 
-  useEffect(() => {
-    if (!routedRecord || !routedRecord.raw || typeof routedRecord.raw !== 'object') return
-    try {
-      window.sessionStorage.setItem('tst_last_report_record', JSON.stringify(routedRecord))
-    } catch (error) {
-      console.warn('Impossibile salvare il fallback report in sessionStorage:', error)
-    }
-  }, [routedRecord])
-
   const showIntroFrame = resultRevealPhase !== 'visible'
 
   useEffect(() => {
@@ -65,13 +87,8 @@ function ReportPage() {
   }, [showIntroFrame, record])
 
   if (!record || !record.raw || typeof record.raw !== 'object') {
-    try {
-      window.sessionStorage.removeItem('tst_last_report_record')
-    } catch {
-      // ignore
-    }
     return (
-      <div className="page">
+      <div className="page report-page-empty">
         <section className="page-card">
           <h1 className="report-display-title">Report non disponibile</h1>
           <p className="results-empty-message">
@@ -115,15 +132,17 @@ function ReportPage() {
   let rapportiLevels
   let rapportiTotals
   try {
-    rapportiTotals = computeRapportiTotalsFromRaw(record.raw || {})
+    const sezioni = computeSezioniTotalsFromRaw(record.raw || {})
+    rapportiTotals = sezioni.rapporti
+    // Livelli 1–7 sui punteggi normalizzati al massimo teorico di ogni rapporto.
     rapportiLevels = {
-      natura: normalizeLevels(rapportiTotals.natura),
-      se: normalizeLevels(rapportiTotals.se),
-      altro: normalizeLevels(rapportiTotals.altro),
-      agire: normalizeLevels(rapportiTotals.agire),
+      natura: normalizeLevels(sezioni.rapportiPunteggi.natura),
+      se: normalizeLevels(sezioni.rapportiPunteggi.se),
+      altro: normalizeLevels(sezioni.rapportiPunteggi.altro),
+      agire: normalizeLevels(sezioni.rapportiPunteggi.agire),
     }
   } catch (err) {
-    console.warn('computeRapportiTotalsFromRaw failed, radar rapporti a 0', err)
+    console.warn('computeSezioniTotalsFromRaw failed, radar rapporti a 0', err)
     rapportiLevels = {
       natura: normalizeLevels({ blu: 0, rosso: 0, verde: 0, giallo: 0, grigio: 0 }),
       se: normalizeLevels({ blu: 0, rosso: 0, verde: 0, giallo: 0, grigio: 0 }),
@@ -192,7 +211,7 @@ function ReportPage() {
   } catch (err) {
     console.error('buildReportData failed:', err)
     return (
-      <div className="page">
+      <div className="page report-page-empty">
         <section className="page-card">
           <h1 className="report-display-title">Report non disponibile</h1>
           <p className="results-empty-message">

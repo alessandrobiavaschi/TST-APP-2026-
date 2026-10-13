@@ -1,31 +1,14 @@
 import { testSchema } from '../dbSchema.js'
-import {
-  computeScoreDeltaForAnswer,
-  getQuestionGroupForFile,
-  getLogicTypeForFile,
-} from '../testLogic.js'
 import { FAMILY_ORDER, FAMILY_THEME } from '../config/reportFamilyTheme.js'
+import { CAMPI_PER_COLORE, PASSI, SEZIONI } from '../config/tstSistema.js'
+import { MASSIMI_TEORICI, calcolaCeste, normalizzaSuMassimo } from './cesteTst.js'
+import { regoleDelTest } from './testStorici.js'
 
-const REPORT_SECTION_DEFS = [
-  { key: 'A_TIMBRO', label: 'Timbro', from: 1, to: 28 },
-  { key: 'B_INTERVALLI', label: 'Intervalli', from: 29, to: 41 },
-  { key: 'C_RITMO', label: 'Ritmo', from: 42, to: 51 },
-  { key: 'D_MELODIA', label: 'Melodia', from: 52, to: 58 },
-  { key: 'E_ARMONIA', label: 'Armonia', from: 59, to: 72 },
-]
+const REPORT_SECTION_DEFS = SEZIONI.map((s) => ({ key: s.id, label: s.nome, from: s.da, to: s.a }))
 
-function emptyColorTotals() {
-  return { blu: 0, rosso: 0, verde: 0, giallo: 0, grigio: 0 }
-}
-
-function correnteKeyToColorKey(key) {
-  if (!key) return null
-  if (key.startsWith('BLU_')) return 'blu'
-  if (key.startsWith('ROSSO_')) return 'rosso'
-  if (key.startsWith('VERDE_')) return 'verde'
-  if (key.startsWith('GIALLO_')) return 'giallo'
-  if (key.startsWith('GRIGIO_')) return 'grigio'
-  return null
+/** true se il record contiene almeno una risposta grezza (File_01 … File_72). */
+export function hasRawAnswers(record = {}) {
+  return PASSI.some((passo) => String(record?.[passo.campoDb] || '').trim() !== '')
 }
 
 /** File → macro sezione (Timbro … Armonia), come da manuale TST. */
@@ -34,20 +17,6 @@ export function getReportSectionForFile(fileNumber) {
     if (fileNumber >= section.from && fileNumber <= section.to) return section.key
   }
   return null
-}
-
-function sumSectionTotals(sezioniTotals, sectionKeys) {
-  const out = emptyColorTotals()
-  sectionKeys.forEach((key) => {
-    const totals = sezioniTotals[key]
-    if (!totals) return
-    out.blu += totals.blu
-    out.rosso += totals.rosso
-    out.verde += totals.verde
-    out.giallo += totals.giallo
-    out.grigio += totals.grigio
-  })
-  return out
 }
 
 function colorTotalsToChartRow(label, totals) {
@@ -62,64 +31,20 @@ function colorTotalsToChartRow(label, totals) {
 }
 
 /**
- * Ricostruisce i totali per famiglia colore in ciascuna delle 5 sezioni del test
- * (replay di computeScoreDeltaForAnswer sui File_01…File_72).
+ * Totali per famiglia colore in ciascuna delle 5 sezioni del test e nei 4 rapporti,
+ * ricalcolati dalle risposte grezze con il motore a ceste (src/utils/cesteTst.js).
+ * `rapportiPunteggi` = stessi totali portati sul massimo teorico di ogni rapporto (0–100).
  */
 export function computeSezioniTotalsFromRaw(rawRecord = {}) {
-  const sezioniTotals = REPORT_SECTION_DEFS.reduce((acc, section) => {
-    acc[section.key] = emptyColorTotals()
-    return acc
-  }, {})
-
-  for (let fileNumber = 1; fileNumber <= 72; fileNumber += 1) {
-    const fileKey = `File_${String(fileNumber).padStart(2, '0')}`
-    const rawAnswer = rawRecord[fileKey]
-    if (!rawAnswer) continue
-
-    const reportSection = getReportSectionForFile(fileNumber)
-    if (!reportSection) continue
-
-    const group = getQuestionGroupForFile(fileNumber)
-    const logicType = getLogicTypeForFile(fileNumber)
-    if (!logicType) continue
-
-    const params = {
-      fileNumber,
-      isConfirmation: group === 'C_BIS',
-    }
-
-    if (
-      logicType === 'AFFINITA_BASE' ||
-      logicType === 'AFFINITA_ECCEZIONE' ||
-      logicType === 'AFFINITA_STANDARD'
-    ) {
-      params.affinitaOptionId = rawAnswer
-    } else {
-      params.answerLabel = rawAnswer
-    }
-
-    const delta = computeScoreDeltaForAnswer(params)
-    if (!delta || Object.keys(delta).length === 0) continue
-
-    Object.entries(delta).forEach(([key, value]) => {
-      const colorKey = correnteKeyToColorKey(key)
-      if (!colorKey) return
-      sezioniTotals[reportSection][colorKey] += value
-    })
-  }
-
+  const { perSezione, rapporti } = calcolaCeste(rawRecord, { regolePerPasso: regoleDelTest(rawRecord) })
+  const sezioniTotals = Object.fromEntries(REPORT_SECTION_DEFS.map((section) => [section.key, perSezione[section.key]]))
   const sezioniData = REPORT_SECTION_DEFS.map((section) =>
     colorTotalsToChartRow(section.label, sezioniTotals[section.key]),
   )
-
-  const rapporti = {
-    natura: sumSectionTotals(sezioniTotals, ['A_TIMBRO', 'B_INTERVALLI', 'E_ARMONIA']),
-    se: sumSectionTotals(sezioniTotals, ['B_INTERVALLI', 'D_MELODIA']),
-    altro: sumSectionTotals(sezioniTotals, ['A_TIMBRO', 'D_MELODIA']),
-    agire: sumSectionTotals(sezioniTotals, ['C_RITMO', 'D_MELODIA']),
-  }
-
-  return { sezioniTotals, sezioniData, rapporti }
+  const rapportiPunteggi = Object.fromEntries(
+    Object.entries(rapporti).map(([id, tot]) => [id, normalizzaSuMassimo(tot, MASSIMI_TEORICI.rapporti[id])]),
+  )
+  return { sezioniTotals, sezioniData, rapporti, rapportiPunteggi }
 }
 
 /** Totali aggregati per i 4 rapporti (natura, se, altro, agire). */
@@ -140,48 +65,65 @@ export function formatDateShort(value) {
   return date.toLocaleDateString('it-IT')
 }
 
+/**
+ * Punti grezzi per famiglia colore. Se il record ha le risposte grezze, i punti
+ * si ricalcolano dalle ceste (regole attuali, o quelle della sua epoca per i
+ * test storici: vedi testStorici.js); altrimenti si sommano i contatori salvati.
+ * Un test storico che non si riesce a verificare mostra i totali salvati.
+ */
 export function computeColorTotals(record = {}) {
+  const storica = record?._letturaStorica
+  if (storica && !storica.verificato) return { ...storica.famiglie }
+  if (hasRawAnswers(record)) return { ...calcolaCeste(record, { regolePerPasso: regoleDelTest(record) }).famiglie }
   const n = (value) => Number(value) || 0
-  const blu =
-    n(record.BLU_1_Depressiva) +
-    n(record.BLU_2_Lunare) +
-    n(record.BLU_3_Nostalgia) +
-    n(record.BLU_4_Solare)
-  const rosso =
-    n(record.ROSSO_1_Assertivita) +
-    n(record.ROSSO_2_Dubbio_Collera)
-  const verde = n(record.VERDE_1_Calma)
-  const giallo =
-    n(record.GIALLO_1_Gioia_Entusiasmo) +
-    n(record.GIALLO_2_Volitivo_Passionale)
-  const grigio =
-    n(record.GRIGIO_1_Distaccato_Nichilista) +
-    n(record.GRIGIO_2_Intellettuale_Saggio)
-
-  return { blu, rosso, verde, giallo, grigio }
+  return Object.fromEntries(
+    Object.entries(CAMPI_PER_COLORE).map(([colorKey, campi]) => [
+      colorKey,
+      campi.reduce((sum, campo) => sum + n(record[campo]), 0),
+    ]),
+  )
 }
 
-export function computeRelativePercentages(totals = {}) {
-  const keys = ['verde', 'blu', 'rosso', 'giallo', 'grigio']
-  const values = keys.map(k => Number(totals?.[k]) || 0)
-  const sum = values.reduce((a, b) => a + b, 0)
+/** Punteggio 0–100 di ogni famiglia sul proprio massimo teorico (base per prevalenze e confronti). */
+export function computeColorScores(record = {}) {
+  return normalizzaSuMassimo(computeColorTotals(record))
+}
+
+export function allocateRoundedPercentages(values = []) {
+  const safeValues = values.map((value) => {
+    const numericValue = Number(value)
+    return Number.isFinite(numericValue) && numericValue > 0 ? numericValue : 0
+  })
+  const sum = safeValues.reduce((a, b) => a + b, 0)
   if (sum <= 0) {
-    return { verde: 0, blu: 0, rosso: 0, giallo: 0, grigio: 0 }
+    return safeValues.map(() => 0)
   }
 
-  // Calculate raw percentages
-  const pctRaw = values.map(v => (v / sum) * 100)
+  const pctRaw = safeValues.map(v => (v / sum) * 100)
   const pctRounded = pctRaw.map(p => Math.floor(p))
-  let roundedSum = pctRounded.reduce((a, b) => a + b, 0)
+  const roundedSum = pctRounded.reduce((a, b) => a + b, 0)
 
-  // Distribute the remainder (100 - roundedSum) to the keys with the largest fractional parts
   const remainders = pctRaw.map((p, idx) => ({ idx, frac: p - pctRounded[idx] }))
-  remainders.sort((a, b) => b.frac - a.frac)
+  remainders.sort((a, b) => b.frac - a.frac || a.idx - b.idx)
 
-  let diff = 100 - roundedSum
+  const diff = 100 - roundedSum
   for (let i = 0; i < diff; i++) {
     pctRounded[remainders[i].idx] += 1
   }
+
+  return pctRounded
+}
+
+/**
+ * Peso relativo (somma 100) delle famiglie. I punti grezzi vengono prima portati
+ * sul massimo teorico di ciascuna famiglia, così una famiglia con più nature
+ * (es. Blu, 4 nature) non parte avvantaggiata.
+ */
+export function computeRelativePercentages(totals = {}) {
+  const keys = ['verde', 'blu', 'rosso', 'giallo', 'grigio']
+  const scores = normalizzaSuMassimo(totals)
+  const values = keys.map(k => Number(scores?.[k]) || 0)
+  const pctRounded = allocateRoundedPercentages(values)
 
   const result = {}
   keys.forEach((k, idx) => {
@@ -206,12 +148,14 @@ export const DOMINANT_COLOR_NAME_BY_KEY = {
  */
 const TIE_BREAK_KEY_ORDER = FAMILY_ORDER.map((familyName) => FAMILY_THEME[familyName].key)
 
+/** Famiglia prevalente: confronto sui punteggi normalizzati sul massimo teorico. */
 export function getDominantColorInfo(totals = {}) {
+  const scores = normalizzaSuMassimo(totals)
   let dominantKey = TIE_BREAK_KEY_ORDER[0]
-  let dominantValue = Number(totals[dominantKey]) || 0
+  let dominantValue = Number(scores[dominantKey]) || 0
   for (let i = 1; i < TIE_BREAK_KEY_ORDER.length; i += 1) {
     const key = TIE_BREAK_KEY_ORDER[i]
-    const value = Number(totals[key]) || 0
+    const value = Number(scores[key]) || 0
     if (value > dominantValue) {
       dominantValue = value
       dominantKey = key

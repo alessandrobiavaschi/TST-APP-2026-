@@ -4,7 +4,7 @@
  * Costruisce la prop `correntData` (array di 5 correnti) a partire dal record
  * grezzo del report TST, riusando ESCLUSIVAMENTE i punteggi gia' calcolati dal
  * motore di scoring (testLogic) e i contenuti del modello (dispositions +
- * galaxyDocBridge). Non inventa numeri di scoring: i pesi sono percentuali
+ * galaxyDocBridge, testi da content/testiFissiTemperamenti.js). Non inventa numeri di scoring: i pesi sono percentuali
  * rispetto al massimo teorico di famiglia / sotto-corrente.
  *
  * Forma di `correntData` (un elemento per corrente):
@@ -29,6 +29,8 @@
  */
 
 import { computeColorTotals, computeRelativePercentages } from './reportRecordUtils.js'
+import { getTestoNatura, getSintesiFamiglia } from '../content/testiFissiTemperamenti.js'
+import { getNaturaByRawKey } from '../content/paroleTst.js'
 import { DISPOSITIONS } from '../config/dispositions'
 import { RAW_DOC_VISUAL } from '../config/galaxyDocBridge'
 import {
@@ -38,18 +40,10 @@ import {
 
 const clamp01 = (value) => Math.min(1, Math.max(0, value))
 
-/** Da chiave grezza a etichetta leggibile, es. 'ROSSO_2_Dubbio_Collera' -> 'Dubbio Collera'. */
+/** Nome della natura dai «Testi fissi», es. 'ROSSO_2_Dubbio_Collera' -> 'Natura Collerica'. */
+// Nome della natura come nel PDF «Parole per TST» (es. «Natura Lunare — Depressiva»).
 function rawKeyToLabel(rawKey) {
-  const base = String(rawKey).split('_').slice(2).join(' ').replaceAll('_', ' ').trim() || String(rawKey)
-  return base.replace(/\b\w/g, (c) => c.toUpperCase())
-}
-
-/** Prima frase di una descrizione (taglio sul primo punto). */
-function firstSentence(text) {
-  const t = String(text || '').trim()
-  if (!t) return ''
-  const dot = t.indexOf('.')
-  return (dot > 0 ? t.slice(0, dot + 1) : t).trim()
+  return getNaturaByRawKey(rawKey)?.nome || getTestoNatura(rawKey)?.titolo || String(rawKey)
 }
 
 /** Primi N elementi unici (preserva l'ordine). */
@@ -104,7 +98,7 @@ export function buildCorrentDataFromRecord(rawRecord = {}) {
       familyKey: disposition.colorKey,
       colore: disposition.colorHex,
       peso,
-      descrizione: firstSentence(disposition.narrativeShort),
+      descrizione: getSintesiFamiglia(colorKey),
       statiDanimo,
       sottoCorrenti,
     }
@@ -116,153 +110,53 @@ export function buildCorrentDataFromRecord(rawRecord = {}) {
  * (Verde ~82, Rosso ~41, Blu medio, Giallo marginale, Grigio ~1). Serve a
  * testare il componente in isolamento e come fallback se `correntData` manca.
  */
-export const EXAMPLE_CORRENT_DATA = [
-  {
-    id: 'flemmatica',
-    nome: 'Flemmatica',
-    familyKey: 'verde',
-    colore: '#22c55e',
-    peso: 82,
-    descrizione:
-      'La corrente flemmatica custodisce calma, lentezza e contemplazione: una base di equilibrio che modula gli eccessi.',
-    statiDanimo: ['Calmo', 'Rilassato', 'Pacato', 'Tranquillo', 'Sereno', 'Equilibrato'],
-    sottoCorrenti: [
-      {
-        id: 'VERDE_1_Calma',
-        nome: 'Calma',
-        colore: '#15803d',
-        peso: 82,
-        descrizione: 'Quinta / Quinta eccedente · Verde calma',
-        statiDanimo: ['Rilassato', 'Calmo', 'Pacifico', 'Tranquillo', 'Contemplativo', 'Quieto'],
-      },
-    ],
-  },
-  {
-    id: 'collerico_volitiva',
-    nome: 'Collerico / Volitiva',
-    familyKey: 'rosso',
-    colore: '#ef4444',
-    peso: 41,
-    descrizione:
-      'Questa corrente sostiene l’azione e la direzione intenzionale: in forma armonica porta decisione e responsabilità.',
-    statiDanimo: ['Determinato', 'Sicuro', 'Risoluto', 'Coraggioso', 'Fiero'],
-    sottoCorrenti: [
-      {
-        id: 'ROSSO_1_Assertivita',
-        nome: 'Assertivita',
-        colore: '#dc2626',
-        peso: 46,
-        descrizione: 'Quarta · Rosso',
-        statiDanimo: ['Stabile', 'Sicuro', 'Determinato', 'Risoluto', 'Coraggioso'],
-      },
-      {
-        id: 'ROSSO_2_Dubbio_Collera',
-        nome: 'Dubbio Collera',
-        colore: '#9f2b68',
-        peso: 31,
-        descrizione: 'Quarta eccedente · Amaranto',
-        statiDanimo: ['Incerto', 'Dubbioso', 'Rabbioso', 'Irato', 'Diffidente'],
-      },
-    ],
-  },
-  {
-    id: 'malinconica_nostalgica',
-    nome: 'Malinconica / Nostalgica',
-    familyKey: 'blu',
-    colore: '#3b82f6',
-    peso: 28,
-    descrizione:
-      'Questa corrente orienta all’interiorità: riflessione, memoria e ascolto profondo di ciò che si è vissuto.',
-    statiDanimo: ['Pensieroso', 'Nostalgico', 'Sereno', 'Riconoscente', 'Triste'],
-    sottoCorrenti: [
-      {
-        id: 'BLU_1_Depressiva',
-        nome: 'Depressiva',
-        colore: '#172554',
-        peso: 14,
-        descrizione: 'Seconda min/Mag · Blu notte/scuro',
-        statiDanimo: ['Angosciato', 'Afflitto', 'Depresso', 'Ansioso', 'Mesto'],
-      },
-      {
-        id: 'BLU_2_Lunare',
-        nome: 'Lunare',
-        colore: '#1e40af',
-        peso: 22,
-        descrizione: 'Terza min · Blu medio',
-        statiDanimo: ['Pensieroso', 'Triste', 'Preoccupato', 'Cupo', 'Lunatico'],
-      },
-      {
-        id: 'BLU_3_Nostalgia',
-        nome: 'Nostalgica',
-        colore: '#1d4ed8',
-        peso: 18,
-        descrizione: 'Settima min/Mag · Blu reale (saudade)',
-        statiDanimo: ['Nostalgico', 'Rimpiangente', 'Riconoscente', 'Grato', 'Desiderante'],
-      },
-      {
-        id: 'BLU_4_Solare',
-        nome: 'Solare',
-        colore: '#7dd3fc',
-        peso: 30,
-        descrizione: 'Terza Mag · Celeste',
-        statiDanimo: ['Ottimista', 'Sereno', 'Fiducioso', 'Lieto', 'Speranzoso'],
-      },
-    ],
-  },
-  {
-    id: 'entusiasmo',
-    nome: 'Entusiasmo',
-    familyKey: 'giallo',
-    colore: '#eab308',
-    peso: 9,
-    descrizione:
-      'Questa corrente esprime curiosità, movimento e slancio vitale verso il nuovo.',
-    statiDanimo: ['Gioioso', 'Vivace', 'Entusiasta', 'Curioso', 'Solare'],
-    sottoCorrenti: [
-      {
-        id: 'GIALLO_1_Gioia_Entusiasmo',
-        nome: 'Gioia Entusiasmo',
-        colore: '#eab308',
-        peso: 11,
-        descrizione: 'Sesta · Giallo (gioia)',
-        statiDanimo: ['Gioioso', 'Allegro', 'Entusiasta', 'Euforico', 'Curioso'],
-      },
-      {
-        id: 'GIALLO_2_Volitivo_Passionale',
-        nome: 'Volitivo Passionale',
-        colore: '#d97706',
-        peso: 6,
-        descrizione: 'Prima · Giallo dorato (passione)',
-        statiDanimo: ['Innamorato', 'Appassionato', 'Ardente', 'Impetuoso', 'Illuminato'],
-      },
-    ],
-  },
-  {
-    id: 'agnostica_anaffettiva',
-    nome: 'Agnostica / Anaffettiva',
-    familyKey: 'grigio',
-    colore: '#9ca3af',
-    peso: 1,
-    descrizione:
-      'Questa corrente introduce distanza osservativa e calcolo: se ben orientata favorisce lucidità e discernimento.',
-    statiDanimo: ['Lucido', 'Distaccato', 'Imperturbabile', 'Saggio', 'Indifferente'],
-    sottoCorrenti: [
-      {
-        id: 'GRIGIO_1_Distaccato_Nichilista',
-        nome: 'Distaccato Nichilista',
-        colore: '#475569',
-        peso: 1,
-        descrizione: 'Ottava · Grigio scuro (gelo distaccato)',
-        statiDanimo: ['Apatico', 'Freddo', 'Distaccato', 'Indifferente', 'Imperturbabile'],
-      },
-      {
-        id: 'GRIGIO_2_Intellettuale_Saggio',
-        nome: 'Intellettuale Saggio',
-        colore: '#94a3b8',
-        peso: 1,
-        descrizione: 'Ottava (polo evoluto) · Grigio chiaro',
-        statiDanimo: ['Saggio', 'Dedito', 'Devoto', 'Beato', 'Illuminato'],
-      },
-    ],
-  },
-]
+const EXAMPLE_PESI = {
+  flemmatica: 82,
+  VERDE_1_CalmaContemplativa: 55,
+  VERDE_2_CalmaFisica: 82,
+  collerico_volitiva: 41,
+  ROSSO_1_Assertivita: 46,
+  ROSSO_2_Dubbio_Collera: 31,
+  malinconica_nostalgica: 28,
+  BLU_1_Depressiva: 14,
+  BLU_2_Lunare: 22,
+  BLU_3_Nostalgia: 18,
+  BLU_4_Solare: 30,
+  entusiasmo: 9,
+  GIALLO_1_Gioia_Entusiasmo: 11,
+  GIALLO_2_Volitivo_Passionale: 6,
+  agnostica_anaffettiva: 1,
+  GRIGIO_1_Anaffettiva: 1,
+  GRIGIO_2_Distaccata: 1,
+}
+
+const EXAMPLE_ORDINE = ['flemmatica', 'collerico_volitiva', 'malinconica_nostalgica', 'entusiasmo', 'agnostica_anaffettiva']
+
+/**
+ * Stessa forma di buildCorrentDataFromRecord, ma con pesi fissi: nomi, descrizioni
+ * e stati d'animo vengono dalle stesse fonti (Testi fissi + Parole per TST).
+ */
+export const EXAMPLE_CORRENT_DATA = EXAMPLE_ORDINE.map((id) => {
+  const disposition = DISPOSITIONS.find((d) => d.dispositionId === id)
+  const sottoCorrenti = disposition.rawKeys.map((rawKey) => {
+    const doc = RAW_DOC_VISUAL[rawKey] || null
+    return {
+      id: rawKey,
+      nome: rawKeyToLabel(rawKey),
+      colore: doc?.accentHex || disposition.colorHex,
+      peso: EXAMPLE_PESI[rawKey] ?? 0,
+      descrizione: doc?.intervalNote || '',
+      statiDanimo: Array.isArray(doc?.lexiconChips) ? doc.lexiconChips.slice(0, 12) : [],
+    }
+  })
+  return {
+    id,
+    nome: disposition.label,
+    familyKey: disposition.colorKey,
+    colore: disposition.colorHex,
+    peso: EXAMPLE_PESI[id] ?? 0,
+    descrizione: getSintesiFamiglia(disposition.colorKey),
+    statiDanimo: uniqueTop(sottoCorrenti.flatMap((sub) => sub.statiDanimo), 8),
+    sottoCorrenti,
+  }
+})

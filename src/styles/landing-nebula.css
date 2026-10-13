@@ -78,6 +78,17 @@
   );
 }
 
+.tst-nebula-bg-nebula-glow {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    radial-gradient(48% 38% at 78% 18%, rgba(125, 171, 250, 0.16), transparent 70%),
+    radial-gradient(42% 34% at 12% 62%, rgba(196, 181, 253, 0.13), transparent 72%),
+    radial-gradient(36% 30% at 60% 88%, rgba(94, 234, 212, 0.08), transparent 70%);
+}
+
 .tst-nebula-bg-stars {
   position: absolute;
   inset: 0;
@@ -85,7 +96,14 @@
   width: 2px;
   height: 2px;
   background: transparent;
-  animation: tstNebulaTwinkle 4s ease-in-out infinite;
+  opacity: 0.85;
+}
+
+.tst-nebula-bg-stars--glow {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  opacity: 0.95;
 }
 
 .tst-nebula-main {
@@ -107,6 +125,7 @@
 }
 
 .tst-nebula-hero-word {
+  margin: 0;
   font-family: 'Newsreader', serif;
   font-weight: 600;
   font-style: italic;
@@ -132,6 +151,7 @@
   font-weight: 600;
   margin: 0;
   font-family: 'Public Sans', sans-serif;
+  text-wrap: balance;
 }
 
 .tst-nebula-hero-cta {
@@ -200,6 +220,7 @@
   line-height: 1.4;
   color: #f8f8fa;
   margin: 0;
+  text-wrap: balance;
 }
 
 .tst-nebula-pitch-body {
@@ -208,6 +229,7 @@
   line-height: 1.6;
   color: rgba(242, 242, 245, 0.72);
   margin: 0;
+  text-wrap: pretty;
 }
 
 .tst-nebula-pitch-cta {
@@ -248,6 +270,7 @@
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: #c4b5fd;
+  text-wrap: pretty;
 }
 
 .tst-nebula-slider-intro-title {
@@ -258,134 +281,208 @@
   line-height: 1.25;
   margin: 0;
   color: #f8f8fa;
+  text-wrap: balance;
 }
 
-/* Panel dot rail */
-.tst-nebula-panel-dots {
+/* Panel dot rail & lateral navigation */
+.tst-nebula-panel-nav {
   position: fixed;
-  right: clamp(14px, 3vw, 40px);
+  right: clamp(16px, 3vw, 40px);
   top: 50%;
   transform: translateY(-50%);
-  z-index: 10;
+  z-index: 12;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 10px;
+  align-items: flex-end;
+  gap: 12px;
 }
 
-.tst-nebula-panel-dot {
+.tst-nebula-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: none;
+  border: none;
+  padding: 4px 6px;
+  cursor: pointer;
+  position: relative;
+  border-radius: 999px;
+  transition: transform 0.25s ease;
+}
+
+.tst-nebula-nav-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.25);
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.tst-nebula-panel-dot.is-active {
-  box-shadow: 0 0 10px var(--dot-color, #8b5cf6);
-  background: var(--dot-color, #8b5cf6);
+.tst-nebula-nav-item:hover .tst-nebula-nav-dot {
+  background: var(--nav-color, #8b5cf6);
+  box-shadow: 0 0 8px var(--nav-color, #8b5cf6);
 }
 
-/* Panels */
-.tst-nebula-panel {
-  min-height: 100vh;
+.tst-nebula-nav-item.is-active .tst-nebula-nav-dot {
+  background: var(--nav-color, #8b5cf6);
+  transform: scale(1.4);
+  box-shadow: 0 0 14px var(--nav-color, #8b5cf6), 0 0 24px var(--nav-color, #8b5cf6);
+}
+
+.tst-nebula-nav-tooltip {
+  position: absolute;
+  right: calc(100% + 14px);
+  top: 50%;
+  transform: translateY(-50%) translateX(6px);
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+  font-size: 12px;
+  padding: 5px 12px;
+  border-radius: 6px;
+  background: rgba(10, 11, 18, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tst-nebula-nav-item:hover .tst-nebula-nav-tooltip {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+/* Runway di scorrimento verticale e stage sticky a tutto schermo */
+.tst-nebula-panels-runway {
+  position: relative;
+  width: 100%;
+}
+
+.tst-nebula-sticky-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
   display: flex;
   align-items: center;
-  padding: 100px clamp(24px, 6vw, 80px);
-  position: relative;
+  justify-content: flex-start;
+  padding: 0 clamp(24px, 6vw, 100px);
 }
 
-.tst-nebula-panel--even { justify-content: flex-start; }
-.tst-nebula-panel--odd { justify-content: flex-end; }
+.tst-nebula-stage-layout {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(20px, 3.5vw, 44px);
+  max-width: 760px;
+  width: 100%;
+}
 
-.tst-nebula-panel-number {
+.tst-nebula-giant-number {
   position: absolute;
+  right: clamp(40px, 12vw, 160px);
   top: 50%;
   transform: translateY(-50%);
   font-family: 'Newsreader', serif;
   font-weight: 600;
-  font-size: clamp(180px, 26vw, 420px);
+  font-size: clamp(190px, 28vw, 450px);
   line-height: 1;
   color: transparent;
   -webkit-text-stroke: 3px rgba(255, 255, 255, 0.2);
-  filter: drop-shadow(0 0 28px rgba(255, 255, 255, 0.05));
+  filter: drop-shadow(0 0 32px rgba(255, 255, 255, 0.06));
   pointer-events: none;
   user-select: none;
+  z-index: 1;
 }
 
-.tst-nebula-panel--even .tst-nebula-panel-number { right: 0; }
-.tst-nebula-panel--odd .tst-nebula-panel-number { left: 0; }
-
-.tst-nebula-panel-content {
+/* Transizioni cinematiche Fade & Slide */
+.tst-nebula-text-card {
   position: relative;
   isolation: isolate;
-  max-width: 620px;
   display: flex;
   flex-direction: column;
-  gap: clamp(14px, 1.6vw, 19px);
-  opacity: 0;
-  transform: translateY(44px);
-  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  gap: clamp(14px, 1.8vw, 22px);
+  user-select: text;
+  width: 100%;
 }
 
-.tst-nebula-panel-content::before {
+.tst-nebula-text-card::before {
   content: '';
   position: absolute;
   z-index: -1;
-  inset: -120px -180px;
+  inset: -100px -140px;
   background: radial-gradient(
     ellipse at center,
-    rgba(0, 0, 0, 0.82) 0%,
-    rgba(0, 0, 0, 0.68) 30%,
-    rgba(0, 0, 0, 0.46) 52%,
-    rgba(0, 0, 0, 0.22) 70%,
-    rgba(0, 0, 0, 0.08) 84%,
+    rgba(0, 0, 0, 0.88) 0%,
+    rgba(0, 0, 0, 0.72) 32%,
+    rgba(0, 0, 0, 0.44) 55%,
+    rgba(0, 0, 0, 0.18) 72%,
     transparent 100%
   );
-  filter: blur(14px);
+  filter: blur(18px);
   pointer-events: none;
 }
 
-.tst-nebula-panel-content.is-revealed {
-  opacity: 1;
-  transform: translateY(0);
+.tst-nebula-card-eyebrow {
+  margin-bottom: 2px;
 }
 
-.tst-nebula-panel--even .tst-nebula-panel-content {
-  text-align: left;
-  align-items: flex-start;
-}
-
-.tst-nebula-panel--odd .tst-nebula-panel-content {
-  text-align: right;
-  align-items: flex-end;
-}
-
-.tst-nebula-panel-title {
+.tst-nebula-card-title {
   font-family: 'Newsreader', serif;
   font-weight: 600;
-  font-size: clamp(34px, 4.2vw, 54px);
-  line-height: 1.12;
+  font-size: clamp(30px, 3.8vw, 48px);
+  line-height: 1.15;
   margin: 0;
   color: #fff;
+  text-wrap: balance;
 }
 
-.tst-nebula-panel-paragraph {
-  max-width: 590px;
+.tst-nebula-paragraphs-stack {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(14px, 1.6vw, 20px);
+}
+
+.tst-nebula-card-paragraph {
+  max-width: 610px;
   font-size: clamp(16px, 1.55vw, 18px);
-  line-height: 1.58;
-  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.68;
+  color: rgba(255, 255, 255, 0.92);
   margin: 0;
+  text-wrap: pretty;
 }
 
-.tst-nebula-panel-footnote {
+.tst-nebula-card-footnote {
   font-size: 14px;
   font-style: italic;
   line-height: 1.5;
   color: rgba(255, 255, 255, 0.72);
-  margin: 8px 0 0;
+  margin: 6px 0 0;
+  text-wrap: pretty;
 }
 
+/* Entrata del testo: tutto insieme, solo dissolvenza (niente salita né sfocatura) */
+@keyframes tstNebulaTextReveal {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.tst-panel-text-in {
+  animation: tstNebulaTextReveal 0.6s ease-out 0.1s backwards;
+}
+
+/* Prima che la sezione entri nello schermo il testo resta nascosto,
+   così l'entrata parte quando il lettore arriva */
+.tst-panel-text-wait {
+  opacity: 0;
+}
+
+/* Parole chiave interattive */
+/* Micro-interazione sfondo stellare su parola attiva */
+/* Binario di progressione lettura */
 /* Reveal generico (pitch, slider intro, metodologia) */
 .tst-nebula-reveal {
   opacity: 0;
@@ -420,6 +517,7 @@
   font-size: clamp(32px, 4.4vw, 50px);
   margin: 0;
   color: #f8f8fa;
+  text-wrap: balance;
 }
 
 .tst-nebula-method-intro {
@@ -428,6 +526,7 @@
   color: rgba(242, 242, 245, 0.78);
   max-width: 800px;
   margin: 0;
+  text-wrap: pretty;
 }
 
 .tst-nebula-timeline {
@@ -487,6 +586,18 @@
   color: rgba(242, 242, 245, 0.75);
   margin: 0;
   max-width: 800px;
+  text-wrap: pretty;
+}
+
+/* Titoli della landing nel carattere previsto (Newsreader).
+   Serve perché in App.css la vecchia regola «.tst-route-landing h1/h2/h3»
+   imponeva Space Grotesk 700 a tutti i titoli della pagina. */
+.tst-route-landing .tst-nebula-slider-intro-title,
+.tst-route-landing .tst-nebula-method-title,
+.tst-route-landing .tst-nebula-card-title {
+  font-family: 'Newsreader', serif;
+  font-weight: 600;
+  letter-spacing: normal;
 }
 
 /* Footer */
@@ -547,29 +658,70 @@
     animation: none;
   }
 
-  .tst-nebula-panel-content,
-  .tst-nebula-reveal {
+  .tst-nebula-reveal,
+  .tst-panel-text-in {
+    animation: none;
     transition: none;
   }
 }
 
-@media (max-width: 640px) {
-  .tst-nebula-panel {
-    padding: 90px 24px;
-  }
-
-  .tst-nebula-panel--even,
-  .tst-nebula-panel--odd {
-    justify-content: center;
-  }
-
-  .tst-nebula-panel--even .tst-nebula-panel-content,
-  .tst-nebula-panel--odd .tst-nebula-panel-content {
-    text-align: left;
-    align-items: flex-start;
-  }
-
-  .tst-nebula-panel-dots {
-    display: none;
+/* Telefono: in App.css «overflow-x: hidden» su body, #root e .app-shell trasforma
+   questi contenitori in aree di scorrimento e impedisce ai pannelli di restare fermi
+   (position: sticky). «clip» taglia allo stesso modo ciò che sborda, senza quell'effetto.
+   I browser che non conoscono «clip» ignorano la regola e restano come prima. */
+@media (max-width: 768px) {
+  body.tst-route-landing,
+  body.tst-route-landing #root,
+  body.tst-route-landing .app-shell {
+    overflow-x: clip;
   }
 }
+
+@media (max-width: 900px) {
+  .tst-nebula-giant-number {
+    font-size: clamp(140px, 24vw, 280px);
+    right: 20px;
+    opacity: 0.18;
+  }
+}
+
+@media (max-width: 640px) {
+  .tst-nebula-sticky-stage {
+    padding: 80px 20px 60px;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .tst-nebula-stage-layout {
+    gap: 14px;
+    max-width: 100%;
+  }
+
+
+  .tst-nebula-giant-number {
+    font-size: clamp(120px, 32vw, 220px);
+    right: 12px;
+    top: 42%;
+    opacity: 0.12;
+  }
+
+  .tst-nebula-panel-nav {
+    right: 10px;
+    gap: 8px;
+  }
+
+
+  .tst-nebula-nav-tooltip {
+    display: none;
+  }
+
+  .tst-nebula-card-title {
+    font-size: clamp(24px, 6.5vw, 32px);
+  }
+
+  .tst-nebula-card-paragraph {
+    font-size: 15px;
+    line-height: 1.6;
+  }
+}
+

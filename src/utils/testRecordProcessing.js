@@ -1,34 +1,25 @@
-import { computeColorTotals } from './reportRecordUtils.js'
+import { computeColorScores, hasRawAnswers } from './reportRecordUtils.js'
+import {
+  CAMPI_PER_COLORE,
+  FAMIGLIE,
+  NATURE,
+  VERSIONE_MODELLO,
+  VERSIONE_MODELLO_LEGACY,
+} from '../config/tstSistema.js'
+import { calcolaCeste, percentualeNatura } from './cesteTst.js'
+import { leggiTestStorico } from './testStorici.js'
 
-export const DISPOSITION_LABEL_BY_COLOR = Object.freeze({
-  blu: 'Malinconia',
-  rosso: 'Volitività',
-  giallo: 'Entusiasmo',
-  verde: 'Calma',
-  grigio: 'Anaffettività',
-})
+/** Etichetta salvata in Disposizione_Prevalente: nome della famiglia dal PDF. */
+export const DISPOSITION_LABEL_BY_COLOR = Object.freeze(
+  Object.fromEntries(FAMIGLIE.map((f) => [f.colorKey, f.nome])),
+)
 
-const CURRENT_KEYS_BY_COLOR = Object.freeze({
-  blu: ['BLU_1_Depressiva', 'BLU_2_Lunare', 'BLU_3_Nostalgia', 'BLU_4_Solare'],
-  rosso: ['ROSSO_1_Assertivita', 'ROSSO_2_Dubbio_Collera'],
-  verde: ['VERDE_1_Calma'],
-  giallo: ['GIALLO_1_Gioia_Entusiasmo', 'GIALLO_2_Volitivo_Passionale'],
-  grigio: ['GRIGIO_1_Distaccato_Nichilista', 'GRIGIO_2_Intellettuale_Saggio'],
-})
+const CURRENT_KEYS_BY_COLOR = CAMPI_PER_COLORE
 
-const SUBDISPOSITION_LABEL_BY_KEY = Object.freeze({
-  BLU_1_Depressiva: 'Depressiva',
-  BLU_2_Lunare: 'Lunare',
-  BLU_3_Nostalgia: 'Nostalgica',
-  BLU_4_Solare: 'Solare',
-  ROSSO_1_Assertivita: 'Assertività',
-  ROSSO_2_Dubbio_Collera: 'Dubbio / Collera',
-  VERDE_1_Calma: 'Calma',
-  GIALLO_1_Gioia_Entusiasmo: 'Gioia / Entusiasmo',
-  GIALLO_2_Volitivo_Passionale: 'Volitivo / Passionale',
-  GRIGIO_1_Distaccato_Nichilista: 'Distaccato / Nichilista',
-  GRIGIO_2_Intellettuale_Saggio: 'Intellettuale / Saggio',
-})
+/** Etichetta salvata in Sottodisposizione_Prevalente: nome della natura dal PDF. */
+const SUBDISPOSITION_LABEL_BY_KEY = Object.freeze(
+  Object.fromEntries(NATURE.map((n) => [n.campoDb, n.nome])),
+)
 
 /**
  * Politica metodologica per le parità. I campi storici accettano un solo
@@ -49,18 +40,20 @@ export function findPositiveMaximum(entries) {
   return bestKey
 }
 
+/** Famiglia prevalente: punteggi normalizzati sul massimo teorico di ogni famiglia. */
 export function getDominantDispositionKey(record = {}) {
-  return findPositiveMaximum(Object.entries(computeColorTotals(record)))
+  return findPositiveMaximum(Object.entries(computeColorScores(record)))
 }
 
 export function getDominantDisposition(record = {}) {
   return DISPOSITION_LABEL_BY_COLOR[getDominantDispositionKey(record)] || ''
 }
 
+/** Natura prevalente dentro la famiglia prevalente, normalizzata sul massimo teorico della natura. */
 export function getDominantSubdisposition(record = {}) {
   const colorKey = getDominantDispositionKey(record)
   const currentKey = findPositiveMaximum(
-    (CURRENT_KEYS_BY_COLOR[colorKey] || []).map((key) => [key, record[key]]),
+    (CURRENT_KEYS_BY_COLOR[colorKey] || []).map((key) => [key, percentualeNatura(key, record[key])]),
   )
   return SUBDISPOSITION_LABEL_BY_KEY[currentKey] || ''
 }
@@ -89,4 +82,43 @@ export function compactTestRecord(record = {}) {
   return Object.fromEntries(
     Object.entries(record).filter(([, value]) => value !== undefined && value !== null),
   )
+}
+
+/** Versione del modello con cui è stato calcolato un record salvato. */
+export function versioneModelloDi(record = {}) {
+  return record?.versione_modello || VERSIONE_MODELLO_LEGACY
+}
+
+/**
+ * Ricalcola un record con le regole del modello corrente (fonte unica
+ * tstSistema.js): contatori delle nature, portato e campi prevalenti dalle
+ * ceste. Aggiunge `_ceste` (tabella natura × portato) per report e Galassia.
+ * Non va applicato ai test di versioni precedenti senza una scelta esplicita:
+ * cambierebbe i risultati che la persona ha già ricevuto.
+ */
+export function ricalcolaRecordTst(record = {}) {
+  if (!record || !hasRawAnswers(record)) return record
+  const { ceste, campiNature, campiPortato } = calcolaCeste(record)
+  const ricalcolato = { ...record, ...campiNature, ...campiPortato }
+  return {
+    ...ricalcolato,
+    ...computeTestResultFields(ricalcolato),
+    _ceste: ceste,
+    versione_modello: VERSIONE_MODELLO,
+  }
+}
+
+/**
+ * Prepara un record salvato per la lettura (report, archivio risultati).
+ * - Test del modello corrente: ricalcolati dalle risposte grezze.
+ * - Test di versioni precedenti (o senza `versione_modello`): restituiti con i
+ *   punteggi e le prevalenze salvati, così i risultati storici non cambiano.
+ * Non scrive mai su Firestore.
+ */
+export function normalizzaRecordTst(record = {}) {
+  if (!record || typeof record !== 'object') return record
+  const versione = versioneModelloDi(record)
+  if (versione === VERSIONE_MODELLO_LEGACY) return { ...leggiTestStorico(record), versione_modello: versione }
+  if (versione !== VERSIONE_MODELLO) return { ...record, versione_modello: versione }
+  return ricalcolaRecordTst(record)
 }

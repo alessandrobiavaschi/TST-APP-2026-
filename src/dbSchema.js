@@ -1,3 +1,5 @@
+import { VERSIONE_MODELLO } from './config/tstSistema.js'
+
 // Definizione piatta delle 100 colonne del test TST
 // Questa struttura non esegue logica: descrive in modo statico lo schema previsto in Firestore.
 
@@ -94,18 +96,19 @@ export const testSchema = {
   PE_Antipatia: 'number', // 81
   PE_Indifferenza: 'number', // 82
 
-  // Blocco D: 11 Correnti Emotive (83–93)
+  // Blocco D: 12 nature (contatori; nomi e regole in src/config/tstSistema.js)
   BLU_1_Depressiva: 'number', // 83
   BLU_2_Lunare: 'number', // 84
   BLU_3_Nostalgia: 'number', // 85
   BLU_4_Solare: 'number', // 86
   ROSSO_1_Assertivita: 'number', // 87
   ROSSO_2_Dubbio_Collera: 'number', // 88
-  VERDE_1_Calma: 'number', // 89
+  VERDE_1_CalmaContemplativa: 'number', // 89
+  VERDE_2_CalmaFisica: 'number', // 89b
   GIALLO_1_Gioia_Entusiasmo: 'number', // 90
   GIALLO_2_Volitivo_Passionale: 'number', // 91
-  GRIGIO_1_Distaccato_Nichilista: 'number', // 92
-  GRIGIO_2_Intellettuale_Saggio: 'number', // 93
+  GRIGIO_1_Anaffettiva: 'number', // 92
+  GRIGIO_2_Distaccata: 'number', // 92b
 
   // Blocco E: Feedback Finale allineato al test ufficiale
   Stato_Animo_Finale: 'string', // 94
@@ -122,6 +125,9 @@ export const testSchema = {
 
   // Stato di archiviazione
   In_Cestino: 'boolean',
+
+  // Versione del modello di punteggio con cui il test è stato calcolato
+  versione_modello: 'string',
 }
 
 // Facoltativo: helper per inizializzare un documento "vuoto" con valori di default
@@ -135,6 +141,7 @@ export const createEmptyTestRecord = () => {
     else if (type === 'timestamp') base[key] = null
     else base[key] = ''
   })
+  base.versione_modello = VERSIONE_MODELLO
 
   return base
 }

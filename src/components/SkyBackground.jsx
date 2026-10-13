@@ -4,9 +4,12 @@ import { useSyncVideoToCanvas } from '../hooks/useSyncVideoToCanvas.js'
 import { useSkyTheme } from '../SkyThemeContext.jsx'
 import { getSkyVideo } from '../skyVideosConfig.js'
 
-const DEFAULT_CROSSFADE_DURATION_MS = 1600
-const LANDING_CROSSFADE_DURATION_MS = 400
-const PLAYBACK_RATE = 0.25
+const DEFAULT_CROSSFADE_DURATION_MS = 2400
+const LANDING_CROSSFADE_DURATION_MS = 1600
+// 0.32x rallenta ulteriormente il movimento delle nuvole rispetto a 0.5x,
+// mantenendo comunque una cadenza percepita fluida sui sorgenti a 25/30 fps.
+const PLAYBACK_RATE = 0.32
+const CROSSFADE_EASING = 'cubic-bezier(0.4, 0, 0.2, 1)'
 const VIDEO_VISIBLE_OPACITY = 0.9
 
 function getCompositeKey(timeOfDay, weather) {
@@ -104,7 +107,7 @@ function SkyBackground() {
   }, [])
 
   // Play helper resiliente (tab in background, iOS, ecc.).
-  const ensureVideoPlaying = useCallback((videoEl) => {
+  const ensureVideoPlaying = useCallback((videoEl, customPlaybackRate) => {
     if (!videoEl) return
     try {
       videoEl.muted = true
@@ -113,7 +116,9 @@ function SkyBackground() {
       videoEl.autoplay = true
       videoEl.loop = true
       videoEl.controls = false
-      videoEl.playbackRate = PLAYBACK_RATE
+      const rate = typeof customPlaybackRate === 'number' ? customPlaybackRate : PLAYBACK_RATE
+      videoEl.defaultPlaybackRate = rate
+      videoEl.playbackRate = rate
       const p = videoEl.play()
       if (p && typeof p.catch === 'function') p.catch(() => {})
     } catch {
@@ -125,8 +130,8 @@ function SkyBackground() {
   // ri-avvia la riproduzione.
   useEffect(() => {
     const tick = () => {
-      ensureVideoPlaying(videoRefA.current)
-      ensureVideoPlaying(videoRefB.current)
+      ensureVideoPlaying(videoRefA.current, configA?.playbackRate)
+      ensureVideoPlaying(videoRefB.current, configB?.playbackRate)
     }
     tick()
     const interval = window.setInterval(tick, 2000)
@@ -140,7 +145,7 @@ function SkyBackground() {
       document.removeEventListener('visibilitychange', onVisibility)
       window.removeEventListener('pageshow', tick)
     }
-  }, [ensureVideoPlaying])
+  }, [ensureVideoPlaying, configA?.playbackRate, configB?.playbackRate])
 
   const handleReady = useCallback(
     (slotId) => {
@@ -210,7 +215,7 @@ function SkyBackground() {
           disablePictureInPicture
           disableRemotePlayback
           onLoadedData={() => {
-            ensureVideoPlaying(videoRefA.current)
+            ensureVideoPlaying(videoRefA.current, configA?.playbackRate)
             handleReady('a')
           }}
           onCanPlay={() => handleReady('a')}
@@ -234,7 +239,7 @@ function SkyBackground() {
           disablePictureInPicture
           disableRemotePlayback
           onLoadedData={() => {
-            ensureVideoPlaying(videoRefB.current)
+            ensureVideoPlaying(videoRefB.current, configB?.playbackRate)
             handleReady('b')
           }}
           onCanPlay={() => handleReady('b')}
@@ -250,7 +255,7 @@ function SkyBackground() {
         aria-hidden="true"
         style={{
           opacity: configA ? opacityA : 0,
-          transition: `opacity ${crossfadeDurationMs}ms ease-in-out`,
+          transition: `opacity ${crossfadeDurationMs}ms ${CROSSFADE_EASING}`,
         }}
       />
       <canvas
@@ -259,7 +264,7 @@ function SkyBackground() {
         aria-hidden="true"
         style={{
           opacity: configB ? opacityB : 0,
-          transition: `opacity ${crossfadeDurationMs}ms ease-in-out`,
+          transition: `opacity ${crossfadeDurationMs}ms ${CROSSFADE_EASING}`,
         }}
       />
 

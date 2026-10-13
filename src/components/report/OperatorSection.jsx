@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {
   ResponsiveContainer,
   BarChart,
@@ -9,26 +9,26 @@ import {
   Legend as BarLegend,
   Customized,
 } from 'recharts'
-import ReportAccordion from './ReportAccordion'
+import AreeMusicaliSection from './AreeMusicaliSection.jsx'
 import ReportPassageHeader from './ReportPassageHeader.jsx'
 import PlainLanguageBox from './PlainLanguageBox.jsx'
 import InfoTip from './InfoTip.jsx'
-import { APPROFONDIMENTO_AREAS, APPROFONDIMENTO_UI } from './reportUiCopy.js'
+import { APPROFONDIMENTO_AREAS, APPROFONDIMENTO_UI, getAreaLabel } from './reportUiCopy.js'
 
 const BAR_COLORS = {
-  Blu: '#3b82f6',
-  Rosso: '#ef4444',
-  Verde: '#22c55e',
-  Giallo: '#eab308',
-  Grigio: '#6b7280',
+  Blu: '#60a5fa',
+  Rosso: '#f87171',
+  Verde: '#4ade80',
+  Giallo: '#fde047',
+  Grigio: '#9ca3af',
 }
 
 const OPERATOR_LEGEND_ORDER = [
-  { key: 'Grigio', label: 'Anaffettività' },
-  { key: 'Verde', label: 'Calma' },
-  { key: 'Giallo', label: 'Entusiasmo' },
-  { key: 'Blu', label: 'Malinconia' },
-  { key: 'Rosso', label: 'Volitività' },
+  { key: 'Grigio', label: 'Razionale' },
+  { key: 'Verde', label: 'Flemmatica' },
+  { key: 'Giallo', label: 'Entusiasta' },
+  { key: 'Blu', label: 'Malinconica' },
+  { key: 'Rosso', label: 'Marziale' },
 ]
 
 function OperatorLegend() {
@@ -83,56 +83,41 @@ function EmptyAreaOverlay({ xAxisMap, yAxisMap, data = [], emptyAreas }) {
   )
 }
 
-function AreaGlossaryRow() {
+function AreaGlossaryRow({ plainLanguage = false }) {
+  const [activeTip, setActiveTip] = useState(null)
   return (
     <ul className="report-operator-areas" aria-label="Le cinque aree del test sonoro">
       {APPROFONDIMENTO_AREAS.map((nome) => (
         <li key={nome} className="report-operator-areas__item">
-          <InfoTip term={nome} tip={APPROFONDIMENTO_UI.areaTips[nome]} />
+          <InfoTip
+            term={getAreaLabel(nome, plainLanguage)}
+            tip={APPROFONDIMENTO_UI.areaTips[nome]}
+            open={activeTip === nome}
+            onToggle={() => setActiveTip((cur) => (cur === nome ? null : nome))}
+          />
         </li>
       ))}
     </ul>
   )
 }
 
-function FieldList({ label, children }) {
-  if (!children) return null
+function FiltroRow({ label, values = [] }) {
+  if (!values.length) return null
   return (
-    <div className="report-filtro-musicale__field">
+    <div className="report-filtro-musicale__row">
       <dt className="report-filtro-musicale__dt">{label}</dt>
-      <dd className="report-filtro-musicale__dd">{children}</dd>
+      <dd className="report-filtro-musicale__dd">{values.join(' · ')}</dd>
     </div>
-  )
-}
-
-function ChipList({ items = [], renderItem, empty = null }) {
-  if (!items.length) return empty
-  return (
-    <ul className="report-filtro-musicale__chips">
-      {items.map((item) => (
-        <li key={item.code || item.label || item.nome} className="report-filtro-musicale__chip">
-          {renderItem ? renderItem(item) : item.label}
-        </li>
-      ))}
-    </ul>
-  )
-}
-
-function AreaChip({ area }) {
-  return (
-    <span className="report-filtro-musicale__area">
-      <span className="report-filtro-musicale__area-name">
-        {area.code} · {area.nome}
-      </span>
-      {area.range ? (
-        <span className="report-filtro-musicale__area-range">{area.range}</span>
-      ) : null}
-    </span>
   )
 }
 
 function FiltroMusicalePanel({ filtroMusicale, accentColor }) {
   if (!filtroMusicale?.hasData) return null
+
+  const difficoltaValues = [
+    filtroMusicale.difficolta?.label,
+    ...(filtroMusicale.difficoltaDettaglio || []).map((item) => item.label),
+  ].filter(Boolean)
 
   return (
     <section
@@ -140,6 +125,8 @@ function FiltroMusicalePanel({ filtroMusicale, accentColor }) {
       className="report-filtro-musicale report-tst-section-anchor"
       aria-labelledby="report-filtro-musicale-heading"
     >
+      <p className="fm-areas__bridge">{APPROFONDIMENTO_UI.areeToFeedbackBridge}</p>
+
       <header className="report-filtro-musicale__header">
         <div className="report-filtro-musicale__header-text">
           <p className="report-filtro-musicale__eyebrow">{APPROFONDIMENTO_UI.filtroEyebrow}</p>
@@ -154,38 +141,23 @@ function FiltroMusicalePanel({ filtroMusicale, accentColor }) {
       </PlainLanguageBox>
 
       <dl className="report-filtro-musicale__grid">
-        {filtroMusicale.areeMaggiorAgio?.length ? (
-          <FieldList label="Aree di maggiore agio">
-            <ChipList
-              items={filtroMusicale.areeMaggiorAgio}
-              renderItem={(area) => <AreaChip area={area} />}
-            />
-          </FieldList>
-        ) : null}
-        {filtroMusicale.areeMinorAgio?.length ? (
-          <FieldList label="Aree di minore agio">
-            <ChipList
-              items={filtroMusicale.areeMinorAgio}
-              renderItem={(area) => <AreaChip area={area} />}
-            />
-          </FieldList>
-        ) : null}
-        {filtroMusicale.statoAnimoFinale?.length ? (
-          <FieldList label="Stato d'animo finale">
-            <ChipList items={filtroMusicale.statoAnimoFinale} />
-          </FieldList>
-        ) : null}
-        {filtroMusicale.difficolta || filtroMusicale.difficoltaDettaglio?.length ? (
-          <FieldList label="Difficoltà">
-            {filtroMusicale.difficolta?.label || null}
-            <ChipList items={filtroMusicale.difficoltaDettaglio} />
-          </FieldList>
-        ) : null}
-        {filtroMusicale.qualitaSuoni ? (
-          <FieldList label="Qualità dei suoni">
-            {filtroMusicale.qualitaSuoni.label}
-          </FieldList>
-        ) : null}
+        <FiltroRow
+          label="Aree di maggiore agio"
+          values={(filtroMusicale.areeMaggiorAgio || []).map((area) => area.nome)}
+        />
+        <FiltroRow
+          label="Aree di minore agio"
+          values={(filtroMusicale.areeMinorAgio || []).map((area) => area.nome)}
+        />
+        <FiltroRow
+          label="Stato d'animo finale"
+          values={(filtroMusicale.statoAnimoFinale || []).map((item) => item.label)}
+        />
+        <FiltroRow label="Difficoltà" values={difficoltaValues} />
+        <FiltroRow
+          label="Qualità dei suoni"
+          values={filtroMusicale.qualitaSuoni ? [filtroMusicale.qualitaSuoni.label] : []}
+        />
       </dl>
     </section>
   )
@@ -197,6 +169,7 @@ export default function OperatorSection({
   filtroMusicale,
   correnteColore = '#4ade80',
   step = '6',
+  plainLanguage = false,
 }) {
   const accent = correnteColore || '#4ade80'
   const chartData = sezioniData || []
@@ -227,14 +200,24 @@ export default function OperatorSection({
         {APPROFONDIMENTO_UI.chartPlainSummary}
       </PlainLanguageBox>
 
-      <AreaGlossaryRow />
+      <AreaGlossaryRow plainLanguage={plainLanguage} />
 
       <div className="report-operator-chart-block">
         <p className="report-operator-chart-caption">{APPROFONDIMENTO_UI.chartCaption}</p>
         <div className="report-operator-chart-canvas">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer
+            width="100%"
+            height="100%"
+            minWidth={0}
+            initialDimension={{ width: 320, height: 340 }}
+          >
             <BarChart data={chartData} margin={{ top: 16, right: 16, bottom: 16, left: 8 }}>
-              <XAxis dataKey="nome" stroke="#64748b" tick={{ fontSize: 12 }} />
+              <XAxis
+                dataKey="nome"
+                stroke="#64748b"
+                tick={{ fontSize: 12 }}
+                tickFormatter={(value) => getAreaLabel(value, plainLanguage)}
+              />
               <YAxis stroke="#64748b" tick={{ fontSize: 12 }} />
               <Tooltip
                 formatter={(value, name) => [value?.toFixed?.(0) ?? value, name]}
@@ -243,29 +226,29 @@ export default function OperatorSection({
                   border: '1px solid #e2e8f0',
                   boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
                 }}
-                labelStyle={{ fontWeight: 600 }}
+                labelStyle={{ fontWeight: 600, color: '#0f172a' }}
                 cursor={{ fill: 'rgba(148, 163, 184, 0.15)' }}
               />
               <BarLegend verticalAlign="top" align="center" content={<OperatorLegend />} />
-              <Bar dataKey="Blu" fill={BAR_COLORS.Blu} name="Malinconia" />
-              <Bar dataKey="Rosso" fill={BAR_COLORS.Rosso} name="Volitività" />
+              <Bar dataKey="Grigio" fill={BAR_COLORS.Grigio} name="Anaffettività" />
               <Bar dataKey="Verde" fill={BAR_COLORS.Verde} name="Calma" />
               <Bar dataKey="Giallo" fill={BAR_COLORS.Giallo} name="Entusiasmo" />
-              <Bar dataKey="Grigio" fill={BAR_COLORS.Grigio} name="Anaffettività" />
+              <Bar dataKey="Blu" fill={BAR_COLORS.Blu} name="Malinconia" />
+              <Bar dataKey="Rosso" fill={BAR_COLORS.Rosso} name="Volitività" />
               <Customized component={(props) => <EmptyAreaOverlay {...props} data={chartData} emptyAreas={emptyAreaSet} />} />
             </BarChart>
           </ResponsiveContainer>
         </div>
         {emptyAreas.length ? (
           <p className="report-operator-chart-empty-note">
-            Dati non disponibili per: {emptyAreas.join(', ')}.
+            Dati non disponibili per: {emptyAreas.map((nome) => getAreaLabel(nome, plainLanguage)).join(', ')}.
           </p>
         ) : null}
       </div>
 
-      <FiltroMusicalePanel filtroMusicale={filtroMusicale} accentColor={accent} />
+      <AreeMusicaliSection sezioniTest={sezioniTest} plainLanguage={plainLanguage} />
 
-      <ReportAccordion sezioniTest={sezioniTest} />
+      <FiltroMusicalePanel filtroMusicale={filtroMusicale} accentColor={accent} />
     </section>
   )
 }

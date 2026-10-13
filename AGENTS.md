@@ -1,12 +1,14 @@
 # AGENTS.md
 
-# Multi-agent repository instructions
+# Repository workflow instructions
 Read `AI_TASK.md` before doing any work.
-Use the `parallel-delivery` skill.
-Respect the ownership boundaries defined in `AI_TASK.md`.
+Codex is the primary and sole implementation agent for the current mission.
+Do not require Claude Code, Antigravity, Google credits, external agents, or parallel delivery to continue the work.
+Codex may modify logic, content, UI, tests, and integration files when they are relevant to the requested task.
 Never work directly on `main` (or `master`).
-Do not deploy, delete remote resources, modify credentials or expose secrets.
-Complete the required handoff and commit before declaring the task finished.
+Deploy only when the user explicitly requests it and the exact target has been verified first.
+Do not delete remote resources, modify credentials or expose secrets.
+Work on `ai/codex` (or another user-approved feature branch), run the relevant checks, inspect the diff, and commit completed changes before declaring the task finished.
 
 ---
 
@@ -22,7 +24,7 @@ npm run preview      # preview dist/ locally
 npm run lint         # ESLint (flat config, eslint.config.js)
 ```
 
-No test suite is configured. There are no unit tests in this repo.
+A test suite exists under `test/` (Node's built-in runner): `npm test` runs it all, `node --test test/<name>.test.js` runs one file. Run it before and after any change to scoring or report logic, and do not edit assertions to make a failing test pass without the user's confirmation.
 
 ## Environment
 
@@ -83,6 +85,8 @@ Files 42–46 carry weight +2; all others +1. The key function is:
 computeScoreDeltaForAnswer({ fileNumber, answerLabel, affinitaOptionId, isConfirmation })
 // → { [correnteKey]: number, [portatoKey]: number }
 ```
+
+> **Outdated model description below.** The current model has 12 natures (adds `GRIGIO_2_Distaccata`) and lives in `src/config/tstSistema.js`, the single source of truth for names, keys and rules. Every saved test carries `versione_modello`; tests without it are `2025_v1` and are never recalculated. See `CLAUDE.md` for the canonical table.
 
 Each answer scores into one of 11 **correnti emotive** (e.g. `GIALLO_1_Gioia_Entusiasmo`) and one of 3 **portato esperienziale** keys (`PE_Simpatia`, `PE_Antipatia`, `PE_Indifferenza`). The 11 correnti aggregate into 5 colour families that produce `Disposizione_Prevalente`:
 
@@ -148,4 +152,3 @@ Always use standard straight quotes (`'` or `"`) in JavaScript/TypeScript source
 
 - No test runner is configured.
 - `src/plugins/BANANA/` is an experimental plugin (animated flowers) — not part of the main flow.
-

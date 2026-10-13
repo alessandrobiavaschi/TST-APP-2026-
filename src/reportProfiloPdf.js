@@ -1,20 +1,24 @@
 /**
  * Testi «Il tuo profilo» tracciati alle fonti CPM in docs/fonti-scientifiche/.
  * Ogni campo sostituisce o si fonde col corrispondente in content_report.json.
+ * Il campo `lessico` di ogni famiglia deriva dai sostantivi di src/content/paroleTst.js
+ * (fonte: PAROLE PER TST — Franco Mussida, 29/08/2026), unica fonte del lessico TST.
  */
+
+import { getSostantiviForFamiglia } from './content/paroleTst.js'
 
 export const PROFILE_PDF_BLOCKS = {
   Grigio: {
     restituzione_caratteri_estesi:
-      'Nella natura Anaffettiva emerge il piacere del calcolo, della dubbiosità di origine intellettuale e dell’oggettività fisica. Le caratteristiche agnostica e anaffettiva agiscono in modo trasversale sulle altre quattro aree del temperamento: possono raffreddare l’affetto o, nel versante evoluto, orientare l’intelletto verso saggezza e dedizione.',
+      'Nella famiglia Razionale, le nature Anaffettiva e Distaccata esprimono il piacere del calcolo, della dubbiosità di origine intellettuale e dell’oggettività fisica. Agisce in modo trasversale sulle altre quattro famiglie: può raffreddare l’affetto o, nel versante evoluto, orientare l’intelletto verso saggezza e dedizione.',
     natura_paragrafi: [
-      'Da Nord verso Sud soffiano venti gelidi: sul piano emotivo diventano la corrente agnostico-anaffettiva — colore Grigio scuro, intervallo di ottava — che raffredda e raggela affettivamente.',
-      'Nella Rosa dei venti questa corrente è trasversale: getta la sua ombra sulle quattro macro-aree, sulla linea orizzontale del presente ma con distacco polare — osservazione, non passione. Accanto al polo anaffettivo esiste il versante agnostico-intellettuale evolutivo: saggezza, devozione, dedizione.',
+      'Da Nord verso Sud si muove un’energia gelida: sul piano emotivo diventa la corrente razionale anaffettiva — colore Grigio scuro — che raffredda e raggela affettivamente.',
+      'Nell’Energia Emotiva questa corrente è trasversale: getta la sua ombra sulle quattro macro-aree, sulla linea orizzontale del presente ma con distacco polare — osservazione, non passione. Accanto al polo anaffettivo esiste il versante agnostico-intellettuale evolutivo: saggezza, devozione, dedizione.',
       'È una natura che può abitare il mondo guardandolo da una quota alta e separata: misura, analizza, scompone, ma rischia di non lasciarsi toccare. Nel profilo non va letta solo come freddezza: segnala anche la forza del pensiero quando cerca un ordine davanti alla complessità affettiva.',
       'Quando il pensiero resta collegato al sentire, questa corrente diventa capacità di osservare senza essere travolti. Quando si separa troppo, invece, il dubbio si trasforma in distanza e il mondo emotivo appare banale, eccessivo o poco degno di coinvolgimento.',
     ].join('\n'),
     descrizione_estesa: [
-      'La corrente agnostico-anaffettiva si è sedimentata come area autonoma dagli anni Settanta, tra visione religiosa profonda e laicismo che evita di farsi toccare in profondità.',
+      'La famiglia Razionale si è sedimentata come area autonoma dagli anni Settanta, tra visione religiosa profonda e laicismo che evita di farsi toccare in profondità.',
       'Gli stati d’animo collegati oscillano dall’anaffettivo, apatico, lucido, indifferente fino a saggio, dedito, devoto, beato e illuminato — distanza prudenziale da un lato e possibile saggezza etica dall’altro.',
       'Nel rapporto con sé stesso questo temperamento può produrre una specie di cometa scura: energia dell’Io, ma non luminosa, capace di raggelare invece di alimentare le altre aree affettive. La persona può continuare ad agire, capire, organizzare, ma con minor piacere intimo.',
       'La via evolutiva non è spegnere l’intelletto, bensì orientarlo eticamente: il pensiero diventa allora strumento di dedizione, compassione e cura del vivente. In questa prospettiva la Musica aiuta a ricucire sentire e pensare, riportando temperatura dove il calcolo aveva preso tutto lo spazio.',
@@ -37,23 +41,20 @@ export const PROFILE_PDF_BLOCKS = {
       '- La neutralità può diventare svalutazione: nulla sembra abbastanza vivo da meritare presenza.',
       '- La tecnologia o il ragionamento continuo possono alimentare una distrazione che evita l’incontro reale.',
     ].join('\n'),
-    lessico: [
-      'Anaffettivo', 'Apatico', 'Matematico', 'Lucido', 'Freddo', 'Insensibile', 'Indifferente', 'Nullista',
-      'Impotente', 'Distaccato', 'Imperturbabile', 'Saggio', 'Dedito', 'Devoto', 'Beato', 'Illuminato',
-    ],
+    lessico: getSostantiviForFamiglia('grigio'),
   },
   Rosso: {
     restituzione_caratteri_estesi:
-      'Nella natura Marziale emerge il piacere del fare, di realizzare ciò che si desidera, di governarsi e mettersi alla prova. Le caratteristiche volitiva e collerica prediligono assertività, costanza, sincerità e impegno nel qui e ora — con orientamento al presente.',
+      'Nella famiglia Marziale emerge il piacere del fare, di realizzare ciò che si desidera, di governarsi e mettersi alla prova. Le nature Volitiva e Collerica prediligono costanza, sincerità e impegno nel qui e ora, con orientamento al presente.',
     natura_paragrafi: [
-      'Da Est verso Ovest soffiano i venti che seguono l’azione vitale sul percorso del Sole. Sul piano emotivo diventano il flusso Volitivo — colore Rosso, intervallo di quarta —: il piacere del fare, impulso che agisce nel presente.',
+      'Da Est verso Ovest si muove l’energia che segue l’azione vitale sul percorso del Sole. Sul piano emotivo diventa il flusso Volitivo — colore Rosso, intervallo di prima —: il piacere del fare, impulso che agisce nel presente.',
       'Nel rapporto con te stesso, chi ama agire sente l’Io come alleato: responsabilità, prove da superare, sicurezza nel qui e ora. Sport e Musica condividono la sincerità dell’emozione autentica; dopo l’adolescenza quel finalizzatore sei tu, governatore di te stesso.',
       'Questa corrente ha una direzione orizzontale e concreta: vuole misurarsi con ostacoli, decisioni, risultati. Non cerca prima di tutto il riparo o l’introspezione, ma il punto in cui l’energia emotiva può diventare gesto efficace.',
       'Nel carattere il Rosso non vive da solo: ha bisogno dei «gregari» interiori — calma, entusiasmo, riflessività — per non trasformare il governo di sé in dominio. Quando dialoga con le altre correnti, la volontà diventa forza organizzatrice e non semplice durezza.',
     ].join('\n'),
     descrizione_estesa: [
       'L’energia dell’Io matura e si mostra pienamente intorno al ventesimo anno: governatore di sé e delle disposizioni diventate carattere. I «gregari» — le altre correnti — contano sulla saldezza e sulla volontà di realizzare il futuro desiderato.',
-      'Nel temperamento volitivo-collerico convivono due sotto-correnti: l’Assertività volitiva (Rosso, quarta) con stabilità, schiettezza, coraggio; il Dubbio e la Collera (Amaranto, quarta eccedente) con incertezza e rabbia quando il dialogo si inceppa.',
+      'Nella famiglia Marziale convivono due nature: la fermezza volitiva (Rosso, prima) con stabilità, schiettezza, coraggio; la collera (Amaranto, quarta e quarta eccedente) con rabbia e reattività quando il dialogo si inceppa.',
       'Sul piano dell’ascolto questa natura cerca spesso timbri concreti, centrali, decisi: suoni che svegliano, incidono, dichiarano una presenza. Può amare la forza di percussioni, fiati, pianoforte, batteria e unisoni capaci di dare forma immediata all’energia.',
       'La Musica viene vissuta come campo di prova: ritmo stabile, melodie memorabili, testi chiari, improvvisazione osservata con interesse ma anche bisogno di struttura. Quando l’energia è equilibrata, il Rosso trova nel suono una disciplina vitale; quando si irrigidisce, fatica a lasciarsi andare.',
     ].join('\n'),
@@ -69,28 +70,19 @@ export const PROFILE_PDF_BLOCKS = {
     ombre: [
       'Quando questa corrente si irrigidisce, l’Io può «egoizzarsi» e smettere di nutrire i gregari interiori.',
       'Il rischio non è avere forza, ma usarla senza ascolto: la volontà diventa martello, la prova diventa sfida continua e la relazione viene letta solo come ostacolo o conferma.',
-      '- La dubbiosità deformata diventa indecisione cronica e oscillazione, non più interrogativo fecondo.',
+      '- La volontà deformata diventa rigidità e ostinazione cieca, incapace di adattarsi o cedere.',
       '- Rabbia e ira esplodono là dove il dialogo è impossibile e l’antipatia è stata a lungo covata.',
       '- Nella fase del «deserto» emotivo si può sentire vuoto dentro pur mantenendo attività esterna intensa.',
       '- La ripetitività o la lentezza possono essere vissute come intralcio invece che come maturazione.',
       '- Il bisogno di governare può far perdere il contributo delle parti più delicate del profilo.',
     ].join('\n'),
-    lessico: [
-      'Stabile', 'Saldo', 'Sicuro', 'Certo', 'Costante', 'Determinato', 'Decisionista', 'Fermo',
-      'Schietto', 'Sincero', 'Franco', 'Fiero', 'Risoluto', 'Fedele', 'Spavaldo', 'Altero',
-      'Ostinato', 'Orgoglioso', 'Coraggioso', 'Impavido',
-      'Incerto', 'Inquieto', 'Dubbioso', 'Esitante', 'Ambiguo', 'Misterioso', 'Indeciso', 'Oscillante',
-      'Precario', 'Perplesso', 'Irrisoluto', 'Smarrito', 'Elusivo', 'Equivoco', 'Criptico',
-      'Enigmatico', 'Infido', 'Subdolo',
-      'Rabbioso', 'Rancoroso', 'Irato', 'Furioso', 'Iracondo', 'Travagliato', 'Tribolato',
-      'Odioso', 'Diffidente', 'Sospettoso', 'Nevrotico',
-    ],
+    lessico: getSostantiviForFamiglia('rosso'),
   },
   Verde: {
     restituzione_caratteri_estesi:
-      'Nella natura Flemmatica emerge il piacere della lentezza, del silenzio, della calma, del riposo e della contemplazione. La caratteristica contemplativa predilige il certo, la ripetitività e l’assenza di eccitazione — con orientamento all’«oblio sospeso», il tempo della bonaccia interiore.',
+      'Nella famiglia Flemmatica, le nature Calma Contemplativa e Calma Fisica esprimono il piacere della lentezza, del silenzio, della calma, del riposo e della contemplazione. Predilige il certo, la ripetitività e l’assenza di eccitazione, con orientamento all’«oblio sospeso», il tempo della bonaccia interiore.',
     natura_paragrafi: [
-      'Al centro della Rosa dei venti domina un vento calmo e contemplativo — come l’occhio del ciclone, bonaccia silenziosa. Sul piano emotivo è la corrente flemmatica, colore Verde, orientata all’«oblio sospeso».',
+      'Al centro dell’Energia Emotiva domina una qualità calma e contemplativa — come l’occhio del ciclone, bonaccia silenziosa. Sul piano emotivo è la corrente flemmatica, colore Verde, orientata all’«oblio sospeso».',
       'La flemmaticità si forma nel periodo neonatale: riposo, nutrimento, sognare e assaporare sedimentano moderazione, prudenza e gentilezza gratuita. Chi ha propensioni flemmatiche orienta l’energia verso calma ed equilibrio affettivo.',
       'Questa natura non corre verso un altrove: custodisce il tempo, lo rallenta, lo rende abitabile. Nel carattere può apparire come amore per il certo, per la ripetizione buona, per i climi in cui non serve difendersi.',
       'La Flemma ha anche una funzione regolatrice: smussa l’eccesso di collera, raffredda l’agitazione dell’entusiasmo, protegge l’interiorità malinconica quando diventa troppo intensa. È una qualità di riposo, ma anche di cura dello spazio emotivo.',
@@ -119,18 +111,13 @@ export const PROFILE_PDF_BLOCKS = {
       '- La discrezione può trasformarsi in difficoltà a esporsi o improvvisare quando serve presenza.',
       '- La ricerca di quiete può diventare fastidio verso ogni suono, ritmo o relazione troppo viva.',
     ].join('\n'),
-    lessico: [
-      'Rilassato', 'Calmo', 'Gentile', 'Disteso', 'Pacato', 'Placido', 'Pacifico', 'Tranquillo',
-      'Estatico', 'Serafico', 'Contemplativo', 'Sognante', 'Equilibrato', 'Quieto', 'Tollerante',
-      'Mistico', 'Prudente', 'Meditativo', 'Riflessivo', 'Ammirato', 'Visionario', 'Olimpico',
-      'Annoiato', 'Pigro', 'Oziante', 'Svampito', 'Indolente', 'Ignavo',
-    ],
+    lessico: getSostantiviForFamiglia('verde'),
   },
   Giallo: {
     restituzione_caratteri_estesi:
-      'Nella natura Solare emerge il piacere del movimento, della curiosità, della scoperta del nuovo e dell’estroversione. Le caratteristiche sanguigna ed entusiasta guardano al futuro: slancio vitale, partecipazione e ricerca di bagliori di bellezza.',
+      'Nella famiglia Entusiasta, le nature Gioiosa Solare e Sanguigna Operosa esprimono il piacere del movimento, della curiosità, della scoperta del nuovo e dell’estroversione. Guarda al futuro attraverso slancio vitale, partecipazione e ricerca di bagliori di bellezza.',
     natura_paragrafi: [
-      'Da Sud verso Nord soffiano venti caldi: interiormente diventano il flusso dell’Entusiasmo — colore Giallo, continente dell’Entusiasmo — con orientamento al futuro.',
+      'Da Sud verso Nord si muove un’energia calda: interiormente diventa il flusso dell’Entusiasmo — colore Giallo, continente dell’Entusiasmo — con orientamento al futuro.',
       'Nel pre-infantile il bambino accumula energia da spendere; ritmo e ripetizione guidano un apprendimento rapidissimo. La soddisfazione per i successi, anche piccoli, accende l’Entusiasmo come area affettiva strutturata.',
       'Questa corrente muove l’energia verso fuori: persone, natura, oggetti, attività, novità. Il suo piacere è uscire da sé, fiutare possibilità, provare, associare gesto ed effetto, sentire il mondo come campo aperto.',
       'Nel profilo il Giallo segnala una forza centrifuga: non vuole restare troppo a lungo nel chiuso dell’interiorità, cerca bagliori, movimento e conferme vitali. Quando è ben regolato porta luce anche alle zone più fredde o spente del carattere.',
@@ -159,17 +146,11 @@ export const PROFILE_PDF_BLOCKS = {
       '- La novità può diventare bisogno di cambiare stimolo prima che l’esperienza maturi.',
       '- Il desiderio di partecipare può spingere a occupare troppo spazio nel gruppo o nel tempo musicale.',
     ].join('\n'),
-    lessico: [
-      'Gioioso', 'Cinetico', 'Vivace', 'Veloce', 'Vitale', 'Fluido', 'Allegro', 'Felice', 'Festoso',
-      'Entusiasta', 'Esaltato', 'Ardente', 'Euforico', 'Caloroso', 'Reattivo', 'Curioso', 'Volitivo',
-      'Dinamico', 'Esuberante', 'Solare', 'Positivista', 'Irrefrenabile', 'Svampito',
-      'Innamorato', 'Amorevole', 'Ammirato', 'Appassionato', 'Infuocato', 'Impetuoso', 'Veemente',
-      'Deferente', 'Illuminato',
-    ],
+    lessico: getSostantiviForFamiglia('giallo'),
   },
   Blu: {
     restituzione_caratteri_estesi:
-      'Nella natura Lunare emerge il piacere di stare con sé stessi, di osservarsi interiormente e di riflettere su ciò che si è vissuto. Le caratteristiche malinconica e nostalgica prediligono riflessività e percezione emotiva profonda — con orientamento al passato.',
+      'Nella famiglia Malinconica, le nature Lunare Introspettiva, Lunare Depressiva, Solare e Nostalgica esprimono il piacere di stare con sé stessi, di osservarsi interiormente e di riflettere su ciò che si è vissuto, con orientamento al passato.',
     natura_paragrafi: [
       'Da Ovest verso Est si fa sentire l’azione riflessa della Luna: sul piano emotivo diventa il flusso Malinconia — continente della Malinconia — con orientamento al passato.',
       'Chi ha propensioni malinconiche orienta l’energia dentro di sé: piacere di riflettere, stare in disparte, non temere la solitudine scelta. La tristezza è un volto della Malinconia, non l’intera corrente: forza riflessiva che illumina l’interno.',
@@ -178,7 +159,7 @@ export const PROFILE_PDF_BLOCKS = {
     ].join('\n'),
     descrizione_estesa: [
       'Il sorgere della malinconia si avverte nell’adolescenza: attorno ai nove-dieci anni una «seconda nascita» affettiva, luce riflessa della Luna rispetto al Sole dell’età adulta.',
-      'Quattro sotto-correnti articolano la famiglia: Depressiva, Lunare, Nostalgica e Solare.',
+      'Le correnti BLU articolano la famiglia nelle nature Lunare Introspettiva, Lunare Depressiva, Solare e Nostalgica.',
       'Nell’ascolto questa natura è sensibile all’identità del timbro: archi, doppie ance, frequenze medie e medio-basse, suoni corposi e scuri, pianoforte pastoso o arpa possono favorire un contatto intimo con il mondo interno.',
       'Il piacere musicale passa dalla melodia, dagli intervalli e dalle tonalità capaci di muovere memoria e sentimento. Cerca musica profonda, testi poetici o umanistici, ritmi non invasivi, cambi armonici che permettano di sostare e riflettere senza essere spinti fuori da sé.',
     ].join('\n'),
@@ -200,18 +181,6 @@ export const PROFILE_PDF_BLOCKS = {
       '- L’eccesso di profondità può rendere faticoso il movimento, la danza o l’esposizione sociale.',
       '- Il giudizio sulla sincerità altrui può diventare chiusura preventiva verso il contatto.',
     ].join('\n'),
-    lessico: [
-      'Terrorizzato', 'Inorridito', 'Angosciato', 'Sgomento', 'Depresso', 'Tormentato', 'Inquieto', 'Chiuso',
-      'Apatico', 'Scosso', 'Afflitto', 'Angustiato', 'Disgustato', 'Schifato', 'Pauroso', 'Timoroso',
-      'Ansioso', 'Raccapricciato', 'Fibrillante', 'Impressionabile', 'Triste rimuginante', 'Indifferente', 'Nullista',
-      'Pensieroso', 'Triste', 'Triste rimembrante', 'Timido riflessivo', 'Solitudine pessimista', 'Preoccupato',
-      'Demotivato', 'Amareggiato', 'Mesto', 'Ombroso', 'Sconfortato', 'Scoraggiato', 'Scombussolato', 'Avvilito',
-      'Vergognoso', 'Cupo', 'Fosco', 'Scuro', 'Plumbeo', 'Turbato', 'Impotente', 'Disfattista', 'Lunatico', 'Lamentoso',
-      'Pessimista', 'Nostalgico', 'Doloroso evocativo', 'Doloroso', 'Rimembrante', 'Rimpiangente', 'Rammaricato',
-      'Desolato', 'Disperato', 'Sconsolato', 'Straziato', 'Mortificato', 'Distaccato', 'Abbandonato',
-      'Ottimista', 'Aperto', 'Sereno', 'Positivista', 'Allegro', 'Festoso', 'Buono', 'Simpatico', 'Meravigliato',
-      'Benevolente', 'Lieto', 'Leggero', 'Mite', 'Contento', 'Chiaro', 'Compassionevole', 'Fiducioso', 'Solidale',
-      'Speranzoso', 'Affettuoso', 'Pietoso', 'Accorato', 'Desiderante', 'Riconoscente', 'Grato',
-    ],
+    lessico: getSostantiviForFamiglia('blu'),
   },
 }

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { createEmptyTestRecord } from '../dbSchema.js'
+import { VERSIONE_MODELLO } from '../config/tstSistema.js'
 import {
   DIZIONARIO_1,
   DIZIONARIO_2,
@@ -9,6 +10,7 @@ import {
   AFFINITA_ECCEZIONE_OPZIONI,
   AFFINITA_STANDARD_OPZIONI,
   getQuestionGroupForFile,
+  getAudioFileForStep,
   computeScoreDeltaForAnswer,
 } from '../testLogic.js'
 import { db } from '../firebaseConfig.js'
@@ -17,9 +19,13 @@ import { useUiSounds } from '../UiSoundProvider.jsx'
 import { buildTestAudioUrl, getAudioSourceIssue } from '../audioUrls.js'
 import { useAuth } from '../AuthContext.jsx'
 import { useAdaptiveFlow } from '../hooks/useAdaptiveFlow.js'
+import { useDocumentTitle } from '../hooks/useDocumentTitle.js'
+import { useDialogFocus } from '../hooks/useDialogFocus.js'
 import { getFlowerStillByColor } from '../colorAssets.js'
 import { compactTestRecord, computeTestResultFields } from '../utils/testRecordProcessing.js'
+import { getNextFileAfterAnswer } from '../utils/testAnswerNavigation.js'
 import '../styles/nuovo-test-flow.css'
+import { DateField } from '../components/primitives/Calendar.jsx'
 
 const STATO_ANIMO_OPTIONS = [
   { value: 'SA_SERENO', label: 'Sereno/a' },
@@ -115,6 +121,7 @@ const RESULT_ANALYSIS_MESSAGES = [
   'Privacy attiva: i dati vengono trattati in forma riservata e protetta.',
   'Quasi pronto: passaggio al report finale.',
 ]
+const FLOWER_SEQUENCE = ['blu', 'rosso', 'verde', 'giallo', 'grigio']
 
 const STORAGE_KEY_TEST_STARTED = 'tst_test_started_v1'
 const STORAGE_KEY_TEST_DRAFT = 'tst_test_draft_v1'
@@ -139,10 +146,10 @@ function getQuestionTitleForFile(fileNumber) {
     return 'B) Ascolta le combinazioni di due suoni e scegli un solo aggettivo tra quelli proposti.'
   }
   if (fileNumber === 41) {
-    return 'B-bis) Prima riconferma: riascolta e conferma in modo istintivo.'
+    return 'B) Prima riconferma: riascolta e conferma in modo istintivo.'
   }
   if (fileNumber === 42) {
-    return 'B-ter) Seconda riconferma: riascolta e conferma in modo istintivo.'
+    return 'B) Seconda riconferma: riascolta e conferma in modo istintivo.'
   }
   if (fileNumber === 43 || fileNumber === 44 || fileNumber === 45) {
     return 'C1a) Ascolta i groove e scegli la sensazione che meglio descrive la tua percezione musicale.'
@@ -176,6 +183,7 @@ function formatAudioTime(seconds) {
 }
 
 function NewTestPage() {
+  useDocumentTitle('Test in corso')
   const navigate = useNavigate()
   const location = useLocation()
   const { user, authReady } = useAuth()
@@ -202,7 +210,7 @@ function NewTestPage() {
       return false
     }
   })
-  const [showIntro, setShowIntro] = useState(true)
+  const [showIntro, setShowIntro] = useState(() => !location.state?.startAtProfile)
   const [profilingDone, setProfilingDone] = useState(false)
   const [audioError, setAudioError] = useState(null)
   const [audioProgress, setAudioProgress] = useState(0)
@@ -215,6 +223,7 @@ function NewTestPage() {
   const [isAudioBusy, setIsAudioBusy] = useState(false)
   const [isChoicesVisible, setIsChoicesVisible] = useState(true)
   const [isProcessingNext] = useState(false)
+  const [isPlaying, setIsPlaying] = useState(false)
   const [isAnalyzingResult, setIsAnalyzingResult] = useState(false)
   const [analysisProgress, setAnalysisProgress] = useState(0)
   const [analysisMessageIndex, setAnalysisMessageIndex] = useState(0)
@@ -227,6 +236,7 @@ function NewTestPage() {
   const [showRecoverDraftPrompt, setShowRecoverDraftPrompt] = useState(false)
   const [isReviewingTestSteps, setIsReviewingTestSteps] = useState(false)
   const audioRef = useRef(null)
+  const answersZoneRef = useRef(null)
   const preloadRef = useRef(null)
   const previewAudioRef = useRef(null)
   const analysisRafRef = useRef(null)
@@ -234,10 +244,15 @@ function NewTestPage() {
   const resetTimerRef = useRef(null)
   const recallTimerRef = useRef(null)
   const stepEnterTimerRef = useRef(null)
+  const flowerPreloadRef = useRef([])
 
   // Sample da /audio in locale, oppure da VITE_AUDIO_BASE_URL (streaming, senza MP3 nel deploy).
   const audioSrc = buildTestAudioUrl(currentFile)
-  const audioSourceIssue = getAudioSourceIssue(audioSrc)
+  // Ai passi di riconferma si riascolta il file di riferimento (vedi PASSI in config/tstSistema.js).
+  const stepAudioFile = getAudioFileForStep(currentFile)
+  const reconfirmReferenceFile = stepAudioFile !== currentFile ? stepAudioFile : null
+  const playerAudioSrc = reconfirmReferenceFile ? buildTestAudioUrl(reconfirmReferenceFile) : audioSrc
+  const audioSourceIssue = getAudioSourceIssue(playerAudioSrc)
   const currentFileKey = `File_${String(currentFile).padStart(2, '0')}`
   const isCurrentStepAnswered = Boolean((testRecord[currentFileKey] || '').trim())
   const canGoNext = currentFile < TOTAL_STEPS
@@ -249,7 +264,6 @@ function NewTestPage() {
         }
       : undefined
   const selectedAnswerValue = (testRecord[currentFileKey] || '').trim()
-  const FLOWER_SEQUENCE = ['blu', 'rosso', 'verde', 'giallo', 'grigio']
   const loadingFlowerImages = FLOWER_SEQUENCE.map((key) => ({
     key,
     src: getFlowerStillByColor(key),
@@ -261,10 +275,6 @@ function NewTestPage() {
           Math.floor((analysisProgress / 100) * loadingFlowerImages.length),
         )
       : 0
-  const animatedFlowerIndex =
-    loadingFlowerImages.length > 0
-      ? (activeFlowerIndex + loadingFlowerTick) % loadingFlowerImages.length
-      : 0
 
   const isGuestMode = location.state && location.state.mode === 'guest'
 
@@ -275,16 +285,53 @@ function NewTestPage() {
     }
   }, [authReady, user, isGuestMode, navigate])
 
+  // Precarica gli asset del loader finale appena si entra nel test, così sono
+  // già in cache del browser molto prima che la sequenza venga mostrata.
   useEffect(() => {
-    if (!showAreasHelp) return undefined
-    const onKeyDown = (event) => {
-      if (event.key === 'Escape') {
-        setShowAreasHelp(false)
-      }
-    }
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [showAreasHelp])
+    if (typeof window === 'undefined') return
+    flowerPreloadRef.current = FLOWER_SEQUENCE.map((key) => {
+      const src = getFlowerStillByColor(key)
+      if (!src) return null
+      const img = new window.Image()
+      img.src = src
+      return img
+    })
+  }, [])
+
+  const exitModalRef = useRef(null)
+  const exitContinueBtnRef = useRef(null)
+  const recoverModalRef = useRef(null)
+  const recoverDraftBtnRef = useRef(null)
+  const draftSubmitModalRef = useRef(null)
+  const draftSubmitContinueBtnRef = useRef(null)
+  const areasHelpModalRef = useRef(null)
+
+  useDialogFocus(exitModalRef, {
+    open: showExitConfirm,
+    onClose: handleCloseExitConfirm,
+    initialFocusRef: exitContinueBtnRef,
+  })
+
+  useDialogFocus(recoverModalRef, {
+    open: showRecoverDraftPrompt,
+    onClose: () => setShowRecoverDraftPrompt(false),
+    initialFocusRef: recoverDraftBtnRef,
+  })
+
+  useDialogFocus(draftSubmitModalRef, {
+    open: showDraftSubmitConfirm,
+    onClose: handleCloseDraftSubmitConfirm,
+    initialFocusRef: draftSubmitContinueBtnRef,
+  })
+
+  useDialogFocus(areasHelpModalRef, {
+    open: showAreasHelp,
+    onClose: () => {
+      uiSounds?.playTestGhostTap?.()
+      setShowAreasHelp(false)
+    },
+  })
+
 
   useEffect(() => {
     if (!showAreasHelp) return undefined
@@ -315,7 +362,7 @@ function NewTestPage() {
   }
 
   const explainPlayError = (error) => {
-    const issue = getAudioSourceIssue(audioSrc)
+    const issue = getAudioSourceIssue(playerAudioSrc)
     const normalized = String(error?.name || '').toLowerCase()
     if (issue) return issue
     if (normalized.includes('notallowed')) {
@@ -349,25 +396,6 @@ function NewTestPage() {
       )
     } finally {
       setIsAudioBusy(false)
-    }
-  }
-
-  const playReferenceAudio = async (fileNumber) => {
-    if (!fileNumber) return
-    uiSounds?.playTestTap?.()
-    stopAudio()
-    stopPreviewAudio()
-    setAudioError(null)
-    try {
-      const preview = new Audio(buildTestAudioUrl(fileNumber))
-      preview.preload = 'auto'
-      previewAudioRef.current = preview
-      const playPromise = preview.play()
-      if (playPromise && typeof playPromise.then === 'function') {
-        await playPromise
-      }
-    } catch (error) {
-      setAudioError(explainPlayError(error))
     }
   }
 
@@ -631,11 +659,12 @@ function NewTestPage() {
           BLU_4_Solare: next.BLU_4_Solare,
           ROSSO_1_Assertivita: next.ROSSO_1_Assertivita,
           ROSSO_2_Dubbio_Collera: next.ROSSO_2_Dubbio_Collera,
-          VERDE_1_Calma: next.VERDE_1_Calma,
+          VERDE_1_CalmaContemplativa: next.VERDE_1_CalmaContemplativa,
+          VERDE_2_CalmaFisica: next.VERDE_2_CalmaFisica,
           GIALLO_1_Gioia_Entusiasmo: next.GIALLO_1_Gioia_Entusiasmo,
           GIALLO_2_Volitivo_Passionale: next.GIALLO_2_Volitivo_Passionale,
-          GRIGIO_1_Distaccato_Nichilista: next.GRIGIO_1_Distaccato_Nichilista,
-          GRIGIO_2_Intellettuale_Saggio: next.GRIGIO_2_Intellettuale_Saggio,
+          GRIGIO_1_Anaffettiva: next.GRIGIO_1_Anaffettiva,
+          GRIGIO_2_Distaccata: next.GRIGIO_2_Distaccata,
         },
       })
 
@@ -653,9 +682,7 @@ function NewTestPage() {
       },
     }))
 
-    if (fileNumber < TOTAL_STEPS) {
-      proceedToNextStep()
-    }
+    proceedToNextStep(fileNumber)
   }
 
   const handleBack = () => {
@@ -679,13 +706,14 @@ function NewTestPage() {
     setIsReviewingTestSteps(false)
   }
 
-  const proceedToNextStep = () => {
+  const proceedToNextStep = (expectedFile = currentFile) => {
     if (isProcessingNext) return
-    if (currentFile >= 72) return
+    const nextFile = getNextFileAfterAnswer(expectedFile, TOTAL_STEPS)
+    if (nextFile === expectedFile) return
     stopAudio()
     stopPreviewAudio()
     uiSounds?.playTestTransition?.()
-    setCurrentFile((prev) => prev + 1)
+    setCurrentFile((activeFile) => (activeFile === expectedFile ? nextFile : activeFile))
   }
 
   const handleNextStep = () => {
@@ -888,6 +916,7 @@ function NewTestPage() {
       ...autoFields,
       Stato_Consegna: shouldSaveAsDraft ? 'BOZZA' : 'CONSEGNATO',
       Bozza_Test: shouldSaveAsDraft,
+      versione_modello: VERSIONE_MODELLO,
     })
 
     setIsSubmitting(true)
@@ -992,42 +1021,24 @@ function NewTestPage() {
     }
 
     if (group === 'C_BIS') {
-      const referenceFile = currentFile === 41 ? 29 : 40
-
       return (
-        <div className="answers-c-bis">
-          <p className="answers-c-bis-hint">
-            Riascolta con calma e scegli l’aggettivo che senti piu coerente per il file {referenceFile}.
-            Se vuoi, puoi riascoltare il file di riferimento prima di confermare.
-          </p>
-          <button
-            type="button"
-            className="nav-button secondary"
-            onClick={() => playReferenceAudio(referenceFile)}
-          >
-            Riascolta file {referenceFile}
-          </button>
-          <p className="answers-c-bis-note">
-            Questa riconferma rafforza il peso della scelta nel profilo finale.
-          </p>
-          <div className="answers-grid answers-grid--dense">
-            {Object.keys(DIZIONARIO_2).map((label) => (
-              <button
-                key={label}
-                type="button"
-                className={`answer-button ${selectedAnswerValue === label ? 'answer-button-selected' : ''}`}
-                aria-pressed={selectedAnswerValue === label}
-                onClick={() =>
-                  handleAnswer({
-                    answerLabel: label,
-                    isConfirmation: true,
-                  })
-                }
-              >
-                {label}
-              </button>
-            ))}
-          </div>
+        <div className="answers-grid answers-grid--dense">
+          {Object.keys(DIZIONARIO_2).map((label) => (
+            <button
+              key={label}
+              type="button"
+              className={`answer-button ${selectedAnswerValue === label ? 'answer-button-selected' : ''}`}
+              aria-pressed={selectedAnswerValue === label}
+              onClick={() =>
+                handleAnswer({
+                  answerLabel: label,
+                  isConfirmation: true,
+                })
+              }
+            >
+              {label}
+            </button>
+          ))}
         </div>
       )
     }
@@ -1065,6 +1076,29 @@ function NewTestPage() {
   }
 
   const testCompleted = isTestComplete()
+
+  // Permette di rispondere da tastiera (tasti 1-9): seleziona la risposta
+  // corrispondente e fa avanzare il test, senza passare dal focus/click del
+  // bottone (che altrimenti può far scrollare o "saltare" la vista).
+  useEffect(() => {
+    if (!profilingDone || testCompleted || showAreasHelp || showExitConfirm) return undefined
+    if (!isChoicesVisible) return undefined
+    const onKeyDown = (event) => {
+      if (event.repeat) return
+      const tag = event.target?.tagName
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || event.target?.isContentEditable) return
+      const digit = Number(event.key)
+      if (!Number.isInteger(digit) || digit < 1 || digit > 9) return
+      const buttons = answersZoneRef.current?.querySelectorAll('.answer-button')
+      const button = buttons?.[digit - 1]
+      if (!button || button.disabled) return
+      event.preventDefault()
+      button.click()
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [profilingDone, testCompleted, showAreasHelp, showExitConfirm, isChoicesVisible, currentFile])
+
   const isFinalSubmitDisabled = isSubmitting
   const adaptiveTransitionStyle = {
     opacity: 1,
@@ -1239,16 +1273,16 @@ function NewTestPage() {
       {!showIntro && !profilingDone && !isGuestMode && (
         <section className="page-card" id="profilazione-utente">
           <form className="profilazione-form" onSubmit={handleStartTest}>
-            <h2 className="profilazione-title">Profilazione utente</h2>
+            <h1 className="profilazione-title">Profilazione utente</h1>
             <div className="profilazione-grid">
-              <label className="profilazione-field">
+              <div className="profilazione-field">
                 <span>Data</span>
-                <input
-                  type="date"
+                <DateField
                   value={testRecord.Data_Test || ''}
                   onChange={handleProfilazioneChange('Data_Test')}
+                  placeholder="Data del test"
                 />
-              </label>
+              </div>
               <label className="profilazione-field">
                 <span>Nome</span>
                 <input
@@ -1267,14 +1301,16 @@ function NewTestPage() {
                   placeholder="Cognome"
                 />
               </label>
-              <label className="profilazione-field">
+              <div className="profilazione-field">
                 <span>Data di nascita</span>
-                <input
-                  type="date"
+                <DateField
                   value={testRecord.Data_Nascita || ''}
                   onChange={handleProfilazioneChange('Data_Nascita')}
+                  placeholder="Data di nascita"
+                  max="today"
+                  defaultMonth="1990-01-01"
                 />
-              </label>
+              </div>
               <label className="profilazione-field">
                 <span>Titolo di studio</span>
                 <input
@@ -1345,6 +1381,7 @@ function NewTestPage() {
           style={adaptiveUiVars}
           data-adaptive-rhythm={rhythm}
         >
+          <div className={`test-stage-rhythm-aura ${isPlaying ? 'is-playing' : ''}`} />
           {(!testCompleted || isReviewingTestSteps) && (
             <div
               className={`test-stage-live test-step-transition ${isProcessingNext ? 'is-processing' : ''}`}
@@ -1353,6 +1390,7 @@ function NewTestPage() {
             >
               <div className="test-stage-main-card">
                 <header className="test-stage-progress-block" aria-label="Avanzamento test">
+                  <h1 className="sr-only">Test Temperamentale TST in corso</h1>
                   <div className="test-stage-topbar">
                     <p className="test-stage-step-label" aria-live="polite">
                       Passo {currentFile} di {TOTAL_STEPS} · Sezione: {getMacroSectionLabel(currentFile) || 'Panoramica sonora'}
@@ -1380,9 +1418,19 @@ function NewTestPage() {
                       style={{
                         width: `${Math.min(100, Math.max(0, (currentFile / TOTAL_STEPS) * 100)).toFixed(3)}%`,
                       }}
-                    />
+                    >
+                      <span className="stepper-progress-laser" />
+                    </div>
                   </div>
                 </header>
+                {!testCompleted && reconfirmReferenceFile && (
+                  <div className="answers-c-bis">
+                    <p className="answers-c-bis-title">Riascolto di conferma</p>
+                    <p className="answers-c-bis-hint">
+                      Stai risentendo il file {reconfirmReferenceFile}, già presentato durante il test. Il player qui sotto riproduce solo questo suono di riferimento: ascolta con calma e scegli l’aggettivo che senti più coerente.
+                    </p>
+                  </div>
+                )}
                 {!testCompleted && (
                   <section
                     className="test-stage-audio-zone test-stage-audio-zone--menu-tab player-card player-card--bottom-dock"
@@ -1394,9 +1442,13 @@ function NewTestPage() {
                       playsInline
                       onPlay={() => {
                         setNeuroChoiceStage('passive')
+                        setIsPlaying(true)
+                      }}
+                      onPause={() => {
+                        setIsPlaying(false)
                       }}
                       onError={() => {
-                        const issue = getAudioSourceIssue(audioSrc)
+                        const issue = getAudioSourceIssue(playerAudioSrc)
                         setAudioError(
                           issue ||
                             'File audio non disponibile. In dev: imposta VITE_AUDIO_BASE_URL nel .env oppure copia 1.mp3…72.mp3 in public/audio/, poi riavvia npm run dev.',
@@ -1424,6 +1476,7 @@ function NewTestPage() {
                         }
                       }}
                       onEnded={() => {
+                        setIsPlaying(false)
                         trackAudioEnd()
                         const audio = audioRef.current
                         setAudioCurrentTime(audio?.duration || 0)
@@ -1440,7 +1493,7 @@ function NewTestPage() {
                         }, timings.choiceRecallMs)
                       }}
                     >
-                      <source src={audioSrc} type="audio/mpeg" />
+                      <source src={playerAudioSrc} type="audio/mpeg" />
                     </audio>
                     <div
                       className="player-progress"
@@ -1460,6 +1513,14 @@ function NewTestPage() {
                     <div className="player-progress-times" aria-hidden="true">
                       <span>{formatAudioTime(audioCurrentTime)}</span>
                       <span>{formatAudioTime(audioDuration)}</span>
+                    </div>
+                    {/* Visualizzatore Onda Audio Fluida (Wow Effect 1) */}
+                    <div className={`player-wave-visualizer ${isPlaying ? 'is-playing' : ''}`} aria-hidden="true">
+                      <span className="wave-bar wave-bar--1" />
+                      <span className="wave-bar wave-bar--2" />
+                      <span className="wave-bar wave-bar--3" />
+                      <span className="wave-bar wave-bar--4" />
+                      <span className="wave-bar wave-bar--5" />
                     </div>
                     <div className="player-controls">
                       <button
@@ -1526,16 +1587,21 @@ function NewTestPage() {
                     <audio ref={preloadRef} style={{ display: 'none' }} preload="auto" />
                   </section>
                 )}
-                <section className="test-stage-question-zone" role="status" aria-live="polite">
-                  <h2 className="test-threshold-question-title test-threshold-question-title--compact">
-                    {getQuestionTitleForFile(currentFile)}
-                  </h2>
-                </section>
-                <section className="test-stage-answers-shell" aria-live="polite">
-                  <div className={`test-stage-answers-zone ${isChoicesVisible ? 'is-revealed' : 'is-hidden'}`}>
-                    {renderAnswerButtons()}
-                  </div>
-                </section>
+                <div className="test-stage-step-content" key={currentFile}>
+                  <section className="test-stage-question-zone">
+                    <h2 className="test-threshold-question-title test-threshold-question-title--compact">
+                      {getQuestionTitleForFile(currentFile)}
+                    </h2>
+                  </section>
+                  <section className="test-stage-answers-shell">
+                    <div
+                      ref={answersZoneRef}
+                      className={`test-stage-answers-zone ${isChoicesVisible ? 'is-revealed' : 'is-hidden'}`}
+                    >
+                      {renderAnswerButtons()}
+                    </div>
+                  </section>
+                </div>
                 <footer className="test-stage-footer" aria-label="Navigazione test">
                   <div className="test-stage-footer-row">
                     <button
@@ -1797,11 +1863,11 @@ function NewTestPage() {
                           className="result-analysis-flower-track"
                           style={{
                             width: `${loadingFlowerImages.length * 100}%`,
-                            transform: `translateX(-${animatedFlowerIndex * (100 / loadingFlowerImages.length)}%)`,
+                            transform: `translateX(-${activeFlowerIndex * (100 / loadingFlowerImages.length)}%)`,
                           }}
                         >
                           {loadingFlowerImages.map((item, index) => {
-                            const isActive = index === animatedFlowerIndex
+                            const isActive = index === activeFlowerIndex
                             return (
                               <div
                                 key={item.key}
@@ -1856,6 +1922,7 @@ function NewTestPage() {
               onClick={handleCloseExitConfirm}
             >
               <div
+                ref={exitModalRef}
                 className="test-exit-modal"
                 role="dialog"
                 aria-modal="true"
@@ -1870,6 +1937,7 @@ function NewTestPage() {
                 </p>
                 <div className="test-exit-modal-actions">
                   <button
+                    ref={exitContinueBtnRef}
                     type="button"
                     className="nav-button exit-confirm-continue"
                     onClick={handleCloseExitConfirm}
@@ -1901,6 +1969,7 @@ function NewTestPage() {
               role="presentation"
             >
               <div
+                ref={recoverModalRef}
                 className="test-exit-modal"
                 role="dialog"
                 aria-modal="true"
@@ -1914,6 +1983,7 @@ function NewTestPage() {
                 </p>
                 <div className="test-exit-modal-actions">
                   <button
+                    ref={recoverDraftBtnRef}
                     type="button"
                     className="nav-button exit-confirm-continue"
                     onClick={() => {
@@ -1953,6 +2023,7 @@ function NewTestPage() {
               onClick={handleCloseDraftSubmitConfirm}
             >
               <div
+                ref={draftSubmitModalRef}
                 className="test-exit-modal"
                 role="dialog"
                 aria-modal="true"
@@ -1967,6 +2038,7 @@ function NewTestPage() {
                 </p>
                 <div className="test-exit-modal-actions">
                   <button
+                    ref={draftSubmitContinueBtnRef}
                     type="button"
                     className="nav-button exit-confirm-continue"
                     onClick={handleCloseDraftSubmitConfirm}
@@ -1998,6 +2070,7 @@ function NewTestPage() {
             }}
           >
             <div
+              ref={areasHelpModalRef}
               className="feedback-help-modal"
               role="dialog"
               aria-modal="true"

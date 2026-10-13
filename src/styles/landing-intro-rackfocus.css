@@ -1,0 +1,120 @@
+/* Intro "rack focus" della landing — vedi LandingIntroRackFocus.jsx */
+
+/* Font di riserva: all'avvio l'intro copia comunque lo stile del titolo vero */
+.tst-hero-type-title {
+  font-family: 'Newsreader', serif;
+  font-weight: 600;
+  line-height: 0.92;
+  font-size: clamp(96px, 22vw, 320px);
+  letter-spacing: -0.01em;
+  color: #fdfdfe;
+  white-space: nowrap;
+}
+
+.tst-hero-type-sub {
+  font-family: 'Public Sans', sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: clamp(15px, 1.9vw, 19px);
+  max-width: 680px;
+  text-wrap: balance;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.92);
+  margin: 0;
+}
+
+.tst-intro-rf {
+  --intro-bg: 1;
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.tst-intro-rf::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #07060f;
+  opacity: var(--intro-bg);
+}
+
+.tst-intro-rf-stage {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+  padding: 0 24px;
+  box-sizing: border-box;
+}
+
+.tst-intro-rf-word {
+  position: relative;
+  will-change: filter, opacity, transform;
+  transform-origin: center center;
+}
+
+/* alone che si apre quando la parola va fuori fuoco */
+.tst-intro-rf-word::before {
+  content: attr(data-w);
+  position: absolute;
+  inset: 0;
+  color: #a78bfa;
+  filter: blur(var(--bb, 0));
+  opacity: var(--bo, 0);
+  pointer-events: none;
+  will-change: filter, opacity;
+}
+
+.tst-intro-rf-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: radial-gradient(120% 75% at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
+  opacity: var(--intro-bg);
+}
+
+.tst-intro-rf-skip {
+  position: absolute;
+  z-index: 3;
+  right: 16px;
+  bottom: 14px;
+  font: 500 11px/1 ui-monospace, 'JetBrains Mono', monospace;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #a78bfa;
+  opacity: calc(var(--intro-bg) * 0.4);
+  user-select: none;
+}
+
+/* Hero mentre l'intro è in scena: titolo e sottotitolo nascosti (li "occupa" l'intro) */
+.tst-nebula-hero.is-intro-playing .tst-nebula-hero-word,
+.tst-nebula-hero.is-intro-playing .tst-nebula-hero-sub {
+  visibility: hidden;
+}
+
+.tst-nebula-hero.is-intro-playing .tst-nebula-hero-cta,
+.tst-nebula-hero.is-intro-playing .tst-nebula-chevron {
+  opacity: 0;
+}
+
+.tst-nebula-hero .tst-nebula-hero-cta {
+  transition: opacity 0.8s ease 0.15s, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+}
+
+.tst-nebula-hero .tst-nebula-chevron {
+  transition: opacity 0.8s ease 0.4s;
+}
+
+/* Dopo l'intro il titolo è già al suo posto: niente seconda entrata delle lettere */
+.tst-nebula-hero.is-intro-handoff .tst-nebula-hero-word span {
+  animation: none;
+}

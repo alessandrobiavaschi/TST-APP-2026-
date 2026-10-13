@@ -35,3 +35,11 @@ Claude modifiche galaxy.pdf
 # Local test audio files (ignored in git)
 public/audio/*.mp3
 
+
+# Cache di deploy Firebase (rigenerata dalla CLI)
+.firebase/
+
+# Strumenti locali e file temporanei (fuori dal progetto)
+AI-Voice-Clone-with-Coqui-XTTS-v2/
+tmp/
+.claude/settings.local.json

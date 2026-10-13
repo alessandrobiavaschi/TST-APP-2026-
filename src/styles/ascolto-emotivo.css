@@ -1,0 +1,86 @@
+/* Ascolto emotivo consapevole: cinque elementi a rivelazione scroll */
+
+.ascolto__lista {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(48px, 7vw, 84px);
+  margin-top: 30px;
+}
+
+.ascolto__elemento {
+  padding-top: clamp(28px, 4vw, 40px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ascolto__elemento-head {
+  max-width: 68ch;
+}
+
+.ascolto__definizione {
+  margin: 10px 0 0;
+  color: rgba(226, 232, 240, 0.82);
+  font-size: 1.02rem;
+  line-height: 1.65;
+}
+
+.ascolto__poli {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(28px, 4vw, 48px);
+  margin-top: 28px;
+}
+
+.ascolto__polo {
+  padding-left: clamp(20px, 3vw, 32px);
+  border-left: 2px solid var(--music-accent, #f87171);
+}
+
+.ascolto__artista {
+  margin: 0;
+  color: #f8fafc;
+  font-family: var(--font-display);
+  font-size: clamp(1.2rem, 2vw, 1.5rem);
+  line-height: 1.2;
+}
+
+.ascolto__brano {
+  margin: 4px 0 0;
+  color: rgba(226, 232, 240, 0.55);
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+.ascolto__sintesi {
+  margin: 14px 0 0;
+  color: rgba(226, 232, 240, 0.78);
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.ascolto__domande {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 26px 0 0;
+  padding: 20px 0 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  list-style: none;
+}
+
+.ascolto__domande li {
+  color: rgba(226, 232, 240, 0.6);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.ascolto__domande li::before {
+  content: '— ';
+  color: var(--music-accent, #f87171);
+}
+
+@media (max-width: 720px) {
+  .ascolto__poli {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}

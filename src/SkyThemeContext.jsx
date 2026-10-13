@@ -12,8 +12,6 @@ const DEFAULT_CONFIG = {
   staticMode: false,
 }
 
-const PRIORITY_SKY_SEQUENCE = ['sereno', 'nuvoloso', 'caldissimo', 'neve']
-
 const SkyThemeContext = createContext(null)
 
 const clampHour = (hour) => {
@@ -158,14 +156,6 @@ export function SkyThemeProvider({ children }) {
             config.weatherOptions && config.weatherOptions.length > 0
               ? config.weatherOptions
               : DEFAULT_CONFIG.weatherOptions
-          const priorityOptions = PRIORITY_SKY_SEQUENCE.filter((weatherKey) =>
-            options.includes(weatherKey),
-          )
-          const currentPriorityIndex = priorityOptions.indexOf(currentWeather)
-
-          if (currentPriorityIndex >= 0 && currentPriorityIndex < priorityOptions.length - 1) {
-            return priorityOptions[currentPriorityIndex + 1]
-          }
 
           const alternatives = options.filter((weatherKey) => weatherKey !== currentWeather)
           return pickRandom(alternatives) || pickRandom(options) || 'sereno'

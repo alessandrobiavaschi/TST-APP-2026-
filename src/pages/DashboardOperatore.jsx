@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom'
 import { signOut, deleteUser } from 'firebase/auth'
 import { useAuth } from '../AuthContext.jsx'
 import { auth } from '../firebaseConfig.js'
+import { useDocumentTitle } from '../hooks/useDocumentTitle.js'
 
 function DashboardOperatore() {
+  useDocumentTitle('Dashboard operatore')
   const { user: currentUser, authReady } = useAuth()
   const navigate = useNavigate()
   const [accountMessage, setAccountMessage] = useState('')

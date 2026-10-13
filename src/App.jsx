@@ -10,7 +10,20 @@ import {
 import { AuthContext } from './AuthContext.jsx'
 import { useUiSounds } from './UiSoundProvider.jsx'
 import { useSkyTheme } from './SkyThemeContext.jsx'
+import {
+  clearLocalDeveloperSession,
+  isLocalDeveloperAccessAvailable,
+  restoreLocalDeveloperSession,
+  startLocalDeveloperSession,
+} from './localDeveloperAccess.js'
 import SkyBackground from './components/SkyBackground.jsx'
+import {
+  buildChunkRecoveryUrl,
+  CHUNK_RELOAD_STORAGE_KEY,
+  isRecoverableChunkLoadError,
+  shouldRetryChunkLoad,
+} from './utils/chunkLoadRecovery.js'
+import { useDialogFocus } from './hooks/useDialogFocus.js'
 import './styles/app-shell.css'
 import './App.css'
 import './styles/tst-mobile.css'
@@ -24,6 +37,7 @@ const InfoPage = lazy(() => import('./pages/InfoPage.jsx'))
 const ProfilePage = lazy(() => import('./pages/ProfilePage.jsx'))
 const TstPage = lazy(() => import('./pages/TstPage.jsx'))
 const TutorialPage = lazy(() => import('./pages/TutorialPage.jsx'))
+const LocalDeveloperPage = lazy(() => import('./pages/LocalDeveloperPage.jsx'))
 
 class AppErrorBoundary extends React.Component {
   constructor(props) {
@@ -37,6 +51,19 @@ class AppErrorBoundary extends React.Component {
 
   componentDidCatch(error, errorInfo) {
     console.error('AppErrorBoundary:', error?.message, errorInfo?.componentStack)
+
+    if (!isRecoverableChunkLoadError(error)) return
+
+    try {
+      const now = Date.now()
+      const lastAttempt = window.sessionStorage.getItem(CHUNK_RELOAD_STORAGE_KEY)
+      if (!shouldRetryChunkLoad(lastAttempt, now)) return
+
+      window.sessionStorage.setItem(CHUNK_RELOAD_STORAGE_KEY, String(now))
+      window.location.replace(buildChunkRecoveryUrl(window.location.href, now))
+    } catch (recoveryError) {
+      console.warn('Recupero automatico del bundle non disponibile:', recoveryError)
+    }
   }
 
   render() {
@@ -94,9 +121,6 @@ function HeaderSoundToggleButton() {
   )
 }
 
-const MOBILE_NAV_FOCUSABLE =
-  'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-
 function RouteScrollReset() {
   const { pathname, search, hash } = useLocation()
 
@@ -124,9 +148,30 @@ function RouteScrollReset() {
   return null
 }
 
+function LocalDeveloperNewTestEntry() {
+  const location = useLocation()
+  const navigate = useNavigate()
+  const isGuestSession = location.state?.mode === 'guest'
+
+  useEffect(() => {
+    if (isGuestSession) return
+    navigate('/nuovo-test', {
+      replace: true,
+      state: { ...(location.state || {}), mode: 'guest', localDeveloper: true },
+    })
+  }, [isGuestSession, location.state, navigate])
+
+  if (!isGuestSession) {
+    return <div className="page" aria-busy="true" aria-label="Preparazione test locale" />
+  }
+
+  return <NewTestPage />
+}
+
 function App() {
   const [currentUser, setCurrentUser] = useState(null)
-  const [authReady, setAuthReady] = useState(false)
+  const [localDeveloperUser, setLocalDeveloperUser] = useState(() => restoreLocalDeveloperSession())
+  const [authReady, setAuthReady] = useState(() => Boolean(localDeveloperUser))
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [ritualFocusActive, setRitualFocusActive] = useState(false)
@@ -143,10 +188,11 @@ function App() {
   const location = useLocation()
   const mobileNavToggleRef = useRef(null)
   const mobileNavDrawerRef = useRef(null)
-  const prevMobileNavOpenRef = useRef(false)
   const accountMenuRef = useRef(null)
   const accountButtonRef = useRef(null)
-  const effectiveUser = currentUser || auth?.currentUser || null
+  const localDeveloperAccessAvailable = isLocalDeveloperAccessAvailable()
+  const effectiveUser = localDeveloperUser || currentUser || auth?.currentUser || null
+  const isLocalDeveloper = Boolean(localDeveloperUser)
   const isAuthenticated = Boolean(effectiveUser)
 
   useEffect(() => {
@@ -251,56 +297,18 @@ function App() {
     return () => window.removeEventListener('tst:test-session-active', onTestSessionActive)
   }, [])
 
-  useEffect(() => {
-    if (!mobileNavOpen) return
-    const id = window.requestAnimationFrame(() => {
-      const root = mobileNavDrawerRef.current
-      if (!root) return
-      const nodes = [...root.querySelectorAll(MOBILE_NAV_FOCUSABLE)].filter(
-        (el) => !el.closest('[aria-hidden="true"]') && el.getAttribute('tabindex') !== '-1',
-      )
-      nodes[0]?.focus({ preventScroll: true })
-    })
-    return () => window.cancelAnimationFrame(id)
-  }, [mobileNavOpen])
+  useDialogFocus(mobileNavDrawerRef, {
+    open: !testSessionActive && mobileNavOpen,
+    onClose: () => setMobileNavOpen(false),
+  })
 
   useEffect(() => {
-    if (!mobileNavOpen) return
-    const onKeyDown = (event) => {
-      if (event.key === 'Escape') {
-        event.preventDefault()
-        setMobileNavOpen(false)
-        return
-      }
-      if (event.key !== 'Tab') return
-      const root = mobileNavDrawerRef.current
-      if (!root) return
-      const nodes = [...root.querySelectorAll(MOBILE_NAV_FOCUSABLE)].filter(
-        (el) => !el.closest('[aria-hidden="true"]') && el.getAttribute('tabindex') !== '-1',
-      )
-      if (nodes.length === 0) return
-      const first = nodes[0]
-      const last = nodes[nodes.length - 1]
-      const active = document.activeElement
-      if (event.shiftKey) {
-        if (active === first || !root.contains(active)) {
-          event.preventDefault()
-          last.focus()
-        }
-      } else if (active === last) {
-        event.preventDefault()
-        first.focus()
-      }
+    if (!mobileNavOpen) return undefined
+    const originalOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = originalOverflow
     }
-    document.addEventListener('keydown', onKeyDown)
-    return () => document.removeEventListener('keydown', onKeyDown)
-  }, [mobileNavOpen])
-
-  useEffect(() => {
-    if (prevMobileNavOpenRef.current && !mobileNavOpen) {
-      mobileNavToggleRef.current?.focus({ preventScroll: true })
-    }
-    prevMobileNavOpenRef.current = mobileNavOpen
   }, [mobileNavOpen])
 
   useEffect(() => {
@@ -341,7 +349,13 @@ function App() {
       return
     }
     if (location.pathname === '/' && typeof window !== 'undefined') {
+      // Già sulla landing: l'evento custom basta (LandingPage apre e scrolla al pannello da sé).
+      // Una navigate() qui in più farebbe scattare anche gli effetti di LandingPage che
+      // reagiscono a location.state/location.search, richiamando openAccessBox() una seconda
+      // (e terza) volta in corsa con questa — la causa dello scroll-to-login che non si fermava
+      // in una posizione coerente (o non partiva affatto).
       window.dispatchEvent(new CustomEvent('tst:open-access'))
+      return
     }
     const loginParams = new URLSearchParams(
       location.pathname === '/' ? location.search.replace(/^\?/, '') : '',
@@ -372,7 +386,9 @@ function App() {
       return
     }
     if (location.pathname === '/' && typeof window !== 'undefined') {
+      // Vedi handleLoginClick: già sulla landing, l'evento custom basta.
       window.dispatchEvent(new CustomEvent('tst:open-access-register'))
+      return
     }
     const loginParams = new URLSearchParams(
       location.pathname === '/' ? location.search.replace(/^\?/, '') : '',
@@ -382,9 +398,21 @@ function App() {
     navigate({ pathname: '/', search: loginSearch, state: { openAccessBox: true, openRegister: true } })
   }
 
+  const enterLocalDeveloperMode = () => {
+    const user = startLocalDeveloperSession({ available: localDeveloperAccessAvailable })
+    setLocalDeveloperUser(user)
+    setAuthReady(true)
+    setMobileNavOpen(false)
+    navigate('/home', { replace: true })
+  }
+
   const logout = async () => {
-    if (!auth) return
-    await signOut(auth)
+    if (localDeveloperUser) {
+      clearLocalDeveloperSession()
+      setLocalDeveloperUser(null)
+    } else if (auth) {
+      await signOut(auth)
+    }
     setCurrentUser(null)
     setIsAccountMenuOpen(false)
     setMobileNavOpen(false)
@@ -434,11 +462,20 @@ function App() {
 
   const skyTone = visualProfile?.tone || 'medium'
   const skyWarmth = visualProfile?.warmth || 'neutral'
-  const isReportPage = location.pathname === '/risultati/report'
+  const isReportPage = location.pathname === '/risultati/report' || location.pathname === '/report-preview'
   const isTestFlowPage = location.pathname === '/nuovo-test'
 
   return (
-    <AuthContext.Provider value={{ user: effectiveUser, authReady, logout }}>
+    <AuthContext.Provider
+      value={{
+        user: effectiveUser,
+        authReady,
+        logout,
+        isLocalDeveloper,
+        localDeveloperAccessAvailable,
+        enterLocalDeveloperMode,
+      }}
+    >
       <div
         className={`app-shell app-with-sky${
           cookieConsent === null && !testSessionActive ? ' has-gdpr-banner' : ''
@@ -450,7 +487,10 @@ function App() {
         data-sky-tone={skyTone}
         data-sky-warmth={skyWarmth}
       >
-        {location.pathname !== '/' && location.pathname !== '/risultati/report' && (
+        <a className="skip-link" href="#contenuto">
+          Salta al contenuto
+        </a>
+        {location.pathname !== '/' && !isReportPage && (
           <SkyBackground />
         )}
         <header
@@ -568,7 +608,7 @@ function App() {
                 </button>
               )}
               {location.pathname !== '/' &&
-                location.pathname !== '/risultati/report' &&
+                !isReportPage &&
                 currentUser && (
                 <button
                   type="button"
@@ -594,6 +634,15 @@ function App() {
                   >
                     Login
                   </button>
+                  {localDeveloperAccessAvailable && (
+                    <button
+                      type="button"
+                      className="header-login-button"
+                      onClick={enterLocalDeveloperMode}
+                    >
+                      Accesso sviluppo
+                    </button>
+                  )}
                 </>
               )}
               {isAuthenticated && (
@@ -737,6 +786,15 @@ function App() {
                   ) : (
                     <>
                       <div className="app-mobile-nav-actions">
+                        {localDeveloperAccessAvailable && (
+                          <button
+                            type="button"
+                            className="app-mobile-nav-action app-mobile-nav-action--primary"
+                            onClick={enterLocalDeveloperMode}
+                          >
+                            Accesso sviluppo
+                          </button>
+                        )}
                         <button
                           type="button"
                           className="app-mobile-nav-action app-mobile-nav-action--primary"
@@ -807,15 +865,17 @@ function App() {
           </div>
         </div>
         <main
+          id="contenuto"
+          tabIndex={-1}
           className={`app-main${
-            location.pathname === '/' || location.pathname === '/risultati/report'
+            location.pathname === '/' || isReportPage
               ? ' app-main--landing'
               : ''
           }${location.pathname === '/' ? ' app-main--landing-home' : ''}`}
         >
           <div
             className={`app-main-inner${
-              location.pathname === '/' || location.pathname === '/risultati/report'
+              location.pathname === '/' || isReportPage
                 ? ' app-main-inner--landing'
                 : ''
             }`}
@@ -826,13 +886,35 @@ function App() {
               <Routes>
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/home" element={<HomePage />} />
-                <Route path="/nuovo-test" element={<NewTestPage />} />
+                <Route
+                  path="/nuovo-test"
+                  element={
+                    isLocalDeveloper
+                      ? <LocalDeveloperNewTestEntry />
+                      : <NewTestPage />
+                  }
+                />
                 <Route path="/tutorial" element={<TutorialPage />} />
                 <Route path="/tst" element={<TstPage />} />
-                <Route path="/risultati" element={<ResultsPage />} />
+                <Route
+                  path="/risultati"
+                  element={
+                    isLocalDeveloper
+                      ? <LocalDeveloperPage section="results" />
+                      : <ResultsPage />
+                  }
+                />
                 <Route path="/risultati/report" element={<ReportPage />} />
+                <Route path="/report-preview" element={<ReportPage />} />
                 <Route path="/dashboard-operatore" element={<Navigate to="/home" replace />} />
-                <Route path="/profilo" element={<ProfilePage />} />
+                <Route
+                  path="/profilo"
+                  element={
+                    isLocalDeveloper
+                      ? <LocalDeveloperPage section="profile" />
+                      : <ProfilePage />
+                  }
+                />
                 <Route path="/info" element={<InfoPage />} />
               </Routes>
               </Suspense>

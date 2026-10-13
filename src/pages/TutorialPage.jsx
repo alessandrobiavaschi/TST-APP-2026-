@@ -1,8 +1,10 @@
 import React, { useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { TUTORIAL_LISTENING_LEAD, TUTORIAL_LISTENING_SLIDES } from '../tutorialListeningSlides.js'
+import { useDocumentTitle } from '../hooks/useDocumentTitle.js'
 
 function TutorialPage() {
+  useDocumentTitle('Tutorial')
   const navigate = useNavigate()
   const location = useLocation()
   const [slideIndex, setSlideIndex] = useState(0)

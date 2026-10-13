@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { getProfiloPanelDisplay } from '../../utils/profiloDisplayCopy.js'
-import ReportPassageHeader from './ReportPassageHeader.jsx'
 import SectionNumber from './SectionNumber.jsx'
 import { PROFILO_CHAPTER_EVENT, chapterAnchorId } from './profiloChapterNav.js'
 import { scrollElementToReportCenter } from './reportSectionNavUtils.js'
 import { getPersonalizedTitles } from '../../config/reportFamilyTheme.js'
 import { PROFILO_UI } from './reportUiCopy.js'
+import { buildProgressiveContentViewModel } from '../../utils/buildProgressiveContentViewModel.js'
 
 void motion
 
@@ -17,7 +17,14 @@ const CHAPTER_NAV_LABELS = {
   risorse: 'Risorse',
   ombre: 'Ombre',
 }
-const HEADER_COLOR_FALLBACK = '#4ade80'
+
+const MOBILE_CHAPTER_NAV_LABELS = {
+  natura: 'Natura',
+  racconto: 'Racconto',
+  risorse: 'Risorse',
+  ombre: 'Ombre',
+}
+
 
 function PanelBody({ display }) {
   const skipHeader = /^FAMIGLIA\s+\d+/i
@@ -51,7 +58,23 @@ function PanelBody({ display }) {
   )
 }
 
-function ChapterBlock({ sezione, index, famiglia, profilo, reduceMotion, title }) {
+function ChapterComposition({ onOpenAllFamilies, entryBtnRef }) {
+  return (
+    <div className="profilo-composition-extra">
+      <p className="report-room-preview-lead">{PROFILO_UI.compositionIntro}</p>
+      <button
+        ref={entryBtnRef}
+        type="button"
+        className="report-room-preview-cta"
+        onClick={onOpenAllFamilies}
+      >
+        {PROFILO_UI.compositionCta}
+      </button>
+    </div>
+  )
+}
+
+function ChapterBlock({ sezione, index, famiglia, profilo, reduceMotion, title, composition }) {
   const accent = sezione.correnteColore || '#4ade80'
   const display = getProfiloPanelDisplay({
     panelId: sezione.id,
@@ -59,6 +82,7 @@ function ChapterBlock({ sezione, index, famiglia, profilo, reduceMotion, title }
     rawTesto: sezione.testo,
     profilo,
   })
+  const showComposition = sezione.id === 'natura' && composition?.visible
   return (
     <article
       className="profilo-chapter-block"
@@ -86,6 +110,12 @@ function ChapterBlock({ sezione, index, famiglia, profilo, reduceMotion, title }
           <p className="profilo-panel__connector">{display.panelIntro}</p>
         ) : null}
         <PanelBody display={display} />
+        {showComposition ? (
+          <ChapterComposition
+            onOpenAllFamilies={composition.onOpenAllFamilies}
+            entryBtnRef={composition.entryBtnRef}
+          />
+        ) : null}
       </motion.div>
     </article>
   )
@@ -94,12 +124,37 @@ function ChapterBlock({ sezione, index, famiglia, profilo, reduceMotion, title }
 export default function ProfiloEmotivo({
   sezioni = [],
   famiglia = '',
-  accentColor = '',
   profilo = {},
-  stepPrefix = '1',
+  contentCards = null,
+  globalRanking = null,
+  dominantFamilyKey = '',
+  onOpenAllFamilies = () => {},
+  allFamiliesEntryBtnRef = null,
 }) {
   const reduceMotion = useReducedMotion()
+  // La famiglia dominante è già raccontata per intero nei 4 capitoli sopra: esclusa qui
+  // per non mostrare due volte la stessa scheda.
+  const compositionViewModel = useMemo(
+    () => buildProgressiveContentViewModel({
+      ranking: globalRanking,
+      contentCards: contentCards || {},
+      excludeFamilyKeys: dominantFamilyKey ? [dominantFamilyKey] : [],
+    }),
+    [globalRanking, contentCards, dominantFamilyKey],
+  )
+  const hasExtraPrimary = compositionViewModel.primaryFamilies.length > 0
+  const hasFullComposition = compositionViewModel.theoreticalFamilies.length > 0
+    || compositionViewModel.marginalFamilies.length > 0
   const [activeChapter, setActiveChapter] = useState('natura')
+  const [isMobileViewport, setIsMobileViewport] = useState(false)
+
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 768px)')
+    setIsMobileViewport(media.matches)
+    const listener = (e) => setIsMobileViewport(e.matches)
+    media.addEventListener('change', listener)
+    return () => media.removeEventListener('change', listener)
+  }, [])
   const chapterContentRef = useRef(null)
   const shouldCenterChapterRef = useRef(false)
   const personalizedTitles = useMemo(() => getPersonalizedTitles(famiglia), [famiglia])
@@ -111,8 +166,6 @@ export default function ProfiloEmotivo({
     [list, activeChapter],
   )
   const activeIndex = Math.max(0, list.findIndex((s) => s.id === activeSezione?.id))
-
-  const headerColor = list[0]?.correnteColore || accentColor || HEADER_COLOR_FALLBACK
 
   const selectChapter = useCallback(
     (panelId, shouldScroll = false, isExternalEvent = false) => {
@@ -192,26 +245,31 @@ export default function ProfiloEmotivo({
   return (
     <section aria-labelledby="pe-section-title" className="report-tst-profilo">
       <div className="pe-container">
-        <ReportPassageHeader
-          step={`${stepPrefix}.3`}
-          eyebrow={PROFILO_UI.eyebrow}
-          title={PROFILO_UI.title}
-          accentColor={headerColor}
-          titleId="pe-section-title"
-        />
+        <p className="report-room-preview-lead">{PROFILO_UI.title}</p>
 
         {/* Sintesi breve; l'approfondimento e distribuito nei quattro capitoli. */}
-        <div className="profilo-family-summary-card" style={{ maxWidth: '860px', margin: '0 auto 2.5rem', width: '100%', boxSizing: 'border-box' }}>
-          <p className="profilo-family-summary-card__brief" style={{
-            fontSize: '1.05rem',
-            lineHeight: '1.6',
-            color: 'rgba(255, 255, 255, 0.9)',
-            marginBottom: '1rem'
-          }}>
-            {profilo.fraseChiave}
-          </p>
-
-        </div>
+        {profilo.fraseChiave ? (
+          <div className="profilo-family-summary-card" style={{ maxWidth: '860px', margin: '0 auto 2.5rem', width: '100%', boxSizing: 'border-box' }}>
+            <p className="profilo-family-summary-card__brief" style={{
+              fontSize: '1.05rem',
+              lineHeight: '1.6',
+              color: 'rgba(255, 255, 255, 0.9)',
+              marginBottom: '1rem'
+            }}>
+              {profilo.composizioneSintesi || profilo.fraseChiave}
+            </p>
+            {profilo.composizioneSintesi ? (
+              <p className="profilo-family-summary-card__brief" style={{
+                fontSize: '0.95rem',
+                lineHeight: '1.6',
+                color: 'rgba(255, 255, 255, 0.76)',
+                margin: 0,
+              }}>
+                La descrizione della famiglia prevalente qui sotto è una base di lettura; non annulla le altre componenti significative.
+              </p>
+            ) : null}
+          </div>
+        ) : null}
 
         <nav className="profilo-chapter-nav" aria-label="Capitoli del profilo emotivo">
           {list.map((sezione, index) => {
@@ -226,7 +284,9 @@ export default function ProfiloEmotivo({
               >
                 <span className="profilo-chapter-nav__num">{index + 1}</span>
                 <span className="profilo-chapter-nav__label">
-                  {personalizedTitles[sezione.id] || CHAPTER_NAV_LABELS[sezione.id] || sezione.titolo}
+                  {isMobileViewport
+                    ? (MOBILE_CHAPTER_NAV_LABELS[sezione.id] || CHAPTER_NAV_LABELS[sezione.id] || sezione.titolo)
+                    : (personalizedTitles[sezione.id] || CHAPTER_NAV_LABELS[sezione.id] || sezione.titolo)}
                 </span>
               </button>
             )
@@ -253,6 +313,11 @@ export default function ProfiloEmotivo({
               profilo={profilo}
               reduceMotion={reduceMotion}
               title={personalizedTitles[activeSezione.id]}
+              composition={{
+                visible: hasExtraPrimary || compositionViewModel.hasCompanion || hasFullComposition,
+                onOpenAllFamilies,
+                entryBtnRef: allFamiliesEntryBtnRef,
+              }}
             />
           ) : null}
         </div>

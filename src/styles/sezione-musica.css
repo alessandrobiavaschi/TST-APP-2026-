@@ -29,110 +29,138 @@
   margin: 10px 0 24px;
 }
 
-.fm-narrative-block {
-  max-width: 76ch;
-  margin-top: 28px;
-}
-
-.fm-narrative-block h3 + p {
-  margin: 10px 0 24px;
-}
-
-.fm-narrative-block--closing {
-  margin-top: 30px;
-  padding: 24px 0 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
 .fm-subsection-title {
   margin-top: 34px !important;
   font-size: 1.15rem !important;
 }
 
-.fm-music-rows {
-  margin-top: 22px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+.fm-kicker {
+  margin: 0 0 10px;
+  color: var(--music-accent, #f87171) !important;
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace) !important;
+  font-size: 0.7rem !important;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
-.fm-music-row {
+/* Il suo modo di incontrare la Musica: narrativa + insight laterale */
+.fm-narrative {
   display: grid;
-  grid-template-columns: minmax(150px, 0.24fr) 1fr;
-  gap: clamp(20px, 4vw, 48px);
-  padding: 20px 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  grid-template-columns: minmax(0, 1fr);
+  gap: 28px;
+  margin-top: 26px;
 }
 
-.fm-music-row h3 {
-  color: var(--music-accent, #f87171);
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.76rem;
-  letter-spacing: 0.04em;
+.fm-narrative__main {
+  max-width: 74ch;
 }
 
-.fm-music-row p { margin: 0; }
+.fm-narrative__main p + p {
+  margin-top: 18px;
+}
 
-.fm-interval-reading > p { max-width: 76ch; }
+.fm-pullquote {
+  padding: 4px 0 4px 22px;
+  border-left: 2px solid var(--music-accent, #f87171);
+}
 
+.fm-pullquote__title {
+  margin: 0 0 10px;
+  color: #f8fafc !important;
+  font-family: var(--font-display) !important;
+  font-size: clamp(1.3rem, 2.2vw, 1.6rem) !important;
+  line-height: 1.2 !important;
+}
+
+.fm-pullquote__text {
+  margin: 0;
+  color: rgba(226, 232, 240, 0.72) !important;
+  font-size: 0.9rem !important;
+  line-height: 1.6 !important;
+}
+
+@media (min-width: 900px) {
+  .fm-narrative--with-quote {
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 300px);
+    align-items: start;
+    gap: clamp(32px, 5vw, 64px);
+  }
+}
+
+/* Il suo paesaggio sonoro: tre moduli editoriali */
+.fm-landscape {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(28px, 4vw, 48px);
+  margin-top: 26px;
+}
+
+.fm-landscape__module {
+  padding-left: clamp(20px, 3vw, 32px);
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.fm-landscape__module:first-child {
+  padding-left: 0;
+  border-left: none;
+}
+
+.fm-landscape__module p:last-child {
+  margin: 0;
+}
+
+/* Cosa gli evocano gli intervalli */
 .fm-interval-list {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 12px;
+  gap: 20px;
   margin-top: 22px;
 }
 
 .fm-interval-item {
-  padding: clamp(18px, 2.5vw, 24px);
+  padding: clamp(24px, 3.5vw, 40px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.035);
 }
 
-.fm-interval-item span {
-  display: block;
-  margin-top: 5px;
-  color: var(--music-accent, #f87171);
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.86rem;
-  font-weight: 700;
+.fm-interval-item__name {
+  margin: 0 0 6px;
+  color: #f8fafc !important;
+  font-family: var(--font-display) !important;
+  font-size: clamp(1.9rem, 3.6vw, 2.7rem) !important;
+  line-height: 1.05 !important;
 }
 
-.fm-interval-item strong {
-  display: block;
-  margin-top: 5px;
-  color: #f8fafc;
-  font-size: 0.95rem;
-  line-height: 1.45;
+.fm-interval-item__subtitle {
+  margin: 0 0 16px;
+  color: rgba(226, 232, 240, 0.6) !important;
+  font-size: 0.9rem !important;
 }
 
-.fm-interval-item .fm-interval-item__label {
-  margin: 18px 0 0;
-  color: rgba(226, 232, 240, 0.48);
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.65rem;
+.fm-interval-item__meaning {
+  max-width: 70ch;
+  margin: 0 0 22px;
+}
+
+.fm-interval-item__label {
+  margin: 0 0 10px;
+  color: rgba(226, 232, 240, 0.48) !important;
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace) !important;
+  font-size: 0.65rem !important;
   font-weight: 700;
   letter-spacing: 0.08em;
-  line-height: 1.4;
   text-transform: uppercase;
-}
-
-.fm-interval-item > .fm-interval-item__label:first-child {
-  margin-top: 0;
 }
 
 .fm-interval-item__states ul {
   display: flex;
   flex-wrap: wrap;
   gap: 7px;
-  margin: 10px 0 0;
+  margin: 0;
   padding: 0;
   list-style: none;
-}
-
-.fm-interval-item__meaning > p:last-child {
-  margin: 9px 0 0;
-  color: rgba(226, 232, 240, 0.78);
-  font-size: 0.9rem;
-  line-height: 1.7;
 }
 
 .fm-interval-item__states li {
@@ -143,6 +171,54 @@
   color: rgba(226, 232, 240, 0.78);
   font-size: 0.78rem;
   line-height: 1.3;
+}
+
+/* Quando ascolta e fa Musica: griglia editoriale 2x2 */
+.fm-practice {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.fm-practice__item {
+  padding: clamp(24px, 3vw, 34px);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.fm-practice__index {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--music-accent, #f87171);
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.fm-practice__item h3 {
+  margin: 0 0 10px;
+  font-size: 1.15rem;
+}
+
+.fm-practice__item p {
+  margin: 0;
+}
+
+/* In sintesi */
+.fm-summary__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px;
+  margin-top: 22px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.fm-summary__grid p {
+  margin-top: 0;
 }
 
 .sezione-musica__list {
@@ -157,18 +233,262 @@
 .sezione-musica__keywords {
   margin: 10px 0 0;
   color: var(--music-accent, #f87171) !important;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.76rem !important;
-  letter-spacing: 0.04em;
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 0.9rem !important;
+  letter-spacing: 0.03em;
 }
 
 .sezione-musica__keyword-block {
-  margin-top: 30px;
-  padding-top: 24px;
+  margin-top: 26px;
+}
+
+.fm-section--summary .sezione-musica__keyword-block:first-child {
+  margin-top: 22px;
+}
+
+/* Le 5 aree musicali: navigazione editoriale a tab + pannello singolo */
+.fm-areas {
+  padding: clamp(34px, 5vw, 58px) 0;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.fm-areas__head {
+  max-width: 74ch;
+}
+
+.fm-areas__head h2 {
+  margin: 8px 0 0;
+  color: #f8fafc;
+  font-family: var(--font-display);
+  font-size: clamp(1.65rem, 3.2vw, 2.55rem);
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+}
+
+.fm-areas__nav {
+  display: flex;
+  gap: clamp(20px, 3vw, 40px);
+  margin: 30px 0 0;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.fm-areas__nav::-webkit-scrollbar {
+  display: none;
+}
+
+.fm-areas__tab {
+  display: flex;
+  flex-shrink: 0;
+  align-items: baseline;
+  gap: 8px;
+  padding: 0 0 14px;
+  margin-bottom: -15px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: rgba(226, 232, 240, 0.5);
+  cursor: pointer;
+  white-space: nowrap;
+  font: inherit;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.fm-areas__tab-index {
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: rgba(226, 232, 240, 0.35);
+}
+
+.fm-areas__tab-name {
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.fm-areas__tab--active {
+  color: #f8fafc;
+  border-bottom-color: var(--music-accent, #f87171);
+}
+
+.fm-areas__tab--active .fm-areas__tab-index {
+  color: var(--music-accent, #f87171);
+}
+
+.fm-areas__tab:hover:not(.fm-areas__tab--active) {
+  color: rgba(226, 232, 240, 0.82);
+}
+
+.fm-areas__panel {
+  margin-top: clamp(28px, 4vw, 44px);
+  animation: fm-areas-fade 0.26s ease;
+}
+
+@keyframes fm-areas-fade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fm-areas__panel {
+    animation: none;
+  }
+}
+
+.fm-areas__panel-head {
+  display: flex;
+  gap: 18px;
+  align-items: baseline;
+}
+
+.fm-areas__panel-index {
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--music-accent, #f87171);
+}
+
+.fm-areas__panel-title {
+  margin: 0;
+  color: #f8fafc;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 2.6vw, 2rem);
+}
+
+.fm-areas__panel-subtitle {
+  margin: 6px 0 0;
+  color: rgba(226, 232, 240, 0.6);
+  font-size: 0.92rem;
+}
+
+.fm-areas__panel-body {
+  margin-top: 28px;
+  max-width: 78ch;
+}
+
+.fm-areas__block {
+  margin-top: 22px;
+}
+
+.fm-areas__block:first-child {
+  margin-top: 0;
+}
+
+.fm-areas__block-label {
+  margin: 0 0 8px;
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(226, 232, 240, 0.45);
+}
+
+.fm-areas__block-text {
+  margin: 0;
+  color: rgba(226, 232, 240, 0.82);
+  font-size: 0.96rem;
+  line-height: 1.65;
+}
+
+.fm-areas__block--rappresenta {
+  margin-left: clamp(0px, 8vw, 64px);
+  max-width: 62ch;
+}
+
+.fm-areas__block--rappresenta .fm-areas__block-label {
+  color: var(--music-accent, #f87171);
+}
+
+.fm-areas__block--rappresenta .fm-areas__block-text {
+  font-size: 1.03rem;
+}
+
+.fm-areas__block--attiva {
+  padding-top: 22px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.fm-areas__quote {
+  margin-top: 26px;
+  padding: 4px 0 4px 22px;
+  border-left: 2px solid var(--music-accent, #f87171);
+}
+
+.fm-areas__quote-label {
+  margin: 0 0 8px;
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(226, 232, 240, 0.45);
+}
+
+.fm-areas__quote-text {
+  margin: 0;
+  color: #f8fafc;
+  font-family: var(--font-display);
+  font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+  line-height: 1.45;
+}
+
+.fm-areas__bridge {
+  max-width: 68ch;
+  margin: 0 0 clamp(28px, 4vw, 40px);
+  color: rgba(226, 232, 240, 0.7);
+  font-size: 0.98rem;
+  line-height: 1.6;
+}
+
 @media (max-width: 720px) {
-  .fm-music-row { grid-template-columns: 1fr; gap: 8px; }
-  .fm-interval-list { grid-template-columns: 1fr; }
+  .fm-areas__block--rappresenta {
+    margin-left: 0;
+  }
+
+  .fm-areas__panel-head {
+    gap: 12px;
+  }
+}
+
+@media (max-width: 720px) {
+  .fm-landscape {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .fm-landscape__module {
+    padding-left: 0;
+    padding-top: 20px;
+    border-left: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .fm-landscape__module:first-child {
+    padding-top: 0;
+    border-top: none;
+  }
+
+  .fm-practice {
+    grid-template-columns: 1fr;
+    border-left: none;
+  }
+
+  .fm-practice__item {
+    border-right: none;
+    padding: 22px 0;
+  }
+
+  .fm-summary__grid {
+    grid-template-columns: 1fr;
+  }
 }

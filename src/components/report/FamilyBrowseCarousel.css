@@ -1,0 +1,173 @@
+.family-browse {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md, 32px);
+}
+
+.family-browse__stage {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm, 16px);
+}
+
+.family-browse__nav {
+  /* Ancorate in alto (non centrate sull'intera card) apposta: l'altezza della card
+     varia con "Scopri di più" e con la lunghezza della sintesi per famiglia — se le
+     freccette fossero centrate sull'altezza totale, apri/chiudi il dettaglio le
+     sposta proprio mentre l'utente le sta cliccando (mousedown chiude il dettaglio,
+     il layout si sposta prima del mouseup, il click non arriva più al bottone). */
+  flex: 0 0 auto;
+  margin-top: 28px;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+}
+
+.family-browse__nav:hover:not(:disabled),
+.family-browse__nav:focus-visible:not(:disabled) {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.family-browse__nav:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.family-browse__viewport {
+  flex: 1;
+  min-width: 0;
+  perspective: 1400px;
+  touch-action: pan-y;
+}
+
+.family-browse__card {
+  max-width: 640px;
+  margin-inline: auto;
+  padding: var(--space-md, 32px);
+  border: 1px solid color-mix(in srgb, var(--family-accent) 45%, transparent);
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--family-accent) 10%, transparent);
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+
+.family-browse__card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-sm, 16px);
+}
+
+.family-browse__name {
+  margin: 0;
+  color: #fff;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.5rem;
+  line-height: 1.25;
+}
+
+.family-browse__percent {
+  flex: 0 0 auto;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--family-accent) 55%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--family-accent) 20%, transparent);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.family-browse__qualifier {
+  margin: var(--space-xs, 8px) 0 0;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+.family-browse__brief {
+  margin: var(--space-sm, 16px) 0 0;
+  max-width: 65ch;
+  color: rgba(255, 255, 255, 0.85);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.family-browse__detail {
+  margin-top: var(--space-sm, 16px);
+}
+
+.family-browse__detail-block {
+  margin-top: var(--space-sm, 16px);
+}
+
+.family-browse__detail-block:first-child {
+  margin-top: 0;
+}
+
+.family-browse__detail-heading {
+  margin: 0 0 var(--space-xs, 8px);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.family-browse__detail-paragraph {
+  margin: 0 0 var(--space-xs, 8px);
+  max-width: 65ch;
+  color: rgba(255, 255, 255, 0.85);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+
+.family-browse__detail-paragraph:last-child {
+  margin-bottom: 0;
+}
+
+.family-browse__dots {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.family-browse__dot {
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--dot-accent) 60%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--dot-accent) 20%, transparent);
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.family-browse__dot--active {
+  background: var(--dot-accent);
+  transform: scale(1.25);
+}
+
+@media (max-width: 640px) {
+  .family-browse__card {
+    padding: var(--space-sm, 16px);
+  }
+
+  .family-browse__nav {
+    width: 36px;
+    height: 36px;
+    font-size: 1.2rem;
+  }
+}

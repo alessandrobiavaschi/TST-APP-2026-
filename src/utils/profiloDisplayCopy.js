@@ -129,35 +129,35 @@ const DISPLAY_BY_FAMILY = {
   Verde: {
     natura: {
       inSintesi:
-        'Nella natura Flemmatica emerge il piacere della lentezza, del silenzio, della calma, del riposo e della contemplazione. La caratteristica contemplativa predilige il certo, la ripetitività e l’assenza di eccitazione — con orientamento all’«oblio sospeso», il tempo della bonaccia interiore.',
+        'Nella famiglia Flemmatica, le nature Calma Contemplativa e Calma Fisica esprimono il piacere della lentezza, del silenzio, della calma, del riposo e della contemplazione.',
       corpo: [],
     },
   },
   Blu: {
     natura: {
       inSintesi:
-        'Nella natura Lunare emerge il piacere di stare con sé stessi, di osservarsi interiormente e di riflettere su ciò che si è vissuto. Le caratteristiche malinconica e nostalgica prediligono riflessività e percezione emotiva profonda — con orientamento al passato.',
+        'Nella famiglia Malinconica, le nature Lunare Introspettiva, Lunare Depressiva, Solare e Nostalgica esprimono il piacere di stare con sé stessi, di osservarsi interiormente e di riflettere su ciò che si è vissuto.',
       corpo: [],
     },
   },
   Rosso: {
     natura: {
       inSintesi:
-        'Nella natura Marziale emerge il piacere del fare, di realizzare ciò che si desidera, di governarsi e mettersi alla prova. Le caratteristiche volitiva e collerica prediligono assertività, costanza, sincerità e impegno nel qui e ora — con orientamento al presente.',
+        'Nella famiglia Marziale emerge il piacere del fare, di realizzare ciò che si desidera, di governarsi e mettersi alla prova. Le nature Volitiva e Collerica prediligono costanza, sincerità e impegno nel qui e ora, con orientamento al presente.',
       corpo: [],
     },
   },
   Giallo: {
     natura: {
       inSintesi:
-        'Nella natura Solare emerge il piacere del movimento, della curiosità, della scoperta del nuovo e dell’estroversione. Le caratteristiche sanguigna ed entusiasta guardano al futuro: slancio vitale, partecipazione e ricerca di bagliori di bellezza.',
+        'Nella famiglia Entusiasta, le nature Gioiosa Solare e Sanguigna Operosa esprimono il piacere del movimento, della curiosità, della scoperta del nuovo e dell’estroversione.',
       corpo: [],
     },
   },
   Grigio: {
     natura: {
       inSintesi:
-        'Nella natura Anaffettiva emerge il piacere del calcolo, della dubbiosità di origine intellettuale e dell’oggettività fisica. Le caratteristiche agnostica e anaffettiva agiscono in modo trasversale sulle altre quattro aree del temperamento.',
+        'Nella famiglia Razionale, le nature Anaffettiva e Distaccata esprimono il piacere del calcolo, della dubbiosità di origine intellettuale e dell’oggettività fisica.',
       corpo: [],
     },
   },

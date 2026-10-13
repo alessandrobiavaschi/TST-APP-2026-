@@ -35,14 +35,14 @@ export const REPORT_SECTIONS = [
 
   // 1. Risultati del test
   { id: 'report-group-profilo-generale', label: 'Risultati del test', groupId: 'report-group-profilo-generale' },
-  { id: 'report-tst-sintesi', label: 'Caratteristica emotiva', navStep: '1.1', groupId: 'report-group-profilo-generale', isSub: true },
+  { id: 'report-tst-sintesi', label: 'Natura (caratteristica emotiva)', navStep: '1.1', groupId: 'report-group-profilo-generale', isSub: true },
   { id: 'report-tst-grafici', label: 'Grafici dei risultati', navStep: '1.2', groupId: 'report-group-profilo-generale', isSub: true },
   { id: 'report-tst-famiglia', label: 'La tua natura emotiva di appartenenza', navStep: '1.3', groupId: 'report-group-profilo-generale', isSub: true },
   { id: 'report-chapter-natura', label: 'Natura', groupId: 'report-group-profilo-generale', isSub: true, isSubSub: true },
   { id: 'report-chapter-racconto', label: 'Memoria, Esperienza, Essere Musica', groupId: 'report-group-profilo-generale', isSub: true, isSubSub: true },
   { id: 'report-chapter-risorse', label: 'Risorse', groupId: 'report-group-profilo-generale', isSub: true, isSubSub: true },
   { id: 'report-chapter-ombre', label: 'Ombre', groupId: 'report-group-profilo-generale', isSub: true, isSubSub: true },
-  { id: 'report-tst-rapporti', label: 'Il quadro dei rapporti della natura', navStep: '1.4', groupId: 'report-group-profilo-generale', isSub: true },
+  { id: 'report-tst-rapporti', label: 'I quattro rapporti', groupId: 'report-tst-rapporti' },
   { id: 'report-rapporto-natura', label: 'Natura di base', groupId: 'report-group-profilo-generale', isSub: true, isSubSub: true },
   { id: 'report-rapporto-se', label: 'Rapporto con te stesso', groupId: 'report-group-profilo-generale', isSub: true, isSubSub: true },
   { id: 'report-rapporto-altro', label: "Rapporto con l'altro", groupId: 'report-group-profilo-generale', isSub: true, isSubSub: true },
@@ -51,16 +51,12 @@ export const REPORT_SECTIONS = [
 
   // 2. Forza delle tue correnti emotive
   { id: 'report-group-forza-correnti', label: 'Forza delle tue correnti emotive', groupId: 'report-group-forza-correnti' },
-  { id: 'report-tst-portato', label: 'Portato esperienziale', navStep: '3.1', groupId: 'report-group-forza-correnti', isSub: true },
+  { id: 'report-tst-portato', label: 'Come hai vissuto il test', navStep: '3.1', groupId: 'report-group-forza-correnti', isSub: true },
   { id: 'report-group-forza-correnti', label: 'Attivazioni delle correnti', navStep: '3.2', groupId: 'report-group-forza-correnti', isSub: true },
 
   // 4. Un contributo all'educazione emotiva
   { id: 'report-group-educazione', label: "Un contributo all'educazione emotiva", groupId: 'report-group-educazione' },
   { id: 'report-tst-parole', label: 'Parole e stati d\'animo', navStep: '4.1', groupId: 'report-group-educazione', isSub: true },
-
-  // 5. In quali stimoli si accende?
-  { id: 'report-group-approfondimento', label: 'Aree sonore del test', groupId: 'report-group-approfondimento' },
-  { id: 'report-tst-approfondimento', label: 'Aree sonore del test', navStep: '5.1', groupId: 'report-group-approfondimento', isSub: true },
 ]
 
 /** Macro-blocchi accordion del report — ordine = percorso di lettura. */
@@ -76,47 +72,47 @@ export const REPORT_GROUPS = [
   },
   {
     id: 'report-group-profilo-generale',
-    title: 'Risultati del test',
-    subtitle: 'Sintesi, famiglia emotiva, natura e relazioni',
+    title: 'Il profilo in sintesi',
+    subtitle: 'Risultato e distribuzione delle famiglie emotive',
     intro: GROUP_INTROS['report-group-profilo-generale'] || '',
     stepLabel: '1',
-    readingFocus: 'Chi sei, la tua famiglia emotiva, le cinque famiglie in relazione.',
+    readingFocus: 'Il risultato principale e la presenza delle cinque famiglie emotive.',
     defaultOpen: true,
   },
   {
+    id: 'stanza-identita',
+    title: 'Identità emotiva e natura',
+    subtitle: 'Natura, racconto, risorse e ombre',
+    intro: '',
+    stepLabel: '2',
+    readingFocus: 'Come la natura emotiva prende forma nel racconto personale.',
+    defaultOpen: false,
+  },
+  {
     id: 'report-tst-rapporti',
-    title: 'Quattro rapporti',
+    title: 'I quattro rapporti',
     subtitle: '',
     intro: GROUP_INTROS['report-group-quattro-rapporti'] || '',
-    stepLabel: '2',
+    stepLabel: '3',
     readingFocus: 'Natura emotiva di base, sé, altro, agire.',
     defaultOpen: false,
   },
   {
     id: 'report-group-forza-correnti',
-    title: 'Forza delle tue correnti emotive',
+    title: 'Portato esperienziale e vitalità',
     subtitle: '',
     intro: GROUP_INTROS['report-group-forza-correnti'] || '',
-    stepLabel: '3',
-    readingFocus: 'Quanto sono forti le correnti e come si orientano nell\'esperienza.',
+    stepLabel: '4',
+    readingFocus: 'Come si è orientata la relazione con il contenuto musicale.',
     defaultOpen: false,
   },
   {
     id: 'report-group-educazione',
-    title: 'Dizionario emotivo',
+    title: 'Lessico emotivo e parole',
     subtitle: 'Dizionario emotivo per nominare i sentimenti emersi dal test',
     intro: GROUP_INTROS['report-group-educazione'] || '',
-    stepLabel: '4',
+    stepLabel: '5',
     readingFocus: 'Parole emerse dal test, dizionario per famiglia, definizioni e copia.',
-    defaultOpen: false,
-  },
-  {
-    id: 'report-group-approfondimento',
-    title: 'Aree sonore del test',
-    subtitle: 'Lettura delle aree sonore e filtro musicale',
-    intro: GROUP_INTROS['report-group-approfondimento'] || '',
-    stepLabel: '6',
-    readingFocus: 'Come le famiglie emotive si attivano area per area.',
     defaultOpen: false,
   },
   {
@@ -124,7 +120,7 @@ export const REPORT_GROUPS = [
     title: 'Le cinque famiglie emotive in relazione tra loro',
     subtitle: '',
     intro: '',
-    stepLabel: '7',
+    stepLabel: '6',
     readingFocus: 'Come le cinque famiglie emotive dialogano e si bilanciano tra loro.',
     defaultOpen: false,
   },

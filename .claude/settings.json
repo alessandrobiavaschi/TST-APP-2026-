@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(./AI-Voice-Clone-with-Coqui-XTTS-v2/**)",
+      "Read(./.venv-pdf/**)",
+      "Read(./.venv_audit_pdf/**)",
+      "Read(./.audit_pdf_frames/**)",
+      "Read(./tmp/**)",
+      "Read(./dist/**)",
+      "Read(./node_modules/**)",
+      "Read(./.firebase/**)",
+      "Read(./docs/archivio/**)",
+      "Read(./.env)",
+      "Bash(git push --force*)",
+      "Bash(git push -f*)"
+    ],
+    "ask": [
+      "Bash(firebase deploy*)",
+      "Bash(npx firebase deploy*)",
+      "Bash(netlify deploy*)"
+    ]
+  }
+}

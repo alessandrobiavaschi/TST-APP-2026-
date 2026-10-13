@@ -14,9 +14,11 @@ import VideoBackground0311 from '../components/VideoBackground0311.jsx'
 import LandingPreviewShowcase from '../components/report/LandingPreviewShowcase.jsx'
 import { TEST_STORY_SLIDES } from '../components/TestStorySlider.jsx'
 import { useSkyTheme } from '../SkyThemeContext.jsx'
+import { useDocumentTitle } from '../hooks/useDocumentTitle.js'
 
 function HomePage() {
-  const { user: currentUser, authReady, logout } = useAuth()
+  useDocumentTitle('Home')
+  const { user: currentUser, authReady, logout, isLocalDeveloper } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const { setLandingSkyOverride } = useSkyTheme()
@@ -84,6 +86,19 @@ function HomePage() {
     window.addEventListener(eventName, onGoogleDiagnostic)
     return () => window.removeEventListener(eventName, onGoogleDiagnostic)
   }, [])
+
+  // Dopo un login appena completato, auth.currentUser può propagarsi con qualche istante di
+  // ritardo (visto soprattutto su Safari): senza questa attesa, il redirect qui sotto rimbalza
+  // l'utente sulla landing subito dopo un accesso riuscito, prima che lo stato si aggiorni.
+  const [loggedOutConfirmed, setLoggedOutConfirmed] = useState(false)
+  useEffect(() => {
+    if (!authReady || currentUser) {
+      setLoggedOutConfirmed(false)
+      return
+    }
+    const timer = window.setTimeout(() => setLoggedOutConfirmed(true), 500)
+    return () => window.clearTimeout(timer)
+  }, [authReady, currentUser])
 
   const trackLandingPreviewEvent = (eventName, payload = {}) => {
     if (typeof window === 'undefined') return
@@ -246,7 +261,7 @@ function HomePage() {
     )
   }
 
-  if (authReady && !currentUser) {
+  if (loggedOutConfirmed) {
     return (
       <Navigate
         to="/"
@@ -337,10 +352,16 @@ function HomePage() {
 
             <div className="my-area-column my-area-column--main">
               <div className="my-area-account account-management">
-                <h2>Gestione account operatore</h2>
+                <h2>{isLocalDeveloper ? 'Sessione di sviluppo locale' : 'Gestione account operatore'}</h2>
                 <p className="my-area-email-badge">
                   Utente collegato: <strong>{currentUser.email}</strong>
                 </p>
+                {isLocalDeveloper && (
+                  <p className="auth-success">
+                    Questa sessione serve a verificare l&apos;app senza collegarsi agli account o ai dati Firebase.
+                    I test completati aprono il report ma non vengono archiviati.
+                  </p>
+                )}
                 {accountError && <p className="auth-error">{accountError}</p>}
                 {accountMessage && <p className="auth-success">{accountMessage}</p>}
                 <div className="account-actions">
@@ -351,20 +372,24 @@ function HomePage() {
                   >
                     Logout
                   </button>
-                  <button
-                    type="button"
-                    className="btn-account btn-account-password"
-                    onClick={handleModificaPassword}
-                  >
-                    Modifica password
-                  </button>
-                  <button
-                    type="button"
-                    className="btn-account btn-account-danger"
-                    onClick={handleDeleteAccount}
-                  >
-                    Elimina account
-                  </button>
+                  {!isLocalDeveloper && (
+                    <>
+                      <button
+                        type="button"
+                        className="btn-account btn-account-password"
+                        onClick={handleModificaPassword}
+                      >
+                        Modifica password
+                      </button>
+                      <button
+                        type="button"
+                        className="btn-account btn-account-danger"
+                        onClick={handleDeleteAccount}
+                      >
+                        Elimina account
+                      </button>
+                    </>
+                  )}
                 </div>
                 <div className="my-area-support">
                   <h3 className="my-area-support-title">Supporto e contatti</h3>
@@ -375,8 +400,9 @@ function HomePage() {
                 </div>
               </div>
               <p className="my-area-footnote">
-                I test che conduci sono collegati al tuo profilo operatore e archiviati in Risultati: report,
-                archivi e confronto delle sessioni nel tempo.
+                {isLocalDeveloper
+                  ? 'Modalita locale attiva: account e archivio Firebase restano separati da questa sessione.'
+                  : 'I test che conduci sono collegati al tuo profilo operatore e archiviati in Risultati: report, archivi e confronto delle sessioni nel tempo.'}
               </p>
             </div>
           </div>
@@ -406,7 +432,7 @@ function HomePage() {
                 </button>
               </header>
 
-              <main className="landing-flow-main" aria-labelledby="landing-flow-title">
+              <div className="landing-flow-main" aria-labelledby="landing-flow-title">
                 <section className="landing-flow-hero">
                   <div className="landing-flow-hero-text">
                     <h1 id="landing-flow-title" className="landing-wind-title" aria-label="TST">
@@ -565,7 +591,7 @@ function HomePage() {
                     onTrack={(eventName, payload) => trackLandingPreviewEvent(eventName, payload)}
                   />
                 </section>
-              </main>
+              </div>
             </div>
           </div>
         </div>

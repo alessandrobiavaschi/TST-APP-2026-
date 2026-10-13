@@ -358,7 +358,52 @@ function AuthBox({
             ← Indietro
           </button>
         )}
-        {authError && <p className="auth-error" role="alert" style={{ marginBottom: '1rem' }}>{authError}</p>}
+        {authError && (
+          <div className="auth-error-box" style={{ marginBottom: '1.2rem', textAlign: 'left' }}>
+            <p className="auth-error" role="alert" style={{ marginBottom: '0.6rem' }}>
+              {authError}
+            </p>
+            {typeof window !== 'undefined' &&
+              window.location.hostname !== 'localhost' &&
+              window.location.hostname !== '127.0.0.1' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px' }}>
+                  <button
+                    type="button"
+                    className="auth-primary-button"
+                    style={{
+                      background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)',
+                      color: '#fff',
+                      fontSize: '13px',
+                      padding: '9px 16px',
+                      borderRadius: '8px',
+                      border: 'none',
+                      cursor: 'pointer',
+                      fontWeight: '600',
+                    }}
+                    onClick={() => {
+                      const port = window.location.port ? `:${window.location.port}` : ''
+                      window.location.href = `http://localhost${port}${window.location.pathname}?accesso=1`
+                    }}
+                  >
+                    Passa a localhost per accedere con Google
+                  </button>
+                  <a
+                    href="https://console.firebase.google.com/project/tst-2026-database/authentication/settings"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    style={{
+                      fontSize: '12px',
+                      color: '#8b5cf6',
+                      textDecoration: 'underline',
+                      textAlign: 'center',
+                    }}
+                  >
+                    Apri Firebase Console per autorizzare {window.location.hostname} ↗
+                  </a>
+                </div>
+              )}
+          </div>
+        )}
         {resetMessage && <p className="auth-success" style={{ marginBottom: '1rem' }}>{resetMessage}</p>}
         {!isFirebaseAuthConfigured && (
           <p className="auth-error" role="alert" style={{ marginBottom: '1rem' }}>

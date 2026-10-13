@@ -4,98 +4,111 @@
  * Mappa data-driven famiglia → identità visiva e narrativa, usata dalla nuova
  * esperienza report (hero full-bleed, sezione sintesi, fiore SVG, navbar).
  *
- * I colori sono soltanto una convenzione visiva per le 5 nature emotive:
- *   BLU → Malinconia · ROSSO → Volitività · VERDE → Calma
- *   GIALLO → Entusiasmo · GRIGIO → Anaffettività
+ * I colori sono soltanto una convenzione visiva per le 5 famiglie emotive.
+ * `family` è il nome della famiglia; `characteristic`/`nature` descrivono
+ * la natura (caratteristica emotiva). Non invertire questi due livelli.
  *
- * Per i nomi natura/disposizione si riusano, dove disponibili, le diciture
- * ufficiali già presenti nel repository (content_report.json / HeroSummary).
+ * Nomi delle nature SOLO dal PDF «Parole per TST»: una famiglia ha più nature,
+ * quindi `characteristic`/`nature`/`disposition` elencano le nature della famiglia
+ * (fallback). La natura della persona è calcolata nel report (natura prevalente).
  */
+
+import { elencoNaturePdf } from '../utils/naturePdf.js'
 
 export const FAMILY_THEME = {
   Verde: {
     key: 'verde',
     label: 'Verde',
-    nature: 'NATURA FLEMMATICA',
+    family: 'Flemmatica',
+    characteristic: elencoNaturePdf('verde').toUpperCase(),
+    nature: `NATURA ${elencoNaturePdf('verde').toUpperCase()}`,
     corrente: 'Flemmatica',
-    disposition: 'CONTEMPLATIVA',
+    disposition: elencoNaturePdf('verde').toUpperCase(),
     macro: 'Calma',
     tagline: 'Caratteri emotivi che prediligono calma, riposo e contemplazione',
     gradient: { from: '#166534', to: '#14532d' },
-    dot: '#22c55e',
+    dot: '#4ade80',
     personalizedTitles: {
-      natura: 'La Natura del Flemmatico',
+      natura: 'La famiglia Flemmatica',
       racconto: 'Memoria, Esperienza ed essere Musica',
-      risorse: 'Risorse del Flemmatico',
-      ombre: 'Ombre del flemmatico',
+      risorse: 'Risorse della famiglia Flemmatica',
+      ombre: 'Ombre della famiglia Flemmatica',
     },
   },
   Rosso: {
     key: 'rosso',
     label: 'Rosso',
-    nature: 'NATURA MARZIALE',
+    family: 'Marziale',
+    characteristic: elencoNaturePdf('rosso').toUpperCase(),
+    nature: `NATURA ${elencoNaturePdf('rosso').toUpperCase()}`,
     corrente: 'Marziale',
-    disposition: 'VOLITIVO COLLERICA',
+    disposition: elencoNaturePdf('rosso').toUpperCase(),
     macro: 'Volitività',
-    tagline: 'Caratteri emotivi in cui prevalgono assertività e spinta all’azione',
+    tagline: 'Caratteri emotivi in cui prevalgono volontà e spinta all’azione',
     gradient: { from: '#991b1b', to: '#7f1d1d' },
-    dot: '#ef4444',
+    dot: '#f87171',
     personalizedTitles: {
-      natura: 'La Natura del Volitivo',
+      natura: 'La famiglia Marziale',
       racconto: 'Memoria, Esperienza ed essere Musica',
-      risorse: 'Risorse del Volitivo',
-      ombre: 'Ombre del volitivo',
+      risorse: 'Risorse della famiglia Marziale',
+      ombre: 'Ombre della famiglia Marziale',
     },
   },
   Blu: {
     key: 'blu',
     label: 'Blu',
-    nature: 'NATURA LUNARE',
-    corrente: 'Lunare',
-    disposition: 'MALINCONICO NOSTALGICA',
+    family: 'Malinconica',
+    characteristic: elencoNaturePdf('blu').toUpperCase(),
+    nature: `NATURA ${elencoNaturePdf('blu').toUpperCase()}`,
+    corrente: 'Malinconica',
+    disposition: elencoNaturePdf('blu').toUpperCase(),
     macro: 'Malinconia',
     tagline: 'Caratteri emotivi che prediligono riflessività, dialogo intimo e percezione interiore',
     gradient: { from: '#1e3a8a', to: '#172554' },
-    dot: '#3b82f6',
+    dot: '#60a5fa',
     personalizedTitles: {
-      natura: 'La Natura del Malinconico - nostalgico',
+      natura: 'La famiglia Malinconica',
       racconto: 'Memoria, Esperienza ed essere Musica',
-      risorse: 'Risorse del Malinconico - nostalgico',
-      ombre: 'Ombre del malinconico - nostalgico',
+      risorse: 'Risorse della famiglia Malinconica',
+      ombre: 'Ombre della famiglia Malinconica',
     },
   },
   Giallo: {
     key: 'giallo',
     label: 'Giallo',
-    nature: 'NATURA SOLARE',
-    corrente: 'Solare',
-    disposition: 'SANGUINICO ENTUSIASTA',
+    family: 'Entusiasta',
+    characteristic: elencoNaturePdf('giallo').toUpperCase(),
+    nature: `NATURA ${elencoNaturePdf('giallo').toUpperCase()}`,
+    corrente: 'Entusiasta',
+    disposition: elencoNaturePdf('giallo').toUpperCase(),
     macro: 'Entusiasmo',
     tagline: 'Caratteri emotivi orientati al movimento, alla scoperta e all’entusiasmo',
     gradient: { from: '#a16207', to: '#854d0e' },
-    dot: '#eab308',
+    dot: '#fde047',
     personalizedTitles: {
-      natura: "La Natura dell'Entusiasta",
+      natura: 'La famiglia Entusiasta',
       racconto: 'Memoria, Esperienza ed essere Musica',
-      risorse: "Risorse dell'Entusiasta",
-      ombre: "Ombre dell'entusiasta",
+      risorse: 'Risorse della famiglia Entusiasta',
+      ombre: 'Ombre della famiglia Entusiasta',
     },
   },
   Grigio: {
     key: 'grigio',
     label: 'Grigio',
-    nature: 'NATURA ANAFFETTIVA',
-    corrente: 'Anaffettiva',
-    disposition: 'AGNOSTICO ANAFFETTIVA',
+    family: 'Razionale',
+    characteristic: elencoNaturePdf('grigio').toUpperCase(),
+    nature: `NATURA ${elencoNaturePdf('grigio').toUpperCase()}`,
+    corrente: 'Razionale',
+    disposition: elencoNaturePdf('grigio').toUpperCase(),
     macro: 'Anaffettività',
-    tagline: 'Corrente agnostico-anaffettiva orientata al distacco intellettuale',
+    tagline: 'Famiglia Razionale orientata al distacco intellettuale',
     gradient: { from: '#374151', to: '#1f2937' },
-    dot: '#6b7280',
+    dot: '#9ca3af',
     personalizedTitles: {
-      natura: "La Natura dell'Anaffettivo",
+      natura: 'La famiglia Razionale',
       racconto: 'Memoria, Esperienza ed essere Musica',
-      risorse: "Risorse dell'Anaffettivo",
-      ombre: "Ombre dell'anaffettivo",
+      risorse: 'Risorse della famiglia Razionale',
+      ombre: 'Ombre della famiglia Razionale',
     },
   },
 }
@@ -113,6 +126,15 @@ export const FAMILY_NAME_BY_KEY = {
   giallo: 'Giallo',
   grigio: 'Grigio',
 }
+
+/** Etichette canoniche mostrate all'utente, distinte dalle chiavi colore interne. */
+export const FAMILY_LABEL_BY_KEY = Object.fromEntries(
+  Object.values(FAMILY_THEME).map((theme) => [theme.key, theme.family]),
+)
+
+export const FAMILY_CHARACTERISTIC_BY_KEY = Object.fromEntries(
+  Object.values(FAMILY_THEME).map((theme) => [theme.key, theme.characteristic]),
+)
 
 /** Ritorna il tema della famiglia dominante (fallback: Verde). */
 export function getFamilyTheme(dominantColorName) {

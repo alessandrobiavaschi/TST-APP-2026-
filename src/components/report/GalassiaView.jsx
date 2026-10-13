@@ -111,9 +111,10 @@ function clampCamera(camera, width, height) {
   const scale = clamp(camera.scale || 1, CAMERA_MIN_SCALE, CAMERA_MAX_SCALE)
   const safeW = width || 960
   const safeH = height || 640
-  const slack = 180
-  const limitX = Math.max(slack, safeW * (scale - 1) * 0.58 + slack)
-  const limitY = Math.max(slack, safeH * (scale - 1) * 0.58 + slack)
+  const baseSlackX = Math.max(700, safeW * 0.8)
+  const baseSlackY = Math.max(500, safeH * 0.8)
+  const limitX = Math.max(baseSlackX, safeW * Math.abs(scale - 1) * 0.75 + baseSlackX)
+  const limitY = Math.max(baseSlackY, safeH * Math.abs(scale - 1) * 0.75 + baseSlackY)
 
   return {
     x: clamp(camera.x || 0, -limitX, limitX),
@@ -445,11 +446,11 @@ function computeGalassiaZoomLayout({
 }
 
 const GALASSIA_AXIS = [
-  { className: 'galassia-view__axis-label--north', title: 'Nord', text: 'Entusiasmo' },
-  { className: 'galassia-view__axis-label--west', title: 'Ovest', text: 'Malinconia' },
-  { className: 'galassia-view__axis-label--east', title: 'Est', text: 'Volitività' },
-  { className: 'galassia-view__axis-label--center', title: 'Centro', text: 'Calma' },
-  { className: 'galassia-view__axis-label--south', title: 'Sud', text: 'Anaffettività' },
+  { className: 'galassia-view__axis-label--north', title: 'Nord', text: 'Entusiasta' },
+  { className: 'galassia-view__axis-label--west', title: 'Ovest', text: 'Malinconica' },
+  { className: 'galassia-view__axis-label--east', title: 'Est', text: 'Marziale' },
+  { className: 'galassia-view__axis-label--center', title: 'Centro', text: 'Flemmatica' },
+  { className: 'galassia-view__axis-label--south', title: 'Sud', text: 'Razionale' },
 ]
 
 const FAMILY_KEY_BY_DISPOSITION = {
@@ -461,11 +462,11 @@ const FAMILY_KEY_BY_DISPOSITION = {
 }
 
 const CORRENTE_NAME_BY_FAMILY = {
-  blu: 'Malinconia',
-  rosso: 'Volitività',
-  verde: 'Calma',
-  giallo: 'Entusiasmo',
-  grigio: 'Anaffettività',
+  blu: 'Malinconica',
+  rosso: 'Marziale',
+  verde: 'Flemmatica',
+  giallo: 'Entusiasta',
+  grigio: 'Razionale',
 }
 
 const RELATION_TONE_COPY = {
@@ -519,10 +520,15 @@ const PORTATO_CARD_BY_KEY = Object.fromEntries(
 )
 
 const CORRENTE_COLOR_BY_NAME = {
-  Malinconia: '#3b82f6',
-  Volitività: '#ef4444',
-  Calma: '#22c55e',
-  Entusiasmo: '#eab308',
+  Malinconica: '#60a5fa',
+  Marziale: '#f87171',
+  Flemmatica: '#4ade80',
+  Entusiasta: '#fde047',
+  Razionale: '#94a3b8',
+  Malinconia: '#60a5fa',
+  Volitività: '#f87171',
+  Calma: '#4ade80',
+  Entusiasmo: '#fde047',
   Anaffettività: '#94a3b8',
 }
 
@@ -544,9 +550,13 @@ const DISPOSITION_ID_BY_FAMILY_KEY = {
 
 const FAMILY_KEY_BY_COLOR = {
   '#3b82f6': 'blu',
+  '#60a5fa': 'blu',
   '#ef4444': 'rosso',
+  '#f87171': 'rosso',
   '#22c55e': 'verde',
+  '#4ade80': 'verde',
   '#eab308': 'giallo',
+  '#fde047': 'giallo',
   '#6b7280': 'grigio',
   '#9ca3af': 'grigio',
 }
@@ -569,10 +579,15 @@ const FAMILY_KEY_ALIASES = {
   giallo: 'giallo',
   entusiasmo: 'giallo',
   solare: 'giallo',
+  gioiososanguinico: 'giallo',
+  gioioso: 'giallo',
+  sanguinico: 'giallo',
   grigio: 'grigio',
   anaffettivita: 'grigio',
   anaffettiva: 'grigio',
   agnostica: 'grigio',
+  razionale: 'grigio',
+  intellettualerazionale: 'grigio',
 }
 
 const LESSICO_RELATIONS_BY_FAMILY = {
@@ -929,7 +944,7 @@ function buildModeIdlePanel(mode, { dominant, portato, deepReading } = {}) {
           id: 'settori',
           label: 'Pianeta',
           areas: 'Famiglia emotiva',
-          meaning: 'Il cerchio rappresenta una disposizione, come Entusiasmo o Calma.',
+          meaning: 'Il cerchio rappresenta una famiglia, come Entusiasta o Flemmatica.',
         },
         {
           id: 'conteggio',
@@ -950,7 +965,7 @@ function buildModeIdlePanel(mode, { dominant, portato, deepReading } = {}) {
     const prevalenteDim = (portato.dimensioni || []).find((dim) => dim.key === portato.prevalente)
     return {
       ...base,
-      idleKicker: 'Portato esperienziale',
+      idleKicker: 'Come hai vissuto il test',
       dominantChipLabel: GALASSIA_PORTATO_UI.prevalenteLabel,
       intro: GALASSIA_PORTATO_UI.intro,
       introPoints: GALASSIA_PORTATO_UI.cards,
@@ -1185,14 +1200,18 @@ function getRapportiForFamily(rapporti = [], familyKey = '') {
     .filter((item) => item.valore > 0)
 }
 
-function relationToneFromKeywords(keywords = []) {
-  const joined = keywords.join(' ').toLowerCase()
-  if (/calma|pazienza|stabil|rifless/.test(joined)) return 'calma'
-  if (/decisa|diretta|pratica|definita|indirizzata|direzionata/.test(joined)) return 'spinta'
-  if (/profonda|sensibile|ideale|meditativa/.test(joined)) return 'profondita'
-  if (/energia|creativ|impulsiv|dinamismo|inventiva|efficienza/.test(joined)) return 'energia'
-  if (/distante|razionale|chiusa|separata/.test(joined)) return 'distanza'
-  return 'misto'
+// Tono della relazione deciso dalla famiglia partner (le parole vengono dal PDF
+// e non servono più a dedurlo).
+const RELATION_TONE_BY_PARTNER = {
+  verde: 'calma',
+  rosso: 'spinta',
+  blu: 'profondita',
+  giallo: 'energia',
+  grigio: 'distanza',
+}
+
+function relationToneForPartner(partnerFamilyKey = '') {
+  return RELATION_TONE_BY_PARTNER[partnerFamilyKey] || 'misto'
 }
 
 function buildDispositionRelations(rankedData = [], limit = 4) {
@@ -1207,7 +1226,7 @@ function buildDispositionRelations(rankedData = [], limit = 4) {
       const partnerFamilyKey = familyKeyForCorrente(partner)
       const keywords = getDialogoKeywords(dominantFamilyKey, partnerFamilyKey)
       const reciprocalKeywords = getDialogoKeywords(partnerFamilyKey, dominantFamilyKey)
-      const tone = relationToneFromKeywords(keywords)
+      const tone = relationToneForPartner(partnerFamilyKey)
       return {
         id: `${dominant.id}-${partner.id}`,
         baseId: dominant.id,
@@ -1224,7 +1243,6 @@ function buildDispositionRelations(rankedData = [], limit = 4) {
         toneCopy: RELATION_TONE_COPY[tone] || RELATION_TONE_COPY.misto,
       }
     })
-    .filter((relation) => relation.keywords.length || relation.reciprocalKeywords.length)
 }
 
 function getParoleForFamily(paroleEmerse = [], familyKey = '') {
@@ -1250,10 +1268,9 @@ function buildProfileInfo({ corrente, rankedData, paroleEmerse, rapporti }) {
         colore: partner.colore || getFamigliaDot(partnerFamilyKey),
         keywords: getDialogoKeywords(familyKey, partnerFamilyKey).slice(0, 4),
         reciprocalKeywords: getDialogoKeywords(partnerFamilyKey, familyKey).slice(0, 4),
-        tone: relationToneFromKeywords(getDialogoKeywords(familyKey, partnerFamilyKey)),
+        tone: relationToneForPartner(partnerFamilyKey),
       }
     })
-    .filter((item) => item.keywords.length > 0)
 
   const subs = (Array.isArray(corrente.sottoCorrenti) ? corrente.sottoCorrenti : [])
     .map((sub) => ({
@@ -1295,11 +1312,12 @@ function buildProfileInfo({ corrente, rankedData, paroleEmerse, rapporti }) {
   }
 }
 
+// Solo parole presenti nel PDF «Parole per TST» per la famiglia indicata.
 const REPRESENTATIVE_WORDS = {
   'parole-entusiasmo': ['Gioioso', 'Curioso', 'Dinamico'],
   'parole-malinconica_nostalgica': ['Riflessivo', 'Nostalgico', 'Pensieroso'],
-  'parole-collerico_volitiva': ['Determinato', 'Fermo', 'Coraggioso'],
-  'parole-flemmatica': ['Pacifico', 'Contemplativo', 'Equilibrato'],
+  'parole-collerico_volitiva': ['Volitivo', 'Assertivo', 'Risoluto'],
+  'parole-flemmatica': ['Calmo', 'Contemplativo', 'Pacato'],
   'parole-agnostica_anaffettiva': ['Distaccato', 'Lucido', 'Indifferente'],
 }
 
@@ -1849,7 +1867,7 @@ function GalassiaCrtPanel({
       className={`galassia-view__crt${isCompact ? ' galassia-view__crt--compact' : ''}`}
       aria-label={GALASSIA_UI.monitorAria}
     >
-      <div className="galassia-view__crt-bezel" style={{ '--panel-color': panel.colore || '#22c55e' }}>
+      <div className="galassia-view__crt-bezel" style={{ '--panel-color': panel.colore || '#4ade80' }}>
         <div className="galassia-view__crt-head">
           <p className="galassia-view__crt-kicker">
             {isIdle
@@ -1996,7 +2014,7 @@ function GalassiaCrtPanel({
                   />
                   <span>{panel.nome}</span>
                 </h2>
-                {panel.composizione && (
+                {panel.composizione && panel.id !== 'agire' && (
                   <p className="galassia-view__crt-meta">{panel.composizione}</p>
                 )}
                 {panel.definizione && (
@@ -2269,46 +2287,6 @@ function GalassiaCrtPanel({
                             <em>{sub.pct}%</em>
                           </span>
                           <MiniBar value={sub.pct} color={sub.colore || panel.colore} />
-                        </li>
-                      ))}
-                    </ul>
-                  </section>
-                )}
-
-                {profileInfo.activePartners.length > 0 && (
-                  <section className="galassia-view__profile-block galassia-view__profile-block--dialogue">
-                    <h3>Rapporti tra disposizioni</h3>
-                    <ul className="galassia-view__dialogue-list">
-                      {profileInfo.activePartners.map((partner) => (
-                        <li key={partner.id}>
-                          <span className="galassia-view__dialogue-head">
-                            <i style={{ backgroundColor: partner.colore }} aria-hidden="true" />
-                            <b>{partner.nome}</b>
-                            <em>{partner.pct}%</em>
-                          </span>
-                          <span className="galassia-view__dialogue-keywords">
-                            <b>{RELATION_TONE_COPY[partner.tone]?.label || 'modula'}</b>
-                            {partner.keywords.join(' · ')}
-                          </span>
-                          {partner.reciprocalKeywords.length > 0 ? (
-                            <span className="galassia-view__dialogue-keywords galassia-view__dialogue-keywords--reverse">
-                              Di ritorno: {partner.reciprocalKeywords.join(' · ')}
-                            </span>
-                          ) : null}
-                        </li>
-                      ))}
-                    </ul>
-                  </section>
-                )}
-
-                {profileInfo.rapporti.length > 0 && (
-                  <section className="galassia-view__profile-block galassia-view__profile-block--rapporti">
-                    <h3>Rapporti</h3>
-                    <ul className="galassia-view__rapporti-list">
-                      {profileInfo.rapporti.map((rapporto) => (
-                        <li key={rapporto.id}>
-                          <span>{rapporto.nome}</span>
-                          <b>{rapporto.valore}/7</b>
                         </li>
                       ))}
                     </ul>
@@ -2617,10 +2595,10 @@ function GalassiaMobileAlternativeView({
 
 const DEEP_READ_FAMILY_META = {
   blu: { shortName: 'Malinconica', relationalKey: 'malinconico', essence: 'memoria, profondita e ricerca di senso' },
-  rosso: { shortName: 'Volitiva', relationalKey: 'assertivo', essence: 'direzione, decisione e presenza nel fare' },
+  rosso: { shortName: 'Marziale', relationalKey: 'assertivo', essence: 'direzione, decisione e presenza nel fare' },
   verde: { shortName: 'Flemmatica', relationalKey: 'flemmatico', essence: 'calma, continuita e capacita di depositare' },
   giallo: { shortName: 'Entusiasta', relationalKey: 'entusiasta', essence: 'slancio, apertura e movimento creativo' },
-  grigio: { shortName: 'Anaffettiva', relationalKey: 'anaffettivo', essence: 'distanza osservativa, lucidita e separazione' },
+  grigio: { shortName: 'Razionale', relationalKey: 'anaffettivo', essence: 'distanza osservativa, lucidita e separazione' },
 }
 
 const DEEP_READ_RELATION_KEYS = {
@@ -2703,6 +2681,7 @@ export default function GalassiaView({
   famiglieLessico = {},
   rapporti = [],
   portato = {},
+  lessicoAnalitico = null,
 }) {
   const data = useMemo(
     () => (Array.isArray(correntData) && correntData.length ? correntData : EXAMPLE_CORRENT_DATA),
@@ -2719,6 +2698,7 @@ export default function GalassiaView({
   const isMobile = useIsMobile()
   const containerRef = useRef(null)
   const mapLayerRef = useRef(null)
+  const mapViewportRef = useRef(null)
   const mapCanvasRef = useRef(null)
   const cameraRef = useRef(CAMERA_RESET)
   const pointersRef = useRef(new Map())
@@ -2726,7 +2706,7 @@ export default function GalassiaView({
   const mouseDragRef = useRef(null)
   const webkitGestureRef = useRef(null)
   const { w, h } = useElementSize(containerRef)
-  const { w: mapW, h: mapH } = useElementSize(mapCanvasRef)
+  const { w: mapW, h: mapH } = useElementSize(mapViewportRef)
 
   const [mapMode, setMapMode] = useState('disposizioni')
   const [selectedId, setSelectedId] = useState(null)
@@ -2923,21 +2903,33 @@ export default function GalassiaView({
     cameraAnimTimerRef.current = setTimeout(() => setCameraAnimating(false), CAMERA_ANIM_MS)
   }, [reducedMotion])
 
-  const applyCamera = useCallback((nextCamera) => {
+  const wheelSyncTimerRef = useRef(null)
+
+  const updateCanvasTransform = useCallback((cam) => {
+    if (mapCanvasRef.current) {
+      mapCanvasRef.current.style.transform = `translate(${cam.x.toFixed(2)}px, ${cam.y.toFixed(2)}px) scale(${cam.scale.toFixed(4)})`
+    }
+  }, [])
+
+  const applyCamera = useCallback((nextCamera, immediateState = false) => {
     const next = typeof nextCamera === 'function' ? nextCamera(cameraRef.current) : nextCamera
     const clamped = clampCamera(next, mapW, mapH)
     cameraRef.current = clamped
-    setCamera(clamped)
-  }, [mapW, mapH])
+    updateCanvasTransform(clamped)
+    if (immediateState) {
+      setCamera(clamped)
+    }
+  }, [mapW, mapH, updateCanvasTransform])
 
-  const resetCamera = () => {
+  const resetCamera = useCallback(() => {
     pointersRef.current.clear()
     pinchGestureRef.current = null
     mouseDragRef.current = null
     webkitGestureRef.current = null
     cameraRef.current = CAMERA_RESET
+    updateCanvasTransform(CAMERA_RESET)
     setCamera(CAMERA_RESET)
-  }
+  }, [updateCanvasTransform])
 
   const focusCameraOnPercentage = useCallback((px, py, targetScale = 2.0) => {
     pointersRef.current.clear()
@@ -2992,7 +2984,7 @@ export default function GalassiaView({
       return nextId
     })
     setActiveSubId(null)
-  }, [mapNodes, focusCameraOnPercentage])
+  }, [mapNodes, focusCameraOnPercentage, resetCamera])
 
   const selectFamilyAndSub = useCallback((familyId, subId) => {
     setSelectedId(familyId)
@@ -3104,6 +3096,10 @@ export default function GalassiaView({
       const intensity = event.deltaMode === 1 ? 0.18 : 0.0055
       const nextScale = cameraRef.current.scale * Math.exp(-event.deltaY * intensity)
       applyCamera((prev) => zoomCameraAt(prev, nextScale, origin, mapW, mapH))
+      if (wheelSyncTimerRef.current) clearTimeout(wheelSyncTimerRef.current)
+      wheelSyncTimerRef.current = setTimeout(() => {
+        setCamera(cameraRef.current)
+      }, 80)
       return
     }
 
@@ -3113,6 +3109,10 @@ export default function GalassiaView({
       x: prev.x - event.deltaX * panFactor,
       y: prev.y - event.deltaY * panFactor,
     }))
+    if (wheelSyncTimerRef.current) clearTimeout(wheelSyncTimerRef.current)
+    wheelSyncTimerRef.current = setTimeout(() => {
+      setCamera(cameraRef.current)
+    }, 80)
   }
 
   const handleMapPointerDown = (event) => {
@@ -3200,6 +3200,8 @@ export default function GalassiaView({
 
     if (pointersRef.current.size >= 2) {
       beginPinchGesture()
+    } else {
+      setCamera(cameraRef.current)
     }
   }
 
@@ -3234,11 +3236,12 @@ export default function GalassiaView({
       const nextScale = gesture.camera.scale * (Number(event.scale) || 1)
       const clamped = zoomCameraAt(gesture.camera, nextScale, gesture.origin, mapW, mapH)
       cameraRef.current = clamped
-      setCamera(clamped)
+      updateCanvasTransform(clamped)
     }
 
     const handleGestureEnd = () => {
       webkitGestureRef.current = null
+      setCamera(cameraRef.current)
     }
 
     layer.addEventListener('gesturestart', handleGestureStart, { passive: false })
@@ -3250,7 +3253,7 @@ export default function GalassiaView({
       layer.removeEventListener('gesturechange', handleGestureChange)
       layer.removeEventListener('gestureend', handleGestureEnd)
     }
-  }, [mapW, mapH])
+  }, [mapW, mapH, updateCanvasTransform])
 
   const zoomCameraByStep = (direction) => {
     const viewport = mapCanvasRef.current || mapLayerRef.current
@@ -3259,10 +3262,43 @@ export default function GalassiaView({
     const origin = { x: 0, y: 0 }
     const factor = direction > 0 ? CAMERA_ZOOM_STEP : 1 / CAMERA_ZOOM_STEP
     beginCameraAnimation()
-    applyCamera((prev) =>
-      zoomCameraAt(prev, prev.scale * factor, origin, rect.width, rect.height),
+    applyCamera(
+      (prev) => zoomCameraAt(prev, prev.scale * factor, origin, rect.width, rect.height),
+      true,
     )
   }
+
+  const panCameraBy = useCallback((dx, dy) => {
+    pointersRef.current.clear()
+    pinchGestureRef.current = null
+    mouseDragRef.current = null
+    beginCameraAnimation()
+    applyCamera(
+      (prev) => ({
+        ...prev,
+        x: prev.x + dx,
+        y: prev.y + dy,
+      }),
+      true,
+    )
+  }, [beginCameraAnimation, applyCamera])
+
+  const [isFullscreen, setIsFullscreen] = useState(false)
+
+  const toggleFullscreen = useCallback(() => {
+    const el = containerRef.current || document.querySelector('.galassia-view') || document.documentElement
+    if (!document.fullscreenElement) {
+      el.requestFullscreen?.().catch(() => {})
+    } else {
+      document.exitFullscreen?.().catch(() => {})
+    }
+  }, [])
+
+  useEffect(() => {
+    const onFsChange = () => setIsFullscreen(Boolean(document.fullscreenElement))
+    document.addEventListener('fullscreenchange', onFsChange)
+    return () => document.removeEventListener('fullscreenchange', onFsChange)
+  }, [])
 
   useEffect(() => {
     const onKey = (event) => {
@@ -3272,6 +3308,27 @@ export default function GalassiaView({
       if (event.key === 'Escape') {
         if (activeSubId) setActiveSubId(null)
         else if (effectiveSelectedId) backToMap()
+        return
+      }
+
+      if (event.key === 'ArrowUp') {
+        event.preventDefault()
+        panCameraBy(0, 160)
+        return
+      }
+      if (event.key === 'ArrowDown') {
+        event.preventDefault()
+        panCameraBy(0, -160)
+        return
+      }
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault()
+        panCameraBy(160, 0)
+        return
+      }
+      if (event.key === 'ArrowRight') {
+        event.preventDefault()
+        panCameraBy(-160, 0)
         return
       }
 
@@ -3310,7 +3367,7 @@ export default function GalassiaView({
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [effectiveSelectedId, activeSubId, mapW, mapH, backToMap])
+  }, [effectiveSelectedId, activeSubId, mapW, mapH, backToMap, panCameraBy, resetCamera])
 
   const planetLayout = useMemo(() => {
     return mapNodes.map((node, index) => {
@@ -3537,6 +3594,45 @@ export default function GalassiaView({
   const constellationNodes = constellationLayout.nodes
   const constellationSize = constellationLayout.constellationSize
 
+  const isEmptyState = useMemo(() => {
+    return !correntData || correntData.length === 0 || correntData.every(d => Number(d.peso) === 0)
+  }, [correntData])
+
+  if (isEmptyState) {
+    return (
+      <div
+        className="galassia-view"
+        style={{
+          backgroundColor: '#020817',
+          color: '#94a3b8',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: 500,
+          padding: '2rem',
+          textAlign: 'center',
+          fontFamily: 'var(--font-body)',
+        }}
+      >
+        <div style={{
+          background: 'rgba(255,255,255,0.02)',
+          border: '1px dashed rgba(255,255,255,0.12)',
+          padding: '40px',
+          borderRadius: '16px',
+          maxWidth: '480px'
+        }}>
+          <h3 style={{ fontSize: '1.25rem', color: '#f8fafc', fontWeight: 600, marginBottom: '12px' }}>
+            Galassia Lessicale non disponibile
+          </h3>
+          <p style={{ fontSize: '0.9rem', lineHeight: 1.6, opacity: 0.8 }}>
+            Non sono presenti dati di test validi per questo report. Completa il test d'ascolto per sbloccare la mappa delle costellazioni emotive e dei tuoi contrasti lessicali.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div
       ref={containerRef}
@@ -3593,46 +3689,6 @@ export default function GalassiaView({
                 {showGuideDeck ? GALASSIA_UI.guideToggleClose : GALASSIA_UI.guideToggleOpen}
               </button>
             ) : null}
-            <div
-              className="galassia-view__map-controls"
-              role="toolbar"
-              aria-label="Navigazione mappa: più e meno per zoomare, Centra per ripristinare la vista"
-            >
-            <button
-              type="button"
-              className="galassia-view__map-control"
-              aria-label="Zoom avanti"
-              onClick={(event) => {
-                event.stopPropagation()
-                zoomCameraByStep(1)
-              }}
-            >
-              +
-            </button>
-            <button
-              type="button"
-              className="galassia-view__map-control"
-              aria-label="Zoom indietro"
-              onClick={(event) => {
-                event.stopPropagation()
-                zoomCameraByStep(-1)
-              }}
-            >
-              −
-            </button>
-            <button
-              type="button"
-              className="galassia-view__map-control galassia-view__map-control--ghost"
-              aria-label={isZoomedView ? GALASSIA_UI.backToMap : GALASSIA_UI.resetCamera}
-              onClick={(event) => {
-                event.stopPropagation()
-                if (isZoomedView || effectiveSelectedId) backToMap()
-                else resetCamera()
-              }}
-            >
-              {isZoomedView || effectiveSelectedId ? GALASSIA_UI.backToMap : GALASSIA_UI.resetCamera}
-            </button>
-            </div>
           </div>
         </header>
 
@@ -3663,6 +3719,141 @@ export default function GalassiaView({
         </nav>
       </div>
 
+      {/* Floating Tactical Map Controls (D-Pad, Zoom, Reset, Fullscreen) */}
+      {!isMobile && mapMode !== 'parole' ? (
+        <div
+          className="galassia-view__map-controls galassia-view__map-controls--floating"
+          role="toolbar"
+          aria-label="Navigazione mappa: controlli direzionali, zoom e schermo intero"
+          onPointerDown={(e) => e.stopPropagation()}
+        >
+          {/* Directional D-Pad Pan Cursor */}
+          <div
+            className="lessico-atlas__dpad"
+            role="group"
+            aria-label="Controlli di navigazione direzionale"
+            onPointerDown={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="galassia-view__map-control lessico-atlas__dpad-btn lessico-atlas__dpad-btn--up"
+              aria-label="Sposta verso l'alto"
+              title="Pan verso l'alto (▲)"
+              onClick={(e) => {
+                e.stopPropagation()
+                panCameraBy(0, 160)
+              }}
+            >
+              ▲
+            </button>
+            <div className="lessico-atlas__dpad-row">
+              <button
+                type="button"
+                className="galassia-view__map-control lessico-atlas__dpad-btn lessico-atlas__dpad-btn--left"
+                aria-label="Sposta a sinistra"
+                title="Pan a sinistra (◄)"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  panCameraBy(160, 0)
+                }}
+              >
+                ◄
+              </button>
+              <button
+                type="button"
+                className="galassia-view__map-control lessico-atlas__dpad-btn lessico-atlas__dpad-btn--center"
+                aria-label="Centra visuale"
+                title="Centra mappa (0)"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  if (isZoomedView || effectiveSelectedId) backToMap()
+                  else resetCamera()
+                }}
+              >
+                ⊕
+              </button>
+              <button
+                type="button"
+                className="galassia-view__map-control lessico-atlas__dpad-btn lessico-atlas__dpad-btn--right"
+                aria-label="Sposta a destra"
+                title="Pan a destra (►)"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  panCameraBy(-160, 0)
+                }}
+              >
+                ►
+              </button>
+            </div>
+            <button
+              type="button"
+              className="galassia-view__map-control lessico-atlas__dpad-btn lessico-atlas__dpad-btn--down"
+              aria-label="Sposta verso il basso"
+              title="Pan verso il basso (▼)"
+              onClick={(e) => {
+                e.stopPropagation()
+                panCameraBy(0, -160)
+              }}
+            >
+              ▼
+            </button>
+          </div>
+
+          <div className="lessico-atlas__controls-divider" aria-hidden="true" />
+
+          <button
+            type="button"
+            className="galassia-view__map-control"
+            aria-label="Zoom avanti"
+            title="Zoom avanti (+)"
+            onClick={(event) => {
+              event.stopPropagation()
+              zoomCameraByStep(1)
+            }}
+          >
+            +
+          </button>
+          <button
+            type="button"
+            className="galassia-view__map-control"
+            aria-label="Zoom indietro"
+            title="Zoom indietro (−)"
+            onClick={(event) => {
+              event.stopPropagation()
+              zoomCameraByStep(-1)
+            }}
+          >
+            −
+          </button>
+          <button
+            type="button"
+            className="galassia-view__map-control galassia-view__map-control--ghost"
+            aria-label={isZoomedView ? GALASSIA_UI.backToMap : GALASSIA_UI.resetCamera}
+            title="Reimposta visuale"
+            onClick={(event) => {
+              event.stopPropagation()
+              if (isZoomedView || effectiveSelectedId) backToMap()
+              else resetCamera()
+            }}
+          >
+            {isZoomedView || effectiveSelectedId ? GALASSIA_UI.backToMap : GALASSIA_UI.resetCamera}
+          </button>
+
+          <button
+            type="button"
+            className={`galassia-view__map-control lessico-atlas__fullscreen-btn${isFullscreen ? ' is-active' : ''}`}
+            aria-label={isFullscreen ? 'Esci da schermo intero' : 'Schermo intero'}
+            title={isFullscreen ? 'Esci da schermo intero (Esc)' : 'Schermo intero immersivo'}
+            onClick={(event) => {
+              event.stopPropagation()
+              toggleFullscreen()
+            }}
+          >
+            {isFullscreen ? '✕' : '⛶'}
+          </button>
+        </div>
+      ) : null}
+
       {guideDeckOpen ? (
         <GalassiaOperatorGuide mapMode={mapMode} onDismiss={closeGuidePermanently} />
       ) : null}
@@ -3671,6 +3862,7 @@ export default function GalassiaView({
         <LessicoAtlasView
           paroleEmerse={paroleEmerse}
           isMobile={isMobile}
+          viewModel={lessicoAnalitico}
         />
       ) : !isMobile ? (
         <div
@@ -3697,8 +3889,9 @@ export default function GalassiaView({
               <span>Tocca un pianeta per leggere il profilo</span>
             </div>
           )}
-          <div ref={mapCanvasRef} className="galassia-view__map-viewport">
+          <div ref={mapViewportRef} className="galassia-view__map-viewport">
             <div
+              ref={mapCanvasRef}
               className={`galassia-view__map-canvas${cameraAnimating ? ' galassia-view__map-canvas--animating' : ''}`}
               style={{
                 transform: `translate(${camera.x}px, ${camera.y}px) scale(${camera.scale})`,
@@ -3901,17 +4094,27 @@ export default function GalassiaView({
                   const isActive = sub.id === activeSubId
                   const isHovered = sub.id === hoveredSubId
                   const showLabel = !isMobile || isActive || isHovered
-                  const labelSide =
-                    constellationLayout.n === 2
-                      ? (x < 0 ? 'below' : 'above')
-                      : (y >= 0 ? 'below' : 'above')
+                  // Push the label radially outward along the same angle as the
+                  // satellite itself (relative to the core at 0,0), so it always
+                  // lands farther from the core than the node — never behind it,
+                  // regardless of orbit radius, satellite count or viewport size.
+                  const distFromCore = Math.hypot(x, y) || 1
+                  const dirX = x / distFromCore
+                  const dirY = y / distFromCore
+                  const labelPush = size / 2 + CONSTELLATION_LABEL_CLEAR
+                  const labelDx = Math.round(dirX * labelPush)
+                  const labelDy = Math.round(dirY * labelPush)
+                  const labelAlign = dirX > 0.32 ? 'left' : dirX < -0.32 ? 'right' : 'center'
                   return (
                     <motion.div
                       key={sub.id}
-                      className={`galassia-view__constellation-wrap galassia-view__constellation-wrap--label-${labelSide}${isActive ? ' galassia-view__constellation-wrap--active' : ''}${isHovered ? ' galassia-view__constellation-wrap--hovered' : ''}${showLabel ? ' galassia-view__constellation-wrap--show-label' : ''}`}
+                      className={`galassia-view__constellation-wrap${isActive ? ' galassia-view__constellation-wrap--active' : ''}${isHovered ? ' galassia-view__constellation-wrap--hovered' : ''}${showLabel ? ' galassia-view__constellation-wrap--show-label' : ''}`}
                       style={{
                         left: `calc(50% + ${x - size / 2}px)`,
                         top: `calc(50% + ${y - size / 2}px)`,
+                        '--label-dx': `${labelDx}px`,
+                        '--label-dy': `${labelDy}px`,
+                        '--label-align': labelAlign,
                       }}
                       initial={{ opacity: 0, scale: 0.2 }}
                       animate={{ opacity: 1, scale: isActive ? 1.06 : 1 }}
@@ -3966,7 +4169,7 @@ export default function GalassiaView({
                             })}
                           </span>
                         ) : null}
-                        <span className="galassia-view__constellation-label" aria-hidden={!isActive && !isHovered}>
+                        <span className="galassia-view__constellation-label" aria-hidden="true">
                           <strong>{sub.nome}</strong>
                           <small>{weightLabel}</small>
                           {trait ? (

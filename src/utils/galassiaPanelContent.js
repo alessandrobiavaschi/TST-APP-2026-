@@ -1,6 +1,7 @@
 /**
  * Testi e metadati per il pannello CRT di GalassiaView.
  * Riutilizza dispositions, galaxyTheoryContent e galaxyContent — niente copy inventato.
+ * Descrizioni di famiglia e natura: «Testi fissi» (via galaxyTheoryContent).
  */
 
 import { DISPOSITIONS, POLARITY_LABEL } from '../config/dispositions'
@@ -12,11 +13,11 @@ import {
 import { GALASSIA_CRT } from '../content/reportRestitution.js'
 
 const FAMIGLIA_LABEL = {
-  blu: 'Malinconia',
-  rosso: 'Volitività',
-  verde: 'Calma',
-  giallo: 'Entusiasmo',
-  grigio: 'Anaffettività',
+  blu: 'Malinconica',
+  rosso: 'Marziale',
+  verde: 'Flemmatica',
+  giallo: 'Entusiasta',
+  grigio: 'Razionale',
 }
 
 function pesoToPct(peso) {
@@ -64,12 +65,18 @@ export function buildPlanetPanelContent(corrente, { inCostellazione = false } = 
   const theory = getGalaxyTheoryForDisposition(corrente.id)
   const colorKey = disposition?.colorKey || ''
   const subs = Array.isArray(corrente.sottoCorrenti) ? corrente.sottoCorrenti : []
+  // Testo di famiglia dai «Testi fissi» (coreDescription = paragrafi separati da riga vuota).
+  const paragrafiFamiglia = String(theory?.coreDescription || '')
+    .split(/\n\s*\n/)
+    .map((p) => p.trim())
+    .filter(Boolean)
   const definizione =
+    paragrafiFamiglia[0] ||
     corrente.descrizione ||
     CORRENTE_DESCRIPTIONS[corrente.id] ||
     firstSentence(disposition?.narrativeShort) ||
     ''
-  const cosaIndica = theory ? firstSentence(theory.coreDescription) : ''
+  const cosaIndica = paragrafiFamiglia.slice(1).join(' ')
   const statiDanimo = Array.isArray(corrente.statiDanimo) ? corrente.statiDanimo : []
   return {
     kind: 'corrente',

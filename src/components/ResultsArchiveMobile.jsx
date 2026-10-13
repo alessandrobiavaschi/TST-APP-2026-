@@ -1,28 +1,46 @@
 import React from 'react'
+import { formatSubcategoryLabel } from '../utils/reportTaxonomy.js'
 
 const RADAR_FAMIGLIE = [
-  { subject: 'Malinconia', key: 'blu', color: '#3b82f6' },
-  { subject: 'Volitività', key: 'rosso', color: '#ef4444' },
-  { subject: 'Entusiasmo', key: 'giallo', color: '#eab308' },
-  { subject: 'Calma', key: 'verde', color: '#22c55e' },
-  { subject: 'Anaffettività', key: 'grigio', color: '#6b7280' },
+  { subject: 'Malinconica', key: 'blu', color: '#60a5fa' },
+  { subject: 'Marziale', key: 'rosso', color: '#f87171' },
+  { subject: 'Entusiasta', key: 'giallo', color: '#fde047' },
+  { subject: 'Flemmatica', key: 'verde', color: '#4ade80' },
+  { subject: 'Razionale', key: 'grigio', color: '#9ca3af' },
 ]
 
 const MATRICE_HEADERS = [
-  { key: 'blu', label: 'Malinconia' },
-  { key: 'rosso', label: 'Volitività' },
-  { key: 'verde', label: 'Calma' },
-  { key: 'giallo', label: 'Entusiasmo' },
-  { key: 'grigio', label: 'Anaffettività' },
+  { key: 'blu', label: 'Malinconica' },
+  { key: 'rosso', label: 'Marziale' },
+  { key: 'verde', label: 'Flemmatica' },
+  { key: 'giallo', label: 'Entusiasta' },
+  { key: 'grigio', label: 'Razionale' },
 ]
 
 /** Abbreviazioni leggibili nelle metriche delle card */
 const MATRICE_SHORT = {
   blu: 'Mal',
-  rosso: 'Vol',
-  verde: 'Cal',
+  rosso: 'Mar',
+  verde: 'Fle',
   giallo: 'Ent',
-  grigio: 'Ana',
+  grigio: 'Raz',
+}
+
+const FAMILY_DISPLAY_BY_STORED_DISPOSITION = {
+  malinconia: 'Malinconica',
+  volitivita: 'Marziale',
+  calma: 'Flemmatica',
+  entusiasmo: 'Entusiasta',
+  anaffettivita: 'Razionale',
+}
+
+function displayFamilyFromStoredDisposition(value) {
+  const key = String(value || '')
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+  return FAMILY_DISPLAY_BY_STORED_DISPOSITION[key] || String(value || '').trim()
 }
 
 /**
@@ -244,7 +262,7 @@ function ResultsArchiveMobile({
             </div>
           </div>
           <div className="results-archive-mobile-field">
-            <label htmlFor="results-mob-disp">Disposizione prevalente</label>
+            <label htmlFor="results-mob-disp">Famiglia prevalente</label>
             <select
               id="results-mob-disp"
               value={dispFilter}
@@ -253,13 +271,13 @@ function ResultsArchiveMobile({
               <option value="">Tutte</option>
               {filterOptions.disposizioni.map((option) => (
                 <option key={option} value={option}>
-                  {option}
+                  {displayFamilyFromStoredDisposition(option)}
                 </option>
               ))}
             </select>
           </div>
           <div className="results-archive-mobile-field">
-            <label htmlFor="results-mob-sotto">Sottodisposizione prevalente</label>
+            <label htmlFor="results-mob-sotto">Sfumatura prevalente</label>
             <select
               id="results-mob-sotto"
               value={sottodispFilter}
@@ -379,12 +397,12 @@ function ResultsArchiveMobile({
 
                     <dl className="results-archive-mobile-dl">
                       <div>
-                        <dt>Disposizione</dt>
-                        <dd>{r.raw.Disposizione_Prevalente || '—'}</dd>
+                        <dt>Famiglia</dt>
+                        <dd>{displayFamilyFromStoredDisposition(r.raw.Disposizione_Prevalente) || '—'}</dd>
                       </div>
                       <div>
-                        <dt>Sottodisp.</dt>
-                        <dd>{r.raw.Sottodisposizione_Prevalente || '—'}</dd>
+                        <dt>Sfumatura</dt>
+                        <dd>{formatSubcategoryLabel(r.raw.Sottodisposizione_Prevalente) || '—'}</dd>
                       </div>
                       <div>
                         <dt>Portato esp.</dt>

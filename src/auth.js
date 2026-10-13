@@ -55,18 +55,6 @@ async function waitForCurrentAuthUser(maxWaitMs = 2500) {
   return auth.currentUser || null
 }
 
-/** In iframe il popup OAuth e poco affidabile: usiamo redirect. Nei browser esterni proviamo prima il popup. */
-function shouldUseGoogleRedirect() {
-  if (typeof window !== 'undefined') {
-    try {
-      if (window.self !== window.top) return true
-    } catch {
-      return true
-    }
-  }
-  return false
-}
-
 function clearStaleGoogleRedirectPending() {
   if (typeof window === 'undefined') return
   try {
@@ -102,11 +90,21 @@ function waitForAuthUserViaObserver(maxWaitMs = 8000) {
   })
 }
 
+function isLocalNetworkHostname(hostname) {
+  if (!hostname) return false
+  if (hostname === '127.0.0.1' || hostname === '::1') return true
+  if (/^192\.168\.\d{1,3}\.\d{1,3}$/.test(hostname)) return true
+  if (/^10\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostname)) return true
+  if (/^172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3}$/.test(hostname)) return true
+  return false
+}
+
 function getCanonicalLocalGoogleAuthUrl() {
   if (typeof window === 'undefined') return ''
   try {
     const url = new URL(window.location.href)
-    if (url.hostname !== '127.0.0.1' && url.hostname !== '::1') return ''
+    if (url.hostname === 'localhost') return ''
+    if (!isLocalNetworkHostname(url.hostname)) return ''
     url.hostname = 'localhost'
     if (url.pathname === '/') {
       url.searchParams.set('accesso', '1')
@@ -305,14 +303,21 @@ async function consumeGoogleRedirectResultImpl() {
       }
 
       clearGoogleRedirectPending()
+      const isLocal =
+        typeof window !== 'undefined' &&
+        (window.location.hostname === 'localhost' ||
+          window.location.hostname === '127.0.0.1' ||
+          window.location.hostname === '::1')
+      const redirectErrorMessage = isLocal
+        ? "Non siamo riusciti a confermare l'accesso Google dopo il reindirizzamento. Prova di nuovo con «Accedi con Google», oppure apri http://localhost:5173 in Chrome/Safari (non nel pannello interno dell'editor). In Firebase Console verifica che localhost sia tra i domini autorizzati."
+        : "Non siamo riusciti a confermare l'accesso Google dopo il reindirizzamento. Safari o le impostazioni del browser potrebbero bloccare lo scambio tra domini: riprova con «Accedi con Google», oppure accedi con email e password."
       if (typeof window !== 'undefined') {
         window.dispatchEvent(
           new CustomEvent(GOOGLE_AUTH_DIAGNOSTIC_EVENT, {
             detail: {
               stage: 'redirect-result-empty',
               code: 'auth/redirect-result-empty',
-              message:
-                "Non siamo riusciti a confermare l'accesso Google dopo il reindirizzamento. Prova di nuovo con «Accedi con Google», oppure apri http://localhost:5173 in Chrome/Safari (non nel pannello interno dell'editor). In Firebase Console verifica che localhost sia tra i domini autorizzati.",
+              message: redirectErrorMessage,
               rawMessage: '',
             },
           }),
@@ -393,40 +398,50 @@ export async function signInWithGoogle() {
       message: 'Apro la versione localhost autorizzata per completare l\'accesso Google...',
     })
   }
+  // Non fare await prima di signInWithPopup: qualsiasi await invalida il contesto
+  // del click utente ("user gesture context") su Safari, causando il blocco del popup.
+  setSafeAuthPersistence().catch(() => {})
+
+  // 1. Prova prima con signInWithPopup (risolve i blocchi ITP/cookie cross-origin di Safari e browser WebKit)
   try {
-    if (shouldUseGoogleRedirect()) {
-      return startGoogleRedirectSignIn()
-    }
-
-    // Non awaiting setSafeAuthPersistence prima di signInWithPopup: qualsiasi await prima di
-    // window.open() invalida il "user gesture context". La persistence parte in background.
-    setSafeAuthPersistence().catch(() => {})
-
-      // Browser esterni desktop: popup più affidabile; redirect solo come fallback.
-    try {
-      const cred = await signInWithPopup(auth, googleProvider)
+    const cred = await signInWithPopup(auth, googleProvider)
+    if (cred?.user) {
       await ensureUserProfile(cred.user)
+      clearGoogleRedirectPending()
       return buildAuthResult({
         success: true,
         user: cred.user,
         nextRoute: DEFAULT_HOME_ROUTE,
       })
-    } catch (err) {
-      const code = err?.code || ''
-      if (
-        code === 'auth/popup-blocked' ||
-        code === 'auth/popup-closed-by-user' ||
-        code === 'auth/cancelled-popup-request' ||
-        code === 'auth/operation-not-supported-in-this-environment'
-      ) {
-        return startGoogleRedirectSignIn()
-      }
+    }
+  } catch (popupErr) {
+    const code = popupErr?.code || ''
+    // Utente ha chiuso il popup di proposito: non forzare redirect
+    if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
       return buildAuthResult({
         success: false,
-        message: getGoogleLoginErrorMessage(err),
+        message: 'Accesso con Google annullato.',
         code,
       })
     }
+    // Errori di configurazione / domini: inutile fare redirect
+    if (
+      code === 'auth/unauthorized-domain' ||
+      code === 'auth/operation-not-allowed' ||
+      code === 'auth/configuration-not-found'
+    ) {
+      return buildAuthResult({
+        success: false,
+        message: getGoogleLoginErrorMessage(popupErr),
+        code,
+      })
+    }
+    console.warn('signInWithPopup non riuscito, tento il fallback con signInWithRedirect:', popupErr)
+  }
+
+  // 2. Fallback a signInWithRedirect
+  try {
+    return await startGoogleRedirectSignIn()
   } catch (err) {
     return buildAuthResult({
       success: false,
