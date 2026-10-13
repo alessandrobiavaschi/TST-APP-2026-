@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom'
 import { useLocation, useNavigate, Navigate } from 'react-router-dom'
 import { useAuth } from '../AuthContext.jsx'
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js'
+import { useDialogFocus } from '../hooks/useDialogFocus.js'
 import { db } from '../firebaseConfig.js'
 import {
   collection,
@@ -785,6 +786,12 @@ function ResultsPage() {
     importTriggerRef.current?.focus()
   }
 
+  const importModalRef = useRef(null)
+  useDialogFocus(importModalRef, {
+    open: showImportModal,
+    onClose: closeImportModal,
+  })
+
   const openReport = (record) => {
     if (!record) return
     navigate('/risultati/report', { state: { record } })
@@ -1450,13 +1457,9 @@ function ResultsPage() {
           </div>
 
           {showImportModal && createPortal(
-            <div
-              className="modal-overlay results-import-modal-overlay"
-              onKeyDown={(e) => {
-                if (e.key === 'Escape') closeImportModal()
-              }}
-            >
+            <div className="modal-overlay results-import-modal-overlay">
               <div
+                ref={importModalRef}
                 className="modal-content results-import-modal"
                 role="dialog"
                 aria-modal="true"

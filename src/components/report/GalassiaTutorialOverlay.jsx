@@ -1,6 +1,7 @@
-import React, { useEffect, useId, useRef, useState } from 'react'
+import React, { useId, useRef, useState } from 'react'
 import { GALASSIA_READING_STEPS, GALASSIA_TUTORIAL_UI } from './reportUiCopy.js'
 import { markGalassiaTutorialSeen } from './galassiaTutorialStorage.js'
+import { useDialogFocus } from '../../hooks/useDialogFocus.js'
 
 /**
  * Overlay tutorial al primo accesso alla Galassia.
@@ -11,11 +12,8 @@ export default function GalassiaTutorialOverlay({
 }) {
   const titleId = useId()
   const ctaRef = useRef(null)
+  const overlayRef = useRef(null)
   const [dontShowAgain, setDontShowAgain] = useState(true)
-
-  useEffect(() => {
-    ctaRef.current?.focus({ preventScroll: true })
-  }, [])
 
   const finish = () => {
     if (dontShowAgain) {
@@ -24,8 +22,11 @@ export default function GalassiaTutorialOverlay({
     onComplete?.()
   }
 
+  useDialogFocus(overlayRef, { open: true, onClose: finish, initialFocusRef: ctaRef })
+
   return (
     <div
+      ref={overlayRef}
       className="galassia-tutorial"
       role="dialog"
       aria-modal="true"

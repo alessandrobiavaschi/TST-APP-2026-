@@ -19,6 +19,7 @@ import {
 } from 'recharts'
 import '../../styles/quattro-rapporti.css'
 import { ensureContrast } from '../../utils/contrastSafeColor.js'
+import { useDialogFocus } from '../../hooks/useDialogFocus.js'
 
 const FALLBACK_COLOR = '#94a3b8'
 const FAMILY_THEME_BY_KEY = Object.fromEntries(
@@ -144,19 +145,14 @@ const RELATIONSHIP_ROWS = [
 function RapportiHelpModal({ onClose }) {
   const [page, setPage] = useState(1)
   const closeButtonRef = useRef(null)
+  const dialogRef = useRef(null)
 
-  useEffect(() => {
-    closeButtonRef.current?.focus()
-    const closeOnEscape = (event) => {
-      if (event.key === 'Escape') onClose()
-    }
-    document.addEventListener('keydown', closeOnEscape)
-    return () => document.removeEventListener('keydown', closeOnEscape)
-  }, [onClose])
+  useDialogFocus(dialogRef, { open: true, onClose, initialFocusRef: closeButtonRef })
 
   return (
     <div className="quattro-rapporti-help" role="presentation" onMouseDown={onClose}>
       <section
+        ref={dialogRef}
         className="quattro-rapporti-help__dialog"
         role="dialog"
         aria-modal="true"

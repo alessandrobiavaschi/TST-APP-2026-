@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { getFlowerVideoByColor, getFlowerStillByColor } from '../../colorAssets'
+import { useDialogFocus } from '../../hooks/useDialogFocus.js'
 
 const MAX_WAIT_BEFORE_EXIT_MS = 1200
 const MORPH_DURATION_MS = 260
@@ -28,6 +29,14 @@ export default function FinalFlowerTransition({ colorKey, onEnded, onSkipped }) 
 
   const videoSrc = getFlowerVideoByColor(colorKey)
   const stillSrc = getFlowerStillByColor(colorKey)
+  const overlayRef = useRef(null)
+  const skipBtnRef = useRef(null)
+
+  useDialogFocus(overlayRef, {
+    open: Boolean(videoSrc && isVisible),
+    onClose: () => startMorphThenLeave(onSkipped),
+    initialFocusRef: skipBtnRef,
+  })
   const [arrivoDelayMultiplier] = useState(() => {
     if (typeof window === 'undefined') return 1
     try {
@@ -135,6 +144,7 @@ export default function FinalFlowerTransition({ colorKey, onEnded, onSkipped }) 
 
   return (
     <div
+      ref={overlayRef}
       className={`final-flower-overlay ${isLeaving ? 'final-flower-overlay--leaving' : 'final-flower-overlay--enter'} ${isToStill ? 'final-flower-overlay--to-still' : ''}`}
       aria-modal="true"
       role="dialog"
@@ -169,6 +179,7 @@ export default function FinalFlowerTransition({ colorKey, onEnded, onSkipped }) 
             </span>
           </p>
           <button
+            ref={skipBtnRef}
             type="button"
             className="final-flower-overlay__skip-button"
             onClick={handleSkipClick}

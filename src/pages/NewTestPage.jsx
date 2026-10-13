@@ -20,6 +20,7 @@ import { buildTestAudioUrl, getAudioSourceIssue } from '../audioUrls.js'
 import { useAuth } from '../AuthContext.jsx'
 import { useAdaptiveFlow } from '../hooks/useAdaptiveFlow.js'
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js'
+import { useDialogFocus } from '../hooks/useDialogFocus.js'
 import { getFlowerStillByColor } from '../colorAssets.js'
 import { compactTestRecord, computeTestResultFields } from '../utils/testRecordProcessing.js'
 import { getNextFileAfterAnswer } from '../utils/testAnswerNavigation.js'
@@ -297,16 +298,39 @@ function NewTestPage() {
     })
   }, [])
 
-  useEffect(() => {
-    if (!showAreasHelp) return undefined
-    const onKeyDown = (event) => {
-      if (event.key === 'Escape') {
-        setShowAreasHelp(false)
-      }
-    }
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [showAreasHelp])
+  const exitModalRef = useRef(null)
+  const exitContinueBtnRef = useRef(null)
+  const recoverModalRef = useRef(null)
+  const recoverDraftBtnRef = useRef(null)
+  const draftSubmitModalRef = useRef(null)
+  const draftSubmitContinueBtnRef = useRef(null)
+  const areasHelpModalRef = useRef(null)
+
+  useDialogFocus(exitModalRef, {
+    open: showExitConfirm,
+    onClose: handleCloseExitConfirm,
+    initialFocusRef: exitContinueBtnRef,
+  })
+
+  useDialogFocus(recoverModalRef, {
+    open: showRecoverDraftPrompt,
+    onClose: () => setShowRecoverDraftPrompt(false),
+    initialFocusRef: recoverDraftBtnRef,
+  })
+
+  useDialogFocus(draftSubmitModalRef, {
+    open: showDraftSubmitConfirm,
+    onClose: handleCloseDraftSubmitConfirm,
+    initialFocusRef: draftSubmitContinueBtnRef,
+  })
+
+  useDialogFocus(areasHelpModalRef, {
+    open: showAreasHelp,
+    onClose: () => {
+      uiSounds?.playTestGhostTap?.()
+      setShowAreasHelp(false)
+    },
+  })
 
 
   useEffect(() => {
@@ -1897,6 +1921,7 @@ function NewTestPage() {
               onClick={handleCloseExitConfirm}
             >
               <div
+                ref={exitModalRef}
                 className="test-exit-modal"
                 role="dialog"
                 aria-modal="true"
@@ -1911,6 +1936,7 @@ function NewTestPage() {
                 </p>
                 <div className="test-exit-modal-actions">
                   <button
+                    ref={exitContinueBtnRef}
                     type="button"
                     className="nav-button exit-confirm-continue"
                     onClick={handleCloseExitConfirm}
@@ -1942,6 +1968,7 @@ function NewTestPage() {
               role="presentation"
             >
               <div
+                ref={recoverModalRef}
                 className="test-exit-modal"
                 role="dialog"
                 aria-modal="true"
@@ -1955,6 +1982,7 @@ function NewTestPage() {
                 </p>
                 <div className="test-exit-modal-actions">
                   <button
+                    ref={recoverDraftBtnRef}
                     type="button"
                     className="nav-button exit-confirm-continue"
                     onClick={() => {
@@ -1994,6 +2022,7 @@ function NewTestPage() {
               onClick={handleCloseDraftSubmitConfirm}
             >
               <div
+                ref={draftSubmitModalRef}
                 className="test-exit-modal"
                 role="dialog"
                 aria-modal="true"
@@ -2008,6 +2037,7 @@ function NewTestPage() {
                 </p>
                 <div className="test-exit-modal-actions">
                   <button
+                    ref={draftSubmitContinueBtnRef}
                     type="button"
                     className="nav-button exit-confirm-continue"
                     onClick={handleCloseDraftSubmitConfirm}
@@ -2039,6 +2069,7 @@ function NewTestPage() {
             }}
           >
             <div
+              ref={areasHelpModalRef}
               className="feedback-help-modal"
               role="dialog"
               aria-modal="true"

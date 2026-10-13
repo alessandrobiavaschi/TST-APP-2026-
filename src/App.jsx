@@ -23,6 +23,7 @@ import {
   isRecoverableChunkLoadError,
   shouldRetryChunkLoad,
 } from './utils/chunkLoadRecovery.js'
+import { useDialogFocus } from './hooks/useDialogFocus.js'
 import './styles/app-shell.css'
 import './App.css'
 import './styles/tst-mobile.css'
@@ -120,9 +121,6 @@ function HeaderSoundToggleButton() {
   )
 }
 
-const MOBILE_NAV_FOCUSABLE =
-  'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-
 function RouteScrollReset() {
   const { pathname, search, hash } = useLocation()
 
@@ -190,7 +188,6 @@ function App() {
   const location = useLocation()
   const mobileNavToggleRef = useRef(null)
   const mobileNavDrawerRef = useRef(null)
-  const prevMobileNavOpenRef = useRef(false)
   const accountMenuRef = useRef(null)
   const accountButtonRef = useRef(null)
   const localDeveloperAccessAvailable = isLocalDeveloperAccessAvailable()
@@ -300,57 +297,10 @@ function App() {
     return () => window.removeEventListener('tst:test-session-active', onTestSessionActive)
   }, [])
 
-  useEffect(() => {
-    if (!mobileNavOpen) return
-    const id = window.requestAnimationFrame(() => {
-      const root = mobileNavDrawerRef.current
-      if (!root) return
-      const nodes = [...root.querySelectorAll(MOBILE_NAV_FOCUSABLE)].filter(
-        (el) => !el.closest('[aria-hidden="true"]') && el.getAttribute('tabindex') !== '-1',
-      )
-      nodes[0]?.focus({ preventScroll: true })
-    })
-    return () => window.cancelAnimationFrame(id)
-  }, [mobileNavOpen])
-
-  useEffect(() => {
-    if (!mobileNavOpen) return
-    const onKeyDown = (event) => {
-      if (event.key === 'Escape') {
-        event.preventDefault()
-        setMobileNavOpen(false)
-        return
-      }
-      if (event.key !== 'Tab') return
-      const root = mobileNavDrawerRef.current
-      if (!root) return
-      const nodes = [...root.querySelectorAll(MOBILE_NAV_FOCUSABLE)].filter(
-        (el) => !el.closest('[aria-hidden="true"]') && el.getAttribute('tabindex') !== '-1',
-      )
-      if (nodes.length === 0) return
-      const first = nodes[0]
-      const last = nodes[nodes.length - 1]
-      const active = document.activeElement
-      if (event.shiftKey) {
-        if (active === first || !root.contains(active)) {
-          event.preventDefault()
-          last.focus()
-        }
-      } else if (active === last) {
-        event.preventDefault()
-        first.focus()
-      }
-    }
-    document.addEventListener('keydown', onKeyDown)
-    return () => document.removeEventListener('keydown', onKeyDown)
-  }, [mobileNavOpen])
-
-  useEffect(() => {
-    if (prevMobileNavOpenRef.current && !mobileNavOpen) {
-      mobileNavToggleRef.current?.focus({ preventScroll: true })
-    }
-    prevMobileNavOpenRef.current = mobileNavOpen
-  }, [mobileNavOpen])
+  useDialogFocus(mobileNavDrawerRef, {
+    open: !testSessionActive && mobileNavOpen,
+    onClose: () => setMobileNavOpen(false),
+  })
 
   useEffect(() => {
     if (!mobileNavOpen) return undefined
