@@ -13,6 +13,7 @@ import ReportShell from '../components/report/ReportShell.jsx'
 import { buildReportData } from '../utils/buildReportData.js'
 import { getMergedReportBlock } from '../reportContentMerged.js'
 import { createEmptyTestRecord } from '../dbSchema.js'
+import { useDocumentTitle } from '../hooks/useDocumentTitle.js'
 import { normalizzaRecordTst } from '../utils/testRecordProcessing.js'
 import '../styles/report-tst.css'
 
@@ -50,6 +51,7 @@ const SAMPLE_PREVIEW_RECORD = {
 }
 
 function ReportPage() {
+  useDocumentTitle('Il tuo report')
   const location = useLocation()
   const navigate = useNavigate()
   const isPreviewRoute = location.pathname === '/report-preview'

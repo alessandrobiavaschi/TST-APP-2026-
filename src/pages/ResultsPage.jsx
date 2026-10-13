@@ -3,6 +3,7 @@ import React, { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useLocation, useNavigate, Navigate } from 'react-router-dom'
 import { useAuth } from '../AuthContext.jsx'
+import { useDocumentTitle } from '../hooks/useDocumentTitle.js'
 import { db } from '../firebaseConfig.js'
 import {
   collection,
@@ -672,6 +673,7 @@ export function FioreVisivo({ levels, totals, chartHeight = 280, dispositionAcce
 }
 
 function ResultsPage() {
+  useDocumentTitle('I tuoi risultati')
   const location = useLocation()
   const { user: currentUser, authReady } = useAuth()
   const guestRecord = location.state && location.state.mode === 'guest' ? location.state.record : null

@@ -1,9 +1,11 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useDocumentTitle } from '../hooks/useDocumentTitle.js'
 
 function LocalDeveloperPage({ section }) {
-  const navigate = useNavigate()
   const isResults = section === 'results'
+  useDocumentTitle(isResults ? 'Risultati locali' : 'Profilo di sviluppo')
+  const navigate = useNavigate()
 
   return (
     <div className="page">

@@ -14,8 +14,10 @@ import VideoBackground0311 from '../components/VideoBackground0311.jsx'
 import LandingPreviewShowcase from '../components/report/LandingPreviewShowcase.jsx'
 import { TEST_STORY_SLIDES } from '../components/TestStorySlider.jsx'
 import { useSkyTheme } from '../SkyThemeContext.jsx'
+import { useDocumentTitle } from '../hooks/useDocumentTitle.js'
 
 function HomePage() {
+  useDocumentTitle('Home')
   const { user: currentUser, authReady, logout, isLocalDeveloper } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()

@@ -1,7 +1,9 @@
 import React from 'react'
 import LogoBlock from '../components/LogoBlock.jsx'
+import { useDocumentTitle } from '../hooks/useDocumentTitle.js'
 
 function InfoPage() {
+  useDocumentTitle('Informazioni')
   return (
     <div className="page info-page">
       <header className="page-header info-hero">

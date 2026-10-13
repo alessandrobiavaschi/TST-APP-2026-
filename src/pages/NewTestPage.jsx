@@ -19,6 +19,7 @@ import { useUiSounds } from '../UiSoundProvider.jsx'
 import { buildTestAudioUrl, getAudioSourceIssue } from '../audioUrls.js'
 import { useAuth } from '../AuthContext.jsx'
 import { useAdaptiveFlow } from '../hooks/useAdaptiveFlow.js'
+import { useDocumentTitle } from '../hooks/useDocumentTitle.js'
 import { getFlowerStillByColor } from '../colorAssets.js'
 import { compactTestRecord, computeTestResultFields } from '../utils/testRecordProcessing.js'
 import { getNextFileAfterAnswer } from '../utils/testAnswerNavigation.js'
@@ -181,6 +182,7 @@ function formatAudioTime(seconds) {
 }
 
 function NewTestPage() {
+  useDocumentTitle('Test in corso')
   const navigate = useNavigate()
   const location = useLocation()
   const { user, authReady } = useAuth()

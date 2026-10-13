@@ -2,10 +2,12 @@ import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useUiSounds } from '../UiSoundProvider.jsx'
 import { TEST_STORY_SLIDES } from '../components/TestStorySlider.jsx'
+import { useDocumentTitle } from '../hooks/useDocumentTitle.js'
 
 const HOW_SLIDES = TEST_STORY_SLIDES.slice(0, 3)
 
 function TstPage() {
+  useDocumentTitle('Il metodo TST')
   const [openFaqId, setOpenFaqId] = useState(null)
   const { playTransition, playGhostTap } = useUiSounds()
 

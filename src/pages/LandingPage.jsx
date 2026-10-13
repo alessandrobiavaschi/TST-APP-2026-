@@ -8,6 +8,7 @@ import LandingIntroRackFocus from '../components/landing/LandingIntroRackFocus.j
 import { shouldPlayLandingIntro } from '../components/landing/landingIntroStorage.js'
 import { useSkyTheme } from '../SkyThemeContext.jsx'
 import { useAuth } from '../AuthContext.jsx'
+import { useDocumentTitle } from '../hooks/useDocumentTitle.js'
 import {
   signInWithGoogle as authSignInWithGoogle,
   signInWithEmail as authSignInWithEmail,
@@ -142,6 +143,7 @@ function buildStarShadow(count, { blur = 0, minOpacity = 0.3, maxOpacity = 0.9 }
 }
 
 function LandingPage() {
+  useDocumentTitle('Benvenuto')
   const navigate = useNavigate()
   const location = useLocation()
   const { setLandingSkyOverride } = useSkyTheme()
