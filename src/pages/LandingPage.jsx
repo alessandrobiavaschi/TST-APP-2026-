@@ -433,7 +433,7 @@ function LandingPage() {
         <div className="tst-nebula-bg-stars tst-nebula-bg-stars--glow" style={{ boxShadow: starGlowShadow }} />
       </div>
 
-      <main className="tst-nebula-main">
+      <div className="tst-nebula-main">
         <section
           data-screen-label="Hero"
           className={`tst-nebula-hero${introState === 'playing' ? ' is-intro-playing' : ''}${introState !== 'off' ? ' is-intro-handoff' : ''}`}
@@ -568,7 +568,7 @@ function LandingPage() {
           </button>
           <div className="tst-nebula-footer-badge">TST</div>
         </footer>
-      </main>
+      </div>
     </div>
   )
 }

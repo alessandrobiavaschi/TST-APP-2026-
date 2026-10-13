@@ -22187,3 +22187,28 @@ a:focus-visible {
   background-color: #60a5fa;
   border-radius: 50%;
 }
+
+/* Accessibility: Skip to main content link */
+.skip-link {
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+  z-index: 99999;
+  padding: 0.75rem 1.25rem;
+  background: #0f172a;
+  color: #ffffff;
+  border: 2px solid var(--color-accent, #7a59f5);
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
+.skip-link:focus-visible {
+  top: 1rem;
+  left: 1rem;
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+

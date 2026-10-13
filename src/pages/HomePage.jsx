@@ -432,7 +432,7 @@ function HomePage() {
                 </button>
               </header>
 
-              <main className="landing-flow-main" aria-labelledby="landing-flow-title">
+              <div className="landing-flow-main" aria-labelledby="landing-flow-title">
                 <section className="landing-flow-hero">
                   <div className="landing-flow-hero-text">
                     <h1 id="landing-flow-title" className="landing-wind-title" aria-label="TST">
@@ -591,7 +591,7 @@ function HomePage() {
                     onTrack={(eventName, payload) => trackLandingPreviewEvent(eventName, payload)}
                   />
                 </section>
-              </main>
+              </div>
             </div>
           </div>
         </div>

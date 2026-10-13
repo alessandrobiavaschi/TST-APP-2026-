@@ -487,6 +487,9 @@ function App() {
         data-sky-tone={skyTone}
         data-sky-warmth={skyWarmth}
       >
+        <a className="skip-link" href="#contenuto">
+          Salta al contenuto
+        </a>
         {location.pathname !== '/' && !isReportPage && (
           <SkyBackground />
         )}
@@ -862,6 +865,8 @@ function App() {
           </div>
         </div>
         <main
+          id="contenuto"
+          tabIndex={-1}
           className={`app-main${
             location.pathname === '/' || isReportPage
               ? ' app-main--landing'

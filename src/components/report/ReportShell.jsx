@@ -565,7 +565,7 @@ export default function ReportShell({
         initialFocusId={glossaryFocusId}
       />
 
-      <main
+      <div
         className={`report-tst-report${isAlternateMode ? ' report-tst-report--covered' : ''}`}
         aria-label={REPORT_SHELL_UI.reportAria}
       >
@@ -829,7 +829,7 @@ export default function ReportShell({
             </div>
           </div>
         </div>
-      </main>
+      </div>
 
       {/* ── STANZA SEPARATA: FAMIGLIE IN RELAZIONE ──────────────────────────── */}
       {showEmotionalIntegrations ? (
