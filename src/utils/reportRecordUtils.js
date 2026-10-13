@@ -2,6 +2,7 @@ import { testSchema } from '../dbSchema.js'
 import { FAMILY_ORDER, FAMILY_THEME } from '../config/reportFamilyTheme.js'
 import { CAMPI_PER_COLORE, PASSI, SEZIONI } from '../config/tstSistema.js'
 import { MASSIMI_TEORICI, calcolaCeste, normalizzaSuMassimo } from './cesteTst.js'
+import { regoleDelTest } from './testStorici.js'
 
 const REPORT_SECTION_DEFS = SEZIONI.map((s) => ({ key: s.id, label: s.nome, from: s.da, to: s.a }))
 
@@ -35,7 +36,7 @@ function colorTotalsToChartRow(label, totals) {
  * `rapportiPunteggi` = stessi totali portati sul massimo teorico di ogni rapporto (0–100).
  */
 export function computeSezioniTotalsFromRaw(rawRecord = {}) {
-  const { perSezione, rapporti } = calcolaCeste(rawRecord)
+  const { perSezione, rapporti } = calcolaCeste(rawRecord, { regolePerPasso: regoleDelTest(rawRecord) })
   const sezioniTotals = Object.fromEntries(REPORT_SECTION_DEFS.map((section) => [section.key, perSezione[section.key]]))
   const sezioniData = REPORT_SECTION_DEFS.map((section) =>
     colorTotalsToChartRow(section.label, sezioniTotals[section.key]),
@@ -66,10 +67,14 @@ export function formatDateShort(value) {
 
 /**
  * Punti grezzi per famiglia colore. Se il record ha le risposte grezze, i punti
- * si ricalcolano dalle ceste (regole attuali); altrimenti si sommano i contatori salvati.
+ * si ricalcolano dalle ceste (regole attuali, o quelle della sua epoca per i
+ * test storici: vedi testStorici.js); altrimenti si sommano i contatori salvati.
+ * Un test storico che non si riesce a verificare mostra i totali salvati.
  */
 export function computeColorTotals(record = {}) {
-  if (hasRawAnswers(record)) return { ...calcolaCeste(record).famiglie }
+  const storica = record?._letturaStorica
+  if (storica && !storica.verificato) return { ...storica.famiglie }
+  if (hasRawAnswers(record)) return { ...calcolaCeste(record, { regolePerPasso: regoleDelTest(record) }).famiglie }
   const n = (value) => Number(value) || 0
   return Object.fromEntries(
     Object.entries(CAMPI_PER_COLORE).map(([colorKey, campi]) => [

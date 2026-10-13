@@ -7,6 +7,7 @@ import {
   VERSIONE_MODELLO_LEGACY,
 } from '../config/tstSistema.js'
 import { calcolaCeste, percentualeNatura } from './cesteTst.js'
+import { leggiTestStorico } from './testStorici.js'
 
 /** Etichetta salvata in Disposizione_Prevalente: nome della famiglia dal PDF. */
 export const DISPOSITION_LABEL_BY_COLOR = Object.freeze(
@@ -117,6 +118,7 @@ export function ricalcolaRecordTst(record = {}) {
 export function normalizzaRecordTst(record = {}) {
   if (!record || typeof record !== 'object') return record
   const versione = versioneModelloDi(record)
+  if (versione === VERSIONE_MODELLO_LEGACY) return { ...leggiTestStorico(record), versione_modello: versione }
   if (versione !== VERSIONE_MODELLO) return { ...record, versione_modello: versione }
   return ricalcolaRecordTst(record)
 }

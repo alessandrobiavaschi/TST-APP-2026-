@@ -31,10 +31,10 @@ function coloriVuoti() {
 }
 
 /** Trova la regola che corrisponde alla risposta grezza salvata per un passo. */
-export function trovaRegola(numeroPasso, rispostaGrezza) {
+export function trovaRegola(numeroPasso, rispostaGrezza, regolePerPasso = getRegolePerPasso) {
   const passo = getPasso(numeroPasso)
   if (!passo || !rispostaGrezza) return null
-  const regole = getRegolePerPasso(numeroPasso)
+  const regole = regolePerPasso(numeroPasso)
   return regole.find((regola) => regola.risposta === rispostaGrezza) || null
 }
 
@@ -42,9 +42,9 @@ export function trovaRegola(numeroPasso, rispostaGrezza) {
  * Cesta riempita da una risposta.
  * @returns {{ natura: object, portato: object, punti: number, passo: object } | null}
  */
-export function cestaPerRisposta({ fileNumber, risposta, isConfirmation = false }) {
+export function cestaPerRisposta({ fileNumber, risposta, isConfirmation = false, regolePerPasso }) {
   const passo = getPasso(fileNumber)
-  const regola = trovaRegola(fileNumber, risposta)
+  const regola = trovaRegola(fileNumber, risposta, regolePerPasso)
   if (!passo || !regola) return null
   const natura = NATURA_BY_ID[regola.natura]
   const portato = PORTATO_BY_ID[regola.portato]
@@ -58,8 +58,10 @@ export function cestaPerRisposta({ fileNumber, risposta, isConfirmation = false 
 /**
  * Ricalcola un test dalle sue risposte grezze (File_01 … File_72).
  * Restituisce la tabella delle ceste e tutti i totali che ne derivano.
+ * `regolePerPasso` serve solo a rileggere i test delle versioni precedenti
+ * con le regole della loro epoca (vedi testStorici.js); di default le attuali.
  */
-export function calcolaCeste(record = {}) {
+export function calcolaCeste(record = {}, { regolePerPasso } = {}) {
   const ceste = Object.fromEntries(NATURE.map((n) => [n.id, cestaVuota()]))
   const perSezione = Object.fromEntries(SEZIONI.map((s) => [s.id, coloriVuoti()]))
   let risposteValide = 0
@@ -67,7 +69,7 @@ export function calcolaCeste(record = {}) {
   for (const passo of PASSI) {
     const risposta = String(record?.[passo.campoDb] || '').trim()
     if (!risposta) continue
-    const cesta = cestaPerRisposta({ fileNumber: passo.numero, risposta, isConfirmation: passo.riconferma })
+    const cesta = cestaPerRisposta({ fileNumber: passo.numero, risposta, isConfirmation: passo.riconferma, regolePerPasso })
     if (!cesta) continue
     risposteValide += 1
     ceste[cesta.natura.id][cesta.portato.id] += cesta.punti

@@ -9,6 +9,7 @@
  */
 import { FAMIGLIA_BY_COLOR, PASSI, SEZIONI } from '../config/tstSistema.js'
 import { cestaPerRisposta } from './cesteTst.js'
+import { regoleDelTest } from './testStorici.js'
 
 const SEZIONE_BY_ID = Object.fromEntries(SEZIONI.map((s) => [s.id, s]))
 
@@ -20,10 +21,11 @@ const SEZIONE_BY_ID = Object.fromEntries(SEZIONI.map((s) => [s.id, s]))
  * }>} sempre 72 voci
  */
 export function percorsoRisposte(record = {}) {
+  const regolePerPasso = regoleDelTest(record)
   return PASSI.map((passo) => {
     const risposta = String(record?.[passo.campoDb] || '').trim()
     if (!risposta) return null
-    const cesta = cestaPerRisposta({ fileNumber: passo.numero, risposta, isConfirmation: passo.riconferma })
+    const cesta = cestaPerRisposta({ fileNumber: passo.numero, risposta, isConfirmation: passo.riconferma, regolePerPasso })
     if (!cesta) return null
     return {
       numero: passo.numero,
