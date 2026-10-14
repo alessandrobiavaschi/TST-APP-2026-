@@ -44,10 +44,7 @@ test('usa natura (caratteristica emotiva) nel copy principale del report', () =>
     new URL('../src/components/report/SintesiCorrenti.jsx', import.meta.url),
     'utf8',
   )
-  assert.match(
-    heroSource,
-    /<button[\s\S]*?>\s*Natura\s*<\/button>[\s\S]*?\(caratteristica emotiva\):\s*\{naturaText\}/,
-  )
+  // La prima schermata mostra solo la famiglia: la natura è nella sezione successiva.
   assert.doesNotMatch(heroSource, /Caratteristica emotiva \(natura\)/)
   assert.match(summarySource, /nature \(caratteristiche emotive\)/)
   assert.doesNotMatch(summarySource, /caratteristica emotiva\s*\n\s*\(natura\)/i)
