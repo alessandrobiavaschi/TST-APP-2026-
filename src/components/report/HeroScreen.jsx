@@ -74,18 +74,15 @@ const NOISE_SVG =
  */
 export default function HeroScreen({
   familyName = '',
-  naturaName = '',
   heroResult = null,
   _disposizione = '',
   _userName = '',
-  fraseChiave = '',
   correnteColore = '#16a34a',
   correnteColoreChiara,
   correnteColoreMedia,
   _correnti = [],
   rawRecord = {},
   _portato = {},
-  onOpenGlossary,
   onReadReport,
   onDownload,
   onNavigateArchive,
@@ -140,7 +137,6 @@ export default function HeroScreen({
           transition: { delay, duration: 0.7, ease: [0.22, 1, 0.36, 1] },
         }
 
-  const naturaText = toTitleCase(String(naturaName || '').replace(/^NATURA\s+/i, ''))
   const familyText = toTitleCase(
     familyName || FAMILY_THEME[FAMILY_NAME_BY_KEY[colorKey]]?.family || 'Flemmatica',
   )
@@ -208,22 +204,7 @@ export default function HeroScreen({
             <strong className="hero-screen__sintesi-family">
               {isExactTie ? `${familyText} e ${secondaryFamilyText}` : familyText}
             </strong>
-            <span className="hero-screen__sintesi-bridge">
-              <button
-                type="button"
-                className="hero-screen__glossary-trigger-inline"
-                onClick={() => onOpenGlossary?.('corrente-emotiva')}
-              >
-                Natura
-              </button>{' '}
-              (caratteristica emotiva): {naturaText}
-            </span>
           </motion.h1>
-          {fraseChiave ? (
-            <motion.p {...fade(0.35, 12)} className="hero-screen__frase-chiave">
-              {fraseChiave}
-            </motion.p>
-          ) : null}
           <motion.div {...fade(0.45, 8)} className="hero-screen__cta-container">
             <button
               type="button"

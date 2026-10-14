@@ -579,18 +579,15 @@ export default function ReportShell({
         >
           <HeroScreen
             familyName={profilo?.correnteDominante}
-            naturaName={profilo?.natura}
             heroResult={profilo?.heroResult}
             disposizione={profilo?.disposizione}
             userName={utente?.nome || ''}
-            fraseChiave={profilo?.fraseChiave}
             correnteColore={correnteColore}
             correnteColoreChiara={profilo?.coloreChiara}
             correnteColoreMedia={profilo?.coloreMedia}
             correnti={correntiLite}
             rawRecord={rawRecord}
             portato={portato}
-            onOpenGlossary={openGlossary}
             onReadReport={enterReport}
             onDownload={onDownload}
             onNavigateArchive={onNavigateArchive}
