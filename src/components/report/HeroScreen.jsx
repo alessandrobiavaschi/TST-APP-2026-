@@ -149,7 +149,6 @@ export default function HeroScreen({
   // (globalProfileContract, nessuna soglia nuova) segnala un pareggio esatto o un
   // quasi pareggio. In pareggio esatto il titolo non proclama un vincitore.
   const isExactTie = heroResult?.band === 'exact_tie' && Boolean(heroResult?.secondary)
-  const isNearParity = heroResult?.band === 'near_parity' && Boolean(heroResult?.secondary)
   const secondaryFamilyText = heroResult?.secondary ? toTitleCase(heroResult.secondary.famiglia) : ''
 
   const gradientStyle = {
@@ -220,12 +219,6 @@ export default function HeroScreen({
               (caratteristica emotiva): {naturaText}
             </span>
           </motion.h1>
-          {isNearParity ? (
-            <motion.p {...fade(0.28, 10)} className="hero-screen__secondary-family">
-              Nel tuo profilo è molto presente anche la famiglia{' '}
-              <strong>{secondaryFamilyText}</strong>.
-            </motion.p>
-          ) : null}
           {fraseChiave ? (
             <motion.p {...fade(0.35, 12)} className="hero-screen__frase-chiave">
               {fraseChiave}
