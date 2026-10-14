@@ -119,6 +119,8 @@ export default function ReportRadarChart({
   scaleLabel = '',
   domain = null,
   onFamilySelect = null,
+  // true nel visore a tutto schermo: usa height/outerRadius così come arrivano
+  fullscreen = false,
 }) {
   const reduceMotion = useReducedMotion()
   const strokeColor = color || FALLBACK_COLOR
@@ -131,7 +133,7 @@ export default function ReportRadarChart({
     distributionPercent: d.distributionPercent,
   }))
 
-  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768
+  const isMobile = !fullscreen && typeof window !== 'undefined' && window.innerWidth <= 768
   const finalHeight = isMobile ? Math.min(360, Math.max(320, height)) : height
   const finalOuterRadius = isMobile ? '66%' : outerRadius
   const chartMargin = isMobile

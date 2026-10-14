@@ -21,88 +21,60 @@ import { useAuth } from '../AuthContext.jsx'
 import { useAdaptiveFlow } from '../hooks/useAdaptiveFlow.js'
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js'
 import { useDialogFocus } from '../hooks/useDialogFocus.js'
-import { getFlowerStillByColor } from '../colorAssets.js'
+import {
+  AREE_TEST,
+  DIFFICOLTA_DETTAGLIO_NESSUNA,
+  MAX_SCELTE_DOMANDE_FINALI,
+} from '../config/domandeFinali.js'
+import FinalFeedbackStep from '../components/test/FinalFeedbackStep.jsx'
+import ResultAnalysisScreen from '../components/test/ResultAnalysisScreen.jsx'
+import { FASI_ELABORAZIONE } from '../components/test/fasiElaborazione.js'
 import { compactTestRecord, computeTestResultFields } from '../utils/testRecordProcessing.js'
 import { getNextFileAfterAnswer } from '../utils/testAnswerNavigation.js'
 import '../styles/nuovo-test-flow.css'
 import { DateField } from '../components/primitives/Calendar.jsx'
 
-const STATO_ANIMO_OPTIONS = [
-  { value: 'SA_SERENO', label: 'Sereno/a' },
-  { value: 'SA_CURIOSO', label: 'Curioso/a' },
-  { value: 'SA_SOLLEVATO', label: 'Sollevato/a' },
-  { value: 'SA_COINVOLTO', label: 'Coinvolto/a' },
-  { value: 'SA_RIFLESSIVO', label: 'Riflessivo/a' },
-  { value: 'SA_STANCO', label: 'Stanco/a' },
-  { value: 'SA_TESO', label: 'Teso/a' },
-  { value: 'SA_CONFUSO', label: 'Confuso/a' },
-]
-
-const DIFFICOLTA_TEST_OPTIONS = [
-  { value: 'DT_NO', label: 'No' },
-  { value: 'DT_SI', label: 'Sì' },
-]
-
-const DIFFICOLTA_DETTAGLIO_OPTIONS = [
-  { value: 'DD_CONCENTRAZIONE', label: 'Concentrazione / attenzione' },
-  { value: 'DD_COMPRENSIONE', label: 'Comprensione delle sensazioni richieste' },
-  { value: 'DD_VOLUMI', label: 'Volume / timbro dei suoni' },
-  { value: 'DD_DURATA', label: 'Durata complessiva del test' },
-  { value: 'DD_CONTESTO', label: 'Ambiente esterno (rumori/interruzioni)' },
-  { value: 'DD_TECNICA', label: 'Aspetti tecnici (audio, cuffie, device)' },
-]
-
-const AREA_TEST_OPTIONS = [
-  { value: 'A', label: 'A - Timbro (file 1-28)' },
-  { value: 'B', label: 'B - Intervalli (file 29-41)' },
-  { value: 'C', label: 'C - Ritmo (file 42-51)' },
-  { value: 'D', label: 'D - Melodia (file 52-58)' },
-  { value: 'E', label: 'E - Armonia (file 59-72)' },
-]
+const rangeArea = (code) => {
+  const area = AREE_TEST.find((item) => item.value === code)
+  return area ? `Passi ${area.from}–${area.to}` : ''
+}
 
 const AREA_HELP_ITEMS = [
   {
     value: 'A',
     title: 'A · Timbro',
-    range: 'File 1-28',
+    range: rangeArea('A'),
     description: 'Ascolti il colore del suono: brillante, caldo, secco, pieno.',
     simpleCue: 'Sceglila se ti orienti bene quando cambia il carattere del suono.',
   },
   {
     value: 'B',
     title: 'B · Intervalli',
-    range: 'File 29-41',
+    range: rangeArea('B'),
     description: 'Ascolti il rapporto tra due note: più vicino, più distante, più teso o rilassato.',
     simpleCue: 'Sceglila se riconosci con facilità il “salto” tra due suoni.',
   },
   {
     value: 'C',
     title: 'C · Ritmo',
-    range: 'File 42-51',
+    range: rangeArea('C'),
     description: 'Ascolti il movimento del tempo: groove, incastro, spinta del battito.',
     simpleCue: 'Sceglila se ti viene naturale seguire pulsazione e andamento.',
   },
   {
     value: 'D',
     title: 'D · Melodia',
-    range: 'File 52-58',
+    range: rangeArea('D'),
     description: 'Ascolti la direzione delle note: salita, discesa, curve melodiche.',
     simpleCue: 'Sceglila se senti chiaramente “dove va” la linea musicale.',
   },
   {
     value: 'E',
     title: 'E · Armonia',
-    range: 'File 59-72',
+    range: rangeArea('E'),
     description: 'Ascolti come i suoni stanno insieme: equilibrio, tensione, densità.',
     simpleCue: 'Sceglila se percepisci subito quando l’insieme suona stabile o instabile.',
   },
-]
-
-const QUALITA_SUONI_OPTIONS = [
-  { value: 'QS_OTTIMI', label: 'Ottimi' },
-  { value: 'QS_BUONI', label: 'Buoni' },
-  { value: 'QS_SUFFICIENTI', label: 'Sufficienti' },
-  { value: 'QS_PESSIMI', label: 'Pessimi' },
 ]
 
 const parseCodes = (value) =>
@@ -110,18 +82,10 @@ const parseCodes = (value) =>
     .split(',')
     .map((c) => c.trim())
     .filter(Boolean)
-const MAX_MULTI_SELECTION = 3
+const MAX_MULTI_SELECTION = MAX_SCELTE_DOMANDE_FINALI
 
 const TOTAL_STEPS = 72
 const RESULT_ANALYSIS_DURATION_MS = 5600
-const RESULT_ANALYSIS_MESSAGES = [
-  'Ci vuole solo un secondo: stiamo elaborando le tue risposte.',
-  'Analisi in corso: stiamo calcolando gli indicatori principali.',
-  'Stiamo organizzando il tuo profilo per una lettura chiara.',
-  'Privacy attiva: i dati vengono trattati in forma riservata e protetta.',
-  'Quasi pronto: passaggio al report finale.',
-]
-const FLOWER_SEQUENCE = ['blu', 'rosso', 'verde', 'giallo', 'grigio']
 
 const STORAGE_KEY_TEST_STARTED = 'tst_test_started_v1'
 const STORAGE_KEY_TEST_DRAFT = 'tst_test_draft_v1'
@@ -227,7 +191,6 @@ function NewTestPage() {
   const [isAnalyzingResult, setIsAnalyzingResult] = useState(false)
   const [analysisProgress, setAnalysisProgress] = useState(0)
   const [analysisMessageIndex, setAnalysisMessageIndex] = useState(0)
-  const [loadingFlowerTick, setLoadingFlowerTick] = useState(0)
   const [audioCurrentTime, setAudioCurrentTime] = useState(0)
   const [, setNeuroChoiceStage] = useState('reset')
   const [, setNeuroStepTransition] = useState('enter')
@@ -244,7 +207,6 @@ function NewTestPage() {
   const resetTimerRef = useRef(null)
   const recallTimerRef = useRef(null)
   const stepEnterTimerRef = useRef(null)
-  const flowerPreloadRef = useRef([])
 
   // Sample da /audio in locale, oppure da VITE_AUDIO_BASE_URL (streaming, senza MP3 nel deploy).
   const audioSrc = buildTestAudioUrl(currentFile)
@@ -264,17 +226,6 @@ function NewTestPage() {
         }
       : undefined
   const selectedAnswerValue = (testRecord[currentFileKey] || '').trim()
-  const loadingFlowerImages = FLOWER_SEQUENCE.map((key) => ({
-    key,
-    src: getFlowerStillByColor(key),
-  })).filter((item) => Boolean(item.src))
-  const activeFlowerIndex =
-    loadingFlowerImages.length > 0
-      ? Math.min(
-          loadingFlowerImages.length - 1,
-          Math.floor((analysisProgress / 100) * loadingFlowerImages.length),
-        )
-      : 0
 
   const isGuestMode = location.state && location.state.mode === 'guest'
 
@@ -284,19 +235,6 @@ function NewTestPage() {
       navigate('/', { replace: true, state: { fromTest: true } })
     }
   }, [authReady, user, isGuestMode, navigate])
-
-  // Precarica gli asset del loader finale appena si entra nel test, così sono
-  // già in cache del browser molto prima che la sequenza venga mostrata.
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-    flowerPreloadRef.current = FLOWER_SEQUENCE.map((key) => {
-      const src = getFlowerStillByColor(key)
-      if (!src) return null
-      const img = new window.Image()
-      img.src = src
-      return img
-    })
-  }, [])
 
   const exitModalRef = useRef(null)
   const exitContinueBtnRef = useRef(null)
@@ -308,7 +246,7 @@ function NewTestPage() {
 
   useDialogFocus(exitModalRef, {
     open: showExitConfirm,
-    onClose: handleCloseExitConfirm,
+    onClose: () => handleCloseExitConfirm(),
     initialFocusRef: exitContinueBtnRef,
   })
 
@@ -320,7 +258,7 @@ function NewTestPage() {
 
   useDialogFocus(draftSubmitModalRef, {
     open: showDraftSubmitConfirm,
-    onClose: handleCloseDraftSubmitConfirm,
+    onClose: () => handleCloseDraftSubmitConfirm(),
     initialFocusRef: draftSubmitContinueBtnRef,
   })
 
@@ -516,8 +454,8 @@ function NewTestPage() {
         const eased = easeOutCubic(linear)
         const progressPct = Math.min(100, Math.max(0, eased * 100))
         const nextMessageIndex = Math.min(
-          RESULT_ANALYSIS_MESSAGES.length - 1,
-          Math.floor(linear * RESULT_ANALYSIS_MESSAGES.length),
+          FASI_ELABORAZIONE.length - 1,
+          Math.floor(linear * FASI_ELABORAZIONE.length),
         )
 
         setAnalysisProgress(progressPct)
@@ -543,14 +481,6 @@ function NewTestPage() {
       window.dispatchEvent(new CustomEvent('tst:ritual-focus', { detail: { active: false } }))
     }
   }, [isThresholdFocusActive])
-
-  useEffect(() => {
-    if (!isAnalyzingResult || loadingFlowerImages.length <= 1) return undefined
-    const timer = window.setInterval(() => {
-      setLoadingFlowerTick((prev) => prev + 1)
-    }, 860)
-    return () => window.clearInterval(timer)
-  }, [isAnalyzingResult, loadingFlowerImages.length])
 
   const handleProfilazioneChange = (field) => (event) => {
     const value = event.target.value
@@ -788,31 +718,6 @@ function NewTestPage() {
     })
   }
 
-  const isFeedbackComplete = () => {
-    const statoAnimoCount = parseCodes(testRecord.Stato_Animo_Finale || '').length
-    const areaMaggiorCount = parseCodes(testRecord.Area_Maggior_Agio || '').length
-    const areaMinorCount = parseCodes(testRecord.Area_Minor_Agio || '').length
-    const isBaseComplete = Boolean(
-      (testRecord.Stato_Animo_Finale || '').trim() &&
-        (testRecord.Difficolta_Test || '').trim() &&
-        (testRecord.Area_Maggior_Agio || '').trim() &&
-        (testRecord.Area_Minor_Agio || '').trim() &&
-        (testRecord.Qualita_Suoni || '').trim(),
-    )
-    if (!isBaseComplete) return false
-    if (
-      statoAnimoCount > MAX_MULTI_SELECTION ||
-      areaMaggiorCount > MAX_MULTI_SELECTION ||
-      areaMinorCount > MAX_MULTI_SELECTION
-    ) {
-      return false
-    }
-    if ((testRecord.Difficolta_Test || '').trim() === 'DT_SI') {
-      return Boolean((testRecord.Difficolta_Dettaglio || '').trim())
-    }
-    return true
-  }
-
   const buildLocalDraftSnapshot = () => ({
     version: 1,
     savedAt: Date.now(),
@@ -891,8 +796,8 @@ function NewTestPage() {
       Difficolta_Test: value,
       Difficolta_Dettaglio:
         value === 'DT_NO'
-          ? 'DD_NESSUNA'
-          : prev.Difficolta_Dettaglio === 'DD_NESSUNA'
+          ? DIFFICOLTA_DETTAGLIO_NESSUNA
+          : prev.Difficolta_Dettaglio === DIFFICOLTA_DETTAGLIO_NESSUNA
             ? ''
             : prev.Difficolta_Dettaglio,
     }))
@@ -1099,7 +1004,6 @@ function NewTestPage() {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [profilingDone, testCompleted, showAreasHelp, showExitConfirm, isChoicesVisible, currentFile])
 
-  const isFinalSubmitDisabled = isSubmitting
   const adaptiveTransitionStyle = {
     opacity: 1,
     transform: 'none',
@@ -1194,7 +1098,7 @@ function NewTestPage() {
     <div
       className={`page nuovo-test-page nuovo-test-flow ${
         profilingDone && !testCompleted ? 'nuovo-test-page--session-active' : ''
-      }`}
+      } ${profilingDone && testCompleted && !isReviewingTestSteps ? 'nuovo-test-page--finale' : ''}`}
     >
       {showIntro && (
         <div className="serenis-layout">
@@ -1649,272 +1553,32 @@ function NewTestPage() {
             </div>
           )}
           {testCompleted && !isAnalyzingResult && !isReviewingTestSteps && (
-            <div className={`answers-card ${testCompleted ? 'answers-card--completed' : ''}`}>
-              <section className="feedback-section">
-                <h3 className="feedback-title">Domande finali (dopo lo svolgimento del test)</h3>
-                <div className="test-navigation-submit">
-                  <button
-                    type="button"
-                    className="nav-button secondary"
-                    onClick={handleReviewLastQuestion}
-                    disabled={isSubmitting}
-                  >
-                    Torna all'ultima domanda del test
-                  </button>
-                </div>
-                <p className="feedback-subtitle">
-                  Le risposte aiutano a completare il quadro qualitativo del protocollo TST 2025.
-                </p>
-                <div className="feedback-grid">
-                  <fieldset className="feedback-field feedback-field-full">
-                    <legend>Come ti senti ora dopo il test? (massimo 3 aggettivi)</legend>
-                    <p className="feedback-inline-helper">Seleziona fino a 3 opzioni.</p>
-                    <div className="feedback-options-vertical">
-                      {STATO_ANIMO_OPTIONS.map((opt) => {
-                        const selectedCodes = parseCodes(testRecord.Stato_Animo_Finale || '')
-                        const checked = selectedCodes.includes(opt.value)
-                        const disabled = !checked && selectedCodes.length >= 3
-                        return (
-                          <label key={opt.value} className="feedback-option">
-                            <input
-                              type="checkbox"
-                              value={opt.value}
-                              checked={checked}
-                              disabled={disabled}
-                              onChange={() => toggleStatoAnimo(opt.value)}
-                            />
-                            <span>{opt.label}</span>
-                          </label>
-                        )
-                      })}
-                    </div>
-                  </fieldset>
-
-                  <div className="feedback-difficulty-row">
-                    <fieldset className="feedback-field feedback-field--compact">
-                      <legend>Hai trovato difficoltà?</legend>
-                      <div className="feedback-options-vertical feedback-options-vertical--stack">
-                        {DIFFICOLTA_TEST_OPTIONS.map((opt) => (
-                          <label key={opt.value} className="feedback-option">
-                            <input
-                              type="radio"
-                              name="difficolta-test"
-                              value={opt.value}
-                              checked={testRecord.Difficolta_Test === opt.value}
-                              onChange={handleDifficoltaTestChange}
-                            />
-                            <span>{opt.label}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </fieldset>
-
-                    <fieldset className="feedback-field feedback-field--detail">
-                      <legend>Se hai avuto difficoltà, di che tipo?</legend>
-                      <div
-                        className="feedback-options-vertical feedback-options-vertical--stack"
-                        aria-disabled={testRecord.Difficolta_Test !== 'DT_SI'}
-                      >
-                        {DIFFICOLTA_DETTAGLIO_OPTIONS.map((opt) => {
-                          const selectedCodes = parseCodes(testRecord.Difficolta_Dettaglio || '')
-                          const checked = selectedCodes.includes(opt.value)
-                          return (
-                            <label key={opt.value} className="feedback-option">
-                              <input
-                                type="checkbox"
-                                value={opt.value}
-                                checked={checked}
-                                disabled={testRecord.Difficolta_Test !== 'DT_SI'}
-                                onChange={() => toggleDifficoltaDettaglio(opt.value)}
-                              />
-                              <span>{opt.label}</span>
-                            </label>
-                          )
-                        })}
-                      </div>
-                    </fieldset>
-                  </div>
-
-                  <div className="feedback-field feedback-field-full feedback-areas-guide">
-                    <p className="feedback-help-title">Non ricordi le aree A-E?</p>
-                    <button
-                      type="button"
-                      className="feedback-areas-help-button"
-                      onClick={() => {
-                        uiSounds?.playTestTap?.()
-                        setShowAreasHelp(true)
-                      }}
-                    >
-                      Apri guida aree A-E
-                    </button>
-                    <p className="feedback-help-text">
-                      Clicca e trovi una spiegazione semplice area per area, con esempi pratici.
-                    </p>
-                  </div>
-
-                  <fieldset className="feedback-field">
-                    <legend>In quali aree del test ti sei sentito più a tuo agio?</legend>
-                    <p className="feedback-inline-helper">Seleziona fino a 3 opzioni.</p>
-                    <div className="feedback-options-vertical">
-                      {AREA_TEST_OPTIONS.map((opt) => {
-                        const selectedCodes = parseCodes(testRecord.Area_Maggior_Agio || '')
-                        const checked = selectedCodes.includes(opt.value)
-                        const disabled = !checked && selectedCodes.length >= MAX_MULTI_SELECTION
-                        return (
-                          <label key={`maggior-${opt.value}`} className="feedback-option">
-                            <input
-                              type="checkbox"
-                              value={opt.value}
-                              checked={checked}
-                              disabled={disabled}
-                              onChange={() => toggleAreaMaggiorAgio(opt.value)}
-                            />
-                            <span>{opt.label}</span>
-                          </label>
-                        )
-                      })}
-                    </div>
-                  </fieldset>
-
-                  <fieldset className="feedback-field">
-                    <legend>In quali aree del test ti sei sentito meno a tuo agio?</legend>
-                    <p className="feedback-inline-helper">Seleziona fino a 3 opzioni.</p>
-                    <div className="feedback-options-vertical">
-                      {AREA_TEST_OPTIONS.map((opt) => {
-                        const selectedCodes = parseCodes(testRecord.Area_Minor_Agio || '')
-                        const checked = selectedCodes.includes(opt.value)
-                        const disabled = !checked && selectedCodes.length >= MAX_MULTI_SELECTION
-                        return (
-                          <label key={`minor-${opt.value}`} className="feedback-option">
-                            <input
-                              type="checkbox"
-                              value={opt.value}
-                              checked={checked}
-                              disabled={disabled}
-                              onChange={() => toggleAreaMinorAgio(opt.value)}
-                            />
-                            <span>{opt.label}</span>
-                          </label>
-                        )
-                      })}
-                    </div>
-                  </fieldset>
-
-                  <fieldset className="feedback-field">
-                    <legend>Come hai trovato la qualità dei suoni ascoltati?</legend>
-                    <div className="feedback-options-vertical">
-                      {QUALITA_SUONI_OPTIONS.map((opt) => (
-                        <label key={opt.value} className="feedback-option">
-                          <input
-                            type="radio"
-                            name="qualita-suoni"
-                            value={opt.value}
-                            checked={testRecord.Qualita_Suoni === opt.value}
-                            onChange={handleProfilazioneChange('Qualita_Suoni')}
-                          />
-                          <span>{opt.label}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </fieldset>
-                </div>
-                <div className="test-navigation-submit">
-                  {!isFeedbackComplete() && !isGuestMode && (
-                    <p className="test-submit-hint">
-                      Puoi consegnare anche adesso: se incompleto verrà salvato come bozza in archivio.
-                    </p>
-                  )}
-                  <button
-                    type="button"
-                    className="nav-button submit-test"
-                    onClick={handleSubmitTest}
-                    disabled={isFinalSubmitDisabled}
-                  >
-                    {isSubmitting ? 'Consegna in corso...' : 'Consegna'}
-                  </button>
-                </div>
-              </section>
-            </div>
+            <FinalFeedbackStep
+              record={testRecord}
+              toggles={{
+                statoAnimo: toggleStatoAnimo,
+                difficoltaDettaglio: toggleDifficoltaDettaglio,
+                areaMaggiorAgio: toggleAreaMaggiorAgio,
+                areaMinorAgio: toggleAreaMinorAgio,
+              }}
+              onQualitaChange={handleProfilazioneChange('Qualita_Suoni')}
+              onDifficoltaChange={handleDifficoltaTestChange}
+              onOpenAreasHelp={() => {
+                uiSounds?.playTestTap?.()
+                setShowAreasHelp(true)
+              }}
+              onBack={handleReviewLastQuestion}
+              onSubmit={() => handleSubmitTest()}
+              isSubmitting={isSubmitting}
+              lastStep={TOTAL_STEPS}
+            />
           )}
           {testCompleted &&
-              isAnalyzingResult &&
-              createPortal(
-                <section
-                  className="result-analysis-transition"
-                  aria-live="polite"
-                  aria-label="Elaborazione risultati"
-                >
-                  <div className="result-analysis-card">
-                    <header className="result-analysis-header">
-                      <span className="result-analysis-status-dot" aria-hidden="true" />
-                      <div>
-                        <p className="result-analysis-kicker">Elaborazione risultati</p>
-                        <h2 className="result-analysis-title">Il tuo profilo sta prendendo forma</h2>
-                      </div>
-                    </header>
-
-                    {loadingFlowerImages.length > 0 && (
-                      <div className="result-analysis-flower-shell result-analysis-flower-carousel" aria-hidden="true">
-                        <div
-                          className="result-analysis-flower-shimmer"
-                          style={{ transform: `translateX(${((loadingFlowerTick % 6) - 1) * 120}%)` }}
-                        />
-                        <div
-                          className="result-analysis-flower-track"
-                          style={{
-                            width: `${loadingFlowerImages.length * 100}%`,
-                            transform: `translateX(-${activeFlowerIndex * (100 / loadingFlowerImages.length)}%)`,
-                          }}
-                        >
-                          {loadingFlowerImages.map((item, index) => {
-                            const isActive = index === activeFlowerIndex
-                            return (
-                              <div
-                                key={item.key}
-                                className="result-analysis-flower-slide"
-                                style={{ width: `${100 / loadingFlowerImages.length}%` }}
-                              >
-                                <img
-                                  src={item.src}
-                                  alt=""
-                                  className={`result-analysis-flower-image${isActive ? ' is-active' : ''}`}
-                                />
-                              </div>
-                            )
-                          })}
-                        </div>
-                      </div>
-                    )}
-
-                    <p className="result-analysis-message">
-                      {RESULT_ANALYSIS_MESSAGES[analysisMessageIndex]}
-                    </p>
-
-                    <div
-                      className="result-analysis-progress"
-                      role="progressbar"
-                      aria-label="Avanzamento elaborazione"
-                      aria-valuemin="0"
-                      aria-valuemax="100"
-                      aria-valuenow={Math.round(analysisProgress)}
-                    >
-                      <div
-                        className="result-analysis-progress-bar"
-                        style={{ width: `${analysisProgress.toFixed(2)}%` }}
-                      />
-                    </div>
-
-                    <div className="result-analysis-footer">
-                      <p className="result-analysis-note">
-                        <span aria-hidden="true">&#128274;</span>
-                        I tuoi dati restano riservati e protetti.
-                      </p>
-                      <p className="result-analysis-percent">{Math.round(analysisProgress)}%</p>
-                    </div>
-                  </div>
-                </section>,
-                document.body,
-              )}
+            isAnalyzingResult &&
+            createPortal(
+              <ResultAnalysisScreen progress={analysisProgress} phaseIndex={analysisMessageIndex} />,
+              document.body,
+            )}
           {showExitConfirm && (
             <div
               className="test-exit-modal-backdrop"

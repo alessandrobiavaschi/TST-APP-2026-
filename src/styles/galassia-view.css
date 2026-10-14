@@ -8632,3 +8632,49 @@
     max-width: calc(100% - 2 * var(--galassia-edge));
   }
 }
+
+/* ── Lessico: fluidità e leggibilità da vicino (ottobre 2026) ─────────────
+   1. Transizioni solo su opacity/transform: animare width, height e
+      box-shadow di 285 parole a ogni cambio di livello bloccava il
+      fotogramma per 100–190 ms durante lo zoom.
+   2. Densità progressiva: a zoom medio ("meso") si leggono le parole
+      chiave (anello 0), il secondo anello e le parole emerse; il terzo
+      anello resta un punto luminoso e compare solo avvicinandosi ("micro"),
+      al passaggio del mouse o con la ricerca.
+   3. Le targhette EMERSA / INCROCIO compaiono solo sulla parola indicata o
+      selezionata: le parole emerse restano riconoscibili dal bagliore,
+      quelle di incrocio dal colore bianco. */
+.lessico-atlas__word {
+  transition:
+    transform 0.18s ease-out,
+    opacity 0.25s ease;
+}
+
+.lessico-atlas__word-dot {
+  transition: opacity 0.25s ease;
+}
+
+.lessico-atlas--lod-meso .lessico-atlas__word[data-ring='2']:not(.is-emerged):not(:hover):not(.is-hovered):not(.is-selected):not(.is-search-matched) {
+  padding: 0;
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.lessico-atlas--lod-meso .lessico-atlas__word[data-ring='2']:not(.is-emerged):not(:hover):not(.is-hovered):not(.is-selected):not(.is-search-matched) .lessico-atlas__word-label {
+  display: none;
+}
+
+.lessico-atlas--lod-meso .lessico-atlas__word[data-ring='2']:not(.is-emerged):not(:hover):not(.is-hovered):not(.is-selected):not(.is-search-matched) .lessico-atlas__word-dot {
+  width: 5px;
+  height: 5px;
+  opacity: 0.75;
+}
+
+.lessico-atlas--lod-micro .lessico-atlas__word-tag {
+  display: none;
+}
+
+.lessico-atlas--lod-micro .lessico-atlas__word:is(:hover, .is-hovered, .is-selected) .lessico-atlas__word-tag {
+  display: inline-block;
+}

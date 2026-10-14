@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import ReportPassageHeader from './ReportPassageHeader.jsx'
 import EmotionalShape from './EmotionalShape.jsx'
@@ -12,6 +12,7 @@ import InfoTip from './InfoTip.jsx'
 import CalculationDisclosure from './CalculationDisclosure.jsx'
 import PercorsoRisposte from './PercorsoRisposte.jsx'
 import FamiglieDonut from './FamiglieDonut.jsx'
+import MobileChartsViewer from './MobileChartsViewer.jsx'
 import { buildProgressiveContentViewModel } from '../../utils/buildProgressiveContentViewModel.js'
 import { NATURE as NATURE_TST } from '../../config/tstSistema.js'
 import { getTestoNatura } from '../../content/testiFissiTemperamenti.js'
@@ -468,6 +469,8 @@ export default function SintesiCorrenti({
   const toggleTip = (id) => setActiveTip((cur) => (cur === id ? null : id))
 
   const [isMobileViewport, setIsMobileViewport] = useState(false)
+  const [chartsViewerOpen, setChartsViewerOpen] = useState(false)
+  const closeChartsViewer = useCallback(() => setChartsViewerOpen(false), [])
   React.useEffect(() => {
     if (typeof window === 'undefined') return undefined
     const media = window.matchMedia('(max-width: 768px)')
@@ -636,6 +639,62 @@ export default function SintesiCorrenti({
         viewport,
         transition: { duration: 0.45 },
       }
+
+  const selectFamilyByKey = (key) => {
+    const radarItem = totalScoreRadarData.find((d) => d.familyKey === key)
+    if (radarItem) setActiveDetailFamily(radarItem)
+  }
+
+  // Grafici della sezione 1.2 per il visore mobile: stessi componenti e stessi dati del desktop.
+  const mobileChartSlides = isMobileViewport
+    ? [
+        {
+          id: 'radar',
+          title: 'Radar delle famiglie',
+          caption: 'Punteggio da 1 a 7 per ogni famiglia. Tocca un vertice per il valore esatto.',
+          content: (
+            <ReportRadarChart
+              data={totalScoreRadarData}
+              color={accentColor}
+              height={460}
+              outerRadius="80%"
+              domain={[1, 7]}
+              fullscreen
+              className="sintesi-correnti__total-radar-chart"
+              ariaLabel="Grafico radar del total score delle cinque famiglie emotive"
+              onFamilySelect={selectFamilyByKey}
+            />
+          ),
+        },
+        {
+          id: 'forma',
+          title: 'Forma emotiva',
+          caption: 'Le cinque famiglie convivono nello stesso spazio: più una è presente, più è grande.',
+          content: (
+            <EmotionalShape
+              familiesData={ordered}
+              height="min(64vh, 560px)"
+              activeFamilyKey={hoveredFamilyKey || activeDetailFamily?.familyKey}
+              onFamilySelect={selectFamilyByKey}
+              onFamilyHover={setHoveredFamilyKey}
+            />
+          ),
+        },
+        {
+          id: 'ciambella',
+          title: 'Presenza nel profilo',
+          caption: 'Le cinque famiglie come parti di un intero, in percentuale.',
+          content: (
+            <FamiglieDonut
+              data={totalScoreRadarData}
+              activeFamilyKey={hoveredFamilyKey || activeDetailFamily?.familyKey}
+              onFamilyHover={setHoveredFamilyKey}
+              onFamilySelect={selectFamilyByKey}
+            />
+          ),
+        },
+      ]
+    : []
 
   if (isMobileViewport) {
     return (
@@ -807,52 +866,32 @@ export default function SintesiCorrenti({
           </div>
         ) : null}
 
-        {/* Visualizer and Legend (radar chart scaled for mobile viewport) */}
+        {/* Grafici: su mobile si aprono a tutto schermo e si scorrono di lato */}
         <div className="sintesi-mobile-visuals">
           <h3 className="sintesi-mobile-section-title">Visualizzazione Grafica</h3>
           <p className="sintesi-mobile-explanation">
             La forma visiva del tuo carattere emotivo. Le 5 componenti convivono nello stesso spazio.
           </p>
-          <div className="sintesi-mobile-radar-container">
-            <div className="sintesi-correnti__total-radar">
-              <p className="sintesi-correnti__radar-caption">
-                Punteggio 1-7 per famiglia — passa il cursore su un vertice per il valore esatto.
-              </p>
-              <p className="sintesi-correnti__radar-hint">Tocca i vertici per i punteggi esatti.</p>
-
-              <ReportRadarChart
-                data={totalScoreRadarData}
-                color={accentColor}
-                height={340}
-                outerRadius="72%"
-                domain={[1, 7]}
-                className="sintesi-correnti__total-radar-chart"
-                ariaLabel="Grafico radar del total score delle cinque famiglie emotive"
-                onFamilySelect={(key) => {
-                  const radarItem = totalScoreRadarData.find(d => d.familyKey === key)
-                  if (radarItem) setActiveDetailFamily(radarItem)
-                }}
-              />
-            </div>
-            <EmotionalShape 
-              familiesData={ordered}
-              height={isMobileViewport ? 300 : 'clamp(440px, 42vw, 560px)'}
-              activeFamilyKey={hoveredFamilyKey || activeDetailFamily?.familyKey}
-              onFamilySelect={(key) => {
-                const radarItem = totalScoreRadarData.find(d => d.familyKey === key)
-                if (radarItem) setActiveDetailFamily(radarItem)
-              }}
-              onFamilyHover={setHoveredFamilyKey}
-            />
+          <div className="mcv-entry" style={{ '--mcv-accent': accentColor }}>
+            <ul className="mcv-entry__chips" aria-label="Grafici disponibili">
+              {mobileChartSlides.map((slide) => (
+                <li key={slide.id} className="mcv-entry__chip">{slide.title}</li>
+              ))}
+            </ul>
+            <button
+              type="button"
+              className="mcv-entry__open"
+              onClick={() => setChartsViewerOpen(true)}
+            >
+              Apri i grafici
+            </button>
           </div>
-          <FamiglieDonut
-            data={totalScoreRadarData}
-            activeFamilyKey={hoveredFamilyKey || activeDetailFamily?.familyKey}
-            onFamilyHover={setHoveredFamilyKey}
-            onFamilySelect={(key) => {
-              const radarItem = totalScoreRadarData.find(d => d.familyKey === key)
-              if (radarItem) setActiveDetailFamily(radarItem)
-            }}
+          <MobileChartsViewer
+            open={chartsViewerOpen}
+            onClose={closeChartsViewer}
+            title={SINTESI_UI.distribuzioneTitle}
+            slides={mobileChartSlides}
+            accentColor={accentColor}
           />
           {renderDetailPanel()}
         </div>

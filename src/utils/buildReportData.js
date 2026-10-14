@@ -109,6 +109,14 @@ import {
   buildRelationLensContract,
 } from './reportCompositionSensitivity.js'
 import { buildReportContentSelection } from './buildReportContentSelection.js'
+import {
+  AREE_TEST,
+  DIFFICOLTA_DETTAGLIO_NESSUNA,
+  DIFFICOLTA_DETTAGLIO_OPTIONS,
+  QUALITA_SUONI_OPTIONS,
+  STATO_ANIMO_FINALE_OPTIONS,
+  etichettePerCodice,
+} from '../config/domandeFinali.js'
 
 const PESO_RANK_LABEL = ['dominante', 'secondaria', 'minore', 'marginale', 'marginale']
 
@@ -148,16 +156,7 @@ function buildProfilo23Text(familyName, panelId) {
   return ''
 }
 
-const FINAL_STATE_LABELS = {
-  SA_SERENO: 'Sereno/a',
-  SA_CURIOSO: 'Curioso/a',
-  SA_SOLLEVATO: 'Sollevato/a',
-  SA_COINVOLTO: 'Coinvolto/a',
-  SA_RIFLESSIVO: 'Riflessivo/a',
-  SA_STANCO: 'Stanco/a',
-  SA_TESO: 'Teso/a',
-  SA_CONFUSO: 'Confuso/a',
-}
+const FINAL_STATE_LABELS = etichettePerCodice(STATO_ANIMO_FINALE_OPTIONS)
 
 const DIFFICOLTA_LABELS = {
   DT_NO: 'Nessuna difficoltà segnalata',
@@ -165,31 +164,15 @@ const DIFFICOLTA_LABELS = {
 }
 
 /** Sentinel scritto da NewTestPage quando l'utente non segnala difficoltà: non è un codice reale da mostrare. */
-const DIFFICOLTA_DETTAGLIO_NONE_CODE = 'DD_NESSUNA'
+const DIFFICOLTA_DETTAGLIO_NONE_CODE = DIFFICOLTA_DETTAGLIO_NESSUNA
 
-const DIFFICOLTA_DETTAGLIO_LABELS = {
-  DD_CONCENTRAZIONE: 'Concentrazione / attenzione',
-  DD_COMPRENSIONE: 'Comprensione delle sensazioni richieste',
-  DD_VOLUMI: 'Volume / timbro dei suoni',
-  DD_DURATA: 'Durata complessiva del test',
-  DD_CONTESTO: 'Ambiente esterno (rumori/interruzioni)',
-  DD_TECNICA: 'Aspetti tecnici (audio, cuffie, device)',
-}
+const DIFFICOLTA_DETTAGLIO_LABELS = etichettePerCodice(DIFFICOLTA_DETTAGLIO_OPTIONS)
 
-const AREA_TEST_META = {
-  A: { code: 'A', nome: 'Timbro', range: 'File 1-28' },
-  B: { code: 'B', nome: 'Intervalli', range: 'File 29-41' },
-  C: { code: 'C', nome: 'Ritmo', range: 'File 42-51' },
-  D: { code: 'D', nome: 'Melodia', range: 'File 52-58' },
-  E: { code: 'E', nome: 'Armonia', range: 'File 59-72' },
-}
+const AREA_TEST_META = Object.fromEntries(
+  AREE_TEST.map(({ value, nome, from, to }) => [value, { code: value, nome, range: `File ${from}-${to}` }]),
+)
 
-const QUALITA_SUONI_LABELS = {
-  QS_OTTIMI: 'Ottimi',
-  QS_BUONI: 'Buoni',
-  QS_SUFFICIENTI: 'Sufficienti',
-  QS_PESSIMI: 'Pessimi',
-}
+const QUALITA_SUONI_LABELS = etichettePerCodice(QUALITA_SUONI_OPTIONS)
 
 function rawKeyToLabel(rawKey) {
   return String(rawKey || '')

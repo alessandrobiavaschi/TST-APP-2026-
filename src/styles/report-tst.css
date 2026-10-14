@@ -5757,11 +5757,19 @@
 .report-room-section {
   position: relative;
   display: grid;
+  /* Colonna unica larga quanto lo schermo: senza minmax(0, 1fr) la griglia si
+     allarga quanto il contenuto più largo e su mobile i testi escono a destra. */
+  grid-template-columns: minmax(0, 1fr);
   align-content: center;
   min-height: calc(100svh - var(--report-sticky-offset));
   padding-block: var(--space-lg);
   scroll-margin-top: var(--report-sticky-offset);
   transform-origin: center top;
+}
+
+.report-room > *,
+.report-room-section > * {
+  min-width: 0;
 }
 
 .report-room::before,

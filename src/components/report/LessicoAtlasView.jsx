@@ -15,6 +15,10 @@ const PINCH_DAMPING = 0.70
 const BASE_PITCH = 0
 const FOCUS_PITCH = 0
 const LERP_FACTOR = 0.45
+// Livelli di dettaglio del Lessico: soglie di zoom e attesa prima del cambio.
+const LOD_EDGES = [0.48, 0.85, 1.4]
+const LOD_TIERS = ['macro', 'meso-wide', 'meso', 'micro']
+const LOD_SETTLE_MS = 140
 
 // Exact Cubic-Bezier solver for fly-to transitions: cubic-bezier(0.16, 1, 0.3, 1)
 function solveCubicBezier(x1, y1, x2, y2) {
@@ -534,30 +538,57 @@ function buildConstellationData() {
     }
   }
 
-  // Hard anti-overlap separation pass to guarantee zero overlap
-  for (let pass = 0; pass < 8; pass++) {
+  // Separazione rigida fra TUTTE le etichette (anche di famiglie diverse) e
+  // contro le targhette fisse delle nature: prima solo le parole della stessa
+  // famiglia venivano allontanate, quindi ai confini restavano sovrapposizioni.
+  const GAP_X = 18
+  const GAP_Y = 12
+  const hubBoxes = hubs.map((h) => ({
+    x: h.x,
+    y: h.y,
+    w: String(h.title || '').length * 6.8 + 12,
+    h: 28,
+  }))
+  for (let pass = 0; pass < 80; pass++) {
+    let moved = false
     for (let i = 0; i < numWords; i++) {
       for (let j = i + 1; j < numWords; j++) {
-        const isPeerFamily =
-          words[j].familyId === words[i].familyId ||
-          words[i].connectedFamilyIds?.some((fId) => words[j].connectedFamilyIds?.includes(fId))
-        if (!isPeerFamily && !words[i].isIntersection && !words[j].isIntersection) continue
         const dx = pX[j] - pX[i]
         const dy = pY[j] - pY[i]
-        const reqW = (words[i].width + words[j].width) * 0.5 + 16
-        const reqH = (words[i].height + words[j].height) * 0.5 + 12
+        const reqW = (words[i].width + words[j].width) * 0.5 + GAP_X
+        const reqH = (words[i].height + words[j].height) * 0.5 + GAP_Y
         if (Math.abs(dx) < reqW && Math.abs(dy) < reqH) {
+          moved = true
           const overlapX = reqW - Math.abs(dx)
           const overlapY = reqH - Math.abs(dy)
-          const pushX = (overlapX * 0.55) * (dx >= 0 ? 1 : -1)
-          const pushY = (overlapY * 0.55) * (dy >= 0 ? 1 : -1)
-          pX[i] -= pushX * 0.5
-          pY[i] -= pushY * 0.5
-          pX[j] += pushX * 0.5
-          pY[j] += pushY * 0.5
+          // Si sposta lungo l'asse che richiede meno movimento: le parole
+          // restano vicine alla loro natura invece di scivolare via.
+          if (overlapY * 1.6 < overlapX) {
+            const push = overlapY * 0.5 * (dy >= 0 ? 1 : -1)
+            pY[i] -= push
+            pY[j] += push
+          } else {
+            const push = overlapX * 0.5 * (dx >= 0 ? 1 : -1)
+            pX[i] -= push
+            pX[j] += push
+          }
+        }
+      }
+      for (const hb of hubBoxes) {
+        const dx = pX[i] - hb.x
+        const dy = pY[i] - hb.y
+        const reqW = (words[i].width + hb.w) * 0.5 + GAP_X
+        const reqH = (words[i].height + hb.h) * 0.5 + GAP_Y
+        if (Math.abs(dx) < reqW && Math.abs(dy) < reqH) {
+          moved = true
+          const overlapX = reqW - Math.abs(dx)
+          const overlapY = reqH - Math.abs(dy)
+          if (overlapY * 1.6 < overlapX) pY[i] += overlapY * (dy >= 0 ? 1 : -1)
+          else pX[i] += overlapX * (dx >= 0 ? 1 : -1)
         }
       }
     }
+    if (!moved) break
   }
 
   for (let i = 0; i < numWords; i++) {
@@ -1953,6 +1984,10 @@ export default function LessicoAtlasView({
     if (isMobile) return undefined
 
     let rafId = null
+    let lastTransform = ''
+    let lastInvScale = ''
+    let lastScale = cameraRef.current.scale
+    let lastScaleChangeAt = 0
 
     const tick = () => {
       // 1. Flight Dynamics (Smooth glide to target word or family)
@@ -2007,9 +2042,22 @@ export default function LessicoAtlasView({
 
       // 3. Transform Canvas
       if (canvasRef.current) {
-        canvasRef.current.style.transform = `translate3d(${cur.x.toFixed(2)}px, ${cur.y.toFixed(2)}px, 0px) scale(${cur.scale.toFixed(4)})`
+        const nextTransform = `translate3d(${cur.x.toFixed(2)}px, ${cur.y.toFixed(2)}px, 0px) scale(${cur.scale.toFixed(4)})`
+        if (nextTransform !== lastTransform) {
+          canvasRef.current.style.transform = nextTransform
+          lastTransform = nextTransform
+        }
         // Le etichette di famiglia restano leggibili anche a zoom basso.
-        canvasRef.current.style.setProperty('--atlas-inv-scale', (1 / Math.max(cur.scale, 0.05)).toFixed(3))
+        // La variabile va scritta SOLO sulle 5 targhette: scritta sulla tela
+        // ricalcolava lo stile di ~2000 elementi a ogni fotogramma di zoom
+        // (~16 ms ciascuno), causa principale del lag.
+        const nextInv = (1 / Math.max(cur.scale, 0.05)).toFixed(2)
+        if (nextInv !== lastInvScale) {
+          lastInvScale = nextInv
+          canvasRef.current
+            .querySelectorAll('.lessico-atlas__family-badge')
+            .forEach((el) => el.style.setProperty('--atlas-inv-scale', nextInv))
+        }
       }
 
       // 4. Parallax Layers (deep starfield and nebulae)
@@ -2024,10 +2072,23 @@ export default function LessicoAtlasView({
         nebulaeRef.current.style.transform = `translate3d(${nX.toFixed(2)}px, ${nY.toFixed(2)}px, 0px) scale(1.12)`
       }
 
-      // 5. Semantic LOD Tier Update (instant DOM class swap - zero React re-render overhead)
-      const newTier =
-        cur.scale < 0.48 ? 'macro' : cur.scale < 0.85 ? 'meso-wide' : cur.scale < 1.40 ? 'meso' : 'micro'
-      if (newTier !== currentLodTierRef.current) {
+      // 5. Livello di dettaglio (LOD). Ogni cambio di livello ridisegna tutte
+      // le parole e le linee (~100 ms): lo applichiamo quando lo zoom si è
+      // fermato, così il movimento resta fluido. Isteresi vicino alle soglie.
+      if (cur.scale !== lastScale) {
+        lastScale = cur.scale
+        lastScaleChangeAt = performance.now()
+      }
+      const zoomSettled =
+        cur.scale === tgt.scale && performance.now() - lastScaleChangeAt > LOD_SETTLE_MS
+      const prevIdx = Math.max(0, LOD_TIERS.indexOf(currentLodTierRef.current))
+      let tierIdx = LOD_EDGES.filter((edge) => cur.scale >= edge).length
+      if (tierIdx !== prevIdx) {
+        const edge = LOD_EDGES[Math.min(tierIdx, prevIdx)]
+        if (Math.abs(cur.scale - edge) < 0.03) tierIdx = prevIdx
+      }
+      const newTier = LOD_TIERS[tierIdx]
+      if (newTier !== currentLodTierRef.current && zoomSettled) {
         currentLodTierRef.current = newTier
         if (atlasRootRef.current) {
           atlasRootRef.current.dataset.lodTier = newTier
