@@ -3,15 +3,15 @@
    ===================================================================== */
 
 .galassia-view {
-  --galassia-crt-green: #9ef01a;
+  --galassia-crt-green: #cbd5e1;
   --galassia-crt-amber: #ffb000;
-  --galassia-crt-text: rgba(210, 255, 170, 0.94);
-  --galassia-crt-muted: rgba(158, 240, 26, 0.62);
-  --galassia-crt-border: rgba(120, 180, 80, 0.45);
-  --galassia-crt-glow: rgba(158, 240, 26, 0.12);
+  --galassia-crt-text: rgba(226, 232, 240, 0.94);
+  --galassia-crt-muted: rgba(148, 163, 184, 0.62);
+  --galassia-crt-border: rgba(148, 163, 184, 0.28);
+  --galassia-crt-glow: rgba(148, 163, 184, 0.12);
   position: relative;
   isolation: isolate;
-  font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, monospace);
+  font-family: var(--font-body, Inter, ui-sans-serif, system-ui, sans-serif);
 }
 
 /* ── Sfondo a strati (fisso al viewport: non segue zoom/pan mappa) ─ */
@@ -278,11 +278,11 @@
       transparent 1px,
       transparent 3px
     ),
-    radial-gradient(ellipse 90% 70% at 50% 0%, rgba(158, 240, 26, 0.08) 0%, transparent 55%),
+    radial-gradient(ellipse 90% 70% at 50% 0%, rgba(148, 163, 184, 0.08) 0%, transparent 55%),
     linear-gradient(180deg, rgba(4, 12, 6, 0.98) 0%, rgba(2, 8, 4, 0.99) 100%);
   box-shadow:
-    inset 0 0 0 1px rgba(158, 240, 26, 0.08),
-    inset 0 0 24px rgba(158, 240, 26, 0.06);
+    inset 0 0 0 1px rgba(148, 163, 184, 0.08),
+    inset 0 0 24px rgba(148, 163, 184, 0.06);
   padding: 0.65rem 0.72rem 0.75rem;
   color: var(--galassia-crt-text);
   font-size: 0.74rem;
@@ -296,7 +296,7 @@
   right: 0.35rem;
   top: 0.4rem;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(158, 240, 26, 0.35), transparent);
+  background: linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.35), transparent);
   opacity: 0.7;
 }
 
@@ -383,7 +383,7 @@
 }
 
 .galassia-view__crt-indica {
-  color: rgba(210, 255, 170, 0.78);
+  color: rgba(226, 232, 240, 0.78);
   font-size: 0.68rem;
 }
 
@@ -405,10 +405,10 @@
 .galassia-view__crt-tag {
   padding: 0.14rem 0.42rem;
   border-radius: 0.2rem;
-  border: 1px solid rgba(158, 240, 26, 0.28);
-  background: rgba(158, 240, 26, 0.07);
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  background: rgba(148, 163, 184, 0.07);
   font-size: 0.6rem;
-  color: rgba(210, 255, 170, 0.88);
+  color: rgba(226, 232, 240, 0.88);
 }
 
 .galassia-view__crt-actions {
@@ -417,7 +417,7 @@
   gap: 0.35rem;
   margin-top: 0.35rem;
   padding-top: 0.35rem;
-  border-top: 1px dashed rgba(158, 240, 26, 0.2);
+  border-top: 1px dashed rgba(148, 163, 184, 0.2);
 }
 
 .galassia-view__crt-btn {
@@ -2350,7 +2350,7 @@
   font-size: 0.72rem;
   font-style: normal;
   line-height: 1.35;
-  color: rgba(210, 255, 170, 0.82);
+  color: rgba(226, 232, 240, 0.82);
 }
 
 .galassia-view__portato-triad {
@@ -2408,7 +2408,7 @@
 
 .galassia-view__portato-triad-legend em {
   font-style: normal;
-  color: rgba(210, 255, 170, 0.82);
+  color: rgba(226, 232, 240, 0.82);
 }
 
 .galassia-view__portato-triad-axis {
@@ -2886,20 +2886,15 @@
 
 .galassia-view--zoomed .galassia-view__planet-wrap--selected {
   z-index: 12;
-  pointer-events: none;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
 }
 
 .galassia-view--zoomed .galassia-view__constellation {
   transform-origin: center center;
 }
 
-/* Costellazione sostituisce il pianeta selezionato: evita doppio cerchio al centro */
-.galassia-view--zoomed .galassia-view__planet-wrap--selected .galassia-view__planet-label,
-.galassia-view--zoomed .galassia-view__planet-wrap--selected button > span {
-  opacity: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-}
 
 /* Mobile: etichette satellite solo su attivo / hover (classe da JSX) */
 @media (max-width: 768px) {
@@ -2971,14 +2966,10 @@
 }
 
 .galassia-view--zoomed .galassia-view__planet-wrap--dimmed {
-  opacity: 0.2 !important;
-  visibility: visible !important;
-  pointer-events: auto !important;
-}
-
-.galassia-view--zoomed .galassia-view__planet-wrap--dimmed .galassia-view__planet-label {
-  opacity: 0.45;
-  transform: translate(-50%, 2px);
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transition: opacity 0.3s ease, visibility 0s linear 0.3s;
 }
 
 .galassia-view {
@@ -4580,17 +4571,6 @@
   color: rgba(186, 200, 218, 0.72);
   font-size: 0.82rem;
   line-height: 1.48;
-}
-
-/* Mode tab active state — Tactical HUD Cyber-Astronomy */
-.galassia-view__mode-tab[data-active='true'] {
-  border-color: rgba(56, 189, 248, 0.75) !important;
-  background: linear-gradient(135deg,
-    rgba(14, 116, 144, 0.88) 0%,
-    rgba(3, 105, 161, 0.92) 100%) !important;
-  color: #ffffff !important;
-  box-shadow: 0 0 16px rgba(56, 189, 248, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
-  text-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
 }
 
 /* Planet label sub-text — more legible */
@@ -8193,5 +8173,462 @@
   .galassia-3d-stream,
   .galassia-3d-stream-pulse {
     animation: none !important;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Rifinitura design Galassia (ottobre 2026)
+   Ultimo blocco del file: vince sulle regole storiche sopra.
+   Direzione: atlante astronomico sobrio. Niente glow sul chrome, niente
+   maiuscolo spaziato in monospace fuori dalle micro-etichette, superfici
+   neutre con bordo sottile, colore solo dove porta informazione.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.galassia-view {
+  --gx-surface: rgba(8, 13, 26, 0.86);
+  --gx-surface-raised: rgba(255, 255, 255, 0.06);
+  --gx-line: rgba(148, 163, 184, 0.18);
+  --gx-line-strong: rgba(203, 213, 225, 0.32);
+  --gx-text: rgba(241, 245, 249, 0.96);
+  --gx-text-muted: rgba(178, 190, 207, 0.78);
+  --gx-font-ui: var(--font-body, Inter, ui-sans-serif, system-ui, sans-serif);
+}
+
+/* ── Tab Disposizioni / Portato / Lessico ─────────────────────────────── */
+.galassia-view__mode-switch {
+  gap: 2px;
+  padding: 3px !important;
+  border: 1px solid var(--gx-line);
+  border-radius: 10px;
+  background: var(--gx-surface) !important;
+  box-shadow: none;
+}
+
+.galassia-view__mode-tab {
+  padding: 0.45rem 1rem;
+  border: 0;
+  border-radius: 7px;
+  color: var(--gx-text-muted);
+  font-family: var(--gx-font-ui);
+  font-size: 0.86rem;
+  font-weight: 560;
+  letter-spacing: 0;
+  text-transform: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.galassia-view__mode-tab:hover {
+  border-color: transparent;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--gx-text);
+}
+
+.galassia-view__mode-tab[data-active='true'] {
+  border-color: transparent !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: var(--gx-text) !important;
+  box-shadow: inset 0 0 0 1px var(--gx-line-strong) !important;
+  text-shadow: none;
+}
+
+/* ── Controlli mappa: una barra compatta, senza D-pad ─────────────────── */
+.galassia-view__map-controls--floating {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 4px;
+  padding: 4px !important;
+  border: 1px solid var(--gx-line) !important;
+  border-radius: 10px !important;
+  background: var(--gx-surface) !important;
+  box-shadow: 0 8px 24px rgba(2, 6, 23, 0.35) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.galassia-view__map-controls--floating .lessico-atlas__controls-divider {
+  display: none;
+}
+
+.galassia-view__map-controls--floating .galassia-view__map-control {
+  min-width: 2.25rem;
+  min-height: 2.25rem;
+  padding: 0 0.5rem;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--gx-text);
+  font-family: var(--gx-font-ui);
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  box-shadow: none;
+  transform: none;
+  transition: background-color 0.15s ease;
+}
+
+.galassia-view__map-controls--floating .galassia-view__map-control--ghost {
+  padding: 0 0.8rem;
+  font-size: 0.84rem;
+  font-weight: 560;
+  border-left: 1px solid var(--gx-line);
+  border-right: 1px solid var(--gx-line);
+  border-radius: 0;
+}
+
+.galassia-view__map-controls--floating .galassia-view__map-control:hover,
+.galassia-view__map-controls--floating .galassia-view__map-control:focus-visible {
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+  transform: none;
+}
+
+/* ── Focus su una famiglia: niente mondi o traiettorie sotto le sfere ─── */
+.galassia-3d-celestial-web,
+.galassia-view__relation-lines,
+.galassia-view__axis-labels {
+  transition: opacity 0.35s ease;
+}
+
+.galassia-view--zoomed .galassia-3d-celestial-web,
+.galassia-view--zoomed .galassia-view__relation-lines,
+.galassia-view--zoomed .galassia-view__axis-labels {
+  opacity: 0 !important;
+  pointer-events: none;
+}
+
+.galassia-view--zoomed .galassia-view__constellation-lines line {
+  stroke: color-mix(in srgb, var(--constellation-color) 45%, transparent);
+  stroke-width: 1;
+  stroke-dasharray: 2 5;
+}
+
+/* Satelliti: etichetta testuale accanto alla sfera, senza riquadro. */
+.galassia-view__constellation-label,
+.galassia-view--zoomed .galassia-view__constellation-label {
+  min-width: 0;
+  max-width: 12rem;
+  padding: 0;
+  border: 0;
+  background: none !important;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  opacity: 1;
+  text-shadow: 0 1px 2px rgba(2, 6, 23, 0.9), 0 0 12px rgba(2, 6, 23, 0.85);
+}
+
+.galassia-view__constellation-wrap[data-label-side='right'] .galassia-view__constellation-label {
+  transform: translate(0, -50%) translate(var(--label-dx), 0);
+}
+
+.galassia-view__constellation-wrap[data-label-side='left'] .galassia-view__constellation-label {
+  transform: translate(-100%, -50%) translate(var(--label-dx), 0);
+}
+
+.galassia-view__constellation-wrap[data-label-side='top'] .galassia-view__constellation-label {
+  transform: translate(-50%, -100%) translate(0, var(--label-dy));
+}
+
+.galassia-view__constellation-wrap[data-label-side='bottom'] .galassia-view__constellation-label {
+  transform: translate(-50%, 0) translate(0, var(--label-dy));
+}
+
+.galassia-view__constellation-label strong {
+  font-family: var(--gx-font-ui);
+  font-size: 0.9rem;
+  font-weight: 620;
+  color: var(--gx-text);
+}
+
+.galassia-view__constellation-label small {
+  font-family: var(--gx-font-ui);
+  font-size: 0.76rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--gx-text-muted);
+}
+
+.galassia-view--zoomed .galassia-view__constellation-wrap--active .galassia-view__constellation-label,
+.galassia-view--zoomed .galassia-view__constellation-wrap--hovered .galassia-view__constellation-label,
+.galassia-view--zoomed .galassia-view__constellation-hit:hover .galassia-view__constellation-label,
+.galassia-view--zoomed .galassia-view__constellation-hit:focus-visible .galassia-view__constellation-label {
+  background: none !important;
+  border-color: transparent;
+}
+
+/* Sfere: luce morbida, nessun alone al neon. */
+.galassia-view__constellation-node,
+.galassia-view__constellation-core-node {
+  box-shadow:
+    inset -8px -10px 18px rgba(2, 6, 23, 0.45),
+    0 10px 28px rgba(0, 0, 0, 0.4);
+}
+
+.galassia-view__constellation-hit:hover .galassia-view__constellation-node,
+.galassia-view__constellation-hit:focus-visible .galassia-view__constellation-node,
+.galassia-view__constellation-wrap--active .galassia-view__constellation-node,
+.galassia-view__constellation-core:hover .galassia-view__constellation-core-node,
+.galassia-view__constellation-core:focus-visible .galassia-view__constellation-core-node,
+.galassia-view__constellation-core[aria-pressed='true'] .galassia-view__constellation-core-node {
+  box-shadow:
+    inset -8px -10px 18px rgba(2, 6, 23, 0.45),
+    0 0 0 2px rgba(248, 250, 252, 0.85),
+    0 10px 28px rgba(0, 0, 0, 0.4);
+}
+
+/* Etichette dei pianeti in panoramica: numeri tabellari, stesso font UI. */
+.galassia-view__planet-label small {
+  font-family: var(--gx-font-ui);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Il nome del nucleo appare sotto la sfera senza spostarla: la sfera resta
+   sull'asse dei satelliti. */
+.galassia-view--zoomed .galassia-view__constellation-core-label {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  translate: -50% 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  text-shadow: 0 1px 2px rgba(2, 6, 23, 0.9);
+}
+
+/* ── Pannello laterale ──────────────────────────────────────────────────── */
+.galassia-view__crt-bezel {
+  border: 1px solid var(--gx-line) !important;
+  background: var(--gx-surface) !important;
+  box-shadow: 0 16px 40px rgba(2, 6, 23, 0.4) !important;
+}
+
+.galassia-view__crt-bezel::before,
+.galassia-view__crt-bezel::after,
+.galassia-view__crt-screen::before,
+.galassia-view__crt-screen::after {
+  display: none !important;
+}
+
+.galassia-view__crt-screen {
+  text-shadow: none !important;
+}
+
+/* Indicazione d'uso: testo semplice, senza riquadro né barra. */
+.galassia-view__crt-hint,
+.galassia-view__crt-hint--compact,
+.galassia-view__crt-screen--compact .galassia-view__crt-hint--compact {
+  padding: 0 !important;
+  border: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+  color: var(--gx-text-muted) !important;
+  font-size: 0.8rem;
+}
+
+.galassia-view__crt-hint::before,
+.galassia-view__crt-hint--compact::before {
+  display: none !important;
+}
+
+@media (min-width: 901px) {
+  /* In panoramica il pannello cresce col contenuto e scorre, invece di tagliare il testo. */
+  .galassia-view--overview .galassia-view__crt,
+  .galassia-view--overview .galassia-view__crt-bezel {
+    height: auto !important;
+    max-height: min(72vh, 600px) !important;
+  }
+
+  .galassia-view--overview .galassia-view__crt-screen {
+    max-height: none !important;
+    overflow-y: auto;
+  }
+}
+
+/* ── Lessico: stessi controlli e superfici della Galassia ──────────────── */
+.lessico-atlas__controls--tactical {
+  background: rgba(4, 8, 19, 0.82) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border-bottom: 1px solid var(--gx-line) !important;
+  box-shadow: none !important;
+}
+
+.lessico-legend--tactical {
+  gap: 4px;
+}
+
+.lessico-legend__item--tactical {
+  gap: 0.45rem;
+  padding: 0.36rem 0.7rem;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--gx-text-muted);
+  font-family: var(--gx-font-ui);
+  font-size: 0.82rem;
+  font-weight: 540;
+  letter-spacing: 0;
+  text-transform: none;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.lessico-legend__item--tactical:hover,
+.lessico-legend__item--tactical:focus-visible {
+  border-color: transparent;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--gx-text);
+  box-shadow: none;
+}
+
+.lessico-legend__item--tactical.is-active {
+  border-color: var(--gx-line-strong);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--gx-text);
+  box-shadow: none;
+}
+
+.lessico-legend__dot {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--legend-color, #94a3b8);
+}
+
+.lessico-legend__item--tactical .lessico-legend__val {
+  color: var(--gx-text-muted);
+  font-family: var(--gx-font-ui);
+  font-size: 0.76rem;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.85;
+}
+
+.lessico-map-bar.lessico-tactical-helm {
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  padding: 4px;
+  border: 1px solid var(--gx-line);
+  border-radius: 10px;
+  background: var(--gx-surface);
+  box-shadow: 0 8px 24px rgba(2, 6, 23, 0.35);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.lessico-map-bar__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.25rem;
+  min-height: 2.25rem;
+  padding: 0 0.5rem;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--gx-text);
+  font-family: var(--gx-font-ui);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.lessico-map-bar__btn--text {
+  padding: 0 0.8rem;
+  border-left: 1px solid var(--gx-line);
+  border-right: 1px solid var(--gx-line);
+  border-radius: 0;
+  font-size: 0.84rem;
+  font-weight: 560;
+}
+
+.lessico-map-bar__btn:hover,
+.lessico-map-bar__btn:focus-visible,
+.lessico-map-bar__btn.is-active {
+  background: rgba(255, 255, 255, 0.08);
+  outline: none;
+}
+
+.lessico-map-bar__btn:focus-visible {
+  box-shadow: inset 0 0 0 2px rgba(248, 250, 252, 0.7);
+}
+
+/* Mini-mappa: solo il riquadro, senza intestazione da console. */
+.lessico-radar {
+  gap: 0;
+  padding: 6px;
+  border: 1px solid var(--gx-line);
+  border-radius: 10px;
+  background: var(--gx-surface);
+  box-shadow: 0 8px 24px rgba(2, 6, 23, 0.35);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.lessico-radar__screen {
+  border-color: var(--gx-line) !important;
+  background: rgba(2, 6, 23, 0.6) !important;
+  box-shadow: none !important;
+}
+
+.lessico-radar__viewfinder {
+  border-color: rgba(248, 250, 252, 0.6) !important;
+  background: rgba(248, 250, 252, 0.06) !important;
+  box-shadow: none !important;
+}
+
+.lessico-atlas__source {
+  position: absolute;
+  right: 1.75rem;
+  top: calc(100% - 2rem);
+  z-index: 40;
+  margin: 0;
+  color: var(--gx-text-muted);
+  font-family: var(--gx-font-ui);
+  font-size: 0.74rem;
+  pointer-events: none;
+}
+
+/* Nome della famiglia: leggibile a ogni zoom (contro-scala, max 3.2×). */
+.lessico-atlas__family-badge,
+.lessico-atlas__family-badge:hover {
+  transform: translate(-50%, -50%) scale(min(3.2, max(1, var(--atlas-inv-scale, 1))));
+  transform-origin: center;
+  padding: 0.3rem 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--badge-color) 40%, rgba(255, 255, 255, 0.12));
+  border-radius: 8px;
+  background: rgba(4, 8, 19, 0.82);
+  box-shadow: none;
+  font-family: var(--gx-font-ui);
+  font-size: 0.86rem;
+  font-weight: 620;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.lessico-atlas__family-badge:hover {
+  border-color: var(--badge-color);
+}
+
+.lessico-atlas__family-badge-dot {
+  box-shadow: none;
+}
+
+.lessico-atlas__family-badge-count {
+  border-left-color: var(--gx-line);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 900px) {
+  /* Il chrome non deve uscire dal bordo destro su tablet e telefono. */
+  .galassia-view__chrome {
+    right: var(--galassia-edge) !important;
+    width: auto !important;
+    max-width: calc(100% - 2 * var(--galassia-edge));
   }
 }

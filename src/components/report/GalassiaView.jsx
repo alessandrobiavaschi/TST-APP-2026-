@@ -88,6 +88,8 @@ const MAP_LABEL_PAD_PX = 104
 const CONSTELLATION_CORE_DIAM = 96
 const CONSTELLATION_NODE_GAP = 30
 const CONSTELLATION_LABEL_CLEAR = 58
+/** Distanza tra il bordo della sfera satellite e il bordo dell'etichetta (px). */
+const CONSTELLATION_LABEL_GAP = 12
 /** Min center-to-center horizontal gap between two satellites (px). */
 const CONSTELLATION_MIN_X_GAP = 20
 /** n=2: orbit radius must be at least nodeSize + this for readable horizontal spread. */
@@ -95,6 +97,11 @@ const CONSTELLATION_PAIR_ORBIT_MIN_EXTRA = 80
 const CONSTELLATION_MAP_EDGE_PAD = 16
 /** Bias upward so orbit + labels sit in the visual center of the map viewport. */
 const MAP_ZOOM_FOCUS_Y = 46
+
+/** Nel focus di una famiglia il prefisso «Natura —» è ridondante: resta solo il nome della natura. */
+function subDisplayName(nome) {
+  return typeof nome === 'string' ? nome.replace(/^Natura\s*[—–-]\s*/, '') : nome
+}
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value))
@@ -501,6 +508,16 @@ const RAPPORTI_ANCHORS = {
   se: { x: 24, y: 52 },
   altro: { x: 76, y: 52 },
   agire: { x: 50, y: 78 },
+}
+
+/** Parola d'asse del triangolo Portato, mostrata sotto il nome del pianeta (solo se aggiunge qualcosa). */
+function portatoAxisWord(nome) {
+  const word = {
+    Simpatia: GALASSIA_PORTATO_UI.axisAttrazione,
+    Antipatia: GALASSIA_PORTATO_UI.axisRifiuto,
+    Indifferenza: GALASSIA_PORTATO_UI.axisDistacco,
+  }[nome]
+  return word && word !== nome ? word.toLowerCase() : ''
 }
 
 const PORTATO_ANCHORS = {
@@ -2152,7 +2169,7 @@ function GalassiaCrtPanel({
                           onClick={() => onSelectSub?.(sub.id)}
                         >
                           <span>
-                            <strong>{sub.nome}</strong>
+                            <strong>{subDisplayName(sub.nome)}</strong>
                             <em>{sub.wordCount || sub.words?.length || 0} parole</em>
                           </span>
                           {sub.descrizione ? <small>{shortText(sub.descrizione, 80)}</small> : null}
@@ -2283,7 +2300,7 @@ function GalassiaCrtPanel({
                       {profileInfo.subs.slice(0, 4).map((sub) => (
                         <li key={sub.id}>
                           <span>
-                            <b>{sub.nome}</b>
+                            <b>{subDisplayName(sub.nome)}</b>
                             <em>{sub.pct}%</em>
                           </span>
                           <MiniBar value={sub.pct} color={sub.colore || panel.colore} />
@@ -2381,7 +2398,7 @@ function GalassiaCrtPanel({
                           aria-pressed={sub.id === activeSubId}
                         >
                           <span className="galassia-view__subnav-card-head">
-                            <strong>{sub.nome}</strong>
+                            <strong>{subDisplayName(sub.nome)}</strong>
                             <em>{sub.pct}%</em>
                           </span>
                           {sub.statiDanimo.length > 0 && (
@@ -2517,7 +2534,7 @@ function GalassiaMobileAlternativeView({
                                 className="galassia-mobile-sub-trigger"
                                 onClick={() => toggleSub(sub.id)}
                               >
-                                <span className="galassia-mobile-sub-name">{sub.nome}</span>
+                                <span className="galassia-mobile-sub-name">{subDisplayName(sub.nome)}</span>
                                 <span className="galassia-mobile-sub-val">
                                   {sub.livello ? `Livello ${sub.livello}/7` : sub.peso ? `${Math.round(pesoToPct(sub.peso))}%` : ''}
                                 </span>
@@ -3800,100 +3817,14 @@ export default function GalassiaView({
         </nav>
       </div>
 
-      {/* Floating Tactical Map Controls (D-Pad, Zoom, Reset, Fullscreen) */}
+      {/* Controlli mappa: zoom, centra / torna alla mappa, schermo intero. Pan con trascinamento o frecce. */}
       {!isMobile && mapMode !== 'parole' ? (
         <div
           className="galassia-view__map-controls galassia-view__map-controls--floating"
           role="toolbar"
-          aria-label="Navigazione mappa: controlli direzionali, zoom e schermo intero"
+          aria-label="Navigazione mappa: zoom e schermo intero"
           onPointerDown={(e) => e.stopPropagation()}
         >
-          {/* Directional D-Pad Pan Cursor */}
-          <div
-            className="lessico-atlas__dpad"
-            role="group"
-            aria-label="Controlli di navigazione direzionale"
-            onPointerDown={(e) => e.stopPropagation()}
-          >
-            <button
-              type="button"
-              className="galassia-view__map-control lessico-atlas__dpad-btn lessico-atlas__dpad-btn--up"
-              aria-label="Sposta verso l'alto"
-              title="Pan verso l'alto (▲)"
-              onClick={(e) => {
-                e.stopPropagation()
-                panCameraBy(0, 160)
-              }}
-            >
-              ▲
-            </button>
-            <div className="lessico-atlas__dpad-row">
-              <button
-                type="button"
-                className="galassia-view__map-control lessico-atlas__dpad-btn lessico-atlas__dpad-btn--left"
-                aria-label="Sposta a sinistra"
-                title="Pan a sinistra (◄)"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  panCameraBy(160, 0)
-                }}
-              >
-                ◄
-              </button>
-              <button
-                type="button"
-                className="galassia-view__map-control lessico-atlas__dpad-btn lessico-atlas__dpad-btn--center"
-                aria-label="Centra visuale"
-                title="Centra mappa (0)"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  if (isZoomedView || effectiveSelectedId) backToMap()
-                  else resetCamera()
-                }}
-              >
-                ⊕
-              </button>
-              <button
-                type="button"
-                className="galassia-view__map-control lessico-atlas__dpad-btn lessico-atlas__dpad-btn--right"
-                aria-label="Sposta a destra"
-                title="Pan a destra (►)"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  panCameraBy(-160, 0)
-                }}
-              >
-                ►
-              </button>
-            </div>
-            <button
-              type="button"
-              className="galassia-view__map-control lessico-atlas__dpad-btn lessico-atlas__dpad-btn--down"
-              aria-label="Sposta verso il basso"
-              title="Pan verso il basso (▼)"
-              onClick={(e) => {
-                e.stopPropagation()
-                panCameraBy(0, -160)
-              }}
-            >
-              ▼
-            </button>
-          </div>
-
-          <div className="lessico-atlas__controls-divider" aria-hidden="true" />
-
-          <button
-            type="button"
-            className="galassia-view__map-control"
-            aria-label="Zoom avanti"
-            title="Zoom avanti (+)"
-            onClick={(event) => {
-              event.stopPropagation()
-              zoomCameraByStep(1)
-            }}
-          >
-            +
-          </button>
           <button
             type="button"
             className="galassia-view__map-control"
@@ -3905,6 +3836,18 @@ export default function GalassiaView({
             }}
           >
             −
+          </button>
+          <button
+            type="button"
+            className="galassia-view__map-control"
+            aria-label="Zoom avanti"
+            title="Zoom avanti (+)"
+            onClick={(event) => {
+              event.stopPropagation()
+              zoomCameraByStep(1)
+            }}
+          >
+            +
           </button>
           <button
             type="button"
@@ -3979,12 +3922,6 @@ export default function GalassiaView({
               }}
             >
           <div className="galassia-view__map-stage">
-          {isZoomedView ? (
-            <button type="button" className="galassia-view__back-chip" onClick={backToMap}>
-              <span aria-hidden="true">←</span>
-              {GALASSIA_UI.backToMap}
-            </button>
-          ) : null}
           {mapMode === 'disposizioni' ? (
             <div className="galassia-3d-celestial-web" aria-hidden="true">
               {/* Singolarità gravitazionale e pulsar centrale */}
@@ -4065,31 +4002,6 @@ export default function GalassiaView({
                   points={`${PORTATO_ANCHORS.Simpatia.x},${PORTATO_ANCHORS.Simpatia.y} ${PORTATO_ANCHORS.Antipatia.x},${PORTATO_ANCHORS.Antipatia.y} ${PORTATO_ANCHORS.Indifferenza.x},${PORTATO_ANCHORS.Indifferenza.y}`}
                 />
               </svg>
-              <div className="galassia-view__portato-axis-labels" aria-hidden="true">
-                <span
-                  className="galassia-view__portato-axis-label galassia-view__portato-axis-label--simpatia"
-                  style={{ left: `${PORTATO_ANCHORS.Simpatia.x}%`, top: `${PORTATO_ANCHORS.Simpatia.y - 14}%` }}
-                >
-                  {GALASSIA_PORTATO_UI.axisAttrazione}
-                </span>
-                <span
-                  className="galassia-view__portato-axis-label galassia-view__portato-axis-label--antipatia"
-                  style={{ left: `${PORTATO_ANCHORS.Antipatia.x}%`, top: `${PORTATO_ANCHORS.Antipatia.y - 14}%` }}
-                >
-                  {GALASSIA_PORTATO_UI.axisRifiuto}
-                </span>
-                <span
-                  className="galassia-view__portato-axis-label galassia-view__portato-axis-label--indifferenza"
-                  style={{ left: `${PORTATO_ANCHORS.Indifferenza.x}%`, top: `${PORTATO_ANCHORS.Indifferenza.y - 14}%` }}
-                >
-                  {GALASSIA_PORTATO_UI.axisDistacco}
-                </span>
-              </div>
-              {!effectiveSelectedId ? (
-                <div className="galassia-view__portato-map-triad">
-                  <PortatoTriadSpectrum dimensioni={portato.dimensioni} showLegend={false} compact={true} />
-                </div>
-              ) : null}
             </>
           ) : null}
           {relationLines.length > 0 ? (
@@ -4223,10 +4135,13 @@ export default function GalassiaView({
                   const distFromCore = Math.hypot(x, y) || 1
                   const dirX = x / distFromCore
                   const dirY = y / distFromCore
-                  const labelPush = size / 2 + CONSTELLATION_LABEL_CLEAR
-                  const labelDx = Math.round(dirX * labelPush)
-                  const labelDy = Math.round(dirY * labelPush)
-                  const labelAlign = dirX > 0.32 ? 'left' : dirX < -0.32 ? 'right' : 'center'
+                  // Label anchored by its inner edge just outside the sphere, so the
+                  // box never covers its own node whatever the text width.
+                  const side = dirX > 0.32 ? 'right' : dirX < -0.32 ? 'left' : dirY < 0 ? 'top' : 'bottom'
+                  const labelPush = size / 2 + CONSTELLATION_LABEL_GAP
+                  const labelDx = side === 'right' ? labelPush : side === 'left' ? -labelPush : 0
+                  const labelDy = side === 'top' ? -labelPush : side === 'bottom' ? labelPush : 0
+                  const labelAlign = side === 'right' ? 'left' : side === 'left' ? 'right' : 'center'
                   return (
                     <motion.div
                       key={sub.id}
@@ -4238,6 +4153,7 @@ export default function GalassiaView({
                         '--label-dy': `${labelDy}px`,
                         '--label-align': labelAlign,
                       }}
+                      data-label-side={side}
                       initial={{ opacity: 0, scale: 0.2 }}
                       animate={{ opacity: 1, scale: isActive ? 1.06 : 1 }}
                       exit={{ opacity: 0, scale: 0.35 }}
@@ -4292,7 +4208,7 @@ export default function GalassiaView({
                           </span>
                         ) : null}
                         <span className="galassia-view__constellation-label" aria-hidden="true">
-                          <strong>{sub.nome}</strong>
+                          <strong>{subDisplayName(sub.nome)}</strong>
                           <small>{weightLabel}</small>
                           {trait ? (
                             <em className="galassia-view__constellation-trait">{trait}</em>
@@ -4371,7 +4287,12 @@ export default function GalassiaView({
                   title={`${c.nome} · ${layout.weight.display}`}
                 >
                   <strong>{c.nome}</strong>
-                  <small>{layout.weight.short}</small>
+                  <small>
+                    {layout.weight.short}
+                    {mapMode === 'portato' && portatoAxisWord(c.nome)
+                      ? ` · ${portatoAxisWord(c.nome)}`
+                      : null}
+                  </small>
                 </span>
               </motion.div>
             )

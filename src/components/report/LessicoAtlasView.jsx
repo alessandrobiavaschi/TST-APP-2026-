@@ -1007,15 +1007,11 @@ function AtlasLegend({ filterFamily, onFilterChange, viewModel }) {
       <button
         type="button"
         className={`lessico-legend__item lessico-legend__item--tactical${!filterFamily ? ' is-active' : ''}`}
+        aria-pressed={!filterFamily}
         onClick={() => onFilterChange(null)}
       >
-        <span className="lessico-legend__spectrum-bars" aria-hidden="true">
-          <span className="bar bar-1" />
-          <span className="bar bar-2" />
-          <span className="bar bar-3" />
-        </span>
-        <span className="lessico-legend__label">ALL</span>
-        <span className="lessico-legend__val">{totalWords}W</span>
+        <span className="lessico-legend__label">Tutte</span>
+        <span className="lessico-legend__val">{totalWords} parole</span>
       </button>
       {FAMILY_LIST.map((fam) => {
         const famWords = ATLAS_WORDS.filter((w) => w.familyId === fam.id).length
@@ -1030,14 +1026,11 @@ function AtlasLegend({ filterFamily, onFilterChange, viewModel }) {
             type="button"
             className={`lessico-legend__item lessico-legend__item--tactical${isActive ? ' is-active' : ''}`}
             style={{ '--legend-color': fam.baseColor }}
+            aria-pressed={isActive}
             onClick={() => onFilterChange(isActive ? null : fam.id)}
           >
-            <span className="lessico-legend__spectrum-bars" aria-hidden="true">
-              <span className="bar bar-1" />
-              <span className="bar bar-2" />
-              <span className="bar bar-3" />
-            </span>
-            <span className="lessico-legend__label">{fam.label.toUpperCase()}</span>
+            <span className="lessico-legend__dot" aria-hidden="true" />
+            <span className="lessico-legend__label">{fam.label}</span>
             <span className="lessico-legend__val">{pct}%</span>
           </button>
         )
@@ -1158,10 +1151,7 @@ export default function LessicoAtlasView({
   const webkitGestureRef = useRef(null)
   const searchInputRef = useRef(null)
   const hoveredWordIdRef = useRef(null)
-  const telemetryMagRef = useRef(null)
-  const helmMagRef = useRef(null)
   const radarViewfinderRef = useRef(null)
-  const radarCoordRef = useRef(null)
   const hoverTimerRef = useRef(null)
   const atlasRootRef = useRef(null)
 
@@ -1875,7 +1865,9 @@ export default function LessicoAtlasView({
       if (e.currentTarget.releasePointerCapture && e.currentTarget.hasPointerCapture?.(e.pointerId)) {
         e.currentTarget.releasePointerCapture(e.pointerId)
       }
-    } catch {}
+    } catch {
+      // Cattura già rilasciata dal browser: niente da fare.
+    }
   }, [])
 
   const handlePointerLeave = useCallback(() => {
@@ -2016,6 +2008,8 @@ export default function LessicoAtlasView({
       // 3. Transform Canvas
       if (canvasRef.current) {
         canvasRef.current.style.transform = `translate3d(${cur.x.toFixed(2)}px, ${cur.y.toFixed(2)}px, 0px) scale(${cur.scale.toFixed(4)})`
+        // Le etichette di famiglia restano leggibili anche a zoom basso.
+        canvasRef.current.style.setProperty('--atlas-inv-scale', (1 / Math.max(cur.scale, 0.05)).toFixed(3))
       }
 
       // 4. Parallax Layers (deep starfield and nebulae)
@@ -2050,15 +2044,7 @@ export default function LessicoAtlasView({
         }
       }
 
-      // 6. Direct DOM update for Optics Telemetry (zero React re-render overhead)
-      if (telemetryMagRef.current) {
-        telemetryMagRef.current.textContent = cur.scale.toFixed(2)
-      }
-      if (helmMagRef.current) {
-        helmMagRef.current.textContent = cur.scale.toFixed(2)
-      }
-
-      // 7. Tactical Radar Viewfinder Update (Zero React re-render overhead)
+      // 6. Mini-mappa: rettangolo dell'area inquadrata (aggiornamento DOM diretto)
       if (radarViewfinderRef.current && viewportSizeRef.current.w > 0) {
         const vpW = viewportSizeRef.current.w
         const vpH = viewportSizeRef.current.h
@@ -2077,11 +2063,6 @@ export default function LessicoAtlasView({
         radarViewfinderRef.current.style.top = `${ry.toFixed(1)}px`
         radarViewfinderRef.current.style.width = `${rw.toFixed(1)}px`
         radarViewfinderRef.current.style.height = `${rh.toFixed(1)}px`
-      }
-      if (radarCoordRef.current) {
-        const centerWx = Math.round(1700 - cur.x / cur.scale)
-        const centerWy = Math.round(1200 - cur.y / cur.scale)
-        radarCoordRef.current.textContent = `${centerWx},${centerWy}`
       }
 
       rafId = requestAnimationFrame(tick)
@@ -2113,7 +2094,7 @@ export default function LessicoAtlasView({
       className={`lessico-atlas${isMobile ? ' lessico-atlas--mobile' : ''} lessico-atlas--lod-macro${isFullscreen ? ' is-fullscreen' : ''}`}
       data-lod-tier="macro"
     >
-      {/* ── Top Bar Controls: Tactical HUD Glassmorphism ─────────────────── */}
+      {/* Filtri per famiglia e ricerca */}
       <div className="lessico-atlas__controls lessico-atlas__controls--tactical">
         <AtlasLegend
           filterFamily={filterFamily}
@@ -2241,160 +2222,67 @@ export default function LessicoAtlasView({
           onPointerLeave={handlePointerLeave}
           aria-label="Galassia degli stati d'animo"
         >
-          {/* ── Floating Tactical Flight Helm (GTA VI / Cyber-Astronomy) ──── */}
+          {/* Controlli mappa: stessi della Galassia. Pan con trascinamento o frecce. */}
           <div
-            className={`lessico-tactical-helm${selectedWord ? ' is-shifted' : ''}`}
+            className={`lessico-tactical-helm lessico-map-bar${selectedWord ? ' is-shifted' : ''}`}
             role="toolbar"
-            aria-label="Tactical Navigation Helm"
+            aria-label="Navigazione mappa: zoom e schermo intero"
             onPointerDown={(e) => e.stopPropagation()}
           >
-            <div className="lessico-tactical-helm__head">
-              <span className="lessico-tactical-helm__tag">
-                <span className="lessico-tactical-helm__status-dot" aria-hidden="true" />
-                NAV // ORBIT
-              </span>
-              <span className="lessico-tactical-helm__mag">
-                MAG: <span ref={helmMagRef}>0.50</span>x
-              </span>
-            </div>
-
-            {/* Compass Flight Disc */}
-            <div className="lessico-tactical-helm__compass" role="group" aria-label="Orbital Compass">
-              <button
-                type="button"
-                className="lessico-tactical-helm__btn lessico-tactical-helm__btn--n"
-                title="Pan Nord (▲)"
-                aria-label="Pan Nord"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  panBy(0, 260)
-                }}
-              >
-                ▲
-              </button>
-              <button
-                type="button"
-                className="lessico-tactical-helm__btn lessico-tactical-helm__btn--w"
-                title="Pan Ovest (◄)"
-                aria-label="Pan Ovest"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  panBy(260, 0)
-                }}
-              >
-                ◄
-              </button>
-              <button
-                type="button"
-                className="lessico-tactical-helm__btn lessico-tactical-helm__btn--center"
-                title="Target Lock / Centra Galassia"
-                aria-label="Centra visuale"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  resetCamera()
-                }}
-              >
-                ⊕
-              </button>
-              <button
-                type="button"
-                className="lessico-tactical-helm__btn lessico-tactical-helm__btn--e"
-                title="Pan Est (►)"
-                aria-label="Pan Est"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  panBy(-260, 0)
-                }}
-              >
-                ►
-              </button>
-              <button
-                type="button"
-                className="lessico-tactical-helm__btn lessico-tactical-helm__btn--s"
-                title="Pan Sud (▼)"
-                aria-label="Pan Sud"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  panBy(0, -260)
-                }}
-              >
-                ▼
-              </button>
-            </div>
-
-            {/* Zoom Deck */}
-            <div className="lessico-tactical-helm__zoom-deck">
-              <button
-                type="button"
-                className="lessico-tactical-helm__zoom-btn"
-                title="Zoom indietro (−)"
-                aria-label="Zoom indietro"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  zoomStep(-1)
-                }}
-              >
-                −
-              </button>
-              <span className="lessico-tactical-helm__zoom-label">ZOOM</span>
-              <button
-                type="button"
-                className="lessico-tactical-helm__zoom-btn"
-                title="Zoom avanti (+)"
-                aria-label="Zoom avanti"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  zoomStep(1)
-                }}
-              >
-                +
-              </button>
-            </div>
-
-            {/* Actions Row */}
-            <div className="lessico-tactical-helm__actions">
-              <button
-                type="button"
-                className="lessico-tactical-helm__action-btn"
-                title="Centra la visuale"
-                aria-label="Centra galassia"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  resetCamera()
-                }}
-              >
-                ⌖ Centra
-              </button>
-              <button
-                type="button"
-                className={`lessico-tactical-helm__action-btn${isFullscreen ? ' is-active' : ''}`}
-                title={isFullscreen ? 'Esci da schermo intero (Esc)' : 'Schermo intero (⛶)'}
-                aria-label={isFullscreen ? 'Esci da schermo intero' : 'Schermo intero'}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  toggleFullscreen()
-                }}
-              >
-                {isFullscreen ? '✕ Esci' : '⛶ Full'}
-              </button>
-            </div>
+            <button
+              type="button"
+              className="lessico-map-bar__btn"
+              title="Zoom indietro (−)"
+              aria-label="Zoom indietro"
+              onClick={(e) => {
+                e.stopPropagation()
+                zoomStep(-1)
+              }}
+            >
+              −
+            </button>
+            <button
+              type="button"
+              className="lessico-map-bar__btn"
+              title="Zoom avanti (+)"
+              aria-label="Zoom avanti"
+              onClick={(e) => {
+                e.stopPropagation()
+                zoomStep(1)
+              }}
+            >
+              +
+            </button>
+            <button
+              type="button"
+              className="lessico-map-bar__btn lessico-map-bar__btn--text"
+              title="Centra la visuale"
+              onClick={(e) => {
+                e.stopPropagation()
+                resetCamera()
+              }}
+            >
+              Centra
+            </button>
+            <button
+              type="button"
+              className={`lessico-map-bar__btn${isFullscreen ? ' is-active' : ''}`}
+              title={isFullscreen ? 'Esci da schermo intero (Esc)' : 'Schermo intero'}
+              aria-label={isFullscreen ? 'Esci da schermo intero' : 'Schermo intero'}
+              onClick={(e) => {
+                e.stopPropagation()
+                toggleFullscreen()
+              }}
+            >
+              {isFullscreen ? '✕' : '⛶'}
+            </button>
           </div>
 
           {/* ── Indicatori: zoom e parole emerse dal test ───────────────────── */}
-          <div className="lessico-hud-telemetry" aria-hidden="true">
-            <div className="lessico-telemetry lessico-telemetry--bl">
-              <span className="lessico-telemetry__tag">ZOOM</span>
-              <span className="lessico-telemetry__val">
-                <span ref={telemetryMagRef}>0.50</span>x
-              </span>
-            </div>
-            <div className="lessico-telemetry lessico-telemetry--br">
-              <span className="lessico-telemetry__tag">FONTE</span>
-              <span className="lessico-telemetry__val">
-                PDF «PAROLE PER TST»{emergedWordIds.size ? ` // ${emergedWordIds.size} PAROLE EMERSE DAL TEST` : ''}
-              </span>
-            </div>
-          </div>
+          <p className="lessico-atlas__source">
+            Lessico «Parole per TST»
+            {emergedWordIds.size ? ` · ${emergedWordIds.size} parole emerse dal test` : ''}
+          </p>
 
           <div
             ref={canvasRef}
@@ -2742,31 +2630,18 @@ export default function LessicoAtlasView({
             </div>
           )}
 
-          {/* ── Tactical Radar Mini-Map (Space Navigation Console) ─────────── */}
+          {/* Mini-mappa */}
           <div
             className="lessico-radar"
             role="region"
-            aria-label="Radar Galattico e Mini-mappa"
+            aria-label="Mini-mappa: clicca per spostare la visuale"
             onPointerDown={(e) => e.stopPropagation()}
           >
-            <div className="lessico-radar__head">
-              <span className="lessico-radar__tag">
-                <span className="lessico-radar__status-dot" aria-hidden="true" />
-                RADAR // MAP
-              </span>
-              <span className="lessico-radar__coord">
-                <span ref={radarCoordRef}>1700,1200</span>
-              </span>
-            </div>
-
             <div
               className="lessico-radar__screen"
               onClick={handleRadarClick}
               title="Clicca per spostare la telecamera nella galassia"
             >
-              {/* Animated sweeping line */}
-              <div className="lessico-radar__sweep" />
-
               {/* Miniature Galaxy SVG */}
               <svg className="lessico-radar__svg" viewBox="0 0 160 113">
                 {CONSTELLATION_DATA.spheres.map((s) => {
