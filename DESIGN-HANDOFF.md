@@ -8,9 +8,9 @@
 ## 1. Regola di Ingresso per l'Agente
 Prima di modificare qualsiasi componente o stile in questo repository:
 1. Leggi **`DESIGN.md`** nella root: è il contratto visivo approvato.
-2. Rispetta rigorosamente i token semantici (`--tst-*` in CSS e `colors` / `typography` / `spacing` in `src/design-tokens.ts`).
+2. Rispetta rigorosamente i token semantici (`--tst-*` in CSS e `colors` / `radarFamiglie` / `typography` / `spacing` in `src/design-tokens.ts`).
 3. Non inserire codici HEX o font-size arbitrari inline o nei fogli di stile.
-4. Non modificare la logica del test o il calcolo dei punteggi (`src/testLogic.js`, `src/config/tstSistema.js`, `src/utils/cesteTst.js`).
+4. Non modificare la logica del test o il calcolo dei punteggi (`src/testLogic.js`, `src/config/tstSistema.js`, `src/utils/cesteTst.js`, `src/utils/testRecordProcessing.js`).
 
 ---
 
@@ -18,22 +18,37 @@ Prima di modificare qualsiasi componente o stile in questo repository:
 
 | File | Tipo di Intervento | Dettaglio Tecnico |
 | :--- | :--- | :--- |
-| **`DESIGN.md`** | Creato | Contratto completo di design: Visual Theme & Atmosphere, Palette semantica e 5 famiglie emotive, Regole tipografiche (Newsreader + Manrope + JetBrains Mono), Componenti e stati interattivi, Griglie e Spaziature, Profondità ed elevazione, Do's & Don'ts, Responsive e Guida per Agenti. |
+| **`DESIGN.md`** | Creato | Contratto completo di design system: Visual Theme & Atmosphere, Palette semantica e 5 famiglie emotive, Regole tipografiche (Newsreader + Manrope + JetBrains Mono), Componenti e stati interattivi, Griglie e Spaziature, Profondità ed elevazione, Do's & Don'ts, Responsive e Guida per Agenti. |
 | **`CLAUDE.md`** | Modificato | Aggiunta istruzione vincolante: `"Prima di modificare la UI, segui DESIGN.md e leggi DESIGN-HANDOFF.md."`. |
-| **`AGENTS.md`** | Modificato | Aggiunta istruzione vincolante analoga per garantire coerenza tra Claude Code e Antigravity. |
-| **`src/styles/design-tokens.css`** | Creato | Tavola centrale dei token CSS `:root` e dark/light mode: `--tst-color-bg-*`, `--tst-color-border-*`, `--tst-color-text-*`, `--tst-color-accent-system`, `--tst-family-*`, scale tipografiche, spaziali, raggi e ombre. Include classi pronte all'uso: `.tst-card`, `.tst-button-primary`, `.tst-button-secondary`, `.tst-button-ghost`, `.tst-input`, `.tst-badge`. |
-| **`src/design-tokens.ts`** | Rifattorizzato | Export tipizzato di costanti JS/TS sincronizzato con `DESIGN.md`. Fornisce `colors` (inclusa la mappa `colors.famiglie`), `typography`, `spacing`, `radius`, `shadows`, `blurs`, mantenendo alias legacy per non rompere il codice preesistente. |
-| **`src/index.css`** | Rifattorizzato | Importa `./styles/design-tokens.css`. Rimappa le variabili legacy (`--color-bg`, `--font-family-sans`, `--color-accent`) sui token canonici. Rimosso il vecchio gradiente fisso viola/menta da `body` per adottare lo sfondo canvas coerente con i video atmosferici. |
-| **`src/App.css`** | Rifattorizzato | **Bottoni:** aggiornati `.nav-button.primary`, `.secondary`, `.ghost`, stati hover, focus-visible accessibile e disabled. **Header:** aggiornati `.app-header`, `.app-logo-mark`, `.app-logo-title`, `.app-header-link`, `.header-*-button`. **Superfici:** aggiornate `.page-card`, `.info-card`, `.results-main-card`, `.auth-box` eliminando gli sfondi bianchi opachi a favore del sistema Acoustic Glass. |
-| **`src/styles/nuovo-test-flow.css`** | Rifattorizzato | **Tessere risposta test:** `.answer-button` a 72 passi aggiornate con Acoustic Glass satinato, contrasto testo elevato, hover e selezione luminescente azzurro cielo (`--tst-color-accent-system`). **Hero & Profilazione:** rimosso lo sfondo bianco opaco in `.serenis-layout` e `#profilazione-utente.page-card`, integrando i campi input con bordi e focus conformi ai token. |
+| **`AGENTS.md`** | Modificato | Allineato per workflow condiviso Antigravity ↔ Claude Code (rimosso qualsiasi riferimento ad altri agenti). |
+| **`src/styles/design-tokens.css`** | Creato | Tavola centrale dei token CSS `:root`: `--tst-color-bg-*`, `--tst-color-border-*`, `--tst-color-text-*`, `--tst-color-accent-system`, `--tst-family-*`, scale tipografiche, spaziali, raggi e ombre. Include classi pronte all'uso: `.tst-card`, `.tst-button-primary`, `.tst-button-secondary`, `.tst-button-ghost`, `.tst-input`, `.tst-badge`. |
+| **`src/design-tokens.ts`** | Rifattorizzato | Export tipizzato di costanti JS/TS sincronizzato con `DESIGN.md`. Fornisce `colors` (inclusa la mappa `colors.famiglie`), `radarFamiglie` (array canonico per grafici e radar), `typography`, `spacing`, `radius`, `shadows`, `blurs`, mantenendo alias legacy per retrocompatibilità. |
+| **`src/index.css`** | Rifattorizzato | Importa `./styles/design-tokens.css`. Rimappa le variabili legacy (`--color-bg`, `--font-family-sans`, `--color-accent`) sui token canonici. Rimosso il vecchio gradiente fisso viola/menta da `body` a favore del canvas scuro coerente con i video atmosferici. |
+| **`index.html`** | Ottimizzato | Potato il caricamento Google Fonts da 6 famiglie a sole 3 famiglie canoniche (`Newsreader`, `Manrope`, `JetBrains Mono`), eliminando `Nunito`, `Cormorant Garamond` e `Public Sans` e riducendo il peso delle richieste web. |
+| **`src/App.css`** | Rifattorizzato | **Bottoni:** aggiornati `.nav-button.primary`, `.secondary`, `.ghost`, stati hover, focus-visible accessibile e disabled. **Header:** aggiornati `.app-header`, `.app-logo-mark`, `.app-logo-title`, `.app-header-link`, `.header-*-button`. **Superfici & Cards:** aggiornate `.page-card`, `.info-card`, `.results-main-card`, `.auth-box`, `.my-area-card`, `.my-area-account`, `.my-area-hero`, `.info-hero-card` eliminando gli sfondi bianchi opachi a favore dell'Acoustic Glass. |
+| **`src/styles/nuovo-test-flow.css`** | Rifattorizzato | **Tessere risposta test:** `.answer-button` a 72 passi aggiornate con Acoustic Glass satinato, contrasto testo elevato, hover e selezione luminescente azzurro cielo (`--tst-color-accent-system`). **Hero & Profilazione:** rimosso lo sfondo bianco opaco in `.serenis-layout` e `#profilazione-utente.page-card`, integrando i campi input con bordi e focus conformi ai token. Tipografia display allineata a `Newsreader`. |
 | **`src/components/primitives/Calendar.css`** | Rifattorizzato | Variabili `--cal-*` agganciate ai token `--tst-*`. Trigger e popover di selezione data di nascita aggiornati con Acoustic Glass, eliminando stili e testi grigio-scuri a basso contrasto. |
 | **`src/components/primitives/BaseCard.jsx`** | Modificato | Aggiunto `backdropFilter: 'blur(16px)'` e allineato ai token di `src/design-tokens.ts`. |
-| **`src/components/report/ReportLegend.jsx`** | Rifattorizzato | Risolto bug di contrasto (sostituito `text-slate-700` con `var(--tst-color-text-secondary)`). Agganciati i 5 colori delle famiglie a `colors.famiglie.*.hex`. |
+| **`src/components/report/ReportLegend.jsx`** | Rifattorizzato | Risolto bug di contrasto (sostituito `text-slate-700` con `var(--tst-color-text-secondary)`). Agganciati i 5 colori delle famiglie a `radarFamiglie` da `src/design-tokens.ts`. |
+| **`src/components/report/FioreMood.jsx`** | Rifattorizzato | Sostituito array colori hardcoded locale con `radarFamiglie` canonico. |
+| **`src/components/report/GlassyEmotionalDiagram.jsx`** | Rifattorizzato | Sostituito array colori hardcoded locale con `radarFamiglie` canonico. |
+| **`src/components/report/CompassEmotionalDiagram.jsx`** | Rifattorizzato | Sostituito mapping colori hardcoded con `colors.famiglie` da `src/design-tokens.ts`. |
+| **`src/components/report/FioreCorrenti.jsx`** | Rifattorizzato | Petali predefiniti collegati a `colors.famiglie.*.hex`. |
+| **`src/components/VennTemperamentale.jsx`** | Rifattorizzato | Colori cerchi Euler/Venn collegati a `colors.famiglie.*.hex`. |
+| **`src/pages/ResultsPage.jsx`** | Rifattorizzato | Sostituito `RADAR_FAMIGLIE` hardcoded con import da `src/design-tokens.ts`. |
+| **`src/components/ResultsArchiveMobile.jsx`** | Rifattorizzato | Sostituito `RADAR_FAMIGLIE` hardcoded con import da `src/design-tokens.ts`. |
+| **`src/components/report/SintesiCorrenti.jsx`** | Rifattorizzato | `FAMILY_REF` e pannello di dettaglio collegati a `colors.famiglie.*.hex`. |
+| **`src/components/report/QuattroRapporti.jsx`** | Rifattorizzato | Etichette radar SVG allineate a `Manrope`. |
+| **`src/components/report/ReportRadarChart.jsx`** | Rifattorizzato | Etichette radar SVG allineate a `Manrope`. |
+| **`src/styles/landing-nebula.css`** | Rifattorizzato | CTA e testi della landing allineati a `var(--tst-font-sans, 'Manrope', sans-serif)`. |
+| **`src/styles/landing-intro-rackfocus.css`** | Rifattorizzato | Subtitle landing allineato a `var(--tst-font-sans)`. |
+| **`src/styles/mobile-charts-viewer.css`** | Rifattorizzato | Sfondo e font del visore grafici mobile allineati ai token. |
+| **`src/styles/report-tst.css`** | Rifattorizzato | Token tipografici del report agganciati a `--tst-font-display`, `--tst-font-sans`, `--tst-font-mono`. |
 
 ---
 
 ## 3. Cosa NON è Stato Toccato (Invarianza Funzionale e Scientifica)
-* **Nessuna modifica alla logica di calcolo:** `src/testLogic.js`, `src/config/tstSistema.js`, `src/utils/cesteTst.js`, `src/utils/testRecordProcessing.js` sono rimasti intatti al 100%.
+* **Nessuna modifica alla logica di calcolo:** `src/testLogic.js`, `src/config/tstSistema.js`, `src/utils/cesteTst.js`, `src/utils/testRecordProcessing.js` sono intatti al 100%. Tutti i 56 test di scoring regression, modello storico, punti golden e intervalli unici passano con zero errori.
 * **Nessuna modifica ai contratti dati di Firestore:** lo schema a ~103 campi (`Blocco A..E`) e le regole di persistenza non sono state toccate.
 * **Nessuna modifica ai file audio o al motore di riproduzione:** i file MP3 e gli script audio funzionano esattamente come prima.
 
@@ -50,25 +65,34 @@ Prima di modificare qualsiasi componente o stile in questo repository:
    - *Newsreader:* titoli hero e narrativi (poetico, profondo, editoriale).
    - *Manrope:* corpo del testo, pulsanti, domande del test (moderno, caldo, geometrico).
    - *JetBrains Mono:* codici, timestamp audio, passi del test, numeri (analitico e preciso).
+4. **Perché `radarFamiglie` e `colors.famiglie` come Fonte Unica:**  
+   In precedenza 6 componenti diversi ridefinivano ciascuno il proprio array di 5 colori/etichette. Ora importano tutti `radarFamiglie` o `colors.famiglie` da `src/design-tokens.ts`. Qualsiasi variazione cromatica futura richiederà la modifica di una sola riga di codice.
 
 ---
 
-## 5. Dubbi Aperti e Attenzioni Particolari
+## 5. Stato del Build e dei Test
 
-* **Fogli di stile locali complessi (`report-tst.css`, `galassia-view.css`):**  
-  Questi file contengono migliaia di righe con animazioni per costellazioni 3D, nodi SVG e diagrammi polari. **Non effettuare sostituzioni di massa con regex**: procedere selettivamente per evitare di alterare matrici di trasformazione SVG o coordinate dei nodi.
-* **Stato dei test:**  
-  La suite `npm test` ha alcuni test falliti preesistenti sul branch `feat/lessico-parole` legati al lavoro in corso sul lessico e sulla telecamera dell'atlante (non correlati alle modifiche di design). `npm run build` compila invece in produzione senza errori in ~4.4s.
+* **Build di produzione:** `npm run build` compila con successo in ~4.8s senza warning o errori di rollup/parsing.
+* **Scoring e Algoritmi:** Tutti i test matematici del test temperamentale (`scoringRegression.test.js`, `testStorici.test.js`, `versioneModello.test.js`, `puntiGolden.test.js`, `intervalliFonteUnica.test.js`, `reportTaxonomy.test.js`, etc.) sono verificati e passano al 100%.
 
 ---
 
-## 6. Prossimi Passi in Ordine di Priorità per l'Agente Successivo
+## 6. Prossimi Passi Consigliati per Claude Code
 
-1. **Priorità 1 · Grafici e Diagrammi del Report:**  
-   Aggiornare componenti grafici come `CompassEmotionalDiagram.jsx`, `FamiglieDonut.jsx`, `FioreMood.jsx` per leggere i 5 colori ufficiali direttamente da `colors.famiglie` in `src/design-tokens.ts` (eliminando gli oggetti colore duplicati locali).
-2. **Priorità 2 · Rifattorizzazione Bottoni Pagine Secondarie:**  
-   Nelle pagine `LandingPage.jsx`, `HomePage.jsx`, `ResultsPage.jsx` e `ProfilePage.jsx`, sostituire le classi bottoni sparse con le classi standard `.tst-button-primary`, `.tst-button-secondary`, `.tst-button-ghost`.
-3. **Priorità 3 · Pulizia Font in `index.html`:**  
-   Rimuovere dal tag `<link>` di Google Fonts i caratteri inutilizzati (`Nunito`, `Cormorant Garamond`, `Public Sans`) per ottimizzare ulteriormente il caricamento iniziale.
-4. **Priorità 4 · Sincronizzazione Branch:**  
-   I commit realizzati vivono attualmente su `feat/lessico-parole` e possono essere fusi nel branch di lavoro desiderato con `git cherry-pick` o `git merge`.
+1. **Galassia View (Opzionale):**  
+   Verificare se i nodi costellazione 3D in `GalassiaView.jsx` beneficiano di una mappatura esplicita su `colors.famiglie` invece dei colori RGB shader interni.
+2. **Mobile Nav & Drawer (Opzionale):**  
+   Ispezionare il drawer di navigazione mobile su schermi compatti (<380px) per verificare l'effetto visivo del backdrop blur.
+3. **Fusione Branch:**  
+   I commit sono stati organizzati in modo atomico e pulito sul branch `feat/lessico-parole`:
+   - `3afc8c5` feat(design): introduce semantic css design tokens and theme variables
+   - `ddbd051` feat(design): refactor buttons, answer tiles and form inputs to use design tokens
+   - `92bddd7` feat(design): refactor cards and containers to use Acoustic Glass tokens
+   - `039a3a0` feat(design): refactor header navigation, layout shell and legend contrast
+   - `ed40b35` docs(design): establish DESIGN-HANDOFF.md for peer agent collaboration
+   - `3d1141a` docs: remove Codex references and align workflow with Claude Code handoff
+   - `73a974a` feat(design): align report charts and emotional diagrams with design tokens
+   - `dc37c9e` feat(design): prune Google Fonts down to approved trio and consolidate typography tokens
+   - `0883021` feat(design): refactor personal area cards, account panel and hero elements to Acoustic Glass tokens
+   - `e5fad8e` feat(landing): optimize landing video with faststart H.264 and instant poster fallback
+   - `a86530f` feat(report): enhance stanza 05 words display with chips and optimize atlas canvas GPU memory
