@@ -38,6 +38,7 @@ const GalassiaView = lazy(() => import('./GalassiaView'))
 const ForMusiciansView = lazy(() => import('./ForMusiciansView.jsx'))
 const QuattroRapporti = lazy(() => import('./QuattroRapporti'))
 const SintesiCorrenti = lazy(() => import('./SintesiCorrenti'))
+import GraficiViewerModal from './GraficiViewerModal.jsx'
 
 const MOBILE_REPORT_MEDIA_QUERY = '(max-width: 768px)'
 
@@ -56,6 +57,7 @@ function readModalitaFromHash() {
   if (window.location.hash === '#for-musicians') return 'for-musicians'
   if (window.location.hash === '#famiglie') return 'famiglie'
   if (window.location.hash === '#tutte-famiglie') return 'tutte-famiglie'
+  if (window.location.hash === '#grafici' || window.location.hash === '#visore-grafici') return 'grafici'
   return 'report'
 }
 
@@ -98,6 +100,11 @@ export default function ReportShell({
   const reduceMotion = useReducedMotion()
 
   const [modalita, setModalita] = useState(readModalitaFromHash)
+  const [heroVariant, setHeroVariant] = useState(() => {
+    if (typeof window === 'undefined') return 'bussola'
+    const params = new URLSearchParams(window.location.search)
+    return params.get('heroVariant') === 'dittico' ? 'dittico' : 'bussola'
+  })
   
   // Refs for accessibility focus restoration
   const famiglieEntryBtnRef = useRef(null)
@@ -528,9 +535,11 @@ export default function ReportShell({
             rawRecord={rawRecord}
             portato={portato}
             onReadReport={enterReport}
+            onOpenGrafici={() => openModalita('grafici')}
             onDownload={onDownload}
             onNavigateArchive={onNavigateArchive}
             testDate={rawRecord.Data_Ora_Fine_Test || rawRecord.Data_Test}
+            heroVariant={heroVariant}
           />
         </div>
 
@@ -600,6 +609,22 @@ export default function ReportShell({
                       rawRecord={rawRecord}
                     />
                   </Suspense>
+
+                  {/* Trigger per aprire la Stanza dei Grafici a Schermo Intero */}
+                  <div className="report-grafici-viewer-trigger-wrap">
+                    <button
+                      type="button"
+                      className="report-grafici-viewer-trigger-btn"
+                      onClick={(event) => openModalita('grafici', event)}
+                    >
+                      <span className="report-grafici-viewer-trigger-icon" aria-hidden="true">📊</span>
+                      <span className="report-grafici-viewer-trigger-text">
+                        <strong>Esplora i Grafici del Profilo a Schermo Intero</strong>
+                        <small>Visore immersivo: Famiglie, Correnti, Quattro Rapporti e Portato</small>
+                      </span>
+                      <span className="report-grafici-viewer-trigger-arrow" aria-hidden="true">→</span>
+                    </button>
+                  </div>
                 </RoomRevealContent>
               </section>
 
@@ -914,6 +939,78 @@ export default function ReportShell({
           />
         </Suspense>
       </div>
+
+      {/* ── STANZA DEI GRAFICI A SCHERMO INTERO ── */}
+      <GraficiViewerModal
+        isOpen={modalita === 'grafici'}
+        onClose={() => changeModalita('report')}
+        profilo={profilo}
+        correnti={correnti}
+        portato={portato}
+        rapporti={rapporti}
+        colorTotals={colorTotals}
+      />
+
+      {/* ── DEV TOGGLE ANTEPRIMA (solo su route preview o dev) ── */}
+      {typeof window !== 'undefined' && window.location.pathname.includes('preview') && (
+        <aside
+          className="hero-variant-dev-toggle"
+          aria-label="Selettore anteprima testata"
+          style={{
+            position: 'fixed',
+            bottom: '24px',
+            right: '24px',
+            zIndex: 99999,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '8px 14px',
+            background: 'rgba(16, 22, 34, 0.92)',
+            border: '1px solid rgba(255, 255, 255, 0.22)',
+            borderRadius: '999px',
+            backdropFilter: 'blur(16px)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
+          }}
+        >
+          <span style={{ fontSize: '0.78rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>
+            Head:
+          </span>
+          <button
+            type="button"
+            onClick={() => setHeroVariant('bussola')}
+            style={{
+              padding: '5px 12px',
+              fontSize: '0.8rem',
+              borderRadius: '999px',
+              border: 'none',
+              cursor: 'pointer',
+              background: heroVariant === 'bussola' ? '#38bdf8' : 'rgba(255, 255, 255, 0.08)',
+              color: heroVariant === 'bussola' ? '#06080e' : '#ffffff',
+              fontWeight: heroVariant === 'bussola' ? '700' : '500',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            🧭 1. Bussola
+          </button>
+          <button
+            type="button"
+            onClick={() => setHeroVariant('dittico')}
+            style={{
+              padding: '5px 12px',
+              fontSize: '0.8rem',
+              borderRadius: '999px',
+              border: 'none',
+              cursor: 'pointer',
+              background: heroVariant === 'dittico' ? '#38bdf8' : 'rgba(255, 255, 255, 0.08)',
+              color: heroVariant === 'dittico' ? '#06080e' : '#ffffff',
+              fontWeight: heroVariant === 'dittico' ? '700' : '500',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            📑 2. Dittico
+          </button>
+        </aside>
+      )}
     </div>
   )
 }
