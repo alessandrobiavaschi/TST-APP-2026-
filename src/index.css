@@ -1,47 +1,51 @@
 @import "tailwindcss";
+@import "./styles/design-tokens.css";
 
 :root {
-  /* Design tokens globali, allineati al tema Serenis-like in App.css */
-  --font-family-sans: "Manrope", "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-  --font-size-xs: 0.75rem;
-  --font-size-sm: 0.875rem;
-  --font-size-base: 1rem;
-  --font-size-lg: 1.125rem;
-  --font-size-xl: 1.5rem;
-  --font-size-2xl: 2.125rem;
+  /* ── Bridge legacy variables to canonical --tst-* design tokens ── */
+  --font-family-sans: var(--tst-font-body);
+  --font-family-display: var(--tst-font-display);
+  --font-family-mono: var(--tst-font-mono);
 
-  --color-bg: #f6f7fd;
-  --color-bg-elevated: #ffffff;
-  --color-bg-soft: #eef0ff;
-  --color-surface: #ffffff;
-  --color-border-soft: #dfdaf6;
-  --color-border-subtle: #ece9fb;
+  --font-size-xs: var(--tst-text-caption);
+  --font-size-sm: var(--tst-text-body-sm);
+  --font-size-base: var(--tst-text-body);
+  --font-size-lg: var(--tst-text-body-lg);
+  --font-size-xl: var(--tst-text-h2);
+  --font-size-2xl: var(--tst-text-h1);
 
-  --color-text: #1c1c36;
-  --color-text-soft: #4a4a74;
-  --color-text-muted: #6a6a98;
+  --color-bg: var(--tst-color-bg-canvas);
+  --color-bg-elevated: var(--tst-color-bg-surface-elevated);
+  --color-bg-soft: var(--tst-color-bg-surface-subtle);
+  --color-surface: var(--tst-color-bg-surface);
+  --color-border-soft: var(--tst-color-border-subtle);
+  --color-border-subtle: var(--tst-color-border-subtle);
 
-  --color-accent: #7a59f5;
-  --color-accent-soft: #8f73ff;
-  --color-accent-blue: #7a59f5;
-  --color-accent-blue-soft: #ece7ff;
-  --color-accent-green: #8ce6d0;
-  --color-accent-green-soft: #e8fcf6;
-  --color-danger: #b42318;
+  --color-text: var(--tst-color-text-primary);
+  --color-text-soft: var(--tst-color-text-secondary);
+  --color-text-muted: var(--tst-color-text-muted);
 
-  --radius-pill: 999px;
-  --radius-card: 1.125rem;
-  --radius-sm: 0.625rem;
+  --color-accent: var(--tst-color-accent-system);
+  --color-accent-soft: var(--tst-color-accent-system-soft);
+  --color-accent-blue: var(--tst-family-blu);
+  --color-accent-blue-soft: var(--tst-family-blu-soft);
+  --color-accent-green: var(--tst-family-verde);
+  --color-accent-green-soft: var(--tst-family-verde-soft);
+  --color-danger: var(--tst-color-danger);
 
-  --shadow-soft: 0 14px 44px rgba(28, 28, 54, 0.08);
-  --shadow-softer: 0 26px 70px rgba(28, 28, 54, 0.1);
-  --shadow-header: 0 8px 28px rgba(28, 28, 54, 0.08);
+  --radius-pill: var(--tst-radius-pill);
+  --radius-card: var(--tst-radius-lg);
+  --radius-sm: var(--tst-radius-sm);
 
-  font-family: var(--font-family-sans);
+  --shadow-soft: var(--tst-shadow-md);
+  --shadow-softer: var(--tst-shadow-lg);
+  --shadow-header: var(--tst-shadow-sm);
+
+  font-family: var(--tst-font-body);
   line-height: 1.5;
   font-weight: 400;
-  color: var(--color-text);
-  background-color: var(--color-bg);
+  color: var(--tst-color-text-primary);
+  background-color: var(--tst-color-bg-canvas);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -58,16 +62,14 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background:
-    radial-gradient(ellipse 120% 120% at top left, rgba(122, 89, 245, 0.18) 0%, rgba(122, 89, 245, 0.04) 45%, transparent 70%),
-    radial-gradient(ellipse 130% 120% at bottom right, rgba(140, 230, 208, 0.28) 0%, rgba(140, 230, 208, 0.08) 45%, transparent 72%),
-    var(--color-bg);
-  color: var(--color-text);
+  background-color: var(--tst-color-bg-canvas);
+  color: var(--tst-color-text-primary);
+  font-family: var(--tst-font-body);
 }
 
-/* Landing `/`: niente gradient lilla sotto il video (sfondo video full-bleed) */
+/* Landing `/`: sfondo video full-bleed */
 body.tst-route-landing {
-  background: #050814;
+  background: var(--tst-color-bg-canvas);
 }
 
 a {
