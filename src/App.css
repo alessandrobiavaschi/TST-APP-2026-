@@ -2513,7 +2513,7 @@ body {
 /* Titolo in grassetto: niente sillabazione, niente justify (evita riga "colti" disallineata) */
 .nuovo-test-assaggio-preview-trigger .nuovo-test-assaggio-hero-line {
   margin: 0 0 0.4rem;
-  font-family: 'Nunito', var(--font-sans);
+  font-family: var(--tst-font-sans, var(--font-sans));
   font-size: clamp(1.15rem, 2.2vw, 1.5rem);
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -4332,7 +4332,7 @@ body {
   font-size: var(--font-size-base);
   color: var(--color-subtitle-readable, #3d5239);
   max-width: 40rem;
-  font-family: 'Nunito', var(--font-sans);
+  font-family: var(--tst-font-sans, var(--font-sans));
   font-weight: 700;
   letter-spacing: 0.01em;
   line-height: 1.45;
@@ -4342,7 +4342,7 @@ body {
 /* Sottotitolo hero in evidenza: verde più scuro e font “cicciotto” per leggibilità */
 .page-subtitle-hero {
   color: var(--color-subtitle-readable, #3d5239);
-  font-family: 'Nunito', var(--font-sans);
+  font-family: var(--tst-font-sans, var(--font-sans));
   font-weight: 700;
   font-size: var(--font-size-lg);
   letter-spacing: 0.01em;
@@ -5310,17 +5310,17 @@ body {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.7rem;
-  padding: 1.35rem 1.25rem 1.45rem;
-  border-radius: 1.15rem;
-  border: 1px solid rgba(255, 255, 255, 0.95);
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 1) inset,
-    0 16px 36px -10px rgba(15, 23, 42, 0.14);
+  gap: 0.75rem;
+  padding: 1.5rem 1.35rem 1.6rem;
+  border-radius: var(--tst-radius-lg, 1rem);
+  border: 1px solid var(--tst-border-subtle, rgba(255, 255, 255, 0.08));
+  background: var(--tst-surface-card, rgba(16, 22, 34, 0.78));
+  backdrop-filter: blur(var(--tst-blur-md, 16px));
+  -webkit-backdrop-filter: blur(var(--tst-blur-md, 16px));
+  box-shadow: var(--tst-shadow-card, 0 8px 32px rgba(0, 0, 0, 0.36));
   cursor: pointer;
   font: inherit;
-  color: inherit;
+  color: var(--tst-text-primary, #f8fafc);
   text-align: left;
   transition:
     transform 0.22s cubic-bezier(0.34, 1.35, 0.64, 1),
@@ -5335,31 +5335,30 @@ body {
 }
 
 .my-area-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-3px);
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 1) inset,
-    0 26px 50px -12px rgba(15, 23, 42, 0.2);
-  border-color: rgba(63, 167, 180, 0.38);
+    0 12px 36px rgba(0, 0, 0, 0.48),
+    0 0 20px rgba(56, 189, 248, 0.12);
+  border-color: var(--tst-border-focus, rgba(56, 189, 248, 0.45));
 }
 
 .my-area-card--primary {
-  background:
-    linear-gradient(145deg, rgba(240, 253, 250, 0.96), rgba(224, 242, 254, 0.92));
-  border-color: rgba(63, 167, 180, 0.58);
+  background: linear-gradient(145deg, rgba(56, 189, 248, 0.15), rgba(16, 22, 34, 0.85));
+  border-color: var(--tst-border-focus, rgba(56, 189, 248, 0.4));
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.95) inset,
-    0 20px 42px -14px rgba(37, 124, 135, 0.35);
+    0 10px 32px rgba(0, 0, 0, 0.38),
+    0 0 24px rgba(56, 189, 248, 0.15);
 }
 
 .my-area-card--primary:hover {
-  border-color: rgba(37, 124, 135, 0.68);
+  border-color: var(--tst-border-focus, rgba(56, 189, 248, 0.65));
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.95) inset,
-    0 28px 56px -14px rgba(37, 124, 135, 0.42);
+    0 14px 40px rgba(0, 0, 0, 0.44),
+    0 0 28px rgba(56, 189, 248, 0.22);
 }
 
 .my-area-card:focus-visible {
-  outline: 2px solid rgba(63, 167, 180, 0.9);
+  outline: 2px solid var(--tst-color-accent-system, #38bdf8);
   outline-offset: 3px;
 }
 
@@ -5376,7 +5375,7 @@ body {
   transition:
     opacity 0.2s ease,
     transform 0.2s ease;
-  color: #3fa7b4;
+  color: var(--tst-color-accent-system, #38bdf8);
   pointer-events: none;
 }
 
@@ -5390,7 +5389,7 @@ body {
   place-items: center;
   width: 2.85rem;
   height: 2.85rem;
-  border-radius: 0.9rem;
+  border-radius: var(--tst-radius-md, 0.75rem);
   flex-shrink: 0;
   color: #fff;
 }
@@ -5402,33 +5401,33 @@ body {
 }
 
 .my-area-card-icon--play {
-  background: linear-gradient(145deg, #3fa7b4, #1d7a88);
-  box-shadow: 0 6px 18px rgba(29, 122, 136, 0.42);
+  background: linear-gradient(145deg, #0284c7, #0369a1);
+  box-shadow: 0 6px 18px rgba(2, 132, 199, 0.42);
 }
 
 .my-area-card-icon--chart {
-  background: linear-gradient(145deg, #7c7ff5, #4338ca);
+  background: linear-gradient(145deg, #6366f1, #4338ca);
   box-shadow: 0 6px 18px rgba(67, 56, 202, 0.36);
 }
 
 .my-area-card-icon--book {
-  background: linear-gradient(145deg, #14b8a6, #0f766e);
+  background: linear-gradient(145deg, #0d9488, #0f766e);
   box-shadow: 0 6px 18px rgba(13, 148, 136, 0.36);
 }
 
 .my-area-card h3 {
   margin: 0;
-  font-size: 1.06rem;
+  font-size: 1.1rem;
   font-weight: 700;
-  letter-spacing: -0.025em;
-  color: #0f172a;
+  letter-spacing: -0.02em;
+  color: var(--tst-text-primary, #f8fafc);
 }
 
 .my-area-card p {
   margin: 0;
-  font-size: 0.875rem;
+  font-size: 0.88rem;
   line-height: 1.58;
-  color: #5a6b80;
+  color: var(--tst-text-secondary, #94a3b8);
 }
 
 .my-area-columns {
@@ -5454,14 +5453,12 @@ body {
 
 .my-area-account {
   padding: 1.65rem 1.5rem 1.45rem;
-  border-radius: 1.25rem;
-  background: rgba(255, 255, 255, 0.62);
-  border: 1px solid rgba(255, 255, 255, 0.88);
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.6) inset,
-    0 10px 28px rgba(15, 23, 42, 0.07);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  border-radius: var(--tst-radius-lg, 1rem);
+  background: var(--tst-surface-card, rgba(16, 22, 34, 0.78));
+  border: 1px solid var(--tst-border-subtle, rgba(255, 255, 255, 0.08));
+  box-shadow: var(--tst-shadow-card, 0 8px 32px rgba(0, 0, 0, 0.36));
+  backdrop-filter: blur(var(--tst-blur-md, 16px));
+  -webkit-backdrop-filter: blur(var(--tst-blur-md, 16px));
 }
 
 .my-area-account h2 {
@@ -5469,7 +5466,7 @@ body {
   font-size: 1.22rem;
   font-weight: 700;
   letter-spacing: -0.03em;
-  color: #0f172a;
+  color: var(--tst-text-primary, #f8fafc);
 }
 
 .my-area-email-badge {
@@ -5482,11 +5479,11 @@ body {
   font-size: 0.88rem;
   line-height: 1.45;
   word-break: break-word;
-  border-radius: 0.85rem;
-  background: rgba(255, 255, 255, 0.96);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
-  color: #475569;
+  border-radius: var(--tst-radius-md, 0.75rem);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--tst-border-subtle, rgba(255, 255, 255, 0.08));
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  color: var(--tst-text-secondary, #94a3b8);
 }
 
 .my-area-email-badge::before {
@@ -5502,7 +5499,7 @@ body {
 
 .my-area-email-badge strong {
   font-weight: 600;
-  color: #0f172a;
+  color: var(--tst-text-primary, #f8fafc);
 }
 
 .my-area-account.account-management {
@@ -5516,28 +5513,34 @@ body {
 }
 
 .my-area .btn-account-logout {
-  background: linear-gradient(145deg, #1a5f6a, #3fa7b4);
-  box-shadow: 0 8px 22px rgba(26, 95, 106, 0.38);
+  background: var(--tst-color-accent-system, #38bdf8);
+  color: #020817;
+  font-weight: 600;
+  border: none;
+  box-shadow: 0 4px 16px rgba(56, 189, 248, 0.35);
 }
 
 .my-area .btn-account-logout:hover {
-  filter: brightness(1.06);
-  box-shadow: 0 10px 26px rgba(26, 95, 106, 0.42);
+  filter: brightness(1.08);
+  box-shadow: 0 6px 20px rgba(56, 189, 248, 0.45);
 }
 
 .my-area .btn-account-password {
-  background: rgba(255, 255, 255, 0.96);
-  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--tst-border-subtle, rgba(255, 255, 255, 0.12));
+  color: var(--tst-text-primary, #f8fafc);
 }
 
 .my-area .btn-account-danger {
-  border-color: rgba(208, 119, 123, 0.42);
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #f87171;
 }
 
 .my-area-support {
   margin-top: 1.3rem;
   padding-top: 1.2rem;
-  border-top: 1px solid rgba(15, 23, 42, 0.08);
+  border-top: 1px solid var(--tst-border-subtle, rgba(255, 255, 255, 0.08));
 }
 
 .my-area-support-title {
@@ -5546,18 +5549,18 @@ body {
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: #64748b;
+  color: var(--tst-text-muted, #64748b);
 }
 
 .my-area-support-text {
   margin: 0;
   font-size: 0.88rem;
   line-height: 1.62;
-  color: #475569;
+  color: var(--tst-text-secondary, #94a3b8);
 }
 
 .my-area-support-text a {
-  color: #0d9488;
+  color: var(--tst-color-accent-system, #38bdf8);
   font-weight: 600;
   text-decoration: none;
 }
@@ -6537,9 +6540,9 @@ body {
 .answers-step-number {
   margin: 0.5rem 0 0;
   font-size: 0.75rem;
-  font-family: 'Nunito', var(--font-sans);
+  font-family: var(--tst-font-mono, monospace);
   font-weight: 500;
-  color: rgba(45, 51, 41, 0.55);
+  color: var(--tst-text-muted, rgba(148, 163, 184, 0.7));
   text-align: center;
 }
 
@@ -16777,7 +16780,7 @@ body {
    ========================================================= */
 
 :root {
-  --font-sans: "Manrope", "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-sans: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   --color-bg: #f6f7fd;
   --color-bg-soft: #eef0ff;
   --color-surface: #ffffff;
@@ -17031,27 +17034,30 @@ a:focus-visible {
 .my-area-hero,
 .info-hero-card,
 .nuovo-test-hero {
-  border: 1px solid rgba(223, 218, 246, 0.9);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(248, 247, 255, 0.9));
-  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--tst-border-subtle, rgba(255, 255, 255, 0.08));
+  background: var(--tst-surface-card, rgba(16, 22, 34, 0.78));
+  backdrop-filter: blur(var(--tst-blur-md, 16px));
+  -webkit-backdrop-filter: blur(var(--tst-blur-md, 16px));
+  box-shadow: var(--tst-shadow-card, 0 8px 32px rgba(0, 0, 0, 0.36));
 }
 
-/* Contrasto testo card "La mia area" su hero chiaro */
+/* Contrasto testo card "La mia area" su dark acoustic glass */
 .my-area-hero .my-area-eyebrow {
-  color: #334155;
+  color: var(--tst-color-accent-system, #38bdf8);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .my-area-hero .my-area-title {
   background: none;
-  color: #0f172a;
+  color: var(--tst-text-primary, #f8fafc);
   -webkit-text-fill-color: currentColor;
 }
 
 .my-area-hero .my-area-lead {
-  color: #334155;
-  text-shadow:
-    0 1px 1px rgba(15, 23, 42, 0.24),
-    0 4px 10px rgba(15, 23, 42, 0.14);
+  color: var(--tst-text-secondary, #94a3b8);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 /* Keep landing hero on transparent background (no white block) */
@@ -17061,7 +17067,6 @@ a:focus-visible {
   box-shadow: none;
 }
 
-.my-area-card,
 .slide-card,
 .nuovo-test-intro-column,
 .nuovo-test-intro-pill,
