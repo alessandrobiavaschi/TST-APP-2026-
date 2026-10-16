@@ -2379,6 +2379,13 @@
 }
 
 @media (max-width: 768px) {
+  .report-tst-galassia-layer {
+    top: 0;
+    height: 100dvh;
+    max-height: 100dvh;
+    z-index: 9999;
+  }
+
   .for-musicians-view {
     width: min(100% - 28px, 1120px);
     padding-top: 38px;

@@ -92,6 +92,7 @@ export default function NavbarTST({
   if (isMobile) {
     const mobileTabs = [
       { id: 'report', label: 'Report' },
+      { id: 'galassia', label: 'Galassia' },
       { id: 'for-musicians', label: 'Musica' },
     ]
 

@@ -40,20 +40,10 @@ const QuattroRapporti = lazy(() => import('./QuattroRapporti'))
 const SintesiCorrenti = lazy(() => import('./SintesiCorrenti'))
 import GraficiViewerModal from './GraficiViewerModal.jsx'
 
-const MOBILE_REPORT_MEDIA_QUERY = '(max-width: 768px)'
-
-function isMobileReportViewport() {
-  return typeof window !== 'undefined'
-    && typeof window.matchMedia === 'function'
-    && window.matchMedia(MOBILE_REPORT_MEDIA_QUERY).matches
-}
-
 /* ── Hash sync helpers ──────────────────────────────────────────────── */
 function readModalitaFromHash() {
   if (typeof window === 'undefined') return 'report'
-  if (window.location.hash === '#galassia') {
-    return isMobileReportViewport() ? 'report' : 'galassia'
-  }
+  if (window.location.hash === '#galassia') return 'galassia'
   if (window.location.hash === '#for-musicians') return 'for-musicians'
   if (window.location.hash === '#famiglie') return 'famiglie'
   if (window.location.hash === '#tutte-famiglie') return 'tutte-famiglie'
@@ -120,7 +110,6 @@ export default function ReportShell({
   const [galassiaEverOpened, setGalassiaEverOpened] = useState(
     () => readModalitaFromHash() === 'galassia',
   )
-  const [isMobileViewport, setIsMobileViewport] = useState(isMobileReportViewport)
   const [helpOpen, setHelpOpen] = useState(false)
   const [glossaryOpen, setGlossaryOpen] = useState(false)
   const [glossaryFocusId, setGlossaryFocusId] = useState(null)
@@ -130,15 +119,6 @@ export default function ReportShell({
   const heroRef = useRef(null)
   const progressBarRef = useRef(null)
   const rapportiAnchorRef = useRef(null)
-
-  useEffect(() => {
-    if (typeof window.matchMedia !== 'function') return undefined
-    const mediaQuery = window.matchMedia(MOBILE_REPORT_MEDIA_QUERY)
-    const handleViewportChange = (event) => setIsMobileViewport(event.matches)
-    setIsMobileViewport(mediaQuery.matches)
-    mediaQuery.addEventListener('change', handleViewportChange)
-    return () => mediaQuery.removeEventListener('change', handleViewportChange)
-  }, [])
 
   useEffect(() => {
     if (modalita !== 'report') return undefined
@@ -178,7 +158,6 @@ export default function ReportShell({
   const changeModalita = useCallback((next) => {
     setModalita((current) => {
       if (next === current) return current
-      if (next === 'galassia' && isMobileViewport) return current
       if (next === 'galassia') setGalassiaEverOpened(true)
       try {
         const url = `${window.location.pathname}${window.location.search}#${next}`
@@ -188,18 +167,12 @@ export default function ReportShell({
       }
       return next
     })
-  }, [isMobileViewport])
+  }, [])
 
   const openModalita = useCallback((next, event) => {
     void event
     changeModalita(next)
   }, [changeModalita])
-
-  useEffect(() => {
-    if (isMobileViewport && modalita === 'galassia') {
-      changeModalita('report')
-    }
-  }, [changeModalita, isMobileViewport, modalita])
 
   useEffect(() => {
     const previousMode = previousModalitaRef.current
@@ -536,6 +509,7 @@ export default function ReportShell({
             portato={portato}
             onReadReport={enterReport}
             onOpenGrafici={() => openModalita('grafici')}
+            onOpenGalassia={() => openModalita('galassia')}
             onDownload={onDownload}
             onNavigateArchive={onNavigateArchive}
             testDate={rawRecord.Data_Ora_Fine_Test || rawRecord.Data_Test}
@@ -610,7 +584,7 @@ export default function ReportShell({
                     />
                   </Suspense>
 
-                  {/* Trigger per aprire la Stanza dei Grafici a Schermo Intero */}
+                  {/* Trigger per aprire Stanza dei Grafici e Galassia a Schermo Intero */}
                   <div className="report-grafici-viewer-trigger-wrap">
                     <button
                       type="button"
@@ -619,8 +593,20 @@ export default function ReportShell({
                     >
                       <span className="report-grafici-viewer-trigger-icon" aria-hidden="true">📊</span>
                       <span className="report-grafici-viewer-trigger-text">
-                        <strong>Esplora i Grafici del Profilo a Schermo Intero</strong>
-                        <small>Visore immersivo: Famiglie, Correnti, Quattro Rapporti e Portato</small>
+                        <strong>Esplora i Grafici del Profilo</strong>
+                        <small>Visore immersivo: Famiglie, Correnti e Portato</small>
+                      </span>
+                      <span className="report-grafici-viewer-trigger-arrow" aria-hidden="true">→</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="report-grafici-viewer-trigger-btn report-galassia-viewer-trigger-btn"
+                      onClick={(event) => openModalita('galassia', event)}
+                    >
+                      <span className="report-grafici-viewer-trigger-icon" aria-hidden="true">🌌</span>
+                      <span className="report-grafici-viewer-trigger-text">
+                        <strong>Mappa 3D della Galassia</strong>
+                        <small>Naviga nello spazio delle 5 Famiglie e Lessico</small>
                       </span>
                       <span className="report-grafici-viewer-trigger-arrow" aria-hidden="true">→</span>
                     </button>
@@ -758,19 +744,17 @@ export default function ReportShell({
                     Aree sonore e lettura musicale
                   </span>
                 </button>
-                {!isMobileViewport ? (
-                  <button
-                    ref={galassiaEntryBtnRef}
-                    type="button"
-                    className="report-final-view-card"
-                    onClick={(event) => openModalita('galassia', event)}
-                  >
-                    <span className="report-final-view-card__title">Galassia</span>
-                    <span className="report-final-view-card__subtitle">
-                      Vista interattiva tridimensionale
-                    </span>
-                  </button>
-                ) : null}
+                <button
+                  ref={galassiaEntryBtnRef}
+                  type="button"
+                  className="report-final-view-card"
+                  onClick={(event) => openModalita('galassia', event)}
+                >
+                  <span className="report-final-view-card__title">Galassia</span>
+                  <span className="report-final-view-card__subtitle">
+                    Vista interattiva tridimensionale
+                  </span>
+                </button>
               </RoomRevealContent>
             </div>
 
@@ -888,7 +872,7 @@ export default function ReportShell({
       ) : null}
 
       {/* ── STANZA SEPARATA: GALASSIA ──────────────────────────────────────── */}
-      {galassiaEverOpened && !isMobileViewport ? (
+      {galassiaEverOpened ? (
         <div
           ref={galassiaLayerRef}
           tabIndex="-1"
@@ -900,6 +884,16 @@ export default function ReportShell({
           aria-hidden={modalita !== 'galassia'}
           inert={modalita !== 'galassia' ? true : undefined}
         >
+          <div className="report-galassia-floating-header">
+            <button
+              type="button"
+              className="report-dettaglio-back-btn report-galassia-back-btn"
+              onClick={() => changeModalita('report')}
+              aria-label="Torna al report principale"
+            >
+              ← Torna al Report
+            </button>
+          </div>
           <div className="report-tst-galassia">
             <Suspense fallback={<TstLoader variant="inline" tone="dark" color={correnteColore} label={REPORT_SHELL_UI.loadingInline} />}>
               <GalassiaView

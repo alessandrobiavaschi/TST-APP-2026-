@@ -288,6 +288,15 @@ export default function HeroScreen({
                       📊 Esplora i grafici
                     </button>
                   )}
+                  {onOpenGalassia && (
+                    <button
+                      type="button"
+                      className="hero-screen__cta-secondary hero-screen-btn-galassia"
+                      onClick={onOpenGalassia}
+                    >
+                      🌌 Mappa Galassia
+                    </button>
+                  )}
                   <button
                     type="button"
                     className="hero-screen__cta-secondary hero-screen-btn-secondary"
@@ -426,6 +435,15 @@ export default function HeroScreen({
                     onClick={onOpenGrafici}
                   >
                     📊 Esplora i grafici
+                  </button>
+                )}
+                {onOpenGalassia && (
+                  <button
+                    type="button"
+                    className="hero-screen__cta-secondary hero-screen-btn-galassia"
+                    onClick={onOpenGalassia}
+                  >
+                    🌌 Mappa Galassia
                   </button>
                 )}
                 <button
@@ -653,6 +671,18 @@ export default function HeroScreen({
         .hero-screen-btn-grafici:hover {
           background: rgba(56, 189, 248, 0.28) !important;
           border-color: #38bdf8 !important;
+          transform: translateY(-2px);
+        }
+
+        .hero-screen-btn-galassia {
+          background: rgba(168, 85, 247, 0.16) !important;
+          border-color: rgba(168, 85, 247, 0.45) !important;
+          color: #ffffff !important;
+        }
+
+        .hero-screen-btn-galassia:hover {
+          background: rgba(168, 85, 247, 0.3) !important;
+          border-color: #c084fc !important;
           transform: translateY(-2px);
         }
 
