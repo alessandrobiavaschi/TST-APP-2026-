@@ -670,53 +670,57 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(119, 139, 150, 0.28);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.84);
-  color: #20313d;
-  box-shadow: 0 1px 4px rgba(31, 47, 54, 0.06);
-  font-family: var(--font-body);
-  font-size: 0.96rem;
-  font-weight: 650;
+  border: 1px solid var(--tst-color-border-default);
+  border-radius: var(--tst-radius-md);
+  background: var(--tst-color-bg-surface-subtle);
+  backdrop-filter: var(--tst-blur-sm);
+  -webkit-backdrop-filter: var(--tst-blur-sm);
+  color: var(--tst-color-text-primary);
+  box-shadow: var(--tst-shadow-sm);
+  font-family: var(--tst-font-body);
+  font-size: var(--tst-text-body-sm);
+  font-weight: 600;
   line-height: 1.35;
   text-align: center;
   white-space: normal;
   overflow-wrap: anywhere;
+  cursor: pointer;
   transition:
-    background-color 160ms ease,
-    border-color 160ms ease,
-    box-shadow 160ms ease,
-    color 160ms ease,
-    transform 160ms ease;
+    background-color var(--tst-transition-fast),
+    border-color var(--tst-transition-fast),
+    box-shadow var(--tst-transition-fast),
+    color var(--tst-transition-fast),
+    transform var(--tst-transition-fast);
 }
 
 .nuovo-test-flow .test-stage .answers-grid--dense .answer-button,
 .nuovo-test-flow.nuovo-test-page--session-active .answers-grid--dense .answer-button {
   min-height: 2.82rem;
   padding: 0.55rem 0.72rem;
-  font-size: 0.88rem;
-  line-height: 1.22;
+  font-size: var(--tst-text-body-sm);
+  line-height: 1.25;
   justify-content: center;
   text-align: center;
-  border-radius: 10px;
+  border-radius: var(--tst-radius-sm);
 }
 
 .nuovo-test-flow .answer-button:hover,
 .nuovo-test-flow.nuovo-test-page--session-active .answer-button:hover {
-  border-color: rgba(15, 118, 110, 0.44);
-  background: #ffffff;
-  box-shadow: 0 6px 18px rgba(15, 118, 110, 0.1);
+  border-color: var(--tst-color-border-strong);
+  background: var(--tst-color-bg-hover);
+  color: var(--tst-color-text-primary);
+  box-shadow: var(--tst-shadow-md);
   transform: translateY(-1px);
 }
 
 .nuovo-test-flow .answer-button.answer-button-selected,
 .nuovo-test-flow.nuovo-test-page--session-active .answer-button.answer-button-selected {
-  border-color: var(--tst-session-accent);
-  background: linear-gradient(160deg, rgba(240, 253, 250, 0.96), rgba(209, 250, 229, 0.6));
-  color: #083b37;
+  border-color: var(--tst-color-accent-system);
+  background: var(--tst-color-accent-system-soft);
+  color: var(--tst-color-text-primary);
   box-shadow:
-    inset 0 0 0 1.5px var(--tst-session-accent),
-    0 4px 14px rgba(15, 118, 110, 0.15);
+    inset 0 0 0 1.5px var(--tst-color-accent-system),
+    0 0 18px rgba(56, 189, 248, 0.25);
   transform: translateY(-1px);
 }
 

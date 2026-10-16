@@ -146,13 +146,35 @@
 .header-weather-button,
 .header-avatar,
 .header-sound-toggle {
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--landing-text);
-  padding: 0.42rem 0.8rem;
-  font-size: 0.78rem;
-  font-family: inherit;
+  border-radius: var(--tst-radius-pill);
+  border: 1px solid var(--tst-color-border-default);
+  background: var(--tst-color-bg-surface-subtle);
+  color: var(--tst-color-text-primary);
+  padding: 0.42rem 0.85rem;
+  font-size: var(--tst-text-body-sm);
+  font-family: var(--tst-font-body);
+  backdrop-filter: var(--tst-blur-sm);
+  -webkit-backdrop-filter: var(--tst-blur-sm);
+  cursor: pointer;
+  transition: background-color var(--tst-transition-fast), border-color var(--tst-transition-fast);
+}
+
+.header-register-button:hover,
+.header-login-button:hover,
+.header-landing-start-button:hover,
+.header-weather-button:hover,
+.header-sound-toggle:hover {
+  background: var(--tst-color-bg-hover);
+  border-color: var(--tst-color-border-strong);
+}
+
+.header-register-button:focus-visible,
+.header-login-button:focus-visible,
+.header-landing-start-button:focus-visible,
+.header-weather-button:focus-visible,
+.header-sound-toggle:focus-visible {
+  outline: 2px solid var(--tst-color-border-focus);
+  outline-offset: 2px;
 }
 
 .header-landing-start-button {
@@ -6684,63 +6706,85 @@ body {
 }
 
 .nav-button {
-  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--tst-space-xs);
+  border-radius: var(--tst-radius-pill);
   border: 1px solid transparent;
-  padding: 0.55rem 1.2rem;
-  font-size: 0.9rem;
+  padding: 0.65rem 1.35rem;
+  font-family: var(--tst-font-body);
+  font-size: var(--tst-text-body-sm);
   font-weight: 500;
+  line-height: 1.4;
   cursor: pointer;
+  text-decoration: none;
   transition:
-    background-color var(--nf-duration-micro) ease-out,
-    color var(--nf-duration-micro) ease-out,
-    box-shadow var(--nf-duration-micro) ease-out,
-    opacity var(--nf-duration-micro) ease-out,
-    transform var(--nf-duration-micro) ease-out;
+    background-color var(--tst-transition-fast),
+    border-color var(--tst-transition-fast),
+    color var(--tst-transition-fast),
+    box-shadow var(--tst-transition-fast),
+    transform var(--tst-transition-fast),
+    opacity var(--tst-transition-fast);
 }
 
 .nav-button.primary {
-  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-soft));
-  color: #fff;
+  background: var(--tst-color-accent-system);
+  color: #06080e;
+  font-weight: 600;
   border-color: transparent;
-  box-shadow: 0 10px 28px rgba(63, 167, 180, 0.35);
+  box-shadow: 0 2px 10px rgba(56, 189, 248, 0.28);
 }
 
 .nav-button.primary:hover:not(:disabled) {
-  transform: scale(1.02);
-  box-shadow: 0 12px 32px rgba(63, 167, 180, 0.4);
+  background: var(--tst-color-accent-system-hover);
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.45);
+  transform: translateY(-1px);
 }
 
 .nav-button.secondary {
-  background: var(--color-surface-subtle);
-  color: #111827;
-  border-color: var(--color-border-soft);
+  background: var(--tst-color-bg-surface);
+  color: var(--tst-color-text-primary);
+  border: 1px solid var(--tst-color-border-default);
+  backdrop-filter: var(--tst-blur-sm);
+  -webkit-backdrop-filter: var(--tst-blur-sm);
 }
 
 .nav-button.secondary:hover:not(:disabled) {
-  box-shadow: var(--shadow-softer);
+  background: var(--tst-color-bg-hover);
+  border-color: var(--tst-color-border-strong);
+  color: var(--tst-color-text-primary);
+  box-shadow: var(--tst-shadow-sm);
+  transform: translateY(-1px);
 }
 
 .nav-button.ghost {
   background: transparent;
-  color: var(--color-text-soft);
+  color: var(--tst-color-text-secondary);
   border-color: transparent;
   box-shadow: none;
 }
 
 .nav-button.ghost:hover:not(:disabled) {
-  background: rgba(148, 163, 184, 0.12);
-  color: var(--color-text);
+  background: var(--tst-color-bg-hover);
+  color: var(--tst-color-text-primary);
+}
+
+.nav-button:focus-visible {
+  outline: 2px solid var(--tst-color-border-focus);
+  outline-offset: 2px;
 }
 
 .nav-button:disabled {
-  opacity: 0.6;
-  cursor: default;
+  opacity: 0.45;
+  cursor: not-allowed;
   box-shadow: none;
   pointer-events: none;
+  transform: none;
 }
 
 .nav-button:active:not(:disabled) {
-  transform: scale(0.97);
+  transform: scale(0.98);
 }
 
 .stepper-header {
