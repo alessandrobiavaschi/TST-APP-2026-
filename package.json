@@ -15,6 +15,7 @@
     "media:landing-hq": "node scripts/reencode-landing-hq.mjs"
   },
   "dependencies": {
+    "d3-hierarchy": "3.1.2",
     "firebase": "^12.10.0",
     "framer-motion": "^12.34.3",
     "react": "^19.2.0",

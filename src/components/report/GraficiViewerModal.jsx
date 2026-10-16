@@ -12,8 +12,8 @@ import {
 import { colors, radarFamiglie } from '../../design-tokens.ts'
 import { buildPortatoViewData } from '../../utils/portatoPadViewData.js'
 import TernaryPortatoPad from './TernaryPortatoPad.jsx'
-import './GraficiViewerModal.css';
-import CirclePacking from './CirclePacking.jsx';
+import './GraficiViewerModal.css'
+import CirclePacking from './CirclePacking.jsx'
 
 const SLIDES_COUNT = 5
 
@@ -478,6 +478,21 @@ export default function GraficiViewerModal({
 
                   <TernaryPortatoPad portato={portato} rawRecord={rawRecord} variant="full" />
                 </div>
+              </div>
+            </>
+          )}
+
+          {/* ── SLIDE 4: Famiglie e nature (Circle Packing) ── */}
+          {activeSlide === 4 && (
+            <>
+              <div className="grafici-modal-slide-header">
+                <h2 className="grafici-modal-slide-title">Famiglie e nature</h2>
+                <p className="grafici-modal-slide-subtitle">
+                  Ogni cerchio è una natura: la sua area è proporzionale ai punti ottenuti
+                </p>
+              </div>
+              <div className="grafici-modal-stage">
+                <CirclePacking sottocorrenti={sottocorrenti} />
               </div>
             </>
           )}

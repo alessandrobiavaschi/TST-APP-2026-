@@ -591,3 +591,16 @@
   transform: translateX(-2px);
 }
 
+
+.circle-packing {
+  width: min(100%, 420px);
+  height: auto;
+  margin: 0 auto;
+  display: block;
+}
+
+.circle-packing__label {
+  fill: var(--tst-color-text-primary, #f8fafc);
+  font-size: 11px;
+  pointer-events: none;
+}
