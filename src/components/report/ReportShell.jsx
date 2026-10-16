@@ -101,9 +101,9 @@ export default function ReportShell({
 
   const [modalita, setModalita] = useState(readModalitaFromHash)
   const [heroVariant, setHeroVariant] = useState(() => {
-    if (typeof window === 'undefined') return 'bussola'
+    if (typeof window === 'undefined') return 'dittico'
     const params = new URLSearchParams(window.location.search)
-    return params.get('heroVariant') === 'dittico' ? 'dittico' : 'bussola'
+    return params.get('heroVariant') === 'bussola' ? 'bussola' : 'dittico'
   })
   
   // Refs for accessibility focus restoration
