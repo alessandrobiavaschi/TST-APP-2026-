@@ -609,7 +609,7 @@ export default function ReportShell({
                     />
                   </Suspense>
 
-                  {/* Trigger per aprire Stanza dei Grafici e Galassia a Schermo Intero */}
+                  {/* Trigger per aprire Stanza dei Grafici a Schermo Intero */}
                   <div className="report-grafici-viewer-trigger-wrap">
                     <button
                       type="button"
@@ -620,18 +620,6 @@ export default function ReportShell({
                       <span className="report-grafici-viewer-trigger-text">
                         <strong>Esplora i Grafici del Profilo</strong>
                         <small>Visore immersivo: Famiglie, Correnti e Portato</small>
-                      </span>
-                      <span className="report-grafici-viewer-trigger-arrow" aria-hidden="true">→</span>
-                    </button>
-                    <button
-                      type="button"
-                      className="report-grafici-viewer-trigger-btn report-galassia-viewer-trigger-btn"
-                      onClick={(event) => openModalita('galassia', event)}
-                    >
-                      <span className="report-grafici-viewer-trigger-icon" aria-hidden="true">🌌</span>
-                      <span className="report-grafici-viewer-trigger-text">
-                        <strong>Mappa 3D della Galassia</strong>
-                        <small>Naviga nello spazio delle 5 Famiglie e Lessico</small>
                       </span>
                       <span className="report-grafici-viewer-trigger-arrow" aria-hidden="true">→</span>
                     </button>
