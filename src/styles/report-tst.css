@@ -58,10 +58,10 @@
   --report-z-content: 1;
   --report-z-modal: 200;
 
-  /* ── Famiglie tipografiche (tono istituzionale / scientifico) ─── */
-  --font-display: 'Newsreader', Georgia, 'Times New Roman', serif;
-  --font-body: 'Public Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* ── Famiglie tipografiche (DESIGN.md contract) ─── */
+  --font-display: var(--tst-font-display, 'Newsreader', Georgia, 'Times New Roman', serif);
+  --font-body: var(--tst-font-sans, 'Manrope', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+  --font-mono: var(--tst-font-mono, 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);
   /* alias legacy */
   --font-serif: var(--font-display);
 

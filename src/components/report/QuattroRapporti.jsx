@@ -69,7 +69,7 @@ function AxisTick({ x, y, payload, textAnchor }) {
       textAnchor={textAnchor}
       fill="#e2e8f0"
       fontSize={13}
-      fontFamily="'Public Sans', system-ui, -apple-system, sans-serif"
+      fontFamily="'Manrope', system-ui, -apple-system, sans-serif"
       dominantBaseline="central"
     >
       {payload?.value}

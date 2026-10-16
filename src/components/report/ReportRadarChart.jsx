@@ -89,7 +89,7 @@ export function ReportRadarAxisTick({ x, y, payload, textAnchor, cx, cy }) {
       textAnchor={safeTextAnchor}
       fill="#e2e8f0"
       fontSize={isMobile ? 12 : 13}
-      fontFamily="'Public Sans', system-ui, -apple-system, sans-serif"
+      fontFamily="'Manrope', system-ui, -apple-system, sans-serif"
       dominantBaseline="central"
     >
       {payload?.value}

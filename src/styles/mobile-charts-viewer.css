@@ -15,7 +15,7 @@
   flex-direction: column;
   background: #070910;
   color: var(--report-text, #f3f1ed);
-  font-family: var(--font-body, 'Public Sans', system-ui, sans-serif);
+  font-family: var(--tst-font-sans, var(--font-body, system-ui, sans-serif));
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
