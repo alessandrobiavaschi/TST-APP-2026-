@@ -4,10 +4,21 @@ import { motion } from 'framer-motion'
 // Il flat-config ESLint del repo non rileva l'uso di `motion` via JSX member.
 void motion
 
-/** Sfondo landing e report: `public/SFONDO LANDING.mp4`. */
-const LANDING_FILE = 'SFONDO LANDING.mp4'
+/**
+ * Sfondo landing e report: `public/sfondo-landing.mp4`.
+ * È la versione leggera di `SFONDO LANDING.mp4` (23 MB HEVC → ~4 MB H.264,
+ * stessa resa): codificata con `-movflags +faststart`, così il browser può
+ * partire dopo i primi KB invece di scaricare tutto il file prima del 1° frame.
+ * Il poster (primo frame) compare subito, finché il video non è pronto.
+ * Per rigenerarli dal file originale:
+ *   ffmpeg -i "SFONDO LANDING.mp4" -an -c:v libx264 -preset slow -crf 22 -pix_fmt yuv420p -movflags +faststart -g 50 sfondo-landing.mp4
+ *   ffmpeg -i "SFONDO LANDING.mp4" -frames:v 1 -q:v 4 sfondo-landing-poster.jpg
+ */
+const LANDING_FILE = 'sfondo-landing.mp4'
+const POSTER_FILE = 'sfondo-landing-poster.jpg'
 // In Vite, files in `public/` are served from the app root (not `/public/...`).
 const LANDING_LOOP = `${import.meta.env.BASE_URL}${encodeURI(LANDING_FILE)}`
+const LANDING_POSTER = `${import.meta.env.BASE_URL}${encodeURI(POSTER_FILE)}`
 
 const STORAGE_KEY_PAUSED = 'tst_video_bg_paused'
 
@@ -26,7 +37,8 @@ function getInitialPaused() {
 
 function VideoBackground0311({ className = '', showOverlay = false, style }) {
   const videoRef = useRef(null)
-  const [isReady, setIsReady] = useState(false)
+  // true da subito: finché il video carica si vede il poster (niente schermo nero)
+  const [isReady, setIsReady] = useState(true)
   const [isPaused, setIsPaused] = useState(getInitialPaused)
 
   const markReady = useCallback(() => {
@@ -139,6 +151,7 @@ function VideoBackground0311({ className = '', showOverlay = false, style }) {
           ref={videoRef}
           className={`page-video-bg__layer page-video-bg__landing-loop vb0311-video${isReady ? ' vb0311-video--ready' : ''}`}
           src={LANDING_LOOP}
+          poster={LANDING_POSTER}
           aria-hidden="true"
           muted
           loop

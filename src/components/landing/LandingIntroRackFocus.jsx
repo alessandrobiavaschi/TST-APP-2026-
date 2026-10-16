@@ -192,8 +192,15 @@ export default function LandingIntroRackFocus({ title, subtitle, targetTitleRef,
     }
     document.addEventListener('visibilitychange', onVis)
 
-    // aspetta i font così la misura FLIP è corretta
-    const ready = document.fonts?.ready ?? Promise.resolve()
+    // Aspetta i font del titolo così la misura FLIP è corretta, ma al massimo
+    // 350 ms: `document.fonts.ready` aspetta TUTTI i font della pagina e con
+    // rete lenta lasciava lo schermo nero per secondi prima che l'intro partisse.
+    // Se il font arriva dopo, la misura FLIP avviene comunque a fine intro (~4 s).
+    const titleFont = A.style.fontFamily ? `${A.style.fontWeight || 600} 100px ${A.style.fontFamily}` : null
+    const fontPromise = titleFont && document.fonts?.load
+      ? document.fonts.load(titleFont, title).catch(() => {})
+      : (document.fonts?.ready ?? Promise.resolve())
+    const ready = Promise.race([fontPromise, new Promise((r) => setTimeout(r, 350))])
     let cancelled = false
     ready.then(() => {
       if (cancelled) return
@@ -211,7 +218,7 @@ export default function LandingIntroRackFocus({ title, subtitle, targetTitleRef,
       document.removeEventListener('visibilitychange', onVis)
       document.body.style.overflow = prevOverflow
     }
-  }, [targetTitleRef, targetSubRef])
+  }, [targetTitleRef, targetSubRef, title])
 
   return (
     <div ref={rootRef} className="tst-intro-rf" aria-hidden="true">
