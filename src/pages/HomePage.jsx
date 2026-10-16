@@ -15,6 +15,8 @@ import LandingPreviewShowcase from '../components/report/LandingPreviewShowcase.
 import { TEST_STORY_SLIDES } from '../components/TestStorySlider.jsx'
 import { useSkyTheme } from '../SkyThemeContext.jsx'
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js'
+import TstLoader from '../components/primitives/TstLoader.jsx'
+import { reloadPage } from '../utils/loaderTiming.js'
 
 function HomePage() {
   useDocumentTitle('Home')
@@ -408,11 +410,7 @@ function HomePage() {
           </div>
         </>
       ) : !authReady ? (
-        <div className="page">
-          <section className="page-card">
-            <p>Verifica sessione in corso…</p>
-          </section>
-        </div>
+        <TstLoader label="Verifica sessione in corso" onRetry={reloadPage} />
       ) : (
         <div className="landing-flow-root page-video-bg-root">
           <VideoBackground0311 />

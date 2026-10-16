@@ -21,14 +21,14 @@ import { useAuth } from '../AuthContext.jsx'
 import { useAdaptiveFlow } from '../hooks/useAdaptiveFlow.js'
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js'
 import { useDialogFocus } from '../hooks/useDialogFocus.js'
+import TstLoader from '../components/primitives/TstLoader.jsx'
+import { reloadPage } from '../utils/loaderTiming.js'
 import {
   AREE_TEST,
   DIFFICOLTA_DETTAGLIO_NESSUNA,
   MAX_SCELTE_DOMANDE_FINALI,
 } from '../config/domandeFinali.js'
 import FinalFeedbackStep from '../components/test/FinalFeedbackStep.jsx'
-import ResultAnalysisScreen from '../components/test/ResultAnalysisScreen.jsx'
-import { FASI_ELABORAZIONE } from '../components/test/fasiElaborazione.js'
 import { compactTestRecord, computeTestResultFields } from '../utils/testRecordProcessing.js'
 import { getNextFileAfterAnswer } from '../utils/testAnswerNavigation.js'
 import '../styles/nuovo-test-flow.css'
@@ -85,7 +85,6 @@ const parseCodes = (value) =>
 const MAX_MULTI_SELECTION = MAX_SCELTE_DOMANDE_FINALI
 
 const TOTAL_STEPS = 72
-const RESULT_ANALYSIS_DURATION_MS = 5600
 
 const STORAGE_KEY_TEST_STARTED = 'tst_test_started_v1'
 const STORAGE_KEY_TEST_DRAFT = 'tst_test_draft_v1'
@@ -182,15 +181,11 @@ function NewTestPage() {
   const [showExitConfirm, setShowExitConfirm] = useState(false)
   const [showDraftSubmitConfirm, setShowDraftSubmitConfirm] = useState(false)
   const [showAreasHelp, setShowAreasHelp] = useState(false)
-  const [isThresholdFocusActive, setIsThresholdFocusActive] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isAudioBusy, setIsAudioBusy] = useState(false)
   const [isChoicesVisible, setIsChoicesVisible] = useState(true)
   const [isProcessingNext] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
-  const [isAnalyzingResult, setIsAnalyzingResult] = useState(false)
-  const [analysisProgress, setAnalysisProgress] = useState(0)
-  const [analysisMessageIndex, setAnalysisMessageIndex] = useState(0)
   const [audioCurrentTime, setAudioCurrentTime] = useState(0)
   const [, setNeuroChoiceStage] = useState('reset')
   const [, setNeuroStepTransition] = useState('enter')
@@ -202,7 +197,6 @@ function NewTestPage() {
   const answersZoneRef = useRef(null)
   const preloadRef = useRef(null)
   const previewAudioRef = useRef(null)
-  const analysisRafRef = useRef(null)
   const nextStepTimerRef = useRef(null)
   const resetTimerRef = useRef(null)
   const recallTimerRef = useRef(null)
@@ -425,62 +419,11 @@ function NewTestPage() {
       if (stepEnterTimerRef.current) {
         window.clearTimeout(stepEnterTimerRef.current)
       }
-      if (analysisRafRef.current) {
-        window.cancelAnimationFrame(analysisRafRef.current)
-      }
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('tst:ritual-focus', { detail: { active: false } }))
       }
     }
   }, [])
-
-  const runResultAnalysisTransition = () =>
-    new Promise((resolve) => {
-      if (analysisRafRef.current) {
-        window.cancelAnimationFrame(analysisRafRef.current)
-        analysisRafRef.current = null
-      }
-
-      setIsAnalyzingResult(true)
-      setIsThresholdFocusActive(true)
-      setAnalysisProgress(0)
-      setAnalysisMessageIndex(0)
-
-      const easeOutCubic = (value) => 1 - (1 - value) ** 3
-      const startedAt = performance.now()
-      const tick = (now) => {
-        const elapsed = now - startedAt
-        const linear = Math.min(1, elapsed / RESULT_ANALYSIS_DURATION_MS)
-        const eased = easeOutCubic(linear)
-        const progressPct = Math.min(100, Math.max(0, eased * 100))
-        const nextMessageIndex = Math.min(
-          FASI_ELABORAZIONE.length - 1,
-          Math.floor(linear * FASI_ELABORAZIONE.length),
-        )
-
-        setAnalysisProgress(progressPct)
-        setAnalysisMessageIndex(nextMessageIndex)
-
-        if (linear >= 1) {
-          analysisRafRef.current = null
-          setIsAnalyzingResult(false)
-          setIsThresholdFocusActive(false)
-          resolve()
-          return
-        }
-        analysisRafRef.current = window.requestAnimationFrame(tick)
-      }
-
-      analysisRafRef.current = window.requestAnimationFrame(tick)
-    })
-
-  useEffect(() => {
-    if (!isThresholdFocusActive || typeof window === 'undefined') return undefined
-    window.dispatchEvent(new CustomEvent('tst:ritual-focus', { detail: { active: true } }))
-    return () => {
-      window.dispatchEvent(new CustomEvent('tst:ritual-focus', { detail: { active: false } }))
-    }
-  }, [isThresholdFocusActive])
 
   const handleProfilazioneChange = (field) => (event) => {
     const value = event.target.value
@@ -840,7 +783,6 @@ function NewTestPage() {
           // ignore
         }
         clearLocalDraftSnapshot()
-        await runResultAnalysisTransition()
         navigate('/risultati/report', {
           state: { record: wrapper, fromSubmit: true, skipReportTransition: true },
         })
@@ -874,7 +816,6 @@ function NewTestPage() {
         id: docRef.id,
         raw: payload,
       }
-      await runResultAnalysisTransition()
       navigate('/risultati/report', {
         state: { record: wrapper, fromSubmit: true, skipReportTransition: true },
       })
@@ -1085,13 +1026,7 @@ function NewTestPage() {
   }, [profilingDone, testCompleted])
 
   if (!isGuestMode && !authReady) {
-    return (
-      <div className="page">
-        <section className="page-card">
-          <p>Verifica sessione in corso…</p>
-        </section>
-      </div>
-    )
+    return <TstLoader label="Verifica sessione in corso" onRetry={reloadPage} />
   }
 
   return (
@@ -1552,7 +1487,7 @@ function NewTestPage() {
               </div>
             </div>
           )}
-          {testCompleted && !isAnalyzingResult && !isReviewingTestSteps && (
+          {testCompleted && !isReviewingTestSteps && (
             <FinalFeedbackStep
               record={testRecord}
               toggles={{
@@ -1573,12 +1508,11 @@ function NewTestPage() {
               lastStep={TOTAL_STEPS}
             />
           )}
-          {testCompleted &&
-            isAnalyzingResult &&
-            createPortal(
-              <ResultAnalysisScreen progress={analysisProgress} phaseIndex={analysisMessageIndex} />,
-              document.body,
-            )}
+          <TstLoader
+            active={isSubmitting}
+            label="Salvataggio del test in corso"
+            slowMessage="Il salvataggio sta impiegando più del previsto. Non chiudere la pagina."
+          />
           {showExitConfirm && (
             <div
               className="test-exit-modal-backdrop"

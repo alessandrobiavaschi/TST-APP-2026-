@@ -197,6 +197,17 @@ Ogni nuova pagina UI dovrebbe seguire questo schema:
 
 ---
 
+## 5bis. Stati di caricamento
+
+Ogni attesa usa un solo componente: `TstLoader` (`src/components/primitives/TstLoader.jsx`, stile in `src/styles/tst-loader.css`). Non creare spinner o scritte "Caricamento…" locali.
+
+- **Overlay** (`variant="overlay"`, predefinito): per attese che bloccano la pagina (caricamento pagina, verifica sessione, salvataggio del test, apertura del report). Copre tutto lo schermo e blocca i clic dal primo istante; l'animazione compare solo se l'attesa supera la soglia comune.
+- **Locale** (`variant="inline"`): per una sola sezione (elenco risultati, sezioni del report caricate su richiesta).
+- **Tono**: `tone="light"` sulle pagine chiare, `tone="dark"` su landing e report. Nel report la variante locale riceve il colore della natura tramite `color`.
+- **Tempi**: regola unica in `src/utils/loaderTiming.js` (comparsa dopo 200 ms, visibile almeno 400 ms, avviso dopo 15 s). Nessuna attesa artificiale.
+- **Attese insolite**: passare `onRetry={reloadPage}` solo dove ricaricare non fa perdere dati. Mai durante il salvataggio del test: lì si mostra solo l'avviso.
+- Durante i 72 ascolti non si mostra alcun loader: audio e sequenza degli stimoli non vanno interrotti.
+
 ## 6. Checklist prima di chiudere una PR UI
 
 1. La pagina ha un titolo e un sottotitolo chiari?

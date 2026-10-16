@@ -5,6 +5,8 @@ import { useLocation, useNavigate, Navigate } from 'react-router-dom'
 import { useAuth } from '../AuthContext.jsx'
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js'
 import { useDialogFocus } from '../hooks/useDialogFocus.js'
+import TstLoader from '../components/primitives/TstLoader.jsx'
+import { reloadPage } from '../utils/loaderTiming.js'
 import { db } from '../firebaseConfig.js'
 import {
   collection,
@@ -1145,13 +1147,7 @@ function ResultsPage() {
   }
 
   if (!authReady) {
-    return (
-      <div className="page">
-        <section className="page-card">
-          <p>Verifica sessione in corso…</p>
-        </section>
-      </div>
-    )
+    return <TstLoader label="Verifica sessione in corso" onRetry={reloadPage} />
   }
 
   if (!currentUser) {
@@ -1533,7 +1529,7 @@ function ResultsPage() {
 
           <div className="results-table-wrapper">
             {loading ? (
-              <p>Caricamento risultati…</p>
+              <TstLoader variant="inline" label="Caricamento risultati" />
             ) : loadError ? (
               <p className="results-error">{loadError}</p>
             ) : !filteredRecords.length ? (

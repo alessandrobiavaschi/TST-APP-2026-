@@ -24,6 +24,8 @@ import {
   shouldRetryChunkLoad,
 } from './utils/chunkLoadRecovery.js'
 import { useDialogFocus } from './hooks/useDialogFocus.js'
+import TstLoader from './components/primitives/TstLoader.jsx'
+import { reloadPage } from './utils/loaderTiming.js'
 import './styles/app-shell.css'
 import './App.css'
 import './styles/tst-mobile.css'
@@ -882,7 +884,19 @@ function App() {
           >
             <AppErrorBoundary>
               <RouteScrollReset />
-              <Suspense fallback={<div className="page" aria-busy="true" aria-label="Caricamento pagina" />}>
+              {/* key per percorso: ogni pagina ha un confine di caricamento nuovo, così
+                  il loader compare anche quando la navigazione avviene in transizione
+                  (altrimenti React lascia ferma la pagina precedente senza segnali). */}
+              <Suspense
+                key={location.pathname}
+                fallback={
+                  <TstLoader
+                    label="Caricamento pagina"
+                    tone={location.pathname === '/' || isReportPage ? 'dark' : 'light'}
+                    onRetry={reloadPage}
+                  />
+                }
+              >
               <Routes>
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/home" element={<HomePage />} />

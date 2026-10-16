@@ -2,11 +2,7 @@ import React, { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useStat
 import { useNavigate } from 'react-router-dom'
 import { useSkyTheme } from '../../SkyThemeContext.jsx'
 import VideoBackground0311 from '../VideoBackground0311.jsx'
-import {
-  AnimatePresence,
-  motion,
-  useReducedMotion,
-} from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 import HeroScreen from './HeroScreen'
 import NavbarTST from './NavbarTST'
 import ReportSectionController from './ReportSectionController'
@@ -25,6 +21,7 @@ import FamilyBrowseCarousel from './FamilyBrowseCarousel.jsx'
 import SectionDivider from './SectionDivider'
 import ReportPartDivider from './ReportPartDivider.jsx'
 import FioreCorrenti from './FioreCorrenti'
+import TstLoader from '../primitives/TstLoader.jsx'
 import { buildCorrentDataFromRecord } from '../../utils/galassiaData.js'
 import { buildLessicoAnaliticoViewModel } from '../../utils/galassiaLessicoViewModel.js'
 import { buildProgressiveContentViewModel } from '../../utils/buildProgressiveContentViewModel.js'
@@ -41,42 +38,6 @@ const GalassiaView = lazy(() => import('./GalassiaView'))
 const ForMusiciansView = lazy(() => import('./ForMusiciansView.jsx'))
 const QuattroRapporti = lazy(() => import('./QuattroRapporti'))
 const SintesiCorrenti = lazy(() => import('./SintesiCorrenti'))
-
-/* ── Fallback Suspense: 3 dot pulsanti del colore corrente ──────────── */
-function DotsSpinner({ color = '#4ade80' }) {
-  const reduceMotion = useReducedMotion()
-  return (
-    <div
-      className="report-tst-spinner"
-      role="status"
-      aria-label={REPORT_SHELL_UI.loadingInline}
-    >
-      {[0, 1, 2].map((i) => (
-        <motion.span
-          key={i}
-          className="report-tst-spinner__dot"
-          style={{ backgroundColor: color }}
-          animate={reduceMotion ? undefined : { opacity: [0.3, 1, 0.3], y: [0, -4, 0] }}
-          transition={
-            reduceMotion
-              ? undefined
-              : { duration: 0.9, repeat: Infinity, ease: 'easeInOut', delay: i * 0.15 }
-          }
-        />
-      ))}
-    </div>
-  )
-}
-
-/* ── Loader full-screen del report (mini-fiore + "TST") ─────────────── */
-function ReportLoader({ correnti }) {
-  return (
-    <div className="report-tst-loader" role="status" aria-label={REPORT_SHELL_UI.loading}>
-      <FioreCorrenti correnti={correnti} size={60} pulse ariaLabel="Caricamento report TST" />
-      <span className="report-tst-loader__label">TST</span>
-    </div>
-  )
-}
 
 const MOBILE_REPORT_MEDIA_QUERY = '(max-width: 768px)'
 
@@ -424,8 +385,10 @@ export default function ReportShell({
   }, [hasReportData, reportIdentityKey, resetReportViewport])
 
   useEffect(() => {
-    const t = window.setTimeout(() => setLoaded(true), 450)
-    return () => window.clearTimeout(t)
+    // Il report è calcolato in modo sincrono: lo dichiariamo pronto al primo
+    // frame dipinto, senza attese fisse. Il loader compare solo se il frame tarda.
+    const frame = window.requestAnimationFrame(() => setLoaded(true))
+    return () => window.cancelAnimationFrame(frame)
   }, [])
 
   useEffect(() => {
@@ -525,20 +488,7 @@ export default function ReportShell({
           </button>
         </div>
       )}
-      <AnimatePresence>
-        {!loaded && (
-          <motion.div
-            key="report-loader"
-            initial={{ opacity: 1 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.4 }}
-            style={{ position: 'fixed', inset: 0, zIndex: 200 }}
-          >
-            <ReportLoader correnti={correntiNomeColore} />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <TstLoader active={!loaded} tone="dark" label={REPORT_SHELL_UI.loading} />
 
       <ReportHelpModal
         open={helpOpen}
@@ -637,7 +587,7 @@ export default function ReportShell({
                   </h2>
                 </header>
                 <RoomRevealContent id="report-tst-sintesi" className="report-tst-section-anchor">
-                  <Suspense fallback={<DotsSpinner color={correnteColore} />}>
+                  <Suspense fallback={<TstLoader variant="inline" tone="dark" color={correnteColore} label={REPORT_SHELL_UI.loadingInline} />}>
                     <SintesiCorrenti
                       correnti={correnti}
                       correnteDominante={profilo?.correnteDominante || ''}
@@ -700,7 +650,7 @@ export default function ReportShell({
                 </header>
                 <div id="stanza-rapporti" ref={rapportiAnchorRef} className="report-tst-section-anchor">
                   <RoomRevealContent>
-                    <Suspense fallback={<DotsSpinner color={correnteColore} />}>
+                    <Suspense fallback={<TstLoader variant="inline" tone="dark" color={correnteColore} label={REPORT_SHELL_UI.loadingInline} />}>
                       <QuattroRapporti
                         rapporti={rapporti}
                         coloriCorrenti={coloriCorrenti}
@@ -939,7 +889,7 @@ export default function ReportShell({
           inert={modalita !== 'galassia' ? true : undefined}
         >
           <div className="report-tst-galassia">
-            <Suspense fallback={<DotsSpinner color={correnteColore} />}>
+            <Suspense fallback={<TstLoader variant="inline" tone="dark" color={correnteColore} label={REPORT_SHELL_UI.loadingInline} />}>
               <GalassiaView
                 correntData={correntData}
                 paroleEmerse={paroleEmerse}
@@ -963,7 +913,7 @@ export default function ReportShell({
         aria-hidden={modalita !== 'for-musicians'}
         inert={modalita !== 'for-musicians' ? true : undefined}
       >
-        <Suspense fallback={<DotsSpinner color={correnteColore} />}>
+        <Suspense fallback={<TstLoader variant="inline" tone="dark" color={correnteColore} label={REPORT_SHELL_UI.loadingInline} />}>
           <ForMusiciansView
             musicista={musicista}
             profilo={profilo}

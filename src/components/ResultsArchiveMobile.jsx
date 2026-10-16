@@ -1,5 +1,6 @@
 import React from 'react'
 import { formatSubcategoryLabel } from '../utils/reportTaxonomy.js'
+import TstLoader from './primitives/TstLoader.jsx'
 
 const RADAR_FAMIGLIE = [
   { subject: 'Malinconica', key: 'blu', color: '#60a5fa' },
@@ -334,7 +335,7 @@ function ResultsArchiveMobile({
 
       <div className="results-archive-mobile-list-wrap">
         {loading ? (
-          <p className="results-archive-mobile-status">Caricamento risultati…</p>
+          <TstLoader variant="inline" label="Caricamento risultati" />
         ) : loadError ? (
           <p className="results-error results-archive-mobile-status">{loadError}</p>
         ) : !filteredRecords.length ? (

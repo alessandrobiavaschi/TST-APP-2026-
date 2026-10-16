@@ -12,6 +12,8 @@ import {
 } from '../auth.js'
 import SkySettingsPanel from '../components/SkySettingsPanel.jsx'
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js'
+import TstLoader from '../components/primitives/TstLoader.jsx'
+import { reloadPage } from '../utils/loaderTiming.js'
 
 function ProfilePage() {
   useDocumentTitle('Profilo')
@@ -190,16 +192,7 @@ function ProfilePage() {
   }
 
   if (!authReady || loading) {
-    return (
-      <div className="page">
-        <header className="page-header">
-          <h1 className="page-title">Info di contatto</h1>
-        </header>
-        <section className="page-card">
-          <p>Caricamento dati…</p>
-        </section>
-      </div>
-    )
+    return <TstLoader label="Caricamento dati del profilo" onRetry={reloadPage} />
   }
 
   return (
