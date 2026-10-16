@@ -3,6 +3,8 @@
 Web app React 19 + Vite 7 per il Test Temperamentale (metodo Franco Mussida): 72 ascolti audio guidati, punteggio su 12 nature × 3 portati, report interattivo e Galassia lessicale.
 Lo strumento non è diagnostico: il report descrive ipotesi interne al modello TST, mai diagnosi.
 
+Prima di modificare la UI, segui DESIGN.md e leggi DESIGN-HANDOFF.md.
+
 Root del progetto: `/Users/alessandrobiavaschi/Downloads/TST 2026 cursor`. Ignora percorsi esterni (`Downloads/App v2`, `App v5`, `~/TST_demo`, `~/package.json`).
 
 ## Comandi

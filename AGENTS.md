@@ -9,6 +9,7 @@ Never work directly on `main` (or `master`).
 Deploy only when the user explicitly requests it and the exact target has been verified first.
 Do not delete remote resources, modify credentials or expose secrets.
 Work on `ai/codex` (or another user-approved feature branch), run the relevant checks, inspect the diff, and commit completed changes before declaring the task finished.
+Prima di modificare la UI, segui DESIGN.md e leggi DESIGN-HANDOFF.md.
 
 ---
 
