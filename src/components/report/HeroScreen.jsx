@@ -298,9 +298,8 @@ export default function HeroScreen({
               {portatoView.hasData && (
                 <motion.div {...fade(0.32, 20)} className="hero-screen__dittico-right">
                   <div className="hero-screen__dittico-card">
-                    <span className="hero-screen__dittico-card-kicker">Risonanza d'Ascolto</span>
+                    <span className="hero-screen__dittico-card-kicker">La tua esperienza d'ascolto</span>
                     <h3 className="hero-screen__dittico-card-title">{posturaInfo.label}</h3>
-                    <p className="hero-screen__dittico-card-sub">{posturaInfo.sub}</p>
 
                     <div className="hero-screen__dittico-mini-pad">
                       <svg viewBox="-4 -4 108 108" className="hero-screen__mini-pad-svg" aria-hidden="true">
@@ -757,7 +756,7 @@ export default function HeroScreen({
           font-size: clamp(1.2rem, 1.8vw, 1.5rem);
           font-weight: 500;
           color: #ffffff;
-          margin: 0 0 0.25rem;
+          margin: 0 0 0.75rem;
           letter-spacing: -0.01em;
           line-height: 1.25;
         }
