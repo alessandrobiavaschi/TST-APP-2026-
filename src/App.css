@@ -67,8 +67,8 @@
 
 .app-shell {
   min-height: 100vh;
-  color: var(--landing-text);
-  font-family: var(--landing-font-sans);
+  color: var(--tst-color-text-primary);
+  font-family: var(--tst-font-body);
 }
 
 .app-main {
@@ -84,7 +84,7 @@
   margin: 0 auto;
   padding: 0.75rem 1rem;
   display: flex;
-  gap: 1rem;
+  gap: var(--tst-space-md);
   align-items: center;
   justify-content: space-between;
 }
@@ -100,19 +100,21 @@
 }
 
 .app-logo-mark {
-  border-radius: 999px;
+  border-radius: var(--tst-radius-pill);
   padding: 0.35rem 0.62rem;
-  font-size: 0.76rem;
-  letter-spacing: 0.03em;
+  font-family: var(--tst-font-mono);
+  font-size: var(--tst-text-caption);
+  letter-spacing: 0.04em;
   font-weight: 700;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: var(--tst-color-bg-surface-subtle);
+  border: 1px solid var(--tst-color-border-default);
+  color: var(--tst-color-text-primary);
 }
 
 .app-logo-title {
-  font-size: 0.92rem;
-  font-weight: 540;
-  color: var(--landing-text-soft);
+  font-size: var(--tst-text-body-sm);
+  font-weight: 600;
+  color: var(--tst-color-text-secondary);
 }
 
 .app-header-nav {
@@ -122,16 +124,18 @@
 }
 
 .app-header-link {
-  border-radius: 999px;
-  padding: 0.42rem 0.8rem;
-  font-size: 0.82rem;
-  color: var(--landing-text-muted);
+  border-radius: var(--tst-radius-pill);
+  padding: 0.42rem 0.85rem;
+  font-family: var(--tst-font-body);
+  font-size: var(--tst-text-body-sm);
+  color: var(--tst-color-text-muted);
+  transition: color var(--tst-transition-fast), background-color var(--tst-transition-fast);
 }
 
 .app-header-link:hover,
 .app-header-link[aria-current='page'] {
-  color: var(--landing-text);
-  background: rgba(255, 255, 255, 0.08);
+  color: var(--tst-color-text-primary);
+  background: var(--tst-color-bg-hover);
 }
 
 .app-header-account {
@@ -16806,18 +16810,18 @@ body {
 }
 
 .app-shell {
-  color: var(--color-text);
+  color: var(--tst-color-text-primary);
 }
 
 .app-header {
   position: sticky;
   top: 0;
   z-index: 90;
-  background: rgba(255, 255, 255, 0.88);
-  border-bottom: 1px solid rgba(223, 218, 246, 0.95);
-  box-shadow: var(--shadow-header);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: var(--tst-color-bg-surface-elevated);
+  border-bottom: 1px solid var(--tst-color-border-subtle);
+  box-shadow: var(--tst-shadow-sm);
+  backdrop-filter: var(--tst-blur-md);
+  -webkit-backdrop-filter: var(--tst-blur-md);
 }
 
 .app-header-inner {
@@ -16828,15 +16832,18 @@ body {
 .app-logo-mark {
   width: 34px;
   height: 34px;
-  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-soft));
-  color: #fff;
-  font-size: 0.64rem;
-  box-shadow: 0 12px 30px rgba(122, 89, 245, 0.35);
+  background: var(--tst-color-bg-surface-subtle);
+  border: 1px solid var(--tst-color-border-default);
+  color: var(--tst-color-text-primary);
+  font-family: var(--tst-font-mono);
+  font-size: var(--tst-text-caption);
+  box-shadow: var(--tst-shadow-sm);
 }
 
 .app-logo-title {
-  font-size: 0.92rem;
-  color: var(--color-text);
+  font-size: var(--tst-text-body-sm);
+  font-weight: 600;
+  color: var(--tst-color-text-secondary);
 }
 
 .app-header-nav {
