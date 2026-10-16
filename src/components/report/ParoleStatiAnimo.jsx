@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { PAROLE_UI } from './reportUiCopy.js'
 import ReportPassageHeader from './ReportPassageHeader.jsx'
 import ParoleNatura from './ParoleNatura.jsx'
@@ -10,8 +10,8 @@ import './ParoleStatiAnimo.css'
 /**
  * Stanza 05 — Parole.
  * Tutti i testi visibili vengono da «Parole per TST» (content/paroleTst.js):
- * famiglia → natura → parole chiave, aggettivi/sostantivi, parole collegate alle altre famiglie.
- * La famiglia e la natura prevalenti della persona sono segnalate solo graficamente.
+ * famiglia → natura → parole chiave, aggettivi/sostantivi/sintesi in chip, parole collegate alle altre famiglie.
+ * La famiglia e la natura prevalenti della persona sono segnalate graficamente.
  */
 
 const COLORE_PER_CHIAVE = Object.fromEntries(Object.values(FAMILY_THEME).map((t) => [t.key, t.dot]))
@@ -21,6 +21,10 @@ function rawKeyNaturaPrevalente(naturaPrevalente) {
   const nome = String(naturaPrevalente || '').trim().toUpperCase()
   if (!nome) return ''
   return NATURE.find((n) => n.nome.toUpperCase() === nome)?.campoDb || ''
+}
+
+function naturaIniziale(fam, rawKey) {
+  return fam?.nature.find((n) => n.rawKey === rawKey)?.rawKey || fam?.nature[0]?.rawKey || ''
 }
 
 export default function ParoleStatiAnimo({ famiglia = '', naturaPrevalente = '', step = '5' }) {
@@ -33,17 +37,25 @@ export default function ParoleStatiAnimo({ famiglia = '', naturaPrevalente = '',
   }, [colorKeyPrevalente])
 
   const [famigliaId, setFamigliaId] = useState(famiglie[0]?.id || '')
-  const famigliaAttiva = famiglie.find((f) => f.id === famigliaId) || famiglie[0]
+  const [naturaKey, setNaturaKey] = useState(() => naturaIniziale(famiglie[0], rawKeyPrevalente))
 
-  const naturaIniziale = (fam) =>
-    fam?.nature.find((n) => n.rawKey === rawKeyPrevalente)?.rawKey || fam?.nature[0]?.rawKey || ''
-  const [naturaKey, setNaturaKey] = useState(() => naturaIniziale(famigliaAttiva))
+  useEffect(() => {
+    if (colorKeyPrevalente) {
+      const prima = FAMIGLIE_TST.find((f) => f.colorKey === colorKeyPrevalente)
+      if (prima) {
+        setFamigliaId(prima.id)
+        setNaturaKey(naturaIniziale(prima, rawKeyPrevalente))
+      }
+    }
+  }, [colorKeyPrevalente, rawKeyPrevalente])
+
+  const famigliaAttiva = famiglie.find((f) => f.id === famigliaId) || famiglie[0]
   const naturaAttiva =
     famigliaAttiva?.nature.find((n) => n.rawKey === naturaKey) || famigliaAttiva?.nature[0]
 
   const scegliFamiglia = (fam) => {
     setFamigliaId(fam.id)
-    setNaturaKey(naturaIniziale(fam))
+    setNaturaKey(naturaIniziale(fam, rawKeyPrevalente))
   }
 
   if (!famigliaAttiva) return null

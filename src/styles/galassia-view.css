@@ -8678,3 +8678,46 @@
 .lessico-atlas--lod-micro .lessico-atlas__word:is(:hover, .is-hovered, .is-selected) .lessico-atlas__word-tag {
   display: inline-block;
 }
+
+/* Lessico a schermo intero: le schede Disposizioni/Portato/Lessico restano
+   fuori dallo schermo intero, quindi lo spazio riservato sopra la mappa
+   diventerebbe una fascia vuota. La barra dei filtri sale in cima. */
+.galassia-view--mode-parole .lessico-atlas.is-fullscreen,
+.galassia-view--mode-parole .lessico-atlas:fullscreen,
+.galassia-view--mode-parole .lessico-atlas:-webkit-full-screen {
+  padding-top: 0 !important;
+}
+
+/* Schermo intero di riserva (browser senza Fullscreen API, es. iPad):
+   il contenitore del report ha transform/will-change che "intrappola" position:fixed,
+   quindi lo neutralizziamo finché la mappa è a schermo intero. */
+.report-tst-galassia-layer:has(.lessico-atlas.is-fullscreen) {
+  transform: none !important;
+  will-change: auto !important;
+}
+
+/* La barra del sito vive in un altro livello (app-header, z-index 110) e
+   coprirebbe i filtri: durante lo schermo intero di riserva la nascondiamo. */
+.app-shell:has(.lessico-atlas.is-fullscreen) .app-header {
+  visibility: hidden !important;
+}
+
+/* Lessico: livelli grafici più leggeri (ottobre 2026).
+   Stelle (6120×4320 px) e nebulose stanno DENTRO la mappa che si ingrandisce:
+   con will-change il browser le teneva disegnate alla risoluzione dello zoom
+   massimo e, tornando alla vista generale, finiva la memoria grafica
+   (rettangoli neri, bagliori tagliati). Senza will-change vengono ridisegnate
+   alla scala corrente. */
+.lessico-atlas__layer-stars,
+.lessico-atlas__layer-nebulae,
+.lessico-atlas__nebula {
+  will-change: auto !important;
+}
+
+/* Targhette di famiglia: dimensione costante sullo schermo (fino a 3,2×
+   quando la mappa è lontana). Prima, avvicinandosi, crescevano con la mappa
+   fino a coprire le parole. */
+.lessico-atlas__family-badge,
+.lessico-atlas__family-badge:hover {
+  transform: translate(-50%, -50%) scale(min(3.2, var(--atlas-inv-scale, 1)));
+}

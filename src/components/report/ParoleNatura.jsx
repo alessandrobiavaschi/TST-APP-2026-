@@ -3,7 +3,8 @@ import { getFamigliaById } from '../../content/paroleTst.js'
 
 /**
  * Contenuto di una natura nella stanza «Parole»: parole chiave con nota,
- * aggettivi/sostantivi e parole collegate alle altre famiglie.
+ * aggettivi/sostantivi/parole di sintesi (in formato chip) e parole collegate
+ * alle altre famiglie (in chip cromatiche secondo la famiglia collegata).
  * Etichette e testi: solo dal PDF «Parole per TST».
  */
 
@@ -13,8 +14,17 @@ function colorKeyAssociazione(chiave) {
   return getFamigliaById(id)?.colorKey || ''
 }
 
-function Elenco({ parole }) {
-  return <p className="parole-tst__elenco">{parole.join(' · ')}</p>
+function ElencoChips({ parole, colorVar = '--famiglia-colore' }) {
+  if (!parole || parole.length === 0) return null
+  return (
+    <ul className="parole-tst__chips" style={{ '--chip-colore': `var(${colorVar})` }}>
+      {parole.map((parola) => (
+        <li key={parola} className="parole-tst__chip">
+          {parola}
+        </li>
+      ))}
+    </ul>
+  )
 }
 
 export default function ParoleNatura({ natura, coloreFamiglia, colorePerChiave }) {
@@ -23,10 +33,25 @@ export default function ParoleNatura({ natura, coloreFamiglia, colorePerChiave }
   const [forma, setForma] = useState('aggettivi')
   const fonte = haPolo && polo === 'positivo' ? natura.poloPositivo : natura
   const paroleChiave = fonte.paroleChiave || []
-  const elenco = (forma === 'aggettivi' ? fonte.aggettivi : fonte.sostantivi) || []
+
+  const elenco =
+    (forma === 'aggettivi'
+      ? fonte.aggettivi
+      : forma === 'sostantivi'
+        ? fonte.sostantivi
+        : fonte.sostantiviSintesi) || []
+
   const associazioni = (natura.associazioniFonte || []).filter(
     (a) => (natura.associazioni?.[a.chiave] || []).length > 0,
   )
+
+  const opzioniForma = [
+    ['aggettivi', `Aggettivi (${fonte.aggettivi?.length || 0})`],
+    ['sostantivi', `Sostantivi (${fonte.sostantivi?.length || 0})`],
+  ]
+  if (fonte.sostantiviSintesi?.length > 0) {
+    opzioniForma.push(['sintesi', `Parole di sintesi (${fonte.sostantiviSintesi.length})`])
+  }
 
   return (
     <div className="parole-tst__natura-corpo" style={{ '--famiglia-colore': coloreFamiglia }}>
@@ -59,16 +84,13 @@ export default function ParoleNatura({ natura, coloreFamiglia, colorePerChiave }
 
       <div className="parole-tst__blocco">
         <div className="parole-tst__interruttore" role="group" aria-label="Forma delle parole">
-          {[
-            ['aggettivi', 'Aggettivi'],
-            ['sostantivi', 'Sostantivi'],
-          ].map(([id, etichetta]) => (
+          {opzioniForma.map(([id, etichetta]) => (
             <button key={id} type="button" aria-pressed={forma === id} onClick={() => setForma(id)}>
               {etichetta}
             </button>
           ))}
         </div>
-        <Elenco parole={elenco} />
+        <ElencoChips parole={elenco} />
       </div>
 
       {associazioni.length > 0 ? (
@@ -86,7 +108,10 @@ export default function ParoleNatura({ natura, coloreFamiglia, colorePerChiave }
                   {a.titolo}
                 </p>
                 {a.nota ? <p className="parole-tst__associazione-nota">({a.nota})</p> : null}
-                <Elenco parole={natura.associazioni[a.chiave]} />
+                <ElencoChips
+                  parole={natura.associazioni[a.chiave]}
+                  colorVar="--associazione-colore"
+                />
               </div>
             ))}
           </div>

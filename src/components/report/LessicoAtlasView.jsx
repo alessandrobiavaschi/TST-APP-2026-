@@ -19,6 +19,8 @@ const LERP_FACTOR = 0.45
 const LOD_EDGES = [0.48, 0.85, 1.4]
 const LOD_TIERS = ['macro', 'meso-wide', 'meso', 'micro']
 const LOD_SETTLE_MS = 140
+// Dopo quanto tempo di mappa ferma la si ridisegna alla risoluzione giusta.
+const CANVAS_REST_MS = 220
 
 // Exact Cubic-Bezier solver for fly-to transitions: cubic-bezier(0.16, 1, 0.3, 1)
 function solveCubicBezier(x1, y1, x2, y2) {
@@ -1985,6 +1987,8 @@ export default function LessicoAtlasView({
 
     let rafId = null
     let lastTransform = ''
+    let lastCameraMoveAt = 0
+    let canvasRested = false
     let lastInvScale = ''
     let lastScale = cameraRef.current.scale
     let lastScaleChangeAt = 0
@@ -2042,10 +2046,29 @@ export default function LessicoAtlasView({
 
       // 3. Transform Canvas
       if (canvasRef.current) {
-        const nextTransform = `translate3d(${cur.x.toFixed(2)}px, ${cur.y.toFixed(2)}px, 0px) scale(${cur.scale.toFixed(4)})`
-        if (nextTransform !== lastTransform) {
-          canvasRef.current.style.transform = nextTransform
-          lastTransform = nextTransform
+        const canvasEl = canvasRef.current
+        const tx = cur.x.toFixed(2)
+        const ty = cur.y.toFixed(2)
+        const ts = cur.scale.toFixed(4)
+        const cameraKey = `${tx}|${ty}|${ts}`
+        const nowMs = performance.now()
+        if (cameraKey !== lastTransform) {
+          lastTransform = cameraKey
+          lastCameraMoveAt = nowMs
+          if (canvasRested) {
+            canvasRested = false
+            canvasEl.style.willChange = 'transform'
+          }
+          canvasEl.style.transform = `translate3d(${tx}px, ${ty}px, 0px) scale(${ts})`
+        } else if (!canvasRested && nowMs - lastCameraMoveAt > CANVAS_REST_MS) {
+          // Mappa ferma: trasformazione 2D e niente will-change, così il
+          // browser la ridisegna alla risoluzione dello zoom attuale. Senza
+          // questo passaggio, dopo uno zoom profondo teneva in memoria la
+          // mappa alla risoluzione massima (~1 GB): tasselli mancanti, blocchi
+          // neri e parole sparite tornando alla vista generale.
+          canvasRested = true
+          canvasEl.style.willChange = 'auto'
+          canvasEl.style.transform = `translate(${tx}px, ${ty}px) scale(${ts})`
         }
         // Le etichette di famiglia restano leggibili anche a zoom basso.
         // La variabile va scritta SOLO sulle 5 targhette: scritta sulla tela
