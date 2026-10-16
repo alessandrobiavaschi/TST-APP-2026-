@@ -1,5 +1,4 @@
-import React, { useMemo, useState } from 'react'
-import { percorsoRisposte } from '../../utils/percorsoRisposte.js'
+import React, { useMemo } from 'react'
 import { buildPortatoViewData } from '../../utils/portatoPadViewData.js'
 import './TernaryPortatoPad.css'
 
@@ -30,123 +29,11 @@ function toTernaryCartesian(s = 0, a = 0, d = 0) {
   }
 }
 
-/**
- * Calcola i singoli punteggi per ambito musicale o momento d'ascolto,
- * così da visualizzare la costellazione di punti ("ogni punteggio è un puntino colorato")
- * attorno al punto medio.
- */
-function extractTernaryScatterPoints(rawRecord = {}, meanShares = { s: 0.33, a: 0.33, d: 0.33 }) {
-  const answers = percorsoRisposte(rawRecord)
-  const validAnswers = answers.filter(Boolean)
-
-  if (validAnswers.length >= 10) {
-    // Raggruppamento per sezione musicale reale (Timbro, Intervalli, Ritmo, Melodia, Armonia)
-    const bySection = {}
-    validAnswers.forEach((ans) => {
-      const sec = ans.sezione || 'Ascolto'
-      if (!bySection[sec]) bySection[sec] = { count: 0, s: 0, a: 0, d: 0, colorKey: ans.famiglia }
-      bySection[sec].count += 1
-      if (ans.portato === 'simpatia') bySection[sec].s += 1
-      else if (ans.portato === 'antipatia') bySection[sec].a += 1
-      else bySection[sec].d += 1
-    })
-
-    // Raggruppamento anche a blocchi di 6-8 passi per avere una vera costellazione (~10-14 punti)
-    const points = []
-    const sectionNames = Object.keys(bySection)
-    sectionNames.forEach((name, idx) => {
-      const data = bySection[name]
-      const coords = toTernaryCartesian(data.s, data.a, data.d)
-      const color = data.s >= data.a && data.s >= data.d ? '#34d399' : data.a >= data.s && data.a >= data.d ? '#f87171' : '#818cf8'
-      points.push({
-        id: `sec-${idx}`,
-        label: name,
-        x: coords.x,
-        y: coords.y,
-        sPct: Math.round((data.s / data.count) * 100),
-        aPct: Math.round((data.a / data.count) * 100),
-        dPct: Math.round((data.d / data.count) * 100),
-        color,
-      })
-    })
-
-    // Blocchi di passi per arricchire la visualizzazione (stile d3-ternary)
-    const blockSize = 6
-    for (let i = 0; i < validAnswers.length; i += blockSize) {
-      const chunk = validAnswers.slice(i, i + blockSize)
-      let cs = 0
-      let ca = 0
-      let cd = 0
-      chunk.forEach((c) => {
-        if (c.portato === 'simpatia') cs += 1
-        else if (c.portato === 'antipatia') ca += 1
-        else cd += 1
-      })
-      const coords = toTernaryCartesian(cs, ca, cd)
-      const color = cs >= ca && cs >= cd ? '#34d399' : ca >= cs && ca >= cd ? '#f87171' : '#818cf8'
-      points.push({
-        id: `chunk-${i}`,
-        label: `Passi ${i + 1}–${Math.min(i + blockSize, validAnswers.length)}`,
-        x: coords.x,
-        y: coords.y,
-        sPct: Math.round((cs / chunk.length) * 100),
-        aPct: Math.round((ca / chunk.length) * 100),
-        dPct: Math.round((cd / chunk.length) * 100),
-        color,
-      })
-    }
-
-    return points
-  }
-
-  // Fallback deterministico per record senza tutte le 72 risposte grezze (es. anteprima)
-  // Genera ~11 punti di risonanza distribuiti attorno alla media
-  const s0 = meanShares.s
-  const a0 = meanShares.a
-  const d0 = meanShares.d
-
-  const offsets = [
-    { label: 'Timbro fondamentale', ds: 0.10, da: -0.06, dd: -0.04 },
-    { label: 'Intervalli consonantici', ds: 0.08, da: -0.04, dd: -0.04 },
-    { label: 'Tensioni armoniche', ds: -0.06, da: 0.10, dd: -0.04 },
-    { label: 'Groove & Ritmo', ds: 0.05, da: 0.03, dd: -0.08 },
-    { label: 'Melodia espansiva', ds: 0.09, da: -0.05, dd: -0.04 },
-    { label: 'Sospensioni', ds: -0.08, da: -0.02, dd: 0.10 },
-    { label: 'Risonanze timbriche', ds: 0.04, da: -0.02, dd: -0.02 },
-    { label: 'Arpeggi lenti', ds: -0.03, da: -0.05, dd: 0.08 },
-    { label: 'Risoluzioni', ds: 0.07, da: -0.03, dd: -0.04 },
-    { label: 'Dinamiche intense', ds: -0.05, da: 0.08, dd: -0.03 },
-    { label: 'Trame polifoniche', ds: 0.02, da: 0.02, dd: -0.04 },
-  ]
-
-  return offsets.map((item, idx) => {
-    const s = Math.max(0.02, Math.min(0.96, s0 + item.ds))
-    const a = Math.max(0.02, Math.min(0.96, a0 + item.da))
-    const d = Math.max(0.02, Math.min(0.96, d0 + item.dd))
-    const coords = toTernaryCartesian(s, a, d)
-    const color = s >= a && s >= d ? '#34d399' : a >= s && a >= d ? '#f87171' : '#818cf8'
-
-    return {
-      id: `scatter-${idx}`,
-      label: item.label,
-      x: coords.x,
-      y: coords.y,
-      sPct: Math.round(s * 100),
-      aPct: Math.round(a * 100),
-      dPct: Math.round(d * 100),
-      color,
-    }
-  })
-}
-
 export default function TernaryPortatoPad({
   portato = {},
-  rawRecord = {},
-  variant = 'compact', // 'compact' per Hero, 'full' per Stanza Grafici / Sezione
+  variant = 'compact', // 'compact' per card, 'full' per Stanza Grafici / Sezione
   className = '',
 }) {
-  const [activePoint, setActivePoint] = useState(null)
-
   const viewData = useMemo(() => buildPortatoViewData(portato), [portato])
 
   const { dimSimpatia, dimAntipatia, dimIndifferenza } = useMemo(() => {
@@ -160,15 +47,6 @@ export default function TernaryPortatoPad({
   const meanPoint = useMemo(() => {
     return toTernaryCartesian(dimSimpatia.share, dimAntipatia.share, dimIndifferenza.share)
   }, [dimSimpatia.share, dimAntipatia.share, dimIndifferenza.share])
-
-  // Costellazione dei singoli punteggi
-  const scatterPoints = useMemo(() => {
-    return extractTernaryScatterPoints(rawRecord, {
-      s: dimSimpatia.share,
-      a: dimAntipatia.share,
-      d: dimIndifferenza.share,
-    })
-  }, [rawRecord, dimSimpatia.share, dimAntipatia.share, dimIndifferenza.share])
 
   return (
     <div className={`ternary-portato-wrap ternary-portato-wrap--${variant} ${className}`}>
@@ -253,38 +131,12 @@ export default function TernaryPortatoPad({
         <line x1="71.0" y1="49.6" x2="73.5" y2="48" stroke="#818cf8" strokeWidth="0.8" />
         <line x1="81.5" y1="67.8" x2="84" y2="66" stroke="#818cf8" strokeWidth="0.8" />
 
-        {/* Lato Base (Distonia -> Distanza) */}
-        <line x1="29" y1="86" x2="29" y2="88.5" stroke="#34d399" strokeWidth="0.8" />
-        <line x1="50" y1="86" x2="50" y2="88.5" stroke="#34d399" strokeWidth="0.8" />
-        <line x1="71" y1="86" x2="71" y2="88.5" stroke="#34d399" strokeWidth="0.8" />
+        {/* Base (Distonia <-> Distanza) */}
+        <line x1="29.0" y1="86" x2="29.0" y2="88.5" stroke="rgba(255, 255, 255, 0.3)" strokeWidth="0.8" />
+        <line x1="50.0" y1="86" x2="50.0" y2="89.5" stroke="rgba(255, 255, 255, 0.45)" strokeWidth="0.8" />
+        <line x1="71.0" y1="86" x2="71.0" y2="88.5" stroke="rgba(255, 255, 255, 0.3)" strokeWidth="0.8" />
 
-        {/* ── I Singoli Punteggi ("ogni punteggio è un puntino colorato") ── */}
-        <g className="ternary-scatter-layer">
-          {scatterPoints.map((pt) => {
-            const isHovered = activePoint?.id === pt.id
-            return (
-              <g
-                key={pt.id}
-                className="ternary-scatter-item"
-                onMouseEnter={() => setActivePoint(pt)}
-                onMouseLeave={() => setActivePoint(null)}
-              >
-                <circle
-                  cx={pt.x}
-                  cy={pt.y}
-                  r={isHovered ? 4.2 : 2.5}
-                  fill={pt.color}
-                  stroke="#ffffff"
-                  strokeWidth={isHovered ? 1.2 : 0.6}
-                  opacity={isHovered ? 1 : 0.78}
-                  className="ternary-scatter-dot"
-                />
-              </g>
-            )
-          })}
-        </g>
-
-        {/* ── La Media dell'Ascolto ("la media come ora") ── */}
+        {/* ── La Media dell'Ascolto (Il punto baricentrico reale) ── */}
         <g className="ternary-mean-group">
           {/* Proiezioni tratteggiate verso i tre assi */}
           <line
@@ -365,21 +217,6 @@ export default function TernaryPortatoPad({
           </text>
         </g>
       </svg>
-
-      {/* Popover/Tooltip fluido se l'utente passa sopra a un punto */}
-      {activePoint ? (
-        <div className="ternary-point-tooltip">
-          <strong>{activePoint.label}</strong>
-          <span>
-            {activePoint.sPct}% Sintonia · {activePoint.aPct}% Distonia · {activePoint.dPct}% Distanza
-          </span>
-        </div>
-      ) : (
-        <div className="ternary-point-hint">
-          <span className="ternary-point-hint-dot" />
-          <span>Puntini: momenti e ambiti d'ascolto · Punto luminoso: media complessiva</span>
-        </div>
-      )}
     </div>
   )
 }
