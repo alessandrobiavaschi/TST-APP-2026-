@@ -1900,3 +1900,239 @@
   outline: 2px solid #cbd5e1 !important;
   outline-offset: 2px !important;
 }
+
+/* =====================================================================
+   SINTESI CHARTS SLIDES CONTAINER — Acoustic Glass Carousel
+   ===================================================================== */
+
+.sintesi-charts-slides-container {
+  width: 100%;
+  max-width: 1080px;
+  margin: 1.5rem auto 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Navigatore Tabs in alto */
+.sintesi-charts-tabs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  padding: 0.35rem;
+  background: rgba(13, 17, 26, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  width: fit-content;
+  margin: 0 auto;
+}
+
+.sintesi-charts-tab-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: rgba(248, 250, 252, 0.7);
+  font-family: var(--font-body, 'Manrope', sans-serif);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.sintesi-charts-tab-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.sintesi-charts-tab-btn.is-active {
+  background: color-mix(in srgb, var(--sc-accent, #38bdf8) 22%, rgba(255, 255, 255, 0.12));
+  border-color: color-mix(in srgb, var(--sc-accent, #38bdf8) 60%, rgba(255, 255, 255, 0.3));
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+/* Stage della slide */
+.sintesi-chart-slide-stage {
+  position: relative;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.04) 0%, rgba(13, 17, 26, 0.55) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  padding: clamp(1.2rem, 2.5vw, 2rem);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-height: 520px;
+}
+
+/* Header della slide */
+.sintesi-chart-slide-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 1rem;
+}
+
+.sintesi-chart-slide-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.sintesi-chart-slide-badge {
+  font-family: var(--font-body, 'Manrope', sans-serif);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--sc-accent, #38bdf8);
+}
+
+.sintesi-chart-slide-title {
+  margin: 0;
+  font-family: var(--font-display, 'Newsreader', serif);
+  font-size: clamp(1.3rem, 2vw, 1.7rem);
+  font-weight: 500;
+  color: #ffffff;
+  line-height: 1.25;
+}
+
+.sintesi-chart-slide-subtitle {
+  margin: 0;
+  font-size: 0.88rem;
+  color: rgba(248, 250, 252, 0.65);
+  line-height: 1.4;
+  max-width: 680px;
+}
+
+.sintesi-chart-slide-arrows {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.sintesi-chart-arrow-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  font-size: 1.4rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sintesi-chart-arrow-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.35);
+  transform: translateY(-1px);
+}
+
+.sintesi-chart-arrow-btn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+/* Contenuto della slide */
+.sintesi-chart-slide-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.sintesi-slide-presenza-wrap {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: 2rem;
+  align-items: center;
+}
+
+@media (max-width: 900px) {
+  .sintesi-slide-presenza-wrap {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+.sintesi-slide-single-chart {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Footer slide con dot */
+.sintesi-chart-slide-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 0.85rem;
+}
+
+.sintesi-chart-nav-text-btn {
+  background: transparent;
+  border: none;
+  color: rgba(248, 250, 252, 0.7);
+  font-family: var(--font-body, 'Manrope', sans-serif);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.sintesi-chart-nav-text-btn:hover:not(:disabled) {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.sintesi-chart-nav-text-btn:disabled {
+  opacity: 0.2;
+  cursor: not-allowed;
+}
+
+.sintesi-chart-slide-dots {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sintesi-chart-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.sintesi-chart-dot.is-active {
+  background: var(--sc-accent, #38bdf8);
+  width: 22px;
+  border-radius: 999px;
+  box-shadow: 0 0 8px var(--sc-accent, #38bdf8);
+}
+

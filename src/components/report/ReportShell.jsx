@@ -608,22 +608,6 @@ export default function ReportShell({
                       rawRecord={rawRecord}
                     />
                   </Suspense>
-
-                  {/* Trigger per aprire Stanza dei Grafici a Schermo Intero */}
-                  <div className="report-grafici-viewer-trigger-wrap">
-                    <button
-                      type="button"
-                      className="report-grafici-viewer-trigger-btn"
-                      onClick={(event) => openModalita('grafici', event)}
-                    >
-                      <span className="report-grafici-viewer-trigger-icon" aria-hidden="true">📊</span>
-                      <span className="report-grafici-viewer-trigger-text">
-                        <strong>Esplora i Grafici del Profilo</strong>
-                        <small>Visore immersivo: Famiglie, Correnti e Portato</small>
-                      </span>
-                      <span className="report-grafici-viewer-trigger-arrow" aria-hidden="true">→</span>
-                    </button>
-                  </div>
                 </RoomRevealContent>
               </section>
 

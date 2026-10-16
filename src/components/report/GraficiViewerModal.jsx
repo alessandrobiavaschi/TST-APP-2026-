@@ -12,9 +12,10 @@ import {
 import { colors, radarFamiglie } from '../../design-tokens.ts'
 import { buildPortatoViewData } from '../../utils/portatoPadViewData.js'
 import TernaryPortatoPad from './TernaryPortatoPad.jsx'
-import './GraficiViewerModal.css'
+import './GraficiViewerModal.css';
+import CirclePacking from './CirclePacking.jsx';
 
-const SLIDES_COUNT = 4
+const SLIDES_COUNT = 5
 
 export default function GraficiViewerModal({
   isOpen = false,
@@ -72,6 +73,7 @@ export default function GraficiViewerModal({
 
   // ── Slide 2: Le 11 Correnti Emotive ──
   const correntiData = useMemo(() => {
+
     const list =
       Array.isArray(sottocorrenti) && sottocorrenti.length > 0
         ? sottocorrenti
@@ -105,7 +107,8 @@ export default function GraficiViewerModal({
         isDominant,
       }
     })
-  }, [correnti, sottocorrenti, profilo])
+  }, [correnti, sottocorrenti, profilo]);
+
 
   // ── Slide 3: I Quattro Rapporti ──
   const rapportiOverviewData = useMemo(() => {

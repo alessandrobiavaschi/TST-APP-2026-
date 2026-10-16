@@ -111,22 +111,7 @@ export default function FamiglieDonut({ data = [], activeFamilyKey = null, onFam
           )}
         </div>
 
-        <ul className="famiglie-donut__legend">
-          {slices.map((s) => (
-            <li
-              key={s.key}
-              className={s.key === activeFamilyKey ? 'is-active' : ''}
-              onMouseEnter={() => onFamilyHover?.(s.key)}
-              onMouseLeave={() => onFamilyHover?.(null)}
-            >
-              <button type="button" onClick={() => onFamilySelect?.(s.key)}>
-                <span className="famiglie-donut__dot" style={{ background: s.color }} aria-hidden="true" />
-                <span className="famiglie-donut__name">{s.name}</span>
-                <span className="famiglie-donut__value">{fmt(s.value)}</span>
-              </button>
-            </li>
-          ))}
-        </ul>
+        
       </div>
     </figure>
   )
