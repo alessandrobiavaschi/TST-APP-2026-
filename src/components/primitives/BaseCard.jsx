@@ -11,6 +11,8 @@ export default function BaseCard({ children, as = 'section', style, ...props }) 
         border: `1px solid ${colors.border}`,
         borderRadius: radius.base,
         boxShadow: shadows.base,
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
         padding: spacing.md,
         color: colors.text,
         ...style,

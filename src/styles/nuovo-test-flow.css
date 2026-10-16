@@ -75,88 +75,104 @@
   color: rgba(248, 250, 252, 0.9);
 }
 
-/* ── Intro Serenis (sfondo chiaro — contrasto scuro) ───────────────── */
+/* ── Intro (allineata a Acoustic Glass) ────────────────────────── */
 .nuovo-test-flow .serenis-layout {
-  color: #0f172a;
-  background: #f9fafb;
+  color: var(--tst-color-text-primary);
+  background: transparent;
 }
 
 .nuovo-test-flow .serenis-layout .nuovo-test-hero {
-  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-  color: #0f172a;
+  background: var(--tst-color-bg-surface);
+  border: 1px solid var(--tst-color-border-subtle);
+  border-radius: var(--tst-radius-lg);
+  backdrop-filter: var(--tst-blur-md);
+  -webkit-backdrop-filter: var(--tst-blur-md);
+  box-shadow: var(--tst-shadow-md);
+  color: var(--tst-color-text-primary);
 }
 
 .nuovo-test-flow .serenis-layout .nuovo-test-hero-kicker {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-family: var(--tst-font-mono);
+  font-size: var(--tst-text-caption);
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #475569;
+  color: var(--tst-color-accent-system);
 }
 
 .nuovo-test-flow .serenis-layout .nuovo-test-hero-title {
-  font-family: var(--font-body);
-  font-size: clamp(1.75rem, 4vw, 2.35rem);
-  font-weight: 700;
+  font-family: var(--tst-font-display);
+  font-size: var(--tst-text-hero);
+  font-weight: 600;
   line-height: 1.15;
-  color: #0f172a;
-  letter-spacing: -0.025em;
+  color: var(--tst-color-text-primary);
+  letter-spacing: -0.02em;
 }
 
 .nuovo-test-flow .serenis-layout .nuovo-test-hero-subtitle {
-  font-size: 1.125rem;
+  font-size: var(--tst-text-body-lg);
   line-height: 1.65;
-  color: #334155;
+  color: var(--tst-color-text-secondary);
   max-width: 38rem;
 }
 
 .nuovo-test-flow .serenis-layout .nuovo-test-hero-chip {
-  font-family: var(--font-body);
-  font-size: 0.875rem;
+  font-family: var(--tst-font-body);
+  font-size: var(--tst-text-body-sm);
   letter-spacing: normal;
   text-transform: none;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
-  color: #475569;
-  border-radius: 999px;
+  border: 1px solid var(--tst-color-border-subtle);
+  background: var(--tst-color-bg-surface-subtle);
+  color: var(--tst-color-text-secondary);
+  border-radius: var(--tst-radius-pill);
 }
 
 .nuovo-test-flow .serenis-layout .btn-secondary {
-  color: #334155;
-  border-color: #cbd5e1;
-  background: #fff;
+  color: var(--tst-color-text-primary);
+  border-color: var(--tst-color-border-default);
+  background: var(--tst-color-bg-surface);
 }
 
-/* ── Profilazione (card chiara su cielo) ───────────────────────────── */
+/* ── Profilazione (card su cielo) ───────────────────────────── */
 .nuovo-test-flow #profilazione-utente.page-card {
-  color: #0f172a;
-  background: rgba(255, 255, 255, 0.97);
-  border: 1px solid rgba(148, 163, 184, 0.35);
+  color: var(--tst-color-text-primary);
+  background: var(--tst-color-bg-surface);
+  border: 1px solid var(--tst-color-border-subtle);
   border-radius: var(--tst-radius-lg);
-  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.12);
+  backdrop-filter: var(--tst-blur-md);
+  -webkit-backdrop-filter: var(--tst-blur-md);
+  box-shadow: var(--tst-shadow-md);
 }
 
 .nuovo-test-flow #profilazione-utente .profilazione-title {
-  color: #0f172a;
-  font-weight: 700;
+  color: var(--tst-color-text-primary);
+  font-family: var(--tst-font-display);
+  font-weight: 600;
 }
 
 .nuovo-test-flow #profilazione-utente .profilazione-field span,
 .nuovo-test-flow #profilazione-utente .profilazione-option span {
-  color: #334155;
+  color: var(--tst-color-text-secondary);
   font-weight: 500;
 }
 
 .nuovo-test-flow #profilazione-utente .profilazione-field input,
 .nuovo-test-flow #profilazione-utente .profilazione-field select {
-  background: #fff;
-  border: 1px solid #cbd5e1;
-  color: #0f172a;
-  border-radius: var(--tst-radius-sm);
+  background: var(--tst-color-bg-surface-subtle);
+  border: 1px solid var(--tst-color-border-default);
+  color: var(--tst-color-text-primary);
+  border-radius: var(--tst-radius-md);
+  padding: 0.65rem var(--tst-space-md);
+}
+
+.nuovo-test-flow #profilazione-utente .profilazione-field input:focus,
+.nuovo-test-flow #profilazione-utente .profilazione-field select:focus {
+  border-color: var(--tst-color-border-focus);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+  outline: none;
 }
 
 .nuovo-test-flow #profilazione-utente .profilazione-field input::placeholder {
-  color: #94a3b8;
+  color: var(--tst-color-text-ghost);
 }
 
 /* ── Sessione test attiva: card chiara, player integrato ──────────── */

@@ -4347,13 +4347,14 @@ body {
 
 .page-card,
 .info-card {
-  border-radius: var(--radius-card);
-  padding: 2.25rem 2.1rem;
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: var(--shadow-soft);
-  border: 1px solid var(--color-border-soft);
-  backdrop-filter: blur(18px) saturate(1.02);
-  -webkit-backdrop-filter: blur(18px) saturate(1.02);
+  border-radius: var(--tst-radius-lg);
+  padding: var(--tst-space-xl) var(--tst-space-lg);
+  background: var(--tst-color-bg-surface);
+  box-shadow: var(--tst-shadow-md);
+  border: 1px solid var(--tst-color-border-subtle);
+  backdrop-filter: var(--tst-blur-md);
+  -webkit-backdrop-filter: var(--tst-blur-md);
+  color: var(--tst-color-text-primary);
 }
 
 .info-card--stacked {
@@ -16939,25 +16940,31 @@ body {
 .auth-box,
 .home-welcome,
 .landing-flow-access .auth-box {
-  background: rgba(255, 255, 255, 0.94);
-  border: 1px solid rgba(223, 218, 246, 0.95);
-  box-shadow: var(--shadow-soft);
-  border-radius: 1.125rem;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: var(--tst-color-bg-surface);
+  border: 1px solid var(--tst-color-border-subtle);
+  box-shadow: var(--tst-shadow-md);
+  border-radius: var(--tst-radius-lg);
+  backdrop-filter: var(--tst-blur-md);
+  -webkit-backdrop-filter: var(--tst-blur-md);
+  color: var(--tst-color-text-primary);
+  transition: border-color var(--tst-transition-fast), box-shadow var(--tst-transition-fast);
 }
 
 .page-card:hover,
-.info-card:hover {
-  box-shadow: 0 20px 44px rgba(28, 28, 54, 0.12);
+.info-card:hover,
+.results-main-card:hover {
+  border-color: var(--tst-color-border-strong);
+  box-shadow: var(--tst-shadow-lg);
 }
 
 .nav-button.secondary,
 .btn-secondary,
 .btn.btn-secondary {
-  border: 1px solid var(--color-border-soft);
-  color: var(--color-text);
-  background: #ffffff;
+  border: 1px solid var(--tst-color-border-default);
+  color: var(--tst-color-text-primary);
+  background: var(--tst-color-bg-surface);
+  backdrop-filter: var(--tst-blur-sm);
+  -webkit-backdrop-filter: var(--tst-blur-sm);
 }
 
 .nav-button.secondary:hover:not(:disabled),
