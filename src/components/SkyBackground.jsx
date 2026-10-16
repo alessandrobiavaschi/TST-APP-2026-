@@ -6,9 +6,8 @@ import { getSkyVideo } from '../skyVideosConfig.js'
 
 const DEFAULT_CROSSFADE_DURATION_MS = 2400
 const LANDING_CROSSFADE_DURATION_MS = 1600
-// 0.32x rallenta ulteriormente il movimento delle nuvole rispetto a 0.5x,
-// mantenendo comunque una cadenza percepita fluida sui sorgenti a 25/30 fps.
-const PLAYBACK_RATE = 0.32
+// 0.5x garantisce cadenza percepita fluida sui sorgenti a 25/30 fps.
+const PLAYBACK_RATE = 0.5
 const CROSSFADE_EASING = 'cubic-bezier(0.4, 0, 0.2, 1)'
 const VIDEO_VISIBLE_OPACITY = 0.9
 
@@ -75,19 +74,22 @@ function SkyBackground() {
   const configA = slotA.key ? getSkyVideo(...slotA.key.split('__')) : null
   const configB = slotB.key ? getSkyVideo(...slotB.key.split('__')) : null
 
+  const isImageA = Boolean(configA?.imageUrl)
+  const isImageB = Boolean(configB?.imageUrl)
+
   useSyncVideoToCanvas({
     videoRef: videoRefA,
     canvasRef: canvasRefA,
     containerRef,
     objectPosition: skyObjectPosition,
-    enabled: !shouldUseStaticBackground && Boolean(configA),
+    enabled: !shouldUseStaticBackground && Boolean(configA) && !isImageA,
   })
   useSyncVideoToCanvas({
     videoRef: videoRefB,
     canvasRef: canvasRefB,
     containerRef,
     objectPosition: skyObjectPosition,
-    enabled: !shouldUseStaticBackground && Boolean(configB),
+    enabled: !shouldUseStaticBackground && Boolean(configB) && !isImageB,
   })
 
   useEffect(() => {
@@ -188,6 +190,14 @@ function SkyBackground() {
   const opacityB = isActiveA ? 0 : VIDEO_VISIBLE_OPACITY
   const anyReady = slotAReady || slotBReady
   const showFallback = !anyReady
+  const styleLayerA = {
+    opacity: configA ? opacityA : 0,
+    transition: `opacity ${crossfadeDurationMs}ms ${CROSSFADE_EASING}`,
+  }
+  const styleLayerB = {
+    opacity: configB ? opacityB : 0,
+    transition: `opacity ${crossfadeDurationMs}ms ${CROSSFADE_EASING}`,
+  }
 
   return (
     <div ref={containerRef} className="app-sky-background" aria-hidden="true">
@@ -201,72 +211,94 @@ function SkyBackground() {
       />
 
       {configA && (
-        <video
-          ref={videoRefA}
-          key={`a:${slotA.key}`}
-          className="app-sky-video-source"
-          src={configA.src}
-          autoPlay
-          loop
-          muted
-          playsInline
-          controls={false}
-          preload="auto"
-          disablePictureInPicture
-          disableRemotePlayback
-          onLoadedData={() => {
-            ensureVideoPlaying(videoRefA.current, configA?.playbackRate)
-            handleReady('a')
-          }}
-          onCanPlay={() => handleReady('a')}
-          onPlaying={() => handleReady('a')}
-          onEmptied={() => handleReset('a')}
-          onError={() => handleReset('a')}
-        />
-      )}
-      {configB && (
-        <video
-          ref={videoRefB}
-          key={`b:${slotB.key}`}
-          className="app-sky-video-source"
-          src={configB.src}
-          autoPlay
-          loop
-          muted
-          playsInline
-          controls={false}
-          preload="auto"
-          disablePictureInPicture
-          disableRemotePlayback
-          onLoadedData={() => {
-            ensureVideoPlaying(videoRefB.current, configB?.playbackRate)
-            handleReady('b')
-          }}
-          onCanPlay={() => handleReady('b')}
-          onPlaying={() => handleReady('b')}
-          onEmptied={() => handleReset('b')}
-          onError={() => handleReset('b')}
-        />
+        isImageA ? (
+          <img
+            key={`img-a:${slotA.key}`}
+            className="app-sky-photo app-sky-photo--slot-a"
+            src={configA.imageUrl}
+            alt=""
+            onLoad={() => handleReady('a')}
+            onError={() => handleReset('a')}
+            style={styleLayerA}
+          />
+        ) : (
+          <>
+            <video
+              ref={videoRefA}
+              key={`a:${slotA.key}`}
+              className="app-sky-video-source"
+              src={configA.src}
+              autoPlay
+              loop
+              muted
+              playsInline
+              controls={false}
+              preload="auto"
+              disablePictureInPicture
+              disableRemotePlayback
+              onLoadedData={() => {
+                ensureVideoPlaying(videoRefA.current, configA?.playbackRate)
+                handleReady('a')
+              }}
+              onCanPlay={() => handleReady('a')}
+              onPlaying={() => handleReady('a')}
+              onEmptied={() => handleReset('a')}
+              onError={() => handleReset('a')}
+            />
+            <canvas
+              ref={canvasRefA}
+              className="app-sky-canvas app-sky-canvas--a"
+              aria-hidden="true"
+              style={styleLayerA}
+            />
+          </>
+        )
       )}
 
-      <canvas
-        ref={canvasRefA}
-        className="app-sky-canvas app-sky-canvas--a"
-        aria-hidden="true"
-        style={{
-          opacity: configA ? opacityA : 0,
-          transition: `opacity ${crossfadeDurationMs}ms ${CROSSFADE_EASING}`,
-        }}
-      />
-      <canvas
-        ref={canvasRefB}
-        className="app-sky-canvas app-sky-canvas--b"
-        aria-hidden="true"
-        style={{
-          opacity: configB ? opacityB : 0,
-          transition: `opacity ${crossfadeDurationMs}ms ${CROSSFADE_EASING}`,
-        }}
-      />
+      {configB && (
+        isImageB ? (
+          <img
+            key={`img-b:${slotB.key}`}
+            className="app-sky-photo app-sky-photo--slot-b"
+            src={configB.imageUrl}
+            alt=""
+            onLoad={() => handleReady('b')}
+            onError={() => handleReset('b')}
+            style={styleLayerB}
+          />
+        ) : (
+          <>
+            <video
+              ref={videoRefB}
+              key={`b:${slotB.key}`}
+              className="app-sky-video-source"
+              src={configB.src}
+              autoPlay
+              loop
+              muted
+              playsInline
+              controls={false}
+              preload="auto"
+              disablePictureInPicture
+              disableRemotePlayback
+              onLoadedData={() => {
+                ensureVideoPlaying(videoRefB.current, configB?.playbackRate)
+                handleReady('b')
+              }}
+              onCanPlay={() => handleReady('b')}
+              onPlaying={() => handleReady('b')}
+              onEmptied={() => handleReset('b')}
+              onError={() => handleReset('b')}
+            />
+            <canvas
+              ref={canvasRefB}
+              className="app-sky-canvas app-sky-canvas--b"
+              aria-hidden="true"
+              style={styleLayerB}
+            />
+          </>
+        )
+      )}
 
       <div className="app-sky-overlay-polaroid" />
       <div className="app-sky-grain" />

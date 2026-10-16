@@ -1817,6 +1817,49 @@ body {
   -webkit-user-drag: none;
 }
 
+.app-sky-photo {
+  position: absolute;
+  inset: -5%;
+  width: 110%;
+  height: 110%;
+  object-fit: cover;
+  object-position: 50% 42%;
+  filter: saturate(1.04) brightness(1.02);
+  will-change: transform, opacity;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  animation: tstKenBurnsA 48s ease-in-out infinite alternate;
+}
+
+.app-sky-photo--slot-b {
+  animation: tstKenBurnsB 54s ease-in-out infinite alternate;
+}
+
+@keyframes tstKenBurnsA {
+  0% {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  50% {
+    transform: scale(1.06) translate3d(-1.5%, -1%, 0);
+  }
+  100% {
+    transform: scale(1.02) translate3d(1%, -0.5%, 0);
+  }
+}
+
+@keyframes tstKenBurnsB {
+  0% {
+    transform: scale(1.03) translate3d(1%, 0, 0);
+  }
+  50% {
+    transform: scale(1) translate3d(-1%, -1.2%, 0);
+  }
+  100% {
+    transform: scale(1.05) translate3d(-0.5%, 0.8%, 0);
+  }
+}
+
 /* Decodifica fuori schermo: nessun overlay play/pausa del sistema sul layer visibile */
 .app-sky-video-source {
   position: absolute;
@@ -13883,6 +13926,37 @@ body {
 
 .vb0311-video--ready {
   opacity: 1;
+}
+
+.vb0311-photo {
+  position: absolute;
+  inset: -5%;
+  width: 110%;
+  height: 110%;
+  object-fit: cover;
+  object-position: 50% 40%;
+  opacity: 0;
+  transition: opacity 900ms ease-out;
+  animation: tstKenBurnsLanding 48s ease-in-out infinite alternate;
+  will-change: transform, opacity;
+  pointer-events: none;
+  user-select: none;
+}
+
+.vb0311-photo--ready {
+  opacity: 1;
+}
+
+@keyframes tstKenBurnsLanding {
+  0% {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  50% {
+    transform: scale(1.05) translate3d(-1.2%, -0.8%, 0);
+  }
+  100% {
+    transform: scale(1.02) translate3d(0.8%, -0.4%, 0);
+  }
 }
 
 .page-video-bg__video--visible {

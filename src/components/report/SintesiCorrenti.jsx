@@ -16,6 +16,7 @@ import MobileChartsViewer from './MobileChartsViewer.jsx'
 import { buildProgressiveContentViewModel } from '../../utils/buildProgressiveContentViewModel.js'
 import { NATURE as NATURE_TST } from '../../config/tstSistema.js'
 import { getTestoNatura } from '../../content/testiFissiTemperamenti.js'
+import { naturePdfDiFamiglia } from '../../utils/naturePdf.js'
 import { colors } from '../../design-tokens'
 import './SintesiCorrenti.css'
 
