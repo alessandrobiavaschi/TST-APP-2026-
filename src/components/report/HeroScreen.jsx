@@ -8,8 +8,6 @@ import {
   getDominantColorInfo,
 } from '../../utils/reportRecordUtils.js'
 import { FAMILY_NAME_BY_KEY, FAMILY_THEME } from '../../config/reportFamilyTheme.js'
-import { buildPortatoViewData } from '../../utils/portatoPadViewData.js'
-import TernaryPortatoPad from './TernaryPortatoPad.jsx'
 
 // Il setup ESLint del progetto non riconosce l'uso di `motion.X` nel JSX come
 // riferimento alla variabile (stessa convenzione di HeroSummary.jsx).
@@ -95,10 +93,10 @@ export default function HeroScreen({
   onDownload,
   onNavigateArchive,
   testDate,
-  heroVariant = 'bussola',
 }) {
   void disposizione
   void correnti
+  void portato
   const reduceMotion = useReducedMotion()
 
   const colorKey = useMemo(() => {
@@ -155,47 +153,6 @@ export default function HeroScreen({
   const formattedTestDate = formatDateShort(testDate)
   const finalFraseChiave = fraseChiave || familyThemeObj?.tagline || ''
 
-  // Calcolo dinamico del Portato Esperienziale per l'Head
-  const portatoView = useMemo(() => buildPortatoViewData(portato), [portato])
-
-  const { dimSimpatia, dimAntipatia, dimIndifferenza, posturaInfo } = useMemo(() => {
-    const simpatia =
-      portatoView.dimensions.find((d) => d.key === 'Simpatia') || { percentage: 0, value: 0, share: 0 }
-    const antipatia =
-      portatoView.dimensions.find((d) => d.key === 'Antipatia') || { percentage: 0, value: 0, share: 0 }
-    const indifferenza =
-      portatoView.dimensions.find((d) => d.key === 'Indifferenza') || { percentage: 0, value: 0, share: 0 }
-
-    const s = simpatia.share || 0
-    const a = antipatia.share || 0
-    const i = indifferenza.share || 0
-
-    let postura
-    if (s >= a && s >= i) {
-      postura = {
-        label: 'Sintonia ed Empatia',
-        sub: 'Risonanza aperta e accogliente verso gli stimoli sonori',
-      }
-    } else if (a >= s && a >= i) {
-      postura = {
-        label: 'Attenzione Critica e Distonia',
-        sub: 'Risonanza selettiva e vigile verso gli stimoli sonori',
-      }
-    } else {
-      postura = {
-        label: 'Distacco e Neutralità',
-        sub: 'Ascolto riflessivo e sospensione del coinvolgimento emotivo',
-      }
-    }
-
-    return {
-      dimSimpatia: simpatia,
-      dimAntipatia: antipatia,
-      dimIndifferenza: indifferenza,
-      posturaInfo: postura,
-    }
-  }, [portatoView])
-
   // Pareggio esatto o quasi pareggio
   const isExactTie = heroResult?.band === 'exact_tie' && Boolean(heroResult?.secondary)
   const secondaryFamilyText = heroResult?.secondary ? toTitleCase(heroResult.secondary.famiglia) : ''
@@ -235,11 +192,7 @@ export default function HeroScreen({
       </div>
 
       <div className="report-tst-hero__content hero-screen__content flex w-full flex-col items-center justify-center px-6 py-10 z-10">
-        <div
-          className={`report-tst-hero__inner report-tst-hero__identity flex w-full max-w-4xl flex-col items-center ${
-            heroVariant === 'dittico' ? 'hero-screen__inner--dittico' : ''
-          }`}
-        >
+        <div className="report-tst-hero__inner report-tst-hero__identity flex w-full max-w-4xl flex-col items-center">
           {/* Metadata dell'ascoltatore */}
           {(userName || formattedTestDate) && (
             <motion.p {...fade(0.1, 12)} className="hero-screen__metadata">
@@ -249,216 +202,58 @@ export default function HeroScreen({
             </motion.p>
           )}
 
-          {/* LAYOUT VARIANTE 2: DITTICO ASIMMETRICO */}
-          {heroVariant === 'dittico' ? (
-            <div className="hero-screen__dittico-grid">
-              <div className="hero-screen__dittico-left">
-                <motion.h1 {...fade(0.2, 20)} className="hero-screen__sintesi-title">
-                  <span className="hero-screen__sintesi-bridge">
-                    {isExactTie
-                      ? 'Il tuo profilo emerge con pari intensità tra'
-                      : 'La tua famiglia emotiva prevalente è'}
-                  </span>
-                  <strong className="hero-screen__sintesi-family">
-                    {isExactTie ? `${familyText} e ${secondaryFamilyText}` : familyText}
-                  </strong>
-                </motion.h1>
+          <motion.h1
+            {...fade(0.2, 24)}
+            className="hero-screen__sintesi-title"
+            style={{
+              maxWidth: 'min(1040px, 92vw)',
+              color: '#ffffff',
+              margin: 0,
+              textAlign: 'center',
+              textShadow: '0 2px 24px rgba(0, 0, 0, 0.75)',
+            }}
+          >
+            <span className="hero-screen__sintesi-bridge">
+              {isExactTie
+                ? 'Il tuo profilo emerge con pari intensità tra'
+                : 'La tua famiglia emotiva prevalente è'}
+            </span>
+            <strong className="hero-screen__sintesi-family">
+              {isExactTie ? `${familyText} e ${secondaryFamilyText}` : familyText}
+            </strong>
+          </motion.h1>
 
-                {finalFraseChiave && (
-                  <motion.p {...fade(0.28, 14)} className="hero-screen__frase-chiave">
-                    «{finalFraseChiave}»
-                  </motion.p>
-                )}
-
-                <motion.div {...fade(0.42, 8)} className="hero-screen__cta-container">
-                  <button
-                    type="button"
-                    className="hero-screen__cta-primary hero-screen-btn-primary"
-                    onClick={onReadReport}
-                  >
-                    Leggi il tuo report
-                  </button>
-                  <button
-                    type="button"
-                    className="hero-screen__cta-secondary hero-screen-btn-secondary"
-                    onClick={onDownload}
-                  >
-                    Scarica i dati
-                  </button>
-                  <button
-                    type="button"
-                    className="hero-screen__cta-tertiary"
-                    onClick={onNavigateArchive}
-                  >
-                    Torna ai risultati
-                  </button>
-                </motion.div>
-              </div>
-
-              {/* Colonna destra: Finestra d'ascolto Portato (Acoustic Glass Constellation) */}
-              {portatoView.hasData && (
-                <motion.div {...fade(0.32, 20)} className="hero-screen__dittico-right">
-                  <div className="hero-screen__dittico-card">
-                    <span className="hero-screen__dittico-card-kicker">La tua esperienza d'ascolto</span>
-                    <h3 className="hero-screen__dittico-card-title">{posturaInfo.label}</h3>
-
-                    <TernaryPortatoPad portato={portato} rawRecord={rawRecord} variant="compact" />
-
-                    {/* Minimal organic metric indicators */}
-                    <div className="hero-screen__portato-fluid-metrics">
-                      <div className="hero-screen__portato-fluid-col">
-                        <div className="hero-screen__portato-fluid-head">
-                          <span className="hero-screen__portato-fluid-left">
-                            <span className="hero-screen__portato-fluid-dot" style={{ backgroundColor: '#4ade80', boxShadow: '0 0 6px rgba(74, 222, 128, 0.6)' }} />
-                            <span className="hero-screen__portato-fluid-label">Sintonia</span>
-                          </span>
-                          <span className="hero-screen__portato-fluid-pct">{dimSimpatia.percentage}%</span>
-                        </div>
-                        <div className="hero-screen__portato-fluid-bar">
-                          <div
-                            className="hero-screen__portato-fluid-fill"
-                            style={{
-                              width: `${Math.max(4, dimSimpatia.percentage)}%`,
-                              backgroundColor: '#4ade80',
-                              boxShadow: '0 0 8px rgba(74, 222, 128, 0.35)',
-                            }}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="hero-screen__portato-fluid-col">
-                        <div className="hero-screen__portato-fluid-head">
-                          <span className="hero-screen__portato-fluid-left">
-                            <span className="hero-screen__portato-fluid-dot" style={{ backgroundColor: '#f87171', boxShadow: '0 0 6px rgba(248, 113, 113, 0.6)' }} />
-                            <span className="hero-screen__portato-fluid-label">Distonia</span>
-                          </span>
-                          <span className="hero-screen__portato-fluid-pct">{dimAntipatia.percentage}%</span>
-                        </div>
-                        <div className="hero-screen__portato-fluid-bar">
-                          <div
-                            className="hero-screen__portato-fluid-fill"
-                            style={{
-                              width: `${Math.max(4, dimAntipatia.percentage)}%`,
-                              backgroundColor: '#f87171',
-                              boxShadow: '0 0 8px rgba(248, 113, 113, 0.35)',
-                            }}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="hero-screen__portato-fluid-col">
-                        <div className="hero-screen__portato-fluid-head">
-                          <span className="hero-screen__portato-fluid-left">
-                            <span className="hero-screen__portato-fluid-dot" style={{ backgroundColor: '#94a3b8', boxShadow: '0 0 6px rgba(148, 163, 184, 0.6)' }} />
-                            <span className="hero-screen__portato-fluid-label">Distanza</span>
-                          </span>
-                          <span className="hero-screen__portato-fluid-pct">{dimIndifferenza.percentage}%</span>
-                        </div>
-                        <div className="hero-screen__portato-fluid-bar">
-                          <div
-                            className="hero-screen__portato-fluid-fill"
-                            style={{
-                              width: `${Math.max(4, dimIndifferenza.percentage)}%`,
-                              backgroundColor: '#94a3b8',
-                              boxShadow: '0 0 8px rgba(148, 163, 184, 0.35)',
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </div>
-          ) : (
-            /* LAYOUT VARIANTE 1 (DEFAULT): BUSSOLA DELLA RISONANZA CENTRATA */
-            <>
-              <motion.h1
-                {...fade(0.2, 24)}
-                className="hero-screen__sintesi-title"
-                style={{
-                  maxWidth: 'min(1040px, 92vw)',
-                  color: '#ffffff',
-                  margin: 0,
-                  textAlign: 'center',
-                  textShadow: '0 2px 24px rgba(0, 0, 0, 0.75)',
-                }}
-              >
-                <span className="hero-screen__sintesi-bridge">
-                  {isExactTie
-                    ? 'Il tuo profilo emerge con pari intensità tra'
-                    : 'La tua famiglia emotiva prevalente è'}
-                </span>
-                <strong className="hero-screen__sintesi-family">
-                  {isExactTie ? `${familyText} e ${secondaryFamilyText}` : familyText}
-                </strong>
-              </motion.h1>
-
-              {/* Frase Chiave */}
-              {finalFraseChiave && (
-                <motion.p {...fade(0.3, 16)} className="hero-screen__frase-chiave">
-                  «{finalFraseChiave}»
-                </motion.p>
-              )}
-
-              {/* Risonanza d'Ascolto (Portato) - Minimal, fluida e senza rettangoli */}
-              {portatoView.hasData && (
-                <motion.div {...fade(0.35, 12)} className="hero-screen__portato-line">
-                  <div
-                    className="hero-screen__portato-pill"
-                    title={`Bilancio d'ascolto: ${dimSimpatia.percentage}% Sintonia, ${dimAntipatia.percentage}% Distonia, ${dimIndifferenza.percentage}% Distanza`}
-                  >
-                    <span className="hero-screen__portato-metric" title="Sintonia: apertura e risonanza verso gli stimoli sonori">
-                      <span className="hero-screen__portato-dot" style={{ backgroundColor: '#4ade80', boxShadow: '0 0 8px rgba(74, 222, 128, 0.7)' }} />
-                      <span className="hero-screen__portato-name">Sintonia</span>
-                      <strong className="hero-screen__portato-val">{dimSimpatia.percentage}%</strong>
-                    </span>
-
-                    <span className="hero-screen__portato-sep" aria-hidden="true">·</span>
-
-                    <span className="hero-screen__portato-metric" title="Distonia: reattività o rifiuto verso gli stimoli sonori">
-                      <span className="hero-screen__portato-dot" style={{ backgroundColor: '#f87171', boxShadow: '0 0 8px rgba(248, 113, 113, 0.7)' }} />
-                      <span className="hero-screen__portato-name">Distonia</span>
-                      <strong className="hero-screen__portato-val">{dimAntipatia.percentage}%</strong>
-                    </span>
-
-                    <span className="hero-screen__portato-sep" aria-hidden="true">·</span>
-
-                    <span className="hero-screen__portato-metric" title="Distanza: neutralità o distacco verso gli stimoli sonori">
-                      <span className="hero-screen__portato-dot" style={{ backgroundColor: '#94a3b8', boxShadow: '0 0 8px rgba(148, 163, 184, 0.7)' }} />
-                      <span className="hero-screen__portato-name">Distanza</span>
-                      <strong className="hero-screen__portato-val">{dimIndifferenza.percentage}%</strong>
-                    </span>
-                  </div>
-                </motion.div>
-              )}
-
-              {/* CTAs */}
-              <motion.div {...fade(0.48, 8)} className="hero-screen__cta-container">
-                <button
-                  type="button"
-                  className="hero-screen__cta-primary hero-screen-btn-primary"
-                  onClick={onReadReport}
-                >
-                  Leggi il tuo report
-                </button>
-                <button
-                  type="button"
-                  className="hero-screen__cta-secondary hero-screen-btn-secondary"
-                  onClick={onDownload}
-                >
-                  Scarica i dati
-                </button>
-                <button
-                  type="button"
-                  className="hero-screen__cta-tertiary"
-                  onClick={onNavigateArchive}
-                >
-                  Torna ai risultati
-                </button>
-              </motion.div>
-            </>
+          {/* Frase Chiave */}
+          {finalFraseChiave && (
+            <motion.p {...fade(0.3, 16)} className="hero-screen__frase-chiave">
+              «{finalFraseChiave}»
+            </motion.p>
           )}
+
+          {/* CTAs */}
+          <motion.div {...fade(0.45, 8)} className="hero-screen__cta-container">
+            <button
+              type="button"
+              className="hero-screen__cta-primary hero-screen-btn-primary"
+              onClick={onReadReport}
+            >
+              Leggi il tuo report
+            </button>
+            <button
+              type="button"
+              className="hero-screen__cta-secondary hero-screen-btn-secondary"
+              onClick={onDownload}
+            >
+              Scarica i dati
+            </button>
+            <button
+              type="button"
+              className="hero-screen__cta-tertiary"
+              onClick={onNavigateArchive}
+            >
+              Torna ai risultati
+            </button>
+          </motion.div>
         </div>
       </div>
 
@@ -484,270 +279,6 @@ export default function HeroScreen({
           margin: 0.8rem 0 1.2rem;
           line-height: 1.45;
           text-shadow: 0 2px 16px rgba(0, 0, 0, 0.6);
-        }
-
-        .hero-screen__portato-line {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          margin: 0.2rem 0 1.5rem;
-        }
-
-        .hero-screen__portato-pill {
-          display: inline-flex;
-          align-items: center;
-          gap: clamp(0.6rem, 1.4vw, 1.1rem);
-          padding: 0.38rem 1.15rem;
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          border-radius: 999px;
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.28);
-          transition: all 0.25s ease;
-        }
-
-        .hero-screen__portato-pill:hover {
-          background: rgba(255, 255, 255, 0.08);
-          border-color: rgba(255, 255, 255, 0.24);
-          transform: translateY(-1px);
-        }
-
-        .hero-screen__portato-metric {
-          display: inline-flex;
-          align-items: center;
-          gap: 0.42rem;
-          font-family: var(--font-body, 'Manrope', sans-serif);
-          font-size: clamp(0.8rem, 1.05vw, 0.9rem);
-          color: rgba(248, 250, 252, 0.9);
-          cursor: default;
-        }
-
-        .hero-screen__portato-name {
-          color: rgba(248, 250, 252, 0.78);
-          font-weight: 500;
-        }
-
-        .hero-screen__portato-val {
-          color: #ffffff;
-          font-weight: 700;
-          font-family: var(--font-mono, 'JetBrains Mono', monospace);
-          font-size: 0.85rem;
-        }
-
-        .hero-screen__portato-dot {
-          width: 7px;
-          height: 7px;
-          border-radius: 50%;
-          display: inline-block;
-          flex-shrink: 0;
-        }
-
-        .hero-screen__portato-sep {
-          color: rgba(255, 255, 255, 0.25);
-          font-size: 0.95rem;
-          user-select: none;
-        }
-
-        /* ── Dittico styles ── */
-        .hero-screen__inner--dittico {
-          max-width: 1040px !important;
-        }
-
-        .hero-screen__dittico-grid {
-          display: grid;
-          grid-template-columns: 1.15fr 0.85fr;
-          gap: clamp(1.8rem, 3.5vw, 3.2rem);
-          align-items: center;
-          width: 100%;
-        }
-
-        .hero-screen__dittico-left {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-start;
-          text-align: left;
-        }
-
-        .hero-screen__dittico-left .hero-screen__sintesi-title {
-          text-align: left !important;
-        }
-
-        .hero-screen__dittico-left .hero-screen__frase-chiave {
-          text-align: left;
-          margin-left: 0;
-        }
-
-        .hero-screen__dittico-left .hero-screen__cta-container {
-          justify-content: flex-start;
-          margin-top: 1.5rem;
-        }
-
-        /* ── Acoustic Glass Floating Panel ── */
-        .hero-screen__dittico-card {
-          position: relative;
-          background: linear-gradient(145deg, rgba(255, 255, 255, 0.06) 0%, rgba(13, 17, 26, 0.40) 100%);
-          backdrop-filter: blur(24px);
-          -webkit-backdrop-filter: blur(24px);
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          border-radius: 24px;
-          padding: clamp(1.4rem, 2.2vw, 1.85rem);
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          text-align: center;
-          box-shadow:
-            inset 0 1px 0 rgba(255, 255, 255, 0.16),
-            0 24px 50px -12px rgba(0, 0, 0, 0.55),
-            0 0 40px -10px color-mix(in srgb, var(--corrente, #38bdf8) 24%, transparent);
-          transition: transform 0.3s ease, box-shadow 0.3s ease;
-          overflow: hidden;
-          width: 100%;
-          max-width: 380px;
-        }
-
-        .hero-screen__dittico-card::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 20%;
-          right: 20%;
-          height: 1px;
-          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
-          pointer-events: none;
-        }
-
-        .hero-screen__dittico-card:hover {
-          transform: translateY(-2px);
-          box-shadow:
-            inset 0 1px 0 rgba(255, 255, 255, 0.22),
-            0 28px 56px -12px rgba(0, 0, 0, 0.6),
-            0 0 50px -8px color-mix(in srgb, var(--corrente, #38bdf8) 32%, transparent);
-        }
-
-        .hero-screen__dittico-card-kicker {
-          font-family: var(--font-body, 'Manrope', sans-serif);
-          font-size: 0.72rem;
-          font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 0.1em;
-          color: color-mix(in srgb, var(--corrente-chiara, #38bdf8) 85%, #ffffff);
-          margin-bottom: 0.35rem;
-        }
-
-        .hero-screen__dittico-card-title {
-          font-family: var(--font-display, 'Newsreader', serif);
-          font-size: clamp(1.2rem, 1.8vw, 1.5rem);
-          font-weight: 500;
-          color: #ffffff;
-          margin: 0 0 0.75rem;
-          letter-spacing: -0.01em;
-          line-height: 1.25;
-        }
-
-        .hero-screen__dittico-card-sub {
-          font-family: var(--font-body, 'Manrope', sans-serif);
-          font-size: clamp(0.78rem, 1vw, 0.85rem);
-          color: rgba(248, 250, 252, 0.7);
-          margin: 0 0 1rem;
-          line-height: 1.4;
-          max-width: 320px;
-        }
-
-        .hero-screen__dittico-mini-pad {
-          width: 100%;
-          max-width: 210px;
-          height: 160px;
-          margin: 0.2rem 0 1.25rem;
-        }
-
-        .hero-screen__mini-pad-svg {
-          width: 100%;
-          height: 100%;
-          overflow: visible;
-        }
-
-        .hero-screen__portato-fluid-metrics {
-          width: 100%;
-          display: flex;
-          flex-direction: column;
-          gap: 0.65rem;
-        }
-
-        .hero-screen__portato-fluid-col {
-          display: flex;
-          flex-direction: column;
-          gap: 0.25rem;
-        }
-
-        .hero-screen__portato-fluid-head {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          font-size: 0.82rem;
-        }
-
-        .hero-screen__portato-fluid-left {
-          display: flex;
-          align-items: center;
-          gap: 0.45rem;
-        }
-
-        .hero-screen__portato-fluid-dot {
-          width: 6px;
-          height: 6px;
-          border-radius: 50%;
-          flex-shrink: 0;
-        }
-
-        .hero-screen__portato-fluid-label {
-          font-family: var(--font-body, 'Manrope', sans-serif);
-          font-weight: 500;
-          color: rgba(248, 250, 252, 0.78);
-        }
-
-        .hero-screen__portato-fluid-pct {
-          font-family: var(--font-mono, 'JetBrains Mono', monospace);
-          font-weight: 700;
-          color: #ffffff;
-          font-size: 0.85rem;
-        }
-
-        .hero-screen__portato-fluid-bar {
-          width: 100%;
-          height: 4px;
-          background: rgba(255, 255, 255, 0.08);
-          border-radius: 999px;
-          overflow: hidden;
-        }
-
-        .hero-screen__portato-fluid-fill {
-          height: 100%;
-          border-radius: 999px;
-          transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        @media (max-width: 860px) {
-          .hero-screen__dittico-grid {
-            grid-template-columns: 1fr;
-            gap: 1.8rem;
-          }
-          .hero-screen__dittico-left {
-            align-items: center;
-            text-align: center;
-          }
-          .hero-screen__dittico-left .hero-screen__sintesi-title {
-            text-align: center !important;
-          }
-          .hero-screen__dittico-left .hero-screen__frase-chiave {
-            text-align: center;
-          }
-          .hero-screen__dittico-left .hero-screen__cta-container {
-            justify-content: center;
-          }
-          .hero-screen__dittico-card {
-            margin: 0 auto;
-          }
         }
 
         .hero-screen__cta-container {

@@ -100,11 +100,6 @@ export default function ReportShell({
   const reduceMotion = useReducedMotion()
 
   const [modalita, setModalita] = useState(readModalitaFromHash)
-  const [heroVariant, setHeroVariant] = useState(() => {
-    if (typeof window === 'undefined') return 'dittico'
-    const params = new URLSearchParams(window.location.search)
-    return params.get('heroVariant') === 'bussola' ? 'bussola' : 'dittico'
-  })
   
   // Refs for accessibility focus restoration
   const famiglieEntryBtnRef = useRef(null)
@@ -538,7 +533,6 @@ export default function ReportShell({
             onDownload={onDownload}
             onNavigateArchive={onNavigateArchive}
             testDate={rawRecord.Data_Ora_Fine_Test || rawRecord.Data_Test}
-            heroVariant={heroVariant}
           />
         </div>
 
@@ -946,66 +940,6 @@ export default function ReportShell({
         rawRecord={rawRecord}
       />
 
-      {/* ── DEV TOGGLE ANTEPRIMA (solo su route preview o dev) ── */}
-      {typeof window !== 'undefined' && window.location.pathname.includes('preview') && (
-        <aside
-          className="hero-variant-dev-toggle"
-          aria-label="Selettore anteprima testata"
-          style={{
-            position: 'fixed',
-            bottom: '24px',
-            right: '24px',
-            zIndex: 99999,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '8px 14px',
-            background: 'rgba(16, 22, 34, 0.92)',
-            border: '1px solid rgba(255, 255, 255, 0.22)',
-            borderRadius: '999px',
-            backdropFilter: 'blur(16px)',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
-          }}
-        >
-          <span style={{ fontSize: '0.78rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>
-            Head:
-          </span>
-          <button
-            type="button"
-            onClick={() => setHeroVariant('bussola')}
-            style={{
-              padding: '5px 12px',
-              fontSize: '0.8rem',
-              borderRadius: '999px',
-              border: 'none',
-              cursor: 'pointer',
-              background: heroVariant === 'bussola' ? '#38bdf8' : 'rgba(255, 255, 255, 0.08)',
-              color: heroVariant === 'bussola' ? '#06080e' : '#ffffff',
-              fontWeight: heroVariant === 'bussola' ? '700' : '500',
-              transition: 'all 0.2s ease',
-            }}
-          >
-            🧭 1. Bussola
-          </button>
-          <button
-            type="button"
-            onClick={() => setHeroVariant('dittico')}
-            style={{
-              padding: '5px 12px',
-              fontSize: '0.8rem',
-              borderRadius: '999px',
-              border: 'none',
-              cursor: 'pointer',
-              background: heroVariant === 'dittico' ? '#38bdf8' : 'rgba(255, 255, 255, 0.08)',
-              color: heroVariant === 'dittico' ? '#06080e' : '#ffffff',
-              fontWeight: heroVariant === 'dittico' ? '700' : '500',
-              transition: 'all 0.2s ease',
-            }}
-          >
-            📑 2. Dittico
-          </button>
-        </aside>
-      )}
     </div>
   )
 }
