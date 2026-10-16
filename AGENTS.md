@@ -2,18 +2,17 @@
 
 # Repository workflow instructions
 Read `AI_TASK.md` before doing any work.
-Codex is the primary and sole implementation agent for the current mission.
-Do not require Claude Code, Antigravity, Google credits, external agents, or parallel delivery to continue the work.
-Codex may modify logic, content, UI, tests, and integration files when they are relevant to the requested task.
+Prima di modificare la UI, segui DESIGN.md e leggi DESIGN-HANDOFF.md.
+Antigravity e Claude Code sono gli agenti per lo sviluppo e l'evoluzione di questo progetto.
+Gli agenti possono modificare logica, contenuti, UI, test e file di integrazione quando rilevanti per il task richiesto.
 Never work directly on `main` (or `master`).
 Deploy only when the user explicitly requests it and the exact target has been verified first.
 Do not delete remote resources, modify credentials or expose secrets.
-Work on `ai/codex` (or another user-approved feature branch), run the relevant checks, inspect the diff, and commit completed changes before declaring the task finished.
-Prima di modificare la UI, segui DESIGN.md e leggi DESIGN-HANDOFF.md.
+Lavora su branch approvate dall'utente, esegui i controlli pertinenti, ispeziona il diff e committa le modifiche prima di dichiarare concluso il lavoro.
 
 ---
 
-This file provides guidance to Codex (Codex.ai/code) when working with code in this repository.
+This file provides guidance to AI coding agents when working with code in this repository.
 
 
 ## Commands

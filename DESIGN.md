@@ -213,7 +213,7 @@ Ogni schermata ammette **una sola CTA Primaria**. Tutti gli altri controlli sono
 
 ## 9. Agent Prompt Guide
 
-Quando un agente AI (Codex, Claude, Antigravity) lavora su questo repository per modificare la UI, deve rispettare questo prompt interno:
+Quando un agente AI (Claude Code, Antigravity) lavora su questo repository per modificare la UI, deve rispettare questo prompt interno:
 
 > "Stai modificando l'interfaccia di TST 2026. Prima di scrivere codice:
 > 1. Leggi attentamente `DESIGN.md` e rispetta rigorosamente i token semantici (`--tst-*`).

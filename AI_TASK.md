@@ -1,4 +1,4 @@
-# CODEX TASK
+# AI TASK
 
 ## Missione
 
@@ -10,7 +10,7 @@ Realizzare il task in modo completo, coerente e verificabile, senza introdurre r
 
 ## Responsabilità
 
-Codex è responsabile dell'intera consegna:
+L'agente assegnato è responsabile della consegna:
 
 - architettura e flusso dei dati;
 - business logic;
@@ -30,7 +30,7 @@ Codex è responsabile dell'intera consegna:
 - compatibilità e integrazione;
 - report tecnico finale.
 
-Claude Code e Antigravity non sono prerequisiti e non devono bloccare l'avanzamento. I loro branch e handoff esistenti possono essere consultati o integrati soltanto quando risultano utili e compatibili.
+I branch e handoff esistenti possono essere consultati o integrati soltanto quando risultano utili e compatibili.
 
 ## Criteri di accettazione
 
@@ -41,15 +41,15 @@ Claude Code e Antigravity non sono prerequisiti e non devono bloccare l'avanzame
 - [ ] La UI è verificata su desktop e mobile quando rilevante.
 - [ ] Lint e build passano.
 - [ ] I test rilevanti passano.
-- [ ] Codex completa e verifica tutte le aree necessarie.
+- [ ] L'agente completa e verifica tutte le aree necessarie.
 - [ ] Le modifiche completate sono documentate e committate.
 - [ ] Nessun deploy senza richiesta esplicita dell'utente; nessuna modifica a credenziali o dati remoti.
 
 ## Regole operative
 
-1. Leggere prima `AI_TASK.md`, `AGENTS.md` e la documentazione pertinente.
-2. Lavorare nel worktree Codex sulla branch `ai/codex`, salvo diversa indicazione esplicita dell'utente.
-3. Procedere in modalità singolo agente; non attendere Claude Code, Antigravity o crediti di servizi esterni.
+1. Leggere prima `AI_TASK.md`, `AGENTS.md`, `DESIGN.md` e la documentazione pertinente.
+2. Lavorare sulla branch concordata con l'utente, salvo diversa indicazione esplicita.
+3. Procedere in modalità ordinata e verificabile.
 4. Non modificare `master`.
 5. Non fare stash, reset, rebase o force push.
 6. Non modificare lockfile o configurazioni condivise senza necessità documentata.

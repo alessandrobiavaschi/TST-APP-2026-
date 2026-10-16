@@ -1,6 +1,6 @@
 # DESIGN HANDOFF · TST 2026 (Test Temperamentale)
 
-> **Documento di Passaggio di Consegne per l'Agente AI Successivo (Codex / Claude Code)**  
+> **Documento di Passaggio di Consegne per Claude Code**  
 > Questo file è autosufficiente: descrive esattamente le modifiche apportate alla UI, i file toccati, le decisioni architetturali, i vincoli scientifici preservati e i prossimi passi operativi in ordine di priorità.
 
 ---
@@ -20,7 +20,7 @@ Prima di modificare qualsiasi componente o stile in questo repository:
 | :--- | :--- | :--- |
 | **`DESIGN.md`** | Creato | Contratto completo di design: Visual Theme & Atmosphere, Palette semantica e 5 famiglie emotive, Regole tipografiche (Newsreader + Manrope + JetBrains Mono), Componenti e stati interattivi, Griglie e Spaziature, Profondità ed elevazione, Do's & Don'ts, Responsive e Guida per Agenti. |
 | **`CLAUDE.md`** | Modificato | Aggiunta istruzione vincolante: `"Prima di modificare la UI, segui DESIGN.md e leggi DESIGN-HANDOFF.md."`. |
-| **`AGENTS.md`** | Modificato | Aggiunta istruzione vincolante analoga per garantire coerenza tra Codex e Claude Code. |
+| **`AGENTS.md`** | Modificato | Aggiunta istruzione vincolante analoga per garantire coerenza tra Claude Code e Antigravity. |
 | **`src/styles/design-tokens.css`** | Creato | Tavola centrale dei token CSS `:root` e dark/light mode: `--tst-color-bg-*`, `--tst-color-border-*`, `--tst-color-text-*`, `--tst-color-accent-system`, `--tst-family-*`, scale tipografiche, spaziali, raggi e ombre. Include classi pronte all'uso: `.tst-card`, `.tst-button-primary`, `.tst-button-secondary`, `.tst-button-ghost`, `.tst-input`, `.tst-badge`. |
 | **`src/design-tokens.ts`** | Rifattorizzato | Export tipizzato di costanti JS/TS sincronizzato con `DESIGN.md`. Fornisce `colors` (inclusa la mappa `colors.famiglie`), `typography`, `spacing`, `radius`, `shadows`, `blurs`, mantenendo alias legacy per non rompere il codice preesistente. |
 | **`src/index.css`** | Rifattorizzato | Importa `./styles/design-tokens.css`. Rimappa le variabili legacy (`--color-bg`, `--font-family-sans`, `--color-accent`) sui token canonici. Rimosso il vecchio gradiente fisso viola/menta da `body` per adottare lo sfondo canvas coerente con i video atmosferici. |
@@ -71,4 +71,4 @@ Prima di modificare qualsiasi componente o stile in questo repository:
 3. **Priorità 3 · Pulizia Font in `index.html`:**  
    Rimuovere dal tag `<link>` di Google Fonts i caratteri inutilizzati (`Nunito`, `Cormorant Garamond`, `Public Sans`) per ottimizzare ulteriormente il caricamento iniziale.
 4. **Priorità 4 · Sincronizzazione Branch:**  
-   I 5 commit realizzati vivono attualmente su `feat/lessico-parole`. È possibile portarli su `ai/codex` o fonderli nel branch prescelto con `git cherry-pick` o `git merge`.
+   I commit realizzati vivono attualmente su `feat/lessico-parole` e possono essere fusi nel branch di lavoro desiderato con `git cherry-pick` o `git merge`.
