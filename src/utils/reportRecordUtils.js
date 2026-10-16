@@ -115,14 +115,13 @@ export function allocateRoundedPercentages(values = []) {
 }
 
 /**
- * Peso relativo (somma 100) delle famiglie. I punti grezzi vengono prima portati
- * sul massimo teorico di ciascuna famiglia, così una famiglia con più nature
- * (es. Blu, 4 nature) non parte avvantaggiata.
+ * Peso relativo delle famiglie come in un grafico a torta: punti della famiglia
+ * diviso punti totali, × 100. Le 5 percentuali sommano sempre a 100 (arrotondamento
+ * a resto maggiore). Il radar 1-7 è un calcolo separato (normalizeLevels).
  */
 export function computeRelativePercentages(totals = {}) {
   const keys = ['verde', 'blu', 'rosso', 'giallo', 'grigio']
-  const scores = normalizzaSuMassimo(totals)
-  const values = keys.map(k => Number(scores?.[k]) || 0)
+  const values = keys.map(k => Number(totals?.[k]) || 0)
   const pctRounded = allocateRoundedPercentages(values)
 
   const result = {}
