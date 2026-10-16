@@ -11,6 +11,7 @@ import {
 } from 'recharts'
 import { colors, radarFamiglie } from '../../design-tokens.ts'
 import { buildPortatoViewData } from '../../utils/portatoPadViewData.js'
+import TernaryPortatoPad from './TernaryPortatoPad.jsx'
 import './GraficiViewerModal.css'
 
 const SLIDES_COUNT = 4
@@ -24,6 +25,7 @@ export default function GraficiViewerModal({
   portato = {},
   rapporti = [],
   colorTotals = {},
+  rawRecord = {},
 }) {
   const [activeSlide, setActiveSlide] = useState(0)
   const [selectedRapportoTab, setSelectedRapportoTab] = useState(-1) // -1 = Panoramica 4 rapporti
@@ -471,99 +473,7 @@ export default function GraficiViewerModal({
                     })}
                   </div>
 
-                  {/* Triangolo visivo a costellazione acustica con puck reale */}
-                  <div className="slide-portato-pad">
-                    <svg viewBox="-6 -6 112 112" className="slide-portato-triangle-svg" aria-hidden="true">
-                      <defs>
-                        <radialGradient id="slideRadarGlow" cx="50%" cy="36%" r="58%">
-                          <stop offset="0%" stopColor="var(--tst-color-accent-system, #38bdf8)" stopOpacity="0.16" />
-                          <stop offset="50%" stopColor="var(--tst-color-accent-system, #38bdf8)" stopOpacity="0.04" />
-                          <stop offset="100%" stopColor="rgba(255, 255, 255, 0)" stopOpacity="0" />
-                        </radialGradient>
-                        <radialGradient id="slidePuckGlow" cx="50%" cy="50%" r="50%">
-                          <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.9" />
-                          <stop offset="50%" stopColor="#38bdf8" stopOpacity="0.3" />
-                          <stop offset="100%" stopColor="transparent" stopOpacity="0" />
-                        </radialGradient>
-                      </defs>
-
-                      {/* Constellation polygon */}
-                      <polygon
-                        points="8,8 92,8 50,92"
-                        fill="url(#slideRadarGlow)"
-                        stroke="rgba(255, 255, 255, 0.18)"
-                        strokeWidth="1.2"
-                      />
-
-                      {/* Concentric resonance rings */}
-                      <circle cx="50" cy="36" r="16" fill="none" stroke="rgba(255, 255, 255, 0.08)" strokeWidth="0.75" strokeDasharray="2 3" />
-                      <circle cx="50" cy="36" r="30" fill="none" stroke="rgba(255, 255, 255, 0.05)" strokeWidth="0.75" strokeDasharray="3 4" />
-
-                      {/* Axes from barycenter to poles */}
-                      <line x1="50" y1="36" x2="8" y2="8" stroke="rgba(74, 222, 128, 0.25)" strokeWidth="0.8" strokeDasharray="2 2" />
-                      <line x1="50" y1="36" x2="92" y2="8" stroke="rgba(248, 113, 113, 0.25)" strokeWidth="0.8" strokeDasharray="2 2" />
-                      <line x1="50" y1="36" x2="50" y2="92" stroke="rgba(148, 163, 184, 0.25)" strokeWidth="0.8" strokeDasharray="2 2" />
-
-                      {/* Vertices */}
-                      <circle cx="8" cy="8" r="4.5" fill="rgba(74, 222, 128, 0.15)" />
-                      <circle cx="8" cy="8" r="2.2" fill="#4ade80" />
-                      <text x="8" y="2.5" fill="#4ade80" fontSize="4.6" fontWeight="600" textAnchor="start" fontFamily="var(--font-body, 'Manrope', sans-serif)">
-                        Sintonia
-                      </text>
-
-                      <circle cx="92" cy="8" r="4.5" fill="rgba(248, 113, 113, 0.15)" />
-                      <circle cx="92" cy="8" r="2.2" fill="#f87171" />
-                      <text x="92" y="2.5" fill="#f87171" fontSize="4.6" fontWeight="600" textAnchor="end" fontFamily="var(--font-body, 'Manrope', sans-serif)">
-                        Distonia
-                      </text>
-
-                      <circle cx="50" cy="92" r="4.5" fill="rgba(148, 163, 184, 0.15)" />
-                      <circle cx="50" cy="92" r="2.2" fill="#94a3b8" />
-                      <text x="50" y="100" fill="#94a3b8" fontSize="4.6" fontWeight="600" textAnchor="middle" fontFamily="var(--font-body, 'Manrope', sans-serif)">
-                        Distanza
-                      </text>
-
-                      {/* Barycentric point (puck) */}
-                      {portatoView.point && (
-                        <g>
-                          <line
-                            x1="50"
-                            y1="36"
-                            x2={portatoView.point.x}
-                            y2={portatoView.point.y}
-                            stroke="rgba(255, 255, 255, 0.45)"
-                            strokeWidth="0.8"
-                            strokeDasharray="1.5 2"
-                          />
-                          <circle
-                            cx={portatoView.point.x}
-                            cy={portatoView.point.y}
-                            r="10"
-                            fill="url(#slidePuckGlow)"
-                          />
-                          <circle
-                            cx={portatoView.point.x}
-                            cy={portatoView.point.y}
-                            r="5"
-                            fill="none"
-                            stroke="#38bdf8"
-                            strokeWidth="0.8"
-                          >
-                            <animate attributeName="r" values="4;8;4" dur="2.8s" repeatCount="indefinite" />
-                            <animate attributeName="opacity" values="0.85;0.15;0.85" dur="2.8s" repeatCount="indefinite" />
-                          </circle>
-                          <circle
-                            cx={portatoView.point.x}
-                            cy={portatoView.point.y}
-                            r="3.5"
-                            fill="#ffffff"
-                            stroke="#38bdf8"
-                            strokeWidth="1.5"
-                          />
-                        </g>
-                      )}
-                    </svg>
-                  </div>
+                  <TernaryPortatoPad portato={portato} rawRecord={rawRecord} variant="full" />
                 </div>
               </div>
             </>

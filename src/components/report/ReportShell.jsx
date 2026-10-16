@@ -959,6 +959,7 @@ export default function ReportShell({
         portato={portato}
         rapporti={rapporti}
         colorTotals={colorTotals}
+        rawRecord={rawRecord}
       />
 
       {/* ── DEV TOGGLE ANTEPRIMA (solo su route preview o dev) ── */}
