@@ -7,11 +7,11 @@ const VIDEO_BY_COLOR = {
 }
 
 const STILL_BY_COLOR = {
-  blu: '/images/bg_banana_blu.png',
-  giallo: '/images/bg_banana_giallo.png',
-  grigio: '/images/bg_banana_grigio.png',
-  rosso: '/images/bg_banana_rosso.png',
-  verde: '/images/bg_banana_verde.png',
+  blu: '/images/texture_blu.webp',
+  giallo: '/images/texture_giallo.webp',
+  grigio: '/images/texture_grigio.webp',
+  rosso: '/images/texture_rosso.webp',
+  verde: '/images/texture_verde.webp',
 }
 
 function resolvePublicAssetPath(path) {

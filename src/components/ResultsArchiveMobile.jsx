@@ -1,14 +1,9 @@
 import React from 'react'
 import { formatSubcategoryLabel } from '../utils/reportTaxonomy.js'
 import TstLoader from './primitives/TstLoader.jsx'
+import { radarFamiglie } from '../design-tokens'
 
-const RADAR_FAMIGLIE = [
-  { subject: 'Malinconica', key: 'blu', color: '#60a5fa' },
-  { subject: 'Marziale', key: 'rosso', color: '#f87171' },
-  { subject: 'Entusiasta', key: 'giallo', color: '#fde047' },
-  { subject: 'Flemmatica', key: 'verde', color: '#4ade80' },
-  { subject: 'Razionale', key: 'grigio', color: '#9ca3af' },
-]
+const RADAR_FAMIGLIE = radarFamiglie
 
 const MATRICE_HEADERS = [
   { key: 'blu', label: 'Malinconica' },

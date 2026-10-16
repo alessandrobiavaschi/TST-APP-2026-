@@ -1,5 +1,6 @@
 import React from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
+import { colors } from '../../design-tokens'
 
 // ESLint flat-config del repo non rileva l'uso di `motion` via JSX member.
 void motion
@@ -32,11 +33,11 @@ function withAlpha(hex, alpha) {
 }
 
 const DEFAULT_PETALS = [
-  { nome: 'Verde', colore: '#4ade80' },
-  { nome: 'Rosso', colore: '#f87171' },
-  { nome: 'Blu', colore: '#60a5fa' },
-  { nome: 'Giallo', colore: '#fde047' },
-  { nome: 'Grigio', colore: '#9ca3af' },
+  { nome: 'Verde', colore: colors.famiglie.verde.hex },
+  { nome: 'Rosso', colore: colors.famiglie.rosso.hex },
+  { nome: 'Blu', colore: colors.famiglie.blu.hex },
+  { nome: 'Giallo', colore: colors.famiglie.giallo.hex },
+  { nome: 'Grigio', colore: colors.famiglie.grigio.hex },
 ]
 
 export default function FioreCorrenti({

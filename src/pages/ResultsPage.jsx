@@ -6,6 +6,7 @@ import { useAuth } from '../AuthContext.jsx'
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js'
 import { useDialogFocus } from '../hooks/useDialogFocus.js'
 import TstLoader from '../components/primitives/TstLoader.jsx'
+import { radarFamiglie } from '../design-tokens'
 import { reloadPage } from '../utils/loaderTiming.js'
 import { db } from '../firebaseConfig.js'
 import {
@@ -110,13 +111,7 @@ function buildResultRecord(docId, rawData) {
 }
 
 /* Ordine: Blu, Rosso, Giallo, Verde, Grigio – etichette = le 5 famiglie emotive. */
-const RADAR_FAMIGLIE = [
-  { subject: 'Malinconica', key: 'blu', color: '#60a5fa' },
-  { subject: 'Marziale', key: 'rosso', color: '#f87171' },
-  { subject: 'Entusiasta', key: 'giallo', color: '#fde047' },
-  { subject: 'Flemmatica', key: 'verde', color: '#4ade80' },
-  { subject: 'Razionale', key: 'grigio', color: '#9ca3af' },
-]
+const RADAR_FAMIGLIE = radarFamiglie
 
 /** Etichette colonne matrice risultati: le 5 macro-aree cromatiche del punteggio. */
 const MATRICE_HEADERS = [

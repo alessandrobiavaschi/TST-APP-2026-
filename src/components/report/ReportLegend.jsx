@@ -1,13 +1,5 @@
 import React from 'react'
-import { colors } from '../../design-tokens'
-
-const LEGEND_ITEMS = [
-  { subject: 'Malinconica', key: 'blu', color: colors.famiglie.blu.hex },
-  { subject: 'Marziale', key: 'rosso', color: colors.famiglie.rosso.hex },
-  { subject: 'Entusiasta', key: 'giallo', color: colors.famiglie.giallo.hex },
-  { subject: 'Flemmatica', key: 'verde', color: colors.famiglie.verde.hex },
-  { subject: 'Razionale', key: 'grigio', color: colors.famiglie.grigio.hex },
-]
+import { radarFamiglie } from '../../design-tokens'
 
 export default function ReportLegend() {
   return (
@@ -16,7 +8,7 @@ export default function ReportLegend() {
       role="list"
       aria-label="Legenda famiglie emotive"
     >
-      {LEGEND_ITEMS.map((f) => (
+      {radarFamiglie.map((f) => (
         <div
           key={f.key}
           className="flex items-center gap-2"

@@ -84,6 +84,15 @@ export const colors = {
   primarySoft: 'rgba(56, 189, 248, 0.16)',
 } as const
 
+/** Array canonico delle 5 famiglie per grafici radar e leggende */
+export const radarFamiglie = [
+  { subject: 'Malinconica', key: 'blu', color: colors.famiglie.blu.hex },
+  { subject: 'Marziale', key: 'rosso', color: colors.famiglie.rosso.hex },
+  { subject: 'Entusiasta', key: 'giallo', color: colors.famiglie.giallo.hex },
+  { subject: 'Flemmatica', key: 'verde', color: colors.famiglie.verde.hex },
+  { subject: 'Razionale', key: 'grigio', color: colors.famiglie.grigio.hex },
+] as const
+
 export const typography = {
   fonts: {
     display: "'Newsreader', Georgia, 'Times New Roman', serif",

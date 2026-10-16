@@ -1,4 +1,5 @@
 import React, { useId } from 'react'
+import { colors } from '../design-tokens'
 
 /**
  * Ruota delle correnti temperamentali (ispirata alla ruota delle emozioni).
@@ -17,11 +18,11 @@ const NATURE_LABELS = {
 }
 
 const BASE_COLORS = {
-  blu: '#60a5fa',
-  rosso: '#f87171',
-  verde: '#4ade80',
-  giallo: '#fde047',
-  grigio: '#9ca3af',
+  blu: colors.famiglie.blu.hex,
+  rosso: colors.famiglie.rosso.hex,
+  verde: colors.famiglie.verde.hex,
+  giallo: colors.famiglie.giallo.hex,
+  grigio: colors.famiglie.grigio.hex,
 }
 
 const SHADES = {

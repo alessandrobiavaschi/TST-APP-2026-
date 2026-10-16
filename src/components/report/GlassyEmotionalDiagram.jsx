@@ -1,15 +1,10 @@
 import React, { useId } from 'react'
 import { motion } from 'framer-motion'
+import { radarFamiglie } from '../../design-tokens'
 
 void motion
 
-const FAMIGLIE = [
-  { subject: 'Malinconica', key: 'blu', color: '#60a5fa' },
-  { subject: 'Marziale', key: 'rosso', color: '#f87171' },
-  { subject: 'Entusiasta', key: 'giallo', color: '#fde047' },
-  { subject: 'Flemmatica', key: 'verde', color: '#4ade80' },
-  { subject: 'Razionale', key: 'grigio', color: '#9ca3af' },
-]
+const FAMIGLIE = radarFamiglie
 
 const SEGMENTS = 5
 const ANGLE_START = -90 // top = 12 o'clock
