@@ -91,8 +91,6 @@ export default function HeroScreen({
   rawRecord = {},
   portato = {},
   onReadReport,
-  onOpenGrafici,
-  onOpenGalassia,
   onDownload,
   onNavigateArchive,
   testDate,
@@ -279,24 +277,6 @@ export default function HeroScreen({
                   >
                     Leggi il tuo report
                   </button>
-                  {onOpenGrafici && (
-                    <button
-                      type="button"
-                      className="hero-screen__cta-secondary hero-screen-btn-grafici"
-                      onClick={onOpenGrafici}
-                    >
-                      📊 Esplora i grafici
-                    </button>
-                  )}
-                  {onOpenGalassia && (
-                    <button
-                      type="button"
-                      className="hero-screen__cta-secondary hero-screen-btn-galassia"
-                      onClick={onOpenGalassia}
-                    >
-                      🌌 Mappa Galassia
-                    </button>
-                  )}
                   <button
                     type="button"
                     className="hero-screen__cta-secondary hero-screen-btn-secondary"
@@ -314,47 +294,193 @@ export default function HeroScreen({
                 </motion.div>
               </div>
 
-              {/* Colonna destra: Finestra d'ascolto Portato */}
+              {/* Colonna destra: Finestra d'ascolto Portato (Acoustic Glass Constellation) */}
               {portatoView.hasData && (
                 <motion.div {...fade(0.32, 20)} className="hero-screen__dittico-right">
                   <div className="hero-screen__dittico-card">
-                    <span className="hero-screen__dittico-card-kicker">La finestra d'ascolto</span>
+                    <span className="hero-screen__dittico-card-kicker">Risonanza d'Ascolto</span>
                     <h3 className="hero-screen__dittico-card-title">{posturaInfo.label}</h3>
                     <p className="hero-screen__dittico-card-sub">{posturaInfo.sub}</p>
 
                     <div className="hero-screen__dittico-mini-pad">
-                      <svg viewBox="0 0 100 90" className="hero-screen__mini-pad-svg">
+                      <svg viewBox="-4 -4 108 108" className="hero-screen__mini-pad-svg" aria-hidden="true">
+                        <defs>
+                          <radialGradient id="tstConstellationGlow" cx="50%" cy="36%" r="58%">
+                            <stop offset="0%" stopColor="var(--corrente, #38bdf8)" stopOpacity="0.18" />
+                            <stop offset="50%" stopColor="var(--corrente, #38bdf8)" stopOpacity="0.04" />
+                            <stop offset="100%" stopColor="rgba(255, 255, 255, 0)" stopOpacity="0" />
+                          </radialGradient>
+                          <radialGradient id="tstPuckAura" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stopColor="var(--corrente-chiara, #38bdf8)" stopOpacity="0.9" />
+                            <stop offset="40%" stopColor="var(--corrente, #38bdf8)" stopOpacity="0.35" />
+                            <stop offset="100%" stopColor="transparent" stopOpacity="0" />
+                          </radialGradient>
+                        </defs>
+
+                        {/* Constellation perimeter & aura */}
                         <polygon
-                          points="10,12 90,12 50,84"
-                          fill="rgba(255, 255, 255, 0.04)"
-                          stroke="rgba(255, 255, 255, 0.22)"
-                          strokeWidth="1.5"
+                          points="8,8 92,8 50,92"
+                          fill="url(#tstConstellationGlow)"
+                          stroke="rgba(255, 255, 255, 0.14)"
+                          strokeWidth="1"
                         />
+
+                        {/* Concentric acoustic rings centered at barycenter (50, 36) */}
+                        <circle
+                          cx="50"
+                          cy="36"
+                          r="16"
+                          fill="none"
+                          stroke="rgba(255, 255, 255, 0.08)"
+                          strokeWidth="0.75"
+                          strokeDasharray="2 3"
+                        />
+                        <circle
+                          cx="50"
+                          cy="36"
+                          r="30"
+                          fill="none"
+                          stroke="rgba(255, 255, 255, 0.05)"
+                          strokeWidth="0.75"
+                          strokeDasharray="3 4"
+                        />
+
+                        {/* Radial axes from center to vertices */}
+                        <line x1="50" y1="36" x2="8" y2="8" stroke="rgba(74, 222, 128, 0.25)" strokeWidth="0.8" strokeDasharray="2 2" />
+                        <line x1="50" y1="36" x2="92" y2="8" stroke="rgba(248, 113, 113, 0.25)" strokeWidth="0.8" strokeDasharray="2 2" />
+                        <line x1="50" y1="36" x2="50" y2="92" stroke="rgba(148, 163, 184, 0.25)" strokeWidth="0.8" strokeDasharray="2 2" />
+
+                        {/* Centroid subtle anchor */}
+                        <circle cx="50" cy="36" r="1.5" fill="rgba(255, 255, 255, 0.3)" />
+
+                        {/* Constellation anchor stars */}
+                        {/* Simpatia / Sintonia */}
+                        <circle cx="8" cy="8" r="4.5" fill="rgba(74, 222, 128, 0.15)" />
+                        <circle cx="8" cy="8" r="2.2" fill="#4ade80" />
+                        <text x="8" y="2.5" fill="#4ade80" fontSize="4.4" fontWeight="600" textAnchor="start" fontFamily="var(--font-body, 'Manrope', sans-serif)">
+                          SINTONIA
+                        </text>
+
+                        {/* Antipatia / Distonia */}
+                        <circle cx="92" cy="8" r="4.5" fill="rgba(248, 113, 113, 0.15)" />
+                        <circle cx="92" cy="8" r="2.2" fill="#f87171" />
+                        <text x="92" y="2.5" fill="#f87171" fontSize="4.4" fontWeight="600" textAnchor="end" fontFamily="var(--font-body, 'Manrope', sans-serif)">
+                          DISTONIA
+                        </text>
+
+                        {/* Indifferenza / Distanza */}
+                        <circle cx="50" cy="92" r="4.5" fill="rgba(148, 163, 184, 0.15)" />
+                        <circle cx="50" cy="92" r="2.2" fill="#94a3b8" />
+                        <text x="50" y="99" fill="#94a3b8" fontSize="4.4" fontWeight="600" textAnchor="middle" fontFamily="var(--font-body, 'Manrope', sans-serif)">
+                          DISTANZA
+                        </text>
+
+                        {/* Resonance point (puck) */}
                         {portatoView.point && (
-                          <circle
-                            cx={portatoView.point.x}
-                            cy={portatoView.point.y}
-                            r="4.5"
-                            fill="#38bdf8"
-                            stroke="#ffffff"
-                            strokeWidth="1.5"
-                          />
+                          <g className="hero-screen__mini-pad-puck">
+                            {/* Projection ray from barycenter to puck */}
+                            <line
+                              x1="50"
+                              y1="36"
+                              x2={portatoView.point.x}
+                              y2={portatoView.point.y}
+                              stroke="rgba(255, 255, 255, 0.45)"
+                              strokeWidth="0.8"
+                              strokeDasharray="1.5 2"
+                            />
+                            {/* Soft glowing aura */}
+                            <circle
+                              cx={portatoView.point.x}
+                              cy={portatoView.point.y}
+                              r="10"
+                              fill="url(#tstPuckAura)"
+                            />
+                            {/* Pulsing ring */}
+                            <circle
+                              cx={portatoView.point.x}
+                              cy={portatoView.point.y}
+                              r="5"
+                              fill="none"
+                              stroke="var(--corrente-chiara, #38bdf8)"
+                              strokeWidth="0.75"
+                            >
+                              <animate attributeName="r" values="4;8;4" dur="2.8s" repeatCount="indefinite" />
+                              <animate attributeName="opacity" values="0.85;0.12;0.85" dur="2.8s" repeatCount="indefinite" />
+                            </circle>
+                            {/* Center bead */}
+                            <circle
+                              cx={portatoView.point.x}
+                              cy={portatoView.point.y}
+                              r="3.2"
+                              fill="#ffffff"
+                              stroke="var(--corrente, #38bdf8)"
+                              strokeWidth="1.2"
+                            />
+                          </g>
                         )}
                       </svg>
                     </div>
 
-                    <div className="hero-screen__portato-bars">
-                      <div className="hero-screen__portato-bar-chip">
-                        <span className="hero-screen__portato-dot" style={{ backgroundColor: '#4ade80' }} />
-                        <span>Sintonia: <strong>{dimSimpatia.percentage}%</strong></span>
+                    {/* Minimal organic metric indicators */}
+                    <div className="hero-screen__portato-fluid-metrics">
+                      <div className="hero-screen__portato-fluid-col">
+                        <div className="hero-screen__portato-fluid-head">
+                          <span className="hero-screen__portato-fluid-left">
+                            <span className="hero-screen__portato-fluid-dot" style={{ backgroundColor: '#4ade80', boxShadow: '0 0 6px rgba(74, 222, 128, 0.6)' }} />
+                            <span className="hero-screen__portato-fluid-label">Sintonia</span>
+                          </span>
+                          <span className="hero-screen__portato-fluid-pct">{dimSimpatia.percentage}%</span>
+                        </div>
+                        <div className="hero-screen__portato-fluid-bar">
+                          <div
+                            className="hero-screen__portato-fluid-fill"
+                            style={{
+                              width: `${Math.max(4, dimSimpatia.percentage)}%`,
+                              backgroundColor: '#4ade80',
+                              boxShadow: '0 0 8px rgba(74, 222, 128, 0.35)',
+                            }}
+                          />
+                        </div>
                       </div>
-                      <div className="hero-screen__portato-bar-chip">
-                        <span className="hero-screen__portato-dot" style={{ backgroundColor: '#f87171' }} />
-                        <span>Distonia: <strong>{dimAntipatia.percentage}%</strong></span>
+
+                      <div className="hero-screen__portato-fluid-col">
+                        <div className="hero-screen__portato-fluid-head">
+                          <span className="hero-screen__portato-fluid-left">
+                            <span className="hero-screen__portato-fluid-dot" style={{ backgroundColor: '#f87171', boxShadow: '0 0 6px rgba(248, 113, 113, 0.6)' }} />
+                            <span className="hero-screen__portato-fluid-label">Distonia</span>
+                          </span>
+                          <span className="hero-screen__portato-fluid-pct">{dimAntipatia.percentage}%</span>
+                        </div>
+                        <div className="hero-screen__portato-fluid-bar">
+                          <div
+                            className="hero-screen__portato-fluid-fill"
+                            style={{
+                              width: `${Math.max(4, dimAntipatia.percentage)}%`,
+                              backgroundColor: '#f87171',
+                              boxShadow: '0 0 8px rgba(248, 113, 113, 0.35)',
+                            }}
+                          />
+                        </div>
                       </div>
-                      <div className="hero-screen__portato-bar-chip">
-                        <span className="hero-screen__portato-dot" style={{ backgroundColor: '#94a3b8' }} />
-                        <span>Distanza: <strong>{dimIndifferenza.percentage}%</strong></span>
+
+                      <div className="hero-screen__portato-fluid-col">
+                        <div className="hero-screen__portato-fluid-head">
+                          <span className="hero-screen__portato-fluid-left">
+                            <span className="hero-screen__portato-fluid-dot" style={{ backgroundColor: '#94a3b8', boxShadow: '0 0 6px rgba(148, 163, 184, 0.6)' }} />
+                            <span className="hero-screen__portato-fluid-label">Distanza</span>
+                          </span>
+                          <span className="hero-screen__portato-fluid-pct">{dimIndifferenza.percentage}%</span>
+                        </div>
+                        <div className="hero-screen__portato-fluid-bar">
+                          <div
+                            className="hero-screen__portato-fluid-fill"
+                            style={{
+                              width: `${Math.max(4, dimIndifferenza.percentage)}%`,
+                              backgroundColor: '#94a3b8',
+                              boxShadow: '0 0 8px rgba(148, 163, 184, 0.35)',
+                            }}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -433,24 +559,6 @@ export default function HeroScreen({
                 >
                   Leggi il tuo report
                 </button>
-                {onOpenGrafici && (
-                  <button
-                    type="button"
-                    className="hero-screen__cta-secondary hero-screen-btn-grafici"
-                    onClick={onOpenGrafici}
-                  >
-                    📊 Esplora i grafici
-                  </button>
-                )}
-                {onOpenGalassia && (
-                  <button
-                    type="button"
-                    className="hero-screen__cta-secondary hero-screen-btn-galassia"
-                    onClick={onOpenGalassia}
-                  >
-                    🌌 Mappa Galassia
-                  </button>
-                )}
                 <button
                   type="button"
                   className="hero-screen__cta-secondary hero-screen-btn-secondary"
@@ -565,8 +673,8 @@ export default function HeroScreen({
 
         .hero-screen__dittico-grid {
           display: grid;
-          grid-template-columns: 1.2fr 0.8fr;
-          gap: 2.5rem;
+          grid-template-columns: 1.15fr 0.85fr;
+          gap: clamp(1.8rem, 3.5vw, 3.2rem);
           align-items: center;
           width: 100%;
         }
@@ -592,57 +700,154 @@ export default function HeroScreen({
           margin-top: 1.5rem;
         }
 
+        /* ── Acoustic Glass Floating Panel ── */
         .hero-screen__dittico-card {
-          background: rgba(16, 22, 34, 0.82);
-          backdrop-filter: blur(16px);
-          -webkit-backdrop-filter: blur(16px);
-          border: 1px solid rgba(255, 255, 255, 0.16);
-          border-radius: 20px;
-          padding: 1.5rem;
+          position: relative;
+          background: linear-gradient(145deg, rgba(255, 255, 255, 0.06) 0%, rgba(13, 17, 26, 0.40) 100%);
+          backdrop-filter: blur(24px);
+          -webkit-backdrop-filter: blur(24px);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          border-radius: 24px;
+          padding: clamp(1.4rem, 2.2vw, 1.85rem);
           display: flex;
           flex-direction: column;
           align-items: center;
           text-align: center;
-          box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+          box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.16),
+            0 24px 50px -12px rgba(0, 0, 0, 0.55),
+            0 0 40px -10px color-mix(in srgb, var(--corrente, #38bdf8) 24%, transparent);
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          overflow: hidden;
+          width: 100%;
+          max-width: 380px;
+        }
+
+        .hero-screen__dittico-card::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 20%;
+          right: 20%;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+          pointer-events: none;
+        }
+
+        .hero-screen__dittico-card:hover {
+          transform: translateY(-2px);
+          box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.22),
+            0 28px 56px -12px rgba(0, 0, 0, 0.6),
+            0 0 50px -8px color-mix(in srgb, var(--corrente, #38bdf8) 32%, transparent);
         }
 
         .hero-screen__dittico-card-kicker {
+          font-family: var(--font-body, 'Manrope', sans-serif);
           font-size: 0.72rem;
           font-weight: 700;
           text-transform: uppercase;
-          letter-spacing: 0.08em;
-          color: var(--tst-color-accent-system, #38bdf8);
+          letter-spacing: 0.1em;
+          color: color-mix(in srgb, var(--corrente-chiara, #38bdf8) 85%, #ffffff);
           margin-bottom: 0.35rem;
         }
 
         .hero-screen__dittico-card-title {
-          font-size: 1.15rem;
-          font-weight: 700;
+          font-family: var(--font-display, 'Newsreader', serif);
+          font-size: clamp(1.2rem, 1.8vw, 1.5rem);
+          font-weight: 500;
           color: #ffffff;
-          margin: 0 0 0.35rem;
+          margin: 0 0 0.25rem;
+          letter-spacing: -0.01em;
+          line-height: 1.25;
         }
 
         .hero-screen__dittico-card-sub {
-          font-size: 0.8rem;
-          color: var(--tst-color-text-muted, rgba(248, 250, 252, 0.65));
+          font-family: var(--font-body, 'Manrope', sans-serif);
+          font-size: clamp(0.78rem, 1vw, 0.85rem);
+          color: rgba(248, 250, 252, 0.7);
           margin: 0 0 1rem;
+          line-height: 1.4;
+          max-width: 320px;
         }
 
         .hero-screen__dittico-mini-pad {
-          width: 140px;
-          height: 120px;
-          margin-bottom: 1rem;
+          width: 100%;
+          max-width: 210px;
+          height: 160px;
+          margin: 0.2rem 0 1.25rem;
         }
 
         .hero-screen__mini-pad-svg {
           width: 100%;
           height: 100%;
+          overflow: visible;
+        }
+
+        .hero-screen__portato-fluid-metrics {
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          gap: 0.65rem;
+        }
+
+        .hero-screen__portato-fluid-col {
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
+        }
+
+        .hero-screen__portato-fluid-head {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          font-size: 0.82rem;
+        }
+
+        .hero-screen__portato-fluid-left {
+          display: flex;
+          align-items: center;
+          gap: 0.45rem;
+        }
+
+        .hero-screen__portato-fluid-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          flex-shrink: 0;
+        }
+
+        .hero-screen__portato-fluid-label {
+          font-family: var(--font-body, 'Manrope', sans-serif);
+          font-weight: 500;
+          color: rgba(248, 250, 252, 0.78);
+        }
+
+        .hero-screen__portato-fluid-pct {
+          font-family: var(--font-mono, 'JetBrains Mono', monospace);
+          font-weight: 700;
+          color: #ffffff;
+          font-size: 0.85rem;
+        }
+
+        .hero-screen__portato-fluid-bar {
+          width: 100%;
+          height: 4px;
+          background: rgba(255, 255, 255, 0.08);
+          border-radius: 999px;
+          overflow: hidden;
+        }
+
+        .hero-screen__portato-fluid-fill {
+          height: 100%;
+          border-radius: 999px;
+          transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         @media (max-width: 860px) {
           .hero-screen__dittico-grid {
             grid-template-columns: 1fr;
-            gap: 1.5rem;
+            gap: 1.8rem;
           }
           .hero-screen__dittico-left {
             align-items: center;
@@ -657,30 +862,9 @@ export default function HeroScreen({
           .hero-screen__dittico-left .hero-screen__cta-container {
             justify-content: center;
           }
-        }
-
-        .hero-screen-btn-grafici {
-          background: rgba(56, 189, 248, 0.15) !important;
-          border-color: rgba(56, 189, 248, 0.45) !important;
-          color: #ffffff !important;
-        }
-
-        .hero-screen-btn-grafici:hover {
-          background: rgba(56, 189, 248, 0.28) !important;
-          border-color: #38bdf8 !important;
-          transform: translateY(-2px);
-        }
-
-        .hero-screen-btn-galassia {
-          background: rgba(168, 85, 247, 0.16) !important;
-          border-color: rgba(168, 85, 247, 0.45) !important;
-          color: #ffffff !important;
-        }
-
-        .hero-screen-btn-galassia:hover {
-          background: rgba(168, 85, 247, 0.3) !important;
-          border-color: #c084fc !important;
-          transform: translateY(-2px);
+          .hero-screen__dittico-card {
+            margin: 0 auto;
+          }
         }
 
         .hero-screen__cta-container {

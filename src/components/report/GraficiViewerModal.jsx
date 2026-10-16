@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import {
   ResponsiveContainer,
   RadarChart,
@@ -19,31 +20,45 @@ export default function GraficiViewerModal({
   onClose,
   profilo = {},
   correnti = [],
+  sottocorrenti = [],
   portato = {},
   rapporti = [],
   colorTotals = {},
 }) {
   const [activeSlide, setActiveSlide] = useState(0)
+  const [selectedRapportoTab, setSelectedRapportoTab] = useState(-1) // -1 = Panoramica 4 rapporti
   const containerRef = useRef(null)
   const touchStartX = useRef(0)
 
-  // Calcolo dati famiglie (Slide 1)
+  // ── Slide 1: Le 5 Famiglie Emotive ──
   const famiglieData = useMemo(() => {
     const rawScores = {
-      blu: colorTotals?.Blu || colorTotals?.blu || 0,
-      rosso: colorTotals?.Rosso || colorTotals?.rosso || 0,
-      verde: colorTotals?.Verde || colorTotals?.verde || 0,
-      giallo: colorTotals?.Giallo || colorTotals?.giallo || 0,
-      grigio: colorTotals?.Grigio || colorTotals?.grigio || 0,
+      blu: Number(colorTotals?.Blu ?? colorTotals?.blu ?? 0),
+      rosso: Number(colorTotals?.Rosso ?? colorTotals?.rosso ?? 0),
+      verde: Number(colorTotals?.Verde ?? colorTotals?.verde ?? 0),
+      giallo: Number(colorTotals?.Giallo ?? colorTotals?.giallo ?? 0),
+      grigio: Number(colorTotals?.Grigio ?? colorTotals?.grigio ?? 0),
     }
-    const sum = Object.values(rawScores).reduce((acc, val) => acc + (Number(val) || 0), 0)
+
+    let sum = Object.values(rawScores).reduce((acc, val) => acc + val, 0)
+
+    if (sum === 0 && Array.isArray(correnti) && correnti.length > 0) {
+      correnti.forEach((c) => {
+        const k = String(c.familyKey || c.key || c.id || '').toLowerCase()
+        if (rawScores[k] !== undefined) {
+          rawScores[k] = Number(c.valore ?? c.punti ?? c.peso ?? 0)
+        }
+      })
+      sum = Object.values(rawScores).reduce((acc, val) => acc + val, 0)
+    }
 
     return radarFamiglie.map((fam) => {
       const pts = Number(rawScores[fam.key]) || 0
       const pct = sum > 0 ? Math.round((pts / sum) * 100) : 0
       const isDominant =
         profilo?.correnteDominante?.toLowerCase() === fam.subject.toLowerCase() ||
-        profilo?.famiglia?.toLowerCase() === fam.subject.toLowerCase()
+        profilo?.famiglia?.toLowerCase() === fam.subject.toLowerCase() ||
+        profilo?.familyKey?.toLowerCase() === fam.key.toLowerCase()
       return {
         ...fam,
         pts,
@@ -51,21 +66,47 @@ export default function GraficiViewerModal({
         isDominant,
       }
     })
-  }, [colorTotals, profilo])
+  }, [colorTotals, profilo, correnti])
 
-  // Calcolo dati correnti (Slide 2)
+  // ── Slide 2: Le 11 Correnti Emotive ──
   const correntiData = useMemo(() => {
-    if (!Array.isArray(correnti) || correnti.length === 0) return []
-    return correnti.map((c) => ({
-      name: c.nome || c.label || c.key || '',
-      val: c.valore ?? c.punti ?? c.value ?? 0,
-      colore: c.colore || c.color || colors.accentSystem,
-      isDominant: Boolean(c.isDominant || c.principale),
-    }))
-  }, [correnti])
+    const list =
+      Array.isArray(sottocorrenti) && sottocorrenti.length > 0
+        ? sottocorrenti
+        : Array.isArray(correnti) && correnti.length > 0
+          ? correnti
+          : []
 
-  // Calcolo dati 4 Rapporti (Slide 3)
-  const rapportiRadarData = useMemo(() => {
+    return list.map((c) => {
+      const name = c.nome || c.label || c.key || ''
+      const val = Number(c.valore ?? c.punti ?? c.value ?? c.peso ?? 0)
+      const max = Number(c.maxTeorico ?? 18)
+      const pct =
+        c.percentuale != null
+          ? Number(c.percentuale)
+          : max > 0
+            ? Math.round(Math.min(100, Math.max(0, (val / max) * 100)))
+            : 0
+
+      const isDominant = Boolean(
+        c.isDominant ||
+          c.principale ||
+          (profilo?.sottodisposizione &&
+            name.toLowerCase() === String(profilo.sottodisposizione).toLowerCase()),
+      )
+
+      return {
+        name,
+        val,
+        pct,
+        colore: c.colore || c.color || colors.accentSystem,
+        isDominant,
+      }
+    })
+  }, [correnti, sottocorrenti, profilo])
+
+  // ── Slide 3: I Quattro Rapporti ──
+  const rapportiOverviewData = useMemo(() => {
     if (!Array.isArray(rapporti) || rapporti.length === 0) {
       return [
         { subject: 'Natura di base', value: 5, fullMark: 7 },
@@ -74,14 +115,40 @@ export default function GraficiViewerModal({
         { subject: "Rapporto con l'agire", value: 5, fullMark: 7 },
       ]
     }
-    return rapporti.map((r) => ({
-      subject: r.titolo || r.nome || r.label || 'Rapporto',
-      value: Number(r.valore ?? r.livello ?? r.punti ?? 4),
-      fullMark: 7,
-    }))
+    return rapporti.map((r) => {
+      const topVal = Number(
+        r.valore ??
+          r.livello ??
+          r.graduatoria?.[0]?.valore ??
+          r.correntePrincipale?.valore ??
+          (r.datiRadar?.[0]?.valore) ??
+          5,
+      )
+      return {
+        subject: r.nome || r.titolo || 'Rapporto',
+        value: topVal,
+        fullMark: 7,
+      }
+    })
   }, [rapporti])
 
-  // Calcolo dati Portato (Slide 4)
+  const singleRapportoData = useMemo(() => {
+    if (selectedRapportoTab < 0 || !rapporti[selectedRapportoTab]) return null
+    const r = rapporti[selectedRapportoTab]
+    const list = Array.isArray(r.datiRadar) ? r.datiRadar : []
+    return {
+      nome: r.nome,
+      correnteGuida: r.correntePrincipale?.nome || '',
+      colore: r.correntePrincipale?.colore || colors.accentSystem,
+      data: list.map((item) => ({
+        subject: item.corrente || item.nome || item.familyKey,
+        value: Number(item.valore ?? 4),
+        fullMark: 7,
+      })),
+    }
+  }, [rapporti, selectedRapportoTab])
+
+  // ── Slide 4: Il Portato Esperienziale ──
   const portatoView = useMemo(() => buildPortatoViewData(portato), [portato])
 
   // Gestione tastiera (frecce e Esc)
@@ -117,9 +184,9 @@ export default function GraficiViewerModal({
     }
   }
 
-  if (!isOpen) return null
+  if (!isOpen || typeof document === 'undefined') return null
 
-  return (
+  const modalContent = (
     <div
       className={`grafici-modal-overlay ${isOpen ? 'is-open' : ''}`}
       onClick={(e) => {
@@ -127,7 +194,7 @@ export default function GraficiViewerModal({
       }}
       role="dialog"
       aria-modal="true"
-      aria-label="Visore Grafici a Schermo Intero"
+      aria-label="Stanza dei Grafici a Schermo Intero"
     >
       <div
         ref={containerRef}
@@ -159,7 +226,7 @@ export default function GraficiViewerModal({
 
         {/* ── Body ── */}
         <div className="grafici-modal-body">
-          {/* Frecce laterali */}
+          {/* Frecce laterali di navigazione */}
           <button
             type="button"
             className="grafici-modal-arrow grafici-modal-arrow--prev"
@@ -180,7 +247,7 @@ export default function GraficiViewerModal({
             ›
           </button>
 
-          {/* SLIDE 0: Le 5 Famiglie Emotive */}
+          {/* ── SLIDE 0: Le 5 Famiglie Emotive (Titolo vincolante: "La tua esperienza sonora, in numeri") ── */}
           {activeSlide === 0 && (
             <>
               <div className="grafici-modal-slide-header">
@@ -203,7 +270,7 @@ export default function GraficiViewerModal({
                             className="slide-famiglia-dot"
                             style={{
                               backgroundColor: item.color,
-                              boxShadow: item.isDominant ? `0 0 10px ${item.color}` : 'none',
+                              boxShadow: item.isDominant ? `0 0 12px ${item.color}` : 'none',
                             }}
                           />
                           <span>{item.subject}</span>
@@ -232,13 +299,13 @@ export default function GraficiViewerModal({
             </>
           )}
 
-          {/* SLIDE 1: Le 11 Correnti Emotive */}
+          {/* ── SLIDE 1: Le 11 Correnti Emotive ── */}
           {activeSlide === 1 && (
             <>
               <div className="grafici-modal-slide-header">
                 <h2 className="grafici-modal-slide-title">Le undici correnti emotive</h2>
                 <p className="grafici-modal-slide-subtitle">
-                  Articolazione dei punteggi nelle specifiche correnti del modello
+                  Distribuzione dei punteggi e attivazione nelle specifiche correnti del modello
                 </p>
               </div>
 
@@ -257,12 +324,13 @@ export default function GraficiViewerModal({
                       </div>
                       <div className="slide-corrente-val">
                         Punteggio: <strong>{corrente.val}</strong>
+                        {corrente.pct > 0 && <span className="slide-corrente-pct-tag"> · {corrente.pct}%</span>}
                       </div>
                       <div className="slide-famiglia-track" style={{ height: '5px' }}>
                         <div
                           className="slide-famiglia-fill"
                           style={{
-                            width: `${Math.min(100, (corrente.val / 18) * 100)}%`,
+                            width: `${Math.min(100, Math.max(4, corrente.pct))}%`,
                             backgroundColor: corrente.colore,
                           }}
                         />
@@ -274,7 +342,7 @@ export default function GraficiViewerModal({
             </>
           )}
 
-          {/* SLIDE 2: I Quattro Rapporti */}
+          {/* ── SLIDE 2: I Quattro Rapporti ── */}
           {activeSlide === 2 && (
             <>
               <div className="grafici-modal-slide-header">
@@ -282,11 +350,43 @@ export default function GraficiViewerModal({
                 <p className="grafici-modal-slide-subtitle">
                   Orientamento dell'energia: Natura di base, Sé, Altro e Agire (scala 1–7)
                 </p>
+
+                {/* Sub-tabs per passare dalla panoramica ai singoli rapporti */}
+                {Array.isArray(rapporti) && rapporti.length > 0 && (
+                  <div className="slide-rapporti-subtabs" role="tablist" aria-label="Seleziona rapporto">
+                    <button
+                      type="button"
+                      role="tab"
+                      aria-selected={selectedRapportoTab === -1}
+                      className={`slide-rapporti-subtab ${selectedRapportoTab === -1 ? 'is-active' : ''}`}
+                      onClick={() => setSelectedRapportoTab(-1)}
+                    >
+                      Panoramica (4 Ambiti)
+                    </button>
+                    {rapporti.map((r, i) => (
+                      <button
+                        key={r.id || i}
+                        type="button"
+                        role="tab"
+                        aria-selected={selectedRapportoTab === i}
+                        className={`slide-rapporti-subtab ${selectedRapportoTab === i ? 'is-active' : ''}`}
+                        onClick={() => setSelectedRapportoTab(i)}
+                      >
+                        {r.nome || `Rapporto ${i + 1}`}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="grafici-modal-stage" style={{ height: '360px' }}>
                 <ResponsiveContainer width="100%" height={340}>
-                  <RadarChart data={rapportiRadarData} cx="50%" cy="50%" outerRadius="75%">
+                  <RadarChart
+                    data={singleRapportoData ? singleRapportoData.data : rapportiOverviewData}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius="75%"
+                  >
                     <PolarGrid stroke="rgba(255, 255, 255, 0.15)" />
                     <PolarAngleAxis
                       dataKey="subject"
@@ -302,8 +402,8 @@ export default function GraficiViewerModal({
                     <Radar
                       name="Livello relativo"
                       dataKey="value"
-                      stroke={profilo?.colore || colors.accentSystem}
-                      fill={profilo?.colore || colors.accentSystem}
+                      stroke={singleRapportoData?.colore || profilo?.colore || colors.accentSystem}
+                      fill={singleRapportoData?.colore || profilo?.colore || colors.accentSystem}
                       fillOpacity={0.4}
                     />
                     <Tooltip
@@ -319,6 +419,7 @@ export default function GraficiViewerModal({
                               padding: '0.4rem 0.8rem',
                               color: '#fff',
                               fontSize: '0.85rem',
+                              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
                             }}
                           >
                             <strong>{data.subject}</strong>: Livello {data.value} / 7
@@ -329,10 +430,16 @@ export default function GraficiViewerModal({
                   </RadarChart>
                 </ResponsiveContainer>
               </div>
+
+              {singleRapportoData?.correnteGuida && (
+                <p className="slide-rapporto-guida-text">
+                  Famiglia guida in questo ambito: <strong>{singleRapportoData.correnteGuida}</strong>
+                </p>
+              )}
             </>
           )}
 
-          {/* SLIDE 3: Il Portato Esperienziale */}
+          {/* ── SLIDE 3: Il Portato Esperienziale ── */}
           {activeSlide === 3 && (
             <>
               <div className="grafici-modal-slide-header">
@@ -364,42 +471,96 @@ export default function GraficiViewerModal({
                     })}
                   </div>
 
-                  {/* Triangolo visivo */}
+                  {/* Triangolo visivo a costellazione acustica con puck reale */}
                   <div className="slide-portato-pad">
-                    <svg viewBox="0 0 100 100" className="slide-portato-triangle-svg">
+                    <svg viewBox="-6 -6 112 112" className="slide-portato-triangle-svg" aria-hidden="true">
+                      <defs>
+                        <radialGradient id="slideRadarGlow" cx="50%" cy="36%" r="58%">
+                          <stop offset="0%" stopColor="var(--tst-color-accent-system, #38bdf8)" stopOpacity="0.16" />
+                          <stop offset="50%" stopColor="var(--tst-color-accent-system, #38bdf8)" stopOpacity="0.04" />
+                          <stop offset="100%" stopColor="rgba(255, 255, 255, 0)" stopOpacity="0" />
+                        </radialGradient>
+                        <radialGradient id="slidePuckGlow" cx="50%" cy="50%" r="50%">
+                          <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.9" />
+                          <stop offset="50%" stopColor="#38bdf8" stopOpacity="0.3" />
+                          <stop offset="100%" stopColor="transparent" stopOpacity="0" />
+                        </radialGradient>
+                      </defs>
+
+                      {/* Constellation polygon */}
                       <polygon
                         points="8,8 92,8 50,92"
-                        fill="rgba(255, 255, 255, 0.03)"
-                        stroke="rgba(255, 255, 255, 0.2)"
-                        strokeWidth="1.5"
+                        fill="url(#slideRadarGlow)"
+                        stroke="rgba(255, 255, 255, 0.18)"
+                        strokeWidth="1.2"
                       />
-                      {/* Vertici etichette */}
-                      <text x="8" y="5" fill="#4ade80" fontSize="5" fontWeight="600" textAnchor="start">
+
+                      {/* Concentric resonance rings */}
+                      <circle cx="50" cy="36" r="16" fill="none" stroke="rgba(255, 255, 255, 0.08)" strokeWidth="0.75" strokeDasharray="2 3" />
+                      <circle cx="50" cy="36" r="30" fill="none" stroke="rgba(255, 255, 255, 0.05)" strokeWidth="0.75" strokeDasharray="3 4" />
+
+                      {/* Axes from barycenter to poles */}
+                      <line x1="50" y1="36" x2="8" y2="8" stroke="rgba(74, 222, 128, 0.25)" strokeWidth="0.8" strokeDasharray="2 2" />
+                      <line x1="50" y1="36" x2="92" y2="8" stroke="rgba(248, 113, 113, 0.25)" strokeWidth="0.8" strokeDasharray="2 2" />
+                      <line x1="50" y1="36" x2="50" y2="92" stroke="rgba(148, 163, 184, 0.25)" strokeWidth="0.8" strokeDasharray="2 2" />
+
+                      {/* Vertices */}
+                      <circle cx="8" cy="8" r="4.5" fill="rgba(74, 222, 128, 0.15)" />
+                      <circle cx="8" cy="8" r="2.2" fill="#4ade80" />
+                      <text x="8" y="2.5" fill="#4ade80" fontSize="4.6" fontWeight="600" textAnchor="start" fontFamily="var(--font-body, 'Manrope', sans-serif)">
                         Sintonia
                       </text>
-                      <text x="92" y="5" fill="#f87171" fontSize="5" fontWeight="600" textAnchor="end">
+
+                      <circle cx="92" cy="8" r="4.5" fill="rgba(248, 113, 113, 0.15)" />
+                      <circle cx="92" cy="8" r="2.2" fill="#f87171" />
+                      <text x="92" y="2.5" fill="#f87171" fontSize="4.6" fontWeight="600" textAnchor="end" fontFamily="var(--font-body, 'Manrope', sans-serif)">
                         Distonia
                       </text>
-                      <text x="50" y="98" fill="#94a3b8" fontSize="5" fontWeight="600" textAnchor="middle">
+
+                      <circle cx="50" cy="92" r="4.5" fill="rgba(148, 163, 184, 0.15)" />
+                      <circle cx="50" cy="92" r="2.2" fill="#94a3b8" />
+                      <text x="50" y="100" fill="#94a3b8" fontSize="4.6" fontWeight="600" textAnchor="middle" fontFamily="var(--font-body, 'Manrope', sans-serif)">
                         Distanza
                       </text>
-                      {/* Punto baricentrico ascoltatore */}
+
+                      {/* Barycentric point (puck) */}
                       {portatoView.point && (
-                        <circle
-                          cx={portatoView.point.x}
-                          cy={portatoView.point.y}
-                          r="4"
-                          fill="#38bdf8"
-                          stroke="#ffffff"
-                          strokeWidth="1.5"
-                        >
-                          <animate
-                            attributeName="r"
-                            values="3.5;4.8;3.5"
-                            dur="2.5s"
-                            repeatCount="indefinite"
+                        <g>
+                          <line
+                            x1="50"
+                            y1="36"
+                            x2={portatoView.point.x}
+                            y2={portatoView.point.y}
+                            stroke="rgba(255, 255, 255, 0.45)"
+                            strokeWidth="0.8"
+                            strokeDasharray="1.5 2"
                           />
-                        </circle>
+                          <circle
+                            cx={portatoView.point.x}
+                            cy={portatoView.point.y}
+                            r="10"
+                            fill="url(#slidePuckGlow)"
+                          />
+                          <circle
+                            cx={portatoView.point.x}
+                            cy={portatoView.point.y}
+                            r="5"
+                            fill="none"
+                            stroke="#38bdf8"
+                            strokeWidth="0.8"
+                          >
+                            <animate attributeName="r" values="4;8;4" dur="2.8s" repeatCount="indefinite" />
+                            <animate attributeName="opacity" values="0.85;0.15;0.85" dur="2.8s" repeatCount="indefinite" />
+                          </circle>
+                          <circle
+                            cx={portatoView.point.x}
+                            cy={portatoView.point.y}
+                            r="3.5"
+                            fill="#ffffff"
+                            stroke="#38bdf8"
+                            strokeWidth="1.5"
+                          />
+                        </g>
                       )}
                     </svg>
                   </div>
@@ -429,4 +590,6 @@ export default function GraficiViewerModal({
       </div>
     </div>
   )
+
+  return createPortal(modalContent, document.body)
 }
