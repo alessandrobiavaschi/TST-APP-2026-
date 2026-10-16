@@ -789,6 +789,15 @@ function NewTestPage() {
         return
       }
 
+      // Senza connessione Firestore accoderebbe la scrittura senza conferma:
+      // non avviamo il salvataggio e lasciamo le risposte intatte nella pagina.
+      if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+        alert(
+          'Connessione assente. Le tue risposte restano in questa pagina: ricollegati a internet e premi di nuovo il pulsante di consegna.',
+        )
+        return
+      }
+
       if (!db) {
         alert('Firebase non configurato. Impossibile salvare. Aggiungi un file .env con le credenziali.')
         return
