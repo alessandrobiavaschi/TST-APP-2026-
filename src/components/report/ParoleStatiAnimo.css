@@ -1,0 +1,225 @@
+/* Stanza 05 — Parole (ParoleStatiAnimo.jsx, ParoleNatura.jsx).
+   Regole: docs/REGOLE_DESIGN_REPORT.md — scala --space-*, serif solo per h3, nessuna card. */
+
+.parole-tst {
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--space-sm);
+  color: #e2e8f0;
+  font-family: var(--font-body);
+}
+
+.parole-tst .report-passage-header {
+  margin-bottom: var(--space-md);
+}
+
+/* Famiglie: schede con sottolineatura */
+.parole-tst__famiglie {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-md);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: var(--space-sm);
+}
+
+.parole-tst__famiglia {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  min-height: 44px;
+  margin-bottom: -1px;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: #94a3b8;
+  font: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.parole-tst__famiglia[aria-selected='true'] {
+  color: #f8fafc;
+  font-weight: 600;
+  border-bottom-color: var(--famiglia-colore);
+}
+
+.parole-tst__pallino {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--famiglia-colore);
+}
+
+/* Famiglia e natura prevalenti: anello attorno al pallino, nessuna etichetta. */
+.parole-tst__pallino--prevalente {
+  box-shadow: 0 0 0 3px #0b1020, 0 0 0 4px var(--famiglia-colore);
+  margin-right: 4px;
+}
+
+/* Nature */
+.parole-tst__nature {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-md);
+}
+
+.parole-tst__natura {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-height: 44px;
+  padding: var(--space-xs) var(--space-sm);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  color: #94a3b8;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.parole-tst__natura[aria-selected='true'] {
+  color: #f8fafc;
+  border-color: var(--famiglia-colore);
+  background: color-mix(in srgb, var(--famiglia-colore) 12%, transparent);
+}
+
+.parole-tst__natura-nome {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.parole-tst__natura-sotto {
+  font-size: 0.8rem;
+  color: #a5b0c2;
+}
+
+/* Contenuto della natura */
+.parole-tst__blocco {
+  margin-bottom: var(--space-md);
+}
+
+.parole-tst__titoletto {
+  margin: 0 0 var(--space-sm);
+  font-family: var(--font-display, var(--font-serif));
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #f1f5f9;
+}
+
+.parole-tst__chiave {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.parole-tst__chiave li {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: var(--space-xs);
+  border-top: 2px solid var(--famiglia-colore);
+}
+
+.parole-tst__chiave-parola {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #f8fafc;
+}
+
+.parole-tst__chiave-nota {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #a5b0c2;
+}
+
+.parole-tst__interruttore {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  margin-bottom: var(--space-sm);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.parole-tst__interruttore button {
+  min-height: 36px;
+  padding: 0 var(--space-sm);
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: #a5b0c2;
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.parole-tst__interruttore button[aria-pressed='true'] {
+  background: #e2e8f0;
+  color: #0b1020;
+  font-weight: 600;
+}
+
+.parole-tst__elenco {
+  max-width: 65ch;
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.9;
+  color: #cbd5e1;
+}
+
+/* Parole collegate alle altre famiglie */
+.parole-tst__associazioni {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-sm);
+}
+
+.parole-tst__associazione {
+  padding: var(--space-sm);
+  border: 1px solid color-mix(in srgb, var(--associazione-colore) 40%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--associazione-colore) 6%, transparent);
+}
+
+.parole-tst__associazione-titolo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin: 0 0 4px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.parole-tst__pallino--associazione {
+  background: var(--associazione-colore);
+}
+
+.parole-tst__associazione-nota {
+  margin: 0 0 var(--space-xs);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: #a5b0c2;
+}
+
+.parole-tst__associazione .parole-tst__elenco {
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.parole-tst button:focus-visible {
+  outline: 2px solid #e2e8f0;
+  outline-offset: 2px;
+}

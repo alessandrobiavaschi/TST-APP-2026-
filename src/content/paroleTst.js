@@ -31,6 +31,8 @@ export const FAMIGLIE_TST = [
         rawKey: 'ROSSO_1_Assertivita',
         nome: 'Natura Volitiva',
         intervallo: intervalloDi('ROSSO_1_Assertivita'),
+        /** Dicitura sotto il nome della natura, alla lettera dal PDF «Parole per TST». */
+        sottotitoloFonte: "Intervallo di Prima",
         aggettivi: [
           'Ambizioso', 'Assertivo', 'Autoritario', 'Battagliero', 'Calcolatore', 'Caparbio', 'Certo',
           'Combattivo', 'Decisionista', 'Dominante', 'Esuberante', 'Fattivo', 'Fermo', 'Fiero', 'Focoso',
@@ -56,6 +58,13 @@ export const FAMIGLIE_TST = [
           'Operosità', 'Impulso all’azione', 'Decisione', 'Perseveranza', 'Determinazione', 'Coraggio',
           'Impulsività', 'Propensione al comando', 'Combattività', 'Forza di volontà',
         ],
+        // Titoli e note delle associazioni, nell'ordine e nella forma del PDF «Parole per TST».
+        associazioniFonte: [
+          { chiave: 'malinconica', titolo: "Associazione Malinconica", nota: "introspezione, sensibilità, orgoglio ferito, rigore critico" },
+          { chiave: 'flemmatica', titolo: "Associazione Flemmatica", nota: "calma, stabilità, ponderazione, resistenza" },
+          { chiave: 'entusiasta', titolo: "Associazione Entusiasta", nota: "energia, passione, slancio, impulso" },
+          { chiave: 'razionale', titolo: "Associazione Razionale-Anaffettiva", nota: "freddezza calcolatrice, dominio, determinazione senza coinvolgimento emotivo" },
+        ],
         associazioni: {
           malinconica: ['Caparbio', 'Fiero', 'Irritabile', 'Orgoglioso', 'Schietto', 'Sincero'],
           flemmatica: ['Fermo', 'Perseverante', 'Saggio', 'Saldo', 'Sicuro', 'Stabile'],
@@ -73,6 +82,8 @@ export const FAMIGLIE_TST = [
         rawKey: 'ROSSO_2_Dubbio_Collera',
         nome: 'Natura Collerica',
         intervallo: intervalloDi('ROSSO_2_Dubbio_Collera'),
+        /** Dicitura sotto il nome della natura, alla lettera dal PDF «Parole per TST». */
+        sottotitoloFonte: "dal Negativo al Positivo",
         // Set di default (polo negativo): usato per chip/vocabolario, coerente con l'uso storico della corrente.
         aggettivi: [
           'Ambiguo', 'Diffidente', 'Dubbioso', 'Elusivo', 'Enigmatico', 'Equivoco', 'Esitante', 'Furioso',
@@ -112,6 +123,13 @@ export const FAMIGLIE_TST = [
           ],
           sostantiviSintesi: ['Coraggio', 'Impresa', 'Prodezza', 'Valore', 'Sfida', 'Conquista', 'Ardimento'],
         },
+        // Titoli e note delle associazioni, nell'ordine e nella forma del PDF «Parole per TST».
+        associazioniFonte: [
+          { chiave: 'malinconica', titolo: "Associazione Malinconica", nota: "sofferenza interiore, sospetto, rimuginio, disagio prolungato" },
+          { chiave: 'flemmatica', titolo: "Associazione Flemmatica", nota: "lentezza decisionale, passività, indeterminatezza" },
+          { chiave: 'entusiasta', titolo: "Associazione Entusiasta", nota: "agitazione, energia nervosa, instabilità emotiva \"in eccesso\"" },
+          { chiave: 'razionale', titolo: "Associazione Razionale-Anaffettiva", nota: "freddezza calcolata, ambiguità strategica, distacco enigmatico" },
+        ],
         associazioni: {
           malinconica: ['Diffidente', 'Sospettoso', 'Travagliato', 'Tribolato'],
           flemmatica: ['Incerto', 'Indeciso', 'Irrisoluto', 'Esitante', 'Dubbioso', 'Perplesso', 'Oscillante', 'Precario'],
@@ -131,6 +149,8 @@ export const FAMIGLIE_TST = [
         rawKey: 'BLU_1_Depressiva',
         nome: 'Natura Lunare — Depressiva',
         intervallo: intervalloDi('BLU_1_Depressiva'),
+        /** Dicitura sotto il nome della natura, alla lettera dal PDF «Parole per TST». */
+        sottotitoloFonte: "Intervallo di Seconda minore",
         aggettivi: [
           'Angosciato', 'Avvilito', 'Cupo', 'Chiuso', 'Depresso', 'Desolato', 'Fosco', 'Impotente', 'Nero',
           'Negativo', 'Nostalgico', 'Ombroso', 'Pauroso', 'Rimuginante', 'Scombussolato', 'Sconfortato',
@@ -154,6 +174,12 @@ export const FAMIGLIE_TST = [
           'Sofferenza', 'Avvilimento', 'Cupezza', 'Chiusura', 'Depressione', 'Desolazione', 'Impotenza',
           'Sconforto', 'Svuotamento', 'Tormento',
         ],
+        // Titoli e note delle associazioni, nell'ordine e nella forma del PDF «Parole per TST».
+        associazioniFonte: [
+          { chiave: 'marziale', titolo: "Associazione Marziale", nota: "agitazione acuta, paura, shock" },
+          { chiave: 'flemmatica', titolo: "Associazione Flemmatica", nota: "calma passiva, chiusura, svuotamento" },
+          { chiave: 'entusiasta', titolo: "Associazione Entusiasta", nota: "Sanguigno" },
+        ],
         associazioni: {
           marziale: ['Angosciato', 'Ombroso', 'Pauroso', 'Scombussolato', 'Scosso', 'Sgomento', 'Straziato', 'Terrorizzato', 'Tormentato'],
           flemmatica: ['Chiuso', 'Impotente', 'Scoraggiato', 'Svuotato', 'Fosco'],
@@ -164,6 +190,8 @@ export const FAMIGLIE_TST = [
         rawKey: 'BLU_2_Lunare',
         nome: 'Natura Lunare — Introspettiva',
         intervallo: intervalloDi('BLU_2_Lunare'),
+        /** Dicitura sotto il nome della natura, alla lettera dal PDF «Parole per TST». */
+        sottotitoloFonte: "Intervallo di Terza minore",
         aggettivi: [
           'Amareggiato', 'Ansioso', 'Assorto', 'Deluso', 'Demotivato', 'Disilluso', 'Introverso',
           'Introspettivo', 'Lunatico', 'Malinconico', 'Mesto', 'Ombroso', 'Pensieroso', 'Pessimista',
@@ -187,6 +215,12 @@ export const FAMIGLIE_TST = [
           'Profondità', 'Sensibilità emotiva', 'Introspettività', 'Pensierosità', 'Malinconicità', 'Timidezza',
           'Idealismo', 'Riflessività', 'Lunaticità', 'Riservatezza',
         ],
+        // Titoli e note delle associazioni, nell'ordine e nella forma del PDF «Parole per TST».
+        associazioniFonte: [
+          { chiave: 'marziale', titolo: "Associazione Marziale", nota: "Collerico — tensione, agitazione, irritabilità" },
+          { chiave: 'flemmatica', titolo: "Associazione Flemmatica", nota: "calma, passività, ritiro" },
+          { chiave: 'entusiasta', titolo: "Associazione Entusiasta", nota: "Sanguigno — mutevolezza, energia verso l’esterno" },
+        ],
         associazioni: {
           marziale: ['Ansioso', 'Ombroso', 'Turbato'],
           flemmatica: ['Demotivato', 'Introverso', 'Rassegnato', 'Riservato', 'Solitario', 'Taciturno', 'Timido', 'Schivo'],
@@ -197,6 +231,8 @@ export const FAMIGLIE_TST = [
         rawKey: 'BLU_4_Solare',
         nome: 'Natura Solare',
         intervallo: intervalloDi('BLU_4_Solare'),
+        /** Dicitura sotto il nome della natura, alla lettera dal PDF «Parole per TST». */
+        sottotitoloFonte: "Intervallo di Terza maggiore",
         aggettivi: [
           'Accogliente', 'Aperto', 'Armonioso', 'Amorevole', 'Ammirato', 'Benevolo', 'Chiaro', 'Confidente',
           'Confortato', 'Consolato', 'Contento', 'Delicato', 'Disteso', 'Devoto', 'Deferente', 'Fervente',
@@ -221,6 +257,13 @@ export const FAMIGLIE_TST = [
           'Accoglienza', 'Apertura', 'Armoniosità', 'Amorevolezza', 'Benevolenza', 'Fiducia', 'Gratitudine',
           'Ottimismo', 'Serenità', 'Speranza',
         ],
+        // Titoli e note delle associazioni, nell'ordine e nella forma del PDF «Parole per TST».
+        associazioniFonte: [
+          { chiave: 'marziale', titolo: "Associazione Marziale", nota: "energia, calore intenso, slancio" },
+          { chiave: 'flemmatica', titolo: "Associazione Flemmatica", nota: "calma, quiete, mitezza" },
+          { chiave: 'entusiasta', titolo: "Associazione Entusiasta", nota: "apertura, gioia, calore verso gli altri" },
+          { chiave: 'malinconicaIntrospettiva', titolo: "Associazione Malinconico Lunare Introspettivo", nota: "riflessione, interiorità, lucidità" },
+        ],
         associazioni: {
           marziale: ['Confidente', 'Fervente', 'Rinfrancato'],
           flemmatica: ['Armonioso', 'Confortato', 'Consolato', 'Delicato', 'Deferente', 'Disteso', 'Gentile', 'Mansueto', 'Mite', 'Pacato', 'Quieto', 'Rasserenato', 'Sereno'],
@@ -232,6 +275,8 @@ export const FAMIGLIE_TST = [
         rawKey: 'BLU_3_Nostalgia',
         nome: 'Natura Nostalgica',
         intervallo: intervalloDi('BLU_3_Nostalgia'),
+        /** Dicitura sotto il nome della natura, alla lettera dal PDF «Parole per TST». */
+        sottotitoloFonte: "Intervallo di settima maggiore",
         aggettivi: [
           'Abbandonato', 'Afflitto', 'Amareggiato', 'Assente', 'Congedato', 'Deluso', 'Desolato', 'Disperato',
           'Dissolto', 'Distante', 'Esiliato', 'Evocativo', 'Inconsolabile', 'Isolato', 'Mortificato',
@@ -256,6 +301,12 @@ export const FAMIGLIE_TST = [
           'Abbandono', 'Afflizione', 'Vivere nel ricordo', 'Rimpianto', 'Sconsolazione', 'Smarrimento',
           'Isolamento', 'Desolazione', 'Struggimento', 'Saudade',
         ],
+        // Titoli e note delle associazioni, nell'ordine e nella forma del PDF «Parole per TST».
+        associazioniFonte: [
+          { chiave: 'marziale', titolo: "Associazione Marziale", nota: "disperazione attiva, smarrimento agitato, colpo intenso" },
+          { chiave: 'flemmatica', titolo: "Associazione Flemmatica", nota: "passività, vuoto, allontanamento" },
+          { chiave: 'entusiasta', titolo: "Associazione Entusiasta", nota: "Sanguigno" },
+        ],
         associazioni: {
           marziale: ['Abbandonato', 'Disperato', 'Mortificato', 'Smarrito', 'Sradicato'],
           flemmatica: ['Assente', 'Congedato', 'Distante', 'Dissolto', 'Isolato', 'Perso', 'Remoto', 'Sospeso', 'Sperduto', 'Svanito', 'Vuoto'],
@@ -274,6 +325,8 @@ export const FAMIGLIE_TST = [
         rawKey: 'VERDE_1_CalmaContemplativa',
         nome: 'Natura — Calma Contemplativa',
         intervallo: intervalloDi('VERDE_1_CalmaContemplativa'),
+        /** Dicitura sotto il nome della natura, alla lettera dal PDF «Parole per TST». */
+        sottotitoloFonte: "Intervallo di Quinta",
         aggettivi: [
           'Ammirato', 'Ascetico', 'Beato', 'Contemplativo', 'Devoto', 'Estatico', 'Fatalista', 'Meditativo',
           'Olimpico', 'Pacato', 'Meravigliato', 'Mistico', 'Serafico', 'Sognante', 'Trascendente', 'Visionario',
@@ -296,6 +349,8 @@ export const FAMIGLIE_TST = [
         rawKey: 'VERDE_2_CalmaFisica',
         nome: 'Natura — Calma Fisica',
         intervallo: intervalloDi('VERDE_2_CalmaFisica'),
+        /** Dicitura sotto il nome della natura, alla lettera dal PDF «Parole per TST». */
+        sottotitoloFonte: "Intervallo di Quinta eccedente",
         aggettivi: [
           'Apatico', 'Calmo', 'Bonario', 'Indolente', 'Inerte', 'Lento', 'Ozioso', 'Meticoloso', 'Metodico',
           'Pacifico', 'Paziente', 'Pigro', 'Placido', 'Quieto', 'Rilassato', 'Rimandatario', 'Ripetitivo',
@@ -319,6 +374,12 @@ export const FAMIGLIE_TST = [
           'Indolenza', 'Ripetitività', 'Pacatezza', 'Contemplatività', 'Abitudinarietà', 'Lentezza',
           'Tranquillità', 'Oziosità', 'Prudenza', 'Metodicità',
         ],
+        // Titoli e note delle associazioni, nell'ordine e nella forma del PDF «Parole per TST».
+        associazioniFonte: [
+          { chiave: 'marziale', titolo: "Associazione Marziale", nota: "" },
+          { chiave: 'malinconica', titolo: "Associazione Malinconica", nota: "" },
+          { chiave: 'entusiasta', titolo: "Associazione Entusiasta", nota: "" },
+        ],
         associazioni: {
           marziale: ['Paziente', 'Prudente', 'Meticoloso', 'Metodico'],
           malinconica: ['Apatico', 'Indolente', 'Inerte', 'Lento', 'Ozioso', 'Pigro', 'Rimandatario', 'Ripetitivo', 'Procrastinatore', 'Sedentario', 'Sospeso', 'Statico', 'Svogliato', 'Torpido', 'Letargico', 'Fiacco', 'Molle', 'Accidioso', 'Sonnacchioso'],
@@ -337,6 +398,8 @@ export const FAMIGLIE_TST = [
         rawKey: 'GIALLO_1_Gioia_Entusiasmo',
         nome: 'Natura Gioiosa — Solare',
         intervallo: intervalloDi('GIALLO_1_Gioia_Entusiasmo'),
+        /** Dicitura sotto il nome della natura, alla lettera dal PDF «Parole per TST». */
+        sottotitoloFonte: "Intervallo di Sesta",
         aggettivi: [
           'Allegro', 'Dinamico', 'Brioso', 'Caloroso', 'Effervescente', 'Espansivo', 'Euforico', 'Felice',
           'Frizzante', 'Giocoso', 'Gioioso', 'Socievole', 'Spensierato', 'Trascinante', 'Vivace', 'Ammirato',
@@ -357,6 +420,12 @@ export const FAMIGLIE_TST = [
           'Calorosità', 'Vivacità', 'Radiosità', 'Spensieratezza', 'Socievolezza', 'Dinamicità', 'Allegria',
           'Luminosità', 'Festosità', 'Felicità',
         ],
+        // Titoli e note delle associazioni, nell'ordine e nella forma del PDF «Parole per TST».
+        associazioniFonte: [
+          { chiave: 'marziale', titolo: "Associazione Marziale", nota: "" },
+          { chiave: 'malinconica', titolo: "Associazione Malinconica", nota: "" },
+          { chiave: 'flemmatica', titolo: "Associazione Flemmatica", nota: "" },
+        ],
         associazioni: {
           marziale: ['Trionfante', 'Fervente', 'Fulgido', 'Impavido', 'Combattivo'],
           malinconica: ['Nostalgico', 'Devoto', 'Struggente', 'Rassegnato', 'Riservato'],
@@ -367,6 +436,8 @@ export const FAMIGLIE_TST = [
         rawKey: 'GIALLO_2_Volitivo_Passionale',
         nome: 'Natura Sanguigna — Operosa',
         intervallo: intervalloDi('GIALLO_2_Volitivo_Passionale'),
+        /** Dicitura sotto il nome della natura, alla lettera dal PDF «Parole per TST». */
+        sottotitoloFonte: "Intervallo di Settima minore — energia che accende i propositi",
         aggettivi: [
           'Ardente', 'Comunicativo', 'Coraggioso', 'Curioso', 'Entusiasta', 'Esaltato', 'Esuberante', 'Fluido',
           'Impavido', 'Impaziente', 'Innamorato', 'Intraprendente', 'Intrepido', 'Irrefrenabile', 'Infuocato',
@@ -388,6 +459,12 @@ export const FAMIGLIE_TST = [
           'Intraprendenza', 'Vitalità', 'Ardore', 'Spontaneità', 'Coraggio', 'Passione', 'Iniziativa',
           'Instancabilità', 'Esplosività', 'Entusiasmo',
         ],
+        // Titoli e note delle associazioni, nell'ordine e nella forma del PDF «Parole per TST».
+        associazioniFonte: [
+          { chiave: 'marziale', titolo: "Associazione Marziale", nota: "" },
+          { chiave: 'malinconica', titolo: "Associazione Malinconica", nota: "" },
+          { chiave: 'flemmatica', titolo: "Associazione Flemmatica", nota: "" },
+        ],
         associazioni: {
           marziale: ['Coraggioso', 'Determinato', 'Audace', 'Focoso', 'Impetuoso', 'Intraprendente', 'Temerario', 'Ardente'],
           malinconica: ['Idealista', 'Visionario', 'Passionale', 'Inquieto', 'Fatalista'],
@@ -406,6 +483,8 @@ export const FAMIGLIE_TST = [
         rawKey: 'GRIGIO_1_Anaffettiva',
         nome: 'Natura Anaffettiva',
         intervallo: intervalloDi('GRIGIO_1_Anaffettiva'),
+        /** Dicitura sotto il nome della natura, alla lettera dal PDF «Parole per TST». */
+        sottotitoloFonte: "i Timbri non naturali tendono ad essere tradotti come informazioni",
         aggettivi: [
           'Algido', 'Anaffettivo', 'Analitico', 'Autocontrollato', 'Calcolatore', 'Contenuto', 'Disincantato',
           'Distaccato', 'Distante', 'Ermetico', 'Freddo', 'Glaciale', 'Impassibile', 'Impersonale',
@@ -426,6 +505,13 @@ export const FAMIGLIE_TST = [
           'Anaffettività', 'Freddezza', 'Autocontrollo', 'Distacco', 'Insensibilità', 'Impassibilità',
           'Vuoto emotivo', 'Indifferenza', 'Aridità affettiva', 'Impersonalità', 'Algidità',
         ],
+        // Titoli e note delle associazioni, nell'ordine e nella forma del PDF «Parole per TST».
+        associazioniFonte: [
+          { chiave: 'marziale', titolo: "Associazione Marziale", nota: "" },
+          { chiave: 'malinconica', titolo: "Associazione Malinconica", nota: "" },
+          { chiave: 'entusiasta', titolo: "Associazione Sanguigna/Entusiasta", nota: "" },
+          { chiave: 'flemmatica', titolo: "Associazione Flemmatica", nota: "" },
+        ],
         associazioni: {
           marziale: ['Duro', 'Glaciale (nell’azione)', 'Inflessibile', 'Spietato', 'Imperturbabile'],
           malinconica: ['Disincantato', 'Cinico', 'Disilluso', 'Arido', 'Rassegnato-distante'],
@@ -437,6 +523,8 @@ export const FAMIGLIE_TST = [
         rawKey: 'GRIGIO_2_Distaccata',
         nome: 'Natura Distaccata',
         intervallo: intervalloDi('GRIGIO_2_Distaccata'),
+        /** Dicitura sotto il nome della natura, alla lettera dal PDF «Parole per TST». */
+        sottotitoloFonte: "",
         aggettivi: [
           'Analitico', 'Appartato', 'Cauto', 'Cinico', 'Composto', 'Contenuto', 'Controllato', 'Critico',
           'Disincantato', 'Distaccato', 'Distante', 'Ironico', 'Lucido', 'Obiettivo', 'Osservatore', 'Razionale',
@@ -455,6 +543,13 @@ export const FAMIGLIE_TST = [
         sostantiviSintesi: [
           'Distacco', 'Lucidità', 'Autocontrollo', 'Osservazione', 'Disincanto', 'Riservatezza', 'Ironia',
           'Prevedibilità', 'Intellettualizzazione', 'Scetticismo',
+        ],
+        // Titoli e note delle associazioni, nell'ordine e nella forma del PDF «Parole per TST».
+        associazioniFonte: [
+          { chiave: 'marziale', titolo: "Associazione con Marziale", nota: "" },
+          { chiave: 'malinconica', titolo: "Associazione con Malinconico", nota: "" },
+          { chiave: 'entusiasta', titolo: "Associazione con Sanguigna/Entusiasta", nota: "" },
+          { chiave: 'flemmatica', titolo: "Associazione con Flemmatico", nota: "" },
         ],
         associazioni: {
           marziale: ['Rigoroso', 'Calcolatore', 'Autodisciplinato', 'Lucido (nella decisione)', 'Imperturbabile-vigile'],

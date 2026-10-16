@@ -338,17 +338,6 @@ export default function ReportShell({
     () => correnti.map((c) => ({ nome: c.nome, colore: c.colore, peso: c.peso })),
     [correnti],
   )
-  const correntiNomeColore = useMemo(
-    () =>
-      correnti.map((c) => ({
-        nome: c.nome,
-        colore: c.colore,
-        descrizioneBreve: c.descrizioneBreve || '',
-        familyName: c.familyName || '',
-        macroLabel: c.label || '',
-      })),
-    [correnti],
-  )
 
   const reportIdentityKey = useMemo(() => {
     if (!rawRecord || typeof rawRecord !== 'object') return ''
@@ -695,10 +684,8 @@ export default function ReportShell({
                 </header>
                 <RoomRevealContent id="report-tst-parole" className="report-tst-section-anchor">
                   <ParoleStatiAnimo
-                    correnti={correntiNomeColore}
-                    famiglieLessico={famiglieLessico}
-                    correnteDominante={profilo?.correnteDominante || ''}
                     famiglia={profilo?.famiglia || ''}
+                    naturaPrevalente={profilo?.disposizione || ''}
                   />
                 </RoomRevealContent>
               </section>

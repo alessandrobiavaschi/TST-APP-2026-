@@ -273,8 +273,8 @@ export const PORTATO_UI = {
 
 export const PAROLE_UI = {
   eyebrow: "Un contributo all'educazione emotiva",
-  title: 'Dizionario emotivo',
-  educazioneSubtitle: 'Qui trovi le parole utili per nominare i sentimenti che il test ha fatto emergere.',
+  title: 'Parole',
+  educazioneSubtitle: 'Aggettivi, sostantivi, parole di sintesi e collegamenti tra le famiglie',
   educazioneParagraphs: [
     "Uno degli aspetti dell'educazione emotiva è rendersi sempre più consapevoli degli effetti che la Musica provoca nel suscitare in modo del tutto naturale sentimenti, emozioni e stati d'animo.",
     "Al sorgere di queste molteplici sensazioni dovrebbe essere associata anche la capacità di nominarle e di selezionarle. La costruzione di un proprio dizionario dei sentimenti è un preludio concreto per praticare l'educazione emotiva.",

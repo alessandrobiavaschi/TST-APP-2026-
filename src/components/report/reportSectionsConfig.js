@@ -108,11 +108,11 @@ export const REPORT_GROUPS = [
   },
   {
     id: 'report-group-educazione',
-    title: 'Lessico emotivo e parole',
-    subtitle: 'Dizionario emotivo per nominare i sentimenti emersi dal test',
+    title: 'Parole',
+    subtitle: 'Aggettivi, sostantivi, parole di sintesi e collegamenti tra le famiglie',
     intro: GROUP_INTROS['report-group-educazione'] || '',
     stepLabel: '5',
-    readingFocus: 'Parole emerse dal test, dizionario per famiglia, definizioni e copia.',
+    readingFocus: 'Parole chiave, aggettivi e sostantivi di ogni natura, parole collegate alle altre famiglie.',
     defaultOpen: false,
   },
   {
