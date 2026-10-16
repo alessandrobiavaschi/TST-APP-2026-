@@ -872,7 +872,7 @@ export default function ReportShell({
       ) : null}
 
       {/* ── STANZA SEPARATA: GALASSIA ──────────────────────────────────────── */}
-      {galassiaEverOpened ? (
+      {galassiaEverOpened && !isMobileViewport ? (
         <div
           ref={galassiaLayerRef}
           tabIndex="-1"

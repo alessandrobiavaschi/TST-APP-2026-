@@ -392,29 +392,34 @@ export default function HeroScreen({
                 </motion.p>
               )}
 
-              {/* Aura d'Ascolto / Badge Portato Esperienziale */}
+              {/* Risonanza d'Ascolto (Portato) - Minimal, fluida e senza rettangoli */}
               {portatoView.hasData && (
-                <motion.div {...fade(0.38, 14)} className="hero-screen__portato-bussola">
-                  <div className="hero-screen__portato-badge">
-                    <div className="hero-screen__portato-header">
-                      <span className="hero-screen__portato-kicker">Postura d'ascolto</span>
-                      <span className="hero-screen__portato-title">{posturaInfo.label}</span>
-                    </div>
-                    <p className="hero-screen__portato-sub">{posturaInfo.sub}</p>
-                    <div className="hero-screen__portato-bars">
-                      <div className="hero-screen__portato-bar-chip">
-                        <span className="hero-screen__portato-dot" style={{ backgroundColor: '#4ade80' }} />
-                        <span>Sintonia: <strong>{dimSimpatia.percentage}%</strong></span>
-                      </div>
-                      <div className="hero-screen__portato-bar-chip">
-                        <span className="hero-screen__portato-dot" style={{ backgroundColor: '#f87171' }} />
-                        <span>Distonia: <strong>{dimAntipatia.percentage}%</strong></span>
-                      </div>
-                      <div className="hero-screen__portato-bar-chip">
-                        <span className="hero-screen__portato-dot" style={{ backgroundColor: '#94a3b8' }} />
-                        <span>Distanza: <strong>{dimIndifferenza.percentage}%</strong></span>
-                      </div>
-                    </div>
+                <motion.div {...fade(0.35, 12)} className="hero-screen__portato-line">
+                  <div
+                    className="hero-screen__portato-pill"
+                    title={`Bilancio d'ascolto: ${dimSimpatia.percentage}% Sintonia, ${dimAntipatia.percentage}% Distonia, ${dimIndifferenza.percentage}% Distanza`}
+                  >
+                    <span className="hero-screen__portato-metric" title="Sintonia: apertura e risonanza verso gli stimoli sonori">
+                      <span className="hero-screen__portato-dot" style={{ backgroundColor: '#4ade80', boxShadow: '0 0 8px rgba(74, 222, 128, 0.7)' }} />
+                      <span className="hero-screen__portato-name">Sintonia</span>
+                      <strong className="hero-screen__portato-val">{dimSimpatia.percentage}%</strong>
+                    </span>
+
+                    <span className="hero-screen__portato-sep" aria-hidden="true">·</span>
+
+                    <span className="hero-screen__portato-metric" title="Distonia: reattività o rifiuto verso gli stimoli sonori">
+                      <span className="hero-screen__portato-dot" style={{ backgroundColor: '#f87171', boxShadow: '0 0 8px rgba(248, 113, 113, 0.7)' }} />
+                      <span className="hero-screen__portato-name">Distonia</span>
+                      <strong className="hero-screen__portato-val">{dimAntipatia.percentage}%</strong>
+                    </span>
+
+                    <span className="hero-screen__portato-sep" aria-hidden="true">·</span>
+
+                    <span className="hero-screen__portato-metric" title="Distanza: neutralità o distacco verso gli stimoli sonori">
+                      <span className="hero-screen__portato-dot" style={{ backgroundColor: '#94a3b8', boxShadow: '0 0 8px rgba(148, 163, 184, 0.7)' }} />
+                      <span className="hero-screen__portato-name">Distanza</span>
+                      <strong className="hero-screen__portato-val">{dimIndifferenza.percentage}%</strong>
+                    </span>
                   </div>
                 </motion.div>
               )}
@@ -490,75 +495,67 @@ export default function HeroScreen({
           text-shadow: 0 2px 16px rgba(0, 0, 0, 0.6);
         }
 
-        .hero-screen__portato-bussola {
-          width: 100%;
-          max-width: 640px;
-          margin: 0 auto 1.6rem;
-        }
-
-        .hero-screen__portato-badge {
-          background: rgba(16, 22, 34, 0.75);
-          backdrop-filter: blur(16px);
-          -webkit-backdrop-filter: blur(16px);
-          border: 1px solid rgba(255, 255, 255, 0.14);
-          border-radius: 16px;
-          padding: 1rem 1.4rem;
-          text-align: center;
-          box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
-        }
-
-        .hero-screen__portato-header {
+        .hero-screen__portato-line {
           display: flex;
-          align-items: center;
           justify-content: center;
-          gap: 0.6rem;
-          margin-bottom: 0.25rem;
-        }
-
-        .hero-screen__portato-kicker {
-          font-size: 0.75rem;
-          font-weight: 600;
-          text-transform: uppercase;
-          letter-spacing: 0.08em;
-          color: var(--tst-color-accent-system, #38bdf8);
-        }
-
-        .hero-screen__portato-title {
-          font-size: 0.95rem;
-          font-weight: 700;
-          color: #ffffff;
-        }
-
-        .hero-screen__portato-sub {
-          font-size: 0.82rem;
-          color: var(--tst-color-text-muted, rgba(248, 250, 252, 0.65));
-          margin: 0 0 0.85rem;
-        }
-
-        .hero-screen__portato-bars {
-          display: flex;
           align-items: center;
-          justify-content: center;
-          flex-wrap: wrap;
-          gap: 0.75rem;
+          margin: 0.2rem 0 1.5rem;
         }
 
-        .hero-screen__portato-bar-chip {
+        .hero-screen__portato-pill {
           display: inline-flex;
           align-items: center;
-          gap: 0.45rem;
-          padding: 0.35rem 0.75rem;
+          gap: clamp(0.6rem, 1.4vw, 1.1rem);
+          padding: 0.38rem 1.15rem;
           background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.08);
+          border: 1px solid rgba(255, 255, 255, 0.12);
           border-radius: 999px;
-          font-size: 0.82rem;
-          color: rgba(248, 250, 252, 0.85);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.28);
+          transition: all 0.25s ease;
+        }
+
+        .hero-screen__portato-pill:hover {
+          background: rgba(255, 255, 255, 0.08);
+          border-color: rgba(255, 255, 255, 0.24);
+          transform: translateY(-1px);
+        }
+
+        .hero-screen__portato-metric {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.42rem;
+          font-family: var(--font-body, 'Manrope', sans-serif);
+          font-size: clamp(0.8rem, 1.05vw, 0.9rem);
+          color: rgba(248, 250, 252, 0.9);
+          cursor: default;
+        }
+
+        .hero-screen__portato-name {
+          color: rgba(248, 250, 252, 0.78);
+          font-weight: 500;
+        }
+
+        .hero-screen__portato-val {
+          color: #ffffff;
+          font-weight: 700;
+          font-family: var(--font-mono, 'JetBrains Mono', monospace);
+          font-size: 0.85rem;
         }
 
         .hero-screen__portato-dot {
-          width: 8px;
-          height: 8px;
+          width: 7px;
+          height: 7px;
           border-radius: 50%;
+          display: inline-block;
+          flex-shrink: 0;
+        }
+
+        .hero-screen__portato-sep {
+          color: rgba(255, 255, 255, 0.25);
+          font-size: 0.95rem;
+          user-select: none;
         }
 
         /* ── Dittico styles ── */
