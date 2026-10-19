@@ -25,6 +25,9 @@
   --tst-color-text-secondary: rgba(248, 250, 252, 0.82);
   --tst-color-text-muted: rgba(248, 250, 252, 0.60);
   --tst-color-text-ghost: rgba(248, 250, 252, 0.35);
+  /* Etichette su pannelli scuri (viola quasi bianco) e testo su superfici bianche (tabelle) */
+  --tst-color-text-label: #ede9fe;
+  --tst-color-text-on-light: #0b0b14;
 
   /* ── 4. Accento Neutro di Sistema ── */
   --tst-color-accent-system: #38bdf8;
@@ -129,6 +132,8 @@
   --tst-color-text-secondary: #334155;
   --tst-color-text-muted: #64748b;
   --tst-color-text-ghost: #94a3b8;
+  --tst-color-text-label: #4a4a74;
+  --tst-color-text-on-light: #0b0b14;
 
   --tst-shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.06);
   --tst-shadow-md: 0 4px 20px rgba(15, 23, 42, 0.08);

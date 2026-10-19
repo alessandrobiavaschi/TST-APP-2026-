@@ -22076,6 +22076,20 @@ a:focus-visible {
 
 /* ── Results page visual improvements ── */
 
+/* Leggibilità: etichette filtri sul pannello scuro, testo nero nelle celle bianche */
+.results-main-card .filter-field label,
+.results-main-card .results-filters-hint {
+  color: var(--tst-color-text-label);
+}
+
+.results-table tbody td {
+  color: var(--tst-color-text-on-light);
+}
+
+.archives-nav-item--trash {
+  color: var(--color-text);
+}
+
 /* Sticky table header */
 .results-table thead th {
   position: sticky;
