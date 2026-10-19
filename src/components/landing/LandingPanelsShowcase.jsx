@@ -7,6 +7,7 @@ export default function LandingPanelsShowcase({ panels, onActivePanelChange }) {
   const [activePanelIndex, setActivePanelIndex] = useState(0)
   const [transitionKey, setTransitionKey] = useState(0)
   const [isSectionInView, setIsSectionInView] = useState(false)
+  const [isNavVisible, setIsNavVisible] = useState(false)
 
   const containerRef = useRef(null)
   const isProgrammaticScrollRef = useRef(false)
@@ -44,6 +45,11 @@ export default function LandingPanelsShowcase({ panels, onActivePanelChange }) {
       if (!container) return
 
       const rect = container.getBoundingClientRect()
+      // I punti compaiono solo quando i pannelli occupano lo schermo
+      const mid = window.innerHeight / 2
+      const navShouldShow = rect.top <= mid && rect.bottom >= mid
+      setIsNavVisible((prev) => (prev === navShouldShow ? prev : navShouldShow))
+
       const totalScrollable = (panels.length - 1) * window.innerHeight
       if (totalScrollable <= 0) return
 
@@ -59,6 +65,7 @@ export default function LandingPanelsShowcase({ panels, onActivePanelChange }) {
       }
     }
 
+    handleScroll()
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [activePanelIndex, panels.length])
@@ -96,7 +103,9 @@ export default function LandingPanelsShowcase({ panels, onActivePanelChange }) {
     >
       {/* Navigazione laterale: solo punti, il nome del passaggio compare al passaggio del mouse */}
       <nav
-        className="tst-nebula-panel-nav"
+        className={`tst-nebula-panel-nav${isNavVisible ? ' is-visible' : ''}`}
+        aria-hidden={!isNavVisible}
+        inert={!isNavVisible}
         role="tablist"
         aria-label="Passaggi esplorativi del Test TST"
       >

@@ -13933,6 +13933,8 @@ body {
   inset: -5%;
   width: 110%;
   height: 110%;
+  /* Il reset globale img { max-width: 100% } la tagliava: restava una banda scura a destra */
+  max-width: none;
   object-fit: cover;
   object-position: 50% 40%;
   opacity: 0;

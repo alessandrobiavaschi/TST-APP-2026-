@@ -25,6 +25,8 @@ const PANELS_DATA = [
   {
     num: '01',
     color: '#f9a8d4',
+    eyebrow: 'ASCOLTATORI E MUSICISTI',
+    title: 'Ognuno ascolta a modo suo',
     paragraphs: [
       'Ogni individuo è un ascoltatore. Come tale ha un suo specifico, individuale rapporto di relazione emotiva con il suono e con la Musica che il Test rileva e rivela.',
       'Ma non tutti gli ascoltatori sono persone che fanno Musica, o che fanno parte della categoria dei musicisti che con le emozioni ci dialoga e ci lavora.',
