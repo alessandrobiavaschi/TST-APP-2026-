@@ -1,0 +1,973 @@
+domanda,risposta,famiglia,portato,punti,conta_nel_totale,fonte_formula,fonte_punti
+1,nessuna,grigio,,1,si,"AE15: =SUM(B11,B16,B21,B26)",'File Audio'!3
+1,opzione1,giallo,,1,si,"AE11: =SUM(B7,B12,B17,B22)",'File Audio'!3
+1,opzione2,verde,,1,si,"AE12: =SUM(B8,B14,B19,B23)",'File Audio'!3
+1,opzione3,rosso,,1,si,"AE13: =SUM(B9,B13,B18,B24)",'File Audio'!3
+1,opzione4,blu,,1,si,"AE14: =SUM(B10,B15,B20,B25)",'File Audio'!3
+2,nessuna,grigio,,1,si,"AE15: =SUM(B11,B16,B21,B26)",'File Audio'!4
+2,opzione1,giallo,,1,si,"AE11: =SUM(B7,B12,B17,B22)",'File Audio'!4
+2,opzione2,rosso,,1,si,"AE13: =SUM(B9,B13,B18,B24)",'File Audio'!4
+2,opzione3,verde,,1,si,"AE12: =SUM(B8,B14,B19,B23)",'File Audio'!4
+2,opzione4,blu,,1,si,"AE14: =SUM(B10,B15,B20,B25)",'File Audio'!4
+3,nessuna,grigio,,1,si,"AE15: =SUM(B11,B16,B21,B26)",'File Audio'!5
+3,opzione1,giallo,,1,si,"AE11: =SUM(B7,B12,B17,B22)",'File Audio'!5
+3,opzione2,rosso,,1,si,"AE13: =SUM(B9,B13,B18,B24)",'File Audio'!5
+3,opzione3,verde,,1,si,"AE12: =SUM(B8,B14,B19,B23)",'File Audio'!5
+3,opzione4,blu,,1,si,"AE14: =SUM(B10,B15,B20,B25)",'File Audio'!5
+4,nessuna,grigio,,1,si,"AE15: =SUM(B11,B16,B21,B26)",'File Audio'!6
+4,opzione1,giallo,,1,si,"AE11: =SUM(B7,B12,B17,B22)",'File Audio'!6
+4,opzione2,verde,,1,si,"AE12: =SUM(B8,B14,B19,B23)",'File Audio'!6
+4,opzione3,rosso,,1,si,"AE13: =SUM(B9,B13,B18,B24)",'File Audio'!6
+4,opzione4,blu,,1,si,"AE14: =SUM(B10,B15,B20,B25)",'File Audio'!6
+5,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z39: =SUM(B39:Y39),'File Audio'!7
+5,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z45: =SUM(B45:Y45),'File Audio'!7
+5,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z41: =SUM(B41:Y41),'File Audio'!7
+5,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE38: =Z43+Z44+Z45 -> Z44: =SUM(B44:Y44),'File Audio'!7
+5,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z38: =SUM(B38:Y38),'File Audio'!7
+5,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z42: =SUM(B42:Y42),'File Audio'!7
+5,mi disturba/mi repelle,verde,Antipatia,1,si,AE36: =Z35+Z36+Z38 -> Z36: =SUM(B36:Y36),'File Audio'!7
+5,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z31: =SUM(B31:Y31),'File Audio'!7
+5,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z43: =SUM(B43:Y43),'File Audio'!7
+5,mi inquieta,giallo,Antipatia,1,si,AE35: =Z31+Z32+Z34 -> Z32: =SUM(B32:Y32),'File Audio'!7
+5,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE37: =Z39+Z40+Z42 -> Z40: =SUM(B40:Y40),'File Audio'!7
+5,mi rilassa,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z35: =SUM(B35:Y35),'File Audio'!7
+5,mi spegne,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z33: =SUM(B33:Y33),'File Audio'!7
+5,mi stupisce,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z34: =SUM(B34:Y34),'File Audio'!7
+5,mi è indifferente,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z37: =SUM(B37:Y37),'File Audio'!7
+6,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z39: =SUM(B39:Y39),'File Audio'!8
+6,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z45: =SUM(B45:Y45),'File Audio'!8
+6,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z41: =SUM(B41:Y41),'File Audio'!8
+6,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE38: =Z43+Z44+Z45 -> Z44: =SUM(B44:Y44),'File Audio'!8
+6,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z38: =SUM(B38:Y38),'File Audio'!8
+6,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z42: =SUM(B42:Y42),'File Audio'!8
+6,mi disturba/mi repelle,verde,Antipatia,1,si,AE36: =Z35+Z36+Z38 -> Z36: =SUM(B36:Y36),'File Audio'!8
+6,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z31: =SUM(B31:Y31),'File Audio'!8
+6,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z43: =SUM(B43:Y43),'File Audio'!8
+6,mi inquieta,giallo,Antipatia,1,si,AE35: =Z31+Z32+Z34 -> Z32: =SUM(B32:Y32),'File Audio'!8
+6,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE37: =Z39+Z40+Z42 -> Z40: =SUM(B40:Y40),'File Audio'!8
+6,mi rilassa,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z35: =SUM(B35:Y35),'File Audio'!8
+6,mi spegne,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z33: =SUM(B33:Y33),'File Audio'!8
+6,mi stupisce,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z34: =SUM(B34:Y34),'File Audio'!8
+6,mi è indifferente,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z37: =SUM(B37:Y37),'File Audio'!8
+7,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z39: =SUM(B39:Y39),'File Audio'!9
+7,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z45: =SUM(B45:Y45),'File Audio'!9
+7,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z41: =SUM(B41:Y41),'File Audio'!9
+7,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE38: =Z43+Z44+Z45 -> Z44: =SUM(B44:Y44),'File Audio'!9
+7,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z38: =SUM(B38:Y38),'File Audio'!9
+7,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z42: =SUM(B42:Y42),'File Audio'!9
+7,mi disturba/mi repelle,verde,Antipatia,1,si,AE36: =Z35+Z36+Z38 -> Z36: =SUM(B36:Y36),'File Audio'!9
+7,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z31: =SUM(B31:Y31),'File Audio'!9
+7,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z43: =SUM(B43:Y43),'File Audio'!9
+7,mi inquieta,giallo,Antipatia,1,si,AE35: =Z31+Z32+Z34 -> Z32: =SUM(B32:Y32),'File Audio'!9
+7,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE37: =Z39+Z40+Z42 -> Z40: =SUM(B40:Y40),'File Audio'!9
+7,mi rilassa,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z35: =SUM(B35:Y35),'File Audio'!9
+7,mi spegne,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z33: =SUM(B33:Y33),'File Audio'!9
+7,mi stupisce,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z34: =SUM(B34:Y34),'File Audio'!9
+7,mi è indifferente,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z37: =SUM(B37:Y37),'File Audio'!9
+8,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z39: =SUM(B39:Y39),'File Audio'!10
+8,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z45: =SUM(B45:Y45),'File Audio'!10
+8,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z41: =SUM(B41:Y41),'File Audio'!10
+8,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE38: =Z43+Z44+Z45 -> Z44: =SUM(B44:Y44),'File Audio'!10
+8,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z38: =SUM(B38:Y38),'File Audio'!10
+8,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z42: =SUM(B42:Y42),'File Audio'!10
+8,mi disturba/mi repelle,verde,Antipatia,1,si,AE36: =Z35+Z36+Z38 -> Z36: =SUM(B36:Y36),'File Audio'!10
+8,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z31: =SUM(B31:Y31),'File Audio'!10
+8,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z43: =SUM(B43:Y43),'File Audio'!10
+8,mi inquieta,giallo,Antipatia,1,si,AE35: =Z31+Z32+Z34 -> Z32: =SUM(B32:Y32),'File Audio'!10
+8,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE37: =Z39+Z40+Z42 -> Z40: =SUM(B40:Y40),'File Audio'!10
+8,mi rilassa,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z35: =SUM(B35:Y35),'File Audio'!10
+8,mi spegne,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z33: =SUM(B33:Y33),'File Audio'!10
+8,mi stupisce,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z34: =SUM(B34:Y34),'File Audio'!10
+8,mi è indifferente,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z37: =SUM(B37:Y37),'File Audio'!10
+9,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z39: =SUM(B39:Y39),'File Audio'!11
+9,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z45: =SUM(B45:Y45),'File Audio'!11
+9,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z41: =SUM(B41:Y41),'File Audio'!11
+9,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE38: =Z43+Z44+Z45 -> Z44: =SUM(B44:Y44),'File Audio'!11
+9,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z38: =SUM(B38:Y38),'File Audio'!11
+9,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z42: =SUM(B42:Y42),'File Audio'!11
+9,mi disturba/mi repelle,verde,Antipatia,1,si,AE36: =Z35+Z36+Z38 -> Z36: =SUM(B36:Y36),'File Audio'!11
+9,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z31: =SUM(B31:Y31),'File Audio'!11
+9,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z43: =SUM(B43:Y43),'File Audio'!11
+9,mi inquieta,giallo,Antipatia,1,si,AE35: =Z31+Z32+Z34 -> Z32: =SUM(B32:Y32),'File Audio'!11
+9,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE37: =Z39+Z40+Z42 -> Z40: =SUM(B40:Y40),'File Audio'!11
+9,mi rilassa,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z35: =SUM(B35:Y35),'File Audio'!11
+9,mi spegne,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z33: =SUM(B33:Y33),'File Audio'!11
+9,mi stupisce,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z34: =SUM(B34:Y34),'File Audio'!11
+9,mi è indifferente,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z37: =SUM(B37:Y37),'File Audio'!11
+10,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z39: =SUM(B39:Y39),'File Audio'!12
+10,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z45: =SUM(B45:Y45),'File Audio'!12
+10,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z41: =SUM(B41:Y41),'File Audio'!12
+10,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE38: =Z43+Z44+Z45 -> Z44: =SUM(B44:Y44),'File Audio'!12
+10,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z38: =SUM(B38:Y38),'File Audio'!12
+10,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z42: =SUM(B42:Y42),'File Audio'!12
+10,mi disturba/mi repelle,verde,Antipatia,1,si,AE36: =Z35+Z36+Z38 -> Z36: =SUM(B36:Y36),'File Audio'!12
+10,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z31: =SUM(B31:Y31),'File Audio'!12
+10,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z43: =SUM(B43:Y43),'File Audio'!12
+10,mi inquieta,giallo,Antipatia,1,si,AE35: =Z31+Z32+Z34 -> Z32: =SUM(B32:Y32),'File Audio'!12
+10,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE37: =Z39+Z40+Z42 -> Z40: =SUM(B40:Y40),'File Audio'!12
+10,mi rilassa,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z35: =SUM(B35:Y35),'File Audio'!12
+10,mi spegne,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z33: =SUM(B33:Y33),'File Audio'!12
+10,mi stupisce,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z34: =SUM(B34:Y34),'File Audio'!12
+10,mi è indifferente,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z37: =SUM(B37:Y37),'File Audio'!12
+11,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z39: =SUM(B39:Y39),'File Audio'!13
+11,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z45: =SUM(B45:Y45),'File Audio'!13
+11,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z41: =SUM(B41:Y41),'File Audio'!13
+11,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE38: =Z43+Z44+Z45 -> Z44: =SUM(B44:Y44),'File Audio'!13
+11,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z38: =SUM(B38:Y38),'File Audio'!13
+11,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z42: =SUM(B42:Y42),'File Audio'!13
+11,mi disturba/mi repelle,verde,Antipatia,1,si,AE36: =Z35+Z36+Z38 -> Z36: =SUM(B36:Y36),'File Audio'!13
+11,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z31: =SUM(B31:Y31),'File Audio'!13
+11,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z43: =SUM(B43:Y43),'File Audio'!13
+11,mi inquieta,giallo,Antipatia,1,si,AE35: =Z31+Z32+Z34 -> Z32: =SUM(B32:Y32),'File Audio'!13
+11,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE37: =Z39+Z40+Z42 -> Z40: =SUM(B40:Y40),'File Audio'!13
+11,mi rilassa,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z35: =SUM(B35:Y35),'File Audio'!13
+11,mi spegne,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z33: =SUM(B33:Y33),'File Audio'!13
+11,mi stupisce,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z34: =SUM(B34:Y34),'File Audio'!13
+11,mi è indifferente,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z37: =SUM(B37:Y37),'File Audio'!13
+12,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z39: =SUM(B39:Y39),'File Audio'!14
+12,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z45: =SUM(B45:Y45),'File Audio'!14
+12,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z41: =SUM(B41:Y41),'File Audio'!14
+12,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE38: =Z43+Z44+Z45 -> Z44: =SUM(B44:Y44),'File Audio'!14
+12,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z38: =SUM(B38:Y38),'File Audio'!14
+12,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z42: =SUM(B42:Y42),'File Audio'!14
+12,mi disturba/mi repelle,verde,Antipatia,1,si,AE36: =Z35+Z36+Z38 -> Z36: =SUM(B36:Y36),'File Audio'!14
+12,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z31: =SUM(B31:Y31),'File Audio'!14
+12,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z43: =SUM(B43:Y43),'File Audio'!14
+12,mi inquieta,giallo,Antipatia,1,si,AE35: =Z31+Z32+Z34 -> Z32: =SUM(B32:Y32),'File Audio'!14
+12,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE37: =Z39+Z40+Z42 -> Z40: =SUM(B40:Y40),'File Audio'!14
+12,mi rilassa,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z35: =SUM(B35:Y35),'File Audio'!14
+12,mi spegne,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z33: =SUM(B33:Y33),'File Audio'!14
+12,mi stupisce,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z34: =SUM(B34:Y34),'File Audio'!14
+12,mi è indifferente,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z37: =SUM(B37:Y37),'File Audio'!14
+13,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z39: =SUM(B39:Y39),'File Audio'!15
+13,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z45: =SUM(B45:Y45),'File Audio'!15
+13,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z41: =SUM(B41:Y41),'File Audio'!15
+13,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE38: =Z43+Z44+Z45 -> Z44: =SUM(B44:Y44),'File Audio'!15
+13,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z38: =SUM(B38:Y38),'File Audio'!15
+13,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z42: =SUM(B42:Y42),'File Audio'!15
+13,mi disturba/mi repelle,verde,Antipatia,1,si,AE36: =Z35+Z36+Z38 -> Z36: =SUM(B36:Y36),'File Audio'!15
+13,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z31: =SUM(B31:Y31),'File Audio'!15
+13,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z43: =SUM(B43:Y43),'File Audio'!15
+13,mi inquieta,giallo,Antipatia,1,si,AE35: =Z31+Z32+Z34 -> Z32: =SUM(B32:Y32),'File Audio'!15
+13,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE37: =Z39+Z40+Z42 -> Z40: =SUM(B40:Y40),'File Audio'!15
+13,mi rilassa,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z35: =SUM(B35:Y35),'File Audio'!15
+13,mi spegne,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z33: =SUM(B33:Y33),'File Audio'!15
+13,mi stupisce,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z34: =SUM(B34:Y34),'File Audio'!15
+13,mi è indifferente,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z37: =SUM(B37:Y37),'File Audio'!15
+14,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z39: =SUM(B39:Y39),'File Audio'!16
+14,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z45: =SUM(B45:Y45),'File Audio'!16
+14,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z41: =SUM(B41:Y41),'File Audio'!16
+14,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE38: =Z43+Z44+Z45 -> Z44: =SUM(B44:Y44),'File Audio'!16
+14,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z38: =SUM(B38:Y38),'File Audio'!16
+14,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z42: =SUM(B42:Y42),'File Audio'!16
+14,mi disturba/mi repelle,verde,Antipatia,1,si,AE36: =Z35+Z36+Z38 -> Z36: =SUM(B36:Y36),'File Audio'!16
+14,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z31: =SUM(B31:Y31),'File Audio'!16
+14,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z43: =SUM(B43:Y43),'File Audio'!16
+14,mi inquieta,giallo,Antipatia,1,si,AE35: =Z31+Z32+Z34 -> Z32: =SUM(B32:Y32),'File Audio'!16
+14,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE37: =Z39+Z40+Z42 -> Z40: =SUM(B40:Y40),'File Audio'!16
+14,mi rilassa,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z35: =SUM(B35:Y35),'File Audio'!16
+14,mi spegne,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z33: =SUM(B33:Y33),'File Audio'!16
+14,mi stupisce,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z34: =SUM(B34:Y34),'File Audio'!16
+14,mi è indifferente,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z37: =SUM(B37:Y37),'File Audio'!16
+15,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z39: =SUM(B39:Y39),'File Audio'!17
+15,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z45: =SUM(B45:Y45),'File Audio'!17
+15,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z41: =SUM(B41:Y41),'File Audio'!17
+15,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE38: =Z43+Z44+Z45 -> Z44: =SUM(B44:Y44),'File Audio'!17
+15,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z38: =SUM(B38:Y38),'File Audio'!17
+15,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z42: =SUM(B42:Y42),'File Audio'!17
+15,mi disturba/mi repelle,verde,Antipatia,1,si,AE36: =Z35+Z36+Z38 -> Z36: =SUM(B36:Y36),'File Audio'!17
+15,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z31: =SUM(B31:Y31),'File Audio'!17
+15,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z43: =SUM(B43:Y43),'File Audio'!17
+15,mi inquieta,giallo,Antipatia,1,si,AE35: =Z31+Z32+Z34 -> Z32: =SUM(B32:Y32),'File Audio'!17
+15,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE37: =Z39+Z40+Z42 -> Z40: =SUM(B40:Y40),'File Audio'!17
+15,mi rilassa,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z35: =SUM(B35:Y35),'File Audio'!17
+15,mi spegne,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z33: =SUM(B33:Y33),'File Audio'!17
+15,mi stupisce,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z34: =SUM(B34:Y34),'File Audio'!17
+15,mi è indifferente,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z37: =SUM(B37:Y37),'File Audio'!17
+16,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z39: =SUM(B39:Y39),'File Audio'!18
+16,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z45: =SUM(B45:Y45),'File Audio'!18
+16,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z41: =SUM(B41:Y41),'File Audio'!18
+16,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE38: =Z43+Z44+Z45 -> Z44: =SUM(B44:Y44),'File Audio'!18
+16,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z38: =SUM(B38:Y38),'File Audio'!18
+16,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z42: =SUM(B42:Y42),'File Audio'!18
+16,mi disturba/mi repelle,verde,Antipatia,1,si,AE36: =Z35+Z36+Z38 -> Z36: =SUM(B36:Y36),'File Audio'!18
+16,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z31: =SUM(B31:Y31),'File Audio'!18
+16,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z43: =SUM(B43:Y43),'File Audio'!18
+16,mi inquieta,giallo,Antipatia,1,si,AE35: =Z31+Z32+Z34 -> Z32: =SUM(B32:Y32),'File Audio'!18
+16,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE37: =Z39+Z40+Z42 -> Z40: =SUM(B40:Y40),'File Audio'!18
+16,mi rilassa,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z35: =SUM(B35:Y35),'File Audio'!18
+16,mi spegne,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z33: =SUM(B33:Y33),'File Audio'!18
+16,mi stupisce,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z34: =SUM(B34:Y34),'File Audio'!18
+16,mi è indifferente,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z37: =SUM(B37:Y37),'File Audio'!18
+17,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z39: =SUM(B39:Y39),'File Audio'!19
+17,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z45: =SUM(B45:Y45),'File Audio'!19
+17,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z41: =SUM(B41:Y41),'File Audio'!19
+17,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE38: =Z43+Z44+Z45 -> Z44: =SUM(B44:Y44),'File Audio'!19
+17,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z38: =SUM(B38:Y38),'File Audio'!19
+17,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z42: =SUM(B42:Y42),'File Audio'!19
+17,mi disturba/mi repelle,verde,Antipatia,1,si,AE36: =Z35+Z36+Z38 -> Z36: =SUM(B36:Y36),'File Audio'!19
+17,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z31: =SUM(B31:Y31),'File Audio'!19
+17,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z43: =SUM(B43:Y43),'File Audio'!19
+17,mi inquieta,giallo,Antipatia,1,si,AE35: =Z31+Z32+Z34 -> Z32: =SUM(B32:Y32),'File Audio'!19
+17,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE37: =Z39+Z40+Z42 -> Z40: =SUM(B40:Y40),'File Audio'!19
+17,mi rilassa,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z35: =SUM(B35:Y35),'File Audio'!19
+17,mi spegne,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z33: =SUM(B33:Y33),'File Audio'!19
+17,mi stupisce,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z34: =SUM(B34:Y34),'File Audio'!19
+17,mi è indifferente,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z37: =SUM(B37:Y37),'File Audio'!19
+18,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z39: =SUM(B39:Y39),'File Audio'!20
+18,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z45: =SUM(B45:Y45),'File Audio'!20
+18,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z41: =SUM(B41:Y41),'File Audio'!20
+18,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE38: =Z43+Z44+Z45 -> Z44: =SUM(B44:Y44),'File Audio'!20
+18,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z38: =SUM(B38:Y38),'File Audio'!20
+18,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z42: =SUM(B42:Y42),'File Audio'!20
+18,mi disturba/mi repelle,verde,Antipatia,1,si,AE36: =Z35+Z36+Z38 -> Z36: =SUM(B36:Y36),'File Audio'!20
+18,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z31: =SUM(B31:Y31),'File Audio'!20
+18,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z43: =SUM(B43:Y43),'File Audio'!20
+18,mi inquieta,giallo,Antipatia,1,si,AE35: =Z31+Z32+Z34 -> Z32: =SUM(B32:Y32),'File Audio'!20
+18,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE37: =Z39+Z40+Z42 -> Z40: =SUM(B40:Y40),'File Audio'!20
+18,mi rilassa,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z35: =SUM(B35:Y35),'File Audio'!20
+18,mi spegne,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z33: =SUM(B33:Y33),'File Audio'!20
+18,mi stupisce,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z34: =SUM(B34:Y34),'File Audio'!20
+18,mi è indifferente,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z37: =SUM(B37:Y37),'File Audio'!20
+19,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z39: =SUM(B39:Y39),'File Audio'!21
+19,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z45: =SUM(B45:Y45),'File Audio'!21
+19,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z41: =SUM(B41:Y41),'File Audio'!21
+19,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE38: =Z43+Z44+Z45 -> Z44: =SUM(B44:Y44),'File Audio'!21
+19,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z38: =SUM(B38:Y38),'File Audio'!21
+19,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z42: =SUM(B42:Y42),'File Audio'!21
+19,mi disturba/mi repelle,verde,Antipatia,1,si,AE36: =Z35+Z36+Z38 -> Z36: =SUM(B36:Y36),'File Audio'!21
+19,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z31: =SUM(B31:Y31),'File Audio'!21
+19,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z43: =SUM(B43:Y43),'File Audio'!21
+19,mi inquieta,giallo,Antipatia,1,si,AE35: =Z31+Z32+Z34 -> Z32: =SUM(B32:Y32),'File Audio'!21
+19,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE37: =Z39+Z40+Z42 -> Z40: =SUM(B40:Y40),'File Audio'!21
+19,mi rilassa,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z35: =SUM(B35:Y35),'File Audio'!21
+19,mi spegne,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z33: =SUM(B33:Y33),'File Audio'!21
+19,mi stupisce,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z34: =SUM(B34:Y34),'File Audio'!21
+19,mi è indifferente,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z37: =SUM(B37:Y37),'File Audio'!21
+20,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z39: =SUM(B39:Y39),'File Audio'!22
+20,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z45: =SUM(B45:Y45),'File Audio'!22
+20,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z41: =SUM(B41:Y41),'File Audio'!22
+20,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE38: =Z43+Z44+Z45 -> Z44: =SUM(B44:Y44),'File Audio'!22
+20,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z38: =SUM(B38:Y38),'File Audio'!22
+20,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z42: =SUM(B42:Y42),'File Audio'!22
+20,mi disturba/mi repelle,verde,Antipatia,1,si,AE36: =Z35+Z36+Z38 -> Z36: =SUM(B36:Y36),'File Audio'!22
+20,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z31: =SUM(B31:Y31),'File Audio'!22
+20,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z43: =SUM(B43:Y43),'File Audio'!22
+20,mi inquieta,giallo,Antipatia,1,si,AE35: =Z31+Z32+Z34 -> Z32: =SUM(B32:Y32),'File Audio'!22
+20,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE37: =Z39+Z40+Z42 -> Z40: =SUM(B40:Y40),'File Audio'!22
+20,mi rilassa,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z35: =SUM(B35:Y35),'File Audio'!22
+20,mi spegne,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z33: =SUM(B33:Y33),'File Audio'!22
+20,mi stupisce,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z34: =SUM(B34:Y34),'File Audio'!22
+20,mi è indifferente,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z37: =SUM(B37:Y37),'File Audio'!22
+21,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z39: =SUM(B39:Y39),'File Audio'!23
+21,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z45: =SUM(B45:Y45),'File Audio'!23
+21,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z41: =SUM(B41:Y41),'File Audio'!23
+21,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE38: =Z43+Z44+Z45 -> Z44: =SUM(B44:Y44),'File Audio'!23
+21,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z38: =SUM(B38:Y38),'File Audio'!23
+21,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z42: =SUM(B42:Y42),'File Audio'!23
+21,mi disturba/mi repelle,verde,Antipatia,1,si,AE36: =Z35+Z36+Z38 -> Z36: =SUM(B36:Y36),'File Audio'!23
+21,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z31: =SUM(B31:Y31),'File Audio'!23
+21,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z43: =SUM(B43:Y43),'File Audio'!23
+21,mi inquieta,giallo,Antipatia,1,si,AE35: =Z31+Z32+Z34 -> Z32: =SUM(B32:Y32),'File Audio'!23
+21,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE37: =Z39+Z40+Z42 -> Z40: =SUM(B40:Y40),'File Audio'!23
+21,mi rilassa,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z35: =SUM(B35:Y35),'File Audio'!23
+21,mi spegne,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z33: =SUM(B33:Y33),'File Audio'!23
+21,mi stupisce,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z34: =SUM(B34:Y34),'File Audio'!23
+21,mi è indifferente,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z37: =SUM(B37:Y37),'File Audio'!23
+22,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z39: =SUM(B39:Y39),'File Audio'!24
+22,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z45: =SUM(B45:Y45),'File Audio'!24
+22,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z41: =SUM(B41:Y41),'File Audio'!24
+22,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE38: =Z43+Z44+Z45 -> Z44: =SUM(B44:Y44),'File Audio'!24
+22,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z38: =SUM(B38:Y38),'File Audio'!24
+22,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z42: =SUM(B42:Y42),'File Audio'!24
+22,mi disturba/mi repelle,verde,Antipatia,1,si,AE36: =Z35+Z36+Z38 -> Z36: =SUM(B36:Y36),'File Audio'!24
+22,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z31: =SUM(B31:Y31),'File Audio'!24
+22,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z43: =SUM(B43:Y43),'File Audio'!24
+22,mi inquieta,giallo,Antipatia,1,si,AE35: =Z31+Z32+Z34 -> Z32: =SUM(B32:Y32),'File Audio'!24
+22,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE37: =Z39+Z40+Z42 -> Z40: =SUM(B40:Y40),'File Audio'!24
+22,mi rilassa,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z35: =SUM(B35:Y35),'File Audio'!24
+22,mi spegne,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z33: =SUM(B33:Y33),'File Audio'!24
+22,mi stupisce,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z34: =SUM(B34:Y34),'File Audio'!24
+22,mi è indifferente,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z37: =SUM(B37:Y37),'File Audio'!24
+23,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z39: =SUM(B39:Y39),'File Audio'!25
+23,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z45: =SUM(B45:Y45),'File Audio'!25
+23,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z41: =SUM(B41:Y41),'File Audio'!25
+23,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE38: =Z43+Z44+Z45 -> Z44: =SUM(B44:Y44),'File Audio'!25
+23,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z38: =SUM(B38:Y38),'File Audio'!25
+23,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z42: =SUM(B42:Y42),'File Audio'!25
+23,mi disturba/mi repelle,verde,Antipatia,1,si,AE36: =Z35+Z36+Z38 -> Z36: =SUM(B36:Y36),'File Audio'!25
+23,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z31: =SUM(B31:Y31),'File Audio'!25
+23,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z43: =SUM(B43:Y43),'File Audio'!25
+23,mi inquieta,giallo,Antipatia,1,si,AE35: =Z31+Z32+Z34 -> Z32: =SUM(B32:Y32),'File Audio'!25
+23,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE37: =Z39+Z40+Z42 -> Z40: =SUM(B40:Y40),'File Audio'!25
+23,mi rilassa,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z35: =SUM(B35:Y35),'File Audio'!25
+23,mi spegne,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z33: =SUM(B33:Y33),'File Audio'!25
+23,mi stupisce,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z34: =SUM(B34:Y34),'File Audio'!25
+23,mi è indifferente,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z37: =SUM(B37:Y37),'File Audio'!25
+24,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z39: =SUM(B39:Y39),'File Audio'!26
+24,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z45: =SUM(B45:Y45),'File Audio'!26
+24,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z41: =SUM(B41:Y41),'File Audio'!26
+24,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE38: =Z43+Z44+Z45 -> Z44: =SUM(B44:Y44),'File Audio'!26
+24,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z38: =SUM(B38:Y38),'File Audio'!26
+24,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z42: =SUM(B42:Y42),'File Audio'!26
+24,mi disturba/mi repelle,verde,Antipatia,1,si,AE36: =Z35+Z36+Z38 -> Z36: =SUM(B36:Y36),'File Audio'!26
+24,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z31: =SUM(B31:Y31),'File Audio'!26
+24,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z43: =SUM(B43:Y43),'File Audio'!26
+24,mi inquieta,giallo,Antipatia,1,si,AE35: =Z31+Z32+Z34 -> Z32: =SUM(B32:Y32),'File Audio'!26
+24,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE37: =Z39+Z40+Z42 -> Z40: =SUM(B40:Y40),'File Audio'!26
+24,mi rilassa,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z35: =SUM(B35:Y35),'File Audio'!26
+24,mi spegne,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z33: =SUM(B33:Y33),'File Audio'!26
+24,mi stupisce,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z34: =SUM(B34:Y34),'File Audio'!26
+24,mi è indifferente,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z37: =SUM(B37:Y37),'File Audio'!26
+25,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z39: =SUM(B39:Y39),'File Audio'!27
+25,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z45: =SUM(B45:Y45),'File Audio'!27
+25,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z41: =SUM(B41:Y41),'File Audio'!27
+25,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE38: =Z43+Z44+Z45 -> Z44: =SUM(B44:Y44),'File Audio'!27
+25,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z38: =SUM(B38:Y38),'File Audio'!27
+25,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z42: =SUM(B42:Y42),'File Audio'!27
+25,mi disturba/mi repelle,verde,Antipatia,1,si,AE36: =Z35+Z36+Z38 -> Z36: =SUM(B36:Y36),'File Audio'!27
+25,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z31: =SUM(B31:Y31),'File Audio'!27
+25,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z43: =SUM(B43:Y43),'File Audio'!27
+25,mi inquieta,giallo,Antipatia,1,si,AE35: =Z31+Z32+Z34 -> Z32: =SUM(B32:Y32),'File Audio'!27
+25,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE37: =Z39+Z40+Z42 -> Z40: =SUM(B40:Y40),'File Audio'!27
+25,mi rilassa,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z35: =SUM(B35:Y35),'File Audio'!27
+25,mi spegne,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z33: =SUM(B33:Y33),'File Audio'!27
+25,mi stupisce,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z34: =SUM(B34:Y34),'File Audio'!27
+25,mi è indifferente,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z37: =SUM(B37:Y37),'File Audio'!27
+26,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z39: =SUM(B39:Y39),'File Audio'!28
+26,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z45: =SUM(B45:Y45),'File Audio'!28
+26,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z41: =SUM(B41:Y41),'File Audio'!28
+26,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE38: =Z43+Z44+Z45 -> Z44: =SUM(B44:Y44),'File Audio'!28
+26,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z38: =SUM(B38:Y38),'File Audio'!28
+26,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z42: =SUM(B42:Y42),'File Audio'!28
+26,mi disturba/mi repelle,verde,Antipatia,1,si,AE36: =Z35+Z36+Z38 -> Z36: =SUM(B36:Y36),'File Audio'!28
+26,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z31: =SUM(B31:Y31),'File Audio'!28
+26,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z43: =SUM(B43:Y43),'File Audio'!28
+26,mi inquieta,giallo,Antipatia,1,si,AE35: =Z31+Z32+Z34 -> Z32: =SUM(B32:Y32),'File Audio'!28
+26,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE37: =Z39+Z40+Z42 -> Z40: =SUM(B40:Y40),'File Audio'!28
+26,mi rilassa,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z35: =SUM(B35:Y35),'File Audio'!28
+26,mi spegne,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z33: =SUM(B33:Y33),'File Audio'!28
+26,mi stupisce,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z34: =SUM(B34:Y34),'File Audio'!28
+26,mi è indifferente,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z37: =SUM(B37:Y37),'File Audio'!28
+27,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z39: =SUM(B39:Y39),'File Audio'!29
+27,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z45: =SUM(B45:Y45),'File Audio'!29
+27,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z41: =SUM(B41:Y41),'File Audio'!29
+27,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE38: =Z43+Z44+Z45 -> Z44: =SUM(B44:Y44),'File Audio'!29
+27,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z38: =SUM(B38:Y38),'File Audio'!29
+27,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z42: =SUM(B42:Y42),'File Audio'!29
+27,mi disturba/mi repelle,verde,Antipatia,1,si,AE36: =Z35+Z36+Z38 -> Z36: =SUM(B36:Y36),'File Audio'!29
+27,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z31: =SUM(B31:Y31),'File Audio'!29
+27,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z43: =SUM(B43:Y43),'File Audio'!29
+27,mi inquieta,giallo,Antipatia,1,si,AE35: =Z31+Z32+Z34 -> Z32: =SUM(B32:Y32),'File Audio'!29
+27,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE37: =Z39+Z40+Z42 -> Z40: =SUM(B40:Y40),'File Audio'!29
+27,mi rilassa,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z35: =SUM(B35:Y35),'File Audio'!29
+27,mi spegne,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z33: =SUM(B33:Y33),'File Audio'!29
+27,mi stupisce,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z34: =SUM(B34:Y34),'File Audio'!29
+27,mi è indifferente,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z37: =SUM(B37:Y37),'File Audio'!29
+28,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z39: =SUM(B39:Y39),'File Audio'!30
+28,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z45: =SUM(B45:Y45),'File Audio'!30
+28,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z41: =SUM(B41:Y41),'File Audio'!30
+28,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE38: =Z43+Z44+Z45 -> Z44: =SUM(B44:Y44),'File Audio'!30
+28,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z38: =SUM(B38:Y38),'File Audio'!30
+28,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE37: =Z39+Z40+Z42 -> Z42: =SUM(B42:Y42),'File Audio'!30
+28,mi disturba/mi repelle,verde,Antipatia,1,si,AE36: =Z35+Z36+Z38 -> Z36: =SUM(B36:Y36),'File Audio'!30
+28,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z31: =SUM(B31:Y31),'File Audio'!30
+28,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE38: =Z43+Z44+Z45 -> Z43: =SUM(B43:Y43),'File Audio'!30
+28,mi inquieta,giallo,Antipatia,1,si,AE35: =Z31+Z32+Z34 -> Z32: =SUM(B32:Y32),'File Audio'!30
+28,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE37: =Z39+Z40+Z42 -> Z40: =SUM(B40:Y40),'File Audio'!30
+28,mi rilassa,verde,Simpatia/Empatia,1,si,AE36: =Z35+Z36+Z38 -> Z35: =SUM(B35:Y35),'File Audio'!30
+28,mi spegne,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z33: =SUM(B33:Y33),'File Audio'!30
+28,mi stupisce,giallo,Simpatia/Empatia,1,si,AE35: =Z31+Z32+Z34 -> Z34: =SUM(B34:Y34),'File Audio'!30
+28,mi è indifferente,grigio,Indifferenza,1,si,AE39: =Z33+Z37+Z41 -> Z37: =SUM(B37:Y37),'File Audio'!30
+29,AMBIGUO - incerto - equivoco (4AUG),rosso,Indifferenza,1,si,AE53: =O51+O56+O57 -> O57: =SUM(B57:M57),'File Audio'!32
+29,ANGOSCIATO - ansioso - indifferente (2MI),blu,Indifferenza,1,si,AE54: =O53+O55+O61+O62 -> O53: =SUM(B53:M53),'File Audio'!32
+29,ARRABBIATO - distaccato - dubbioso (4G),rosso,Antipatia,1,si,AE53: =O51+O56+O57 -> O56: =SUM(B56:M56),'File Audio'!32
+29,CALMO - equilibrato - sognante (5G),verde,Simpatia/Empatia,1,si,AE52: =O52+O58+O60 -> O58: =SUM(B58:M58),'File Audio'!32
+29,DESOLATO - rimpiangente - abbandonato (7MA),blu,Antipatia,1,si,AE54: =O53+O55+O61+O62 -> O62: =SUM(B62:M62),'File Audio'!32
+29,DINAMICO - curioso - fluido (6MI),verde,Antipatia,1,si,AE52: =O52+O58+O60 -> O60: =SUM(B60:M60),'File Audio'!32
+29,GIOIOSO - caloroso - entusiasta (6MA),giallo,Simpatia/Empatia,1,si,AE51: =O54+O59 -> O59: =SUM(B59:M59),'File Audio'!32
+29,INQUIETO - chiuso - pauroso (2MA),verde,Antipatia,1,si,AE52: =O52+O58+O60 -> O52: =SUM(B52:M52),'File Audio'!32
+29,MALINCONICO - triste - riflessivo (3MI),blu,Simpatia/Empatia,1,si,AE54: =O53+O55+O61+O62 -> O55: =SUM(B55:M55),'File Audio'!32
+29,Mi è indifferente,grigio,Indifferenza,1,si,AE55: =O64 -> O64: =SUM(B64:M64),'File Audio'!32
+29,NOSTALGICO - consolato - afflitto (7MI),blu,Simpatia/Empatia,1,si,AE54: =O53+O55+O61+O62 -> O61: =SUM(B61:M61),'File Audio'!32
+29,SALDO - sicuro - volitivo (1),rosso,Simpatia/Empatia,1,si,AE53: =O51+O56+O57 -> O51: =SUM(B51:M51),'File Audio'!32
+29,SERENO - fiducioso - aperto (3MA),giallo,Simpatia/Empatia,1,si,AE51: =O54+O59 -> O54: =SUM(B54:M54),'File Audio'!32
+30,AMBIGUO - incerto - equivoco (4AUG),rosso,Indifferenza,1,si,AE53: =O51+O56+O57 -> O57: =SUM(B57:M57),'File Audio'!33
+30,ANGOSCIATO - ansioso - indifferente (2MI),blu,Indifferenza,1,si,AE54: =O53+O55+O61+O62 -> O53: =SUM(B53:M53),'File Audio'!33
+30,ARRABBIATO - distaccato - dubbioso (4G),rosso,Antipatia,1,si,AE53: =O51+O56+O57 -> O56: =SUM(B56:M56),'File Audio'!33
+30,CALMO - equilibrato - sognante (5G),verde,Simpatia/Empatia,1,si,AE52: =O52+O58+O60 -> O58: =SUM(B58:M58),'File Audio'!33
+30,DESOLATO - rimpiangente - abbandonato (7MA),blu,Antipatia,1,si,AE54: =O53+O55+O61+O62 -> O62: =SUM(B62:M62),'File Audio'!33
+30,DINAMICO - curioso - fluido (6MI),verde,Antipatia,1,si,AE52: =O52+O58+O60 -> O60: =SUM(B60:M60),'File Audio'!33
+30,GIOIOSO - caloroso - entusiasta (6MA),giallo,Simpatia/Empatia,1,si,AE51: =O54+O59 -> O59: =SUM(B59:M59),'File Audio'!33
+30,INQUIETO - chiuso - pauroso (2MA),verde,Antipatia,1,si,AE52: =O52+O58+O60 -> O52: =SUM(B52:M52),'File Audio'!33
+30,MALINCONICO - triste - riflessivo (3MI),blu,Simpatia/Empatia,1,si,AE54: =O53+O55+O61+O62 -> O55: =SUM(B55:M55),'File Audio'!33
+30,Mi è indifferente,grigio,Indifferenza,1,si,AE55: =O64 -> O64: =SUM(B64:M64),'File Audio'!33
+30,NOSTALGICO - consolato - afflitto (7MI),blu,Simpatia/Empatia,1,si,AE54: =O53+O55+O61+O62 -> O61: =SUM(B61:M61),'File Audio'!33
+30,SALDO - sicuro - volitivo (1),rosso,Simpatia/Empatia,1,si,AE53: =O51+O56+O57 -> O51: =SUM(B51:M51),'File Audio'!33
+30,SERENO - fiducioso - aperto (3MA),giallo,Simpatia/Empatia,1,si,AE51: =O54+O59 -> O54: =SUM(B54:M54),'File Audio'!33
+31,AMBIGUO - incerto - equivoco (4AUG),rosso,Indifferenza,1,si,AE53: =O51+O56+O57 -> O57: =SUM(B57:M57),'File Audio'!34
+31,ANGOSCIATO - ansioso - indifferente (2MI),blu,Indifferenza,1,si,AE54: =O53+O55+O61+O62 -> O53: =SUM(B53:M53),'File Audio'!34
+31,ARRABBIATO - distaccato - dubbioso (4G),rosso,Antipatia,1,si,AE53: =O51+O56+O57 -> O56: =SUM(B56:M56),'File Audio'!34
+31,CALMO - equilibrato - sognante (5G),verde,Simpatia/Empatia,1,si,AE52: =O52+O58+O60 -> O58: =SUM(B58:M58),'File Audio'!34
+31,DESOLATO - rimpiangente - abbandonato (7MA),blu,Antipatia,1,si,AE54: =O53+O55+O61+O62 -> O62: =SUM(B62:M62),'File Audio'!34
+31,DINAMICO - curioso - fluido (6MI),verde,Antipatia,1,si,AE52: =O52+O58+O60 -> O60: =SUM(B60:M60),'File Audio'!34
+31,GIOIOSO - caloroso - entusiasta (6MA),giallo,Simpatia/Empatia,1,si,AE51: =O54+O59 -> O59: =SUM(B59:M59),'File Audio'!34
+31,INQUIETO - chiuso - pauroso (2MA),verde,Antipatia,1,si,AE52: =O52+O58+O60 -> O52: =SUM(B52:M52),'File Audio'!34
+31,MALINCONICO - triste - riflessivo (3MI),blu,Simpatia/Empatia,1,si,AE54: =O53+O55+O61+O62 -> O55: =SUM(B55:M55),'File Audio'!34
+31,Mi è indifferente,grigio,Indifferenza,1,si,AE55: =O64 -> O64: =SUM(B64:M64),'File Audio'!34
+31,NOSTALGICO - consolato - afflitto (7MI),blu,Simpatia/Empatia,1,si,AE54: =O53+O55+O61+O62 -> O61: =SUM(B61:M61),'File Audio'!34
+31,SALDO - sicuro - volitivo (1),rosso,Simpatia/Empatia,1,si,AE53: =O51+O56+O57 -> O51: =SUM(B51:M51),'File Audio'!34
+31,SERENO - fiducioso - aperto (3MA),giallo,Simpatia/Empatia,1,si,AE51: =O54+O59 -> O54: =SUM(B54:M54),'File Audio'!34
+32,AMBIGUO - incerto - equivoco (4AUG),rosso,Indifferenza,1,si,AE53: =O51+O56+O57 -> O57: =SUM(B57:M57),'File Audio'!35
+32,ANGOSCIATO - ansioso - indifferente (2MI),blu,Indifferenza,1,si,AE54: =O53+O55+O61+O62 -> O53: =SUM(B53:M53),'File Audio'!35
+32,ARRABBIATO - distaccato - dubbioso (4G),rosso,Antipatia,1,si,AE53: =O51+O56+O57 -> O56: =SUM(B56:M56),'File Audio'!35
+32,CALMO - equilibrato - sognante (5G),verde,Simpatia/Empatia,1,si,AE52: =O52+O58+O60 -> O58: =SUM(B58:M58),'File Audio'!35
+32,DESOLATO - rimpiangente - abbandonato (7MA),blu,Antipatia,1,si,AE54: =O53+O55+O61+O62 -> O62: =SUM(B62:M62),'File Audio'!35
+32,DINAMICO - curioso - fluido (6MI),verde,Antipatia,1,si,AE52: =O52+O58+O60 -> O60: =SUM(B60:M60),'File Audio'!35
+32,GIOIOSO - caloroso - entusiasta (6MA),giallo,Simpatia/Empatia,1,si,AE51: =O54+O59 -> O59: =SUM(B59:M59),'File Audio'!35
+32,INQUIETO - chiuso - pauroso (2MA),verde,Antipatia,1,si,AE52: =O52+O58+O60 -> O52: =SUM(B52:M52),'File Audio'!35
+32,MALINCONICO - triste - riflessivo (3MI),blu,Simpatia/Empatia,1,si,AE54: =O53+O55+O61+O62 -> O55: =SUM(B55:M55),'File Audio'!35
+32,Mi è indifferente,grigio,Indifferenza,1,si,AE55: =O64 -> O64: =SUM(B64:M64),'File Audio'!35
+32,NOSTALGICO - consolato - afflitto (7MI),blu,Simpatia/Empatia,1,si,AE54: =O53+O55+O61+O62 -> O61: =SUM(B61:M61),'File Audio'!35
+32,SALDO - sicuro - volitivo (1),rosso,Simpatia/Empatia,1,si,AE53: =O51+O56+O57 -> O51: =SUM(B51:M51),'File Audio'!35
+32,SERENO - fiducioso - aperto (3MA),giallo,Simpatia/Empatia,1,si,AE51: =O54+O59 -> O54: =SUM(B54:M54),'File Audio'!35
+33,AMBIGUO - incerto - equivoco (4AUG),rosso,Indifferenza,1,si,AE53: =O51+O56+O57 -> O57: =SUM(B57:M57),'File Audio'!36
+33,ANGOSCIATO - ansioso - indifferente (2MI),blu,Indifferenza,1,si,AE54: =O53+O55+O61+O62 -> O53: =SUM(B53:M53),'File Audio'!36
+33,ARRABBIATO - distaccato - dubbioso (4G),rosso,Antipatia,1,si,AE53: =O51+O56+O57 -> O56: =SUM(B56:M56),'File Audio'!36
+33,CALMO - equilibrato - sognante (5G),verde,Simpatia/Empatia,1,si,AE52: =O52+O58+O60 -> O58: =SUM(B58:M58),'File Audio'!36
+33,DESOLATO - rimpiangente - abbandonato (7MA),blu,Antipatia,1,si,AE54: =O53+O55+O61+O62 -> O62: =SUM(B62:M62),'File Audio'!36
+33,DINAMICO - curioso - fluido (6MI),verde,Antipatia,1,si,AE52: =O52+O58+O60 -> O60: =SUM(B60:M60),'File Audio'!36
+33,GIOIOSO - caloroso - entusiasta (6MA),giallo,Simpatia/Empatia,1,si,AE51: =O54+O59 -> O59: =SUM(B59:M59),'File Audio'!36
+33,INQUIETO - chiuso - pauroso (2MA),verde,Antipatia,1,si,AE52: =O52+O58+O60 -> O52: =SUM(B52:M52),'File Audio'!36
+33,MALINCONICO - triste - riflessivo (3MI),blu,Simpatia/Empatia,1,si,AE54: =O53+O55+O61+O62 -> O55: =SUM(B55:M55),'File Audio'!36
+33,Mi è indifferente,grigio,Indifferenza,1,si,AE55: =O64 -> O64: =SUM(B64:M64),'File Audio'!36
+33,NOSTALGICO - consolato - afflitto (7MI),blu,Simpatia/Empatia,1,si,AE54: =O53+O55+O61+O62 -> O61: =SUM(B61:M61),'File Audio'!36
+33,SALDO - sicuro - volitivo (1),rosso,Simpatia/Empatia,1,si,AE53: =O51+O56+O57 -> O51: =SUM(B51:M51),'File Audio'!36
+33,SERENO - fiducioso - aperto (3MA),giallo,Simpatia/Empatia,1,si,AE51: =O54+O59 -> O54: =SUM(B54:M54),'File Audio'!36
+34,AMBIGUO - incerto - equivoco (4AUG),rosso,Indifferenza,1,si,AE53: =O51+O56+O57 -> O57: =SUM(B57:M57),'File Audio'!37
+34,ANGOSCIATO - ansioso - indifferente (2MI),blu,Indifferenza,1,si,AE54: =O53+O55+O61+O62 -> O53: =SUM(B53:M53),'File Audio'!37
+34,ARRABBIATO - distaccato - dubbioso (4G),rosso,Antipatia,1,si,AE53: =O51+O56+O57 -> O56: =SUM(B56:M56),'File Audio'!37
+34,CALMO - equilibrato - sognante (5G),verde,Simpatia/Empatia,1,si,AE52: =O52+O58+O60 -> O58: =SUM(B58:M58),'File Audio'!37
+34,DESOLATO - rimpiangente - abbandonato (7MA),blu,Antipatia,1,si,AE54: =O53+O55+O61+O62 -> O62: =SUM(B62:M62),'File Audio'!37
+34,DINAMICO - curioso - fluido (6MI),verde,Antipatia,1,si,AE52: =O52+O58+O60 -> O60: =SUM(B60:M60),'File Audio'!37
+34,GIOIOSO - caloroso - entusiasta (6MA),giallo,Simpatia/Empatia,1,si,AE51: =O54+O59 -> O59: =SUM(B59:M59),'File Audio'!37
+34,INQUIETO - chiuso - pauroso (2MA),verde,Antipatia,1,si,AE52: =O52+O58+O60 -> O52: =SUM(B52:M52),'File Audio'!37
+34,MALINCONICO - triste - riflessivo (3MI),blu,Simpatia/Empatia,1,si,AE54: =O53+O55+O61+O62 -> O55: =SUM(B55:M55),'File Audio'!37
+34,Mi è indifferente,grigio,Indifferenza,1,si,AE55: =O64 -> O64: =SUM(B64:M64),'File Audio'!37
+34,NOSTALGICO - consolato - afflitto (7MI),blu,Simpatia/Empatia,1,si,AE54: =O53+O55+O61+O62 -> O61: =SUM(B61:M61),'File Audio'!37
+34,SALDO - sicuro - volitivo (1),rosso,Simpatia/Empatia,1,si,AE53: =O51+O56+O57 -> O51: =SUM(B51:M51),'File Audio'!37
+34,SERENO - fiducioso - aperto (3MA),giallo,Simpatia/Empatia,1,si,AE51: =O54+O59 -> O54: =SUM(B54:M54),'File Audio'!37
+35,AMBIGUO - incerto - equivoco (4AUG),rosso,Indifferenza,1,si,AE53: =O51+O56+O57 -> O57: =SUM(B57:M57),'File Audio'!38
+35,ANGOSCIATO - ansioso - indifferente (2MI),blu,Indifferenza,1,si,AE54: =O53+O55+O61+O62 -> O53: =SUM(B53:M53),'File Audio'!38
+35,ARRABBIATO - distaccato - dubbioso (4G),rosso,Antipatia,1,si,AE53: =O51+O56+O57 -> O56: =SUM(B56:M56),'File Audio'!38
+35,CALMO - equilibrato - sognante (5G),verde,Simpatia/Empatia,1,si,AE52: =O52+O58+O60 -> O58: =SUM(B58:M58),'File Audio'!38
+35,DESOLATO - rimpiangente - abbandonato (7MA),blu,Antipatia,1,si,AE54: =O53+O55+O61+O62 -> O62: =SUM(B62:M62),'File Audio'!38
+35,DINAMICO - curioso - fluido (6MI),verde,Antipatia,1,si,AE52: =O52+O58+O60 -> O60: =SUM(B60:M60),'File Audio'!38
+35,GIOIOSO - caloroso - entusiasta (6MA),giallo,Simpatia/Empatia,1,si,AE51: =O54+O59 -> O59: =SUM(B59:M59),'File Audio'!38
+35,INQUIETO - chiuso - pauroso (2MA),verde,Antipatia,1,si,AE52: =O52+O58+O60 -> O52: =SUM(B52:M52),'File Audio'!38
+35,MALINCONICO - triste - riflessivo (3MI),blu,Simpatia/Empatia,1,si,AE54: =O53+O55+O61+O62 -> O55: =SUM(B55:M55),'File Audio'!38
+35,Mi è indifferente,grigio,Indifferenza,1,si,AE55: =O64 -> O64: =SUM(B64:M64),'File Audio'!38
+35,NOSTALGICO - consolato - afflitto (7MI),blu,Simpatia/Empatia,1,si,AE54: =O53+O55+O61+O62 -> O61: =SUM(B61:M61),'File Audio'!38
+35,SALDO - sicuro - volitivo (1),rosso,Simpatia/Empatia,1,si,AE53: =O51+O56+O57 -> O51: =SUM(B51:M51),'File Audio'!38
+35,SERENO - fiducioso - aperto (3MA),giallo,Simpatia/Empatia,1,si,AE51: =O54+O59 -> O54: =SUM(B54:M54),'File Audio'!38
+36,AMBIGUO - incerto - equivoco (4AUG),rosso,Indifferenza,1,si,AE53: =O51+O56+O57 -> O57: =SUM(B57:M57),'File Audio'!39
+36,ANGOSCIATO - ansioso - indifferente (2MI),blu,Indifferenza,1,si,AE54: =O53+O55+O61+O62 -> O53: =SUM(B53:M53),'File Audio'!39
+36,ARRABBIATO - distaccato - dubbioso (4G),rosso,Antipatia,1,si,AE53: =O51+O56+O57 -> O56: =SUM(B56:M56),'File Audio'!39
+36,CALMO - equilibrato - sognante (5G),verde,Simpatia/Empatia,1,si,AE52: =O52+O58+O60 -> O58: =SUM(B58:M58),'File Audio'!39
+36,DESOLATO - rimpiangente - abbandonato (7MA),blu,Antipatia,1,si,AE54: =O53+O55+O61+O62 -> O62: =SUM(B62:M62),'File Audio'!39
+36,DINAMICO - curioso - fluido (6MI),verde,Antipatia,1,si,AE52: =O52+O58+O60 -> O60: =SUM(B60:M60),'File Audio'!39
+36,GIOIOSO - caloroso - entusiasta (6MA),giallo,Simpatia/Empatia,1,si,AE51: =O54+O59 -> O59: =SUM(B59:M59),'File Audio'!39
+36,INQUIETO - chiuso - pauroso (2MA),verde,Antipatia,1,si,AE52: =O52+O58+O60 -> O52: =SUM(B52:M52),'File Audio'!39
+36,MALINCONICO - triste - riflessivo (3MI),blu,Simpatia/Empatia,1,si,AE54: =O53+O55+O61+O62 -> O55: =SUM(B55:M55),'File Audio'!39
+36,Mi è indifferente,grigio,Indifferenza,1,si,AE55: =O64 -> O64: =SUM(B64:M64),'File Audio'!39
+36,NOSTALGICO - consolato - afflitto (7MI),blu,Simpatia/Empatia,1,si,AE54: =O53+O55+O61+O62 -> O61: =SUM(B61:M61),'File Audio'!39
+36,SALDO - sicuro - volitivo (1),rosso,Simpatia/Empatia,1,si,AE53: =O51+O56+O57 -> O51: =SUM(B51:M51),'File Audio'!39
+36,SERENO - fiducioso - aperto (3MA),giallo,Simpatia/Empatia,1,si,AE51: =O54+O59 -> O54: =SUM(B54:M54),'File Audio'!39
+37,AMBIGUO - incerto - equivoco (4AUG),rosso,Indifferenza,1,si,AE53: =O51+O56+O57 -> O57: =SUM(B57:M57),'File Audio'!40
+37,ANGOSCIATO - ansioso - indifferente (2MI),blu,Indifferenza,1,si,AE54: =O53+O55+O61+O62 -> O53: =SUM(B53:M53),'File Audio'!40
+37,ARRABBIATO - distaccato - dubbioso (4G),rosso,Antipatia,1,si,AE53: =O51+O56+O57 -> O56: =SUM(B56:M56),'File Audio'!40
+37,CALMO - equilibrato - sognante (5G),verde,Simpatia/Empatia,1,si,AE52: =O52+O58+O60 -> O58: =SUM(B58:M58),'File Audio'!40
+37,DESOLATO - rimpiangente - abbandonato (7MA),blu,Antipatia,1,si,AE54: =O53+O55+O61+O62 -> O62: =SUM(B62:M62),'File Audio'!40
+37,DINAMICO - curioso - fluido (6MI),verde,Antipatia,1,si,AE52: =O52+O58+O60 -> O60: =SUM(B60:M60),'File Audio'!40
+37,GIOIOSO - caloroso - entusiasta (6MA),giallo,Simpatia/Empatia,1,si,AE51: =O54+O59 -> O59: =SUM(B59:M59),'File Audio'!40
+37,INQUIETO - chiuso - pauroso (2MA),verde,Antipatia,1,si,AE52: =O52+O58+O60 -> O52: =SUM(B52:M52),'File Audio'!40
+37,MALINCONICO - triste - riflessivo (3MI),blu,Simpatia/Empatia,1,si,AE54: =O53+O55+O61+O62 -> O55: =SUM(B55:M55),'File Audio'!40
+37,Mi è indifferente,grigio,Indifferenza,1,si,AE55: =O64 -> O64: =SUM(B64:M64),'File Audio'!40
+37,NOSTALGICO - consolato - afflitto (7MI),blu,Simpatia/Empatia,1,si,AE54: =O53+O55+O61+O62 -> O61: =SUM(B61:M61),'File Audio'!40
+37,SALDO - sicuro - volitivo (1),rosso,Simpatia/Empatia,1,si,AE53: =O51+O56+O57 -> O51: =SUM(B51:M51),'File Audio'!40
+37,SERENO - fiducioso - aperto (3MA),giallo,Simpatia/Empatia,1,si,AE51: =O54+O59 -> O54: =SUM(B54:M54),'File Audio'!40
+38,AMBIGUO - incerto - equivoco (4AUG),rosso,Indifferenza,1,si,AE53: =O51+O56+O57 -> O57: =SUM(B57:M57),'File Audio'!41
+38,ANGOSCIATO - ansioso - indifferente (2MI),blu,Indifferenza,1,si,AE54: =O53+O55+O61+O62 -> O53: =SUM(B53:M53),'File Audio'!41
+38,ARRABBIATO - distaccato - dubbioso (4G),rosso,Antipatia,1,si,AE53: =O51+O56+O57 -> O56: =SUM(B56:M56),'File Audio'!41
+38,CALMO - equilibrato - sognante (5G),verde,Simpatia/Empatia,1,si,AE52: =O52+O58+O60 -> O58: =SUM(B58:M58),'File Audio'!41
+38,DESOLATO - rimpiangente - abbandonato (7MA),blu,Antipatia,1,si,AE54: =O53+O55+O61+O62 -> O62: =SUM(B62:M62),'File Audio'!41
+38,DINAMICO - curioso - fluido (6MI),verde,Antipatia,1,si,AE52: =O52+O58+O60 -> O60: =SUM(B60:M60),'File Audio'!41
+38,GIOIOSO - caloroso - entusiasta (6MA),giallo,Simpatia/Empatia,1,si,AE51: =O54+O59 -> O59: =SUM(B59:M59),'File Audio'!41
+38,INQUIETO - chiuso - pauroso (2MA),verde,Antipatia,1,si,AE52: =O52+O58+O60 -> O52: =SUM(B52:M52),'File Audio'!41
+38,MALINCONICO - triste - riflessivo (3MI),blu,Simpatia/Empatia,1,si,AE54: =O53+O55+O61+O62 -> O55: =SUM(B55:M55),'File Audio'!41
+38,Mi è indifferente,grigio,Indifferenza,1,si,AE55: =O64 -> O64: =SUM(B64:M64),'File Audio'!41
+38,NOSTALGICO - consolato - afflitto (7MI),blu,Simpatia/Empatia,1,si,AE54: =O53+O55+O61+O62 -> O61: =SUM(B61:M61),'File Audio'!41
+38,SALDO - sicuro - volitivo (1),rosso,Simpatia/Empatia,1,si,AE53: =O51+O56+O57 -> O51: =SUM(B51:M51),'File Audio'!41
+38,SERENO - fiducioso - aperto (3MA),giallo,Simpatia/Empatia,1,si,AE51: =O54+O59 -> O54: =SUM(B54:M54),'File Audio'!41
+39,AMBIGUO - incerto - equivoco (4AUG),rosso,Indifferenza,1,si,AE53: =O51+O56+O57 -> O57: =SUM(B57:M57),'File Audio'!42
+39,ANGOSCIATO - ansioso - indifferente (2MI),blu,Indifferenza,1,si,AE54: =O53+O55+O61+O62 -> O53: =SUM(B53:M53),'File Audio'!42
+39,ARRABBIATO - distaccato - dubbioso (4G),rosso,Antipatia,1,si,AE53: =O51+O56+O57 -> O56: =SUM(B56:M56),'File Audio'!42
+39,CALMO - equilibrato - sognante (5G),verde,Simpatia/Empatia,1,si,AE52: =O52+O58+O60 -> O58: =SUM(B58:M58),'File Audio'!42
+39,DESOLATO - rimpiangente - abbandonato (7MA),blu,Antipatia,1,si,AE54: =O53+O55+O61+O62 -> O62: =SUM(B62:M62),'File Audio'!42
+39,DINAMICO - curioso - fluido (6MI),verde,Antipatia,1,si,AE52: =O52+O58+O60 -> O60: =SUM(B60:M60),'File Audio'!42
+39,GIOIOSO - caloroso - entusiasta (6MA),giallo,Simpatia/Empatia,1,si,AE51: =O54+O59 -> O59: =SUM(B59:M59),'File Audio'!42
+39,INQUIETO - chiuso - pauroso (2MA),verde,Antipatia,1,si,AE52: =O52+O58+O60 -> O52: =SUM(B52:M52),'File Audio'!42
+39,MALINCONICO - triste - riflessivo (3MI),blu,Simpatia/Empatia,1,si,AE54: =O53+O55+O61+O62 -> O55: =SUM(B55:M55),'File Audio'!42
+39,Mi è indifferente,grigio,Indifferenza,1,si,AE55: =O64 -> O64: =SUM(B64:M64),'File Audio'!42
+39,NOSTALGICO - consolato - afflitto (7MI),blu,Simpatia/Empatia,1,si,AE54: =O53+O55+O61+O62 -> O61: =SUM(B61:M61),'File Audio'!42
+39,SALDO - sicuro - volitivo (1),rosso,Simpatia/Empatia,1,si,AE53: =O51+O56+O57 -> O51: =SUM(B51:M51),'File Audio'!42
+39,SERENO - fiducioso - aperto (3MA),giallo,Simpatia/Empatia,1,si,AE51: =O54+O59 -> O54: =SUM(B54:M54),'File Audio'!42
+40,AMBIGUO - incerto - equivoco (4AUG),rosso,Indifferenza,1,si,AE53: =O51+O56+O57 -> O57: =SUM(B57:M57),'File Audio'!43
+40,ANGOSCIATO - ansioso - indifferente (2MI),blu,Indifferenza,1,si,AE54: =O53+O55+O61+O62 -> O53: =SUM(B53:M53),'File Audio'!43
+40,ARRABBIATO - distaccato - dubbioso (4G),rosso,Antipatia,1,si,AE53: =O51+O56+O57 -> O56: =SUM(B56:M56),'File Audio'!43
+40,CALMO - equilibrato - sognante (5G),verde,Simpatia/Empatia,1,si,AE52: =O52+O58+O60 -> O58: =SUM(B58:M58),'File Audio'!43
+40,DESOLATO - rimpiangente - abbandonato (7MA),blu,Antipatia,1,si,AE54: =O53+O55+O61+O62 -> O62: =SUM(B62:M62),'File Audio'!43
+40,DINAMICO - curioso - fluido (6MI),verde,Antipatia,1,si,AE52: =O52+O58+O60 -> O60: =SUM(B60:M60),'File Audio'!43
+40,GIOIOSO - caloroso - entusiasta (6MA),giallo,Simpatia/Empatia,1,si,AE51: =O54+O59 -> O59: =SUM(B59:M59),'File Audio'!43
+40,INQUIETO - chiuso - pauroso (2MA),verde,Antipatia,1,si,AE52: =O52+O58+O60 -> O52: =SUM(B52:M52),'File Audio'!43
+40,MALINCONICO - triste - riflessivo (3MI),blu,Simpatia/Empatia,1,si,AE54: =O53+O55+O61+O62 -> O55: =SUM(B55:M55),'File Audio'!43
+40,Mi è indifferente,grigio,Indifferenza,1,si,AE55: =O64 -> O64: =SUM(B64:M64),'File Audio'!43
+40,NOSTALGICO - consolato - afflitto (7MI),blu,Simpatia/Empatia,1,si,AE54: =O53+O55+O61+O62 -> O61: =SUM(B61:M61),'File Audio'!43
+40,SALDO - sicuro - volitivo (1),rosso,Simpatia/Empatia,1,si,AE53: =O51+O56+O57 -> O51: =SUM(B51:M51),'File Audio'!43
+40,SERENO - fiducioso - aperto (3MA),giallo,Simpatia/Empatia,1,si,AE51: =O54+O59 -> O54: =SUM(B54:M54),'File Audio'!43
+42,mi accende/mi motiva,rosso,Simpatia/Empatia,2,si,AE77: =F79+F80+F82 -> F79: =SUM(B79:E79),'File Audio'!46
+42,mi accompagna/mi consola,blu,Simpatia/Empatia,2,si,AE78: =SUM(F83:F85) -> F85: =SUM(B85:E85),'File Audio'!46
+42,mi annoia/mi stufa,grigio,Indifferenza,2,si,AE79: =F73+F77+F81 -> F81: =SUM(B81:E81),'File Audio'!46
+42,mi arrovella/mi rattrista,blu,Antipatia,2,si,AE78: =SUM(F83:F85) -> F84: =SUM(B84:E84),'File Audio'!46
+42,mi calma/mi fa sognare,verde,Simpatia/Empatia,2,si,AE76: =F75+F76+F78 -> F78: =SUM(B78:E78),'File Audio'!46
+42,mi completa/mi incoraggia,rosso,Simpatia/Empatia,2,si,AE77: =F79+F80+F82 -> F82: =SUM(B82:E82),'File Audio'!46
+42,mi disturba/mi repelle,verde,Antipatia,2,si,AE76: =F75+F76+F78 -> F76: =SUM(B76:E76),'File Audio'!46
+42,mi dà gioia,giallo,Simpatia/Empatia,2,si,AE75: =F71+F72+F74 -> F71: =SUM(B71:E71),'File Audio'!46
+42,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,2,si,AE78: =SUM(F83:F85) -> F83: =SUM(B83:E83),'File Audio'!46
+42,mi inquieta,giallo,Antipatia,2,si,AE75: =F71+F72+F74 -> F72: =SUM(B72:E72),'File Audio'!46
+42,mi irrita/mi infastidisce,rosso,Antipatia,2,si,AE77: =F79+F80+F82 -> F80: =SUM(B80:E80),'File Audio'!46
+42,mi rilassa,verde,Simpatia/Empatia,2,si,AE76: =F75+F76+F78 -> F75: =SUM(B75:E75),'File Audio'!46
+42,mi spegne,grigio,Indifferenza,2,si,AE79: =F73+F77+F81 -> F73: =SUM(B73:E73),'File Audio'!46
+42,mi stupisce,giallo,Simpatia/Empatia,2,si,AE75: =F71+F72+F74 -> F74: =SUM(B74:E74),'File Audio'!46
+42,mi è indifferente,grigio,Indifferenza,2,si,AE79: =F73+F77+F81 -> F77: =SUM(B77:E77),'File Audio'!46
+43,mi accende/mi motiva,rosso,Simpatia/Empatia,2,si,AE77: =F79+F80+F82 -> F79: =SUM(B79:E79),'File Audio'!47
+43,mi accompagna/mi consola,blu,Simpatia/Empatia,2,si,AE78: =SUM(F83:F85) -> F85: =SUM(B85:E85),'File Audio'!47
+43,mi annoia/mi stufa,grigio,Indifferenza,2,si,AE79: =F73+F77+F81 -> F81: =SUM(B81:E81),'File Audio'!47
+43,mi arrovella/mi rattrista,blu,Antipatia,2,si,AE78: =SUM(F83:F85) -> F84: =SUM(B84:E84),'File Audio'!47
+43,mi calma/mi fa sognare,verde,Simpatia/Empatia,2,si,AE76: =F75+F76+F78 -> F78: =SUM(B78:E78),'File Audio'!47
+43,mi completa/mi incoraggia,rosso,Simpatia/Empatia,2,si,AE77: =F79+F80+F82 -> F82: =SUM(B82:E82),'File Audio'!47
+43,mi disturba/mi repelle,verde,Antipatia,2,si,AE76: =F75+F76+F78 -> F76: =SUM(B76:E76),'File Audio'!47
+43,mi dà gioia,giallo,Simpatia/Empatia,2,si,AE75: =F71+F72+F74 -> F71: =SUM(B71:E71),'File Audio'!47
+43,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,2,si,AE78: =SUM(F83:F85) -> F83: =SUM(B83:E83),'File Audio'!47
+43,mi inquieta,giallo,Antipatia,2,si,AE75: =F71+F72+F74 -> F72: =SUM(B72:E72),'File Audio'!47
+43,mi irrita/mi infastidisce,rosso,Antipatia,2,si,AE77: =F79+F80+F82 -> F80: =SUM(B80:E80),'File Audio'!47
+43,mi rilassa,verde,Simpatia/Empatia,2,si,AE76: =F75+F76+F78 -> F75: =SUM(B75:E75),'File Audio'!47
+43,mi spegne,grigio,Indifferenza,2,si,AE79: =F73+F77+F81 -> F73: =SUM(B73:E73),'File Audio'!47
+43,mi stupisce,giallo,Simpatia/Empatia,2,si,AE75: =F71+F72+F74 -> F74: =SUM(B74:E74),'File Audio'!47
+43,mi è indifferente,grigio,Indifferenza,2,si,AE79: =F73+F77+F81 -> F77: =SUM(B77:E77),'File Audio'!47
+44,mi accende/mi motiva,rosso,Simpatia/Empatia,2,si,AE77: =F79+F80+F82 -> F79: =SUM(B79:E79),'File Audio'!48
+44,mi accompagna/mi consola,blu,Simpatia/Empatia,2,si,AE78: =SUM(F83:F85) -> F85: =SUM(B85:E85),'File Audio'!48
+44,mi annoia/mi stufa,grigio,Indifferenza,2,si,AE79: =F73+F77+F81 -> F81: =SUM(B81:E81),'File Audio'!48
+44,mi arrovella/mi rattrista,blu,Antipatia,2,si,AE78: =SUM(F83:F85) -> F84: =SUM(B84:E84),'File Audio'!48
+44,mi calma/mi fa sognare,verde,Simpatia/Empatia,2,si,AE76: =F75+F76+F78 -> F78: =SUM(B78:E78),'File Audio'!48
+44,mi completa/mi incoraggia,rosso,Simpatia/Empatia,2,si,AE77: =F79+F80+F82 -> F82: =SUM(B82:E82),'File Audio'!48
+44,mi disturba/mi repelle,verde,Antipatia,2,si,AE76: =F75+F76+F78 -> F76: =SUM(B76:E76),'File Audio'!48
+44,mi dà gioia,giallo,Simpatia/Empatia,2,si,AE75: =F71+F72+F74 -> F71: =SUM(B71:E71),'File Audio'!48
+44,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,2,si,AE78: =SUM(F83:F85) -> F83: =SUM(B83:E83),'File Audio'!48
+44,mi inquieta,giallo,Antipatia,2,si,AE75: =F71+F72+F74 -> F72: =SUM(B72:E72),'File Audio'!48
+44,mi irrita/mi infastidisce,rosso,Antipatia,2,si,AE77: =F79+F80+F82 -> F80: =SUM(B80:E80),'File Audio'!48
+44,mi rilassa,verde,Simpatia/Empatia,2,si,AE76: =F75+F76+F78 -> F75: =SUM(B75:E75),'File Audio'!48
+44,mi spegne,grigio,Indifferenza,2,si,AE79: =F73+F77+F81 -> F73: =SUM(B73:E73),'File Audio'!48
+44,mi stupisce,giallo,Simpatia/Empatia,2,si,AE75: =F71+F72+F74 -> F74: =SUM(B74:E74),'File Audio'!48
+44,mi è indifferente,grigio,Indifferenza,2,si,AE79: =F73+F77+F81 -> F77: =SUM(B77:E77),'File Audio'!48
+45,mi accende/mi motiva,rosso,Simpatia/Empatia,2,si,AE77: =F79+F80+F82 -> F79: =SUM(B79:E79),'File Audio'!49
+45,mi accompagna/mi consola,blu,Simpatia/Empatia,2,si,AE78: =SUM(F83:F85) -> F85: =SUM(B85:E85),'File Audio'!49
+45,mi annoia/mi stufa,grigio,Indifferenza,2,si,AE79: =F73+F77+F81 -> F81: =SUM(B81:E81),'File Audio'!49
+45,mi arrovella/mi rattrista,blu,Antipatia,2,si,AE78: =SUM(F83:F85) -> F84: =SUM(B84:E84),'File Audio'!49
+45,mi calma/mi fa sognare,verde,Simpatia/Empatia,2,si,AE76: =F75+F76+F78 -> F78: =SUM(B78:E78),'File Audio'!49
+45,mi completa/mi incoraggia,rosso,Simpatia/Empatia,2,si,AE77: =F79+F80+F82 -> F82: =SUM(B82:E82),'File Audio'!49
+45,mi disturba/mi repelle,verde,Antipatia,2,si,AE76: =F75+F76+F78 -> F76: =SUM(B76:E76),'File Audio'!49
+45,mi dà gioia,giallo,Simpatia/Empatia,2,si,AE75: =F71+F72+F74 -> F71: =SUM(B71:E71),'File Audio'!49
+45,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,2,si,AE78: =SUM(F83:F85) -> F83: =SUM(B83:E83),'File Audio'!49
+45,mi inquieta,giallo,Antipatia,2,si,AE75: =F71+F72+F74 -> F72: =SUM(B72:E72),'File Audio'!49
+45,mi irrita/mi infastidisce,rosso,Antipatia,2,si,AE77: =F79+F80+F82 -> F80: =SUM(B80:E80),'File Audio'!49
+45,mi rilassa,verde,Simpatia/Empatia,2,si,AE76: =F75+F76+F78 -> F75: =SUM(B75:E75),'File Audio'!49
+45,mi spegne,grigio,Indifferenza,2,si,AE79: =F73+F77+F81 -> F73: =SUM(B73:E73),'File Audio'!49
+45,mi stupisce,giallo,Simpatia/Empatia,2,si,AE75: =F71+F72+F74 -> F74: =SUM(B74:E74),'File Audio'!49
+45,mi è indifferente,grigio,Indifferenza,2,si,AE79: =F73+F77+F81 -> F77: =SUM(B77:E77),'File Audio'!49
+46,nessuna,grigio,,2,si,AJ79: =F87,'File Audio'!50
+46,opzione1,blu,,2,si,AJ75: =B87,'File Audio'!50
+46,opzione2,verde,,2,si,AJ77: =C87,'File Audio'!50
+46,opzione3,rosso,,2,si,AJ76: =D87,'File Audio'!50
+46,opzione4,giallo,,2,si,AJ78: =E87,'File Audio'!50
+47,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AF77: =N79+N80+N82 -> N79: =SUM(J79:M79),'File Audio'!51
+47,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AF78: =N83+N84+N85 -> N85: =SUM(J85:M85),'File Audio'!51
+47,mi annoia/mi stufa,grigio,Indifferenza,1,si,AF79: =N73+N77+N81 -> N81: =SUM(J81:M81),'File Audio'!51
+47,mi arrovella/mi rattrista,blu,Antipatia,1,si,AF78: =N83+N84+N85 -> N84: =SUM(J84:M84),'File Audio'!51
+47,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AF76: =N75+N76+N78 -> N78: =SUM(J78:M78),'File Audio'!51
+47,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AF77: =N79+N80+N82 -> N82: =SUM(J82:M82),'File Audio'!51
+47,mi disturba/mi repelle,verde,Antipatia,1,si,AF76: =N75+N76+N78 -> N76: =SUM(J76:M76),'File Audio'!51
+47,mi dà gioia,giallo,Simpatia/Empatia,1,si,AF75: =N71+N72+N74 -> N71: =SUM(J71:M71),'File Audio'!51
+47,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AF78: =N83+N84+N85 -> N83: =SUM(J83:M83),'File Audio'!51
+47,mi inquieta,giallo,Antipatia,1,si,AF75: =N71+N72+N74 -> N72: =SUM(J72:M72),'File Audio'!51
+47,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AF77: =N79+N80+N82 -> N80: =SUM(J80:M80),'File Audio'!51
+47,mi rilassa,verde,Simpatia/Empatia,1,si,AF76: =N75+N76+N78 -> N75: =SUM(J75:M75),'File Audio'!51
+47,mi spegne,grigio,Indifferenza,1,si,AF79: =N73+N77+N81 -> N73: =SUM(J73:M73),'File Audio'!51
+47,mi stupisce,giallo,Simpatia/Empatia,1,si,AF75: =N71+N72+N74 -> N74: =SUM(J74:M74),'File Audio'!51
+47,mi è indifferente,grigio,Indifferenza,1,si,AF79: =N73+N77+N81 -> N77: =SUM(J77:M77),'File Audio'!51
+48,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AF77: =N79+N80+N82 -> N79: =SUM(J79:M79),'File Audio'!52
+48,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AF78: =N83+N84+N85 -> N85: =SUM(J85:M85),'File Audio'!52
+48,mi annoia/mi stufa,grigio,Indifferenza,1,si,AF79: =N73+N77+N81 -> N81: =SUM(J81:M81),'File Audio'!52
+48,mi arrovella/mi rattrista,blu,Antipatia,1,si,AF78: =N83+N84+N85 -> N84: =SUM(J84:M84),'File Audio'!52
+48,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AF76: =N75+N76+N78 -> N78: =SUM(J78:M78),'File Audio'!52
+48,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AF77: =N79+N80+N82 -> N82: =SUM(J82:M82),'File Audio'!52
+48,mi disturba/mi repelle,verde,Antipatia,1,si,AF76: =N75+N76+N78 -> N76: =SUM(J76:M76),'File Audio'!52
+48,mi dà gioia,giallo,Simpatia/Empatia,1,si,AF75: =N71+N72+N74 -> N71: =SUM(J71:M71),'File Audio'!52
+48,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AF78: =N83+N84+N85 -> N83: =SUM(J83:M83),'File Audio'!52
+48,mi inquieta,giallo,Antipatia,1,si,AF75: =N71+N72+N74 -> N72: =SUM(J72:M72),'File Audio'!52
+48,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AF77: =N79+N80+N82 -> N80: =SUM(J80:M80),'File Audio'!52
+48,mi rilassa,verde,Simpatia/Empatia,1,si,AF76: =N75+N76+N78 -> N75: =SUM(J75:M75),'File Audio'!52
+48,mi spegne,grigio,Indifferenza,1,si,AF79: =N73+N77+N81 -> N73: =SUM(J73:M73),'File Audio'!52
+48,mi stupisce,giallo,Simpatia/Empatia,1,si,AF75: =N71+N72+N74 -> N74: =SUM(J74:M74),'File Audio'!52
+48,mi è indifferente,grigio,Indifferenza,1,si,AF79: =N73+N77+N81 -> N77: =SUM(J77:M77),'File Audio'!52
+49,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AF77: =N79+N80+N82 -> N79: =SUM(J79:M79),'File Audio'!53
+49,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AF78: =N83+N84+N85 -> N85: =SUM(J85:M85),'File Audio'!53
+49,mi annoia/mi stufa,grigio,Indifferenza,1,si,AF79: =N73+N77+N81 -> N81: =SUM(J81:M81),'File Audio'!53
+49,mi arrovella/mi rattrista,blu,Antipatia,1,si,AF78: =N83+N84+N85 -> N84: =SUM(J84:M84),'File Audio'!53
+49,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AF76: =N75+N76+N78 -> N78: =SUM(J78:M78),'File Audio'!53
+49,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AF77: =N79+N80+N82 -> N82: =SUM(J82:M82),'File Audio'!53
+49,mi disturba/mi repelle,verde,Antipatia,1,si,AF76: =N75+N76+N78 -> N76: =SUM(J76:M76),'File Audio'!53
+49,mi dà gioia,giallo,Simpatia/Empatia,1,si,AF75: =N71+N72+N74 -> N71: =SUM(J71:M71),'File Audio'!53
+49,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AF78: =N83+N84+N85 -> N83: =SUM(J83:M83),'File Audio'!53
+49,mi inquieta,giallo,Antipatia,1,si,AF75: =N71+N72+N74 -> N72: =SUM(J72:M72),'File Audio'!53
+49,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AF77: =N79+N80+N82 -> N80: =SUM(J80:M80),'File Audio'!53
+49,mi rilassa,verde,Simpatia/Empatia,1,si,AF76: =N75+N76+N78 -> N75: =SUM(J75:M75),'File Audio'!53
+49,mi spegne,grigio,Indifferenza,1,si,AF79: =N73+N77+N81 -> N73: =SUM(J73:M73),'File Audio'!53
+49,mi stupisce,giallo,Simpatia/Empatia,1,si,AF75: =N71+N72+N74 -> N74: =SUM(J74:M74),'File Audio'!53
+49,mi è indifferente,grigio,Indifferenza,1,si,AF79: =N73+N77+N81 -> N77: =SUM(J77:M77),'File Audio'!53
+50,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AF77: =N79+N80+N82 -> N79: =SUM(J79:M79),'File Audio'!54
+50,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AF78: =N83+N84+N85 -> N85: =SUM(J85:M85),'File Audio'!54
+50,mi annoia/mi stufa,grigio,Indifferenza,1,si,AF79: =N73+N77+N81 -> N81: =SUM(J81:M81),'File Audio'!54
+50,mi arrovella/mi rattrista,blu,Antipatia,1,si,AF78: =N83+N84+N85 -> N84: =SUM(J84:M84),'File Audio'!54
+50,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AF76: =N75+N76+N78 -> N78: =SUM(J78:M78),'File Audio'!54
+50,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AF77: =N79+N80+N82 -> N82: =SUM(J82:M82),'File Audio'!54
+50,mi disturba/mi repelle,verde,Antipatia,1,si,AF76: =N75+N76+N78 -> N76: =SUM(J76:M76),'File Audio'!54
+50,mi dà gioia,giallo,Simpatia/Empatia,1,si,AF75: =N71+N72+N74 -> N71: =SUM(J71:M71),'File Audio'!54
+50,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AF78: =N83+N84+N85 -> N83: =SUM(J83:M83),'File Audio'!54
+50,mi inquieta,giallo,Antipatia,1,si,AF75: =N71+N72+N74 -> N72: =SUM(J72:M72),'File Audio'!54
+50,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AF77: =N79+N80+N82 -> N80: =SUM(J80:M80),'File Audio'!54
+50,mi rilassa,verde,Simpatia/Empatia,1,si,AF76: =N75+N76+N78 -> N75: =SUM(J75:M75),'File Audio'!54
+50,mi spegne,grigio,Indifferenza,1,si,AF79: =N73+N77+N81 -> N73: =SUM(J73:M73),'File Audio'!54
+50,mi stupisce,giallo,Simpatia/Empatia,1,si,AF75: =N71+N72+N74 -> N74: =SUM(J74:M74),'File Audio'!54
+50,mi è indifferente,grigio,Indifferenza,1,si,AF79: =N73+N77+N81 -> N77: =SUM(J77:M77),'File Audio'!54
+51,nessuna,grigio,,1,si,AK79: =N87,'File Audio'!55
+51,opzione1,blu,,1,si,AK75: =J87,'File Audio'!55
+51,opzione2,rosso,,1,si,AK76: =K87,'File Audio'!55
+51,opzione3,verde,,1,si,AK77: =L87,'File Audio'!55
+51,opzione4,giallo,,1,si,AK78: =M87,'File Audio'!55
+52,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE97: =H99+H100+H102 -> H99: =SUM(B99:G99),'File Audio'!57
+52,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE98: =H103+H104+H105 -> H105: =SUM(B105:G105),'File Audio'!57
+52,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE99: =H93+H97+H101 -> H101: =SUM(B101:G101),'File Audio'!57
+52,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE98: =H103+H104+H105 -> H104: =SUM(B104:G104),'File Audio'!57
+52,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE96: =H95+H96+H98 -> H98: =SUM(B98:G98),'File Audio'!57
+52,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE97: =H99+H100+H102 -> H102: =SUM(B102:G102),'File Audio'!57
+52,mi disturba/mi repelle,verde,Antipatia,1,si,AE96: =H95+H96+H98 -> H96: =SUM(B96:G96),'File Audio'!57
+52,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE95: =H91+H92+H94 -> H91: =SUM(B91:G91),'File Audio'!57
+52,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE98: =H103+H104+H105 -> H103: =SUM(B103:G103),'File Audio'!57
+52,mi inquieta,giallo,Antipatia,1,si,AE95: =H91+H92+H94 -> H92: =SUM(B92:G92),'File Audio'!57
+52,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE97: =H99+H100+H102 -> H100: =SUM(B100:G100),'File Audio'!57
+52,mi rilassa,verde,Simpatia/Empatia,1,si,AE96: =H95+H96+H98 -> H95: =SUM(B95:G95),'File Audio'!57
+52,mi spegne,grigio,Indifferenza,1,si,AE99: =H93+H97+H101 -> H93: =SUM(B93:G93),'File Audio'!57
+52,mi stupisce,giallo,Simpatia/Empatia,1,si,AE95: =H91+H92+H94 -> H94: =SUM(B94:G94),'File Audio'!57
+52,mi è indifferente,grigio,Indifferenza,1,si,AE99: =H93+H97+H101 -> H97: =SUM(B97:G97),'File Audio'!57
+53,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE97: =H99+H100+H102 -> H99: =SUM(B99:G99),'File Audio'!58
+53,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE98: =H103+H104+H105 -> H105: =SUM(B105:G105),'File Audio'!58
+53,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE99: =H93+H97+H101 -> H101: =SUM(B101:G101),'File Audio'!58
+53,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE98: =H103+H104+H105 -> H104: =SUM(B104:G104),'File Audio'!58
+53,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE96: =H95+H96+H98 -> H98: =SUM(B98:G98),'File Audio'!58
+53,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE97: =H99+H100+H102 -> H102: =SUM(B102:G102),'File Audio'!58
+53,mi disturba/mi repelle,verde,Antipatia,1,si,AE96: =H95+H96+H98 -> H96: =SUM(B96:G96),'File Audio'!58
+53,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE95: =H91+H92+H94 -> H91: =SUM(B91:G91),'File Audio'!58
+53,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE98: =H103+H104+H105 -> H103: =SUM(B103:G103),'File Audio'!58
+53,mi inquieta,giallo,Antipatia,1,si,AE95: =H91+H92+H94 -> H92: =SUM(B92:G92),'File Audio'!58
+53,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE97: =H99+H100+H102 -> H100: =SUM(B100:G100),'File Audio'!58
+53,mi rilassa,verde,Simpatia/Empatia,1,si,AE96: =H95+H96+H98 -> H95: =SUM(B95:G95),'File Audio'!58
+53,mi spegne,grigio,Indifferenza,1,si,AE99: =H93+H97+H101 -> H93: =SUM(B93:G93),'File Audio'!58
+53,mi stupisce,giallo,Simpatia/Empatia,1,si,AE95: =H91+H92+H94 -> H94: =SUM(B94:G94),'File Audio'!58
+53,mi è indifferente,grigio,Indifferenza,1,si,AE99: =H93+H97+H101 -> H97: =SUM(B97:G97),'File Audio'!58
+54,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE97: =H99+H100+H102 -> H99: =SUM(B99:G99),'File Audio'!59
+54,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE98: =H103+H104+H105 -> H105: =SUM(B105:G105),'File Audio'!59
+54,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE99: =H93+H97+H101 -> H101: =SUM(B101:G101),'File Audio'!59
+54,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE98: =H103+H104+H105 -> H104: =SUM(B104:G104),'File Audio'!59
+54,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE96: =H95+H96+H98 -> H98: =SUM(B98:G98),'File Audio'!59
+54,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE97: =H99+H100+H102 -> H102: =SUM(B102:G102),'File Audio'!59
+54,mi disturba/mi repelle,verde,Antipatia,1,si,AE96: =H95+H96+H98 -> H96: =SUM(B96:G96),'File Audio'!59
+54,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE95: =H91+H92+H94 -> H91: =SUM(B91:G91),'File Audio'!59
+54,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE98: =H103+H104+H105 -> H103: =SUM(B103:G103),'File Audio'!59
+54,mi inquieta,giallo,Antipatia,1,si,AE95: =H91+H92+H94 -> H92: =SUM(B92:G92),'File Audio'!59
+54,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE97: =H99+H100+H102 -> H100: =SUM(B100:G100),'File Audio'!59
+54,mi rilassa,verde,Simpatia/Empatia,1,si,AE96: =H95+H96+H98 -> H95: =SUM(B95:G95),'File Audio'!59
+54,mi spegne,grigio,Indifferenza,1,si,AE99: =H93+H97+H101 -> H93: =SUM(B93:G93),'File Audio'!59
+54,mi stupisce,giallo,Simpatia/Empatia,1,si,AE95: =H91+H92+H94 -> H94: =SUM(B94:G94),'File Audio'!59
+54,mi è indifferente,grigio,Indifferenza,1,si,AE99: =H93+H97+H101 -> H97: =SUM(B97:G97),'File Audio'!59
+55,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE97: =H99+H100+H102 -> H99: =SUM(B99:G99),'File Audio'!60
+55,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE98: =H103+H104+H105 -> H105: =SUM(B105:G105),'File Audio'!60
+55,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE99: =H93+H97+H101 -> H101: =SUM(B101:G101),'File Audio'!60
+55,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE98: =H103+H104+H105 -> H104: =SUM(B104:G104),'File Audio'!60
+55,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE96: =H95+H96+H98 -> H98: =SUM(B98:G98),'File Audio'!60
+55,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE97: =H99+H100+H102 -> H102: =SUM(B102:G102),'File Audio'!60
+55,mi disturba/mi repelle,verde,Antipatia,1,si,AE96: =H95+H96+H98 -> H96: =SUM(B96:G96),'File Audio'!60
+55,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE95: =H91+H92+H94 -> H91: =SUM(B91:G91),'File Audio'!60
+55,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE98: =H103+H104+H105 -> H103: =SUM(B103:G103),'File Audio'!60
+55,mi inquieta,giallo,Antipatia,1,si,AE95: =H91+H92+H94 -> H92: =SUM(B92:G92),'File Audio'!60
+55,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE97: =H99+H100+H102 -> H100: =SUM(B100:G100),'File Audio'!60
+55,mi rilassa,verde,Simpatia/Empatia,1,si,AE96: =H95+H96+H98 -> H95: =SUM(B95:G95),'File Audio'!60
+55,mi spegne,grigio,Indifferenza,1,si,AE99: =H93+H97+H101 -> H93: =SUM(B93:G93),'File Audio'!60
+55,mi stupisce,giallo,Simpatia/Empatia,1,si,AE95: =H91+H92+H94 -> H94: =SUM(B94:G94),'File Audio'!60
+55,mi è indifferente,grigio,Indifferenza,1,si,AE99: =H93+H97+H101 -> H97: =SUM(B97:G97),'File Audio'!60
+56,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE97: =H99+H100+H102 -> H99: =SUM(B99:G99),'File Audio'!61
+56,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE98: =H103+H104+H105 -> H105: =SUM(B105:G105),'File Audio'!61
+56,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE99: =H93+H97+H101 -> H101: =SUM(B101:G101),'File Audio'!61
+56,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE98: =H103+H104+H105 -> H104: =SUM(B104:G104),'File Audio'!61
+56,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE96: =H95+H96+H98 -> H98: =SUM(B98:G98),'File Audio'!61
+56,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE97: =H99+H100+H102 -> H102: =SUM(B102:G102),'File Audio'!61
+56,mi disturba/mi repelle,verde,Antipatia,1,si,AE96: =H95+H96+H98 -> H96: =SUM(B96:G96),'File Audio'!61
+56,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE95: =H91+H92+H94 -> H91: =SUM(B91:G91),'File Audio'!61
+56,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE98: =H103+H104+H105 -> H103: =SUM(B103:G103),'File Audio'!61
+56,mi inquieta,giallo,Antipatia,1,si,AE95: =H91+H92+H94 -> H92: =SUM(B92:G92),'File Audio'!61
+56,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE97: =H99+H100+H102 -> H100: =SUM(B100:G100),'File Audio'!61
+56,mi rilassa,verde,Simpatia/Empatia,1,si,AE96: =H95+H96+H98 -> H95: =SUM(B95:G95),'File Audio'!61
+56,mi spegne,grigio,Indifferenza,1,si,AE99: =H93+H97+H101 -> H93: =SUM(B93:G93),'File Audio'!61
+56,mi stupisce,giallo,Simpatia/Empatia,1,si,AE95: =H91+H92+H94 -> H94: =SUM(B94:G94),'File Audio'!61
+56,mi è indifferente,grigio,Indifferenza,1,si,AE99: =H93+H97+H101 -> H97: =SUM(B97:G97),'File Audio'!61
+57,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE97: =H99+H100+H102 -> H99: =SUM(B99:G99),'File Audio'!62
+57,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE98: =H103+H104+H105 -> H105: =SUM(B105:G105),'File Audio'!62
+57,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE99: =H93+H97+H101 -> H101: =SUM(B101:G101),'File Audio'!62
+57,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE98: =H103+H104+H105 -> H104: =SUM(B104:G104),'File Audio'!62
+57,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE96: =H95+H96+H98 -> H98: =SUM(B98:G98),'File Audio'!62
+57,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE97: =H99+H100+H102 -> H102: =SUM(B102:G102),'File Audio'!62
+57,mi disturba/mi repelle,verde,Antipatia,1,si,AE96: =H95+H96+H98 -> H96: =SUM(B96:G96),'File Audio'!62
+57,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE95: =H91+H92+H94 -> H91: =SUM(B91:G91),'File Audio'!62
+57,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE98: =H103+H104+H105 -> H103: =SUM(B103:G103),'File Audio'!62
+57,mi inquieta,giallo,Antipatia,1,si,AE95: =H91+H92+H94 -> H92: =SUM(B92:G92),'File Audio'!62
+57,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE97: =H99+H100+H102 -> H100: =SUM(B100:G100),'File Audio'!62
+57,mi rilassa,verde,Simpatia/Empatia,1,si,AE96: =H95+H96+H98 -> H95: =SUM(B95:G95),'File Audio'!62
+57,mi spegne,grigio,Indifferenza,1,si,AE99: =H93+H97+H101 -> H93: =SUM(B93:G93),'File Audio'!62
+57,mi stupisce,giallo,Simpatia/Empatia,1,si,AE95: =H91+H92+H94 -> H94: =SUM(B94:G94),'File Audio'!62
+57,mi è indifferente,grigio,Indifferenza,1,si,AE99: =H93+H97+H101 -> H97: =SUM(B97:G97),'File Audio'!62
+58,nessuna,grigio,,1,si,AJ99: =F107,'File Audio'!63
+58,opzione1,giallo,,1,si,AJ95: =B107,'File Audio'!63
+58,opzione2,blu,,1,si,AJ96: =C107,'File Audio'!63
+58,opzione3,rosso,,1,si,AJ97: =D107,'File Audio'!63
+58,opzione4,verde,,1,si,AJ98: =E107,'File Audio'!63
+59,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE117: =P119+P120+P122 -> P119: =SUM(B119:O119),'File Audio'!65
+59,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE118: =P123+P124+P125 -> P125: =SUM(B125:O125),'File Audio'!65
+59,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P121: =SUM(B121:O121),'File Audio'!65
+59,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE118: =P123+P124+P125 -> P124: =SUM(B124:O124),'File Audio'!65
+59,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE116: =P115+P116+P118 -> P118: =SUM(B118:O118),'File Audio'!65
+59,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE117: =P119+P120+P122 -> P122: =SUM(B122:O122),'File Audio'!65
+59,mi disturba/mi repelle,verde,Antipatia,1,si,AE116: =P115+P116+P118 -> P116: =SUM(B116:O116),'File Audio'!65
+59,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE115: =P111+P112+P114 -> P111: =SUM(B111:O111),'File Audio'!65
+59,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE118: =P123+P124+P125 -> P123: =SUM(B123:O123),'File Audio'!65
+59,mi inquieta,giallo,Antipatia,1,si,AE115: =P111+P112+P114 -> P112: =SUM(B112:O112),'File Audio'!65
+59,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE117: =P119+P120+P122 -> P120: =SUM(B120:O120),'File Audio'!65
+59,mi rilassa,verde,Simpatia/Empatia,1,si,AE116: =P115+P116+P118 -> P115: =SUM(B115:O115),'File Audio'!65
+59,mi spegne,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P113: =SUM(B113:O113),'File Audio'!65
+59,mi stupisce,giallo,Simpatia/Empatia,1,si,AE115: =P111+P112+P114 -> P114: =SUM(B114:O114),'File Audio'!65
+59,mi è indifferente,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P117: =SUM(B117:O117),'File Audio'!65
+60,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE117: =P119+P120+P122 -> P119: =SUM(B119:O119),'File Audio'!66
+60,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE118: =P123+P124+P125 -> P125: =SUM(B125:O125),'File Audio'!66
+60,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P121: =SUM(B121:O121),'File Audio'!66
+60,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE118: =P123+P124+P125 -> P124: =SUM(B124:O124),'File Audio'!66
+60,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE116: =P115+P116+P118 -> P118: =SUM(B118:O118),'File Audio'!66
+60,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE117: =P119+P120+P122 -> P122: =SUM(B122:O122),'File Audio'!66
+60,mi disturba/mi repelle,verde,Antipatia,1,si,AE116: =P115+P116+P118 -> P116: =SUM(B116:O116),'File Audio'!66
+60,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE115: =P111+P112+P114 -> P111: =SUM(B111:O111),'File Audio'!66
+60,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE118: =P123+P124+P125 -> P123: =SUM(B123:O123),'File Audio'!66
+60,mi inquieta,giallo,Antipatia,1,si,AE115: =P111+P112+P114 -> P112: =SUM(B112:O112),'File Audio'!66
+60,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE117: =P119+P120+P122 -> P120: =SUM(B120:O120),'File Audio'!66
+60,mi rilassa,verde,Simpatia/Empatia,1,si,AE116: =P115+P116+P118 -> P115: =SUM(B115:O115),'File Audio'!66
+60,mi spegne,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P113: =SUM(B113:O113),'File Audio'!66
+60,mi stupisce,giallo,Simpatia/Empatia,1,si,AE115: =P111+P112+P114 -> P114: =SUM(B114:O114),'File Audio'!66
+60,mi è indifferente,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P117: =SUM(B117:O117),'File Audio'!66
+61,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE117: =P119+P120+P122 -> P119: =SUM(B119:O119),'File Audio'!67
+61,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE118: =P123+P124+P125 -> P125: =SUM(B125:O125),'File Audio'!67
+61,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P121: =SUM(B121:O121),'File Audio'!67
+61,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE118: =P123+P124+P125 -> P124: =SUM(B124:O124),'File Audio'!67
+61,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE116: =P115+P116+P118 -> P118: =SUM(B118:O118),'File Audio'!67
+61,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE117: =P119+P120+P122 -> P122: =SUM(B122:O122),'File Audio'!67
+61,mi disturba/mi repelle,verde,Antipatia,1,si,AE116: =P115+P116+P118 -> P116: =SUM(B116:O116),'File Audio'!67
+61,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE115: =P111+P112+P114 -> P111: =SUM(B111:O111),'File Audio'!67
+61,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE118: =P123+P124+P125 -> P123: =SUM(B123:O123),'File Audio'!67
+61,mi inquieta,giallo,Antipatia,1,si,AE115: =P111+P112+P114 -> P112: =SUM(B112:O112),'File Audio'!67
+61,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE117: =P119+P120+P122 -> P120: =SUM(B120:O120),'File Audio'!67
+61,mi rilassa,verde,Simpatia/Empatia,1,si,AE116: =P115+P116+P118 -> P115: =SUM(B115:O115),'File Audio'!67
+61,mi spegne,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P113: =SUM(B113:O113),'File Audio'!67
+61,mi stupisce,giallo,Simpatia/Empatia,1,si,AE115: =P111+P112+P114 -> P114: =SUM(B114:O114),'File Audio'!67
+61,mi è indifferente,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P117: =SUM(B117:O117),'File Audio'!67
+62,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE117: =P119+P120+P122 -> P119: =SUM(B119:O119),'File Audio'!68
+62,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE118: =P123+P124+P125 -> P125: =SUM(B125:O125),'File Audio'!68
+62,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P121: =SUM(B121:O121),'File Audio'!68
+62,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE118: =P123+P124+P125 -> P124: =SUM(B124:O124),'File Audio'!68
+62,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE116: =P115+P116+P118 -> P118: =SUM(B118:O118),'File Audio'!68
+62,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE117: =P119+P120+P122 -> P122: =SUM(B122:O122),'File Audio'!68
+62,mi disturba/mi repelle,verde,Antipatia,1,si,AE116: =P115+P116+P118 -> P116: =SUM(B116:O116),'File Audio'!68
+62,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE115: =P111+P112+P114 -> P111: =SUM(B111:O111),'File Audio'!68
+62,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE118: =P123+P124+P125 -> P123: =SUM(B123:O123),'File Audio'!68
+62,mi inquieta,giallo,Antipatia,1,si,AE115: =P111+P112+P114 -> P112: =SUM(B112:O112),'File Audio'!68
+62,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE117: =P119+P120+P122 -> P120: =SUM(B120:O120),'File Audio'!68
+62,mi rilassa,verde,Simpatia/Empatia,1,si,AE116: =P115+P116+P118 -> P115: =SUM(B115:O115),'File Audio'!68
+62,mi spegne,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P113: =SUM(B113:O113),'File Audio'!68
+62,mi stupisce,giallo,Simpatia/Empatia,1,si,AE115: =P111+P112+P114 -> P114: =SUM(B114:O114),'File Audio'!68
+62,mi è indifferente,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P117: =SUM(B117:O117),'File Audio'!68
+63,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE117: =P119+P120+P122 -> P119: =SUM(B119:O119),'File Audio'!69
+63,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE118: =P123+P124+P125 -> P125: =SUM(B125:O125),'File Audio'!69
+63,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P121: =SUM(B121:O121),'File Audio'!69
+63,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE118: =P123+P124+P125 -> P124: =SUM(B124:O124),'File Audio'!69
+63,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE116: =P115+P116+P118 -> P118: =SUM(B118:O118),'File Audio'!69
+63,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE117: =P119+P120+P122 -> P122: =SUM(B122:O122),'File Audio'!69
+63,mi disturba/mi repelle,verde,Antipatia,1,si,AE116: =P115+P116+P118 -> P116: =SUM(B116:O116),'File Audio'!69
+63,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE115: =P111+P112+P114 -> P111: =SUM(B111:O111),'File Audio'!69
+63,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE118: =P123+P124+P125 -> P123: =SUM(B123:O123),'File Audio'!69
+63,mi inquieta,giallo,Antipatia,1,si,AE115: =P111+P112+P114 -> P112: =SUM(B112:O112),'File Audio'!69
+63,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE117: =P119+P120+P122 -> P120: =SUM(B120:O120),'File Audio'!69
+63,mi rilassa,verde,Simpatia/Empatia,1,si,AE116: =P115+P116+P118 -> P115: =SUM(B115:O115),'File Audio'!69
+63,mi spegne,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P113: =SUM(B113:O113),'File Audio'!69
+63,mi stupisce,giallo,Simpatia/Empatia,1,si,AE115: =P111+P112+P114 -> P114: =SUM(B114:O114),'File Audio'!69
+63,mi è indifferente,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P117: =SUM(B117:O117),'File Audio'!69
+64,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE117: =P119+P120+P122 -> P119: =SUM(B119:O119),'File Audio'!70
+64,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE118: =P123+P124+P125 -> P125: =SUM(B125:O125),'File Audio'!70
+64,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P121: =SUM(B121:O121),'File Audio'!70
+64,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE118: =P123+P124+P125 -> P124: =SUM(B124:O124),'File Audio'!70
+64,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE116: =P115+P116+P118 -> P118: =SUM(B118:O118),'File Audio'!70
+64,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE117: =P119+P120+P122 -> P122: =SUM(B122:O122),'File Audio'!70
+64,mi disturba/mi repelle,verde,Antipatia,1,si,AE116: =P115+P116+P118 -> P116: =SUM(B116:O116),'File Audio'!70
+64,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE115: =P111+P112+P114 -> P111: =SUM(B111:O111),'File Audio'!70
+64,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE118: =P123+P124+P125 -> P123: =SUM(B123:O123),'File Audio'!70
+64,mi inquieta,giallo,Antipatia,1,si,AE115: =P111+P112+P114 -> P112: =SUM(B112:O112),'File Audio'!70
+64,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE117: =P119+P120+P122 -> P120: =SUM(B120:O120),'File Audio'!70
+64,mi rilassa,verde,Simpatia/Empatia,1,si,AE116: =P115+P116+P118 -> P115: =SUM(B115:O115),'File Audio'!70
+64,mi spegne,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P113: =SUM(B113:O113),'File Audio'!70
+64,mi stupisce,giallo,Simpatia/Empatia,1,si,AE115: =P111+P112+P114 -> P114: =SUM(B114:O114),'File Audio'!70
+64,mi è indifferente,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P117: =SUM(B117:O117),'File Audio'!70
+65,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE117: =P119+P120+P122 -> P119: =SUM(B119:O119),'File Audio'!71
+65,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE118: =P123+P124+P125 -> P125: =SUM(B125:O125),'File Audio'!71
+65,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P121: =SUM(B121:O121),'File Audio'!71
+65,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE118: =P123+P124+P125 -> P124: =SUM(B124:O124),'File Audio'!71
+65,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE116: =P115+P116+P118 -> P118: =SUM(B118:O118),'File Audio'!71
+65,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE117: =P119+P120+P122 -> P122: =SUM(B122:O122),'File Audio'!71
+65,mi disturba/mi repelle,verde,Antipatia,1,si,AE116: =P115+P116+P118 -> P116: =SUM(B116:O116),'File Audio'!71
+65,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE115: =P111+P112+P114 -> P111: =SUM(B111:O111),'File Audio'!71
+65,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE118: =P123+P124+P125 -> P123: =SUM(B123:O123),'File Audio'!71
+65,mi inquieta,giallo,Antipatia,1,si,AE115: =P111+P112+P114 -> P112: =SUM(B112:O112),'File Audio'!71
+65,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE117: =P119+P120+P122 -> P120: =SUM(B120:O120),'File Audio'!71
+65,mi rilassa,verde,Simpatia/Empatia,1,si,AE116: =P115+P116+P118 -> P115: =SUM(B115:O115),'File Audio'!71
+65,mi spegne,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P113: =SUM(B113:O113),'File Audio'!71
+65,mi stupisce,giallo,Simpatia/Empatia,1,si,AE115: =P111+P112+P114 -> P114: =SUM(B114:O114),'File Audio'!71
+65,mi è indifferente,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P117: =SUM(B117:O117),'File Audio'!71
+66,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE117: =P119+P120+P122 -> P119: =SUM(B119:O119),'File Audio'!72
+66,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE118: =P123+P124+P125 -> P125: =SUM(B125:O125),'File Audio'!72
+66,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P121: =SUM(B121:O121),'File Audio'!72
+66,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE118: =P123+P124+P125 -> P124: =SUM(B124:O124),'File Audio'!72
+66,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE116: =P115+P116+P118 -> P118: =SUM(B118:O118),'File Audio'!72
+66,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE117: =P119+P120+P122 -> P122: =SUM(B122:O122),'File Audio'!72
+66,mi disturba/mi repelle,verde,Antipatia,1,si,AE116: =P115+P116+P118 -> P116: =SUM(B116:O116),'File Audio'!72
+66,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE115: =P111+P112+P114 -> P111: =SUM(B111:O111),'File Audio'!72
+66,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE118: =P123+P124+P125 -> P123: =SUM(B123:O123),'File Audio'!72
+66,mi inquieta,giallo,Antipatia,1,si,AE115: =P111+P112+P114 -> P112: =SUM(B112:O112),'File Audio'!72
+66,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE117: =P119+P120+P122 -> P120: =SUM(B120:O120),'File Audio'!72
+66,mi rilassa,verde,Simpatia/Empatia,1,si,AE116: =P115+P116+P118 -> P115: =SUM(B115:O115),'File Audio'!72
+66,mi spegne,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P113: =SUM(B113:O113),'File Audio'!72
+66,mi stupisce,giallo,Simpatia/Empatia,1,si,AE115: =P111+P112+P114 -> P114: =SUM(B114:O114),'File Audio'!72
+66,mi è indifferente,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P117: =SUM(B117:O117),'File Audio'!72
+67,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE117: =P119+P120+P122 -> P119: =SUM(B119:O119),'File Audio'!73
+67,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE118: =P123+P124+P125 -> P125: =SUM(B125:O125),'File Audio'!73
+67,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P121: =SUM(B121:O121),'File Audio'!73
+67,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE118: =P123+P124+P125 -> P124: =SUM(B124:O124),'File Audio'!73
+67,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE116: =P115+P116+P118 -> P118: =SUM(B118:O118),'File Audio'!73
+67,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE117: =P119+P120+P122 -> P122: =SUM(B122:O122),'File Audio'!73
+67,mi disturba/mi repelle,verde,Antipatia,1,si,AE116: =P115+P116+P118 -> P116: =SUM(B116:O116),'File Audio'!73
+67,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE115: =P111+P112+P114 -> P111: =SUM(B111:O111),'File Audio'!73
+67,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE118: =P123+P124+P125 -> P123: =SUM(B123:O123),'File Audio'!73
+67,mi inquieta,giallo,Antipatia,1,si,AE115: =P111+P112+P114 -> P112: =SUM(B112:O112),'File Audio'!73
+67,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE117: =P119+P120+P122 -> P120: =SUM(B120:O120),'File Audio'!73
+67,mi rilassa,verde,Simpatia/Empatia,1,si,AE116: =P115+P116+P118 -> P115: =SUM(B115:O115),'File Audio'!73
+67,mi spegne,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P113: =SUM(B113:O113),'File Audio'!73
+67,mi stupisce,giallo,Simpatia/Empatia,1,si,AE115: =P111+P112+P114 -> P114: =SUM(B114:O114),'File Audio'!73
+67,mi è indifferente,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P117: =SUM(B117:O117),'File Audio'!73
+68,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE117: =P119+P120+P122 -> P119: =SUM(B119:O119),'File Audio'!74
+68,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE118: =P123+P124+P125 -> P125: =SUM(B125:O125),'File Audio'!74
+68,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P121: =SUM(B121:O121),'File Audio'!74
+68,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE118: =P123+P124+P125 -> P124: =SUM(B124:O124),'File Audio'!74
+68,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE116: =P115+P116+P118 -> P118: =SUM(B118:O118),'File Audio'!74
+68,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE117: =P119+P120+P122 -> P122: =SUM(B122:O122),'File Audio'!74
+68,mi disturba/mi repelle,verde,Antipatia,1,si,AE116: =P115+P116+P118 -> P116: =SUM(B116:O116),'File Audio'!74
+68,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE115: =P111+P112+P114 -> P111: =SUM(B111:O111),'File Audio'!74
+68,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE118: =P123+P124+P125 -> P123: =SUM(B123:O123),'File Audio'!74
+68,mi inquieta,giallo,Antipatia,1,si,AE115: =P111+P112+P114 -> P112: =SUM(B112:O112),'File Audio'!74
+68,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE117: =P119+P120+P122 -> P120: =SUM(B120:O120),'File Audio'!74
+68,mi rilassa,verde,Simpatia/Empatia,1,si,AE116: =P115+P116+P118 -> P115: =SUM(B115:O115),'File Audio'!74
+68,mi spegne,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P113: =SUM(B113:O113),'File Audio'!74
+68,mi stupisce,giallo,Simpatia/Empatia,1,si,AE115: =P111+P112+P114 -> P114: =SUM(B114:O114),'File Audio'!74
+68,mi è indifferente,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P117: =SUM(B117:O117),'File Audio'!74
+69,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE117: =P119+P120+P122 -> P119: =SUM(B119:O119),'File Audio'!75
+69,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE118: =P123+P124+P125 -> P125: =SUM(B125:O125),'File Audio'!75
+69,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P121: =SUM(B121:O121),'File Audio'!75
+69,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE118: =P123+P124+P125 -> P124: =SUM(B124:O124),'File Audio'!75
+69,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE116: =P115+P116+P118 -> P118: =SUM(B118:O118),'File Audio'!75
+69,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE117: =P119+P120+P122 -> P122: =SUM(B122:O122),'File Audio'!75
+69,mi disturba/mi repelle,verde,Antipatia,1,si,AE116: =P115+P116+P118 -> P116: =SUM(B116:O116),'File Audio'!75
+69,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE115: =P111+P112+P114 -> P111: =SUM(B111:O111),'File Audio'!75
+69,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE118: =P123+P124+P125 -> P123: =SUM(B123:O123),'File Audio'!75
+69,mi inquieta,giallo,Antipatia,1,si,AE115: =P111+P112+P114 -> P112: =SUM(B112:O112),'File Audio'!75
+69,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE117: =P119+P120+P122 -> P120: =SUM(B120:O120),'File Audio'!75
+69,mi rilassa,verde,Simpatia/Empatia,1,si,AE116: =P115+P116+P118 -> P115: =SUM(B115:O115),'File Audio'!75
+69,mi spegne,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P113: =SUM(B113:O113),'File Audio'!75
+69,mi stupisce,giallo,Simpatia/Empatia,1,si,AE115: =P111+P112+P114 -> P114: =SUM(B114:O114),'File Audio'!75
+69,mi è indifferente,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P117: =SUM(B117:O117),'File Audio'!75
+70,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE117: =P119+P120+P122 -> P119: =SUM(B119:O119),'File Audio'!76
+70,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE118: =P123+P124+P125 -> P125: =SUM(B125:O125),'File Audio'!76
+70,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P121: =SUM(B121:O121),'File Audio'!76
+70,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE118: =P123+P124+P125 -> P124: =SUM(B124:O124),'File Audio'!76
+70,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE116: =P115+P116+P118 -> P118: =SUM(B118:O118),'File Audio'!76
+70,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE117: =P119+P120+P122 -> P122: =SUM(B122:O122),'File Audio'!76
+70,mi disturba/mi repelle,verde,Antipatia,1,si,AE116: =P115+P116+P118 -> P116: =SUM(B116:O116),'File Audio'!76
+70,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE115: =P111+P112+P114 -> P111: =SUM(B111:O111),'File Audio'!76
+70,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE118: =P123+P124+P125 -> P123: =SUM(B123:O123),'File Audio'!76
+70,mi inquieta,giallo,Antipatia,1,si,AE115: =P111+P112+P114 -> P112: =SUM(B112:O112),'File Audio'!76
+70,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE117: =P119+P120+P122 -> P120: =SUM(B120:O120),'File Audio'!76
+70,mi rilassa,verde,Simpatia/Empatia,1,si,AE116: =P115+P116+P118 -> P115: =SUM(B115:O115),'File Audio'!76
+70,mi spegne,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P113: =SUM(B113:O113),'File Audio'!76
+70,mi stupisce,giallo,Simpatia/Empatia,1,si,AE115: =P111+P112+P114 -> P114: =SUM(B114:O114),'File Audio'!76
+70,mi è indifferente,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P117: =SUM(B117:O117),'File Audio'!76
+71,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE117: =P119+P120+P122 -> P119: =SUM(B119:O119),'File Audio'!77
+71,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE118: =P123+P124+P125 -> P125: =SUM(B125:O125),'File Audio'!77
+71,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P121: =SUM(B121:O121),'File Audio'!77
+71,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE118: =P123+P124+P125 -> P124: =SUM(B124:O124),'File Audio'!77
+71,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE116: =P115+P116+P118 -> P118: =SUM(B118:O118),'File Audio'!77
+71,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE117: =P119+P120+P122 -> P122: =SUM(B122:O122),'File Audio'!77
+71,mi disturba/mi repelle,verde,Antipatia,1,si,AE116: =P115+P116+P118 -> P116: =SUM(B116:O116),'File Audio'!77
+71,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE115: =P111+P112+P114 -> P111: =SUM(B111:O111),'File Audio'!77
+71,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE118: =P123+P124+P125 -> P123: =SUM(B123:O123),'File Audio'!77
+71,mi inquieta,giallo,Antipatia,1,si,AE115: =P111+P112+P114 -> P112: =SUM(B112:O112),'File Audio'!77
+71,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE117: =P119+P120+P122 -> P120: =SUM(B120:O120),'File Audio'!77
+71,mi rilassa,verde,Simpatia/Empatia,1,si,AE116: =P115+P116+P118 -> P115: =SUM(B115:O115),'File Audio'!77
+71,mi spegne,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P113: =SUM(B113:O113),'File Audio'!77
+71,mi stupisce,giallo,Simpatia/Empatia,1,si,AE115: =P111+P112+P114 -> P114: =SUM(B114:O114),'File Audio'!77
+71,mi è indifferente,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P117: =SUM(B117:O117),'File Audio'!77
+72,mi accende/mi motiva,rosso,Simpatia/Empatia,1,si,AE117: =P119+P120+P122 -> P119: =SUM(B119:O119),'File Audio'!78
+72,mi accompagna/mi consola,blu,Simpatia/Empatia,1,si,AE118: =P123+P124+P125 -> P125: =SUM(B125:O125),'File Audio'!78
+72,mi annoia/mi stufa,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P121: =SUM(B121:O121),'File Audio'!78
+72,mi arrovella/mi rattrista,blu,Antipatia,1,si,AE118: =P123+P124+P125 -> P124: =SUM(B124:O124),'File Audio'!78
+72,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,si,AE116: =P115+P116+P118 -> P118: =SUM(B118:O118),'File Audio'!78
+72,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,si,AE117: =P119+P120+P122 -> P122: =SUM(B122:O122),'File Audio'!78
+72,mi disturba/mi repelle,verde,Antipatia,1,si,AE116: =P115+P116+P118 -> P116: =SUM(B116:O116),'File Audio'!78
+72,mi dà gioia,giallo,Simpatia/Empatia,1,si,AE115: =P111+P112+P114 -> P111: =SUM(B111:O111),'File Audio'!78
+72,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,si,AE118: =P123+P124+P125 -> P123: =SUM(B123:O123),'File Audio'!78
+72,mi inquieta,giallo,Antipatia,1,si,AE115: =P111+P112+P114 -> P112: =SUM(B112:O112),'File Audio'!78
+72,mi irrita/mi infastidisce,rosso,Antipatia,1,si,AE117: =P119+P120+P122 -> P120: =SUM(B120:O120),'File Audio'!78
+72,mi rilassa,verde,Simpatia/Empatia,1,si,AE116: =P115+P116+P118 -> P115: =SUM(B115:O115),'File Audio'!78
+72,mi spegne,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P113: =SUM(B113:O113),'File Audio'!78
+72,mi stupisce,giallo,Simpatia/Empatia,1,si,AE115: =P111+P112+P114 -> P114: =SUM(B114:O114),'File Audio'!78
+72,mi è indifferente,grigio,Indifferenza,1,si,AE119: =P113+P117+P121 -> P117: =SUM(B117:O117),'File Audio'!78
+41,*,,,1,NO,"file escluso da ogni somma, es. riga 51 (SALDO - sicuro - volitivo (1)): O51: =SUM(B51:M51)",'File Audio'!44

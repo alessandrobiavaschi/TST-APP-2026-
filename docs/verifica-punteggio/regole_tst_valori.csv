@@ -1,0 +1,1040 @@
+domanda,risposta,famiglia,portato,punti,cella
+1,nessuna,grigio,,1,A11/B11
+1,opzione1,giallo,,1,A7/B7
+1,opzione2,verde,,1,A8/B8
+1,opzione3,rosso,,1,A9/B9
+1,opzione4,blu,,1,A10/B10
+2,nessuna,grigio,,1,A16/B16
+2,opzione1,giallo,,1,A12/B12
+2,opzione2,rosso,,1,A13/B13
+2,opzione3,verde,,1,A14/B14
+2,opzione4,blu,,1,A15/B15
+3,nessuna,grigio,,1,A21/B21
+3,opzione1,giallo,,1,A17/B17
+3,opzione2,rosso,,1,A18/B18
+3,opzione3,verde,,1,A19/B19
+3,opzione4,blu,,1,A20/B20
+4,nessuna,grigio,,1,A26/B26
+4,opzione1,giallo,,1,A22/B22
+4,opzione2,verde,,1,A23/B23
+4,opzione3,rosso,,1,A24/B24
+4,opzione4,blu,,1,A25/B25
+5,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A39/B39/C39
+5,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A45/B45/C45
+5,mi annoia/mi stufa,grigio,Indifferenza,1,A41/B41/C41
+5,mi arrovella/mi rattrista,blu,Antipatia,1,A44/B44/C44
+5,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A38/B38/C38
+5,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A42/B42/C42
+5,mi disturba/mi repelle,verde,Antipatia,1,A36/B36/C36
+5,mi dà gioia,giallo,Simpatia/Empatia,1,A31/B31/C31
+5,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A43/B43/C43
+5,mi inquieta,giallo,Antipatia,1,A32/B32/C32
+5,mi irrita/mi infastidisce,rosso,Antipatia,1,A40/B40/C40
+5,mi rilassa,verde,Simpatia/Empatia,1,A35/B35/C35
+5,mi spegne,grigio,Indifferenza,1,A33/B33/C33
+5,mi stupisce,giallo,Simpatia/Empatia,1,A34/B34/C34
+5,mi è indifferente,grigio,Indifferenza,1,A37/B37/C37
+6,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A39/B39/C39
+6,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A45/B45/C45
+6,mi annoia/mi stufa,grigio,Indifferenza,1,A41/B41/C41
+6,mi arrovella/mi rattrista,blu,Antipatia,1,A44/B44/C44
+6,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A38/B38/C38
+6,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A42/B42/C42
+6,mi disturba/mi repelle,verde,Antipatia,1,A36/B36/C36
+6,mi dà gioia,giallo,Simpatia/Empatia,1,A31/B31/C31
+6,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A43/B43/C43
+6,mi inquieta,giallo,Antipatia,1,A32/B32/C32
+6,mi irrita/mi infastidisce,rosso,Antipatia,1,A40/B40/C40
+6,mi rilassa,verde,Simpatia/Empatia,1,A35/B35/C35
+6,mi spegne,grigio,Indifferenza,1,A33/B33/C33
+6,mi stupisce,giallo,Simpatia/Empatia,1,A34/B34/C34
+6,mi è indifferente,grigio,Indifferenza,1,A37/B37/C37
+7,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A39/B39/C39
+7,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A45/B45/C45
+7,mi annoia/mi stufa,grigio,Indifferenza,1,A41/B41/C41
+7,mi arrovella/mi rattrista,blu,Antipatia,1,A44/B44/C44
+7,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A38/B38/C38
+7,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A42/B42/C42
+7,mi disturba/mi repelle,verde,Antipatia,1,A36/B36/C36
+7,mi dà gioia,giallo,Simpatia/Empatia,1,A31/B31/C31
+7,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A43/B43/C43
+7,mi inquieta,giallo,Antipatia,1,A32/B32/C32
+7,mi irrita/mi infastidisce,rosso,Antipatia,1,A40/B40/C40
+7,mi rilassa,verde,Simpatia/Empatia,1,A35/B35/C35
+7,mi spegne,grigio,Indifferenza,1,A33/B33/C33
+7,mi stupisce,giallo,Simpatia/Empatia,1,A34/B34/C34
+7,mi è indifferente,grigio,Indifferenza,1,A37/B37/C37
+8,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A39/B39/C39
+8,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A45/B45/C45
+8,mi annoia/mi stufa,grigio,Indifferenza,1,A41/B41/C41
+8,mi arrovella/mi rattrista,blu,Antipatia,1,A44/B44/C44
+8,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A38/B38/C38
+8,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A42/B42/C42
+8,mi disturba/mi repelle,verde,Antipatia,1,A36/B36/C36
+8,mi dà gioia,giallo,Simpatia/Empatia,1,A31/B31/C31
+8,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A43/B43/C43
+8,mi inquieta,giallo,Antipatia,1,A32/B32/C32
+8,mi irrita/mi infastidisce,rosso,Antipatia,1,A40/B40/C40
+8,mi rilassa,verde,Simpatia/Empatia,1,A35/B35/C35
+8,mi spegne,grigio,Indifferenza,1,A33/B33/C33
+8,mi stupisce,giallo,Simpatia/Empatia,1,A34/B34/C34
+8,mi è indifferente,grigio,Indifferenza,1,A37/B37/C37
+9,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A39/B39/C39
+9,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A45/B45/C45
+9,mi annoia/mi stufa,grigio,Indifferenza,1,A41/B41/C41
+9,mi arrovella/mi rattrista,blu,Antipatia,1,A44/B44/C44
+9,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A38/B38/C38
+9,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A42/B42/C42
+9,mi disturba/mi repelle,verde,Antipatia,1,A36/B36/C36
+9,mi dà gioia,giallo,Simpatia/Empatia,1,A31/B31/C31
+9,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A43/B43/C43
+9,mi inquieta,giallo,Antipatia,1,A32/B32/C32
+9,mi irrita/mi infastidisce,rosso,Antipatia,1,A40/B40/C40
+9,mi rilassa,verde,Simpatia/Empatia,1,A35/B35/C35
+9,mi spegne,grigio,Indifferenza,1,A33/B33/C33
+9,mi stupisce,giallo,Simpatia/Empatia,1,A34/B34/C34
+9,mi è indifferente,grigio,Indifferenza,1,A37/B37/C37
+10,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A39/B39/C39
+10,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A45/B45/C45
+10,mi annoia/mi stufa,grigio,Indifferenza,1,A41/B41/C41
+10,mi arrovella/mi rattrista,blu,Antipatia,1,A44/B44/C44
+10,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A38/B38/C38
+10,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A42/B42/C42
+10,mi disturba/mi repelle,verde,Antipatia,1,A36/B36/C36
+10,mi dà gioia,giallo,Simpatia/Empatia,1,A31/B31/C31
+10,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A43/B43/C43
+10,mi inquieta,giallo,Antipatia,1,A32/B32/C32
+10,mi irrita/mi infastidisce,rosso,Antipatia,1,A40/B40/C40
+10,mi rilassa,verde,Simpatia/Empatia,1,A35/B35/C35
+10,mi spegne,grigio,Indifferenza,1,A33/B33/C33
+10,mi stupisce,giallo,Simpatia/Empatia,1,A34/B34/C34
+10,mi è indifferente,grigio,Indifferenza,1,A37/B37/C37
+11,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A39/B39/C39
+11,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A45/B45/C45
+11,mi annoia/mi stufa,grigio,Indifferenza,1,A41/B41/C41
+11,mi arrovella/mi rattrista,blu,Antipatia,1,A44/B44/C44
+11,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A38/B38/C38
+11,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A42/B42/C42
+11,mi disturba/mi repelle,verde,Antipatia,1,A36/B36/C36
+11,mi dà gioia,giallo,Simpatia/Empatia,1,A31/B31/C31
+11,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A43/B43/C43
+11,mi inquieta,giallo,Antipatia,1,A32/B32/C32
+11,mi irrita/mi infastidisce,rosso,Antipatia,1,A40/B40/C40
+11,mi rilassa,verde,Simpatia/Empatia,1,A35/B35/C35
+11,mi spegne,grigio,Indifferenza,1,A33/B33/C33
+11,mi stupisce,giallo,Simpatia/Empatia,1,A34/B34/C34
+11,mi è indifferente,grigio,Indifferenza,1,A37/B37/C37
+12,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A39/B39/C39
+12,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A45/B45/C45
+12,mi annoia/mi stufa,grigio,Indifferenza,1,A41/B41/C41
+12,mi arrovella/mi rattrista,blu,Antipatia,1,A44/B44/C44
+12,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A38/B38/C38
+12,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A42/B42/C42
+12,mi disturba/mi repelle,verde,Antipatia,1,A36/B36/C36
+12,mi dà gioia,giallo,Simpatia/Empatia,1,A31/B31/C31
+12,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A43/B43/C43
+12,mi inquieta,giallo,Antipatia,1,A32/B32/C32
+12,mi irrita/mi infastidisce,rosso,Antipatia,1,A40/B40/C40
+12,mi rilassa,verde,Simpatia/Empatia,1,A35/B35/C35
+12,mi spegne,grigio,Indifferenza,1,A33/B33/C33
+12,mi stupisce,giallo,Simpatia/Empatia,1,A34/B34/C34
+12,mi è indifferente,grigio,Indifferenza,1,A37/B37/C37
+13,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A39/B39/C39
+13,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A45/B45/C45
+13,mi annoia/mi stufa,grigio,Indifferenza,1,A41/B41/C41
+13,mi arrovella/mi rattrista,blu,Antipatia,1,A44/B44/C44
+13,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A38/B38/C38
+13,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A42/B42/C42
+13,mi disturba/mi repelle,verde,Antipatia,1,A36/B36/C36
+13,mi dà gioia,giallo,Simpatia/Empatia,1,A31/B31/C31
+13,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A43/B43/C43
+13,mi inquieta,giallo,Antipatia,1,A32/B32/C32
+13,mi irrita/mi infastidisce,rosso,Antipatia,1,A40/B40/C40
+13,mi rilassa,verde,Simpatia/Empatia,1,A35/B35/C35
+13,mi spegne,grigio,Indifferenza,1,A33/B33/C33
+13,mi stupisce,giallo,Simpatia/Empatia,1,A34/B34/C34
+13,mi è indifferente,grigio,Indifferenza,1,A37/B37/C37
+14,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A39/B39/C39
+14,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A45/B45/C45
+14,mi annoia/mi stufa,grigio,Indifferenza,1,A41/B41/C41
+14,mi arrovella/mi rattrista,blu,Antipatia,1,A44/B44/C44
+14,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A38/B38/C38
+14,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A42/B42/C42
+14,mi disturba/mi repelle,verde,Antipatia,1,A36/B36/C36
+14,mi dà gioia,giallo,Simpatia/Empatia,1,A31/B31/C31
+14,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A43/B43/C43
+14,mi inquieta,giallo,Antipatia,1,A32/B32/C32
+14,mi irrita/mi infastidisce,rosso,Antipatia,1,A40/B40/C40
+14,mi rilassa,verde,Simpatia/Empatia,1,A35/B35/C35
+14,mi spegne,grigio,Indifferenza,1,A33/B33/C33
+14,mi stupisce,giallo,Simpatia/Empatia,1,A34/B34/C34
+14,mi è indifferente,grigio,Indifferenza,1,A37/B37/C37
+15,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A39/B39/C39
+15,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A45/B45/C45
+15,mi annoia/mi stufa,grigio,Indifferenza,1,A41/B41/C41
+15,mi arrovella/mi rattrista,blu,Antipatia,1,A44/B44/C44
+15,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A38/B38/C38
+15,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A42/B42/C42
+15,mi disturba/mi repelle,verde,Antipatia,1,A36/B36/C36
+15,mi dà gioia,giallo,Simpatia/Empatia,1,A31/B31/C31
+15,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A43/B43/C43
+15,mi inquieta,giallo,Antipatia,1,A32/B32/C32
+15,mi irrita/mi infastidisce,rosso,Antipatia,1,A40/B40/C40
+15,mi rilassa,verde,Simpatia/Empatia,1,A35/B35/C35
+15,mi spegne,grigio,Indifferenza,1,A33/B33/C33
+15,mi stupisce,giallo,Simpatia/Empatia,1,A34/B34/C34
+15,mi è indifferente,grigio,Indifferenza,1,A37/B37/C37
+16,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A39/B39/C39
+16,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A45/B45/C45
+16,mi annoia/mi stufa,grigio,Indifferenza,1,A41/B41/C41
+16,mi arrovella/mi rattrista,blu,Antipatia,1,A44/B44/C44
+16,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A38/B38/C38
+16,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A42/B42/C42
+16,mi disturba/mi repelle,verde,Antipatia,1,A36/B36/C36
+16,mi dà gioia,giallo,Simpatia/Empatia,1,A31/B31/C31
+16,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A43/B43/C43
+16,mi inquieta,giallo,Antipatia,1,A32/B32/C32
+16,mi irrita/mi infastidisce,rosso,Antipatia,1,A40/B40/C40
+16,mi rilassa,verde,Simpatia/Empatia,1,A35/B35/C35
+16,mi spegne,grigio,Indifferenza,1,A33/B33/C33
+16,mi stupisce,giallo,Simpatia/Empatia,1,A34/B34/C34
+16,mi è indifferente,grigio,Indifferenza,1,A37/B37/C37
+17,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A39/B39/C39
+17,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A45/B45/C45
+17,mi annoia/mi stufa,grigio,Indifferenza,1,A41/B41/C41
+17,mi arrovella/mi rattrista,blu,Antipatia,1,A44/B44/C44
+17,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A38/B38/C38
+17,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A42/B42/C42
+17,mi disturba/mi repelle,verde,Antipatia,1,A36/B36/C36
+17,mi dà gioia,giallo,Simpatia/Empatia,1,A31/B31/C31
+17,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A43/B43/C43
+17,mi inquieta,giallo,Antipatia,1,A32/B32/C32
+17,mi irrita/mi infastidisce,rosso,Antipatia,1,A40/B40/C40
+17,mi rilassa,verde,Simpatia/Empatia,1,A35/B35/C35
+17,mi spegne,grigio,Indifferenza,1,A33/B33/C33
+17,mi stupisce,giallo,Simpatia/Empatia,1,A34/B34/C34
+17,mi è indifferente,grigio,Indifferenza,1,A37/B37/C37
+18,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A39/B39/C39
+18,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A45/B45/C45
+18,mi annoia/mi stufa,grigio,Indifferenza,1,A41/B41/C41
+18,mi arrovella/mi rattrista,blu,Antipatia,1,A44/B44/C44
+18,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A38/B38/C38
+18,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A42/B42/C42
+18,mi disturba/mi repelle,verde,Antipatia,1,A36/B36/C36
+18,mi dà gioia,giallo,Simpatia/Empatia,1,A31/B31/C31
+18,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A43/B43/C43
+18,mi inquieta,giallo,Antipatia,1,A32/B32/C32
+18,mi irrita/mi infastidisce,rosso,Antipatia,1,A40/B40/C40
+18,mi rilassa,verde,Simpatia/Empatia,1,A35/B35/C35
+18,mi spegne,grigio,Indifferenza,1,A33/B33/C33
+18,mi stupisce,giallo,Simpatia/Empatia,1,A34/B34/C34
+18,mi è indifferente,grigio,Indifferenza,1,A37/B37/C37
+19,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A39/B39/C39
+19,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A45/B45/C45
+19,mi annoia/mi stufa,grigio,Indifferenza,1,A41/B41/C41
+19,mi arrovella/mi rattrista,blu,Antipatia,1,A44/B44/C44
+19,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A38/B38/C38
+19,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A42/B42/C42
+19,mi disturba/mi repelle,verde,Antipatia,1,A36/B36/C36
+19,mi dà gioia,giallo,Simpatia/Empatia,1,A31/B31/C31
+19,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A43/B43/C43
+19,mi inquieta,giallo,Antipatia,1,A32/B32/C32
+19,mi irrita/mi infastidisce,rosso,Antipatia,1,A40/B40/C40
+19,mi rilassa,verde,Simpatia/Empatia,1,A35/B35/C35
+19,mi spegne,grigio,Indifferenza,1,A33/B33/C33
+19,mi stupisce,giallo,Simpatia/Empatia,1,A34/B34/C34
+19,mi è indifferente,grigio,Indifferenza,1,A37/B37/C37
+20,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A39/B39/C39
+20,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A45/B45/C45
+20,mi annoia/mi stufa,grigio,Indifferenza,1,A41/B41/C41
+20,mi arrovella/mi rattrista,blu,Antipatia,1,A44/B44/C44
+20,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A38/B38/C38
+20,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A42/B42/C42
+20,mi disturba/mi repelle,verde,Antipatia,1,A36/B36/C36
+20,mi dà gioia,giallo,Simpatia/Empatia,1,A31/B31/C31
+20,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A43/B43/C43
+20,mi inquieta,giallo,Antipatia,1,A32/B32/C32
+20,mi irrita/mi infastidisce,rosso,Antipatia,1,A40/B40/C40
+20,mi rilassa,verde,Simpatia/Empatia,1,A35/B35/C35
+20,mi spegne,grigio,Indifferenza,1,A33/B33/C33
+20,mi stupisce,giallo,Simpatia/Empatia,1,A34/B34/C34
+20,mi è indifferente,grigio,Indifferenza,1,A37/B37/C37
+21,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A39/B39/C39
+21,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A45/B45/C45
+21,mi annoia/mi stufa,grigio,Indifferenza,1,A41/B41/C41
+21,mi arrovella/mi rattrista,blu,Antipatia,1,A44/B44/C44
+21,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A38/B38/C38
+21,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A42/B42/C42
+21,mi disturba/mi repelle,verde,Antipatia,1,A36/B36/C36
+21,mi dà gioia,giallo,Simpatia/Empatia,1,A31/B31/C31
+21,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A43/B43/C43
+21,mi inquieta,giallo,Antipatia,1,A32/B32/C32
+21,mi irrita/mi infastidisce,rosso,Antipatia,1,A40/B40/C40
+21,mi rilassa,verde,Simpatia/Empatia,1,A35/B35/C35
+21,mi spegne,grigio,Indifferenza,1,A33/B33/C33
+21,mi stupisce,giallo,Simpatia/Empatia,1,A34/B34/C34
+21,mi è indifferente,grigio,Indifferenza,1,A37/B37/C37
+22,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A39/B39/C39
+22,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A45/B45/C45
+22,mi annoia/mi stufa,grigio,Indifferenza,1,A41/B41/C41
+22,mi arrovella/mi rattrista,blu,Antipatia,1,A44/B44/C44
+22,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A38/B38/C38
+22,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A42/B42/C42
+22,mi disturba/mi repelle,verde,Antipatia,1,A36/B36/C36
+22,mi dà gioia,giallo,Simpatia/Empatia,1,A31/B31/C31
+22,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A43/B43/C43
+22,mi inquieta,giallo,Antipatia,1,A32/B32/C32
+22,mi irrita/mi infastidisce,rosso,Antipatia,1,A40/B40/C40
+22,mi rilassa,verde,Simpatia/Empatia,1,A35/B35/C35
+22,mi spegne,grigio,Indifferenza,1,A33/B33/C33
+22,mi stupisce,giallo,Simpatia/Empatia,1,A34/B34/C34
+22,mi è indifferente,grigio,Indifferenza,1,A37/B37/C37
+23,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A39/B39/C39
+23,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A45/B45/C45
+23,mi annoia/mi stufa,grigio,Indifferenza,1,A41/B41/C41
+23,mi arrovella/mi rattrista,blu,Antipatia,1,A44/B44/C44
+23,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A38/B38/C38
+23,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A42/B42/C42
+23,mi disturba/mi repelle,verde,Antipatia,1,A36/B36/C36
+23,mi dà gioia,giallo,Simpatia/Empatia,1,A31/B31/C31
+23,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A43/B43/C43
+23,mi inquieta,giallo,Antipatia,1,A32/B32/C32
+23,mi irrita/mi infastidisce,rosso,Antipatia,1,A40/B40/C40
+23,mi rilassa,verde,Simpatia/Empatia,1,A35/B35/C35
+23,mi spegne,grigio,Indifferenza,1,A33/B33/C33
+23,mi stupisce,giallo,Simpatia/Empatia,1,A34/B34/C34
+23,mi è indifferente,grigio,Indifferenza,1,A37/B37/C37
+24,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A39/B39/C39
+24,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A45/B45/C45
+24,mi annoia/mi stufa,grigio,Indifferenza,1,A41/B41/C41
+24,mi arrovella/mi rattrista,blu,Antipatia,1,A44/B44/C44
+24,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A38/B38/C38
+24,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A42/B42/C42
+24,mi disturba/mi repelle,verde,Antipatia,1,A36/B36/C36
+24,mi dà gioia,giallo,Simpatia/Empatia,1,A31/B31/C31
+24,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A43/B43/C43
+24,mi inquieta,giallo,Antipatia,1,A32/B32/C32
+24,mi irrita/mi infastidisce,rosso,Antipatia,1,A40/B40/C40
+24,mi rilassa,verde,Simpatia/Empatia,1,A35/B35/C35
+24,mi spegne,grigio,Indifferenza,1,A33/B33/C33
+24,mi stupisce,giallo,Simpatia/Empatia,1,A34/B34/C34
+24,mi è indifferente,grigio,Indifferenza,1,A37/B37/C37
+25,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A39/B39/C39
+25,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A45/B45/C45
+25,mi annoia/mi stufa,grigio,Indifferenza,1,A41/B41/C41
+25,mi arrovella/mi rattrista,blu,Antipatia,1,A44/B44/C44
+25,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A38/B38/C38
+25,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A42/B42/C42
+25,mi disturba/mi repelle,verde,Antipatia,1,A36/B36/C36
+25,mi dà gioia,giallo,Simpatia/Empatia,1,A31/B31/C31
+25,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A43/B43/C43
+25,mi inquieta,giallo,Antipatia,1,A32/B32/C32
+25,mi irrita/mi infastidisce,rosso,Antipatia,1,A40/B40/C40
+25,mi rilassa,verde,Simpatia/Empatia,1,A35/B35/C35
+25,mi spegne,grigio,Indifferenza,1,A33/B33/C33
+25,mi stupisce,giallo,Simpatia/Empatia,1,A34/B34/C34
+25,mi è indifferente,grigio,Indifferenza,1,A37/B37/C37
+26,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A39/B39/C39
+26,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A45/B45/C45
+26,mi annoia/mi stufa,grigio,Indifferenza,1,A41/B41/C41
+26,mi arrovella/mi rattrista,blu,Antipatia,1,A44/B44/C44
+26,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A38/B38/C38
+26,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A42/B42/C42
+26,mi disturba/mi repelle,verde,Antipatia,1,A36/B36/C36
+26,mi dà gioia,giallo,Simpatia/Empatia,1,A31/B31/C31
+26,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A43/B43/C43
+26,mi inquieta,giallo,Antipatia,1,A32/B32/C32
+26,mi irrita/mi infastidisce,rosso,Antipatia,1,A40/B40/C40
+26,mi rilassa,verde,Simpatia/Empatia,1,A35/B35/C35
+26,mi spegne,grigio,Indifferenza,1,A33/B33/C33
+26,mi stupisce,giallo,Simpatia/Empatia,1,A34/B34/C34
+26,mi è indifferente,grigio,Indifferenza,1,A37/B37/C37
+27,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A39/B39/C39
+27,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A45/B45/C45
+27,mi annoia/mi stufa,grigio,Indifferenza,1,A41/B41/C41
+27,mi arrovella/mi rattrista,blu,Antipatia,1,A44/B44/C44
+27,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A38/B38/C38
+27,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A42/B42/C42
+27,mi disturba/mi repelle,verde,Antipatia,1,A36/B36/C36
+27,mi dà gioia,giallo,Simpatia/Empatia,1,A31/B31/C31
+27,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A43/B43/C43
+27,mi inquieta,giallo,Antipatia,1,A32/B32/C32
+27,mi irrita/mi infastidisce,rosso,Antipatia,1,A40/B40/C40
+27,mi rilassa,verde,Simpatia/Empatia,1,A35/B35/C35
+27,mi spegne,grigio,Indifferenza,1,A33/B33/C33
+27,mi stupisce,giallo,Simpatia/Empatia,1,A34/B34/C34
+27,mi è indifferente,grigio,Indifferenza,1,A37/B37/C37
+28,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A39/B39/C39
+28,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A45/B45/C45
+28,mi annoia/mi stufa,grigio,Indifferenza,1,A41/B41/C41
+28,mi arrovella/mi rattrista,blu,Antipatia,1,A44/B44/C44
+28,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A38/B38/C38
+28,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A42/B42/C42
+28,mi disturba/mi repelle,verde,Antipatia,1,A36/B36/C36
+28,mi dà gioia,giallo,Simpatia/Empatia,1,A31/B31/C31
+28,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A43/B43/C43
+28,mi inquieta,giallo,Antipatia,1,A32/B32/C32
+28,mi irrita/mi infastidisce,rosso,Antipatia,1,A40/B40/C40
+28,mi rilassa,verde,Simpatia/Empatia,1,A35/B35/C35
+28,mi spegne,grigio,Indifferenza,1,A33/B33/C33
+28,mi stupisce,giallo,Simpatia/Empatia,1,A34/B34/C34
+28,mi è indifferente,grigio,Indifferenza,1,A37/B37/C37
+29,AMBIGUO - incerto - equivoco (4AUG),rosso,Indifferenza,1,A57/B57/C57
+29,ANGOSCIATO - ansioso - indifferente (2MI),blu,Indifferenza,1,A53/B53/C53
+29,ARRABBIATO - distaccato - dubbioso (4G),rosso,Antipatia,1,A56/B56/C56
+29,CALMO - equilibrato - sognante (5G),verde,Simpatia/Empatia,1,A58/B58/C58
+29,DESOLATO - rimpiangente - abbandonato (7MA),blu,Antipatia,1,A62/B62/C62
+29,DINAMICO - curioso - fluido (6MI),verde,Antipatia,1,A60/B60/C60
+29,GIOIOSO - caloroso - entusiasta (6MA),giallo,Simpatia/Empatia,1,A59/B59/C59
+29,ILLUMINATO - amorevole - passionale (8),,,1,"A63/B63/C63 (B63=""CONFERMA"")"
+29,INQUIETO - chiuso - pauroso (2MA),verde,Antipatia,1,A52/B52/C52
+29,MALINCONICO - triste - riflessivo (3MI),blu,Simpatia/Empatia,1,A55/B55/C55
+29,Mi è indifferente,,Indifferenza,1,"A64/B64/C64 (B64="""")"
+29,NOSTALGICO - consolato - afflitto (7MI),blu,Simpatia/Empatia,1,A61/B61/C61
+29,SALDO - sicuro - volitivo (1),rosso,Simpatia/Empatia,1,A51/B51/C51
+29,SERENO - fiducioso - aperto (3MA),giallo,Simpatia/Empatia,1,A54/B54/C54
+30,AMBIGUO - incerto - equivoco (4AUG),rosso,Indifferenza,1,A57/B57/C57
+30,ANGOSCIATO - ansioso - indifferente (2MI),blu,Indifferenza,1,A53/B53/C53
+30,ARRABBIATO - distaccato - dubbioso (4G),rosso,Antipatia,1,A56/B56/C56
+30,CALMO - equilibrato - sognante (5G),verde,Simpatia/Empatia,1,A58/B58/C58
+30,DESOLATO - rimpiangente - abbandonato (7MA),blu,Antipatia,1,A62/B62/C62
+30,DINAMICO - curioso - fluido (6MI),verde,Antipatia,1,A60/B60/C60
+30,GIOIOSO - caloroso - entusiasta (6MA),giallo,Simpatia/Empatia,1,A59/B59/C59
+30,ILLUMINATO - amorevole - passionale (8),,,1,"A63/B63/C63 (B63=""CONFERMA"")"
+30,INQUIETO - chiuso - pauroso (2MA),verde,Antipatia,1,A52/B52/C52
+30,MALINCONICO - triste - riflessivo (3MI),blu,Simpatia/Empatia,1,A55/B55/C55
+30,Mi è indifferente,,Indifferenza,1,"A64/B64/C64 (B64="""")"
+30,NOSTALGICO - consolato - afflitto (7MI),blu,Simpatia/Empatia,1,A61/B61/C61
+30,SALDO - sicuro - volitivo (1),rosso,Simpatia/Empatia,1,A51/B51/C51
+30,SERENO - fiducioso - aperto (3MA),giallo,Simpatia/Empatia,1,A54/B54/C54
+31,AMBIGUO - incerto - equivoco (4AUG),rosso,Indifferenza,1,A57/B57/C57
+31,ANGOSCIATO - ansioso - indifferente (2MI),blu,Indifferenza,1,A53/B53/C53
+31,ARRABBIATO - distaccato - dubbioso (4G),rosso,Antipatia,1,A56/B56/C56
+31,CALMO - equilibrato - sognante (5G),verde,Simpatia/Empatia,1,A58/B58/C58
+31,DESOLATO - rimpiangente - abbandonato (7MA),blu,Antipatia,1,A62/B62/C62
+31,DINAMICO - curioso - fluido (6MI),verde,Antipatia,1,A60/B60/C60
+31,GIOIOSO - caloroso - entusiasta (6MA),giallo,Simpatia/Empatia,1,A59/B59/C59
+31,ILLUMINATO - amorevole - passionale (8),,,1,"A63/B63/C63 (B63=""CONFERMA"")"
+31,INQUIETO - chiuso - pauroso (2MA),verde,Antipatia,1,A52/B52/C52
+31,MALINCONICO - triste - riflessivo (3MI),blu,Simpatia/Empatia,1,A55/B55/C55
+31,Mi è indifferente,,Indifferenza,1,"A64/B64/C64 (B64="""")"
+31,NOSTALGICO - consolato - afflitto (7MI),blu,Simpatia/Empatia,1,A61/B61/C61
+31,SALDO - sicuro - volitivo (1),rosso,Simpatia/Empatia,1,A51/B51/C51
+31,SERENO - fiducioso - aperto (3MA),giallo,Simpatia/Empatia,1,A54/B54/C54
+32,AMBIGUO - incerto - equivoco (4AUG),rosso,Indifferenza,1,A57/B57/C57
+32,ANGOSCIATO - ansioso - indifferente (2MI),blu,Indifferenza,1,A53/B53/C53
+32,ARRABBIATO - distaccato - dubbioso (4G),rosso,Antipatia,1,A56/B56/C56
+32,CALMO - equilibrato - sognante (5G),verde,Simpatia/Empatia,1,A58/B58/C58
+32,DESOLATO - rimpiangente - abbandonato (7MA),blu,Antipatia,1,A62/B62/C62
+32,DINAMICO - curioso - fluido (6MI),verde,Antipatia,1,A60/B60/C60
+32,GIOIOSO - caloroso - entusiasta (6MA),giallo,Simpatia/Empatia,1,A59/B59/C59
+32,ILLUMINATO - amorevole - passionale (8),,,1,"A63/B63/C63 (B63=""CONFERMA"")"
+32,INQUIETO - chiuso - pauroso (2MA),verde,Antipatia,1,A52/B52/C52
+32,MALINCONICO - triste - riflessivo (3MI),blu,Simpatia/Empatia,1,A55/B55/C55
+32,Mi è indifferente,,Indifferenza,1,"A64/B64/C64 (B64="""")"
+32,NOSTALGICO - consolato - afflitto (7MI),blu,Simpatia/Empatia,1,A61/B61/C61
+32,SALDO - sicuro - volitivo (1),rosso,Simpatia/Empatia,1,A51/B51/C51
+32,SERENO - fiducioso - aperto (3MA),giallo,Simpatia/Empatia,1,A54/B54/C54
+33,AMBIGUO - incerto - equivoco (4AUG),rosso,Indifferenza,1,A57/B57/C57
+33,ANGOSCIATO - ansioso - indifferente (2MI),blu,Indifferenza,1,A53/B53/C53
+33,ARRABBIATO - distaccato - dubbioso (4G),rosso,Antipatia,1,A56/B56/C56
+33,CALMO - equilibrato - sognante (5G),verde,Simpatia/Empatia,1,A58/B58/C58
+33,DESOLATO - rimpiangente - abbandonato (7MA),blu,Antipatia,1,A62/B62/C62
+33,DINAMICO - curioso - fluido (6MI),verde,Antipatia,1,A60/B60/C60
+33,GIOIOSO - caloroso - entusiasta (6MA),giallo,Simpatia/Empatia,1,A59/B59/C59
+33,ILLUMINATO - amorevole - passionale (8),,,1,"A63/B63/C63 (B63=""CONFERMA"")"
+33,INQUIETO - chiuso - pauroso (2MA),verde,Antipatia,1,A52/B52/C52
+33,MALINCONICO - triste - riflessivo (3MI),blu,Simpatia/Empatia,1,A55/B55/C55
+33,Mi è indifferente,,Indifferenza,1,"A64/B64/C64 (B64="""")"
+33,NOSTALGICO - consolato - afflitto (7MI),blu,Simpatia/Empatia,1,A61/B61/C61
+33,SALDO - sicuro - volitivo (1),rosso,Simpatia/Empatia,1,A51/B51/C51
+33,SERENO - fiducioso - aperto (3MA),giallo,Simpatia/Empatia,1,A54/B54/C54
+34,AMBIGUO - incerto - equivoco (4AUG),rosso,Indifferenza,1,A57/B57/C57
+34,ANGOSCIATO - ansioso - indifferente (2MI),blu,Indifferenza,1,A53/B53/C53
+34,ARRABBIATO - distaccato - dubbioso (4G),rosso,Antipatia,1,A56/B56/C56
+34,CALMO - equilibrato - sognante (5G),verde,Simpatia/Empatia,1,A58/B58/C58
+34,DESOLATO - rimpiangente - abbandonato (7MA),blu,Antipatia,1,A62/B62/C62
+34,DINAMICO - curioso - fluido (6MI),verde,Antipatia,1,A60/B60/C60
+34,GIOIOSO - caloroso - entusiasta (6MA),giallo,Simpatia/Empatia,1,A59/B59/C59
+34,ILLUMINATO - amorevole - passionale (8),,,1,"A63/B63/C63 (B63=""CONFERMA"")"
+34,INQUIETO - chiuso - pauroso (2MA),verde,Antipatia,1,A52/B52/C52
+34,MALINCONICO - triste - riflessivo (3MI),blu,Simpatia/Empatia,1,A55/B55/C55
+34,Mi è indifferente,,Indifferenza,1,"A64/B64/C64 (B64="""")"
+34,NOSTALGICO - consolato - afflitto (7MI),blu,Simpatia/Empatia,1,A61/B61/C61
+34,SALDO - sicuro - volitivo (1),rosso,Simpatia/Empatia,1,A51/B51/C51
+34,SERENO - fiducioso - aperto (3MA),giallo,Simpatia/Empatia,1,A54/B54/C54
+35,AMBIGUO - incerto - equivoco (4AUG),rosso,Indifferenza,1,A57/B57/C57
+35,ANGOSCIATO - ansioso - indifferente (2MI),blu,Indifferenza,1,A53/B53/C53
+35,ARRABBIATO - distaccato - dubbioso (4G),rosso,Antipatia,1,A56/B56/C56
+35,CALMO - equilibrato - sognante (5G),verde,Simpatia/Empatia,1,A58/B58/C58
+35,DESOLATO - rimpiangente - abbandonato (7MA),blu,Antipatia,1,A62/B62/C62
+35,DINAMICO - curioso - fluido (6MI),verde,Antipatia,1,A60/B60/C60
+35,GIOIOSO - caloroso - entusiasta (6MA),giallo,Simpatia/Empatia,1,A59/B59/C59
+35,ILLUMINATO - amorevole - passionale (8),,,1,"A63/B63/C63 (B63=""CONFERMA"")"
+35,INQUIETO - chiuso - pauroso (2MA),verde,Antipatia,1,A52/B52/C52
+35,MALINCONICO - triste - riflessivo (3MI),blu,Simpatia/Empatia,1,A55/B55/C55
+35,Mi è indifferente,,Indifferenza,1,"A64/B64/C64 (B64="""")"
+35,NOSTALGICO - consolato - afflitto (7MI),blu,Simpatia/Empatia,1,A61/B61/C61
+35,SALDO - sicuro - volitivo (1),rosso,Simpatia/Empatia,1,A51/B51/C51
+35,SERENO - fiducioso - aperto (3MA),giallo,Simpatia/Empatia,1,A54/B54/C54
+36,AMBIGUO - incerto - equivoco (4AUG),rosso,Indifferenza,1,A57/B57/C57
+36,ANGOSCIATO - ansioso - indifferente (2MI),blu,Indifferenza,1,A53/B53/C53
+36,ARRABBIATO - distaccato - dubbioso (4G),rosso,Antipatia,1,A56/B56/C56
+36,CALMO - equilibrato - sognante (5G),verde,Simpatia/Empatia,1,A58/B58/C58
+36,DESOLATO - rimpiangente - abbandonato (7MA),blu,Antipatia,1,A62/B62/C62
+36,DINAMICO - curioso - fluido (6MI),verde,Antipatia,1,A60/B60/C60
+36,GIOIOSO - caloroso - entusiasta (6MA),giallo,Simpatia/Empatia,1,A59/B59/C59
+36,ILLUMINATO - amorevole - passionale (8),,,1,"A63/B63/C63 (B63=""CONFERMA"")"
+36,INQUIETO - chiuso - pauroso (2MA),verde,Antipatia,1,A52/B52/C52
+36,MALINCONICO - triste - riflessivo (3MI),blu,Simpatia/Empatia,1,A55/B55/C55
+36,Mi è indifferente,,Indifferenza,1,"A64/B64/C64 (B64="""")"
+36,NOSTALGICO - consolato - afflitto (7MI),blu,Simpatia/Empatia,1,A61/B61/C61
+36,SALDO - sicuro - volitivo (1),rosso,Simpatia/Empatia,1,A51/B51/C51
+36,SERENO - fiducioso - aperto (3MA),giallo,Simpatia/Empatia,1,A54/B54/C54
+37,AMBIGUO - incerto - equivoco (4AUG),rosso,Indifferenza,1,A57/B57/C57
+37,ANGOSCIATO - ansioso - indifferente (2MI),blu,Indifferenza,1,A53/B53/C53
+37,ARRABBIATO - distaccato - dubbioso (4G),rosso,Antipatia,1,A56/B56/C56
+37,CALMO - equilibrato - sognante (5G),verde,Simpatia/Empatia,1,A58/B58/C58
+37,DESOLATO - rimpiangente - abbandonato (7MA),blu,Antipatia,1,A62/B62/C62
+37,DINAMICO - curioso - fluido (6MI),verde,Antipatia,1,A60/B60/C60
+37,GIOIOSO - caloroso - entusiasta (6MA),giallo,Simpatia/Empatia,1,A59/B59/C59
+37,ILLUMINATO - amorevole - passionale (8),,,1,"A63/B63/C63 (B63=""CONFERMA"")"
+37,INQUIETO - chiuso - pauroso (2MA),verde,Antipatia,1,A52/B52/C52
+37,MALINCONICO - triste - riflessivo (3MI),blu,Simpatia/Empatia,1,A55/B55/C55
+37,Mi è indifferente,,Indifferenza,1,"A64/B64/C64 (B64="""")"
+37,NOSTALGICO - consolato - afflitto (7MI),blu,Simpatia/Empatia,1,A61/B61/C61
+37,SALDO - sicuro - volitivo (1),rosso,Simpatia/Empatia,1,A51/B51/C51
+37,SERENO - fiducioso - aperto (3MA),giallo,Simpatia/Empatia,1,A54/B54/C54
+38,AMBIGUO - incerto - equivoco (4AUG),rosso,Indifferenza,1,A57/B57/C57
+38,ANGOSCIATO - ansioso - indifferente (2MI),blu,Indifferenza,1,A53/B53/C53
+38,ARRABBIATO - distaccato - dubbioso (4G),rosso,Antipatia,1,A56/B56/C56
+38,CALMO - equilibrato - sognante (5G),verde,Simpatia/Empatia,1,A58/B58/C58
+38,DESOLATO - rimpiangente - abbandonato (7MA),blu,Antipatia,1,A62/B62/C62
+38,DINAMICO - curioso - fluido (6MI),verde,Antipatia,1,A60/B60/C60
+38,GIOIOSO - caloroso - entusiasta (6MA),giallo,Simpatia/Empatia,1,A59/B59/C59
+38,ILLUMINATO - amorevole - passionale (8),,,1,"A63/B63/C63 (B63=""CONFERMA"")"
+38,INQUIETO - chiuso - pauroso (2MA),verde,Antipatia,1,A52/B52/C52
+38,MALINCONICO - triste - riflessivo (3MI),blu,Simpatia/Empatia,1,A55/B55/C55
+38,Mi è indifferente,,Indifferenza,1,"A64/B64/C64 (B64="""")"
+38,NOSTALGICO - consolato - afflitto (7MI),blu,Simpatia/Empatia,1,A61/B61/C61
+38,SALDO - sicuro - volitivo (1),rosso,Simpatia/Empatia,1,A51/B51/C51
+38,SERENO - fiducioso - aperto (3MA),giallo,Simpatia/Empatia,1,A54/B54/C54
+39,AMBIGUO - incerto - equivoco (4AUG),rosso,Indifferenza,1,A57/B57/C57
+39,ANGOSCIATO - ansioso - indifferente (2MI),blu,Indifferenza,1,A53/B53/C53
+39,ARRABBIATO - distaccato - dubbioso (4G),rosso,Antipatia,1,A56/B56/C56
+39,CALMO - equilibrato - sognante (5G),verde,Simpatia/Empatia,1,A58/B58/C58
+39,DESOLATO - rimpiangente - abbandonato (7MA),blu,Antipatia,1,A62/B62/C62
+39,DINAMICO - curioso - fluido (6MI),verde,Antipatia,1,A60/B60/C60
+39,GIOIOSO - caloroso - entusiasta (6MA),giallo,Simpatia/Empatia,1,A59/B59/C59
+39,ILLUMINATO - amorevole - passionale (8),,,1,"A63/B63/C63 (B63=""CONFERMA"")"
+39,INQUIETO - chiuso - pauroso (2MA),verde,Antipatia,1,A52/B52/C52
+39,MALINCONICO - triste - riflessivo (3MI),blu,Simpatia/Empatia,1,A55/B55/C55
+39,Mi è indifferente,,Indifferenza,1,"A64/B64/C64 (B64="""")"
+39,NOSTALGICO - consolato - afflitto (7MI),blu,Simpatia/Empatia,1,A61/B61/C61
+39,SALDO - sicuro - volitivo (1),rosso,Simpatia/Empatia,1,A51/B51/C51
+39,SERENO - fiducioso - aperto (3MA),giallo,Simpatia/Empatia,1,A54/B54/C54
+40,AMBIGUO - incerto - equivoco (4AUG),rosso,Indifferenza,1,A57/B57/C57
+40,ANGOSCIATO - ansioso - indifferente (2MI),blu,Indifferenza,1,A53/B53/C53
+40,ARRABBIATO - distaccato - dubbioso (4G),rosso,Antipatia,1,A56/B56/C56
+40,CALMO - equilibrato - sognante (5G),verde,Simpatia/Empatia,1,A58/B58/C58
+40,DESOLATO - rimpiangente - abbandonato (7MA),blu,Antipatia,1,A62/B62/C62
+40,DINAMICO - curioso - fluido (6MI),verde,Antipatia,1,A60/B60/C60
+40,GIOIOSO - caloroso - entusiasta (6MA),giallo,Simpatia/Empatia,1,A59/B59/C59
+40,ILLUMINATO - amorevole - passionale (8),,,1,"A63/B63/C63 (B63=""CONFERMA"")"
+40,INQUIETO - chiuso - pauroso (2MA),verde,Antipatia,1,A52/B52/C52
+40,MALINCONICO - triste - riflessivo (3MI),blu,Simpatia/Empatia,1,A55/B55/C55
+40,Mi è indifferente,,Indifferenza,1,"A64/B64/C64 (B64="""")"
+40,NOSTALGICO - consolato - afflitto (7MI),blu,Simpatia/Empatia,1,A61/B61/C61
+40,SALDO - sicuro - volitivo (1),rosso,Simpatia/Empatia,1,A51/B51/C51
+40,SERENO - fiducioso - aperto (3MA),giallo,Simpatia/Empatia,1,A54/B54/C54
+41,AMBIGUO - incerto - equivoco (4AUG),rosso,Indifferenza,1,A57/B57/C57
+41,ANGOSCIATO - ansioso - indifferente (2MI),blu,Indifferenza,1,A53/B53/C53
+41,ARRABBIATO - distaccato - dubbioso (4G),rosso,Antipatia,1,A56/B56/C56
+41,CALMO - equilibrato - sognante (5G),verde,Simpatia/Empatia,1,A58/B58/C58
+41,DESOLATO - rimpiangente - abbandonato (7MA),blu,Antipatia,1,A62/B62/C62
+41,DINAMICO - curioso - fluido (6MI),verde,Antipatia,1,A60/B60/C60
+41,GIOIOSO - caloroso - entusiasta (6MA),giallo,Simpatia/Empatia,1,A59/B59/C59
+41,ILLUMINATO - amorevole - passionale (8),,,1,"A63/B63/C63 (B63=""CONFERMA"")"
+41,INQUIETO - chiuso - pauroso (2MA),verde,Antipatia,1,A52/B52/C52
+41,MALINCONICO - triste - riflessivo (3MI),blu,Simpatia/Empatia,1,A55/B55/C55
+41,Mi è indifferente,,Indifferenza,1,"A64/B64/C64 (B64="""")"
+41,NOSTALGICO - consolato - afflitto (7MI),blu,Simpatia/Empatia,1,A61/B61/C61
+41,SALDO - sicuro - volitivo (1),rosso,Simpatia/Empatia,1,A51/B51/C51
+41,SERENO - fiducioso - aperto (3MA),giallo,Simpatia/Empatia,1,A54/B54/C54
+42,mi accende/mi motiva,rosso,Simpatia/Empatia,2,A79/B79/C79
+42,mi accompagna/mi consola,blu,Simpatia/Empatia,2,A85/B85/C85
+42,mi annoia/mi stufa,grigio,Indifferenza,2,A81/B81/C81
+42,mi arrovella/mi rattrista,blu,Antipatia,2,A84/B84/C84
+42,mi calma/mi fa sognare,verde,Simpatia/Empatia,2,A78/B78/C78
+42,mi completa/mi incoraggia,rosso,Simpatia/Empatia,2,A82/B82/C82
+42,mi disturba/mi repelle,verde,Antipatia,2,A76/B76/C76
+42,mi dà gioia,giallo,Simpatia/Empatia,2,A71/B71/C71
+42,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,2,A83/B83/C83
+42,mi inquieta,giallo,Antipatia,2,A72/B72/C72
+42,mi irrita/mi infastidisce,rosso,Antipatia,2,A80/B80/C80
+42,mi rilassa,verde,Simpatia/Empatia,2,A75/B75/C75
+42,mi spegne,grigio,Indifferenza,2,A73/B73/C73
+42,mi stupisce,giallo,Simpatia/Empatia,2,A74/B74/C74
+42,mi è indifferente,grigio,Indifferenza,2,A77/B77/C77
+43,mi accende/mi motiva,rosso,Simpatia/Empatia,2,A79/B79/C79
+43,mi accompagna/mi consola,blu,Simpatia/Empatia,2,A85/B85/C85
+43,mi annoia/mi stufa,grigio,Indifferenza,2,A81/B81/C81
+43,mi arrovella/mi rattrista,blu,Antipatia,2,A84/B84/C84
+43,mi calma/mi fa sognare,verde,Simpatia/Empatia,2,A78/B78/C78
+43,mi completa/mi incoraggia,rosso,Simpatia/Empatia,2,A82/B82/C82
+43,mi disturba/mi repelle,verde,Antipatia,2,A76/B76/C76
+43,mi dà gioia,giallo,Simpatia/Empatia,2,A71/B71/C71
+43,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,2,A83/B83/C83
+43,mi inquieta,giallo,Antipatia,2,A72/B72/C72
+43,mi irrita/mi infastidisce,rosso,Antipatia,2,A80/B80/C80
+43,mi rilassa,verde,Simpatia/Empatia,2,A75/B75/C75
+43,mi spegne,grigio,Indifferenza,2,A73/B73/C73
+43,mi stupisce,giallo,Simpatia/Empatia,2,A74/B74/C74
+43,mi è indifferente,grigio,Indifferenza,2,A77/B77/C77
+44,mi accende/mi motiva,rosso,Simpatia/Empatia,2,A79/B79/C79
+44,mi accompagna/mi consola,blu,Simpatia/Empatia,2,A85/B85/C85
+44,mi annoia/mi stufa,grigio,Indifferenza,2,A81/B81/C81
+44,mi arrovella/mi rattrista,blu,Antipatia,2,A84/B84/C84
+44,mi calma/mi fa sognare,verde,Simpatia/Empatia,2,A78/B78/C78
+44,mi completa/mi incoraggia,rosso,Simpatia/Empatia,2,A82/B82/C82
+44,mi disturba/mi repelle,verde,Antipatia,2,A76/B76/C76
+44,mi dà gioia,giallo,Simpatia/Empatia,2,A71/B71/C71
+44,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,2,A83/B83/C83
+44,mi inquieta,giallo,Antipatia,2,A72/B72/C72
+44,mi irrita/mi infastidisce,rosso,Antipatia,2,A80/B80/C80
+44,mi rilassa,verde,Simpatia/Empatia,2,A75/B75/C75
+44,mi spegne,grigio,Indifferenza,2,A73/B73/C73
+44,mi stupisce,giallo,Simpatia/Empatia,2,A74/B74/C74
+44,mi è indifferente,grigio,Indifferenza,2,A77/B77/C77
+45,mi accende/mi motiva,rosso,Simpatia/Empatia,2,A79/B79/C79
+45,mi accompagna/mi consola,blu,Simpatia/Empatia,2,A85/B85/C85
+45,mi annoia/mi stufa,grigio,Indifferenza,2,A81/B81/C81
+45,mi arrovella/mi rattrista,blu,Antipatia,2,A84/B84/C84
+45,mi calma/mi fa sognare,verde,Simpatia/Empatia,2,A78/B78/C78
+45,mi completa/mi incoraggia,rosso,Simpatia/Empatia,2,A82/B82/C82
+45,mi disturba/mi repelle,verde,Antipatia,2,A76/B76/C76
+45,mi dà gioia,giallo,Simpatia/Empatia,2,A71/B71/C71
+45,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,2,A83/B83/C83
+45,mi inquieta,giallo,Antipatia,2,A72/B72/C72
+45,mi irrita/mi infastidisce,rosso,Antipatia,2,A80/B80/C80
+45,mi rilassa,verde,Simpatia/Empatia,2,A75/B75/C75
+45,mi spegne,grigio,Indifferenza,2,A73/B73/C73
+45,mi stupisce,giallo,Simpatia/Empatia,2,A74/B74/C74
+45,mi è indifferente,grigio,Indifferenza,2,A77/B77/C77
+46,? (nessun groove 130 tra 42-45),giallo,Simpatia/Empatia,2,J78
+46,mi accende/mi motiva,rosso,Simpatia/Empatia,2,A79/B79/C79
+46,mi accompagna/mi consola,blu,Simpatia/Empatia,2,A85/B85/C85
+46,mi annoia/mi stufa,grigio,Indifferenza,2,A81/B81/C81
+46,mi arrovella/mi rattrista,blu,Antipatia,2,A84/B84/C84
+46,mi calma/mi fa sognare,verde,Simpatia/Empatia,2,A78/B78/C78
+46,mi completa/mi incoraggia,rosso,Simpatia/Empatia,2,A82/B82/C82
+46,mi disturba/mi repelle,verde,Antipatia,2,A76/B76/C76
+46,mi dà gioia,giallo,Simpatia/Empatia,2,A71/B71/C71
+46,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,2,A83/B83/C83
+46,mi inquieta,giallo,Antipatia,2,A72/B72/C72
+46,mi irrita/mi infastidisce,rosso,Antipatia,2,A80/B80/C80
+46,mi rilassa,verde,Simpatia/Empatia,2,A75/B75/C75
+46,mi spegne,grigio,Indifferenza,2,A73/B73/C73
+46,mi stupisce,giallo,Simpatia/Empatia,2,A74/B74/C74
+46,mi è indifferente,grigio,Indifferenza,2,A77/B77/C77
+46,opzione1,blu,Simpatia/Empatia,2,J75
+46,opzione2,verde,Simpatia/Empatia,2,J77
+46,opzione3,rosso,Simpatia/Empatia,2,J76
+47,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A79/B79/C79
+47,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A85/B85/C85
+47,mi annoia/mi stufa,grigio,Indifferenza,1,A81/B81/C81
+47,mi arrovella/mi rattrista,blu,Antipatia,1,A84/B84/C84
+47,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A78/B78/C78
+47,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A82/B82/C82
+47,mi disturba/mi repelle,verde,Antipatia,1,A76/B76/C76
+47,mi dà gioia,giallo,Simpatia/Empatia,1,A71/B71/C71
+47,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A83/B83/C83
+47,mi inquieta,giallo,Antipatia,1,A72/B72/C72
+47,mi irrita/mi infastidisce,rosso,Antipatia,1,A80/B80/C80
+47,mi rilassa,verde,Simpatia/Empatia,1,A75/B75/C75
+47,mi spegne,grigio,Indifferenza,1,A73/B73/C73
+47,mi stupisce,giallo,Simpatia/Empatia,1,A74/B74/C74
+47,mi è indifferente,grigio,Indifferenza,1,A77/B77/C77
+48,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A79/B79/C79
+48,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A85/B85/C85
+48,mi annoia/mi stufa,grigio,Indifferenza,1,A81/B81/C81
+48,mi arrovella/mi rattrista,blu,Antipatia,1,A84/B84/C84
+48,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A78/B78/C78
+48,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A82/B82/C82
+48,mi disturba/mi repelle,verde,Antipatia,1,A76/B76/C76
+48,mi dà gioia,giallo,Simpatia/Empatia,1,A71/B71/C71
+48,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A83/B83/C83
+48,mi inquieta,giallo,Antipatia,1,A72/B72/C72
+48,mi irrita/mi infastidisce,rosso,Antipatia,1,A80/B80/C80
+48,mi rilassa,verde,Simpatia/Empatia,1,A75/B75/C75
+48,mi spegne,grigio,Indifferenza,1,A73/B73/C73
+48,mi stupisce,giallo,Simpatia/Empatia,1,A74/B74/C74
+48,mi è indifferente,grigio,Indifferenza,1,A77/B77/C77
+49,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A79/B79/C79
+49,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A85/B85/C85
+49,mi annoia/mi stufa,grigio,Indifferenza,1,A81/B81/C81
+49,mi arrovella/mi rattrista,blu,Antipatia,1,A84/B84/C84
+49,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A78/B78/C78
+49,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A82/B82/C82
+49,mi disturba/mi repelle,verde,Antipatia,1,A76/B76/C76
+49,mi dà gioia,giallo,Simpatia/Empatia,1,A71/B71/C71
+49,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A83/B83/C83
+49,mi inquieta,giallo,Antipatia,1,A72/B72/C72
+49,mi irrita/mi infastidisce,rosso,Antipatia,1,A80/B80/C80
+49,mi rilassa,verde,Simpatia/Empatia,1,A75/B75/C75
+49,mi spegne,grigio,Indifferenza,1,A73/B73/C73
+49,mi stupisce,giallo,Simpatia/Empatia,1,A74/B74/C74
+49,mi è indifferente,grigio,Indifferenza,1,A77/B77/C77
+50,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A79/B79/C79
+50,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A85/B85/C85
+50,mi annoia/mi stufa,grigio,Indifferenza,1,A81/B81/C81
+50,mi arrovella/mi rattrista,blu,Antipatia,1,A84/B84/C84
+50,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A78/B78/C78
+50,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A82/B82/C82
+50,mi disturba/mi repelle,verde,Antipatia,1,A76/B76/C76
+50,mi dà gioia,giallo,Simpatia/Empatia,1,A71/B71/C71
+50,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A83/B83/C83
+50,mi inquieta,giallo,Antipatia,1,A72/B72/C72
+50,mi irrita/mi infastidisce,rosso,Antipatia,1,A80/B80/C80
+50,mi rilassa,verde,Simpatia/Empatia,1,A75/B75/C75
+50,mi spegne,grigio,Indifferenza,1,A73/B73/C73
+50,mi stupisce,giallo,Simpatia/Empatia,1,A74/B74/C74
+50,mi è indifferente,grigio,Indifferenza,1,A77/B77/C77
+51,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A79/B79/C79
+51,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A85/B85/C85
+51,mi annoia/mi stufa,grigio,Indifferenza,1,A81/B81/C81
+51,mi arrovella/mi rattrista,blu,Antipatia,1,A84/B84/C84
+51,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A78/B78/C78
+51,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A82/B82/C82
+51,mi disturba/mi repelle,verde,Antipatia,1,A76/B76/C76
+51,mi dà gioia,giallo,Simpatia/Empatia,1,A71/B71/C71
+51,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A83/B83/C83
+51,mi inquieta,giallo,Antipatia,1,A72/B72/C72
+51,mi irrita/mi infastidisce,rosso,Antipatia,1,A80/B80/C80
+51,mi rilassa,verde,Simpatia/Empatia,1,A75/B75/C75
+51,mi spegne,grigio,Indifferenza,1,A73/B73/C73
+51,mi stupisce,giallo,Simpatia/Empatia,1,A74/B74/C74
+51,mi è indifferente,grigio,Indifferenza,1,A77/B77/C77
+51,opzione1,blu,Simpatia/Empatia,1,J75
+51,opzione2,rosso,Simpatia/Empatia,1,J76
+51,opzione3,verde,Simpatia/Empatia,1,J77
+51,opzione4,giallo,Simpatia/Empatia,1,J78
+52,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A99/B99/C99
+52,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A105/B105/C105
+52,mi annoia/mi stufa,grigio,Indifferenza,1,A101/B101/C101
+52,mi arrovella/mi rattrista,blu,Antipatia,1,A104/B104/C104
+52,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A98/B98/C98
+52,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A102/B102/C102
+52,mi disturba/mi repelle,verde,Antipatia,1,A96/B96/C96
+52,mi dà gioia,giallo,Simpatia/Empatia,1,A91/B91/C91
+52,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A103/B103/C103
+52,mi inquieta,giallo,Antipatia,1,A92/B92/C92
+52,mi irrita/mi infastidisce,rosso,Antipatia,1,A100/B100/C100
+52,mi rilassa,verde,Simpatia/Empatia,1,A95/B95/C95
+52,mi spegne,grigio,Indifferenza,1,A93/B93/C93
+52,mi stupisce,giallo,Simpatia/Empatia,1,A94/B94/C94
+52,mi è indifferente,grigio,Indifferenza,1,A97/B97/C97
+53,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A99/B99/C99
+53,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A105/B105/C105
+53,mi annoia/mi stufa,grigio,Indifferenza,1,A101/B101/C101
+53,mi arrovella/mi rattrista,blu,Antipatia,1,A104/B104/C104
+53,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A98/B98/C98
+53,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A102/B102/C102
+53,mi disturba/mi repelle,verde,Antipatia,1,A96/B96/C96
+53,mi dà gioia,giallo,Simpatia/Empatia,1,A91/B91/C91
+53,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A103/B103/C103
+53,mi inquieta,giallo,Antipatia,1,A92/B92/C92
+53,mi irrita/mi infastidisce,rosso,Antipatia,1,A100/B100/C100
+53,mi rilassa,verde,Simpatia/Empatia,1,A95/B95/C95
+53,mi spegne,grigio,Indifferenza,1,A93/B93/C93
+53,mi stupisce,giallo,Simpatia/Empatia,1,A94/B94/C94
+53,mi è indifferente,grigio,Indifferenza,1,A97/B97/C97
+54,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A99/B99/C99
+54,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A105/B105/C105
+54,mi annoia/mi stufa,grigio,Indifferenza,1,A101/B101/C101
+54,mi arrovella/mi rattrista,blu,Antipatia,1,A104/B104/C104
+54,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A98/B98/C98
+54,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A102/B102/C102
+54,mi disturba/mi repelle,verde,Antipatia,1,A96/B96/C96
+54,mi dà gioia,giallo,Simpatia/Empatia,1,A91/B91/C91
+54,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A103/B103/C103
+54,mi inquieta,giallo,Antipatia,1,A92/B92/C92
+54,mi irrita/mi infastidisce,rosso,Antipatia,1,A100/B100/C100
+54,mi rilassa,verde,Simpatia/Empatia,1,A95/B95/C95
+54,mi spegne,grigio,Indifferenza,1,A93/B93/C93
+54,mi stupisce,giallo,Simpatia/Empatia,1,A94/B94/C94
+54,mi è indifferente,grigio,Indifferenza,1,A97/B97/C97
+55,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A99/B99/C99
+55,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A105/B105/C105
+55,mi annoia/mi stufa,grigio,Indifferenza,1,A101/B101/C101
+55,mi arrovella/mi rattrista,blu,Antipatia,1,A104/B104/C104
+55,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A98/B98/C98
+55,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A102/B102/C102
+55,mi disturba/mi repelle,verde,Antipatia,1,A96/B96/C96
+55,mi dà gioia,giallo,Simpatia/Empatia,1,A91/B91/C91
+55,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A103/B103/C103
+55,mi inquieta,giallo,Antipatia,1,A92/B92/C92
+55,mi irrita/mi infastidisce,rosso,Antipatia,1,A100/B100/C100
+55,mi rilassa,verde,Simpatia/Empatia,1,A95/B95/C95
+55,mi spegne,grigio,Indifferenza,1,A93/B93/C93
+55,mi stupisce,giallo,Simpatia/Empatia,1,A94/B94/C94
+55,mi è indifferente,grigio,Indifferenza,1,A97/B97/C97
+56,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A99/B99/C99
+56,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A105/B105/C105
+56,mi annoia/mi stufa,grigio,Indifferenza,1,A101/B101/C101
+56,mi arrovella/mi rattrista,blu,Antipatia,1,A104/B104/C104
+56,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A98/B98/C98
+56,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A102/B102/C102
+56,mi disturba/mi repelle,verde,Antipatia,1,A96/B96/C96
+56,mi dà gioia,giallo,Simpatia/Empatia,1,A91/B91/C91
+56,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A103/B103/C103
+56,mi inquieta,giallo,Antipatia,1,A92/B92/C92
+56,mi irrita/mi infastidisce,rosso,Antipatia,1,A100/B100/C100
+56,mi rilassa,verde,Simpatia/Empatia,1,A95/B95/C95
+56,mi spegne,grigio,Indifferenza,1,A93/B93/C93
+56,mi stupisce,giallo,Simpatia/Empatia,1,A94/B94/C94
+56,mi è indifferente,grigio,Indifferenza,1,A97/B97/C97
+57,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A99/B99/C99
+57,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A105/B105/C105
+57,mi annoia/mi stufa,grigio,Indifferenza,1,A101/B101/C101
+57,mi arrovella/mi rattrista,blu,Antipatia,1,A104/B104/C104
+57,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A98/B98/C98
+57,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A102/B102/C102
+57,mi disturba/mi repelle,verde,Antipatia,1,A96/B96/C96
+57,mi dà gioia,giallo,Simpatia/Empatia,1,A91/B91/C91
+57,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A103/B103/C103
+57,mi inquieta,giallo,Antipatia,1,A92/B92/C92
+57,mi irrita/mi infastidisce,rosso,Antipatia,1,A100/B100/C100
+57,mi rilassa,verde,Simpatia/Empatia,1,A95/B95/C95
+57,mi spegne,grigio,Indifferenza,1,A93/B93/C93
+57,mi stupisce,giallo,Simpatia/Empatia,1,A94/B94/C94
+57,mi è indifferente,grigio,Indifferenza,1,A97/B97/C97
+58,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A99/B99/C99
+58,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A105/B105/C105
+58,mi annoia/mi stufa,grigio,Indifferenza,1,A101/B101/C101
+58,mi arrovella/mi rattrista,blu,Antipatia,1,A104/B104/C104
+58,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A98/B98/C98
+58,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A102/B102/C102
+58,mi disturba/mi repelle,verde,Antipatia,1,A96/B96/C96
+58,mi dà gioia,giallo,Simpatia/Empatia,1,A91/B91/C91
+58,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A103/B103/C103
+58,mi inquieta,giallo,Antipatia,1,A92/B92/C92
+58,mi irrita/mi infastidisce,rosso,Antipatia,1,A100/B100/C100
+58,mi rilassa,verde,Simpatia/Empatia,1,A95/B95/C95
+58,mi spegne,grigio,Indifferenza,1,A93/B93/C93
+58,mi stupisce,giallo,Simpatia/Empatia,1,A94/B94/C94
+58,mi è indifferente,grigio,Indifferenza,1,A97/B97/C97
+58,opzione1,giallo,Simpatia/Empatia,1,J95
+58,opzione2,blu,Simpatia/Empatia,1,J96
+58,opzione3,rosso,Simpatia/Empatia,1,J97
+58,opzione4,verde,Simpatia/Empatia,1,J98
+59,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A119/B119/C119
+59,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A125/B125/C125
+59,mi annoia/mi stufa,grigio,Indifferenza,1,A121/B121/C121
+59,mi arrovella/mi rattrista,blu,Antipatia,1,A124/B124/C124
+59,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A118/B118/C118
+59,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A122/B122/C122
+59,mi disturba/mi repelle,verde,Antipatia,1,A116/B116/C116
+59,mi dà gioia,giallo,Simpatia/Empatia,1,A111/B111/C111
+59,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A123/B123/C123
+59,mi inquieta,giallo,Antipatia,1,A112/B112/C112
+59,mi irrita/mi infastidisce,rosso,Antipatia,1,A120/B120/C120
+59,mi rilassa,verde,Simpatia/Empatia,1,A115/B115/C115
+59,mi spegne,grigio,Indifferenza,1,A113/B113/C113
+59,mi stupisce,giallo,Simpatia/Empatia,1,A114/B114/C114
+59,mi è indifferente,grigio,Indifferenza,1,A117/B117/C117
+60,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A119/B119/C119
+60,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A125/B125/C125
+60,mi annoia/mi stufa,grigio,Indifferenza,1,A121/B121/C121
+60,mi arrovella/mi rattrista,blu,Antipatia,1,A124/B124/C124
+60,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A118/B118/C118
+60,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A122/B122/C122
+60,mi disturba/mi repelle,verde,Antipatia,1,A116/B116/C116
+60,mi dà gioia,giallo,Simpatia/Empatia,1,A111/B111/C111
+60,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A123/B123/C123
+60,mi inquieta,giallo,Antipatia,1,A112/B112/C112
+60,mi irrita/mi infastidisce,rosso,Antipatia,1,A120/B120/C120
+60,mi rilassa,verde,Simpatia/Empatia,1,A115/B115/C115
+60,mi spegne,grigio,Indifferenza,1,A113/B113/C113
+60,mi stupisce,giallo,Simpatia/Empatia,1,A114/B114/C114
+60,mi è indifferente,grigio,Indifferenza,1,A117/B117/C117
+61,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A119/B119/C119
+61,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A125/B125/C125
+61,mi annoia/mi stufa,grigio,Indifferenza,1,A121/B121/C121
+61,mi arrovella/mi rattrista,blu,Antipatia,1,A124/B124/C124
+61,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A118/B118/C118
+61,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A122/B122/C122
+61,mi disturba/mi repelle,verde,Antipatia,1,A116/B116/C116
+61,mi dà gioia,giallo,Simpatia/Empatia,1,A111/B111/C111
+61,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A123/B123/C123
+61,mi inquieta,giallo,Antipatia,1,A112/B112/C112
+61,mi irrita/mi infastidisce,rosso,Antipatia,1,A120/B120/C120
+61,mi rilassa,verde,Simpatia/Empatia,1,A115/B115/C115
+61,mi spegne,grigio,Indifferenza,1,A113/B113/C113
+61,mi stupisce,giallo,Simpatia/Empatia,1,A114/B114/C114
+61,mi è indifferente,grigio,Indifferenza,1,A117/B117/C117
+62,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A119/B119/C119
+62,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A125/B125/C125
+62,mi annoia/mi stufa,grigio,Indifferenza,1,A121/B121/C121
+62,mi arrovella/mi rattrista,blu,Antipatia,1,A124/B124/C124
+62,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A118/B118/C118
+62,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A122/B122/C122
+62,mi disturba/mi repelle,verde,Antipatia,1,A116/B116/C116
+62,mi dà gioia,giallo,Simpatia/Empatia,1,A111/B111/C111
+62,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A123/B123/C123
+62,mi inquieta,giallo,Antipatia,1,A112/B112/C112
+62,mi irrita/mi infastidisce,rosso,Antipatia,1,A120/B120/C120
+62,mi rilassa,verde,Simpatia/Empatia,1,A115/B115/C115
+62,mi spegne,grigio,Indifferenza,1,A113/B113/C113
+62,mi stupisce,giallo,Simpatia/Empatia,1,A114/B114/C114
+62,mi è indifferente,grigio,Indifferenza,1,A117/B117/C117
+63,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A119/B119/C119
+63,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A125/B125/C125
+63,mi annoia/mi stufa,grigio,Indifferenza,1,A121/B121/C121
+63,mi arrovella/mi rattrista,blu,Antipatia,1,A124/B124/C124
+63,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A118/B118/C118
+63,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A122/B122/C122
+63,mi disturba/mi repelle,verde,Antipatia,1,A116/B116/C116
+63,mi dà gioia,giallo,Simpatia/Empatia,1,A111/B111/C111
+63,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A123/B123/C123
+63,mi inquieta,giallo,Antipatia,1,A112/B112/C112
+63,mi irrita/mi infastidisce,rosso,Antipatia,1,A120/B120/C120
+63,mi rilassa,verde,Simpatia/Empatia,1,A115/B115/C115
+63,mi spegne,grigio,Indifferenza,1,A113/B113/C113
+63,mi stupisce,giallo,Simpatia/Empatia,1,A114/B114/C114
+63,mi è indifferente,grigio,Indifferenza,1,A117/B117/C117
+64,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A119/B119/C119
+64,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A125/B125/C125
+64,mi annoia/mi stufa,grigio,Indifferenza,1,A121/B121/C121
+64,mi arrovella/mi rattrista,blu,Antipatia,1,A124/B124/C124
+64,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A118/B118/C118
+64,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A122/B122/C122
+64,mi disturba/mi repelle,verde,Antipatia,1,A116/B116/C116
+64,mi dà gioia,giallo,Simpatia/Empatia,1,A111/B111/C111
+64,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A123/B123/C123
+64,mi inquieta,giallo,Antipatia,1,A112/B112/C112
+64,mi irrita/mi infastidisce,rosso,Antipatia,1,A120/B120/C120
+64,mi rilassa,verde,Simpatia/Empatia,1,A115/B115/C115
+64,mi spegne,grigio,Indifferenza,1,A113/B113/C113
+64,mi stupisce,giallo,Simpatia/Empatia,1,A114/B114/C114
+64,mi è indifferente,grigio,Indifferenza,1,A117/B117/C117
+65,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A119/B119/C119
+65,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A125/B125/C125
+65,mi annoia/mi stufa,grigio,Indifferenza,1,A121/B121/C121
+65,mi arrovella/mi rattrista,blu,Antipatia,1,A124/B124/C124
+65,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A118/B118/C118
+65,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A122/B122/C122
+65,mi disturba/mi repelle,verde,Antipatia,1,A116/B116/C116
+65,mi dà gioia,giallo,Simpatia/Empatia,1,A111/B111/C111
+65,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A123/B123/C123
+65,mi inquieta,giallo,Antipatia,1,A112/B112/C112
+65,mi irrita/mi infastidisce,rosso,Antipatia,1,A120/B120/C120
+65,mi rilassa,verde,Simpatia/Empatia,1,A115/B115/C115
+65,mi spegne,grigio,Indifferenza,1,A113/B113/C113
+65,mi stupisce,giallo,Simpatia/Empatia,1,A114/B114/C114
+65,mi è indifferente,grigio,Indifferenza,1,A117/B117/C117
+66,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A119/B119/C119
+66,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A125/B125/C125
+66,mi annoia/mi stufa,grigio,Indifferenza,1,A121/B121/C121
+66,mi arrovella/mi rattrista,blu,Antipatia,1,A124/B124/C124
+66,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A118/B118/C118
+66,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A122/B122/C122
+66,mi disturba/mi repelle,verde,Antipatia,1,A116/B116/C116
+66,mi dà gioia,giallo,Simpatia/Empatia,1,A111/B111/C111
+66,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A123/B123/C123
+66,mi inquieta,giallo,Antipatia,1,A112/B112/C112
+66,mi irrita/mi infastidisce,rosso,Antipatia,1,A120/B120/C120
+66,mi rilassa,verde,Simpatia/Empatia,1,A115/B115/C115
+66,mi spegne,grigio,Indifferenza,1,A113/B113/C113
+66,mi stupisce,giallo,Simpatia/Empatia,1,A114/B114/C114
+66,mi è indifferente,grigio,Indifferenza,1,A117/B117/C117
+67,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A119/B119/C119
+67,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A125/B125/C125
+67,mi annoia/mi stufa,grigio,Indifferenza,1,A121/B121/C121
+67,mi arrovella/mi rattrista,blu,Antipatia,1,A124/B124/C124
+67,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A118/B118/C118
+67,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A122/B122/C122
+67,mi disturba/mi repelle,verde,Antipatia,1,A116/B116/C116
+67,mi dà gioia,giallo,Simpatia/Empatia,1,A111/B111/C111
+67,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A123/B123/C123
+67,mi inquieta,giallo,Antipatia,1,A112/B112/C112
+67,mi irrita/mi infastidisce,rosso,Antipatia,1,A120/B120/C120
+67,mi rilassa,verde,Simpatia/Empatia,1,A115/B115/C115
+67,mi spegne,grigio,Indifferenza,1,A113/B113/C113
+67,mi stupisce,giallo,Simpatia/Empatia,1,A114/B114/C114
+67,mi è indifferente,grigio,Indifferenza,1,A117/B117/C117
+68,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A119/B119/C119
+68,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A125/B125/C125
+68,mi annoia/mi stufa,grigio,Indifferenza,1,A121/B121/C121
+68,mi arrovella/mi rattrista,blu,Antipatia,1,A124/B124/C124
+68,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A118/B118/C118
+68,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A122/B122/C122
+68,mi disturba/mi repelle,verde,Antipatia,1,A116/B116/C116
+68,mi dà gioia,giallo,Simpatia/Empatia,1,A111/B111/C111
+68,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A123/B123/C123
+68,mi inquieta,giallo,Antipatia,1,A112/B112/C112
+68,mi irrita/mi infastidisce,rosso,Antipatia,1,A120/B120/C120
+68,mi rilassa,verde,Simpatia/Empatia,1,A115/B115/C115
+68,mi spegne,grigio,Indifferenza,1,A113/B113/C113
+68,mi stupisce,giallo,Simpatia/Empatia,1,A114/B114/C114
+68,mi è indifferente,grigio,Indifferenza,1,A117/B117/C117
+69,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A119/B119/C119
+69,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A125/B125/C125
+69,mi annoia/mi stufa,grigio,Indifferenza,1,A121/B121/C121
+69,mi arrovella/mi rattrista,blu,Antipatia,1,A124/B124/C124
+69,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A118/B118/C118
+69,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A122/B122/C122
+69,mi disturba/mi repelle,verde,Antipatia,1,A116/B116/C116
+69,mi dà gioia,giallo,Simpatia/Empatia,1,A111/B111/C111
+69,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A123/B123/C123
+69,mi inquieta,giallo,Antipatia,1,A112/B112/C112
+69,mi irrita/mi infastidisce,rosso,Antipatia,1,A120/B120/C120
+69,mi rilassa,verde,Simpatia/Empatia,1,A115/B115/C115
+69,mi spegne,grigio,Indifferenza,1,A113/B113/C113
+69,mi stupisce,giallo,Simpatia/Empatia,1,A114/B114/C114
+69,mi è indifferente,grigio,Indifferenza,1,A117/B117/C117
+70,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A119/B119/C119
+70,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A125/B125/C125
+70,mi annoia/mi stufa,grigio,Indifferenza,1,A121/B121/C121
+70,mi arrovella/mi rattrista,blu,Antipatia,1,A124/B124/C124
+70,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A118/B118/C118
+70,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A122/B122/C122
+70,mi disturba/mi repelle,verde,Antipatia,1,A116/B116/C116
+70,mi dà gioia,giallo,Simpatia/Empatia,1,A111/B111/C111
+70,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A123/B123/C123
+70,mi inquieta,giallo,Antipatia,1,A112/B112/C112
+70,mi irrita/mi infastidisce,rosso,Antipatia,1,A120/B120/C120
+70,mi rilassa,verde,Simpatia/Empatia,1,A115/B115/C115
+70,mi spegne,grigio,Indifferenza,1,A113/B113/C113
+70,mi stupisce,giallo,Simpatia/Empatia,1,A114/B114/C114
+70,mi è indifferente,grigio,Indifferenza,1,A117/B117/C117
+71,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A119/B119/C119
+71,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A125/B125/C125
+71,mi annoia/mi stufa,grigio,Indifferenza,1,A121/B121/C121
+71,mi arrovella/mi rattrista,blu,Antipatia,1,A124/B124/C124
+71,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A118/B118/C118
+71,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A122/B122/C122
+71,mi disturba/mi repelle,verde,Antipatia,1,A116/B116/C116
+71,mi dà gioia,giallo,Simpatia/Empatia,1,A111/B111/C111
+71,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A123/B123/C123
+71,mi inquieta,giallo,Antipatia,1,A112/B112/C112
+71,mi irrita/mi infastidisce,rosso,Antipatia,1,A120/B120/C120
+71,mi rilassa,verde,Simpatia/Empatia,1,A115/B115/C115
+71,mi spegne,grigio,Indifferenza,1,A113/B113/C113
+71,mi stupisce,giallo,Simpatia/Empatia,1,A114/B114/C114
+71,mi è indifferente,grigio,Indifferenza,1,A117/B117/C117
+72,mi accende/mi motiva,rosso,Simpatia/Empatia,1,A119/B119/C119
+72,mi accompagna/mi consola,blu,Simpatia/Empatia,1,A125/B125/C125
+72,mi annoia/mi stufa,grigio,Indifferenza,1,A121/B121/C121
+72,mi arrovella/mi rattrista,blu,Antipatia,1,A124/B124/C124
+72,mi calma/mi fa sognare,verde,Simpatia/Empatia,1,A118/B118/C118
+72,mi completa/mi incoraggia,rosso,Simpatia/Empatia,1,A122/B122/C122
+72,mi disturba/mi repelle,verde,Antipatia,1,A116/B116/C116
+72,mi dà gioia,giallo,Simpatia/Empatia,1,A111/B111/C111
+72,mi fa riflettere/mi porta a ricordare,blu,Simpatia/Empatia,1,A123/B123/C123
+72,mi inquieta,giallo,Antipatia,1,A112/B112/C112
+72,mi irrita/mi infastidisce,rosso,Antipatia,1,A120/B120/C120
+72,mi rilassa,verde,Simpatia/Empatia,1,A115/B115/C115
+72,mi spegne,grigio,Indifferenza,1,A113/B113/C113
+72,mi stupisce,giallo,Simpatia/Empatia,1,A114/B114/C114
+72,mi è indifferente,grigio,Indifferenza,1,A117/B117/C117
