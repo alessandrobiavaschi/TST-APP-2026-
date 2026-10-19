@@ -52,13 +52,13 @@ const FAMILY_LAYOUT = {
   Grigio: { cx: 122, cy: 298, angle: 12 },
 }
 
-// Nature SOLO dal PDF «Parole per TST»: ogni famiglia ne ha più d'una.
+// Etichette visibili delle famiglie nelle liste con le percentuali (senza nature).
 const FAMILY_PRESENCE_LABELS = {
-  verde: { title: 'Flemmatica', detail: 'nature Calma Contemplativa e Calma Fisica' },
-  giallo: { title: 'Entusiasta', detail: 'nature Gioiosa Solare e Sanguigna Operosa' },
-  rosso: { title: 'Marziale', detail: 'nature Volitiva e Collerica' },
-  grigio: { title: 'Razionale', detail: 'nature Anaffettiva e Distaccata' },
-  blu: { title: 'Malinconica', detail: 'nature Lunare Introspettiva, Lunare Depressiva, Solare e Nostalgica' },
+  verde: { title: 'Flemmatica' },
+  giallo: { title: 'Entusiasta' },
+  rosso: { title: 'Marziale' },
+  grigio: { title: 'Razionale' },
+  blu: { title: 'Malinconica' },
 }
 
 // Fonti: docs/fonti-scientifiche/_estratto/MATRICE_TRACCIABILITA.md,
@@ -377,7 +377,6 @@ function familyPresenceLabel(item = {}, fallbackFamily = '') {
   if (label) return label
   return {
     title: item.label || item.macroLabel || item.nome || fallbackFamily,
-    detail: item.nome && item.nome !== item.label ? item.nome : '',
   }
 }
 
@@ -641,37 +640,30 @@ export default function SintesiCorrenti({
 
   const desktopSlides = [
     {
-      id: 'composizione',
-      tabLabel: 'Presenza & Quote',
-      badge: '01 / 05 · Composizione',
-      title: 'Presenza & Quote delle Famiglie',
-      subtitle: 'Distribuzione percentuale di presenza e peso relativo delle cinque macro-famiglie sonore.',
-    },
-    {
       id: 'radar',
       tabLabel: 'Radar 1-7',
-      badge: '02 / 05 · Scala 1-7',
+      badge: '01 / 04 · Scala 1-7',
       title: 'Punteggio Relativo (Scala 1-7)',
       subtitle: 'Punteggio 1-7 per famiglia — passa il cursore o seleziona un vertice per il dettaglio.',
     },
     {
       id: 'geometria',
       tabLabel: 'Forma Emotiva',
-      badge: '03 / 05 · Geometria',
+      badge: '02 / 04 · Geometria',
       title: 'La Geometria Emotiva',
       subtitle: 'Rappresentazione topologica delle tensioni e delle densità tra le energie emotive.',
     },
     {
       id: 'nature',
       tabLabel: 'Nature',
-      badge: '04 / 05 · Nature',
+      badge: '03 / 04 · Nature',
       title: `Correnti e Nature della famiglia ${dominantPresenceLabel.title.toLowerCase()}`,
       subtitle: 'Nature (caratteristiche emotive) specifiche che definiscono meglio la famiglia prevalente.',
     },
     {
       id: 'percorso',
       tabLabel: 'Percorso Risposte',
-      badge: '05 / 05 · Mappa Passi',
+      badge: '04 / 04 · Mappa Passi',
       title: 'Il Percorso delle 72 Risposte',
       subtitle: 'Mappa completa delle 72 risposte ordinate per traccia e intensità emotiva.',
     },
@@ -839,9 +831,6 @@ export default function SintesiCorrenti({
                         {i === 0 && (
                           <span className="sintesi-correnti__dominant-badge">NATURA PREVALENTE</span>
                         )}
-                        {label.detail ? (
-                          <span className="sintesi-mobile-bar-subname"> {label.detail}</span>
-                        ) : null}
                       </span>
                     </div>
                     <span className="sintesi-mobile-bar-pct">Presenza {pctAttivazione(peso)}</span>
@@ -1060,113 +1049,6 @@ export default function SintesiCorrenti({
               {/* Contenuto della slide */}
               <div className="sintesi-chart-slide-content">
                 {desktopSlideIndex === 0 && (
-                  <div className="sintesi-slide-presenza-wrap">
-                    <FamiglieDonut
-                      data={totalScoreRadarData}
-                      activeFamilyKey={hoveredFamilyKey || activeDetailFamily?.familyKey}
-                      onFamilyHover={setHoveredFamilyKey}
-                      onFamilySelect={(key) => {
-                        const radarItem = totalScoreRadarData.find((d) => d.familyKey === key)
-                        if (radarItem) setActiveDetailFamily(radarItem)
-                      }}
-                    />
-                    <div className="sintesi-correnti__data">
-                      <div className="sintesi-correnti__data-head">
-                        <div className="sintesi-correnti__data-head-copy">
-                          <span className="sintesi-correnti__kicker">{SINTESI_UI.distribuzioneTitle}</span>
-                          {SINTESI_UI.distribuzioneOrderLabel ? (
-                            <p className="sintesi-correnti__data-order">
-                              {SINTESI_UI.distribuzioneOrderLabel}
-                            </p>
-                          ) : null}
-                          {SINTESI_UI.distribuzioneCaption ? (
-                            <p className="sintesi-correnti__data-caption">{SINTESI_UI.distribuzioneCaption}</p>
-                          ) : null}
-                        </div>
-                      </div>
-                      <ul className="sintesi-correnti__list sintesi-correnti__order-bars">
-                        {ordered.map((c, i) => {
-                          const peso = Number(c.peso) || 0
-                          const barColor = c.color
-                          const label = familyPresenceLabel(c)
-                          const fillTransition = prefersReducedMotion
-                            ? { duration: 0 }
-                            : {
-                                type: 'spring',
-                                stiffness: 90,
-                                damping: 18,
-                                delay: i * 0.12,
-                              }
-                          const isActive = activeDetailFamily?.familyKey === c.familyKey
-                          return (
-                            <li
-                              className={`sintesi-correnti__row${isActive ? ' sintesi-correnti__row--active' : ''}`}
-                              key={`${c.nome}-${c._idx}`}
-                              tabIndex={0}
-                              role="button"
-                              aria-label={`Rango ${i + 1}: natura ${label.title}, presenza ${pctAttivazione(peso)}`}
-                              onClick={() => {
-                                const radarItem = totalScoreRadarData.find((d) => d.familyKey === c.familyKey)
-                                if (radarItem) setActiveDetailFamily(radarItem)
-                              }}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter' || e.key === ' ') {
-                                  e.preventDefault()
-                                  const radarItem = totalScoreRadarData.find((d) => d.familyKey === c.familyKey)
-                                  if (radarItem) setActiveDetailFamily(radarItem)
-                                }
-                              }}
-                              style={{ cursor: 'pointer', borderRadius: '6px', padding: '0.25rem 0.5rem', transition: 'background-color 0.2s ease' }}
-                            >
-                              <span className="sintesi-correnti__rank" aria-hidden="true">
-                                {String(i + 1).padStart(2, '0')}
-                              </span>
-                              <span
-                                className="sintesi-correnti__dot"
-                                style={{ backgroundColor: barColor }}
-                                aria-hidden
-                              />
-                              <span className="sintesi-correnti__row-name">
-                                <span className="sintesi-correnti__row-macro">
-                                  {label.title}
-                                  {i === 0 && (
-                                    <span className="sintesi-correnti__dominant-badge">NATURA PREVALENTE</span>
-                                  )}
-                                </span>
-                                {label.detail ? (
-                                  <span className="sintesi-correnti__row-temp">{label.detail}</span>
-                                ) : null}
-                              </span>
-                              <span className="sintesi-correnti__bar-track">
-                                <motion.span
-                                  className="sintesi-correnti__bar-fill"
-                                  style={{ backgroundColor: barColor }}
-                                  initial={prefersReducedMotion ? false : { width: '0%' }}
-                                  whileInView={{ width: `${Math.min(100, Math.max(0, peso))}%` }}
-                                  viewport={viewport}
-                                  transition={fillTransition}
-                                />
-                              </span>
-                              <span
-                                className="sintesi-correnti__row-pct"
-                                title={REPORT_CRITERION.attivazione}
-                              >
-                                <span className="sintesi-correnti__row-pct-label" aria-hidden="true">
-                                  {REPORT_CRITERION.attivazioneShort}
-                                </span>
-                                <span className="sr-only">{REPORT_CRITERION.attivazione}: </span>
-                                {pctAttivazione(peso)}
-                              </span>
-                            </li>
-                          )
-                        })}
-                      </ul>
-                      {renderDetailPanel()}
-                    </div>
-                  </div>
-                )}
-
-                {desktopSlideIndex === 1 && (
                   <div className="sintesi-slide-single-chart">
                     <div className="sintesi-correnti__total-radar" style={{ width: '100%', maxWidth: 580 }}>
                       <ReportRadarChart
@@ -1187,7 +1069,7 @@ export default function SintesiCorrenti({
                   </div>
                 )}
 
-                {desktopSlideIndex === 2 && (
+                {desktopSlideIndex === 1 && (
                   <div className="sintesi-slide-single-chart">
                     <div style={{ width: '100%', maxWidth: 580, height: 420 }}>
                       <EmotionalShape 
@@ -1205,7 +1087,7 @@ export default function SintesiCorrenti({
                   </div>
                 )}
 
-                {desktopSlideIndex === 3 && (
+                {desktopSlideIndex === 2 && (
                   <div className="sintesi-slide-single-chart" style={{ width: '100%', maxWidth: 640 }}>
                     {familySottocorrenti.length > 0 ? (
                       <div className="sintesi-correnti__subcurrents" style={{ width: '100%', marginTop: 0 }}>
@@ -1256,7 +1138,7 @@ export default function SintesiCorrenti({
                   </div>
                 )}
 
-                {desktopSlideIndex === 4 && (
+                {desktopSlideIndex === 3 && (
                   <div className="sintesi-slide-single-chart" style={{ width: '100%' }}>
                     <PercorsoRisposte record={rawRecord} />
                   </div>
