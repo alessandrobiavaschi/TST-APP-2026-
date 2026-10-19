@@ -17117,6 +17117,19 @@ a:focus-visible {
   box-shadow: var(--tst-shadow-card, 0 8px 32px rgba(0, 0, 0, 0.36));
 }
 
+/* Hero di sezione (Risultati, Scopri il TST, Info): vetro più leggero e testo chiaro */
+.info-hero-card.section-hero-card {
+  background: var(--tst-color-bg-surface-subtle, rgba(13, 17, 26, 0.55));
+}
+
+.info-hero-card .section-hero-title {
+  color: var(--tst-color-text-primary, #f8fafc);
+}
+
+.info-hero-card .section-hero-subtitle {
+  color: var(--tst-color-text-secondary, rgba(248, 250, 252, 0.82));
+}
+
 /* Contrasto testo card "La mia area" su dark acoustic glass */
 .my-area-hero .my-area-eyebrow {
   color: var(--tst-color-accent-system, #38bdf8);
