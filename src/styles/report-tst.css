@@ -5319,7 +5319,6 @@
 }
 
 .report-tst .sintesi-correnti__narrative-p,
-.report-tst .sintesi-correnti__row-name,
 .report-tst .sintesi-correnti__card-value {
   font-family: var(--font-body);
   font-style: normal;

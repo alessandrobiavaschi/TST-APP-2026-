@@ -9,9 +9,7 @@ import { normalizeFamigliaName } from '../../content/reportRestitution.js'
 import { FAMILY_THEME } from '../../config/reportFamilyTheme.js'
 import { GlossaryLink } from './ReportGlossaryDrawer.jsx'
 import InfoTip from './InfoTip.jsx'
-import CalculationDisclosure from './CalculationDisclosure.jsx'
 import PercorsoRisposte from './PercorsoRisposte.jsx'
-import FamiglieDonut from './FamiglieDonut.jsx'
 import MobileChartsViewer from './MobileChartsViewer.jsx'
 import { buildProgressiveContentViewModel } from '../../utils/buildProgressiveContentViewModel.js'
 import { NATURE as NATURE_TST } from '../../config/tstSistema.js'
@@ -383,7 +381,6 @@ function familyPresenceLabel(item = {}, fallbackFamily = '') {
 function familySectionIntro() {
   return [
     'Il tuo profilo non è fatto da una sola famiglia: esplora come si compone il tuo profilo emotivo tramite i grafici.',
-    'Troverai le percentuali di presenza delle cinque famiglie nel tuo profilo, dalla più alta alla più bassa.',
   ]
 }
 
@@ -522,59 +519,6 @@ export default function SintesiCorrenti({
     }
   }, [totalScoreRadarData, famiglia, activeDetailFamily])
 
-  const renderDetailPanel = () => {
-    if (!activeDetailFamily) return null
-    const familyColorMap = {
-      verde: colors.famiglie.verde.hex,
-      blu: colors.famiglie.blu.hex,
-      rosso: colors.famiglie.rosso.hex,
-      giallo: colors.famiglie.giallo.hex,
-      grigio: colors.famiglie.grigio.hex,
-    }
-    const activeKey = hoveredFamilyKey || activeDetailFamily.familyKey
-    const activeItem = totalScoreRadarData.find(d => d.familyKey === activeKey) || activeDetailFamily
-    const accent = familyColorMap[activeItem.familyKey] || colors.famiglie.grigio.hex
-    return (
-      <div className="sintesi-correnti__information" style={{ '--panel-accent': accent }}>
-        <CalculationDisclosure label="Come leggere dati e punteggi">
-          <p className="calculation-disclosure__intro">
-            Qui trovi i valori della famiglia selezionata e il modo in cui vengono letti nel report.
-          </p>
-          <div className="detail-panel__metrics-grid">
-            <div className="detail-panel__metric-card">
-              <span className="detail-panel__metric-label">Risonanza nel profilo</span>
-              <span className="detail-panel__metric-value">{activeItem.distributionPercent}%</span>
-            </div>
-            <div className="detail-panel__metric-card">
-              <span className="detail-panel__metric-label">Scala del grafico</span>
-              <span className="detail-panel__metric-value">{activeItem.valore} <span className="detail-panel__metric-val-max">/ 7</span></span>
-            </div>
-            <div className="detail-panel__metric-card">
-              <span className="detail-panel__metric-label">Punti ottenuti</span>
-              <span className="detail-panel__metric-value">{activeItem.rawValue} <span className="detail-panel__metric-val-max">pt</span></span>
-            </div>
-          </div>
-          <details className="sintesi-correnti__calculation-menu">
-            <summary>Come si calcolano questi dati?</summary>
-            <div className="calculation-disclosure__formula">
-              <span className="formula-header">DALLE RISPOSTE AI VALORI DEL GRAFICO</span>
-              <p className="formula-explanation">
-                Ogni risposta assegna punti a una corrente emotiva; i punti delle correnti della stessa famiglia vengono poi sommati. Alcuni passaggi del test hanno un peso maggiore, come previsto dal metodo.
-              </p>
-              <code className="formula-code">
-                Risonanza = (Punti della famiglia / Punti totali) * 100
-                Scala = (Punti della famiglia / Punteggio più alto del profilo) * 7
-              </code>
-              <p className="formula-explanation">
-                La risonanza mostra quanto una famiglia è presente nell'insieme del profilo: le cinque percentuali sommano a 100%. La scala 1-7 serve invece a confrontare visivamente le famiglie: quella con più punti vale 7 e le altre sono proporzionate a quel valore.
-              </p>
-            </div>
-          </details>
-        </CalculationDisclosure>
-      </div>
-    )
-  }
-
   const briefSummary = buildBriefSummary({
     familyName: dominantFamilyName,
     sottodisposizione,
@@ -706,19 +650,6 @@ export default function SintesiCorrenti({
             />
           ),
         },
-        {
-          id: 'ciambella',
-          title: 'Presenza nel profilo',
-          caption: 'Le cinque famiglie come parti di un intero, in percentuale.',
-          content: (
-            <FamiglieDonut
-              data={totalScoreRadarData}
-              activeFamilyKey={hoveredFamilyKey || activeDetailFamily?.familyKey}
-              onFamilyHover={setHoveredFamilyKey}
-              onFamilySelect={selectFamilyByKey}
-            />
-          ),
-        },
       ]
     : []
 
@@ -796,60 +727,6 @@ export default function SintesiCorrenti({
             </div>
           </div>
 
-          <ul className="sintesi-mobile-bars-list">
-            {ordered.map((c, i) => {
-              const peso = Number(c.peso) || 0
-              const barColor = c.color
-              const label = familyPresenceLabel(c)
-              const isActive = activeDetailFamily?.familyKey === c.familyKey
-              return (
-                <li
-                  className={`sintesi-mobile-bar-row${isActive ? ' sintesi-mobile-bar-row--active' : ''}`}
-                  key={`bar-${c.nome}-${c._idx}`}
-                  tabIndex={0}
-                  role="button"
-                  aria-label={`Rango ${i + 1}: natura ${label.title}, presenza ${pctAttivazione(peso)}`}
-                  onClick={() => {
-                    const radarItem = totalScoreRadarData.find(d => d.familyKey === c.familyKey)
-                    if (radarItem) setActiveDetailFamily(radarItem)
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault()
-                      const radarItem = totalScoreRadarData.find(d => d.familyKey === c.familyKey)
-                      if (radarItem) setActiveDetailFamily(radarItem)
-                    }
-                  }}
-                  style={{ cursor: 'pointer', borderRadius: '6px', padding: '0.25rem 0.5rem', transition: 'background-color 0.2s ease' }}
-                >
-                  <div className="sintesi-mobile-bar-row-info">
-                    <div className="sintesi-mobile-bar-row-left">
-                      <span className="sintesi-mobile-bar-rank">{String(i + 1).padStart(2, '0')}</span>
-                      <span className="sintesi-mobile-bar-dot" style={{ backgroundColor: barColor }} />
-                      <span className="sintesi-mobile-bar-name">
-                        <strong>{label.title}</strong>
-                        {i === 0 && (
-                          <span className="sintesi-correnti__dominant-badge">NATURA PREVALENTE</span>
-                        )}
-                      </span>
-                    </div>
-                    <span className="sintesi-mobile-bar-pct">Presenza {pctAttivazione(peso)}</span>
-                  </div>
-                  <div className="sintesi-mobile-bar-track">
-                    <motion.div
-                      className="sintesi-mobile-bar-fill"
-                      style={{ backgroundColor: barColor }}
-                      initial={prefersReducedMotion ? false : { width: '0%' }}
-                      whileInView={{ width: `${Math.min(100, Math.max(0, peso))}%` }}
-                      viewport={viewport}
-                      transition={prefersReducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 90, damping: 18, delay: i * 0.1 }}
-                    />
-                  </div>
-                </li>
-              )
-            })}
-          </ul>
-
           {/* Sottocorrenti */}
           {summarySottocorrenti.length > 0 ? (
           <div className="sintesi-mobile-subcurrents">
@@ -916,7 +793,6 @@ export default function SintesiCorrenti({
             slides={mobileChartSlides}
             accentColor={accentColor}
           />
-          {renderDetailPanel()}
         </div>
         </div>
       </section>
@@ -1065,7 +941,6 @@ export default function SintesiCorrenti({
                         }}
                       />
                     </div>
-                    {renderDetailPanel()}
                   </div>
                 )}
 
@@ -1083,7 +958,6 @@ export default function SintesiCorrenti({
                         onFamilyHover={setHoveredFamilyKey}
                       />
                     </div>
-                    {renderDetailPanel()}
                   </div>
                 )}
 
