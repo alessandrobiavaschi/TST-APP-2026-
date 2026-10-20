@@ -569,6 +569,28 @@ export default function SintesiCorrenti({
 
   const summarySottocorrenti = familySottocorrenti
 
+  // Slide «Nature»: le correnti di TUTTE le famiglie, raggruppate per famiglia.
+  // Ordine: prevalente per prima, poi le altre per peso decrescente nel profilo.
+  const natureGroups = (() => {
+    const byFamily = new Map()
+    ;(Array.isArray(sottocorrenti) ? sottocorrenti : []).forEach((sub) => {
+      const fam = normalizeFamigliaName(sub?.familyName)
+      if (!byFamily.has(fam)) byFamily.set(fam, [])
+      byFamily.get(fam).push(sub)
+    })
+    const pesoOf = (fam) => Number(ordered.find((o) => normalizeFamigliaName(o.family) === fam)?.peso) || 0
+    return [...byFamily.entries()]
+      .map(([fam, subs]) => ({
+        family: fam,
+        title: familyPresenceLabel({ familyName: fam }, fam).title,
+        peso: pesoOf(fam),
+        isDominant: fam === dominantFamilyName,
+        subs: [...subs].sort((a, b) =>
+          (Number(b.percentuale) || 0) - (Number(a.percentuale) || 0) || (Number(b.valore) || 0) - (Number(a.valore) || 0)),
+      }))
+      .sort((a, b) => (b.isDominant - a.isDominant) || (b.peso - a.peso) || (FAMILY_ORDER.indexOf(a.family) - FAMILY_ORDER.indexOf(b.family)))
+  })()
+
   const sottocorrenteDisplayName = (nome) => {
     if (nome === 'Lunare') return 'Caratteristica Lunare'
     if (nome === 'Nostalgia' || nome === 'Nostalgica' || nome === 'Nostalgico') return 'Nostalgica'
@@ -595,14 +617,14 @@ export default function SintesiCorrenti({
       tabLabel: 'Forma Emotiva',
       badge: '02 / 04 · Geometria',
       title: 'La Geometria Emotiva',
-      subtitle: 'Rappresentazione topologica delle tensioni e delle densità tra le energie emotive.',
+      subtitle: 'Mappa della silhouette emotiva: l\'estensione dei petali indica l\'intensità (scala 1–7), mentre il nucleo centrale ne rappresenta l\'equilibrio armonico.',
     },
     {
       id: 'nature',
       tabLabel: 'Nature',
       badge: '03 / 04 · Nature',
-      title: `Correnti e Nature della famiglia ${dominantPresenceLabel.title.toLowerCase()}`,
-      subtitle: 'Nature (caratteristiche emotive) specifiche che definiscono meglio la famiglia prevalente.',
+      title: 'Correnti e Nature di tutte le famiglie',
+      subtitle: `Le nature (caratteristiche emotive) di ogni famiglia. Prima la prevalente, ${dominantPresenceLabel.title}, poi le altre per peso nel profilo.`,
     },
     {
       id: 'percorso',
@@ -639,11 +661,11 @@ export default function SintesiCorrenti({
         {
           id: 'forma',
           title: 'Forma emotiva',
-          caption: 'Le cinque famiglie convivono nello stesso spazio: più una è presente, più è grande.',
+          caption: 'La silhouette delle tue energie: l\'estensione dei petali indica l\'intensità (scala 1–7), mentre il nucleo centrale ne rappresenta l\'equilibrio armonico.',
           content: (
             <EmotionalShape
               familiesData={ordered}
-              height="min(64vh, 560px)"
+              height="min(68vh, 580px)"
               activeFamilyKey={hoveredFamilyKey || activeDetailFamily?.familyKey}
               onFamilySelect={selectFamilyByKey}
               onFamilyHover={setHoveredFamilyKey}
@@ -946,7 +968,7 @@ export default function SintesiCorrenti({
 
                 {desktopSlideIndex === 1 && (
                   <div className="sintesi-slide-single-chart">
-                    <div style={{ width: '100%', maxWidth: 580, height: 420 }}>
+                    <div style={{ width: '100%', maxWidth: 640, minHeight: 480 }}>
                       <EmotionalShape 
                         familiesData={ordered} 
                         height="100%"
@@ -962,47 +984,53 @@ export default function SintesiCorrenti({
                 )}
 
                 {desktopSlideIndex === 2 && (
-                  <div className="sintesi-slide-single-chart" style={{ width: '100%', maxWidth: 640 }}>
-                    {familySottocorrenti.length > 0 ? (
-                      <div className="sintesi-correnti__subcurrents" style={{ width: '100%', marginTop: 0 }}>
-                        <div className="sintesi-correnti__subcurrents-head">
-                          <span className="sintesi-correnti__subcurrents-title">
-                            Correnti della famiglia {dominantPresenceLabel.title.toLowerCase()}
-                          </span>
-                          <span className="sintesi-correnti__subcurrents-count">
-                            {familySottocorrenti.length}
-                          </span>
-                        </div>
-                        <p className="sintesi-correnti__subcurrents-caption">
-                          Nature (caratteristiche emotive) specifiche che definiscono meglio la famiglia prevalente.
-                        </p>
-                        <ul className="sintesi-correnti__subcurrents-list">
-                          {familySottocorrenti.map((sub) => (
-                            <li key={sub.rawKey} className="sintesi-correnti__subcurrent">
-                              <div className="sintesi-correnti__subcurrent-info">
-                                <span
-                                  className="sintesi-correnti__subcurrent-dot"
-                                  style={{ backgroundColor: sub.colore }}
-                                  aria-hidden="true"
-                                />
-                                <span className="sintesi-correnti__subcurrent-name">{sottocorrenteDisplayName(sub.nome)}</span>
-                                <span className="sintesi-correnti__subcurrent-value" title={sub.misurabile !== false ? REPORT_CRITERION.attivazione : "Non misurabile nel test"}>
-                                  {sub.misurabile !== false ? pctAttivazione(sub.percentuale) : 'N.D.'}
-                                </span>
-                              </div>
-                              <div className="sintesi-correnti__subcurrent-track">
-                                <motion.div
-                                  className="sintesi-correnti__subcurrent-fill"
-                                  style={{ backgroundColor: sub.colore }}
-                                  initial={prefersReducedMotion ? false : { width: '0%' }}
-                                  whileInView={{ width: `${sub.misurabile !== false ? Math.min(100, Math.max(0, sub.percentuale)) : 0}%` }}
-                                  viewport={viewport}
-                                  transition={{ duration: 0.5, ease: "easeOut" }}
-                                />
-                              </div>
-                            </li>
-                          ))}
-                        </ul>
+                  <div className="sintesi-slide-single-chart" style={{ width: '100%' }}>
+                    {natureGroups.length > 0 ? (
+                      <div className="sintesi-correnti__nature-grid">
+                        {natureGroups.map((group) => (
+                          <div
+                            key={group.family}
+                            className={`sintesi-correnti__subcurrents${group.isDominant ? ' is-dominant' : ''}`}
+                            style={{ width: '100%', marginTop: 0, '--nature-accent': FAMILY_REF[group.family]?.color }}
+                          >
+                            <div className="sintesi-correnti__subcurrents-head">
+                              <span className="sintesi-correnti__subcurrents-title">
+                                {group.title}
+                                {group.isDominant ? <span className="sintesi-correnti__nature-tag">prevalente</span> : null}
+                              </span>
+                              <span className="sintesi-correnti__subcurrents-count" title="Peso della famiglia sul totale del profilo">
+                                {Math.round(group.peso)}%
+                              </span>
+                            </div>
+                            <ul className="sintesi-correnti__subcurrents-list">
+                              {group.subs.map((sub) => (
+                                <li key={sub.rawKey} className="sintesi-correnti__subcurrent">
+                                  <div className="sintesi-correnti__subcurrent-info">
+                                    <span
+                                      className="sintesi-correnti__subcurrent-dot"
+                                      style={{ backgroundColor: sub.colore }}
+                                      aria-hidden="true"
+                                    />
+                                    <span className="sintesi-correnti__subcurrent-name">{sottocorrenteDisplayName(sub.nome)}</span>
+                                    <span className="sintesi-correnti__subcurrent-value" title={sub.misurabile !== false ? REPORT_CRITERION.attivazione : "Non misurabile nel test"}>
+                                      {sub.misurabile !== false ? pctAttivazione(sub.percentuale) : 'N.D.'}
+                                    </span>
+                                  </div>
+                                  <div className="sintesi-correnti__subcurrent-track">
+                                    <motion.div
+                                      className="sintesi-correnti__subcurrent-fill"
+                                      style={{ backgroundColor: sub.colore }}
+                                      initial={prefersReducedMotion ? false : { width: '0%' }}
+                                      whileInView={{ width: `${sub.misurabile !== false ? Math.min(100, Math.max(0, sub.percentuale)) : 0}%` }}
+                                      viewport={viewport}
+                                      transition={{ duration: 0.5, ease: "easeOut" }}
+                                    />
+                                  </div>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ))}
                       </div>
                     ) : (
                       <p style={{ color: 'rgba(248, 250, 252, 0.7)', textAlign: 'center', padding: '2rem 1rem' }}>

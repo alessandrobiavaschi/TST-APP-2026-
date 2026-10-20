@@ -760,6 +760,85 @@
   color: rgba(226, 232, 240, 0.55);
 }
 
+/* Card interpretativa dinamica della Silhouette Emotiva */
+.emotional-shape-insight {
+  margin: 0.85rem auto 0;
+  width: 100%;
+  max-width: 32rem;
+  padding: 0.75rem 1rem;
+  border-radius: 14px;
+  background: rgba(13, 19, 32, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-left: 3px solid var(--insight-color, #38bdf8);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(12px);
+  transition: border-color 0.25s ease, background-color 0.25s ease;
+}
+
+.emotional-shape-insight__header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.emotional-shape-insight__dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  flex: none;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.emotional-shape-insight__badge {
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.emotional-shape-insight__score {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--insight-color, #38bdf8);
+}
+
+.emotional-shape-insight__polarity {
+  margin-left: auto;
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--insight-color, #38bdf8) 15%, transparent);
+  color: var(--insight-color, #38bdf8);
+}
+
+.emotional-shape-insight__desc {
+  margin: 0;
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: rgba(248, 250, 252, 0.82);
+}
+
+/* Stili SVG per ancore dirette e asse radiale */
+.emotional-shape-onchart-label {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+}
+
+.emotional-shape-onchart-label:hover,
+.emotional-shape-onchart-label:focus-visible {
+  filter: brightness(1.15);
+}
+
+.emotional-shape-onchart-label.is-active rect {
+  stroke-width: 2px;
+}
+
 .sintesi-correnti__radar-caption {
   margin: 0 0 0.75rem;
   font-size: 0.82rem;
@@ -1682,3 +1761,44 @@
   box-shadow: 0 0 8px var(--sc-accent, #38bdf8);
 }
 
+
+/* Slide «Nature»: una scheda per ogni famiglia */
+.sintesi-correnti__nature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+  gap: 0.85rem;
+  width: 100%;
+  align-items: start;
+}
+
+.sintesi-correnti__nature-grid .sintesi-correnti__subcurrents {
+  border-top: 3px solid var(--nature-accent, rgba(255, 255, 255, 0.14));
+}
+
+.sintesi-correnti__nature-grid .sintesi-correnti__subcurrents.is-dominant {
+  border-color: var(--nature-accent, rgba(255, 255, 255, 0.3));
+  background: rgba(7, 13, 27, 0.6);
+}
+
+.sintesi-correnti__nature-grid .sintesi-correnti__subcurrents-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--nature-accent, var(--sc-muted));
+  font-size: 0.85rem;
+}
+
+.sintesi-correnti__nature-tag {
+  padding: 0.1rem 0.45rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.sintesi-correnti__nature-grid .sintesi-correnti__subcurrents-count {
+  min-width: 2.6rem;
+  padding: 0 0.4rem;
+}
