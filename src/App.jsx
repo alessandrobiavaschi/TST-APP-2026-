@@ -29,6 +29,10 @@ import { reloadPage } from './utils/loaderTiming.js'
 import './styles/app-shell.css'
 import './App.css'
 import './styles/tst-mobile.css'
+// CSS della landing nel foglio principale (bloccante nel <head>): se arriva col chunk lazy,
+// Safari a cache fredda disegna per un attimo titolo e intro senza stile (testo minuscolo in Times).
+import './styles/landing-intro-rackfocus.css'
+import './styles/landing-nebula.css'
 
 const LandingPage = lazy(() => import('./pages/LandingPage.jsx'))
 const HomePage = lazy(() => import('./pages/HomePage.jsx'))

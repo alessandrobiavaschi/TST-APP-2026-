@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react'
-import '../../styles/landing-intro-rackfocus.css'
 import { markLandingIntroSeen } from './landingIntroStorage.js'
 
 /**
