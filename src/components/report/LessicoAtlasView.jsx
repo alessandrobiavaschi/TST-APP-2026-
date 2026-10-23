@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect, useLayoutEffect, useMemo } from 'react'
 import { GALAXY_THEORY_BY_DISPOSITION } from '../../config/galaxyTheoryContent.ts'
 import { FAMIGLIE_TST } from '../../content/paroleTst.js'
-import { useUiSounds } from '../../UiSoundProvider.jsx'
 
 // ─── Virtual World Dimensions ────────────────────────────────────────────────
 const WORLD_WIDTH = 3400
@@ -643,190 +642,6 @@ function buildConstellationData() {
 const CONSTELLATION_DATA = buildConstellationData()
 const ATLAS_WORDS = CONSTELLATION_DATA.words
 
-// ─── TST Web Audio Harmonic Synthesizer ──────────────────────────────────────
-const INTERVAL_SEMITONES = {
-  'unisono': 0,
-  'seconda minore': 1,
-  'seconda maggiore': 2,
-  'terza minore': 3,
-  'terza maggiore': 4,
-  'quarta giusta': 5,
-  'tritono': 6,
-  'quinta diminuita': 6,
-  'quinta giusta': 7,
-  'sesta minore': 8,
-  'sesta maggiore': 9,
-  'settima minore': 10,
-  'settima maggiore': 11,
-  'ottava': 12,
-}
-
-const FAMILY_BASE_FREQS = {
-  malinconica_nostalgica: 220,   // La (A3)
-  collerico_volitiva: 330,       // Mi (E4)
-  flemmatica: 261.63,            // Do (C4)
-  entusiasmo: 392,               // Sol (G4)
-  agnostica_anaffettiva: 293.66, // Re (D4)
-}
-
-let atlasAudioCtx = null
-function getAtlasAudioContext() {
-  if (typeof window === 'undefined') return null
-  const AudioCtx = window.AudioContext || window.webkitAudioContext
-  if (!AudioCtx) return null
-  if (!atlasAudioCtx) {
-    atlasAudioCtx = new AudioCtx()
-  }
-  if (atlasAudioCtx.state === 'suspended') {
-    atlasAudioCtx.resume().catch(() => {})
-  }
-  return atlasAudioCtx
-}
-
-function playHarmonicChime(intervalName, familyId, isSoundEnabled) {
-  if (!isSoundEnabled) return
-  const ctx = getAtlasAudioContext()
-  if (!ctx) return
-
-  const f1 = FAMILY_BASE_FREQS[familyId] || 261.63
-  const norm = (intervalName || '').toLowerCase().trim()
-  let semitones = 7
-  for (const [key, val] of Object.entries(INTERVAL_SEMITONES)) {
-    if (norm.includes(key)) {
-      semitones = val
-      break
-    }
-  }
-  const f2 = f1 * Math.pow(2, semitones / 12)
-
-  const now = ctx.currentTime
-  const duration = 0.35
-
-  try {
-    const osc1 = ctx.createOscillator()
-    const osc2 = ctx.createOscillator()
-    const gain1 = ctx.createGain()
-    const gain2 = ctx.createGain()
-
-    osc1.type = 'sine'
-    osc1.frequency.setValueAtTime(f1, now)
-    gain1.gain.setValueAtTime(0.0001, now)
-    gain1.gain.linearRampToValueAtTime(0.12, now + 0.02)
-    gain1.gain.exponentialRampToValueAtTime(0.0001, now + duration)
-
-    osc2.type = 'triangle'
-    osc2.frequency.setValueAtTime(f2, now + 0.035)
-    gain2.gain.setValueAtTime(0.0001, now)
-    gain2.gain.setValueAtTime(0.0001, now + 0.035)
-    gain2.gain.linearRampToValueAtTime(0.09, now + 0.055)
-    gain2.gain.exponentialRampToValueAtTime(0.0001, now + duration)
-
-    osc1.connect(gain1)
-    gain1.connect(ctx.destination)
-    osc2.connect(gain2)
-    gain2.connect(ctx.destination)
-
-    osc1.start(now)
-    osc2.start(now + 0.035)
-    osc1.stop(now + duration + 0.05)
-    osc2.stop(now + duration + 0.05)
-  } catch {
-    // ignore audio context errors
-  }
-}
-
-// ─── Mini-Oscilloscopio Audio Waveform ───────────────────────────────────────
-function OscilloscopeCanvas({ intervalName, familyColor }) {
-  const canvasRef = useRef(null)
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return undefined
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return undefined
-
-    const norm = (intervalName || '').toLowerCase().trim()
-    let semitones = 7
-    for (const [key, val] of Object.entries(INTERVAL_SEMITONES)) {
-      if (norm.includes(key)) {
-        semitones = val
-        break
-      }
-    }
-
-    let animId = null
-    let t = 0
-    const color = familyColor || '#38bdf8'
-
-    const render = () => {
-      t += 0.04
-      const w = canvas.width
-      const h = canvas.height
-      ctx.clearRect(0, 0, w, h)
-
-      // Zero-crossing central guide
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)'
-      ctx.lineWidth = 1
-      ctx.beginPath()
-      ctx.moveTo(0, h / 2)
-      ctx.lineTo(w, h / 2)
-      ctx.stroke()
-
-      // Primary sine wave (fundamental)
-      ctx.save()
-      ctx.strokeStyle = color
-      ctx.lineWidth = 2
-      ctx.shadowColor = color
-      ctx.shadowBlur = 8
-      ctx.beginPath()
-      const midY = h / 2
-      const amp1 = 12
-      const freq1 = 0.038
-      for (let x = 0; x < w; x++) {
-        const y = midY + Math.sin(x * freq1 + t) * amp1
-        if (x === 0) ctx.moveTo(x, y)
-        else ctx.lineTo(x, y)
-      }
-      ctx.stroke()
-      ctx.restore()
-
-      // Secondary harmonic wave (interval ratio)
-      ctx.save()
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)'
-      ctx.lineWidth = 1.2
-      ctx.shadowColor = '#ffffff'
-      ctx.shadowBlur = 4
-      ctx.beginPath()
-      const amp2 = 7.5
-      const freq2 = 0.038 * (1 + semitones / 12)
-      for (let x = 0; x < w; x++) {
-        const y = midY + Math.sin(x * freq2 - t * 1.25) * amp2
-        if (x === 0) ctx.moveTo(x, y)
-        else ctx.lineTo(x, y)
-      }
-      ctx.stroke()
-      ctx.restore()
-
-      animId = requestAnimationFrame(render)
-    }
-
-    animId = requestAnimationFrame(render)
-    return () => {
-      if (animId) cancelAnimationFrame(animId)
-    }
-  }, [intervalName, familyColor])
-
-  return (
-    <canvas
-      ref={canvasRef}
-      width={280}
-      height={48}
-      className="lessico-holo-slate__oscilloscope"
-      aria-hidden="true"
-    />
-  )
-}
-
 // ─── Floating Holographic Slate (Cyber-Astronomy & GTA VI Style) ────────────
 function FloatingHolographicSlate({ word, onClose, onSelectWord, viewModel }) {
   const closeButtonRef = useRef(null)
@@ -912,21 +727,6 @@ function FloatingHolographicSlate({ word, onClose, onSelectWord, viewModel }) {
             </div>
           ) : null}
 
-          {/* Suono dell'intervallo della natura (dal PDF), se indicato */}
-          {word.subcurrentInterval ? (
-            <div className="lessico-holo-slate__scope-wrap">
-              <div className="lessico-holo-slate__scope-header">
-                <span className="lessico-holo-slate__scope-title">
-                  INTERVALLO // {word.subcurrentInterval.toUpperCase()}
-                </span>
-              </div>
-              <OscilloscopeCanvas
-                intervalName={word.subcurrentInterval}
-                familyColor={word.color || meta?.baseColor}
-              />
-            </div>
-          ) : null}
-
           <dl className="lessico-holo-slate__specs">
             <div className="lessico-holo-slate__spec-row">
               <dt>FAMIGLIA</dt>
@@ -943,12 +743,6 @@ function FloatingHolographicSlate({ word, onClose, onSelectWord, viewModel }) {
               <dt>NATURA</dt>
               <dd>{word.subcurrentTitle}</dd>
             </div>
-            {word.subcurrentInterval ? (
-              <div className="lessico-holo-slate__spec-row">
-                <dt>INTERVALLO</dt>
-                <dd>{word.subcurrentInterval}</dd>
-              </div>
-            ) : null}
             {dynamicWordInfo?.fileKeys && dynamicWordInfo.fileKeys.length > 0 && (
               <div className="lessico-holo-slate__spec-row">
                 <dt>NEL TEST</dt>
@@ -1153,7 +947,6 @@ export default function LessicoAtlasView({
   isMobile = false,
   viewModel = null,
 }) {
-  const uiSounds = useUiSounds()
   const [selectedWord, setSelectedWord] = useState(null)
   const [hoveredWordId, setHoveredWordId] = useState(null)
   const [hoveredWord, setHoveredWord] = useState(null)
@@ -1388,11 +1181,8 @@ export default function LessicoAtlasView({
         setShockwave(null)
         setShockwaveActiveIds(new Set())
       }, 450)
-
-      // 3. Audio harmonic chime
-      playHarmonicChime(word.subcurrentInterval, word.familyId, uiSounds.enabled)
     },
-    [focusWord, uiSounds.enabled],
+    [focusWord],
   )
 
   // Intelligent search: auto fly-to matching word
@@ -2702,11 +2492,6 @@ export default function LessicoAtlasView({
                     ? ` · ${userPercentages[ATLAS_FAMILY_KEY_BY_ID[hoveredWord.familyId]]}%`
                     : ''}
                 </span>
-                {hoveredWord.subcurrentInterval && (
-                  <span className="lessico-atlas__tooltip-interval">
-                    {hoveredWord.subcurrentInterval}
-                  </span>
-                )}
               </div>
               {hoveredWord.keyNote && (
                 <p className="lessico-atlas__tooltip-desc">{hoveredWord.keyNote}</p>

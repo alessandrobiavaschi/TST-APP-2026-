@@ -927,6 +927,7 @@ export default function ReportShell({
             portato={portato}
             colorTotals={colorTotals}
             accentColor={correnteColore}
+            rawRecord={rawRecord}
             onClose={() => changeModalita('report')}
             backButtonRef={musiciansBackButtonRef}
           />

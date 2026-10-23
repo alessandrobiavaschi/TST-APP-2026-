@@ -144,7 +144,7 @@ export const APPROFONDIMENTO_UI = {
     'Seleziona un’area per la lettura completa. I nomi corrispondono alle colonne del grafico sopra.',
   /** @deprecated Usare title/lead */
   intro:
-    'Confronto immediato tra le cinque famiglie emotive in ogni area del test sonoro: Timbro, Intervalli, Ritmo, Melodia e Armonia.',
+    'Confronto immediato tra le cinque famiglie emotive in ogni area del test sonoro: Suono, Distanze tra le note, Ritmo, Melodia e Accordi.',
 }
 
 /**
@@ -154,7 +154,7 @@ export const APPROFONDIMENTO_UI = {
 export const AREA_PLAIN_LABEL = {
   Timbro: 'Suono',
   Intervalli: 'Distanze tra le note',
-  Ritmo: 'Tempo',
+  Ritmo: 'Ritmo',
   Melodia: 'Melodia',
   Armonia: 'Accordi',
 }

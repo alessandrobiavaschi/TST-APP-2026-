@@ -280,7 +280,7 @@ export const SECTION_INTROS = {
   approfondimento: {
     title: 'Dove si accende il profilo, area per area',
     intro:
-      'Il protocollo sonoro si articola in cinque aree — Timbro, Intervalli, Ritmo, Melodia, Armonia — ciascuna attiva dimensioni affettive diverse. Qui vedi se le famiglie restano omogenee o se emergono contrasti tra aree.',
+      'Il protocollo sonoro si articola in cinque aree — Suono, Distanze tra le note, Ritmo, Melodia, Accordi — ciascuna attiva dimensioni affettive diverse. Qui vedi se le famiglie restano omogenee o se emergono contrasti tra aree.',
   },
   parole: {
     intro:

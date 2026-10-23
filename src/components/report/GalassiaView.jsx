@@ -2210,7 +2210,7 @@ function GalassiaCrtPanel({
                   <span>{panel.nome}</span>
                 </h2>
                 <p className="galassia-view__crt-meta">
-                  {[panel.parentNome, panel.intervallo, panel.coloreTST].filter(Boolean).join(' · ')}
+                  {[panel.parentNome, panel.coloreTST].filter(Boolean).join(' · ')}
                 </p>
                 {panel.definizione && (
                   <p className="galassia-view__crt-indica">
@@ -3661,7 +3661,7 @@ export default function GalassiaView({
       const size = fittedSizes[index]
       const trait =
         mapMode === 'parole'
-          ? [sub.intervallo, sub.coloreTST].filter(Boolean).join(' · ')
+          ? (sub.coloreTST || '')
           : Array.isArray(sub.statiDanimo) && sub.statiDanimo[0]
             ? sub.statiDanimo[0]
             : ''
