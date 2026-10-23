@@ -35,8 +35,13 @@ export const FONTE_TEORICA = 'PAROLE PER TST — Franco Mussida, 29 agosto 2026'
  * Versione del modello di punteggio (12 nature, ceste). Ogni nuovo test la
  * salva nel campo `versione_modello`. Va incrementata quando cambiano nature,
  * pesi o regole, così i test già salvati restano leggibili col loro modello.
+ *
+ * 2026_v4 (23/10/2026): regole allineate al documento «TST domanda per domanda»
+ * (23/10/2026, revisione con le colonne «Va bene?»), la fonte più recente.
+ * Dove una fonte tace vale il modello Excel 2025. Le regole delle versioni
+ * precedenti sono in src/utils/testStorici.js.
  */
-export const VERSIONE_MODELLO = '2026_v3'
+export const VERSIONE_MODELLO = '2026_v4'
 
 /** Versione assunta per i test salvati prima che esistesse `versione_modello` (modello a 11 correnti). */
 export const VERSIONE_MODELLO_LEGACY = '2025_v1'
@@ -107,10 +112,15 @@ const N = Object.fromEntries(NATURE.map((n) => [n.id, n.id]))
  * L'ordine delle righe è l'ordine dei bottoni mostrati nel test.
  */
 
+/*
+ * natura null  → la risposta dà punti solo al portato (es. «Mi è indifferente» negli intervalli).
+ * portato null → la risposta dà punti solo alla natura (le affinità: «solo temperamento, no portato»).
+ * entrambi null → nessun punto (dato di conferma).
+ */
 const r = (risposta, naturaId, portato, punti = 1) => Object.freeze({ risposta, natura: naturaId, portato, punti })
 
 export const REGOLE_RISPOSTE = {
-  /** Le 15 sensazioni. Famiglia e portato dal modello Excel 2025 (natura scelta con le parole del PDF). */
+  /** Le 15 sensazioni. Coincidono con «TST domanda per domanda» (23/10/2026, tutte «Va bene? SI») e con il modello Excel 2025. */
   SENSAZIONI: Object.freeze([
     r('Mi dà gioia', N.giallo_entusiasta_gioiosa_solare, 'simpatia'),
     r('Mi inquieta', N.giallo_entusiasta_sanguigna_operosa, 'antipatia'),
@@ -130,27 +140,27 @@ export const REGOLE_RISPOSTE = {
   ]),
 
   /**
-   * Le 15 terzine di aggettivi (passi degli intervalli). Famiglia e portato dal
-   * modello Excel 2025; dove l'Excel e il PDF «Parole per TST» divergono vale il PDF
-   * (Sereno - fiducioso - aperto → Solare; Dinamico - curioso - fluido → Sanguigna;
-   * Inquieto - chiuso - pauroso → Lunare Depressiva).
+   * Le 14 terzine di aggettivi (passi 29–41). Fonte: «TST domanda per domanda»
+   * (23/10/2026), passo 29 con le correzioni della colonna «Se no, cosa cambiare»,
+   * valide per i passi 30–41 («COME 29»). Etichette e assegnazioni coincidono con
+   * il modello Excel 2025. «Sognante - meditativo - ascetico» è segnata «NO» e
+   * non esiste nell'Excel: è tolta (il «sognante» resta nella terzina del Calmo).
    */
   AGGETTIVI: Object.freeze([
     r('Saldo - sicuro - volitivo', N.rosso_marziale_volitiva, 'simpatia'),
-    r('Sognante - meditativo - ascetico', N.verde_flemmatica_calma_contemplativa, 'simpatia'),
-    r('Inquieto - chiuso - pauroso', N.blu_malinconica_lunare_depressiva, 'antipatia'),
-    r('Angosciato - avvilito - sofferente', N.blu_malinconica_lunare_depressiva, 'indifferenza'),
-    r('Sereno - fiducioso - aperto', N.blu_malinconica_solare, 'simpatia'),
-    r('Malinconico - triste - pensieroso', N.blu_malinconica_lunare_introspettiva, 'simpatia'),
-    r('Rabbioso - diffidente - dubbioso', N.rosso_marziale_collerica, 'antipatia'),
+    r('Inquieto - chiuso - pauroso', N.verde_flemmatica_calma_fisica, 'antipatia'),
+    r('Angosciato - ansioso - indifferente', N.blu_malinconica_lunare_depressiva, 'indifferenza'),
+    r('Sereno - fiducioso - aperto', N.giallo_entusiasta_gioiosa_solare, 'simpatia'),
+    r('Malinconico - triste - riflessivo', N.blu_malinconica_lunare_introspettiva, 'simpatia'),
+    r('Arrabbiato - distaccato - dubbioso', N.rosso_marziale_collerica, 'antipatia'),
     r('Ambiguo - incerto - equivoco', N.rosso_marziale_collerica, 'indifferenza'),
-    r('Calmo - prudente - lento', N.verde_flemmatica_calma_fisica, 'simpatia'),
-    r('Gioioso - caloroso - festoso', N.giallo_entusiasta_gioiosa_solare, 'simpatia'),
-    r('Dinamico - curioso - fluido', N.giallo_entusiasta_sanguigna_operosa, 'simpatia'),
-    r('Nostalgico - rimembrante - afflitto', N.blu_malinconica_nostalgica, 'simpatia'),
+    r('Calmo - equilibrato - sognante', N.verde_flemmatica_calma_fisica, 'simpatia'),
+    r('Gioioso - caloroso - entusiasta', N.giallo_entusiasta_gioiosa_solare, 'simpatia'),
+    r('Dinamico - curioso - fluido', N.verde_flemmatica_calma_fisica, 'antipatia'),
+    r('Nostalgico - consolato - afflitto', N.blu_malinconica_nostalgica, 'simpatia'),
     r('Desolato - rimpiangente - abbandonato', N.blu_malinconica_nostalgica, 'antipatia'),
-    r('Illuminato - amorevole - passionale', N.giallo_entusiasta_sanguigna_operosa, 'simpatia', 0), // «conferma» nel modello Excel: nessun punto
-    r('Mi è indifferente', N.grigio_razionale_distaccata, 'indifferenza'),
+    r('Illuminato - amorevole - passionale', null, null, 0), // dato di conferma: nessuna natura, nessun portato
+    r('Mi è indifferente', null, 'indifferenza'), // solo portato
   ]),
 
   /*
@@ -163,7 +173,11 @@ export const REGOLE_RISPOSTE = {
 
 /* ── Affinità: ogni suono → la sua natura ────────────────────────────── */
 /*
- * Fonte: modello Excel 2025 (rev. 11.04.2025), che assegna ogni suono a una
+ * «TST domanda per domanda» (23/10/2026): «Solo TEMPERAMENTO, no PORTATO».
+ * Ogni suono dà punti alla sua natura e a nessun portato (portato: null),
+ * come nel modello Excel, dove queste domande sommano solo le disposizioni.
+ *
+ * Fonte delle nature: modello Excel 2025 (rev. 11.04.2025), che assegna ogni suono a una
  * corrente. L'ordine dei suoni dentro i file 46, 51 e 58 è stato verificato
  * confrontando i riascolti con i file originali (somiglianza ≥ 0,9).
  * Corrispondenza correnti 2025 → nature 2026 (convenzione già in uso):
@@ -172,9 +186,9 @@ export const REGOLE_RISPOSTE = {
  */
 
 const suono = (n, nome, naturaId, punti = 1) =>
-  Object.freeze({ risposta: `opzione${n}`, suono: nome, natura: naturaId, portato: 'simpatia', punti })
+  Object.freeze({ risposta: `opzione${n}`, suono: nome, natura: naturaId, portato: null, punti })
 const nessuna = (punti = 1) =>
-  Object.freeze({ risposta: 'nessuna', suono: 'Nessuna delle 4', natura: N.grigio_razionale_anaffettiva, portato: 'indifferenza', punti })
+  Object.freeze({ risposta: 'nessuna', suono: 'Nessuna delle 4', natura: N.grigio_razionale_anaffettiva, portato: null, punti })
 
 const GIO = N.giallo_entusiasta_gioiosa_solare
 const CAF = N.verde_flemmatica_calma_fisica
@@ -227,40 +241,53 @@ export const RAPPORTI = Object.freeze({
  * audio: numero del file mp3 effettivamente riprodotto.
  */
 
-function tipoDomandaPerPasso(n) {
-  if (n <= 4) return 'AFFINITA_BASE'
-  if (n <= 28) return 'SENSAZIONI'
-  if (n <= 42) return 'AGGETTIVI'
-  if (n === 46) return 'AFFINITA_ECCEZIONE'
-  if (n === 51 || n === 58) return 'AFFINITA_STANDARD'
-  return 'SENSAZIONI'
+/*
+ * Disposizione dei passi. 2026_v4: il passo 42 è il Groove 57 bpm con le 15
+ * sensazioni e peso 2, come i passi 43–45 («TST domanda per domanda»: «titolo
+ * sbagliato… stesse uscite del 43-46 e ogni risposta da 2 punti»; Excel: file 42
+ * Groove 57, 2 punti). Il passo 41 resta la riconferma del 29 (+1 punto).
+ * Fino al 2026_v3 il passo 42 era la riconferma del 40 con gli aggettivi:
+ * quella disposizione serve per rileggere i test salvati allora.
+ */
+function costruisciPassi({ riconferme, passoAggettiviFinale }) {
+  const tipo = (n) => {
+    if (n <= 4) return 'AFFINITA_BASE'
+    if (n <= 28) return 'SENSAZIONI'
+    if (n <= passoAggettiviFinale) return 'AGGETTIVI'
+    if (n === 46) return 'AFFINITA_ECCEZIONE'
+    if (n === 51 || n === 58) return 'AFFINITA_STANDARD'
+    return 'SENSAZIONI'
+  }
+  return Object.freeze(
+    Array.from({ length: 72 }, (_, i) => {
+      const numero = i + 1
+      const sezione = SEZIONI.find((s) => numero >= s.da && numero <= s.a)
+      return Object.freeze({
+        numero,
+        campoDb: `File_${String(numero).padStart(2, '0')}`,
+        sezione: sezione.id,
+        tipoDomanda: tipo(numero),
+        peso: numero >= 42 && numero <= 46 ? 2 : 1,
+        riconferma: numero in riconferme,
+        audio: riconferme[numero] || numero,
+      })
+    }),
+  )
 }
 
-const RICONFERME = Object.freeze({ 41: 29, 42: 40 })
+export const PASSI = costruisciPassi({ riconferme: Object.freeze({ 41: 29 }), passoAggettiviFinale: 41 })
 
-export const PASSI = Object.freeze(
-  Array.from({ length: 72 }, (_, i) => {
-    const numero = i + 1
-    const sezione = SEZIONI.find((s) => numero >= s.da && numero <= s.a)
-    return Object.freeze({
-      numero,
-      campoDb: `File_${String(numero).padStart(2, '0')}`,
-      sezione: sezione.id,
-      tipoDomanda: tipoDomandaPerPasso(numero),
-      peso: numero >= 42 && numero <= 46 ? 2 : 1,
-      riconferma: numero in RICONFERME,
-      audio: RICONFERME[numero] || numero,
-    })
-  }),
-)
+/** Disposizione dei passi fino al modello 2026_v3 (42 = riconferma del 40). Solo per i test storici. */
+export const PASSI_FINO_2026_V3 = costruisciPassi({ riconferme: Object.freeze({ 41: 29, 42: 40 }), passoAggettiviFinale: 42 })
 
 /* ── Punti aperti, da decidere con Mussida ─────────────────────────────── */
 
 export const DA_DECIDERE = Object.freeze([
-  'Passi 41 e 42: sono riconferme che riascoltano i file 29 (Unisono) e 40 (7a maggiore). I file audio 41 (8a giusta) e 42 (Groove 57 bpm) non vengono mai fatti ascoltare, ma i passi 41–42 sono contati nelle sezioni Intervalli e Ritmo.',
-  "Aggettivi: 'Illuminato' non è nel PDF; 'Amorevole' nel PDF è Blu · Malinconica · Solare ma porta punti a Giallo · Entusiasta · Sanguigna Operosa; 'Dinamico' è nella lista della Gioiosa Solare ma porta punti alla Sanguigna Operosa.",
+  "Intervalli: 'Illuminato - amorevole - passionale' è un «dato di conferma» senza punti; il documento non dice cosa conferma. Al passo 41 la riconferma non ha una cesta in cui andare.",
+  "Intervalli: 'Sereno - fiducioso - aperto' va a Gioiosa Solare (documento 23/10/2026 ed Excel), mentre «Parole per TST» lega la terza maggiore alla Malinconica Solare.",
   'Intervalli: Nostalgica (settima maggiore o anche minore?) e Calma Fisica (quinta o quinta eccedente?).',
-  'Ceste mai raggiungibili: Collerica in simpatia (polo positivo, ottava), Sanguigna Operosa nelle 15 sensazioni, Anaffettiva solo da “nessuna” nelle affinità.',
+  'Ceste mai raggiungibili: Collerica in simpatia, Sanguigna Operosa in simpatia e in indifferenza, Lunare Depressiva in simpatia e in antipatia, Calma Contemplativa in antipatia e in indifferenza.',
+  'Le famiglie non hanno lo stesso massimo teorico (vedi MASSIMI_TEORICI): le prevalenze si confrontano già in percentuale sul massimo di ciascuna famiglia.',
 ])
 
 /* ── Indici e helper ───────────────────────────────────────────────────── */
@@ -280,8 +307,8 @@ export const CAMPI_PER_COLORE = Object.freeze(
   Object.fromEntries(FAMIGLIE.map((f) => [f.colorKey, NATURE.filter((n) => n.colorKey === f.colorKey).map((n) => n.campoDb)])),
 )
 
-export function getPasso(numero) {
-  return PASSI[Number(numero) - 1] || null
+export function getPasso(numero, passi = PASSI) {
+  return passi[Number(numero) - 1] || null
 }
 
 export function getRegolePerPasso(numero) {

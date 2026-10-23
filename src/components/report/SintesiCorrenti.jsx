@@ -3,18 +3,12 @@ import { motion, useReducedMotion } from 'framer-motion'
 import ReportPassageHeader from './ReportPassageHeader.jsx'
 import EmotionalShape from './EmotionalShape.jsx'
 import ReportRadarChart from './ReportRadarChart.jsx'
-import SectionDivider from './SectionDivider.jsx'
 import { REPORT_CRITERION, SINTESI_UI, formatAttivazione } from './reportUiCopy.js'
 import { normalizeFamigliaName } from '../../content/reportRestitution.js'
 import { FAMILY_THEME } from '../../config/reportFamilyTheme.js'
 import { GlossaryLink } from './ReportGlossaryDrawer.jsx'
-import InfoTip from './InfoTip.jsx'
 import PercorsoRisposte from './PercorsoRisposte.jsx'
 import MobileChartsViewer from './MobileChartsViewer.jsx'
-import { buildProgressiveContentViewModel } from '../../utils/buildProgressiveContentViewModel.js'
-import { NATURE as NATURE_TST } from '../../config/tstSistema.js'
-import { getTestoNatura } from '../../content/testiFissiTemperamenti.js'
-import { naturePdfDiFamiglia } from '../../utils/naturePdf.js'
 import { colors } from '../../design-tokens'
 import './SintesiCorrenti.css'
 
@@ -57,93 +51,6 @@ const FAMILY_PRESENCE_LABELS = {
   rosso: { title: 'Marziale' },
   grigio: { title: 'Razionale' },
   blu: { title: 'Malinconica' },
-}
-
-// Fonti: docs/fonti-scientifiche/_estratto/MATRICE_TRACCIABILITA.md,
-// docs/fonti-scientifiche/_estratto/STATI_D_ANIMO_IN_4_FAMIGLIE_salvataggio_automatico.txt,
-// docs/fonti-scientifiche/testi-definitivi/Malinconia_lunare.pages e
-// docs/fonti-scientifiche/Il Pianeta della Musica - FM.pdf.
-//
-// Testi invariati rispetto alla versione precedente (fundamentalPleasure, qualities,
-// qualitiesByQuality, orientation, note): solo l'ORDINE in cui vengono mostrati è
-// cambiato in SintesiCorrenti — famiglia → cosa rappresenta → composizione interna →
-// natura prevalente → come si colloca. Uniche aggiunte nuove: `clarification` e
-// `deepDiveParagraphs` per Blu (approfondimento facoltativo in disclosure).
-const BRIEF_SUMMARY_BY_FAMILY = {
-  Blu: {
-    family: 'Malinconica',
-    clarification: "La Malinconia non significa automaticamente tristezza o depressione.",
-    fundamentalPleasure:
-      "il piacere di stare con sé stessi, dell’introversione, dell’osservarsi interiormente e del riflettere su ciò che si è vissuto",
-    orientation: "sé stessi, la memoria, la riflessione e l’interiorità",
-    note: "La tristezza è solo uno dei volti dolorosi della malinconia.",
-    deepDiveParagraphs: [
-      "Il versante lunare della Malinconia, associato alla terza minore, orienta verso l’introspezione e il raccoglimento e, nelle forme più accentuate, verso la tristezza e la depressione. Il versante solare, associato alla terza maggiore, orienta invece verso l’apertura, la speranza, l’ottimismo e l’avvicinamento alla gioia.",
-      "La natura specifica emersa dal test indica quale di queste manifestazioni risulta più presente nel tuo profilo: non esaurisce l’intera persona. Etichette come «Depressiva» appartengono al linguaggio del modello TST e non costituiscono una diagnosi clinica.",
-    ],
-  },
-  Giallo: {
-    family: 'Entusiasta',
-    fundamentalPleasure:
-      "il piacere del movimento, della curiosità, della scoperta del nuovo e dell’apertura verso il mondo",
-    orientation: "il fuori, gli altri, la relazione, la natura, le attività e le possibilità",
-    note: "",
-  },
-  Rosso: {
-    family: 'Marziale',
-    fundamentalPleasure:
-      "il piacere del fare, del realizzare ciò che si desidera, del governarsi e del mettersi alla prova",
-    orientation: "l’azione, la responsabilità, la decisione e la realizzazione",
-    note: "",
-  },
-  Verde: {
-    family: 'Flemmatica',
-    fundamentalPleasure: "il piacere della lentezza, del riposo, della calma e della contemplazione",
-    orientation:
-      "la calma interiore — non per riflettere su sé stessi, ma per trovare quiete ed equilibrio affettivo",
-    note: "",
-  },
-  Grigio: {
-    family: 'Razionale',
-    fundamentalPleasure:
-      "il piacere del calcolo, della dubbiosità di origine intellettuale, dell’oggettività e della distanza affettiva",
-    orientation: "il distacco, l’oggettività, l’analisi e la distanza dal coinvolgimento immediato",
-    note: "",
-  },
-}
-
-// Nature di ogni famiglia SOLO dai PDF: nomi da «Parole per TST», definizione
-// (prima frase) da «Testi fissi». Il resto del riepilogo viene dal Pianeta della Musica.
-const COLOR_KEY_BY_FAMILY_NAME = { Blu: 'blu', Rosso: 'rosso', Verde: 'verde', Giallo: 'giallo', Grigio: 'grigio' }
-
-function primaFrase(testo = '') {
-  const m = String(testo).trim().match(/^.*?[.!?](?=\s|$)/)
-  return (m ? m[0] : String(testo)).trim()
-}
-
-function natureFamigliaPdf(familyName) {
-  const colorKey = COLOR_KEY_BY_FAMILY_NAME[familyName]
-  return NATURE_TST.filter((n) => n.colorKey === colorKey)
-    .map((n) => ({ nome: n.nome, definizione: primaFrase(getTestoNatura(n.campoDb)?.testo || '') }))
-    .sort((x, y) => naturePdfDiFamiglia(colorKey).indexOf(x.nome) - naturePdfDiFamiglia(colorKey).indexOf(y.nome))
-}
-
-function qualitiesPdf(familyName) {
-  const nomi = natureFamigliaPdf(familyName).map((n) => `alla Natura ${n.nome}`)
-  const elenco = nomi.length > 1 ? `${nomi.slice(0, -1).join(', ')} e ${nomi.at(-1)}` : nomi[0] || ''
-  return `nature legate ${elenco}`
-}
-
-function qualitiesByQualityPdf(familyName) {
-  return Object.fromEntries(natureFamigliaPdf(familyName).map((n) => [n.nome, n.definizione]))
-}
-
-function renderBriefSummaryParagraph(paragraph) {
-  if (paragraph === "La tristezza è solo uno dei volti dolorosi della malinconia.") {
-    return <>La tristezza è <em>solo</em> uno dei volti dolorosi della malinconia.</>
-  }
-
-  return paragraph
 }
 
 const MIN_ELLIPSE_RX = 42
@@ -296,76 +203,6 @@ function buildTotalScoreRadarData(totalScores = {}, correnti = [], assignedFamil
   })
 }
 
-function resolveBriefQuality({ familyName, sottodisposizione }) {
-  // Natura prevalente con il nome del PDF; se manca, la prima natura della famiglia nel PDF.
-  const nature = natureFamigliaPdf(familyName).map((n) => n.nome)
-  const norm = (v) => String(v || '').trim().toLowerCase()
-  return nature.find((nome) => norm(nome) === norm(sottodisposizione)) || nature[0] || ''
-}
-
-function buildBriefSummary({ familyName, sottodisposizione, correnteDominante }) {
-  const copy = BRIEF_SUMMARY_BY_FAMILY[familyName] || BRIEF_SUMMARY_BY_FAMILY.Verde
-  const quality = resolveBriefQuality({ familyName, sottodisposizione, correnteDominante })
-
-  // Step 2 — cosa rappresenta la famiglia: testo originale (fundamentalPleasure +
-  // orientation), invariato, solo con la chiarificazione anteposta per Blu.
-  const familyParagraphs = []
-  if (copy.clarification) familyParagraphs.push(copy.clarification)
-  familyParagraphs.push(`In essa emerge ${copy.fundamentalPleasure}.`)
-  familyParagraphs.push(`Chi ne fa parte orienta la propria energia emotiva verso ${copy.orientation}.`)
-
-  // Step 3 — la famiglia contiene più nature: testo generico originale.
-  const qualitiesByQuality = qualitiesByQualityPdf(familyName in COLOR_KEY_BY_FAMILY_NAME ? familyName : 'Verde')
-  const compositionParagraph = `Al suo interno si distinguono ${qualitiesPdf(familyName in COLOR_KEY_BY_FAMILY_NAME ? familyName : 'Verde')}.`
-
-  // Step 5 — natura prevalente: prima frase del suo testo nei «Testi fissi».
-  const qualitiesByQualityText = qualitiesByQuality[quality]
-  const natureFitParagraph = qualitiesByQualityText ? qualitiesByQualityText : ''
-
-  const deepDiveParagraphs = [...(copy.note ? [copy.note] : []), ...(copy.deepDiveParagraphs || [])]
-
-  return {
-    introFamily: copy.family,
-    introQuality: quality,
-    familyParagraphs,
-    compositionParagraph,
-    natureFitParagraph,
-    qualitiesByQuality,
-    deepDiveParagraphs,
-  }
-}
-
-function capitalizeSentence(text) {
-  if (!text) return ''
-  const trimmed = text.trim()
-  const capitalized = trimmed.charAt(0).toUpperCase() + trimmed.slice(1)
-  return /[.!?]$/.test(capitalized) ? capitalized : `${capitalized}.`
-}
-
-// Trasforma "Natura {Qualità}" in ipertesto con definizione solo quando il testo
-// editoriale della famiglia nomina esplicitamente entrambe le qualità in questo modo
-// (oggi: Rosso/Marziale). Per le altre famiglie il testo resta invariato.
-function renderCompositionSentence({ compositionParagraph, qualitiesByQuality, activeTip, onToggleTip, idPrefix }) {
-  const keys = qualitiesByQuality ? Object.keys(qualitiesByQuality) : []
-  const linkableKeys = keys.filter((key) => compositionParagraph.includes(`Natura ${key}`))
-  if (linkableKeys.length < 2) return compositionParagraph
-
-  const pattern = new RegExp(`(Natura (?:${linkableKeys.join('|')}))`, 'g')
-  return compositionParagraph.split(pattern).map((part, index) => {
-    const key = linkableKeys.find((k) => part === `Natura ${k}`)
-    if (!key) return part
-    const tipId = `${idPrefix}-${key}`
-    return (
-      <InfoTip
-        key={`${tipId}-${index}`}
-        term={part}
-        tip={capitalizeSentence(qualitiesByQuality[key])}
-        open={activeTip === tipId}
-        onToggle={() => onToggleTip(tipId)}
-      />
-    )
-  })
-}
 
 function familyPresenceLabel(item = {}, fallbackFamily = '') {
   const key = String(item.familyKey || '').toLowerCase()
@@ -378,72 +215,9 @@ function familyPresenceLabel(item = {}, fallbackFamily = '') {
   }
 }
 
-function familySectionIntro() {
-  return [
-    'Il tuo profilo non è fatto da una sola famiglia: esplora come si compone il tuo profilo emotivo tramite i grafici.',
-  ]
-}
-
-function SintesiDisclosure({ id, title, defaultOpen = false, children, className = '' }) {
-  const [open, setOpen] = useState(defaultOpen)
-  const panelId = `${id}-panel`
-
-  if (!children) return null
-
-  return (
-    <div className={`sintesi-correnti__disclosure ${className}`.trim()}>
-      <button
-        type="button"
-        id={`${id}-trigger`}
-        className="sintesi-correnti__disclosure-trigger"
-        aria-expanded={open}
-        aria-controls={panelId}
-        onClick={() => setOpen((prev) => !prev)}
-      >
-        <span className="sintesi-correnti__disclosure-title">{title}</span>
-        <span className="sintesi-correnti__disclosure-chevron" aria-hidden="true">
-          {open ? '−' : '+'}
-        </span>
-      </button>
-      {open ? (
-        <div
-          id={panelId}
-          role="region"
-          aria-labelledby={`${id}-trigger`}
-          className="sintesi-correnti__disclosure-panel"
-        >
-          {children}
-        </div>
-      ) : null}
-    </div>
-  )
-}
-
-function OtherFamiliesLine({ families = [] }) {
-  if (!families.length) return null
-  const nodes = families.map((f) => (
-    <strong key={f.name} style={f.colore ? { color: f.colore } : undefined}>
-      {f.name}
-    </strong>
-  ))
-  const joined = nodes.reduce((acc, node, i) => {
-    if (i === 0) return [node]
-    if (i === nodes.length - 1) return [...acc, ' e ', node]
-    return [...acc, ', ', node]
-  }, [])
-  const verb = families.length > 1 ? 'sono presenti le famiglie' : 'è presente la famiglia'
-  const suffix = families.length > 1 ? ', in ordine di intensità' : ''
-  return (
-    <p className="sintesi-editorial-body">
-      Nel tuo profilo {verb} {joined}{suffix}.
-    </p>
-  )
-}
-
 
 export default function SintesiCorrenti({
   correnti = [],
-  correnteDominante = '',
   _userName = '',
   correnteColore = '',
   famiglia = '',
@@ -451,19 +225,12 @@ export default function SintesiCorrenti({
   totalScores = null,
   sottocorrenti = [],
   onOpenGlossary: _onOpenGlossary,
-  sottodisposizione = '',
   stepPrefix = '1',
-  globalProfileContract = null,
-  contentCards = null,
   rawRecord = null,
 }) {
   const prefersReducedMotion = useReducedMotion()
   const [activeDetailFamily, setActiveDetailFamily] = useState(null)
   const [hoveredFamilyKey, setHoveredFamilyKey] = useState(null)
-  // Definizioni delle nature (Volitiva/Collerica, ecc.) esposte come ipertesto: un solo
-  // popover aperto alla volta tra i trigger InfoTip di questa sezione.
-  const [activeTip, setActiveTip] = useState(null)
-  const toggleTip = (id) => setActiveTip((cur) => (cur === id ? null : id))
 
   const [isMobileViewport, setIsMobileViewport] = useState(false)
   const [chartsViewerOpen, setChartsViewerOpen] = useState(false)
@@ -519,44 +286,6 @@ export default function SintesiCorrenti({
     }
   }, [totalScoreRadarData, famiglia, activeDetailFamily])
 
-  const briefSummary = buildBriefSummary({
-    familyName: dominantFamilyName,
-    sottodisposizione,
-    correnteDominante,
-  })
-  const familyIntroParagraphs = familySectionIntro()
-
-  // Lettura compatta della composizione (Livello 1): solo Famiglie principali,
-  // quasi-parità e al massimo una componente secondaria — niente formule o marginali.
-  const compositionViewModel = useMemo(
-    () => buildProgressiveContentViewModel({
-      ranking: globalProfileContract?.ranking,
-      contentCards: contentCards || {},
-    }),
-    [globalProfileContract, contentCards],
-  )
-
-  // Definizione della natura realmente emersa dal test (briefSummary.introQuality):
-  // esposta come ipertesto solo quando il testo editoriale la definisce (es. Verde non
-  // ha qualitiesByQuality, nessun ipertesto generato).
-  const personalQualityDefinition = briefSummary.qualitiesByQuality?.[briefSummary.introQuality]
-    ? capitalizeSentence(briefSummary.qualitiesByQuality[briefSummary.introQuality])
-    : ''
-
-  // Altre famiglie realmente significative nel profilo (quasi paritarie tra le primary
-  // più l'eventuale companion), per la frase compatta finale: nome nel colore della
-  // famiglia, niente badge/etichette separate.
-  const otherFamiliesSeen = new Set([dominantFamilyName])
-  const otherFamilies = []
-  const addOtherFamily = (item) => {
-    if (!item) return
-    const name = item.content?.nome || item.familyName
-    if (!name || otherFamiliesSeen.has(name)) return
-    otherFamiliesSeen.add(name)
-    otherFamilies.push({ name, colore: item.colore })
-  }
-  compositionViewModel.primaryFamilies.forEach(addOtherFamily)
-  addOtherFamily(compositionViewModel.compactCompanion)
 
   const familySottocorrenti = (Array.isArray(sottocorrenti) ? sottocorrenti : [])
     .filter((sub) => normalizeFamigliaName(sub?.familyName) === dominantFamilyName)
@@ -683,56 +412,6 @@ export default function SintesiCorrenti({
         aria-labelledby="sintesi-correnti-heading"
         style={{ '--sc-accent': accentColor }}
       >
-        {/* Unified Editorial Summary Card */}
-        <div className="sintesi-editorial-card">
-          <div className="sintesi-editorial-text">
-            <p className="sintesi-editorial-body sintesi-editorial-body--lead">
-              La tua famiglia emotiva prevalente è{' '}
-              <strong className="sintesi-editorial-highlight">{briefSummary.introFamily}</strong>.
-            </p>
-            {briefSummary.familyParagraphs.map((paragraph) => (
-              <p key={paragraph} className="sintesi-editorial-body">
-                {paragraph}
-              </p>
-            ))}
-            <p className="sintesi-editorial-body">
-              {renderCompositionSentence({
-                compositionParagraph: briefSummary.compositionParagraph,
-                qualitiesByQuality: briefSummary.qualitiesByQuality,
-                activeTip,
-                onToggleTip: toggleTip,
-                idPrefix: 'composition',
-              })}{' '}
-              Nel tuo caso, emerge in particolare la natura{' '}
-              {personalQualityDefinition ? (
-                <InfoTip
-                  term={briefSummary.introQuality}
-                  tip={personalQualityDefinition}
-                  open={activeTip === 'personal-quality'}
-                  onToggle={() => toggleTip('personal-quality')}
-                />
-              ) : (
-                <strong className="sintesi-editorial-highlight">{briefSummary.introQuality}</strong>
-              )}.
-            </p>
-            {briefSummary.deepDiveParagraphs.length > 0 ? (
-              <SintesiDisclosure
-                id="sintesi-editorial-approfondisci"
-                title={`Approfondisci la famiglia ${briefSummary.introFamily}`}
-              >
-                {briefSummary.deepDiveParagraphs.map((paragraph) => (
-                  <p key={paragraph} className="sintesi-correnti__narrative-p">
-                    {renderBriefSummaryParagraph(paragraph)}
-                  </p>
-                ))}
-              </SintesiDisclosure>
-            ) : null}
-            <OtherFamiliesLine families={otherFamilies} />
-          </div>
-        </div>
-
-        <SectionDivider />
-
         {/* b) Dati (numeri, percentuali e radar: composizione del profilo, sempre visibile) */}
         <div id="report-tst-grafici" className="report-tst-section-anchor sintesi-mobile-activation">
           <div className="sintesi-family-intro" style={{ borderBottom: 'none', paddingBottom: 0 }}>
@@ -742,11 +421,6 @@ export default function SintesiCorrenti({
               title={SINTESI_UI.distribuzioneTitle}
               accentColor={accentColor}
             />
-            <div className="sintesi-family-intro__text">
-              {familyIntroParagraphs.map((paragraph) => (
-                <p key={paragraph}>{paragraph}</p>
-              ))}
-            </div>
           </div>
 
           {/* Sottocorrenti */}
@@ -755,10 +429,6 @@ export default function SintesiCorrenti({
             <h3 className="sintesi-mobile-section-title">
               Correnti della famiglia {dominantPresenceLabel.title.toLowerCase()}
             </h3>
-            <p className="sintesi-mobile-explanation">
-              All’interno di questa famiglia, il test evidenzia le nature specifiche che
-              contribuiscono a definire meglio la tua appartenenza.
-            </p>
             <ul className="sintesi-mobile-subcurrents-list">
               {summarySottocorrenti.map((sub) => (
                 <li key={sub.rawKey} className="sintesi-mobile-subcurrent-card">
@@ -791,9 +461,6 @@ export default function SintesiCorrenti({
         {/* Grafici: su mobile si aprono a tutto schermo e si scorrono di lato */}
         <div className="sintesi-mobile-visuals">
           <h3 className="sintesi-mobile-section-title">Visualizzazione Grafica</h3>
-          <p className="sintesi-mobile-explanation">
-            La forma visiva del tuo carattere emotivo. Le 5 componenti convivono nello stesso spazio.
-          </p>
           <div className="mcv-entry" style={{ '--mcv-accent': accentColor }}>
             <ul className="mcv-entry__chips" aria-label="Grafici disponibili">
               {mobileChartSlides.map((slide) => (
@@ -829,58 +496,6 @@ export default function SintesiCorrenti({
       style={{ '--sc-accent': accentColor }}
     >
       <div className="sintesi-correnti__summary">
-        {/* Unified Editorial Summary Card */}
-        <div className="sintesi-editorial-card">
-          <div className="sintesi-editorial-text">
-            <p className="sintesi-editorial-body sintesi-editorial-body--lead">
-              La tua famiglia emotiva prevalente è{' '}
-              <strong className="sintesi-editorial-highlight">{briefSummary.introFamily}</strong>.
-            </p>
-            {briefSummary.familyParagraphs.map((paragraph) => (
-              <p key={paragraph} className="sintesi-editorial-body">
-                {paragraph}
-              </p>
-            ))}
-            <p className="sintesi-editorial-body">
-              {renderCompositionSentence({
-                compositionParagraph: briefSummary.compositionParagraph,
-                qualitiesByQuality: briefSummary.qualitiesByQuality,
-                activeTip,
-                onToggleTip: toggleTip,
-                idPrefix: 'composition',
-              })}{' '}
-              Nel tuo caso, emerge in particolare la natura{' '}
-              {personalQualityDefinition ? (
-                <InfoTip
-                  term={briefSummary.introQuality}
-                  tip={personalQualityDefinition}
-                  open={activeTip === 'personal-quality'}
-                  onToggle={() => toggleTip('personal-quality')}
-                />
-              ) : (
-                <strong className="sintesi-editorial-highlight">{briefSummary.introQuality}</strong>
-              )}.
-            </p>
-            {briefSummary.deepDiveParagraphs.length > 0 ? (
-              <SintesiDisclosure
-                id="sintesi-editorial-approfondisci"
-                title={`Approfondisci la famiglia ${briefSummary.introFamily}`}
-              >
-                {briefSummary.deepDiveParagraphs.map((paragraph) => (
-                  <p key={paragraph} className="sintesi-correnti__narrative-p">
-                    {renderBriefSummaryParagraph(paragraph)}
-                  </p>
-                ))}
-              </SintesiDisclosure>
-            ) : null}
-            <OtherFamiliesLine families={otherFamilies} />
-          </div>
-        </div>
-
-        <div className="sintesi-divider-container" style={{ gridColumn: '1 / -1', width: '100%', marginBottom: '2.5rem' }}>
-          <SectionDivider />
-        </div>
-
         <div id="report-tst-grafici" className="report-tst-section-anchor sintesi-correnti__container sintesi-correnti__order-visuals">
           <div className="sintesi-family-intro" style={{ borderBottom: 'none', paddingBottom: 0 }}>
             <ReportPassageHeader
@@ -889,11 +504,6 @@ export default function SintesiCorrenti({
               title={SINTESI_UI.distribuzioneTitle}
               accentColor={accentColor}
             />
-            <div className="sintesi-family-intro__text">
-              {familyIntroParagraphs.map((paragraph) => (
-                <p key={paragraph}>{paragraph}</p>
-              ))}
-            </div>
           </div>
 
           <div className="sintesi-charts-slides-container">

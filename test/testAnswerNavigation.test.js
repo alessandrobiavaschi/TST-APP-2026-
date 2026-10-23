@@ -17,9 +17,9 @@ test('Nessuna registra un delta e avanza in tutti i quattro ascolti iniziali', (
       affinitaOptionId: 'nessuna',
     })
 
+    // 2026_v4: le affinità danno punti solo alla natura («Solo TEMPERAMENTO, no PORTATO»).
     assert.deepEqual(delta, {
       GRIGIO_1_Anaffettiva: 1,
-      PE_Indifferenza: 1,
     })
     assert.equal(getNextFileAfterAnswer(fileNumber, 72), fileNumber + 1)
   }

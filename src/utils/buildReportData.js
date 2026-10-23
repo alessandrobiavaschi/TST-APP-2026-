@@ -65,7 +65,6 @@ import {
   computeRelativePercentages,
   normalizeLevels,
 } from './reportRecordUtils.js'
-import { THEORETICAL_MAX_COLOR_TOTALS } from '../testLogic.js'
 import {
   FAMILY_ORDER,
   FAMILY_THEME,
@@ -82,15 +81,11 @@ import {
   getFamigliaLessico,
   getFullLessicoForFamily,
 } from '../content/statiAnimoLessico.js'
-import {
-  computeScoreDeltaForAnswer,
-  getLogicTypeForFile,
-  THEORETICAL_MAX_SCORE_BY_CORRENTE_KEY,
-} from '../testLogic.js'
+import { massimiPerRecord, opzioniCalcoloDelTest } from './testStorici.js'
 import { RAW_DOC_VISUAL } from '../config/galaxyDocBridge.ts'
-import { FAMIGLIA_BY_COLOR, NATURE } from '../config/tstSistema.js'
+import { FAMIGLIA_BY_COLOR, NATURE, PASSI } from '../config/tstSistema.js'
 import { FAMIGLIE_TST } from '../content/paroleTst.js'
-import { normalizzaSuMassimo, percentualeNatura } from './cesteTst.js'
+import { cestaPerRisposta, normalizzaSuMassimo, percentualeNatura } from './cesteTst.js'
 import { conNaturePrevalenti, elencoNaturePdf, naturePrevalentiDaRecord } from './naturePdf.js'
 import {
   buildNaturaNarrative,
@@ -220,7 +215,7 @@ function resolveSottodisposizionePrevalente(rawRecord = {}, dominantColorName) {
   let bestKey = ''
   let bestValue = -Infinity
   candidateKeys.forEach((key) => {
-    const value = percentualeNatura(key, rawRecord[key])
+    const value = percentualeNatura(key, rawRecord[key], massimiPerRecord(rawRecord))
     if (value > bestValue) {
       bestValue = value
       bestKey = key
@@ -260,7 +255,7 @@ function buildSottocorrenti(rawRecord = {}) {
     const doc = RAW_DOC_VISUAL[meta.rawKey] || {}
     const theme = FAMILY_THEME[meta.familyName]
     const valore = Number(rawRecord?.[meta.rawKey]) || 0
-    const max = Number(THEORETICAL_MAX_SCORE_BY_CORRENTE_KEY?.[meta.rawKey]) || 0
+    const max = Number(massimiPerRecord(rawRecord).naturePerCampo?.[meta.rawKey]) || 0
     // Se il massimo teorico è 0 (nessuna risposta del test può mai valorizzare
     // questa corrente), la percentuale resta 0
     // ma `misurabile: false` distingue esplicitamente "non misurato dal test" da
@@ -341,6 +336,17 @@ const PORTATO_PRESENTATION_THRESHOLDS = {
 function normalizePortatoValue(value) {
   const numericValue = Number(value)
   return Number.isFinite(numericValue) && numericValue > 0 ? numericValue : 0
+}
+
+// Tipo di lettura del portato, con le stesse soglie di buildPortatoSynthesis:
+// serve alla UI per non ripetere in «Approfondisci» ciò che il testo principale
+// e il triangolo dicono già (caso «prevalente»).
+function portatoSynthesisKind(quoteNormalizzate, hasData) {
+  if (!hasData) return 'insufficiente'
+  const quote = PORTATO_ORDER.map((key) => quoteNormalizzate[key]).sort((a, b) => b - a)
+  if (quote[0] - quote[2] <= PORTATO_PRESENTATION_THRESHOLDS.nearShare) return 'compresenza'
+  if (quote[0] - quote[1] <= PORTATO_PRESENTATION_THRESHOLDS.nearShare) return 'misto'
+  return 'prevalente'
 }
 
 function buildPortatoSynthesis(quoteNormalizzate, hasData) {
@@ -499,21 +505,19 @@ function naturaPdfPerParola(parola, correnteKeyDelTest) {
 export function extractParoleDalTest(rawRecord = {}) {
   const byKey = new Map()
 
-  for (let fileNumber = 29; fileNumber <= 42; fileNumber += 1) {
-    const fileKey = `File_${String(fileNumber).padStart(2, '0')}`
+  // Regole e passi del modello con cui è stato fatto il test (i test storici
+  // si leggono con le regole della loro epoca: vedi testStorici.js).
+  const opzioni = opzioniCalcoloDelTest(rawRecord)
+  for (const passo of opzioni.passi || PASSI) {
+    if (passo.tipoDomanda !== 'AGGETTIVI') continue
+    const fileKey = passo.campoDb
     const answer = rawRecord[fileKey]
-    if (!answer || getLogicTypeForFile(fileNumber) !== 'DIZIONARIO_2') continue
+    if (!answer) continue
 
-    const delta = computeScoreDeltaForAnswer({ fileNumber, answerLabel: answer })
-    const correnteKeyDelTest = Object.keys(delta).find(
-      (k) =>
-        k.startsWith('BLU_') ||
-        k.startsWith('ROSSO_') ||
-        k.startsWith('VERDE_') ||
-        k.startsWith('GIALLO_') ||
-        k.startsWith('GRIGIO_'),
-    )
-    if (!correnteKeyDelTest) continue
+    const cesta = cestaPerRisposta({ fileNumber: passo.numero, risposta: String(answer).trim(), isConfirmation: passo.riconferma, ...opzioni })
+    if (!cesta) continue
+    // Senza natura (es. «Illuminato», dato di conferma): la parola va solo nella sua natura del PDF.
+    const correnteKeyDelTest = cesta.natura?.campoDb || null
 
     String(answer)
       .split(' - ')
@@ -524,6 +528,7 @@ export function extractParoleDalTest(rawRecord = {}) {
         if (!PAROLE_PDF_SET.has(parola.toLowerCase())) return
         // Natura e famiglia della parola: quelle del PDF (es. «Inquieto» → Collerica).
         const correnteKey = naturaPdfPerParola(parola, correnteKeyDelTest)
+        if (!correnteKey) return
         const familyKey = correnteKey.split('_')[0].toLowerCase()
         const familyName = FAMILY_NAME_BY_KEY[familyKey]
         const theme = FAMILY_THEME[familyName]
@@ -588,7 +593,7 @@ export function buildReportData({
   // "Grafici dei risultati" (floor a 1 quando il punteggio o il massimo del profilo
   // sono 0). Esposta qui per avere un'unica fonte di verità invece di ricalcolarla
   // nel componente di presentazione.
-  const scala1a7ByKey = normalizeLevels(normalizzaSuMassimo(totals))
+  const scala1a7ByKey = normalizeLevels(normalizzaSuMassimo(totals, massimiPerRecord(rawRecord).famiglie))
   const domTheme = getFamilyTheme(dominantColorName)
 
   /* ── Le 5 correnti (famiglie): valore assoluto, percentuale (presence) e
@@ -651,7 +656,7 @@ export function buildReportData({
   // Nature SOLO dal PDF: per ogni famiglia, la natura prevalente di questa persona.
   // Per la famiglia dominante vale la stessa scelta della sottodisposizione prevalente.
   const naturePrevalenti = {
-    ...naturePrevalentiDaRecord(rawRecord, percentualeNatura),
+    ...naturePrevalentiDaRecord(rawRecord, (campo, valore) => percentualeNatura(campo, valore, massimiPerRecord(rawRecord))),
     ...(sottodisposizionePrevalente && domTheme.key ? { [domTheme.key]: sottodisposizionePrevalente } : {}),
   }
   const naturaDominante = naturePrevalenti[domTheme.key] || elencoNaturePdf(domTheme.key)
@@ -1133,6 +1138,7 @@ export function buildReportData({
     descrizione,
     vitalita,
     sintesiInterpretativa: buildPortatoSynthesis(quoteNormalizzate, portatoSum > 0),
+    sintesiTipo: portatoSynthesisKind(quoteNormalizzate, portatoSum > 0),
     quoteNormalizzate,
     pad: {
       vertici: PORTATO_PAD_VERTICES,

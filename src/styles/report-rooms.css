@@ -1,0 +1,191 @@
+/* =====================================================================
+   report-rooms.css — impaginazione delle stanze del report
+   Un contenitore per stanza, un solo bordo sinistro:
+   - apertura (occhiello, titolo, sommario, testo introduttivo) → RoomOpening
+   - testo di lettura limitato a --tst-measure; moduli larghi fino a --tst-page.
+   Token in design-tokens.css (8b). Caricato dopo report-tst.css.
+   ===================================================================== */
+
+.report-tst .report-room-section {
+  box-sizing: border-box;
+  width: min(var(--tst-page), 100%);
+  min-height: 0;
+  margin-inline: auto;
+  padding: var(--tst-space-flow-l) var(--tst-gutter);
+  align-content: start;
+}
+
+.report-tst .report-room-section::before {
+  inset: 0;
+}
+
+/* I contenitori dei moduli non aggiungono rientri propri: tutto parte dal bordo della stanza. */
+.report-tst :is(
+  .sintesi-correnti,
+  .sintesi-correnti__summary,
+  .pe-container,
+  .profilo-chapter-list,
+  .profilo-chapter-nav,
+  .parole-tst,
+  .quattro-rapporti-section__inner,
+  .report-tst-portato,
+  .report-passage-header,
+  .sintesi-family-intro
+) {
+  justify-self: stretch;
+  max-width: none;
+  margin-inline: 0;
+  padding-inline: 0;
+}
+
+.report-tst .profilo-chapter-block {
+  max-width: calc(var(--tst-measure) + 4rem);
+  margin-inline: 0;
+}
+
+/* ── Apertura ─────────────────────────────────────────────────────── */
+.report-tst .report-room-opening {
+  margin-bottom: var(--tst-space-flow-l);
+}
+
+.report-tst .report-room-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  max-width: var(--tst-measure);
+  margin: 0;
+}
+
+.report-tst .report-room-opening--with-intro > .report-room-header {
+  margin-bottom: var(--tst-space-flow-m);
+}
+
+/* Occhiello numerico: sostituisce il cerchio grande accanto al titolo. */
+.report-tst .report-room-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+  height: auto;
+  margin-bottom: var(--tst-space-md);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  font-size: var(--tst-step--1);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--tst-color-text-muted);
+}
+
+.report-tst .report-room-badge::after {
+  content: '';
+  width: 2.5rem;
+  height: 1px;
+  background: var(--tst-color-border-strong);
+}
+
+.report-tst .report-room-title,
+.report-tst .report-room-section--portato .report-room-title,
+.report-tst .report-room-section--rapporti .report-room-title {
+  font-size: var(--tst-step-4);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.report-tst .report-room-header .report-room-lead {
+  max-width: 36ch !important;
+  margin: 0.75rem 0 0 !important;
+  font-size: var(--tst-step-1) !important;
+  font-weight: 400;
+  line-height: 1.4 !important;
+  color: rgba(243, 241, 237, 0.72) !important;
+  text-align: left !important;
+}
+
+/* ── Testo introduttivo e livelli di testo ────────────────────────── */
+.report-tst .report-room-intro {
+  max-width: var(--tst-measure);
+}
+
+.report-tst .report-room-intro p {
+  max-width: none !important;
+  margin: 0 0 1em !important;
+  font-size: var(--tst-step-0) !important;
+  line-height: 1.65 !important;
+}
+
+.report-tst .report-room-intro p.report-room-intro__key {
+  font-size: var(--tst-step-1) !important;
+  font-weight: 500;
+  line-height: 1.4 !important;
+  color: var(--tst-color-text-primary) !important;
+}
+
+/* Etichetta di gruppo (non è un paragrafo di lettura). */
+.report-tst p.report-room-eyebrow {
+  max-width: none !important;
+  margin: 0 0 var(--tst-space-md) !important;
+  font-size: var(--tst-step--1) !important;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  line-height: 1.4 !important;
+  text-transform: uppercase;
+  color: var(--tst-color-text-muted) !important;
+}
+
+/* ── Desktop: titolo e testo introduttivo affiancati ──────────────── */
+@media (min-width: 1024px) {
+  .report-tst .report-room-opening--with-intro {
+    display: grid;
+    grid-template-columns: minmax(0, 24rem) minmax(0, var(--tst-measure));
+    column-gap: clamp(2rem, 6vw, 6rem);
+    justify-content: space-between;
+    align-items: start;
+  }
+
+  .report-tst .report-room-opening--with-intro > .report-room-header {
+    position: sticky;
+    top: calc(var(--report-sticky-offset, 120px) + 1.5rem);
+    margin-bottom: 0;
+  }
+
+  /* la frase chiave parte all'altezza del titolo, sotto l'occhiello */
+  .report-tst .report-room-opening--with-intro > .report-room-intro {
+    padding-top: calc(var(--tst-step--1) * 1.4 + var(--tst-space-md));
+  }
+}
+
+/* ── Mobile: niente superfici attorno al testo, filetto tra le stanze ─ */
+@media (max-width: 640px) {
+  .report-tst .report-room-section {
+    width: 100%;
+    padding-inline: 1.25rem;
+    border-top: 1px solid var(--tst-color-border-subtle);
+  }
+
+  .report-tst .report-room-section::before {
+    display: none;
+  }
+
+  .report-tst .report-room-opening > .report-room-header {
+    margin-bottom: 2.25rem;
+  }
+}
+
+/* Testi introduttivi dei moduli 03 e 04: stessi livelli dell'apertura. */
+.report-tst .quattro-rapporti-section p.quattro-rapporti-intro {
+  max-width: var(--tst-measure) !important;
+  font-size: var(--tst-step-0) !important;
+  font-weight: 400 !important;
+  line-height: 1.65 !important;
+  letter-spacing: 0 !important;
+  color: var(--tst-color-text-secondary) !important;
+}
+
+.report-tst p.report-tst-portato__result-lead {
+  font-size: var(--tst-step-0) !important;
+  font-weight: 500 !important;
+  color: var(--tst-color-text-primary) !important;
+}

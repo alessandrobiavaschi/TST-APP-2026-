@@ -1,10 +1,10 @@
-import { THEORETICAL_MAX_COLOR_TOTALS } from '../testLogic.js'
+import { massimiPerRecord } from '../utils/testStorici.js'
 import { DISPOSITIONS } from './dispositions'
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value))
 
 /** Percentuale 0–100 rispetto al massimo teorico della famiglia (da testLogic), non al massimo del singolo report. */
-function toPercentScores(totalsByKey = {}) {
+function toPercentScores(totalsByKey = {}, massimi = {}) {
   const cap = (value, denom) => {
     const v = Number(value) || 0
     const d = Number(denom) || 0
@@ -12,11 +12,11 @@ function toPercentScores(totalsByKey = {}) {
     return Math.round(clamp((v / d) * 100, 0, 100))
   }
   return {
-    blu: cap(totalsByKey.blu, THEORETICAL_MAX_COLOR_TOTALS.blu),
-    rosso: cap(totalsByKey.rosso, THEORETICAL_MAX_COLOR_TOTALS.rosso),
-    verde: cap(totalsByKey.verde, THEORETICAL_MAX_COLOR_TOTALS.verde),
-    giallo: cap(totalsByKey.giallo, THEORETICAL_MAX_COLOR_TOTALS.giallo),
-    grigio: cap(totalsByKey.grigio, THEORETICAL_MAX_COLOR_TOTALS.grigio),
+    blu: cap(totalsByKey.blu, massimi.blu),
+    rosso: cap(totalsByKey.rosso, massimi.rosso),
+    verde: cap(totalsByKey.verde, massimi.verde),
+    giallo: cap(totalsByKey.giallo, massimi.giallo),
+    grigio: cap(totalsByKey.grigio, massimi.grigio),
   }
 }
 
@@ -35,11 +35,12 @@ export function getDepthBand(depthScore) {
 }
 
 export function buildDispositionNodes({ rawRecord, totalsByKey }) {
-  const scoreByColor = toPercentScores(totalsByKey)
+  const massimiFamiglie = massimiPerRecord(rawRecord).famiglie
+  const scoreByColor = toPercentScores(totalsByKey, massimiFamiglie)
   return DISPOSITIONS.map((disposition, index) => {
     const score = scoreByColor[disposition.colorKey] || 0
     const depthScore = computeDepthScore(rawRecord, disposition, score)
-    const maxFam = THEORETICAL_MAX_COLOR_TOTALS[disposition.colorKey] || 1
+    const maxFam = massimiFamiglie[disposition.colorKey] || 1
     const totFam = Number(totalsByKey[disposition.colorKey]) || 0
     const familyFraction = maxFam > 0 ? Math.min(1, Math.max(0, totFam / maxFam)) : 0
     /** Raggio nominale px: 18 + percentualeGrezza * 48 (max teorico famiglia). */

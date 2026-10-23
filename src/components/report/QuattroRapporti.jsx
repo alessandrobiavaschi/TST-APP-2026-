@@ -300,75 +300,77 @@ export default function QuattroRapporti({
       style={{ '--qr-accent': activeColor }}
     >
       <div className="quattro-rapporti-section__inner">
-        <div className="quattro-rapporti-heading-row">
-          <div className="quattro-rapporti-pager" role="group" aria-label="Naviga tra i quattro rapporti">
-            <button
-              type="button"
-              className="quattro-rapporti-pager__btn"
-              aria-label="Rapporto precedente"
-              disabled={activeIndex === 0}
-              onClick={() => selectRapporto(Math.max(activeIndex - 1, 0))}
-            >
-              ‹
-            </button>
-            <span className="quattro-rapporti-pager__count">
-              {activeIndex + 1} di {rapporti.length}
-            </span>
-            <button
-              type="button"
-              className="quattro-rapporti-pager__btn"
-              aria-label="Rapporto successivo"
-              disabled={activeIndex === rapporti.length - 1}
-              onClick={() => selectRapporto(Math.min(activeIndex + 1, rapporti.length - 1))}
-            >
-              ›
-            </button>
-          </div>
-          <button
-            type="button"
-            className="quattro-rapporti-help-trigger"
-            aria-label="Apri la guida su come vengono calcolati i quattro rapporti"
-            onClick={() => setIsHelpOpen(true)}
-          >
-            ?
-          </button>
-        </div>
-
         <p className="quattro-rapporti-intro">
           La famiglia prevalente nel singolo rapporto può essere diversa da quella generale: non è una
           contraddizione, mostra come le diverse correnti assumono pesi differenti nei diversi ambiti
           dell’esperienza sonora.
         </p>
 
-        <div
-          role="tablist"
-          aria-label={RAPPORTI_UI.tablistAria}
-          className={`quattro-rapporti-tabs${approfondimentoOpen ? ' quattro-rapporti-tabs--sticky' : ''}`}
-        >
-          {rapporti.map((r, i) => {
-            const selected = i === activeIndex
-            const color = ensureContrast(r?.correntePrincipale?.colore || FALLBACK_COLOR)
-            return (
+        <div className={`quattro-rapporti-toolbar${approfondimentoOpen ? ' quattro-rapporti-toolbar--sticky' : ''}`}>
+          <div
+            role="tablist"
+            aria-label={RAPPORTI_UI.tablistAria}
+            className="quattro-rapporti-tabs"
+          >
+            {rapporti.map((r, i) => {
+              const selected = i === activeIndex
+              const color = ensureContrast(r?.correntePrincipale?.colore || FALLBACK_COLOR)
+              return (
+                <button
+                  key={r?.id ?? i}
+                  type="button"
+                  role="tab"
+                  id={`quattro-rapporti-tab-${r?.id ?? i}`}
+                  aria-selected={selected}
+                  aria-controls={`quattro-rapporti-panel-${r?.id ?? i}`}
+                  tabIndex={selected ? 0 : -1}
+                  className={`quattro-rapporti-tab${selected ? ' quattro-rapporti-tab--selected' : ''}`}
+                  style={{ '--qr-tab-color': color }}
+                  onClick={() => selectRapporto(i)}
+                >
+                  <SectionNumber value={i + 1} size="sm" className="quattro-rapporti-tab__index" />
+                  <span className="quattro-rapporti-tab__name">{r?.nome}</span>
+                </button>
+              )
+            })}
+          </div>
+
+          <div className="quattro-rapporti-toolbar__aside">
+            <div className="quattro-rapporti-pager" role="group" aria-label="Naviga tra i quattro rapporti">
               <button
-                key={r?.id ?? i}
                 type="button"
-                role="tab"
-                id={`quattro-rapporti-tab-${r?.id ?? i}`}
-                aria-selected={selected}
-                aria-controls={`quattro-rapporti-panel-${r?.id ?? i}`}
-                tabIndex={selected ? 0 : -1}
-                className={`quattro-rapporti-tab${selected ? ' quattro-rapporti-tab--selected' : ''}`}
-                style={{ '--qr-tab-color': color }}
-                onClick={() => selectRapporto(i)}
+                className="quattro-rapporti-pager__btn"
+                aria-label="Rapporto precedente"
+                disabled={activeIndex === 0}
+                onClick={() => selectRapporto(Math.max(activeIndex - 1, 0))}
               >
-                <SectionNumber value={i + 1} size="sm" className="quattro-rapporti-tab__index" />
-                <span className="quattro-rapporti-tab__name">{r?.nome}</span>
+                ‹
               </button>
-            )
-          })}
+              <span className="quattro-rapporti-pager__count">
+                {activeIndex + 1} di {rapporti.length}
+              </span>
+              <button
+                type="button"
+                className="quattro-rapporti-pager__btn"
+                aria-label="Rapporto successivo"
+                disabled={activeIndex === rapporti.length - 1}
+                onClick={() => selectRapporto(Math.min(activeIndex + 1, rapporti.length - 1))}
+              >
+                ›
+              </button>
+            </div>
+            <button
+              type="button"
+              className="quattro-rapporti-help-trigger"
+              aria-label="Apri la guida su come vengono calcolati i quattro rapporti"
+              onClick={() => setIsHelpOpen(true)}
+            >
+              ?
+            </button>
+          </div>
         </div>
 
-        <div className="quattro-rapporti-main">
+        <div className="quattro-rapporti-main quattro-rapporti-stage">
           <div className="quattro-rapporti-radar-wrap">
             <div
               className="quattro-rapporti-radar"

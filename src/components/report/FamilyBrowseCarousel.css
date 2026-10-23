@@ -49,9 +49,9 @@
 }
 
 .family-browse__card {
-  max-width: 640px;
+  max-width: 1040px;
   margin-inline: auto;
-  padding: var(--space-md, 32px);
+  padding: clamp(24px, 3.2vw, 48px) clamp(24px, 4vw, 56px);
   border: 1px solid color-mix(in srgb, var(--family-accent) 45%, transparent);
   border-radius: 20px;
   background: color-mix(in srgb, var(--family-accent) 10%, transparent);

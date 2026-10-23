@@ -16,6 +16,7 @@ const SUBCURRENT_FAMILY_BY_KEY = {
   GIALLO_1_Gioia_Entusiasmo: 'giallo',
   GIALLO_2_Volitivo_Passionale: 'giallo',
   GRIGIO_1_Anaffettiva: 'grigio',
+  GRIGIO_2_Distaccata: 'grigio',
 }
 
 let vite
@@ -197,11 +198,11 @@ test('il contratto Natura ordina il peso reale prima delle opposizioni teoriche'
   const natura = report.rapporti.find((item) => item.id === 'natura')
 
   assert.equal(natura.correntePrincipale.nome, 'Marziale')
-  assert.equal(natura.sintesiBreveParagrafi.length, 3)
+  assert.equal(natura.sintesiBreveParagrafi.length, 4)
   assert.match(natura.sintesiBreveParagrafi[0], /Marziale.*Volitiva o Collerica/i)
   assert.match(natura.sintesiBreveParagrafi[1], /Malinconica.*riflessione.*consapevole/i)
   assert.doesNotMatch(natura.sintesiBreveParagrafi.join(' '), /natura Flemmatica/i)
-  assert.match(natura.sintesiBreveParagrafi[2], /eccellente armonia/i)
+  assert.match(natura.sintesiBreveParagrafi[3], /eccellente armonia/i)
   assert.doesNotMatch(natura.sintesiBreveParagrafi.join(' '), /%|punti percentuali/i)
 })
 
@@ -348,12 +349,15 @@ test('le narrative consumano le quote delle combinazioni classiche ricostruite d
 })
 
 test('le sottocategorie restano nella famiglia corretta e usano i massimi teorici', () => {
-  const raw = Object.fromEntries(
-    Object.keys(SUBCURRENT_FAMILY_BY_KEY).map((key) => [
-      key,
-      theoreticalMaxBySubcurrent[key],
-    ]),
-  )
+  const raw = {
+    versione_modello: '2026_v4',
+    ...Object.fromEntries(
+      Object.keys(SUBCURRENT_FAMILY_BY_KEY).map((key) => [
+        key,
+        theoreticalMaxBySubcurrent[key],
+      ]),
+    ),
+  }
 
   const report = buildReportData({
     record: { raw },
@@ -361,7 +365,7 @@ test('le sottocategorie restano nella famiglia corretta e usano i massimi teoric
   })
   const byKey = Object.fromEntries(report.sottocorrenti.map((item) => [item.rawKey, item]))
 
-  assert.equal(report.sottocorrenti.length, 11)
+  assert.equal(report.sottocorrenti.length, 12)
   Object.entries(SUBCURRENT_FAMILY_BY_KEY).forEach(([rawKey, familyKey]) => {
     assert.equal(byKey[rawKey].familyKey, familyKey, rawKey)
   })
@@ -384,7 +388,7 @@ test('record mancanti o incompleti producono uno stato vuoto completo e sicuro',
   })
   assert.equal(report.correnti.length, 5)
   assert.ok(report.correnti.every((item) => item.peso === 0))
-  assert.equal(report.sottocorrenti.length, 11)
+  assert.equal(report.sottocorrenti.length, 12)
   assert.ok(report.sottocorrenti.every((item) => item.valore === 0 && item.percentuale === 0))
   assert.equal(report.portato.hasData, false)
   assert.ok(report._fallbacks.length > 0)
@@ -437,7 +441,7 @@ test('il portato 61 17 1 espone quote esatte, coordinate e una sintesi semplice'
     [
       { key: 'Simpatia', label: 'Sintonia', valore: 61, percentuale: 77 },
       { key: 'Antipatia', label: 'Distonia', valore: 17, percentuale: 22 },
-      { key: 'Indifferenza', label: 'Distanza', valore: 1, percentuale: 1 },
+      { key: 'Indifferenza', label: 'Indifferenza', valore: 1, percentuale: 1 },
     ],
   )
   assert.equal(report.portato.prevalente, 'Simpatia')
@@ -449,8 +453,8 @@ test('il portato 61 17 1 espone quote esatte, coordinate e una sintesi semplice'
   assert.equal(report.portato.pad.punto.y, 1 / 79)
   assert.match(report.portato.sintesiInterpretativa, /soprattutto sintonia/)
   assert.match(report.portato.sintesiInterpretativa, /componente di distonia/)
-  assert.match(report.portato.sintesiInterpretativa, /distanza è rimasta quasi assente/)
-  assert.match(report.portato.sintesiInterpretativa, /In questo ascolto/)
+  assert.match(report.portato.sintesiInterpretativa, /indifferenza è rimasta quasi assente/)
+  assert.match(report.portato.sintesiInterpretativa, /In questa esperienza d'ascolto/)
 })
 
 test('parità e quasi equilibrio non forzano una prevalenza nella sintesi', () => {
@@ -483,7 +487,7 @@ test('parità e quasi equilibrio non forzano una prevalenza nella sintesi', () =
   assert.ok(quasiBilanciato.portato.sintesiInterpretativa.includes('distanza'))
   assert.match(paritaInTesta.portato.sintesiInterpretativa, /sintonia e distonia/)
   assert.match(paritaInTesta.portato.sintesiInterpretativa, /intensità simile/)
-  assert.match(paritaInTesta.portato.sintesiInterpretativa, /distanza è emersa in misura contenuta/)
+  assert.match(paritaInTesta.portato.sintesiInterpretativa, /indifferenza è emersa in misura contenuta/)
   assert.equal(paritaInTesta.portato.prevalente, '')
   assert.equal(paritaInTesta.portato.prevalenteLabel, '')
   assert.equal(paritaInTesta.portato.descrizione, '')

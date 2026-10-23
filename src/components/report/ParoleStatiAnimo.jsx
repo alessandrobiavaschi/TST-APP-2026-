@@ -66,7 +66,6 @@ export default function ParoleStatiAnimo({ famiglia = '', naturaPrevalente = '',
         step={step}
         title={PAROLE_UI.title}
         titleVisuallyHidden
-        lead={PAROLE_UI.educazioneSubtitle}
         titleId="parole-tst-title"
       />
 

@@ -97,3 +97,23 @@ test('rileggere un test già letto non cambia niente (archivio → report)', () 
   assert.equal(unaVolta._letturaStorica.verificato, true)
   assert.deepEqual(normalizzaRecordTst(unaVolta), unaVolta)
 })
+
+test('test 2026_v3: dopo il cambio di modello si legge ancora con le sue regole', async () => {
+  const { REGOLE_STORICHE_2026 } = await import('../src/utils/testStorici.js')
+  const regole = REGOLE_STORICHE_2026['2026_v3']
+  const record = Object.fromEntries(regole.passi.map((p, i) => [p.campoDb, regole(p.numero)[(i * 5) % regole(p.numero).length].risposta]))
+  const c = calcolaCeste(record, { regolePerPasso: regole })
+  const letto = normalizzaRecordTst({ ...record, ...c.campiNature, ...c.campiPortato, versione_modello: '2026_v3' })
+  assert.deepEqual(letto._letturaStorica, { epoca: '2026_v3', verificato: true })
+  assert.deepEqual(computeColorTotals(letto), c.famiglie)
+})
+
+test('test 2026_v2: si mostrano i punti consegnati, non un ricalcolo con regole più recenti', async () => {
+  const { REGOLE_STORICHE_2026 } = await import('../src/utils/testStorici.js')
+  const regole = REGOLE_STORICHE_2026['2026_v2']
+  const record = Object.fromEntries(regole.passi.map((p, i) => [p.campoDb, regole(p.numero)[(i * 3) % regole(p.numero).length].risposta]))
+  const c = calcolaCeste(record, { regolePerPasso: regole })
+  const letto = normalizzaRecordTst({ ...record, ...c.campiNature, ...c.campiPortato, versione_modello: '2026_v2' })
+  assert.equal(letto._letturaStorica.verificato, true)
+  assert.deepEqual(computeColorTotals(letto), c.famiglie)
+})

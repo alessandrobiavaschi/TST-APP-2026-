@@ -101,7 +101,7 @@ export default function HeroScreen({
 
   const colorKey = useMemo(() => {
     const totals = computeColorTotals(rawRecord)
-    const { dominantKey } = getDominantColorInfo(totals)
+    const { dominantKey } = getDominantColorInfo(totals, rawRecord)
     return dominantKey
   }, [rawRecord])
 

@@ -77,6 +77,19 @@
   --tst-text-caption: 0.75rem;
   --tst-text-mono: 0.8125rem;
 
+  /* ── 8b. Scala fluida di lettura (report) ──
+     Metodo Utopia (utopia.fyi): da 360px (base 17px, rapporto 1.2)
+     a 1440px (base 19px, rapporto 1.25). Un solo clamp per passo. */
+  --tst-step--1: clamp(0.8854rem, 0.8639rem + 0.0957vw, 0.95rem);   /* 14→15px etichette */
+  --tst-step-0:  clamp(1.0625rem, 1.0208rem + 0.1852vw, 1.1875rem); /* 17→19px testo */
+  --tst-step-1:  clamp(1.275rem, 1.2052rem + 0.3102vw, 1.4844rem);  /* 20→24px sommario, frase chiave */
+  --tst-step-4:  clamp(2.2032rem, 1.9712rem + 1.0311vw, 2.8992rem); /* 35→46px titolo di stanza */
+  --tst-space-flow-m: clamp(1.25rem, 1rem + 1vw, 2rem);
+  --tst-space-flow-l: clamp(2rem, 1.5rem + 2vw, 3.5rem);
+  --tst-gutter: clamp(1.25rem, 0.5rem + 3vw, 3rem);
+  --tst-measure: 40rem;   /* colonna di lettura, ~65 caratteri */
+  --tst-page: 72rem;      /* larghezza dei moduli del report */
+
   /* ── 9. Scala Spaziature ── */
   --tst-space-3xs: 0.125rem; /* 2px */
   --tst-space-2xs: 0.25rem;  /* 4px */

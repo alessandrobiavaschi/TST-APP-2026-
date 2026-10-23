@@ -68,7 +68,7 @@ test('lessicoSituazionale conserva conteggio, tracciabilita file e fonte test', 
 test('lessicoSituazionale: parole di sotto-correnti diverse della stessa famiglia mantengono un correnteKey distinto e non ambiguo', () => {
   const rawRecord = {
     File_29: 'Sereno - fiducioso - aperto', // BLU_4_Solare
-    File_30: 'Malinconico - triste - pensieroso', // BLU_2_Lunare — stessa famiglia Blu, sotto-corrente diversa
+    File_30: 'Malinconico - triste - riflessivo', // BLU_2_Lunare — stessa famiglia Blu, sotto-corrente diversa (etichetta 2026_v4)
   }
   const vm = buildLessicoAnaliticoViewModel({ rawRecord, correnti: makeCorrenti() })
 

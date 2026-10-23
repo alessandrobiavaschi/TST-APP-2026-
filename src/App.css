@@ -1822,6 +1822,8 @@ body {
   inset: -5%;
   width: 110%;
   height: 110%;
+  max-width: none;
+  max-height: none;
   object-fit: cover;
   object-position: 50% 42%;
   filter: saturate(1.04) brightness(1.02);
@@ -22404,3 +22406,20 @@ a:focus-visible {
 }
 
 
+
+/* "Crea account" in header: leggibile su sfondo scuro (anche in landing) */
+.app-header .header-register-button {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.55) !important;
+  color: #ffffff !important;
+  font-weight: 500;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: none !important;
+}
+
+.app-header .header-register-button:hover {
+  background: rgba(255, 255, 255, 0.22) !important;
+  border-color: rgba(255, 255, 255, 0.85) !important;
+  color: #ffffff !important;
+}

@@ -16,6 +16,7 @@ import { createEmptyTestRecord } from '../dbSchema.js'
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js'
 import { normalizzaRecordTst } from '../utils/testRecordProcessing.js'
 import '../styles/report-tst.css'
+import '../styles/report-rooms.css'
 
 // Record di esempio per /report-preview: stessa pipeline di calcolo dei report
 // reali (buildReportData, computeColorTotals, ecc.), nessun dato inventato nei
@@ -117,7 +118,7 @@ function ReportPage() {
 
   const { blu, rosso, verde, giallo, grigio } = computeColorTotals(record.raw)
   const totalsByKey = { blu, rosso, verde, giallo, grigio }
-  const { dominantKey, dominantColorName } = getDominantColorInfo(totalsByKey)
+  const { dominantKey, dominantColorName } = getDominantColorInfo(totalsByKey, record.raw)
   const textBlock =
     getMergedReportBlock(dominantColorName) || reportContent[dominantColorName] || reportContent.Giallo
   const restituzione = textBlock.restituzione_natura

@@ -27,6 +27,7 @@ const EXPECTED_SUBCURRENT_FAMILY = {
   GIALLO_1_Gioia_Entusiasmo: 'giallo',
   GIALLO_2_Volitivo_Passionale: 'giallo',
   GRIGIO_1_Anaffettiva: 'grigio',
+  GRIGIO_2_Distaccata: 'grigio',
 }
 
 function assertJsonSafe(value, path = 'root') {
@@ -94,8 +95,8 @@ test('la Galassia vuota conserva cinque famiglie e undici sottocorrenti univoche
 
   assert.deepEqual(data.map((family) => family.familyKey), EXPECTED_FAMILY_KEYS)
   assert.equal(data.length, 5)
-  assert.equal(subcurrents.length, 11)
-  assert.equal(new Set(subcurrents.map((sub) => sub.id)).size, 11)
+  assert.equal(subcurrents.length, 12)
+  assert.equal(new Set(subcurrents.map((sub) => sub.id)).size, 12)
   assert.ok(data.every((family) => family.peso === 0))
   assert.ok(subcurrents.every((sub) => sub.peso === 0 && Number.isFinite(sub.peso)))
 
@@ -104,7 +105,7 @@ test('la Galassia vuota conserva cinque famiglie e undici sottocorrenti univoche
   })
   assert.equal(
     subcurrents.find((sub) => sub.id === 'BLU_3_Nostalgia')?.nome,
-    'Nostalgica (Solare o Lunare)',
+    'Natura Nostalgica',
   )
 })
 
@@ -129,12 +130,15 @@ test('record storici numerici o serializzati producono la stessa Galassia', () =
 })
 
 test('ogni sottocorrente usa il proprio massimo teorico e resta tra zero e cento', () => {
-  const recordAtMax = Object.fromEntries(
-    Object.keys(EXPECTED_SUBCURRENT_FAMILY).map((rawKey) => [
-      rawKey,
-      theoreticalMaxBySubcurrent[rawKey],
-    ]),
-  )
+  const recordAtMax = {
+    versione_modello: '2026_v4',
+    ...Object.fromEntries(
+      Object.keys(EXPECTED_SUBCURRENT_FAMILY).map((rawKey) => [
+        rawKey,
+        theoreticalMaxBySubcurrent[rawKey],
+      ]),
+    ),
+  }
   const data = buildCorrentDataFromRecord(recordAtMax)
   const subcurrents = data.flatMap((family) => family.sottoCorrenti)
 
@@ -254,10 +258,28 @@ test('dominante, secondaria ed equilibrio globale gestiscono vuoti e casi estrem
 // Le parole emerse si mostrano sotto la natura in cui le mette il PDF: tre parole
 // dei bottoni del test appartengono nel PDF a una natura diversa da quella che
 // riceve il punto (il punteggio non cambia).
+// Parole che il PDF «Parole per TST» colloca in una natura diversa da quella che
+// riceve i punti della risposta (modello 2026_v4). Il lessico le mostra nella natura del PDF.
 const NATURA_PDF_DIVERSA = {
   Inquieto: 'ROSSO_2_Dubbio_Collera',
+  Chiuso: 'BLU_1_Depressiva',
+  Pauroso: 'BLU_1_Depressiva',
+  Ansioso: 'BLU_2_Lunare',
+  Indifferente: 'GRIGIO_1_Anaffettiva',
+  Sereno: 'BLU_4_Solare',
+  Fiducioso: 'BLU_4_Solare',
+  Aperto: 'BLU_4_Solare',
+  Riflessivo: 'BLU_4_Solare',
+  Distaccato: 'GRIGIO_1_Anaffettiva',
+  Sognante: 'VERDE_1_CalmaContemplativa',
+  Entusiasta: 'GIALLO_2_Volitivo_Passionale',
   Dinamico: 'GIALLO_1_Gioia_Entusiasmo',
+  Curioso: 'GIALLO_2_Volitivo_Passionale',
+  Fluido: 'GIALLO_2_Volitivo_Passionale',
+  Consolato: 'BLU_4_Solare',
+  // «Illuminato - amorevole - passionale» non dà punti: le parole vanno solo nella natura del PDF.
   Amorevole: 'BLU_4_Solare',
+  Passionale: 'ROSSO_1_Assertivita',
 }
 
 test('ogni risposta lessicale mostra la parola nella natura del PDF', () => {

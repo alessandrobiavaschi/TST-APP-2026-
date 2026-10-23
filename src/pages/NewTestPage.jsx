@@ -91,8 +91,8 @@ const STORAGE_KEY_TEST_DRAFT = 'tst_test_draft_v1'
 
 function getMacroSectionLabel(fileNumber) {
   if (fileNumber >= 1 && fileNumber <= 28) return 'Timbro'
-  if (fileNumber >= 29 && fileNumber <= 42) return 'Intervalli'
-  if (fileNumber >= 43 && fileNumber <= 51) return 'Ritmo'
+  if (fileNumber >= 29 && fileNumber <= 41) return 'Intervalli'
+  if (fileNumber >= 42 && fileNumber <= 51) return 'Ritmo'
   if (fileNumber >= 52 && fileNumber <= 58) return 'Melodia'
   if (fileNumber >= 59 && fileNumber <= 72) return 'Armonia'
   return ''
@@ -109,12 +109,9 @@ function getQuestionTitleForFile(fileNumber) {
     return 'B) Ascolta le combinazioni di due suoni e scegli un solo aggettivo tra quelli proposti.'
   }
   if (fileNumber === 41) {
-    return 'B) Prima riconferma: riascolta e conferma in modo istintivo.'
+    return 'B) Riconferma: riascolta e conferma in modo istintivo.'
   }
-  if (fileNumber === 42) {
-    return 'B) Seconda riconferma: riascolta e conferma in modo istintivo.'
-  }
-  if (fileNumber === 43 || fileNumber === 44 || fileNumber === 45) {
+  if (fileNumber >= 42 && fileNumber <= 45) {
     return 'C1a) Ascolta i groove e scegli la sensazione che meglio descrive la tua percezione musicale.'
   }
   if (fileNumber === 46) {

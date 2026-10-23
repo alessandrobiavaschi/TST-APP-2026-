@@ -5606,12 +5606,15 @@
 .report-tst .profilo-panel__paragraph,
 .report-tst .profilo-panel__lead,
 .report-tst .profilo-panel__connector {
+  /* Colonna di lettura allineata al bordo del suo contenitore (non centrata):
+     un solo asse per stanza, vedi report-rooms.css. Colore e corpo del testo
+     di lettura da design-tokens.css (DESIGN.md §2.3, §3.2). */
   max-width: 68ch !important;
-  margin-left: auto;
-  margin-right: auto;
-  color: var(--report-text-muted) !important;
+  margin-left: 0;
+  margin-right: 0;
+  color: var(--tst-color-text-secondary) !important;
   font-family: var(--font-body) !important;
-  font-size: var(--text-body) !important;
+  font-size: var(--tst-step-0) !important;
   line-height: 1.65 !important;
   text-align: left !important;
 }

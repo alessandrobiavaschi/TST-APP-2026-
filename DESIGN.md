@@ -169,6 +169,14 @@ Ogni schermata ammette **una sola CTA Primaria**. Tutti gli altri controlli sono
   * Landing Page / Galassia: `1320px` (respiro immersivo).
 * **Centratura:** `margin-inline: auto`, padding laterale minimo `1rem` su mobile, `2rem` su desktop.
 
+### 5.3 Stanze del report (impaginazione e testi introduttivi)
+* **Un solo bordo sinistro per stanza.** Contenitore largo `--tst-page` (72rem) con margine `--tst-gutter`; i moduli (schede, grafici) usano tutta la larghezza, il testo di lettura si ferma a `--tst-measure` (40rem, ~65 caratteri). Regole in `src/styles/report-rooms.css`.
+* **Apertura unica:** componente `RoomOpening` (occhiello numerico, titolo, sommario da `REPORT_GROUPS[].subtitle`, testo introduttivo opzionale). Da 1024px, se c'è un testo introduttivo, titolo e testo si affiancano.
+* **Livelli di testo** (scala fluida `--tst-step-*`, metodo Utopia, sezione 8b di `design-tokens.css`): etichetta `step--1` maiuscoletto; testo `step-0` (17→19px) in `--tst-color-text-secondary`; frase chiave e sommario `step-1` (20→24px); titolo di stanza `step-4` (35→46px).
+* **Mobile (≤640px):** niente superfici attorno al testo, colonna a tutta larghezza con 20px di margine, filetto tra le stanze.
+* **Ogni cosa si dice una volta:** una stanza aggiunge informazioni, non riassume le precedenti. La descrizione della famiglia vive solo nel testo fisso della stanza 02; la composizione del profilo (famiglie e quote) solo nell'apertura della 01.
+* **Aperto:** §3.1 prescrive Newsreader per i titoli, ma `tst-mobile.css` imposta oggi il font di sistema (`--tst-font-display`). Decisione da prendere.
+
 ---
 
 ## 6. Depth & Elevation

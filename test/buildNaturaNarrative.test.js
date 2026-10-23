@@ -121,11 +121,11 @@ test('il racconto in primo piano segue il peso prima delle opposizioni teoriche'
     ],
   })
 
-  assert.equal(result.frontParagraphs.length, 3)
+  assert.equal(result.frontParagraphs.length, 4)
   assert.match(result.frontParagraphs[0], /appartenenza alla famiglia Marziale.*Volitiva o Collerica/i)
   assert.match(result.frontParagraphs[1], /natura Malinconica.*riflessione.*consapevole/i)
   assert.doesNotMatch(result.frontParagraphs.join(' '), /natura Flemmatica/i)
-  assert.match(result.frontParagraphs[2], /eccellente armonia tra le diverse componenti/i)
+  assert.match(result.frontParagraphs[3], /eccellente armonia tra le diverse componenti/i)
   assert.doesNotMatch(result.frontParagraphs.join(' '), /%|punti percentuali/i)
   assert.match(result.paragraphs.join(' '), /quarta componente.*Flemmatica.*influenza moderata.*tensione/i)
   assert.match(result.paragraphs.join(' '), /quinta componente.*Razionale.*influenza leggera.*tensione/i)
@@ -310,7 +310,7 @@ test('un vero pari merito non degrada la famiglia a pari punti a influenza secon
     ],
   })
 
-  assert.doesNotMatch(result.frontParagraphs.join(' '), /componente.*Flemmatica|Flemmatica.*influenza/i)
+  assert.doesNotMatch(result.frontParagraphs.join(' '), /seconda componente.*Flemmatica|Flemmatica.*influenza/i)
   assert.match(result.frontParagraphs.join(' '), /famiglie Marziale e Flemmatica/i)
   assert.match(result.frontParagraphs.join(' '), /eccellente armonia/i)
 })

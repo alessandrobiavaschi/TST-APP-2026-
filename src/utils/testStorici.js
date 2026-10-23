@@ -1,5 +1,9 @@
 /**
- * Lettura dei test salvati prima del modello attuale (senza `versione_modello`).
+ * Lettura dei test salvati con un modello precedente a quello attuale:
+ * - senza `versione_modello` (epoche 2025_v1 e 2025_v2);
+ * - con `versione_modello` 2026_v2 o 2026_v3 (regole fino al 10/10/2026 e fino
+ *   al 23/10/2026; il 2026_v3 ha avuto due insiemi di regole nello stesso giorno,
+ *   «2026_v3a» e «2026_v3», e si prova quale riproduce i punti salvati).
  *
  * Questi test hanno i punti salvati con le regole della loro epoca e, fino al
  * 15 settembre 2026, verde e grigio sotto nomi di campo che oggi non esistono
@@ -12,8 +16,17 @@
  * Se non coincide, si mostrano i totali salvati e niente viene ricostruito.
  * Non scrive mai su Firestore.
  */
-import { CAMPI_PER_COLORE, FAMIGLIE, NATURE, PORTATI, getPasso } from '../config/tstSistema.js'
-import { calcolaCeste } from './cesteTst.js'
+import {
+  CAMPI_PER_COLORE,
+  FAMIGLIE,
+  NATURE,
+  PASSI_FINO_2026_V3,
+  PORTATI,
+  VERSIONE_MODELLO,
+  VERSIONE_MODELLO_LEGACY,
+  getPasso,
+} from '../config/tstSistema.js'
+import { MASSIMI_TEORICI, calcolaCeste, calcolaMassimiTeorici } from './cesteTst.js'
 
 const S = 'simpatia'
 const A = 'antipatia'
@@ -37,18 +50,27 @@ export const CAMPI_STORICI_PER_COLORE = Object.freeze({
   grigio: Object.freeze(['GRIGIO_1_Distaccato_Nichilista', 'GRIGIO_2_Intellettuale_Saggio']),
 })
 
-/** Tabella di un'epoca → funzione numeroPasso → regole, come getRegolePerPasso. */
+/**
+ * Tabella di un'epoca → funzione numeroPasso → regole, come getRegolePerPasso.
+ * Tutte le epoche storiche usano la disposizione dei passi PASSI_FINO_2026_V3.
+ * Ogni riga è [risposta, natura, portato, punti?] (punti di default 1).
+ * `t.AFFINITA_PER_PASSO` (facoltativo): regole proprie dei passi di affinità.
+ */
 function tabella(t) {
-  const righe = (lista, punti = 1) =>
-    Object.freeze(lista.map(([risposta, natura, portato]) => Object.freeze({ risposta, natura, portato, punti })))
+  const righe = (lista, molt = 1) =>
+    Object.freeze(lista.map(([risposta, natura, portato, punti = 1]) => Object.freeze({ risposta, natura, portato, punti: punti * molt })))
   const perTipo = {
     SENSAZIONI: righe(t.SENSAZIONI),
     AGGETTIVI: righe(t.AGGETTIVI),
-    AFFINITA_BASE: righe(t.AFFINITA_BASE),
-    AFFINITA_STANDARD: righe(t.AFFINITA_STANDARD),
-    AFFINITA_ECCEZIONE: righe(t.AFFINITA_STANDARD, 2),
+    AFFINITA_BASE: righe(t.AFFINITA_BASE || []),
+    AFFINITA_STANDARD: righe(t.AFFINITA_STANDARD || []),
+    AFFINITA_ECCEZIONE: righe(t.AFFINITA_STANDARD || [], 2),
   }
-  return (numero) => perTipo[getPasso(numero)?.tipoDomanda] || []
+  const perPasso = Object.fromEntries(Object.entries(t.AFFINITA_PER_PASSO || {}).map(([n, lista]) => [n, righe(lista)]))
+  const regole = (numero) => perPasso[numero] || perTipo[getPasso(numero, PASSI_FINO_2026_V3)?.tipoDomanda] || []
+  // Le regole portano con sé la disposizione dei passi della loro epoca (letta da cesteTst.js).
+  regole.passi = PASSI_FINO_2026_V3
+  return Object.freeze(regole)
 }
 
 /**
@@ -160,6 +182,81 @@ export const REGOLE_STORICHE = Object.freeze({
   }),
 })
 
+/* ── Epoche 2026 (test con `versione_modello`) ─────────────────────────── */
+
+const SENSAZIONI_2026_A = [
+  ['Mi dà gioia', GIO, S], ['Mi inquieta', COL, A], ['Mi spegne', DEP, A], ['Mi stupisce', GIO, S],
+  ['Mi rilassa', FIS, S], ['Mi disturba / mi repelle', COL, A], ['Mi è indifferente', DIS, I],
+  ['Mi calma / mi fa sognare', CON, S], ['Mi accende / mi motiva', VOL, S], ['Mi irrita / mi infastidisce', COL, A],
+  ['Mi annoia / mi stufa', DIS, A], ['Mi completa / mi incoraggia', VOL, S],
+  ['Mi fa riflettere / mi porta a ricordare', NOS, S], ['Mi arrovella / mi rattrista', INT, A],
+  ['Mi accompagna / mi consola', SOL, S],
+]
+const AGGETTIVI_2026_A = [
+  ['Saldo - sicuro - volitivo', VOL, S], ['Sognante - meditativo - ascetico', CON, S],
+  ['Angosciato - avvilito - sofferente', DEP, A], ['Sereno - fiducioso - aperto', SOL, S],
+  ['Malinconico - triste - pensieroso', INT, S], ['Rabbioso - diffidente - dubbioso', COL, A],
+  ['Ambiguo - incerto - equivoco', COL, A], ['Calmo - prudente - lento', FIS, S],
+  ['Gioioso - caloroso - festoso', GIO, S], ['Dinamico - curioso - fluido', SAN, S],
+  ['Nostalgico - rimembrante - afflitto', NOS, S], ['Desolato - rimpiangente - abbandonato', NOS, A],
+  ['Illuminato - amorevole - passionale', SAN, S], ['Mi è indifferente', DIS, I],
+]
+const SENSAZIONI_2026_B = [
+  ['Mi dà gioia', GIO, S], ['Mi inquieta', SAN, A], ['Mi spegne', ANA, I], ['Mi stupisce', GIO, S],
+  ['Mi rilassa', FIS, S], ['Mi disturba / mi repelle', FIS, A], ['Mi è indifferente', DIS, I],
+  ['Mi calma / mi fa sognare', CON, S], ['Mi accende / mi motiva', VOL, S], ['Mi irrita / mi infastidisce', COL, A],
+  ['Mi annoia / mi stufa', DIS, I], ['Mi completa / mi incoraggia', VOL, S],
+  ['Mi fa riflettere / mi porta a ricordare', NOS, S], ['Mi arrovella / mi rattrista', INT, A],
+  ['Mi accompagna / mi consola', SOL, S],
+]
+const AGGETTIVI_2026_B = [
+  ['Saldo - sicuro - volitivo', VOL, S], ['Sognante - meditativo - ascetico', CON, S],
+  ['Inquieto - chiuso - pauroso', DEP, A], ['Angosciato - avvilito - sofferente', DEP, I],
+  ['Sereno - fiducioso - aperto', SOL, S], ['Malinconico - triste - pensieroso', INT, S],
+  ['Rabbioso - diffidente - dubbioso', COL, A], ['Ambiguo - incerto - equivoco', COL, I],
+  ['Calmo - prudente - lento', FIS, S], ['Gioioso - caloroso - festoso', GIO, S],
+  ['Dinamico - curioso - fluido', SAN, S], ['Nostalgico - rimembrante - afflitto', NOS, S],
+  ['Desolato - rimpiangente - abbandonato', NOS, A], ['Illuminato - amorevole - passionale', SAN, S, 0],
+  ['Mi è indifferente', DIS, I],
+]
+const AFF_POSIZIONE_BASE = [['opzione1', GIO, S], ['opzione2', FIS, S], ['opzione3', VOL, S], ['opzione4', SOL, S], ['nessuna', ANA, I]]
+const AFF_POSIZIONE_STANDARD = [['opzione1', NOS, S], ['opzione2', VOL, S], ['opzione3', FIS, S], ['opzione4', GIO, S], ['nessuna', ANA, I]]
+/** Affinità per suono (dal 10/10/2026, commit 7d8db71), con il portato di allora. */
+const affinita = (nature, punti = 1) => [
+  ...nature.map((natura, i) => [`opzione${i + 1}`, natura, S, punti]),
+  ['nessuna', ANA, I, punti],
+]
+const AFF_PER_SUONO_2026 = {
+  1: affinita([GIO, FIS, VOL, SOL]),
+  2: affinita([GIO, VOL, FIS, SOL]),
+  3: affinita([GIO, VOL, FIS, SOL]),
+  4: affinita([GIO, FIS, VOL, SOL]),
+  46: affinita([NOS, FIS, VOL, GIO], 2),
+  51: affinita([NOS, VOL, FIS, GIO]),
+  58: affinita([GIO, NOS, VOL, FIS]),
+}
+
+/**
+ * Regole dei test salvati con `versione_modello` (src/config/tstSistema.js alla
+ * data indicata). Disposizione dei passi: PASSI_FINO_2026_V3.
+ */
+export const REGOLE_STORICHE_2026 = Object.freeze({
+  /** 2026_v2 (commit 1fe357b): affinità per posizione del bottone. */
+  '2026_v2': tabella({ SENSAZIONI: SENSAZIONI_2026_A, AGGETTIVI: AGGETTIVI_2026_A, AFFINITA_BASE: AFF_POSIZIONE_BASE, AFFINITA_STANDARD: AFF_POSIZIONE_STANDARD }),
+  /** 2026_v3, prima versione (commit 7d8db71, 10/10/2026): affinità per suono, sensazioni e aggettivi del 2026_v2. */
+  '2026_v3a': tabella({ SENSAZIONI: SENSAZIONI_2026_A, AGGETTIVI: AGGETTIVI_2026_A, AFFINITA_PER_PASSO: AFF_PER_SUONO_2026 }),
+  /** 2026_v3 (commit f1cfa53, 10/10–23/10/2026). */
+  '2026_v3': tabella({ SENSAZIONI: SENSAZIONI_2026_B, AGGETTIVI: AGGETTIVI_2026_B, AFFINITA_PER_PASSO: AFF_PER_SUONO_2026 }),
+})
+
+/** Epoche candidate per ogni `versione_modello` salvata (la più probabile prima). */
+const EPOCHE_PER_VERSIONE = Object.freeze({
+  '2026_v2': ['2026_v2'],
+  '2026_v3': ['2026_v3', '2026_v3a'],
+})
+
+const TUTTE_LE_REGOLE = { ...REGOLE_STORICHE, ...REGOLE_STORICHE_2026 }
+
 const num = (v) => Number(v) || 0
 const presente = (record, campo) => record?.[campo] !== undefined && record?.[campo] !== null && record?.[campo] !== ''
 const CAMPI_STORICI = Object.values(CAMPI_STORICI_PER_COLORE).flat()
@@ -194,6 +291,8 @@ function coincideConISalvati(record, calcolo, versione) {
 
 /** Epoche da provare, nell'ordine più probabile per i campi presenti nel record. */
 function epocheCandidate(record) {
+  const perVersione = EPOCHE_PER_VERSIONE[record?.versione_modello]
+  if (perVersione) return perVersione
   const haStorici = CAMPI_STORICI.some((c) => presente(record, c))
   const haNuoviPieni = NUOVI_VERDE_GRIGIO.some((c) => num(record[c]) !== 0)
   if (haStorici) return ['2025_v1']
@@ -209,7 +308,7 @@ function epocheCandidate(record) {
 export function leggiTestStorico(record = {}) {
   if (record?._letturaStorica) return record // già letto (archivio → report)
   for (const epoca of epocheCandidate(record)) {
-    const calcolo = calcolaCeste(record, { regolePerPasso: REGOLE_STORICHE[epoca] })
+    const calcolo = calcolaCeste(record, opzioniEpoca(epoca))
     if (calcolo.risposteValide === 0 || !coincideConISalvati(record, calcolo, epoca)) continue
     return {
       ...record,
@@ -224,8 +323,44 @@ export function leggiTestStorico(record = {}) {
   }
 }
 
+/** Opzioni di calcolo (regole e disposizione dei passi) di un'epoca storica. */
+function opzioniEpoca(epoca) {
+  return { regolePerPasso: TUTTE_LE_REGOLE[epoca], passi: PASSI_FINO_2026_V3 }
+}
+
 /** Regole con cui leggere le risposte di un record (undefined = regole attuali). */
 export function regoleDelTest(record) {
+  return opzioniCalcoloDelTest(record).regolePerPasso
+}
+
+/**
+ * Opzioni per calcolaCeste con cui leggere un record: {} = modello attuale;
+ * per un test storico verificato, regole e passi della sua epoca.
+ */
+export function opzioniCalcoloDelTest(record) {
   const lettura = record?._letturaStorica
-  return lettura?.verificato ? REGOLE_STORICHE[lettura.epoca] : undefined
+  return lettura?.verificato ? opzioniEpoca(lettura.epoca) : {}
+}
+
+let massimiStorici = null
+
+/**
+ * Massimi teorici con cui normalizzare un record (null = modello attuale).
+ * Tutti i test di versioni precedenti si normalizzano sui massimi del modello
+ * 2026_v3, cioè esattamente come venivano mostrati fino al 23/10/2026: il cambio
+ * di modello non sposta le percentuali né le prevalenze dei test già consegnati.
+ */
+export function massimiDelTest(record) {
+  const versione = record?.versione_modello || VERSIONE_MODELLO_LEGACY
+  if (versione === VERSIONE_MODELLO && !record?._letturaStorica) return null
+  if (!massimiStorici) {
+    const m = calcolaMassimiTeorici(opzioniEpoca('2026_v3'))
+    massimiStorici = Object.freeze({ ...m, famiglie: m.famiglieSommaNature })
+  }
+  return massimiStorici
+}
+
+/** Massimi teorici con cui mostrare un record: i suoi se storico, altrimenti quelli attuali. */
+export function massimiPerRecord(record) {
+  return massimiDelTest(record) || MASSIMI_TEORICI
 }

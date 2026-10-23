@@ -33,10 +33,7 @@ import { getTestoNatura, getSintesiFamiglia } from '../content/testiFissiTempera
 import { getNaturaByRawKey } from '../content/paroleTst.js'
 import { DISPOSITIONS } from '../config/dispositions'
 import { RAW_DOC_VISUAL } from '../config/galaxyDocBridge'
-import {
-  THEORETICAL_MAX_COLOR_TOTALS,
-  THEORETICAL_MAX_SCORE_BY_CORRENTE_KEY,
-} from '../testLogic.js'
+import { massimiPerRecord } from './testStorici.js'
 
 const clamp01 = (value) => Math.min(1, Math.max(0, value))
 
@@ -81,7 +78,7 @@ export function buildCorrentDataFromRecord(rawRecord = {}) {
         id: rawKey,
         nome: rawKeyToLabel(rawKey),
         colore: doc?.accentHex || disposition.colorHex,
-        peso: toPct(rawRecord?.[rawKey], THEORETICAL_MAX_SCORE_BY_CORRENTE_KEY[rawKey]),
+        peso: toPct(rawRecord?.[rawKey], massimiPerRecord(rawRecord).naturePerCampo[rawKey]),
         descrizione: doc?.intervalNote || '',
         statiDanimo: Array.isArray(doc?.lexiconChips) ? doc.lexiconChips.slice(0, 12) : [],
       }

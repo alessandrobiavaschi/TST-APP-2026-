@@ -61,7 +61,6 @@ function PanelBody({ display }) {
 function ChapterComposition({ onOpenAllFamilies, entryBtnRef }) {
   return (
     <div className="profilo-composition-extra">
-      <p className="report-room-preview-lead">{PROFILO_UI.compositionIntro}</p>
       <button
         ref={entryBtnRef}
         type="button"
@@ -245,31 +244,7 @@ export default function ProfiloEmotivo({
   return (
     <section aria-labelledby="pe-section-title" className="report-tst-profilo">
       <div className="pe-container">
-        <p className="report-room-preview-lead">{PROFILO_UI.title}</p>
-
-        {/* Sintesi breve; l'approfondimento e distribuito nei quattro capitoli. */}
-        {profilo.fraseChiave ? (
-          <div className="profilo-family-summary-card" style={{ maxWidth: '860px', margin: '0 auto 2.5rem', width: '100%', boxSizing: 'border-box' }}>
-            <p className="profilo-family-summary-card__brief" style={{
-              fontSize: '1.05rem',
-              lineHeight: '1.6',
-              color: 'rgba(255, 255, 255, 0.9)',
-              marginBottom: '1rem'
-            }}>
-              {profilo.composizioneSintesi || profilo.fraseChiave}
-            </p>
-            {profilo.composizioneSintesi ? (
-              <p className="profilo-family-summary-card__brief" style={{
-                fontSize: '0.95rem',
-                lineHeight: '1.6',
-                color: 'rgba(255, 255, 255, 0.76)',
-                margin: 0,
-              }}>
-                La descrizione della famiglia prevalente qui sotto è una base di lettura; non annulla le altre componenti significative.
-              </p>
-            ) : null}
-          </div>
-        ) : null}
+        <p className="report-room-eyebrow">{PROFILO_UI.title}</p>
 
         <nav className="profilo-chapter-nav" aria-label="Capitoli del profilo emotivo">
           {list.map((sezione, index) => {
