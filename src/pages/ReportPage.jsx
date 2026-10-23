@@ -90,7 +90,7 @@ function ReportPage() {
   if (!record || !record.raw || typeof record.raw !== 'object') {
     return (
       <div className="page report-page-empty">
-        <section className="page-card">
+        <section className="page-card tst-error-boundary-card">
           <h1 className="report-display-title">Report non disponibile</h1>
           <p className="results-empty-message">
             Non ho trovato i dati del report in questa sessione. Apri un test dalla pagina risultati per visualizzarlo.
@@ -213,7 +213,7 @@ function ReportPage() {
     console.error('buildReportData failed:', err)
     return (
       <div className="page report-page-empty">
-        <section className="page-card">
+        <section className="page-card tst-error-boundary-card">
           <h1 className="report-display-title">Report non disponibile</h1>
           <p className="results-empty-message">
             Non è stato possibile preparare il report per questo test. Torna ai risultati e riprova; se il problema

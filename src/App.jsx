@@ -76,10 +76,10 @@ class AppErrorBoundary extends React.Component {
     if (this.state.hasError) {
       return (
         <div className="page">
-          <section className="page-card">
-            <h1 className="report-display-title">Si e verificato un errore</h1>
+          <section className="page-card tst-error-boundary-card">
+            <h1 className="report-display-title">Si è verificato un errore</h1>
             <p className="results-empty-message">
-              La schermata si e interrotta. Usa uno dei pulsanti qui sotto per continuare.
+              La schermata si è interrotta. Usa uno dei pulsanti qui sotto per continuare.
             </p>
             {import.meta.env.DEV && this.state.errorMessage ? (
               <p className="results-empty-message" style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>

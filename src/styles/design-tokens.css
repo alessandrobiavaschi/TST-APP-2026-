@@ -8,16 +8,16 @@
 [data-theme='dark'] {
   /* ── 1. Fondali e Superfici (Acoustic Glass System) ── */
   --tst-color-bg-canvas: #06080e;
-  --tst-color-bg-surface-subtle: rgba(13, 17, 26, 0.55);
-  --tst-color-bg-surface: rgba(16, 22, 34, 0.78);
-  --tst-color-bg-surface-elevated: rgba(22, 30, 48, 0.90);
-  --tst-color-bg-hover: rgba(255, 255, 255, 0.07);
-  --tst-color-bg-active: rgba(255, 255, 255, 0.12);
+  --tst-color-bg-surface-subtle: rgba(15, 23, 38, 0.42);
+  --tst-color-bg-surface: rgba(18, 26, 42, 0.62);
+  --tst-color-bg-surface-elevated: rgba(22, 32, 52, 0.78);
+  --tst-color-bg-hover: rgba(255, 255, 255, 0.08);
+  --tst-color-bg-active: rgba(255, 255, 255, 0.14);
 
   /* ── 2. Bordi e Separatori ── */
-  --tst-color-border-subtle: rgba(255, 255, 255, 0.08);
-  --tst-color-border-default: rgba(255, 255, 255, 0.15);
-  --tst-color-border-strong: rgba(255, 255, 255, 0.28);
+  --tst-color-border-subtle: rgba(255, 255, 255, 0.10);
+  --tst-color-border-default: rgba(255, 255, 255, 0.18);
+  --tst-color-border-strong: rgba(255, 255, 255, 0.32);
   --tst-color-border-focus: #38bdf8;
 
   /* ── 3. Tipografia e Testi ── */
@@ -166,9 +166,9 @@
   background-color: var(--tst-color-bg-surface);
   backdrop-filter: var(--tst-blur-md);
   -webkit-backdrop-filter: var(--tst-blur-md);
-  border: 1px solid var(--tst-color-border-subtle);
+  border: 1px solid var(--tst-color-border-default);
   border-radius: var(--tst-radius-lg);
-  box-shadow: var(--tst-shadow-md);
+  box-shadow: var(--tst-shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.10);
   color: var(--tst-color-text-primary);
   transition: border-color var(--tst-transition-fast), box-shadow var(--tst-transition-fast);
 }
@@ -181,7 +181,7 @@
 
 .tst-card--elevated {
   background-color: var(--tst-color-bg-surface-elevated);
-  box-shadow: var(--tst-shadow-lg);
+  box-shadow: var(--tst-shadow-lg), inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 /* ── Bottoni Standard ── */
@@ -232,7 +232,7 @@
   align-items: center;
   justify-content: center;
   gap: var(--tst-space-xs);
-  background-color: var(--tst-color-bg-surface);
+  background-color: rgba(255, 255, 255, 0.08);
   color: var(--tst-color-text-primary);
   font-family: var(--tst-font-body);
   font-size: var(--tst-text-body-sm);
@@ -249,9 +249,9 @@
 }
 
 .tst-button-secondary:hover:not(:disabled) {
-  background-color: var(--tst-color-bg-hover);
+  background-color: rgba(255, 255, 255, 0.16);
   border-color: var(--tst-color-border-strong);
-  color: var(--tst-color-text-primary);
+  color: #ffffff;
 }
 
 .tst-button-secondary:active:not(:disabled) {

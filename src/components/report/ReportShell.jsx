@@ -433,7 +433,7 @@ export default function ReportShell({
   if (!hasReportData) {
     return (
       <div className="page" lang="it">
-        <section className="page-card">
+        <section className="page-card tst-error-boundary-card">
           <h1 className="report-display-title">{REPORT_SHELL_UI.unavailableTitle}</h1>
           <p className="results-empty-message">
             {REPORT_SHELL_UI.unavailableMessage}

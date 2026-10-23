@@ -1224,29 +1224,29 @@
   --color-overlay-veil: rgba(255, 255, 255, 0.18); /* velo neutro sopra cielo per stabilità testo */
   --color-card-over-sky: rgba(250, 250, 249, 0.96); /* card su cielo: opaco ma con blur */
 
-  --color-text: #1f2933;
-  --color-text-soft: #4b6a75;
-  --color-text-muted: #58778a;
-  --color-subtitle-readable: #27465a;
+  --color-text: var(--tst-color-text-primary, #f8fafc);
+  --color-text-soft: var(--tst-color-text-secondary, rgba(248, 250, 252, 0.82));
+  --color-text-muted: var(--tst-color-text-muted, rgba(248, 250, 252, 0.60));
+  --color-subtitle-readable: var(--tst-color-text-secondary, rgba(248, 250, 252, 0.82));
 
   /* Palette testi reattiva al cielo (armocromia emotiva) */
-  /* Valori di base (cieli chiari) */
-  --sky-text-main-on-light: #0f172a;
-  --sky-text-soft-on-light: #1f2933;
-  --sky-text-muted-on-light: #4b5563;
+  /* Valori ad alto contrasto per garantire leggibilità assoluta su qualsiasi sfondo */
+  --sky-text-main-on-light: #f8fafc;
+  --sky-text-soft-on-light: rgba(248, 250, 252, 0.88);
+  --sky-text-muted-on-light: rgba(248, 250, 252, 0.65);
   /* Valori per cieli medi */
-  --sky-text-main-on-medium: #0b1120;
-  --sky-text-soft-on-medium: #111827;
-  --sky-text-muted-on-medium: #6b7280;
+  --sky-text-main-on-medium: #f8fafc;
+  --sky-text-soft-on-medium: rgba(248, 250, 252, 0.88);
+  --sky-text-muted-on-medium: rgba(248, 250, 252, 0.65);
   /* Valori per cieli scuri */
-  --sky-text-main-on-dark: #f9fafb;
-  --sky-text-soft-on-dark: #e5e7eb;
-  --sky-text-muted-on-dark: #d1d5db;
+  --sky-text-main-on-dark: #f8fafc;
+  --sky-text-soft-on-dark: rgba(248, 250, 252, 0.88);
+  --sky-text-muted-on-dark: rgba(248, 250, 252, 0.65);
 
   /* Secondario: paragrafi e lead (leggibilità su sfondo cielo) */
-  --sky-text-secondary-on-light: #1e293b;
-  --sky-text-secondary-on-medium: #0f172a;
-  --sky-text-secondary-on-dark: #e2e8f0;
+  --sky-text-secondary-on-light: rgba(248, 250, 252, 0.82);
+  --sky-text-secondary-on-medium: rgba(248, 250, 252, 0.82);
+  --sky-text-secondary-on-dark: rgba(248, 250, 252, 0.82);
 
   /* Sfoca leggermente il video di sfondo per mascherare la pixellatura della sorgente compressa */
   --sky-blur: 1.4px;
@@ -4369,29 +4369,30 @@ body {
   font-size: var(--font-size-2xl);
   letter-spacing: -0.03em;
   margin: 0;
-  color: var(--color-text);
+  color: var(--tst-color-text-primary);
+  text-shadow: var(--tst-text-shadow-hero);
 }
 
 .page-subtitle {
   margin-top: 0.45rem;
   font-size: var(--font-size-base);
-  color: var(--color-subtitle-readable, #3d5239);
+  color: var(--tst-color-text-secondary);
   max-width: 40rem;
   font-family: var(--tst-font-sans, var(--font-sans));
-  font-weight: 700;
+  font-weight: 500;
   letter-spacing: 0.01em;
   line-height: 1.45;
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.9), 0 1px 4px rgba(45, 51, 41, 0.08);
+  text-shadow: var(--tst-text-shadow-body);
 }
 
-/* Sottotitolo hero in evidenza: verde più scuro e font “cicciotto” per leggibilità */
+/* Sottotitolo hero in evidenza: testo chiaro e contrastato */
 .page-subtitle-hero {
-  color: var(--color-subtitle-readable, #3d5239);
+  color: var(--tst-color-text-secondary);
   font-family: var(--tst-font-sans, var(--font-sans));
-  font-weight: 700;
+  font-weight: 600;
   font-size: var(--font-size-lg);
   letter-spacing: 0.01em;
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.9), 0 1px 4px rgba(45, 51, 41, 0.08);
+  text-shadow: var(--tst-text-shadow-body);
 }
 
 .page-card,
@@ -4399,8 +4400,8 @@ body {
   border-radius: var(--tst-radius-lg);
   padding: var(--tst-space-xl) var(--tst-space-lg);
   background: var(--tst-color-bg-surface);
-  box-shadow: var(--tst-shadow-md);
-  border: 1px solid var(--tst-color-border-subtle);
+  box-shadow: var(--tst-shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.10);
+  border: 1px solid var(--tst-color-border-default);
   backdrop-filter: var(--tst-blur-md);
   -webkit-backdrop-filter: var(--tst-blur-md);
   color: var(--tst-color-text-primary);
@@ -4451,16 +4452,18 @@ body {
   letter-spacing: -0.025em;
   line-height: 1.08;
   font-weight: 600;
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', 'Segoe UI', system-ui, sans-serif;
-  color: #0f172a;
+  font-family: var(--tst-font-display, Georgia, serif);
+  color: var(--tst-color-text-primary);
+  text-shadow: var(--tst-text-shadow-hero);
 }
 
 .section-hero-subtitle {
   margin: 0.75rem 0 0;
   font-size: 1.125rem;
   line-height: 1.625;
-  color: #475569;
+  color: var(--tst-color-text-secondary);
   max-width: 46rem;
+  text-shadow: var(--tst-text-shadow-body);
 }
 
 /* Con cielo: card scura come l’accordion → testo sempre leggibile su qualsiasi video */
@@ -6250,7 +6253,7 @@ body {
   flex-direction: column;
   gap: 0.4rem;
   font-size: 0.9rem;
-  color: #4b5563;
+  color: var(--tst-color-text-secondary);
 }
 
 .profilazione-field span {
@@ -7384,7 +7387,7 @@ body {
 .results-empty-message {
   padding: 0.75rem 1rem 1rem;
   font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
+  color: var(--tst-color-text-secondary);
   text-align: center;
 }
 
@@ -10007,17 +10010,19 @@ body {
   font-size: 2rem;
   letter-spacing: -0.04em;
   font-weight: 700;
-  color: #0f172a;
-  font-family: var(--font-sans);
+  color: var(--tst-color-text-primary);
+  font-family: var(--tst-font-sans, var(--font-sans));
+  text-shadow: var(--tst-text-shadow-hero);
 }
 
 .report-display-subtitle {
   margin: 0.5rem 0 0;
   font-size: 1.1rem;
-  font-weight: 600;
-  color: #1f2933;
+  font-weight: 500;
+  color: var(--tst-color-text-secondary);
   max-width: 42rem;
-  font-family: var(--font-sans);
+  font-family: var(--tst-font-sans, var(--font-sans));
+  text-shadow: var(--tst-text-shadow-body);
 }
 
 .report-page-header {
@@ -16854,40 +16859,38 @@ body {
 }
 
 /* =========================================================
-   GLOBAL RESTYLE: Serenis-like visual system (high fidelity)
+   GLOBAL RESTYLE: Acoustic Glass system & Design Tokens bridge
    ========================================================= */
 
 :root {
-  --font-sans: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-  --color-bg: #f6f7fd;
-  --color-bg-soft: #eef0ff;
-  --color-surface: #ffffff;
-  --color-surface-subtle: #faf9ff;
-  --color-border-soft: #dfdaf6;
-  --color-text: #1c1c36;
-  --color-text-soft: #4a4a74;
-  --color-text-muted: #6a6a98;
-  --color-accent: #7a59f5;
-  --color-accent-soft: #8f73ff;
-  --color-accent-blue: #7a59f5;
-  --color-accent-green: #8ce6d0;
-  --color-accent-green-soft: #e8fcf6;
-  --color-overlay-veil: rgba(255, 255, 255, 0.14);
-  --shadow-soft: 0 14px 44px rgba(28, 28, 54, 0.08);
-  --shadow-softer: 0 26px 70px rgba(28, 28, 54, 0.1);
-  --shadow-header: 0 8px 28px rgba(28, 28, 54, 0.08);
-  --report-title: #1c1c36;
-  --report-subtitle: #4a4a74;
-  --report-body: #34345a;
-  --report-accent: #7a59f5;
+  --font-sans: var(--tst-font-body, "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif);
+  --color-bg: var(--tst-color-bg-canvas);
+  --color-bg-soft: var(--tst-color-bg-surface-subtle);
+  --color-surface: var(--tst-color-bg-surface);
+  --color-surface-subtle: var(--tst-color-bg-surface-subtle);
+  --color-border-soft: var(--tst-color-border-subtle);
+  --color-text: var(--tst-color-text-primary);
+  --color-text-soft: var(--tst-color-text-secondary);
+  --color-text-muted: var(--tst-color-text-muted);
+  --color-accent: var(--tst-color-accent-system);
+  --color-accent-soft: var(--tst-color-accent-system-soft);
+  --color-accent-blue: var(--tst-family-blu);
+  --color-accent-green: var(--tst-family-verde);
+  --color-accent-green-soft: var(--tst-family-verde-soft);
+  --color-overlay-veil: rgba(255, 255, 255, 0.08);
+  --shadow-soft: var(--tst-shadow-md);
+  --shadow-softer: var(--tst-shadow-lg);
+  --shadow-header: var(--tst-shadow-sm);
+  --report-title: var(--tst-color-text-primary);
+  --report-subtitle: var(--tst-color-text-secondary);
+  --report-body: var(--tst-color-text-secondary);
+  --report-accent: var(--tst-color-accent-system);
 }
 
 body {
-  color: var(--color-text);
-  font-family: var(--font-sans);
-  background:
-    radial-gradient(120% 120% at 0% 0%, rgba(122, 89, 245, 0.16), transparent 52%),
-    radial-gradient(120% 120% at 100% 100%, rgba(140, 230, 208, 0.2), transparent 55%);
+  color: var(--tst-color-text-primary);
+  font-family: var(--tst-font-body);
+  background-color: var(--tst-color-bg-canvas);
 }
 
 .app-shell {
@@ -16928,14 +16931,16 @@ body {
 }
 
 .app-header-nav {
-  border: 1px solid rgba(223, 218, 246, 0.9);
-  background: rgba(255, 255, 255, 0.84);
-  box-shadow: 0 6px 20px rgba(28, 28, 54, 0.08);
+  border: 1px solid var(--tst-color-border-subtle);
+  background: var(--tst-color-bg-surface-subtle);
+  box-shadow: var(--tst-shadow-sm);
+  backdrop-filter: var(--tst-blur-sm);
+  -webkit-backdrop-filter: var(--tst-blur-sm);
 }
 
 .app-header-link {
   padding: 0.42rem 0.84rem;
-  color: var(--color-text-soft);
+  color: var(--tst-color-text-secondary);
   text-transform: none;
   letter-spacing: 0;
   font-weight: 600;
@@ -16943,15 +16948,15 @@ body {
 }
 
 .app-header-link:hover {
-  color: var(--color-text);
-  background: rgba(122, 89, 245, 0.08);
+  color: var(--tst-color-text-primary);
+  background: var(--tst-color-bg-hover);
 }
 
 .app-header-link.active,
 .app-header-link[aria-current='page'] {
-  color: var(--color-text);
-  background: #ffffff;
-  box-shadow: 0 8px 24px rgba(28, 28, 54, 0.12);
+  color: var(--tst-color-text-primary);
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .header-register-button,
@@ -16962,41 +16967,46 @@ body {
 }
 
 .header-register-button {
-  color: var(--color-text-soft);
-  border-color: var(--color-border-soft);
+  color: var(--tst-color-text-secondary);
+  border-color: var(--tst-color-border-default);
 }
 
 .header-register-button:hover {
-  background: rgba(122, 89, 245, 0.08);
-  color: var(--color-accent);
+  background: var(--tst-color-bg-hover);
+  color: var(--tst-color-accent-system);
 }
 
 .header-login-button,
 .nav-button.primary,
 .btn-primary,
 .btn.btn-primary {
-  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-soft));
-  border-color: transparent;
-  color: #fff;
-  box-shadow: 0 12px 32px rgba(122, 89, 245, 0.32);
+  background: var(--tst-color-accent-system);
+  border: 1px solid transparent;
+  color: #06080e;
+  font-weight: 600;
+  box-shadow: 0 4px 16px rgba(56, 189, 248, 0.30);
+  transition: transform var(--tst-transition-fast), background-color var(--tst-transition-fast), box-shadow var(--tst-transition-fast);
 }
 
 .header-login-button:hover,
 .nav-button.primary:hover:not(:disabled),
 .btn-primary:hover:not(:disabled),
 .btn.btn-primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #6f50e2, #8263f3);
-  box-shadow: 0 16px 34px rgba(122, 89, 245, 0.42);
+  background: var(--tst-color-accent-system-hover);
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.48);
+  transform: translateY(-1px);
 }
 
 .header-avatar {
-  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-soft));
-  border-color: rgba(255, 255, 255, 0.88);
+  background: var(--tst-color-bg-surface-elevated);
+  border-color: var(--tst-color-border-strong);
+  color: var(--tst-color-text-primary);
 }
 
 .header-account-menu {
-  border: 1px solid var(--color-border-soft);
-  box-shadow: 0 20px 50px rgba(28, 28, 54, 0.18);
+  border: 1px solid var(--tst-color-border-default);
+  box-shadow: var(--tst-shadow-xl);
+  background: var(--tst-color-bg-surface-elevated);
 }
 
 .app-main {
@@ -17010,16 +17020,18 @@ body {
 
 .page-title,
 .report-display-title {
-  font-family: var(--font-sans);
-  font-weight: 800;
+  font-family: var(--tst-font-sans, var(--font-sans));
+  font-weight: 700;
   letter-spacing: -0.03em;
-  color: var(--color-text);
+  color: var(--tst-color-text-primary);
+  text-shadow: var(--tst-text-shadow-hero);
 }
 
 .page-subtitle,
 .report-display-subtitle {
-  color: var(--color-text-soft);
-  font-family: var(--font-sans);
+  color: var(--tst-color-text-secondary);
+  font-family: var(--tst-font-sans, var(--font-sans));
+  text-shadow: var(--tst-text-shadow-body);
 }
 
 .page-card,
@@ -17029,8 +17041,8 @@ body {
 .home-welcome,
 .landing-flow-access .auth-box {
   background: var(--tst-color-bg-surface);
-  border: 1px solid var(--tst-color-border-subtle);
-  box-shadow: var(--tst-shadow-md);
+  border: 1px solid var(--tst-color-border-default);
+  box-shadow: var(--tst-shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.10);
   border-radius: var(--tst-radius-lg);
   backdrop-filter: var(--tst-blur-md);
   -webkit-backdrop-filter: var(--tst-blur-md);
@@ -17042,7 +17054,7 @@ body {
 .info-card:hover,
 .results-main-card:hover {
   border-color: var(--tst-color-border-strong);
-  box-shadow: var(--tst-shadow-lg);
+  box-shadow: var(--tst-shadow-lg), inset 0 1px 0 rgba(255, 255, 255, 0.14);
 }
 
 .nav-button.secondary,
@@ -17050,24 +17062,29 @@ body {
 .btn.btn-secondary {
   border: 1px solid var(--tst-color-border-default);
   color: var(--tst-color-text-primary);
-  background: var(--tst-color-bg-surface);
+  background: rgba(255, 255, 255, 0.08);
   backdrop-filter: var(--tst-blur-sm);
   -webkit-backdrop-filter: var(--tst-blur-sm);
+  transition: background-color var(--tst-transition-fast), border-color var(--tst-transition-fast), color var(--tst-transition-fast);
 }
 
 .nav-button.secondary:hover:not(:disabled),
 .btn-secondary:hover:not(:disabled),
 .btn.btn-secondary:hover:not(:disabled) {
-  background: var(--color-bg-soft);
+  background: rgba(255, 255, 255, 0.16);
+  border-color: var(--tst-color-border-strong);
+  color: #ffffff;
 }
 
 input,
 select,
 textarea {
   border-radius: 0.72rem;
-  border: 1px solid var(--color-border-soft);
-  background: #fff;
-  color: var(--color-text);
+  border: 1px solid var(--tst-color-border-default);
+  background: rgba(13, 17, 26, 0.65);
+  color: var(--tst-color-text-primary);
+  backdrop-filter: var(--tst-blur-sm);
+  -webkit-backdrop-filter: var(--tst-blur-sm);
 }
 
 input:focus-visible,
@@ -17075,7 +17092,7 @@ select:focus-visible,
 textarea:focus-visible,
 button:focus-visible,
 a:focus-visible {
-  outline: 2px solid rgba(122, 89, 245, 0.45);
+  outline: 2px solid var(--tst-color-border-focus);
   outline-offset: 2px;
 }
 
@@ -17087,16 +17104,61 @@ a:focus-visible {
 
 .results-table-wrapper,
 .results-table {
-  border-color: var(--color-border-soft);
+  border-color: var(--tst-color-border-subtle);
 }
 
 .results-table th {
-  background: #f8f7ff;
-  color: var(--color-text-soft);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--tst-color-text-primary);
+  border-bottom: 1px solid var(--tst-color-border-default);
+}
+
+.results-table td {
+  color: var(--tst-color-text-secondary);
+  border-bottom: 1px solid var(--tst-color-border-subtle);
 }
 
 .results-table tr:hover td {
-  background: rgba(122, 89, 245, 0.04);
+  background: var(--tst-color-bg-hover);
+}
+
+/* ── Error boundary / Standalone message card ── */
+.tst-error-boundary-card {
+  max-width: 620px;
+  margin: 4rem auto;
+  text-align: center;
+  padding: 2.75rem 2.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.tst-error-boundary-card .report-display-title {
+  margin: 0;
+  font-size: clamp(1.75rem, 3.2vw, 2.25rem);
+  font-family: var(--tst-font-display, Georgia, serif);
+  font-weight: 600;
+  color: var(--tst-color-text-primary);
+  text-shadow: var(--tst-text-shadow-hero);
+}
+
+.tst-error-boundary-card .results-empty-message {
+  margin: 0;
+  padding: 0;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--tst-color-text-secondary);
+  max-width: 32rem;
+  text-shadow: var(--tst-text-shadow-body);
+}
+
+.tst-error-boundary-card .report-final-actions-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
 }
 
 .gdpr-banner {
