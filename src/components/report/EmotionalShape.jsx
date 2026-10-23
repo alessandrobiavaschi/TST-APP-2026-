@@ -63,10 +63,10 @@ const NOMI_FAMIGLIE = {
 
 const CENTER_X = 600
 const CENTER_Y = 600
-const GRID_BASE_RADIUS = 155
-const GRID_STEP = 42
+const GRID_BASE_RADIUS = 135
+const GRID_STEP = 36
 const MIN_VISIBLE_TAGLIA = 1
-const PETAL_THICKNESS_RY = 58 // Larghezza trasversale costante: scalatura dell'area rigorosamente lineare
+const PETAL_THICKNESS_RY = 50 // Larghezza trasversale costante: scalatura dell'area rigorosamente lineare
 
 function formatScaleScore(score) {
   const roundedScore = Math.round((Number(score) || 0) * 10) / 10
@@ -206,27 +206,27 @@ export default function EmotionalShape({
             />
             <text
               x="600"
-              y="52"
+              y="48"
               textAnchor="middle"
-              fill="rgba(253, 224, 71, 0.6)"
-              fontSize="11"
-              fontWeight="700"
-              letterSpacing="0.12em"
+              fill="rgba(253, 224, 71, 0.75)"
+              fontSize="16"
+              fontWeight="600"
+              letterSpacing="0.08em"
               fontFamily="var(--font-body, system-ui, sans-serif)"
             >
-              ▲ POLO ESPANSIONE
+              Espansione
             </text>
             <text
               x="600"
-              y="1160"
+              y="1165"
               textAnchor="middle"
-              fill="rgba(74, 222, 128, 0.6)"
-              fontSize="11"
-              fontWeight="700"
-              letterSpacing="0.12em"
+              fill="rgba(74, 222, 128, 0.75)"
+              fontSize="16"
+              fontWeight="600"
+              letterSpacing="0.08em"
               fontFamily="var(--font-body, system-ui, sans-serif)"
             >
-              ▼ POLO RADICAMENTO
+              Calma e Radicamento
             </text>
 
             {/* Asse Orizzontale: Azione (Sinistra) ↔ Riflessione (Destra) */}
@@ -241,31 +241,31 @@ export default function EmotionalShape({
             />
             <text
               x="60"
-              y="576"
+              y="572"
               textAnchor="start"
-              fill="rgba(248, 113, 113, 0.6)"
-              fontSize="11"
-              fontWeight="700"
-              letterSpacing="0.12em"
+              fill="rgba(248, 113, 113, 0.75)"
+              fontSize="16"
+              fontWeight="600"
+              letterSpacing="0.08em"
               fontFamily="var(--font-body, system-ui, sans-serif)"
             >
-              ◄ POLO AZIONE
+              Azione
             </text>
             <text
               x="1140"
-              y="576"
+              y="572"
               textAnchor="end"
-              fill="rgba(96, 165, 250, 0.6)"
-              fontSize="11"
-              fontWeight="700"
-              letterSpacing="0.12em"
+              fill="rgba(96, 165, 250, 0.75)"
+              fontSize="16"
+              fontWeight="600"
+              letterSpacing="0.08em"
               fontFamily="var(--font-body, system-ui, sans-serif)"
             >
-              POLO RIFLESSIONE ►
+              Riflessione
             </text>
           </g>
 
-          {/* Griglia circolare dei livelli 1-7 con perimetro MAX in risalto */}
+          {/* Griglia circolare dei livelli di intensità */}
           <g className="emotional-shape-grid">
             {[1, 2, 3, 4, 5, 6, 7].map((t) => {
               const r = GRID_BASE_RADIUS + (t - 1) * GRID_STEP
@@ -278,56 +278,10 @@ export default function EmotionalShape({
                   cy={CENTER_Y}
                   r={r}
                   fill="none"
-                  stroke={isMax ? 'rgba(255, 255, 255, 0.22)' : isMedian ? 'rgba(255, 255, 255, 0.13)' : 'rgba(255, 255, 255, 0.07)'}
-                  strokeWidth={isMax ? 1.5 : 1}
+                  stroke={isMax ? 'rgba(255, 255, 255, 0.16)' : isMedian ? 'rgba(255, 255, 255, 0.09)' : 'rgba(255, 255, 255, 0.05)'}
+                  strokeWidth={isMax ? 1.2 : 1}
                   strokeDasharray={isMax ? 'none' : isMedian ? '4 4' : '2 5'}
                 />
-              )
-            })}
-          </g>
-
-          {/* Asse radiale graduato Scala 1-7 (diagonale a -135°, priva di petali) */}
-          <g className="emotional-shape-scale-axis" opacity="0.85">
-            {/* Linea guida graduata */}
-            <line
-              x1={600 - 130 * 0.7071}
-              y1={600 - 130 * 0.7071}
-              x2={600 - 425 * 0.7071}
-              y2={600 - 425 * 0.7071}
-              stroke="rgba(56, 189, 248, 0.2)"
-              strokeWidth="1"
-              strokeDasharray="2 4"
-            />
-            {/* Tacche numeriche 1..7 */}
-            {[1, 2, 3, 4, 5, 6, 7].map((t) => {
-              const r = GRID_BASE_RADIUS + (t - 1) * GRID_STEP
-              const x = 600 - r * 0.7071
-              const y = 600 - r * 0.7071
-              const isMax = t === 7
-              return (
-                <g key={`scale-tick-${t}`}>
-                  {/* Tacchetta ortogonale */}
-                  <line
-                    x1={x - 4 * 0.7071}
-                    y1={y + 4 * 0.7071}
-                    x2={x + 4 * 0.7071}
-                    y2={y - 4 * 0.7071}
-                    stroke={isMax ? 'rgba(248, 250, 252, 0.6)' : 'rgba(248, 250, 252, 0.25)'}
-                    strokeWidth={isMax ? 1.5 : 1}
-                  />
-                  {/* Numero di scala */}
-                  <text
-                    x={x - 10}
-                    y={y - 4}
-                    textAnchor="end"
-                    fill={isMax ? 'rgba(248, 250, 252, 0.85)' : 'rgba(248, 250, 252, 0.45)'}
-                    fontSize={isMax ? '13' : '11'}
-                    fontWeight={isMax ? '700' : '500'}
-                    fontFamily="var(--font-mono, 'JetBrains Mono', monospace)"
-                  >
-                    {isMax ? '7 max' : String(t)}
-                  </text>
-                </g>
               )
             })}
           </g>
@@ -454,79 +408,29 @@ export default function EmotionalShape({
             <circle
               cx={CENTER_X}
               cy={CENTER_Y}
-              r={32}
+              r={28}
               fill="rgba(10, 16, 28, 0.88)"
               stroke={hoveredCore ? '#38bdf8' : 'rgba(255, 255, 255, 0.22)'}
               strokeWidth={hoveredCore ? 2 : 1.5}
               style={{ transition: 'stroke 0.2s ease, stroke-width 0.2s ease' }}
             />
-            {/* Anello intermedio orbitale */}
-            <circle
-              cx={CENTER_X}
-              cy={CENTER_Y}
-              r={19}
-              fill="none"
-              stroke="#38bdf8"
-              strokeWidth="1"
-              strokeDasharray="3 3"
-              opacity={hoveredCore ? 0.9 : 0.55}
-            />
             {/* Punto di gravità centrale */}
             <circle cx={CENTER_X} cy={CENTER_Y} r={5} fill="#38bdf8" />
-            <text
-              x={CENTER_X}
-              y={CENTER_Y + 4}
-              textAnchor="middle"
-              fontSize="9"
-              fontWeight="700"
-              letterSpacing="0.08em"
-              fill={hoveredCore ? '#38bdf8' : 'rgba(248, 250, 252, 0.85)'}
-              fontFamily="var(--font-mono, 'JetBrains Mono', monospace)"
-            >
-              CORE
-            </text>
           </g>
 
-          {/* Ancore Visive Dirette sul Grafico (Risoluzione Split-Attention) */}
+          {/* Ancore Visive Dirette sul Grafico (Qualitative e senza box) */}
           <g className="emotional-shape-direct-labels">
             {familyRows.map((row) => {
               const {
                 familyKey,
                 label,
                 color,
-                normalizedTaglia,
                 polarity,
                 labelX,
                 labelY,
                 textAnchor,
-                angle,
-                visibleTaglia,
               } = row
               const isHighlighted = (hoveredFamily === familyKey) || (selectedFamily === familyKey)
-
-              // Calcolo del vertice del petalo per linea di connessione guida
-              const outerTip = GRID_BASE_RADIUS + (visibleTaglia - 1) * GRID_STEP
-              const rad = angle * (Math.PI / 180)
-              const tipX = CENTER_X + Math.cos(rad) * outerTip
-              const tipY = CENTER_Y + Math.sin(rad) * outerTip
-
-              // Coordinate della box badge in base al textAnchor
-              let rectX = labelX - 95
-              let rectY = labelY - 26
-              let text1X = labelX
-              let text1Y = labelY - 4
-              let text2X = labelX
-              let text2Y = labelY + 16
-
-              if (textAnchor === 'start') {
-                rectX = labelX - 12
-                text1X = labelX + 4
-                text2X = labelX + 4
-              } else if (textAnchor === 'end') {
-                rectX = labelX - 178
-                text1X = labelX - 4
-                text2X = labelX - 4
-              }
 
               return (
                 <g
@@ -534,7 +438,7 @@ export default function EmotionalShape({
                   className={`emotional-shape-onchart-label${isHighlighted ? ' is-active' : ''}`}
                   tabIndex={0}
                   role="button"
-                  aria-label={`${label}: ${formatScaleScore(normalizedTaglia)} su 7, ${polarity}`}
+                  aria-label={`${label}, ${polarity}`}
                   onClick={(e) => {
                     e.stopPropagation()
                     handleFamilySelect(familyKey)
@@ -549,64 +453,37 @@ export default function EmotionalShape({
                   }}
                   style={{ cursor: 'pointer', outline: 'none' }}
                 >
-                  {/* Linea sottile guida dal vertice del petalo al badge */}
-                  <line
-                    x1={tipX}
-                    y1={tipY}
-                    x2={textAnchor === 'start' ? rectX : textAnchor === 'end' ? rectX + 190 : labelX}
-                    y2={textAnchor === 'middle' ? (angle === -90 ? rectY + 52 : rectY) : labelY}
-                    stroke={color}
-                    strokeWidth="1"
-                    strokeDasharray="2 3"
-                    opacity={isHighlighted ? 0.75 : 0.25}
-                  />
-
-                  {/* Sfondo Acoustic Glass del badge */}
-                  <rect
-                    x={rectX}
-                    y={rectY}
-                    width="190"
-                    height="52"
-                    rx="14"
-                    fill="rgba(10, 16, 28, 0.88)"
-                    stroke={isHighlighted ? color : 'rgba(255, 255, 255, 0.16)'}
-                    strokeWidth={isHighlighted ? 1.8 : 1}
-                    style={{
-                      transition: 'stroke 0.2s ease, stroke-width 0.2s ease, filter 0.2s ease',
-                      filter: isHighlighted ? `drop-shadow(0 0 10px ${color}40)` : 'none',
-                    }}
-                  />
-
-                  {/* Riga 1: Nome famiglia e punteggio numerico */}
+                  {/* Riga 1: Nome Famiglia qualitativo */}
                   <text
-                    x={text1X}
-                    y={text1Y}
+                    x={labelX}
+                    y={labelY - 6}
                     textAnchor={textAnchor}
                     fill="#f8fafc"
-                    fontSize="15"
-                    fontWeight="700"
+                    fontSize="26"
+                    fontWeight="800"
                     fontFamily="var(--font-body, system-ui, sans-serif)"
+                    style={{
+                      textShadow: '0 3px 14px rgba(0, 0, 0, 0.95), 0 0 24px rgba(0, 0, 0, 0.9)',
+                      transition: 'fill 0.2s ease',
+                    }}
                   >
-                    {label}{' '}
-                    <tspan fill={color} fontWeight="800" fontFamily="var(--font-mono, 'JetBrains Mono', monospace)">
-                      {formatScaleScore(normalizedTaglia)}
-                    </tspan>
-                    <tspan fill="rgba(248, 250, 252, 0.45)" fontSize="11" fontFamily="var(--font-mono, 'JetBrains Mono', monospace)">
-                      /7
-                    </tspan>
+                    {label}
                   </text>
 
                   {/* Riga 2: Polarità psicofisiologica */}
                   <text
-                    x={text2X}
-                    y={text2Y}
+                    x={labelX}
+                    y={labelY + 22}
                     textAnchor={textAnchor}
                     fill={color}
-                    fontSize="11"
+                    fontSize="16"
                     fontWeight="600"
                     letterSpacing="0.04em"
                     fontFamily="var(--font-body, system-ui, sans-serif)"
-                    opacity="0.9"
+                    style={{
+                      textShadow: '0 2px 10px rgba(0, 0, 0, 0.95)',
+                      opacity: isHighlighted ? 1 : 0.9,
+                    }}
                   >
                     {polarity}
                   </text>
@@ -617,73 +494,64 @@ export default function EmotionalShape({
         </svg>
       </div>
 
-      {/* Scheda interpretativa in tempo reale (Silhouette & Polarità) */}
-      <div
-        className="emotional-shape-insight"
-        style={{ '--insight-color': hoveredCore ? '#38bdf8' : (activeRow ? activeRow.color : '#38bdf8') }}
-        role="region"
-        aria-label="Interpretazione della silhouette emotiva"
-      >
-        <div className="emotional-shape-insight__header">
+      {/* Scheda interpretativa e punteggi racchiusi in cassetto nerd chiuso di default */}
+      <details className="emotional-shape-nerd-accordion">
+        <summary className="emotional-shape-nerd-summary">
           <span
-            className="emotional-shape-insight__dot"
-            style={{ backgroundColor: hoveredCore ? '#38bdf8' : (activeRow ? activeRow.color : '#38bdf8') }}
-            aria-hidden="true"
+            className="emotional-shape-nerd-summary-dot"
+            style={{ backgroundColor: activeRow ? activeRow.color : '#38bdf8' }}
           />
-          <span className="emotional-shape-insight__badge">
-            {hoveredCore
-              ? 'Baricentro Armonico'
-              : (activeRow ? `Famiglia ${activeRow.label}` : 'Silhouette Emotiva')}
-          </span>
-          <span className="emotional-shape-insight__score">
-            {hoveredCore
-              ? 'Nucleo di Coesistenza'
-              : (activeRow ? `${formatScaleScore(activeRow.normalizedTaglia)}/7` : '')}
-          </span>
-          {activeRow && !hoveredCore && (
-            <span className="emotional-shape-insight__polarity">
-              {activeRow.polarity}
-            </span>
-          )}
-        </div>
-        <p className="emotional-shape-insight__desc">
-          {hoveredCore
-            ? 'Punto di convergenza in cui tutte e 5 le energie emotive si radicano e convivono in equilibrio interiore.'
-            : (activeRow ? activeRow.description : 'Seleziona o passa con il cursore su un petalo per approfondirne il significato.')}
-        </p>
-      </div>
-
-      {/* Legenda inferiore interattiva (Summary Pills sincronizzati) */}
-      <ul className="emotional-shape-legend" aria-hidden="false">
-        {familyRows.map((row) => {
-          const isHighlighted = (hoveredFamily === row.familyKey) || (selectedFamily === row.familyKey)
-          return (
-            <li
-              key={`legend-${row.familyKey}`}
-              className={`emotional-shape-legend__item${isHighlighted ? ' emotional-shape-legend__item--active' : ''}`}
-              style={{ '--legend-color': row.color }}
-              tabIndex={0}
-              role="button"
-              aria-label={`${row.label}, valore ${formatScaleScore(row.normalizedTaglia)} su 7`}
-              onMouseEnter={() => handleFamilyHover(row.familyKey)}
-              onMouseLeave={() => handleFamilyHover(null)}
-              onClick={() => handleFamilySelect(row.familyKey)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault()
-                  handleFamilySelect(row.familyKey)
-                }
-              }}
-            >
-              <span className="emotional-shape-legend__dot" style={{ backgroundColor: row.color }} aria-hidden="true" />
-              <span className="emotional-shape-legend__name">{row.label}</span>
-              <span className="emotional-shape-legend__score">
-                {formatScaleScore(row.normalizedTaglia)}<span className="emotional-shape-legend__max">/7</span>
+          <span>Dettagli e punteggi delle 5 famiglie</span>
+          <span className="emotional-shape-nerd-chevron" aria-hidden="true">▾</span>
+        </summary>
+        <div className="emotional-shape-nerd-content">
+          <div
+            className="emotional-shape-insight"
+            style={{ '--insight-color': hoveredCore ? '#38bdf8' : (activeRow ? activeRow.color : '#38bdf8') }}
+            role="region"
+            aria-label="Interpretazione della silhouette emotiva"
+          >
+            <div className="emotional-shape-insight__header">
+              <span
+                className="emotional-shape-insight__dot"
+                style={{ backgroundColor: hoveredCore ? '#38bdf8' : (activeRow ? activeRow.color : '#38bdf8') }}
+                aria-hidden="true"
+              />
+              <span className="emotional-shape-insight__badge">
+                {hoveredCore
+                  ? 'Baricentro Armonico'
+                  : (activeRow ? `Famiglia ${activeRow.label}` : 'Silhouette Emotiva')}
               </span>
-            </li>
-          )
-        })}
-      </ul>
+              {activeRow && !hoveredCore && (
+                <span className="emotional-shape-insight__polarity">
+                  {activeRow.polarity}
+                </span>
+              )}
+            </div>
+            <p className="emotional-shape-insight__desc">
+              {hoveredCore
+                ? 'Punto di convergenza in cui tutte e 5 le energie emotive si radicano e convivono in equilibrio interiore.'
+                : (activeRow ? activeRow.description : 'Seleziona o passa con il cursore su un petalo per approfondirne il significato.')}
+            </p>
+          </div>
+
+          <ul className="emotional-shape-legend" aria-label="Punteggi delle 5 famiglie">
+            {familyRows.map((row) => (
+              <li
+                key={row.familyKey}
+                className={`emotional-shape-legend__item${(hoveredFamily === row.familyKey || selectedFamily === row.familyKey) ? ' emotional-shape-legend__item--active' : ''}`}
+                style={{ '--legend-color': row.color }}
+                onClick={() => handleFamilySelect(row.familyKey)}
+              >
+                <span className="emotional-shape-legend__dot" style={{ backgroundColor: row.color }} />
+                <span className="emotional-shape-legend__name">{row.label}</span>
+                <span className="emotional-shape-legend__score">{formatScaleScore(row.normalizedTaglia)}</span>
+                <span className="emotional-shape-legend__max">/7</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </details>
     </div>
   )
 }

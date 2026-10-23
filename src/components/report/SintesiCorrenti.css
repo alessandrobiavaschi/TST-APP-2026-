@@ -760,19 +760,19 @@
   color: rgba(226, 232, 240, 0.55);
 }
 
-/* Card interpretativa dinamica della Silhouette Emotiva */
+/* Scheda interpretativa dinamica della Silhouette Emotiva (Qualitativa, pulita, senza box pesante) */
 .emotional-shape-insight {
-  margin: 0.85rem auto 0;
+  margin: 1rem auto 0;
   width: 100%;
-  max-width: 32rem;
-  padding: 0.75rem 1rem;
-  border-radius: 14px;
-  background: rgba(13, 19, 32, 0.82);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  max-width: 36rem;
+  padding: 0.85rem 1.2rem;
+  border-radius: 10px;
+  background: rgba(13, 19, 32, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-left: 3px solid var(--insight-color, #38bdf8);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
-  backdrop-filter: blur(12px);
-  transition: border-color 0.25s ease, background-color 0.25s ease;
+  box-shadow: none;
+  backdrop-filter: blur(8px);
+  transition: border-color 0.25s ease;
 }
 
 .emotional-shape-insight__header {
@@ -1596,16 +1596,16 @@
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
 }
 
-/* Stage della slide */
+/* Stage della slide — Senza box di riempimento nidificati (max un livello) */
 .sintesi-chart-slide-stage {
   position: relative;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.04) 0%, rgba(13, 17, 26, 0.55) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 24px;
-  padding: clamp(1.2rem, 2.5vw, 2rem);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0.5rem 0;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;

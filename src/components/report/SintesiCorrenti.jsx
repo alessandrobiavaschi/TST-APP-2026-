@@ -335,32 +335,28 @@ export default function SintesiCorrenti({
 
   const desktopSlides = [
     {
-      id: 'radar',
-      tabLabel: 'Radar 1-7',
-      badge: '01 / 04 · Scala 1-7',
-      title: 'Punteggio Relativo (Scala 1-7)',
-      subtitle: 'Punteggio 1-7 per famiglia — passa il cursore o seleziona un vertice per il dettaglio.',
-    },
-    {
       id: 'geometria',
       tabLabel: 'Forma Emotiva',
-      badge: '02 / 04 · Geometria',
-      title: 'La Geometria Emotiva',
-      subtitle: 'Mappa della silhouette emotiva: l\'estensione dei petali indica l\'intensità (scala 1–7), mentre il nucleo centrale ne rappresenta l\'equilibrio armonico.',
+      title: 'La Forma Emotiva',
+      subtitle: 'Composizione visiva delle cinque energie temperamentali: l’ampiezza dei petali esprime l’armonia e la presenza delle diverse propensioni.',
+    },
+    {
+      id: 'radar',
+      tabLabel: 'Radar d\'Insieme',
+      title: 'Visione d\'Insieme',
+      subtitle: 'Distribuzione simultanea delle cinque qualità emotive.',
     },
     {
       id: 'nature',
-      tabLabel: 'Nature',
-      badge: '03 / 04 · Nature',
-      title: 'Correnti e Nature di tutte le famiglie',
-      subtitle: `Le nature di ogni famiglia. Prima la prevalente, ${dominantPresenceLabel.title}, poi le altre per peso nel profilo.`,
+      tabLabel: 'Nature del Profilo',
+      title: 'Le Nature delle Famiglie',
+      subtitle: `Le sfumature qualitative emerse dal test: in evidenza la famiglia prevalente, ${dominantPresenceLabel.title}, insieme alle altre manifestazioni del profilo.`,
     },
     {
       id: 'percorso',
       tabLabel: 'Percorso Risposte',
-      badge: '04 / 04 · Mappa Passi',
-      title: 'Il Percorso delle 72 Risposte',
-      subtitle: 'Mappa completa delle 72 risposte ordinate per traccia e intensità emotiva.',
+      title: 'Il Percorso dell’Ascolto',
+      subtitle: 'Tracciabilità delle 72 risposte sonore date durante la somministrazione del test.',
     },
   ]
 
@@ -369,6 +365,20 @@ export default function SintesiCorrenti({
   // Grafici della sezione 1.2 per il visore mobile: stessi componenti e stessi dati del desktop.
   const mobileChartSlides = isMobileViewport
     ? [
+        {
+          id: 'forma',
+          title: 'Forma emotiva',
+          caption: 'La silhouette delle tue energie: l\'estensione dei petali indica l\'intensità (scala 1–7), mentre il nucleo centrale ne rappresenta l\'equilibrio armonico.',
+          content: (
+            <EmotionalShape
+              familiesData={ordered}
+              height="min(68vh, 580px)"
+              activeFamilyKey={hoveredFamilyKey || activeDetailFamily?.familyKey}
+              onFamilySelect={selectFamilyByKey}
+              onFamilyHover={setHoveredFamilyKey}
+            />
+          ),
+        },
         {
           id: 'radar',
           title: 'Radar delle famiglie',
@@ -387,20 +397,6 @@ export default function SintesiCorrenti({
             />
           ),
         },
-        {
-          id: 'forma',
-          title: 'Forma emotiva',
-          caption: 'La silhouette delle tue energie: l\'estensione dei petali indica l\'intensità (scala 1–7), mentre il nucleo centrale ne rappresenta l\'equilibrio armonico.',
-          content: (
-            <EmotionalShape
-              familiesData={ordered}
-              height="min(68vh, 580px)"
-              activeFamilyKey={hoveredFamilyKey || activeDetailFamily?.familyKey}
-              onFamilySelect={selectFamilyByKey}
-              onFamilyHover={setHoveredFamilyKey}
-            />
-          ),
-        },
       ]
     : []
 
@@ -412,7 +408,7 @@ export default function SintesiCorrenti({
         aria-labelledby="sintesi-correnti-heading"
         style={{ '--sc-accent': accentColor }}
       >
-        {/* b) Dati (numeri, percentuali e radar: composizione del profilo, sempre visibile) */}
+        {/* b) Dati (composizione del profilo) */}
         <div id="report-tst-grafici" className="report-tst-section-anchor sintesi-mobile-activation">
           <div className="sintesi-family-intro" style={{ borderBottom: 'none', paddingBottom: 0 }}>
             <ReportPassageHeader
@@ -423,40 +419,43 @@ export default function SintesiCorrenti({
             />
           </div>
 
-          {/* Sottocorrenti */}
+          {/* Sottocorrenti racchiuse in cassetto nerd chiuso di default */}
           {summarySottocorrenti.length > 0 ? (
-          <div className="sintesi-mobile-subcurrents">
-            <h3 className="sintesi-mobile-section-title">
-              Correnti della famiglia {dominantPresenceLabel.title.toLowerCase()}
-            </h3>
-            <ul className="sintesi-mobile-subcurrents-list">
-              {summarySottocorrenti.map((sub) => (
-                <li key={sub.rawKey} className="sintesi-mobile-subcurrent-card">
-                  <div className="sintesi-mobile-subcurrent-info">
-                    <span
-                      className="sintesi-mobile-subcurrent-dot"
-                      style={{ backgroundColor: sub.colore }}
-                    />
-                    <span className="sintesi-mobile-subcurrent-name">{sottocorrenteDisplayName(sub.nome)}</span>
-                    <span className="sintesi-mobile-subcurrent-val" title={sub.misurabile !== false ? REPORT_CRITERION.attivazione : "Non misurabile nel test"}>
-                      {sub.misurabile !== false ? pctAttivazione(sub.percentuale) : 'N.D.'}
-                    </span>
-                  </div>
-                  <div className="sintesi-mobile-subcurrent-track">
-                    <motion.div
-                      className="sintesi-mobile-subcurrent-fill"
-                      style={{ backgroundColor: sub.colore }}
-                      initial={prefersReducedMotion ? false : { width: '0%' }}
-                      whileInView={{ width: `${sub.misurabile !== false ? Math.min(100, Math.max(0, sub.percentuale)) : 0}%` }}
-                      viewport={viewport}
-                      transition={{ duration: 0.5, ease: "easeOut" }}
-                    />
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ) : null}
+            <details className="sintesi-mobile-nerd-accordion">
+              <summary className="sintesi-mobile-nerd-summary">
+                <span>Vedi dettagli e correnti di {dominantPresenceLabel.title.toLowerCase()}</span>
+                <span className="sintesi-mobile-nerd-chevron" aria-hidden="true">▾</span>
+              </summary>
+              <div className="sintesi-mobile-subcurrents">
+                <ul className="sintesi-mobile-subcurrents-list">
+                  {summarySottocorrenti.map((sub) => (
+                    <li key={sub.rawKey} className="sintesi-mobile-subcurrent-card">
+                      <div className="sintesi-mobile-subcurrent-info">
+                        <span
+                          className="sintesi-mobile-subcurrent-dot"
+                          style={{ backgroundColor: sub.colore }}
+                        />
+                        <span className="sintesi-mobile-subcurrent-name">{sottocorrenteDisplayName(sub.nome)}</span>
+                        <span className="sintesi-mobile-subcurrent-val" title={sub.misurabile !== false ? REPORT_CRITERION.attivazione : "Non misurabile nel test"}>
+                          {sub.misurabile !== false ? pctAttivazione(sub.percentuale) : 'N.D.'}
+                        </span>
+                      </div>
+                      <div className="sintesi-mobile-subcurrent-track">
+                        <motion.div
+                          className="sintesi-mobile-subcurrent-fill"
+                          style={{ backgroundColor: sub.colore }}
+                          initial={prefersReducedMotion ? false : { width: '0%' }}
+                          whileInView={{ width: `${sub.misurabile !== false ? Math.min(100, Math.max(0, sub.percentuale)) : 0}%` }}
+                          viewport={viewport}
+                          transition={{ duration: 0.5, ease: "easeOut" }}
+                        />
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </details>
+          ) : null}
 
         {/* Grafici: su mobile si aprono a tutto schermo e si scorrono di lato */}
         <div className="sintesi-mobile-visuals">
@@ -528,7 +527,6 @@ export default function SintesiCorrenti({
               {/* Header */}
               <div className="sintesi-chart-slide-header">
                 <div className="sintesi-chart-slide-header-left">
-                  <span className="sintesi-chart-slide-badge">{currentSlide.badge}</span>
                   <h3 className="sintesi-chart-slide-title">{currentSlide.title}</h3>
                   <p className="sintesi-chart-slide-subtitle">{currentSlide.subtitle}</p>
                 </div>
@@ -556,7 +554,24 @@ export default function SintesiCorrenti({
 
               {/* Contenuto della slide */}
               <div className="sintesi-chart-slide-content">
-                {desktopSlideIndex === 0 && (
+                {currentSlide.id === 'geometria' && (
+                  <div className="sintesi-slide-single-chart">
+                    <div style={{ width: '100%', maxWidth: 640, minHeight: 480 }}>
+                      <EmotionalShape 
+                        familiesData={ordered} 
+                        height="100%"
+                        activeFamilyKey={hoveredFamilyKey || activeDetailFamily?.familyKey}
+                        onFamilySelect={(key) => {
+                          const radarItem = totalScoreRadarData.find((d) => d.familyKey === key)
+                          if (radarItem) setActiveDetailFamily(radarItem)
+                        }}
+                        onFamilyHover={setHoveredFamilyKey}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {currentSlide.id === 'radar' && (
                   <div className="sintesi-slide-single-chart">
                     <div className="sintesi-correnti__total-radar" style={{ width: '100%', maxWidth: 580 }}>
                       <ReportRadarChart
@@ -576,24 +591,7 @@ export default function SintesiCorrenti({
                   </div>
                 )}
 
-                {desktopSlideIndex === 1 && (
-                  <div className="sintesi-slide-single-chart">
-                    <div style={{ width: '100%', maxWidth: 640, minHeight: 480 }}>
-                      <EmotionalShape 
-                        familiesData={ordered} 
-                        height="100%"
-                        activeFamilyKey={hoveredFamilyKey || activeDetailFamily?.familyKey}
-                        onFamilySelect={(key) => {
-                          const radarItem = totalScoreRadarData.find((d) => d.familyKey === key)
-                          if (radarItem) setActiveDetailFamily(radarItem)
-                        }}
-                        onFamilyHover={setHoveredFamilyKey}
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {desktopSlideIndex === 2 && (
+                {currentSlide.id === 'nature' && (
                   <div className="sintesi-slide-single-chart" style={{ width: '100%' }}>
                     {natureGroups.length > 0 ? (
                       <div className="sintesi-correnti__nature-grid">
@@ -650,7 +648,7 @@ export default function SintesiCorrenti({
                   </div>
                 )}
 
-                {desktopSlideIndex === 3 && (
+                {currentSlide.id === 'percorso' && (
                   <div className="sintesi-slide-single-chart" style={{ width: '100%' }}>
                     <PercorsoRisposte record={rawRecord} />
                   </div>
