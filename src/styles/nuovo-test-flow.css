@@ -185,6 +185,15 @@
   --tst-session-accent-strong: #0d5f59;
   --tst-session-accent-soft: #dcf7f1;
   --tst-session-focus: rgba(15, 118, 110, 0.24);
+  /* Tessere di risposta: il testo non cambia mai colore al passaggio del cursore */
+  --tst-answer-bg: #ffffff;
+  --tst-answer-border: rgba(90, 106, 121, 0.38);
+  --tst-answer-text: var(--tst-session-text);
+  --tst-answer-hover-bg: #f2f8f6;
+  --tst-answer-hover-border: var(--tst-session-accent);
+  --tst-answer-selected-bg: var(--tst-session-accent);
+  --tst-answer-selected-text: #ffffff;
+  --tst-answer-focus-ring: var(--tst-session-accent);
 
   position: relative;
   isolation: isolate;
@@ -686,13 +695,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--tst-color-border-default);
+  border: 1.5px solid var(--tst-answer-border);
   border-radius: var(--tst-radius-md);
-  background: var(--tst-color-bg-surface-subtle);
-  backdrop-filter: var(--tst-blur-sm);
-  -webkit-backdrop-filter: var(--tst-blur-sm);
-  color: var(--tst-color-text-primary);
-  box-shadow: var(--tst-shadow-sm);
+  background: var(--tst-answer-bg);
+  color: var(--tst-answer-text);
+  box-shadow: none;
   font-family: var(--tst-font-body);
   font-size: var(--tst-text-body-sm);
   font-weight: 600;
@@ -704,9 +711,7 @@
   transition:
     background-color var(--tst-transition-fast),
     border-color var(--tst-transition-fast),
-    box-shadow var(--tst-transition-fast),
-    color var(--tst-transition-fast),
-    transform var(--tst-transition-fast);
+    transform 80ms ease-out;
 }
 
 .nuovo-test-flow .test-stage .answers-grid--dense .answer-button,
@@ -722,22 +727,27 @@
 
 .nuovo-test-flow .answer-button:hover,
 .nuovo-test-flow.nuovo-test-page--session-active .answer-button:hover {
-  border-color: var(--tst-color-border-strong);
-  background: var(--tst-color-bg-hover);
-  color: var(--tst-color-text-primary);
-  box-shadow: var(--tst-shadow-md);
-  transform: translateY(-1px);
+  border-color: var(--tst-answer-hover-border);
+  background: var(--tst-answer-hover-bg);
+  color: var(--tst-answer-text);
+  box-shadow: none;
+  transform: none;
+}
+
+/* Solo il bottone premuto reagisce: gli altri restano fermi */
+.nuovo-test-flow .answer-button:active,
+.nuovo-test-flow.nuovo-test-page--session-active .answer-button:active {
+  transform: scale(0.98);
 }
 
 .nuovo-test-flow .answer-button.answer-button-selected,
-.nuovo-test-flow.nuovo-test-page--session-active .answer-button.answer-button-selected {
-  border-color: var(--tst-color-accent-system);
-  background: var(--tst-color-accent-system-soft);
-  color: var(--tst-color-text-primary);
-  box-shadow:
-    inset 0 0 0 1.5px var(--tst-color-accent-system),
-    0 0 18px rgba(56, 189, 248, 0.25);
-  transform: translateY(-1px);
+.nuovo-test-flow.nuovo-test-page--session-active .answer-button.answer-button-selected,
+.nuovo-test-flow.nuovo-test-page--session-active .answer-button.answer-button-selected:hover {
+  border-color: var(--tst-answer-selected-bg);
+  background: var(--tst-answer-selected-bg);
+  color: var(--tst-answer-selected-text);
+  box-shadow: none;
+  transform: none;
 }
 
 .nuovo-test-flow .answers-c-bis {
@@ -802,6 +812,11 @@
 .nuovo-test-flow .test-stage-footer-spacer {
   min-width: 1px;
   min-height: 1px;
+}
+
+.nuovo-test-flow.nuovo-test-page--session-active .answer-button:focus-visible {
+  outline: 3px solid var(--tst-answer-focus-ring);
+  outline-offset: 2px;
 }
 
 .nuovo-test-flow .answer-button:focus-visible,
@@ -1088,47 +1103,12 @@
   }
 }
 
-/* Wow Effect 4: Answer Button Ripple and Glow */
-.answer-button {
-  position: relative;
-  overflow: hidden;
-  transition: transform 0.22s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.22s ease, border-color 0.22s ease, background-color 0.22s ease;
-}
-.answer-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 14px rgba(15, 118, 110, 0.18);
-  border-color: rgba(15, 118, 110, 0.45);
-}
-.answer-button-selected {
-  border-color: var(--tst-session-accent, #0f766e) !important;
-  background-color: var(--tst-session-accent-soft, #dcf7f1) !important;
-  color: var(--tst-session-accent, #0f766e) !important;
-  font-weight: 600;
-  box-shadow: 0 0 16px rgba(15, 118, 110, 0.38) !important;
-  transform: scale(1.025);
-}
-.answer-button-selected::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  border: 2px solid var(--tst-session-accent, #0f766e);
-  animation: answer-select-pulse-effect 1.4s ease-out infinite;
-  pointer-events: none;
-}
-@keyframes answer-select-pulse-effect {
-  0% {
-    transform: scale(1);
-    opacity: 0.9;
-  }
-  100% {
-    transform: scale(1.22);
-    opacity: 0;
-  }
-}
+/* Wow Effect 4 rimosso: pulsazione, ingrandimento e !important sulle risposte
+   facevano muovere tutti i bottoni a ogni passo (vedi stati in alto). */
 
 /* Wow Effect 5: Smooth Card Entry slide transition */
-.test-stage-step-content {
+.test-stage-step-content > .test-stage-question-zone,
+.test-stage-step-content > .test-stage-answers-shell {
   animation: test-card-slide-in 0.48s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   will-change: transform, opacity;
 }
@@ -1147,8 +1127,8 @@
   .player-wave-visualizer.is-playing .wave-bar,
   .stepper-progress-laser,
   .test-stage-rhythm-aura.is-playing,
-  .answer-button-selected::after,
-  .test-stage-step-content {
+  .test-stage-step-content > .test-stage-question-zone,
+  .test-stage-step-content > .test-stage-answers-shell {
     animation: none !important;
     transform: none !important;
   }

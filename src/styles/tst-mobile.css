@@ -763,11 +763,7 @@
     border-radius: 24px !important;
     font-size: 0.92rem !important;
     padding: 0.55rem 1rem !important;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05) !important;
-    border-color: rgba(15, 118, 110, 0.15) !important;
-  }
-  .nuovo-test-flow .answer-button.answer-button-selected {
-    box-shadow: 0 4px 12px rgba(15, 118, 110, 0.12) !important;
+    box-shadow: none !important;
   }
   .nuovo-test-flow .test-stage-footer {
     padding-top: 0.45rem !important;
