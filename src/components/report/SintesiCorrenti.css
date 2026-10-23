@@ -760,6 +760,100 @@
   color: rgba(226, 232, 240, 0.55);
 }
 
+/* Cassetto nerd per la Silhouette Emotiva (chiuso di default) */
+.emotional-shape-nerd-accordion {
+  margin: 0.75rem auto 0;
+  width: 100%;
+  max-width: 36rem;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+  transition: all 0.25s ease;
+}
+
+.emotional-shape-nerd-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.95rem;
+  cursor: pointer;
+  user-select: none;
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: rgba(226, 232, 240, 0.75);
+  list-style: none;
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.emotional-shape-nerd-summary::-webkit-details-marker {
+  display: none;
+}
+
+.emotional-shape-nerd-summary:hover {
+  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.emotional-shape-nerd-summary-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  flex: none;
+}
+
+.emotional-shape-nerd-chevron {
+  margin-left: auto;
+  font-size: 0.75rem;
+  opacity: 0.6;
+  transition: transform 0.25s ease;
+}
+
+.emotional-shape-nerd-accordion[open] .emotional-shape-nerd-chevron {
+  transform: rotate(180deg);
+}
+
+.emotional-shape-nerd-content {
+  padding: 0 0.85rem 0.85rem;
+}
+
+/* Cassetto nerd mobile per le sottocorrenti */
+.sintesi-mobile-nerd-accordion {
+  margin: 0.75rem 0;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+}
+
+.sintesi-mobile-nerd-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 0.9rem;
+  cursor: pointer;
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: rgba(226, 232, 240, 0.8);
+  list-style: none;
+}
+
+.sintesi-mobile-nerd-summary::-webkit-details-marker {
+  display: none;
+}
+
+.sintesi-mobile-nerd-chevron {
+  font-size: 0.75rem;
+  opacity: 0.6;
+  transition: transform 0.2s ease;
+}
+
+.sintesi-mobile-nerd-accordion[open] .sintesi-mobile-nerd-chevron {
+  transform: rotate(180deg);
+}
+
 /* Scheda interpretativa dinamica della Silhouette Emotiva (Qualitativa, pulita, senza box pesante) */
 .emotional-shape-insight {
   margin: 1rem auto 0;
