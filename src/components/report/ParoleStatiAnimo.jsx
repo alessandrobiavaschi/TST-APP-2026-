@@ -1,134 +1,121 @@
-import React, { useEffect, useMemo, useState } from 'react'
-import { PAROLE_UI } from './reportUiCopy.js'
+import React, { useState } from 'react'
 import ReportPassageHeader from './ReportPassageHeader.jsx'
-import ParoleNatura from './ParoleNatura.jsx'
-import { FAMIGLIE_TST } from '../../content/paroleTst.js'
-import { NATURE } from '../../config/tstSistema.js'
-import { FAMILY_THEME } from '../../config/reportFamilyTheme.js'
 import './ParoleStatiAnimo.css'
 
-/**
- * Stanza 05 — Parole.
- * Tutti i testi visibili vengono da «Parole per TST» (content/paroleTst.js):
- * famiglia → natura → parole chiave, aggettivi/sostantivi/sintesi in chip, parole collegate alle altre famiglie.
- * La famiglia e la natura prevalenti della persona sono segnalate graficamente.
- */
+const MACRO_EMOZIONI = [
+  {
+    id: 'giallo',
+    famiglia: 'Entusiasta',
+    nome: 'Entusiasmo & Festa',
+    colore: '#eab308',
+    icona: '⚡️',
+    motto: 'L’energia viva che accende il movimento e contagia chi ti circonda.',
+    parole: ['Spontaneo', 'Esuberante', 'Radioso', 'Esplosivo', 'Ardente', 'Curioso', 'Vitale', 'Coinvolgente'],
+  },
+  {
+    id: 'rosso',
+    famiglia: 'Marziale',
+    nome: 'Grinta & Azione',
+    colore: '#dc2626',
+    icona: '🔥',
+    motto: 'La determinazione che affronta le sfide senza indietreggiare.',
+    parole: ['Determinato', 'Impavido', 'Incisivo', 'Diretto', 'Focoso', 'Solido', 'Tenace', 'Intrepido'],
+  },
+  {
+    id: 'blu',
+    famiglia: 'Malinconica',
+    nome: 'Introspezione & Poesia',
+    colore: '#2563eb',
+    icona: '🌊',
+    motto: 'La ricerca del senso profondo, la bellezza dolce-amara e l’ascolto intimo.',
+    parole: ['Profondo', 'Nostalgico', 'Sensibile', 'Raccolto', 'Lirico', 'Empatico', 'Delicato', 'Sincero'],
+  },
+  {
+    id: 'verde',
+    famiglia: 'Flemmatica',
+    nome: 'Calma & Zen',
+    colore: '#16a34a',
+    icona: '🍃',
+    motto: 'Il respiro largo, l’armonia silenziosa e la pace che accoglie.',
+    parole: ['Sereno', 'Pacifico', 'Paziente', 'Equilibrato', 'Mite', 'Rilassato', 'Rassicurante', 'Gentile'],
+  },
+  {
+    id: 'grigio',
+    famiglia: 'Razionale',
+    nome: 'Lucidità & Focus',
+    colore: '#64748b',
+    icona: '🧭',
+    motto: 'Lo sguardo dall’alto, la mente chiara e il piacere dell’analisi.',
+    parole: ['Lucido', 'Analitico', 'Curioso', 'Distaccato', 'Essenziale', 'Metodico', 'Discreto', 'Osservatore'],
+  },
+]
 
-const COLORE_PER_CHIAVE = Object.fromEntries(Object.values(FAMILY_THEME).map((t) => [t.key, t.dot]))
+export default function ParoleStatiAnimo({ famiglia = '', step = '5' }) {
+  const normFamiglia = String(famiglia || '').toLowerCase().trim()
 
-/** Il report passa la famiglia come etichetta colore ('Rosso') e la natura come nome maiuscolo ('VOLITIVA'). */
-function rawKeyNaturaPrevalente(naturaPrevalente) {
-  const nome = String(naturaPrevalente || '').trim().toUpperCase()
-  if (!nome) return ''
-  return NATURE.find((n) => n.nome.toUpperCase() === nome)?.campoDb || ''
-}
+  const defaultId = MACRO_EMOZIONI.find(
+    (m) => m.id === normFamiglia || m.famiglia.toLowerCase() === normFamiglia
+  )?.id || 'giallo'
 
-function naturaIniziale(fam, rawKey) {
-  return fam?.nature.find((n) => n.rawKey === rawKey)?.rawKey || fam?.nature[0]?.rawKey || ''
-}
-
-export default function ParoleStatiAnimo({ famiglia = '', naturaPrevalente = '', step = '5' }) {
-  const colorKeyPrevalente = String(famiglia || '').trim().toLowerCase()
-  const rawKeyPrevalente = rawKeyNaturaPrevalente(naturaPrevalente)
-
-  const famiglie = useMemo(() => {
-    const prima = FAMIGLIE_TST.filter((f) => f.colorKey === colorKeyPrevalente)
-    return [...prima, ...FAMIGLIE_TST.filter((f) => f.colorKey !== colorKeyPrevalente)]
-  }, [colorKeyPrevalente])
-
-  const [famigliaId, setFamigliaId] = useState(famiglie[0]?.id || '')
-  const [naturaKey, setNaturaKey] = useState(() => naturaIniziale(famiglie[0], rawKeyPrevalente))
-
-  useEffect(() => {
-    if (colorKeyPrevalente) {
-      const prima = FAMIGLIE_TST.find((f) => f.colorKey === colorKeyPrevalente)
-      if (prima) {
-        setFamigliaId(prima.id)
-        setNaturaKey(naturaIniziale(prima, rawKeyPrevalente))
-      }
-    }
-  }, [colorKeyPrevalente, rawKeyPrevalente])
-
-  const famigliaAttiva = famiglie.find((f) => f.id === famigliaId) || famiglie[0]
-  const naturaAttiva =
-    famigliaAttiva?.nature.find((n) => n.rawKey === naturaKey) || famigliaAttiva?.nature[0]
-
-  const scegliFamiglia = (fam) => {
-    setFamigliaId(fam.id)
-    setNaturaKey(naturaIniziale(fam, rawKeyPrevalente))
-  }
-
-  if (!famigliaAttiva) return null
+  const [selectedId, setSelectedId] = useState(defaultId)
+  const attiva = MACRO_EMOZIONI.find((m) => m.id === selectedId) || MACRO_EMOZIONI[0]
 
   return (
     <section aria-labelledby="parole-tst-title" className="parole-tst">
       <ReportPassageHeader
         step={step}
-        title={PAROLE_UI.title}
+        title="Parole"
         titleVisuallyHidden
         titleId="parole-tst-title"
       />
 
-      <div role="tablist" aria-label="Famiglie" className="parole-tst__famiglie">
-        {famiglie.map((fam) => {
-          const attiva = fam.id === famigliaAttiva.id
-          const prevalente = fam.colorKey === colorKeyPrevalente
-          return (
-            <button
-              key={fam.id}
-              type="button"
-              role="tab"
-              aria-selected={attiva}
-              className="parole-tst__famiglia"
-              style={{ '--famiglia-colore': COLORE_PER_CHIAVE[fam.colorKey] }}
-              onClick={() => scegliFamiglia(fam)}
-            >
-              <span
-                aria-hidden="true"
-                className={`parole-tst__pallino${prevalente ? ' parole-tst__pallino--prevalente' : ''}`}
-              />
-              {fam.nome}
-              {prevalente ? <span className="sr-only"> (famiglia prevalente)</span> : null}
-            </button>
-          )
-        })}
-      </div>
+      <div className="parole-fun">
+        {/* Selettore rapido 5 Macro-Emozioni */}
+        <div className="parole-fun__tabs" role="tablist" aria-label="Macro-emozioni">
+          {MACRO_EMOZIONI.map((m) => {
+            const isSelected = m.id === attiva.id
+            const isUserMood = m.id === normFamiglia || m.famiglia.toLowerCase() === normFamiglia
 
-      <div className="parole-tst__nature" role="tablist" aria-label="Nature">
-        {famigliaAttiva.nature.map((n) => {
-          const attiva = n.rawKey === naturaAttiva.rawKey
-          const prevalente = n.rawKey === rawKeyPrevalente
-          return (
-            <button
-              key={n.rawKey}
-              type="button"
-              role="tab"
-              aria-selected={attiva}
-              className="parole-tst__natura"
-              style={{ '--famiglia-colore': COLORE_PER_CHIAVE[famigliaAttiva.colorKey] }}
-              onClick={() => setNaturaKey(n.rawKey)}
-            >
-              <span className="parole-tst__natura-nome">
-                {prevalente ? (
-                  <span aria-hidden="true" className="parole-tst__pallino parole-tst__pallino--prevalente" />
-                ) : null}
-                {n.nome}
-                {prevalente ? <span className="sr-only"> (natura prevalente)</span> : null}
+            return (
+              <button
+                key={m.id}
+                type="button"
+                role="tab"
+                aria-selected={isSelected}
+                className={`parole-fun__tab ${isSelected ? 'is-selected' : ''}`}
+                style={{ '--mood-colore': m.colore }}
+                onClick={() => setSelectedId(m.id)}
+              >
+                <span className="parole-fun__tab-icon" aria-hidden="true">{m.icona}</span>
+                <span className="parole-fun__tab-name">{m.famiglia}</span>
+                {isUserMood && <span className="parole-fun__mood-badge">Il tuo mood</span>}
+              </button>
+            )
+          })}
+        </div>
+
+        {/* Card attiva essenziale */}
+        <div
+          className="parole-fun__card"
+          style={{ '--card-colore': attiva.colore }}
+        >
+          <header className="parole-fun__card-head">
+            <div className="parole-fun__title-row">
+              <span className="parole-fun__card-icon" aria-hidden="true">{attiva.icona}</span>
+              <h3 className="parole-fun__card-title">{attiva.nome}</h3>
+            </div>
+            <p className="parole-fun__card-motto">«{attiva.motto}»</p>
+          </header>
+
+          <div className="parole-fun__words">
+            {attiva.parole.map((parola) => (
+              <span key={parola} className="parole-fun__word-pill">
+                {parola}
               </span>
-              {n.sottotitoloFonte ? (
-                <span className="parole-tst__natura-sotto">{n.sottotitoloFonte}</span>
-              ) : null}
-            </button>
-          )
-        })}
+            ))}
+          </div>
+        </div>
       </div>
-
-      <ParoleNatura
-        key={naturaAttiva.rawKey}
-        natura={naturaAttiva}
-        coloreFamiglia={COLORE_PER_CHIAVE[famigliaAttiva.colorKey]}
-        colorePerChiave={COLORE_PER_CHIAVE}
-      />
     </section>
   )
 }
