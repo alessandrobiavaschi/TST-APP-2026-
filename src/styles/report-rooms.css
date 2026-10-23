@@ -19,6 +19,19 @@
   inset: 0;
 }
 
+/* Stanza 00 (Hero / Home): a tutta larghezza e altezza viewport, nessun vincolo o card border */
+.report-tst .report-room-section--home {
+  width: 100%;
+  max-width: none;
+  min-height: calc(100svh - var(--app-header-offset, 56px));
+  margin-inline: 0;
+  padding: 0;
+}
+
+.report-tst .report-room-section--home::before {
+  display: none;
+}
+
 /* I contenitori dei moduli non aggiungono rientri propri: tutto parte dal bordo della stanza. */
 .report-tst :is(
   .sintesi-correnti,
@@ -159,7 +172,7 @@
 
 /* ── Mobile: niente superfici attorno al testo, filetto tra le stanze ─ */
 @media (max-width: 640px) {
-  .report-tst .report-room-section {
+  .report-tst .report-room-section:not(.report-room-section--home) {
     width: 100%;
     padding-inline: 1.25rem;
     border-top: 1px solid var(--tst-color-border-subtle);
