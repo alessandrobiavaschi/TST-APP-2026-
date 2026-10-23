@@ -26,11 +26,11 @@ function formatNatureResult(natura = '') {
   return toDisplayCase(raw)
 }
 
-function formatCharacteristicResult(value = '') {
+function formatNaturaResult(value = '') {
   const normalized = String(value || '')
     .trim()
-    .replace(/^CARATTERISTICA(?:\s+EMOTIVA)?\s+/i, '')
-  return normalized ? `caratteristica ${toDisplayCase(normalized)}` : ''
+    .replace(/^(?:CARATTERISTICA(?:\s+EMOTIVA)?|NATURA)\s+/i, '')
+  return normalized ? `natura ${toDisplayCase(normalized)}` : ''
 }
 
 /**
@@ -196,8 +196,8 @@ export default function NavbarTST({
   ]
   const naturaResult = formatNatureResult(profilo?.natura || correnteDominante)
   const famigliaResult = toDisplayCase(profilo?.famigliaLabel || correnteDominante)
-  const caratteristicaResult = formatCharacteristicResult(profilo?.disposizione || naturaResult)
-  const correnteTitle = ['famiglia', famigliaResult, caratteristicaResult].filter(Boolean).join(' · ')
+  const naturaDisplayResult = formatNaturaResult(profilo?.disposizione || naturaResult)
+  const correnteTitle = ['famiglia', famigliaResult, naturaDisplayResult].filter(Boolean).join(' · ')
 
   return (
     <header
@@ -267,14 +267,14 @@ export default function NavbarTST({
 
         {/* ── Destra: corrente + scarica + aiuto ──────────────────── */}
         <div className="navbar-tst__right">
-          {famigliaResult || caratteristicaResult ? (
+          {famigliaResult || naturaDisplayResult ? (
             <span className="navbar-tst__corrente" title={correnteTitle}>
               <span className="navbar-tst__corrente-label">famiglia</span>
               {famigliaResult ? (
                 <span className="navbar-tst__corrente-family">{famigliaResult}</span>
               ) : null}
-              {caratteristicaResult ? (
-                <span className="navbar-tst__corrente-name">{caratteristicaResult}</span>
+              {naturaDisplayResult ? (
+                <span className="navbar-tst__corrente-name">{naturaDisplayResult}</span>
               ) : null}
             </span>
           ) : null}

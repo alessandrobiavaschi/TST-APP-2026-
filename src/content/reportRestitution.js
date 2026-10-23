@@ -15,7 +15,7 @@ export const CONTEXT = {
   title: 'Come leggere questo profilo',
   body: [
     'Il TST non misura competenze musicali. Legge come hai reagito agli stimoli sonori: avvicinamento, rifiuto, distacco e famiglie emotive più presenti.',
-    'La prima cosa da guardare è la famiglia prevalente. Subito dopo vengono la natura (caratteristica emotiva), il portato esperienziale e le parole emerse dalle risposte.',
+    'La prima cosa da guardare è la famiglia prevalente. Subito dopo vengono la natura, il portato esperienziale e le parole emerse dalle risposte.',
     'Leggi il report come una fotografia del test, non come una definizione fissa della persona. Ogni sezione aggiunge un livello: sintesi, profilo, rapporti, portato, lessico e approfondimenti.',
   ],
   pills: [],
@@ -106,10 +106,10 @@ export const GLOSSARY = [
   },
   {
     id: 'corrente-emotiva',
-    term: 'Natura (caratteristica emotiva)',
+    term: 'Natura',
     oneLine: 'Natura che specifica come si esprime una famiglia emotiva.',
     explain:
-      'La famiglia è una delle cinque categorie del modello; la natura (caratteristica emotiva) ne descrive la qualità. Per esempio: famiglia Marziale, natura Volitiva.',
+      'La famiglia è una delle cinque categorie del modello; la natura ne descrive la qualità. Per esempio: famiglia Marziale, natura Volitiva.',
     usefulFor:
       'Leggi sempre i due livelli insieme: famiglia Flemmatica e natura Calma Contemplativa.',
     tags: ['sintesi'],
@@ -136,7 +136,7 @@ export const GLOSSARY = [
   {
     id: 'natura',
     term: 'Natura',
-    oneLine: 'Natura (caratteristica emotiva) con cui si esprime la famiglia prevalente.',
+    oneLine: 'Natura con cui si esprime la famiglia prevalente.',
     explain:
       'Specifica la famiglia prevalente. Malinconica: nature Lunare Introspettiva, Lunare Depressiva, Solare e Nostalgica; Marziale: Volitiva e Collerica; Flemmatica: Calma Contemplativa e Calma Fisica; Entusiasta: Gioiosa Solare e Sanguigna Operosa; Razionale: Anaffettiva e Distaccata.',
     usefulFor: 'Adatta ritmo, profondità e tipo di stimolo (movimento vs riflessione).',
@@ -242,7 +242,7 @@ export const GALASSIA_CRT = {
       : `${n} sfumature in orbita — toccane una per la lettura TST`,
   costellazioneSectionTitle: 'Sfumature in orbita',
   pesoLabel: 'Peso nel test',
-  caratteristicheLabel: 'Caratteristiche TST',
+  caratteristicheLabel: 'Nature TST',
   intervalloLabel: 'Intervallo',
   coloreLabel: 'Colore',
   kickerIdle: 'Orientamento',
@@ -467,7 +467,7 @@ export function buildProfiloThreadLine({ profilo = {}, domTheme = {}, famiglia =
 
   const parti = []
   if (famigliaLabel) parti.push(`Famiglia prevalente: ${famigliaLabel}.`)
-  if (natura) parti.push(`Natura (caratteristica emotiva): ${natura}.`)
+  if (natura) parti.push(`Natura: ${natura}.`)
   return parti.join(' ')
 }
 
@@ -499,7 +499,7 @@ export function buildSintesiKeyFacts({
   if (natura) {
     facts.push({
       id: 'natura',
-      label: 'Natura (caratteristica emotiva)',
+      label: 'Natura',
       value: natura,
       method: 'Profilo della famiglia prevalente',
     })

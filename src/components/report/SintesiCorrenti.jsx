@@ -131,7 +131,7 @@ function natureFamigliaPdf(familyName) {
 function qualitiesPdf(familyName) {
   const nomi = natureFamigliaPdf(familyName).map((n) => `alla Natura ${n.nome}`)
   const elenco = nomi.length > 1 ? `${nomi.slice(0, -1).join(', ')} e ${nomi.at(-1)}` : nomi[0] || ''
-  return `nature (caratteristiche emotive) legate ${elenco}`
+  return `nature legate ${elenco}`
 }
 
 function qualitiesByQualityPdf(familyName) {
@@ -592,7 +592,7 @@ export default function SintesiCorrenti({
   })()
 
   const sottocorrenteDisplayName = (nome) => {
-    if (nome === 'Lunare') return 'Caratteristica Lunare'
+    if (nome === 'Lunare') return 'Natura Lunare'
     if (nome === 'Nostalgia' || nome === 'Nostalgica' || nome === 'Nostalgico') return 'Nostalgica'
     return nome
   }
@@ -624,7 +624,7 @@ export default function SintesiCorrenti({
       tabLabel: 'Nature',
       badge: '03 / 04 · Nature',
       title: 'Correnti e Nature di tutte le famiglie',
-      subtitle: `Le nature (caratteristiche emotive) di ogni famiglia. Prima la prevalente, ${dominantPresenceLabel.title}, poi le altre per peso nel profilo.`,
+      subtitle: `Le nature di ogni famiglia. Prima la prevalente, ${dominantPresenceLabel.title}, poi le altre per peso nel profilo.`,
     },
     {
       id: 'percorso',
@@ -756,7 +756,7 @@ export default function SintesiCorrenti({
               Correnti della famiglia {dominantPresenceLabel.title.toLowerCase()}
             </h3>
             <p className="sintesi-mobile-explanation">
-              All’interno di questa famiglia, il test evidenzia le nature (caratteristiche emotive) specifiche che
+              All’interno di questa famiglia, il test evidenzia le nature specifiche che
               contribuiscono a definire meglio la tua appartenenza.
             </p>
             <ul className="sintesi-mobile-subcurrents-list">
