@@ -43,14 +43,14 @@ export default function DistanzeInterattive({
   }
 
   return (
-    <section className="fm-section fm-distanze" aria-labelledby="fm-distanze-title">
+    <section id="fm-distanze" className="fm-section fm-distanze" aria-labelledby="fm-distanze-title">
       <div className="fm-distanze__head">
-        <p className="fm-kicker">Codice musicale · Fono-sintesi</p>
-        <h2 id="fm-distanze-title">Le 13 distanze musicali</h2>
+        <p className="fm-kicker">Stanza 2 · Il codice delle 13 distanze musicali</p>
+        <h2 id="fm-distanze-title">Le 13 distanze musicali (dal Buio alla Luce)</h2>
         <p className="fm-section-lead">
-          Dal buio alla luce: dall'unisono fino alla compiutezza dell'ottava. Tocca un intervallo
-          per ascoltare la vibrazione simultanea dei due suoni e osservare come risuonano le nature
-          del tuo profilo.
+          Dall'unisono fino alla compiutezza dell'ottava. Tocca «Ascolta» per attivare il sintetizzatore
+          e ascoltare la vibrazione simultanea dei due suoni, osservando il loro significato psicofisiologico
+          secondo la ricerca di Franco Mussida.
         </p>
       </div>
 

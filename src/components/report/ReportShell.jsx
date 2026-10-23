@@ -271,6 +271,7 @@ export default function ReportShell({
     utente = { nome: '' },
     profilo = {},
     correnti = [],
+    correntiByPeso = [],
     sottocorrenti = [],
     profiloEmotivo = { sezioni: [] },
     rapporti = [],
@@ -926,6 +927,8 @@ export default function ReportShell({
             filtroMusicale={filtroMusicale}
             portato={portato}
             colorTotals={colorTotals}
+            correntiByPeso={correntiByPeso}
+            correnti={correnti}
             accentColor={correnteColore}
             rawRecord={rawRecord}
             onClose={() => changeModalita('report')}

@@ -1057,3 +1057,490 @@
   color: rgba(226, 232, 240, 0.8);
 }
 
+/* ── 🧭 BUSSOLA STICKY DI NAVIGAZIONE (MusiciansCompassNav) ───────────────── */
+.fm-compass-nav {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  background: rgba(10, 15, 26, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  margin: 0 -24px 32px;
+  padding: 10px 24px;
+}
+
+@media (min-width: 768px) {
+  .fm-compass-nav {
+    margin: 0 -48px 40px;
+    padding: 12px 48px;
+  }
+}
+
+.fm-compass-nav__inner {
+  max-width: 1140px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.fm-compass-nav__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 9999px;
+  padding: 6px 14px;
+  color: #f8fafc;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 180ms ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.fm-compass-nav__back:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.fm-compass-nav__rooms {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  padding: 2px 0;
+}
+
+.fm-compass-nav__rooms::-webkit-scrollbar {
+  display: none;
+}
+
+.fm-compass-nav__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 9999px;
+  padding: 6px 14px;
+  color: rgba(226, 232, 240, 0.72);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 180ms ease;
+  white-space: nowrap;
+}
+
+.fm-compass-nav__tab:hover {
+  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.fm-compass-nav__tab.is-active {
+  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.12);
+  border-color: var(--compass-accent, #4ade80);
+  box-shadow: 0 0 14px rgba(74, 222, 128, 0.18);
+}
+
+.fm-compass-nav__icon {
+  font-size: 0.95rem;
+  color: var(--compass-accent, #4ade80);
+}
+
+.fm-compass-nav__label-short {
+  display: inline;
+}
+
+.fm-compass-nav__label-full {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .fm-compass-nav__label-short {
+    display: none;
+  }
+  .fm-compass-nav__label-full {
+    display: inline;
+  }
+}
+
+/* ── STANZA 1: SNAPSHOT CARD (% FAMIGLIE E NATURE) ───────────────────────── */
+.fm-snapshot-card {
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: clamp(20px, 3vw, 32px);
+  margin-top: 28px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.28);
+}
+
+.fm-snapshot-card__header {
+  margin-bottom: 24px;
+}
+
+.fm-snapshot-badge {
+  display: inline-block;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #38bdf8;
+  margin-bottom: 6px;
+}
+
+.fm-snapshot-title {
+  margin: 0 0 6px;
+  color: #f8fafc;
+  font-size: clamp(1.2rem, 2vw, 1.5rem);
+  font-weight: 700;
+}
+
+.fm-snapshot-desc {
+  margin: 0;
+  color: rgba(226, 232, 240, 0.72);
+  font-size: 0.9rem;
+}
+
+.fm-family-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.fm-family-bar-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fm-family-bar-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.88rem;
+}
+
+.fm-family-bar-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.fm-family-bar-name {
+  color: #f8fafc;
+  font-weight: 600;
+}
+
+.fm-family-bar-val {
+  font-family: var(--font-mono, monospace);
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.fm-family-bar-track {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.fm-family-bar-fill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 600ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.fm-snapshot-nature-section {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.fm-snapshot-nature-title {
+  margin: 0 0 14px;
+  color: rgba(226, 232, 240, 0.84);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.fm-snapshot-nature-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.fm-nature-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(2, 6, 23, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 9999px;
+  padding: 6px 14px;
+  font-size: 0.82rem;
+}
+
+.fm-nature-chip__rank {
+  font-family: var(--font-mono, monospace);
+  font-weight: 700;
+  color: rgba(226, 232, 240, 0.5);
+}
+
+.fm-nature-chip__name {
+  color: #f8fafc;
+}
+
+.fm-nature-chip__score {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.76rem;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #38bdf8;
+}
+
+/* ── STANZA 4: ATLANTE MUSICALE (MussidaBookAtlas) ────────────────────────── */
+.fm-book-atlas__head {
+  margin-bottom: 28px;
+}
+
+.fm-atlas-tabs {
+  display: inline-flex;
+  gap: 8px;
+  background: rgba(2, 6, 23, 0.6);
+  padding: 6px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.fm-atlas-tab-btn {
+  background: transparent;
+  border: none;
+  border-radius: 9999px;
+  padding: 8px 18px;
+  color: rgba(226, 232, 240, 0.72);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 180ms ease;
+}
+
+.fm-atlas-tab-btn:hover {
+  color: #f8fafc;
+}
+
+.fm-atlas-tab-btn.is-active {
+  background: rgba(255, 255, 255, 0.14);
+  color: #f8fafc;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.fm-atlas-sub-lead {
+  max-width: 76ch;
+  color: rgba(226, 232, 240, 0.78);
+  font-size: 0.94rem;
+  line-height: 1.6;
+  margin: 0 0 24px;
+}
+
+/* Selettore Famiglia a Pillole */
+.fm-family-selector {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 4px 0 16px;
+  margin-bottom: 24px;
+}
+
+.fm-family-selector::-webkit-scrollbar {
+  display: none;
+}
+
+.fm-family-selector__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: all 180ms ease;
+  white-space: nowrap;
+}
+
+.fm-family-selector__btn:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+  background: rgba(15, 23, 42, 0.8);
+}
+
+.fm-family-selector__btn.is-selected {
+  border-color: var(--btn-family-color, #4ade80);
+  background: rgba(15, 23, 42, 0.92);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+}
+
+.fm-family-selector__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.fm-family-selector__title {
+  color: #f8fafc;
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+
+.fm-family-selector__subtitle {
+  color: rgba(226, 232, 240, 0.5);
+  font-size: 0.82rem;
+}
+
+/* Scheda Famiglia Selezionata nell'Enciclopedia */
+.fm-family-detail-card {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-left: 4px solid var(--detail-family-color, #38bdf8);
+  border-radius: 16px;
+  padding: clamp(22px, 3vw, 36px);
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.fm-family-detail-card__header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 16px;
+}
+
+.fm-family-detail-card__motto {
+  margin: 4px 0 0;
+  color: #f8fafc;
+  font-size: clamp(1.15rem, 2.2vw, 1.45rem);
+  font-style: italic;
+  font-family: var(--font-display, Georgia, serif);
+}
+
+.fm-family-detail-card__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.fm-family-detail-module {
+  background: rgba(2, 6, 23, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fm-family-detail-module__label {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--detail-family-color, #38bdf8);
+}
+
+.fm-family-detail-module h4 {
+  margin: 0;
+  color: #f8fafc;
+  font-size: 0.96rem;
+  font-weight: 600;
+}
+
+.fm-family-detail-module p {
+  margin: 0;
+  color: rgba(226, 232, 240, 0.75);
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
+/* Le Nature nel Libro */
+.fm-family-nature-block {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 24px;
+}
+
+.fm-family-nature-block__title {
+  margin: 0 0 16px;
+  color: #f8fafc;
+  font-size: 1.05rem;
+}
+
+.fm-family-nature-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.fm-nature-encyclo-card {
+  background: rgba(2, 6, 23, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fm-nature-encyclo-card__interval-tag {
+  display: inline-block;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--detail-family-color, #38bdf8);
+  margin-bottom: 4px;
+}
+
+.fm-nature-encyclo-card h5 {
+  margin: 0;
+  color: #f8fafc;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.fm-nature-encyclo-card__evocativa {
+  margin: 0;
+  color: rgba(226, 232, 240, 0.82);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.fm-nature-encyclo-card__meta {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.8rem;
+  color: rgba(226, 232, 240, 0.68);
+}
+
+.fm-nature-encyclo-card__meta strong {
+  color: rgba(226, 232, 240, 0.9);
+}
+
+

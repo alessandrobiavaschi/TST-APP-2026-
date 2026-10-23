@@ -41,14 +41,14 @@ export default function SuoniDelTuoTest({
   }, [selectedSezione, searchQuery, rawRecord])
 
   return (
-    <section className="fm-section fm-test-sounds" aria-labelledby="fm-test-sounds-title">
+    <section id="fm-passi" className="fm-section fm-test-sounds" aria-labelledby="fm-test-sounds-title">
       <div className="fm-test-sounds__head">
-        <p className="fm-kicker">Tracciabilità test · 72 ascolti</p>
-        <h2 id="fm-test-sounds-title">I suoni del tuo test</h2>
+        <p className="fm-kicker">Stanza 3 · La macchina del test decodificata</p>
+        <h2 id="fm-test-sounds-title">I 72 suoni del tuo test (Dietro le quinte)</h2>
         <p className="fm-section-lead">
           La mappa tecnica di tutti i 72 brani e stimoli acustici ascoltati durante la prova:
-          il nome compositivo dello stimolo, il significato per musicisti e la risposta esatta
-          che hai selezionato.
+          il nome compositivo formale, il principio armonico e la risposta esatta che hai
+          indicato durante la tua sessione.
         </p>
       </div>
 

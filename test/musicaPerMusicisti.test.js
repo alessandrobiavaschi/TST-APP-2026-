@@ -5,6 +5,7 @@ import {
   ASCOLTI_72_TEST,
   SUONO_PER_FAMIGLIA,
   COPPIE_ARTISTI_MUSSIDA,
+  NATURE_DETTAGLIO_12,
 } from '../src/content/musicaPerMusicisti.js'
 
 test('le 13 distanze musicali contengono esattamente 13 intervalli ordinati da 0 a 12 semitoni', () => {
@@ -66,3 +67,18 @@ test('le 5 coppie di artisti contengono le 5 dimensioni e l\'analisi di Franco M
     })
   })
 })
+
+test('le 12 nature musicali contengono esattamente 12 profili allineati alle 5 famiglie', () => {
+  assert.equal(NATURE_DETTAGLIO_12.length, 12)
+  NATURE_DETTAGLIO_12.forEach((n) => {
+    assert.ok(n.id, 'id mancante')
+    assert.ok(n.nome, 'nome mancante')
+    assert.ok(n.famigliaNome, 'famigliaNome mancante')
+    assert.ok(n.intervallo, 'intervallo mancante')
+    assert.ok(n.evocativa, 'evocativa mancante')
+    assert.ok(n.codiceSonoro, 'codiceSonoro mancante')
+    assert.ok(n.timbriEvocati, 'timbriEvocati mancante')
+    assert.ok(n.attitudineMusicale, 'attitudineMusicale mancante')
+  })
+})
+
