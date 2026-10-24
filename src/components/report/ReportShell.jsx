@@ -28,6 +28,8 @@ import { buildCorrentDataFromRecord } from '../../utils/galassiaData.js'
 import { buildLessicoAnaliticoViewModel } from '../../utils/galassiaLessicoViewModel.js'
 import { buildProgressiveContentViewModel } from '../../utils/buildProgressiveContentViewModel.js'
 import { REPORT_NAV_UI, REPORT_SHELL_UI, SINTESI_UI, COMPOSIZIONE_UI } from './reportUiCopy.js'
+import BadgeBeta from './musicisti/BadgeBeta.jsx'
+import { NOME_SEZIONE_MUSICA } from './musicisti/nomeSezione.js'
 import { SECTION_INTROS } from '../../content/reportRestitution.js'
 
 // Il flat-config ESLint del repo non rileva l'uso di `motion` via JSX member.
@@ -749,9 +751,11 @@ export default function ReportShell({
                   className="report-final-view-card"
                   onClick={(event) => openModalita('for-musicians', event)}
                 >
-                  <span className="report-final-view-card__title">Lettura musicale</span>
+                  <span className="report-final-view-card__title">
+                    {NOME_SEZIONE_MUSICA} <BadgeBeta />
+                  </span>
                   <span className="report-final-view-card__subtitle">
-                    Aree sonore e lettura musicale
+                    Stanze da consultare sul rapporto tra le famiglie e la musica
                   </span>
                 </button>
                 {!isMobileViewport ? (
@@ -927,7 +931,7 @@ export default function ReportShell({
       <div
         className={`report-tst-musicians-layer${modalita === 'for-musicians' ? ' is-open' : ''}`}
         data-report-mode="for-musicians"
-        aria-label="For Musicians: lettura musicale del profilo e Aree sonore"
+        aria-label={`${NOME_SEZIONE_MUSICA} (beta)`}
         aria-hidden={modalita !== 'for-musicians'}
         inert={modalita !== 'for-musicians' ? true : undefined}
       >

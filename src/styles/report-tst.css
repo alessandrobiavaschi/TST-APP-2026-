@@ -1882,6 +1882,23 @@
   line-height: 1.1;
 }
 
+.tst-beta-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 0.4em;
+  padding: 3px 9px;
+  vertical-align: middle;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-family: var(--tst-font-body);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  opacity: 0.85;
+}
+
 .report-final-view-card__subtitle {
   color: rgba(203, 213, 225, 0.72);
   font-family: var(--font-body);

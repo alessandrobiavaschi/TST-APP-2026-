@@ -381,7 +381,7 @@ export const HELP_MODAL_UI = {
     },
     {
       title: 'Le viste alternative',
-      text: 'Apri Galassia per esplorare la mappa interattiva delle correnti, oppure For Musicians per la lettura dedicata alla dimensione musicale.',
+      text: 'Apri Galassia per esplorare la mappa interattiva delle correnti, oppure For Musicians & Music Lovers per la lettura dedicata alla dimensione musicale.',
     },
   ],
 }
