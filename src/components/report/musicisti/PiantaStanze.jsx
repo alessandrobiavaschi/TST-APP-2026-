@@ -1,5 +1,7 @@
 import React from 'react'
 import { FAMIGLIE_MUSICA, STANZE } from '../../../content/musicistiStanze.js'
+import BadgeBeta from './BadgeBeta.jsx'
+import { NOME_SEZIONE_MUSICA } from './nomeSezione.js'
 
 /** Ingresso: la pianta delle stanze. La stanza della famiglia apre sulla famiglia prevalente. */
 export default function PiantaStanze({ famigliaPrevalente, onApri }) {
@@ -7,7 +9,9 @@ export default function PiantaStanze({ famigliaPrevalente, onApri }) {
   return (
     <div className="stanze-pianta">
       <header className="stanze-pianta__intro">
-        <h1>Per musicisti</h1>
+        <h1>
+          {NOME_SEZIONE_MUSICA} <BadgeBeta />
+        </h1>
         <p>
           Stanze da consultare per studiare il rapporto tra le famiglie emotive e la musica. Ogni stanza ha un suo
           modo di lettura; gli ascolti sono i suoni del test.
