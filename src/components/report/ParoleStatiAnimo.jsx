@@ -1,106 +1,90 @@
-import React, { useRef, useState } from 'react'
+import React, { useState } from 'react'
 import ReportPassageHeader from './ReportPassageHeader.jsx'
-import { FAMIGLIA_BY_COLOR } from '../../config/tstSistema.js'
+import { FAMIGLIE_TST } from '../../content/paroleTst.js'
+import SchedaParola from './parole/SchedaParola.jsx'
+import { nomeNatura } from './parole/definizioneParola.js'
 import './ParoleStatiAnimo.css'
 
-const MACRO_EMOZIONI = [
-  {
-    id: 'giallo',
-    nome: 'Entusiasmo & Festa',
-    motto: 'L’energia viva che accende il movimento e contagia chi ti circonda.',
-    parole: ['Spontaneo', 'Esuberante', 'Radioso', 'Esplosivo', 'Ardente', 'Curioso', 'Vitale', 'Coinvolgente'],
-  },
-  {
-    id: 'rosso',
-    nome: 'Grinta & Azione',
-    motto: 'La determinazione che affronta le sfide senza indietreggiare.',
-    parole: ['Determinato', 'Impavido', 'Incisivo', 'Diretto', 'Focoso', 'Solido', 'Tenace', 'Intrepido'],
-  },
-  {
-    id: 'blu',
-    nome: 'Introspezione & Poesia',
-    motto: 'La ricerca del senso profondo, la bellezza dolce-amara e l’ascolto intimo.',
-    parole: ['Profondo', 'Nostalgico', 'Sensibile', 'Raccolto', 'Lirico', 'Empatico', 'Delicato', 'Sincero'],
-  },
-  {
-    id: 'verde',
-    nome: 'Calma & Zen',
-    motto: 'Il respiro largo, l’armonia silenziosa e la pace che accoglie.',
-    parole: ['Sereno', 'Pacifico', 'Paziente', 'Equilibrato', 'Mite', 'Rilassato', 'Rassicurante', 'Gentile'],
-  },
-  {
-    id: 'grigio',
-    nome: 'Lucidità & Focus',
-    motto: 'Lo sguardo dall’alto, la mente chiara e il piacere dell’analisi.',
-    parole: ['Lucido', 'Analitico', 'Curioso', 'Distaccato', 'Essenziale', 'Metodico', 'Discreto', 'Osservatore'],
-  },
-].map((m) => ({ ...m, famiglia: FAMIGLIA_BY_COLOR[m.id]?.nome || m.id }))
+const paroleChiave = (natura) => (natura.paroleChiave || []).map((k) => (typeof k === 'string' ? k : k.parola))
+const tutteLeParole = (natura) => [...new Set([...(natura.aggettivi || []), ...(natura.sostantivi || [])])]
 
+function Natura({ natura, aperte, onApri, onChiudi }) {
+  const [tutte, setTutte] = useState(false)
+  const chiave = paroleChiave(natura)
+  const elenco = tutte ? tutteLeParole(natura) : chiave.length ? chiave : tutteLeParole(natura).slice(0, 8)
+  const totale = tutteLeParole(natura).length
+  const aperteQui = aperte.filter((p) => elenco.includes(p))
+
+  return (
+    <section className="parole-natura">
+      <h4 className="parole-natura__nome">{nomeNatura(natura)}</h4>
+      <ul className="parole-natura__parole">
+        {elenco.map((parola) => (
+          <li key={parola}>
+            <button
+              type="button"
+              className="parole-parola"
+              aria-expanded={aperte.includes(parola)}
+              onClick={() => (aperte.includes(parola) ? onChiudi(parola) : onApri(parola))}
+            >
+              {parola}
+            </button>
+          </li>
+        ))}
+      </ul>
+      {aperteQui.length ? (
+        <div className="parole-natura__schede">
+          {aperteQui.map((p) => <SchedaParola key={p} parola={p} onChiudi={() => onChiudi(p)} />)}
+        </div>
+      ) : null}
+      {totale > elenco.length || tutte ? (
+        <button type="button" className="parole-natura__altre" onClick={() => setTutte((v) => !v)}>
+          {tutte ? 'Mostra solo le parole chiave' : `Mostra tutte le parole (${totale})`}
+        </button>
+      ) : null}
+    </section>
+  )
+}
+
+/**
+ * Parole: le parole delle famiglie, dal lessico «Parole per TST».
+ * Si parte dalle parole chiave; si possono aprire tutte le parole e aprire più
+ * parole insieme, ognuna con famiglia, natura e link alla definizione.
+ */
 export default function ParoleStatiAnimo({ famiglia = '', step = '5' }) {
-  const normFamiglia = String(famiglia || '').toLowerCase().trim()
-  const isUtente = (m) => m.id === normFamiglia || m.famiglia.toLowerCase() === normFamiglia
-  const defaultId = MACRO_EMOZIONI.find(isUtente)?.id || 'giallo'
+  const norm = String(famiglia || '').toLowerCase().trim()
+  const tua = FAMIGLIE_TST.find((f) => f.colorKey === norm || f.nome.toLowerCase() === norm)
+  const [colore, setColore] = useState(tua?.colorKey || FAMIGLIE_TST[0].colorKey)
+  const [aperte, setAperte] = useState([])
+  const attiva = FAMIGLIE_TST.find((f) => f.colorKey === colore) || FAMIGLIE_TST[0]
 
-  const [selectedId, setSelectedId] = useState(defaultId)
-  const tabRefs = useRef([])
-  const attiva = MACRO_EMOZIONI.find((m) => m.id === selectedId) || MACRO_EMOZIONI[0]
-
-  const onKeyDown = (event, index) => {
-    const delta = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[event.key]
-    let next = delta ? (index + delta + MACRO_EMOZIONI.length) % MACRO_EMOZIONI.length : null
-    if (event.key === 'Home') next = 0
-    if (event.key === 'End') next = MACRO_EMOZIONI.length - 1
-    if (next === null) return
-    event.preventDefault()
-    setSelectedId(MACRO_EMOZIONI[next].id)
-    tabRefs.current[next]?.focus()
-  }
+  const apri = (p) => setAperte((v) => (v.includes(p) ? v : [...v, p]))
+  const chiudi = (p) => setAperte((v) => v.filter((x) => x !== p))
 
   return (
     <section aria-labelledby="parole-tst-title" className="parole-tst">
       <ReportPassageHeader step={step} title="Parole" titleVisuallyHidden titleId="parole-tst-title" />
-
-      <div className="parole-lex" style={{ '--lex-colore': `var(--tst-family-${attiva.id})` }}>
-        <div className="parole-lex__index" role="tablist" aria-orientation="vertical" aria-label="Famiglie emotive">
-          {MACRO_EMOZIONI.map((m, index) => {
-            const isSelected = m.id === attiva.id
-            return (
-              <button
-                key={m.id}
-                ref={(el) => { tabRefs.current[index] = el }}
-                id={`parole-tab-${m.id}`}
-                type="button"
-                role="tab"
-                aria-selected={isSelected}
-                aria-controls="parole-lex-panel"
-                tabIndex={isSelected ? 0 : -1}
-                className={`parole-lex__tab${isSelected ? ' is-selected' : ''}`}
-                style={{ '--tab-colore': `var(--tst-family-${m.id})` }}
-                onClick={() => setSelectedId(m.id)}
-                onKeyDown={(event) => onKeyDown(event, index)}
-              >
-                <span className="parole-lex__tab-name">{m.famiglia}</span>
-                {isUtente(m) ? <span className="parole-lex__tab-note">la tua famiglia</span> : null}
-              </button>
-            )
-          })}
-        </div>
-
-        <div
-          id="parole-lex-panel"
-          className="parole-lex__panel"
-          role="tabpanel"
-          aria-labelledby={`parole-tab-${attiva.id}`}
-          key={attiva.id}
-        >
-          <h3 className="parole-lex__title">{attiva.nome}</h3>
-          <p className="parole-lex__motto">{attiva.motto}</p>
-          <ol className="parole-lex__words">
-            {attiva.parole.map((parola) => (
-              <li key={parola} className="parole-lex__word">{parola}</li>
-            ))}
-          </ol>
-        </div>
+      <div className="parole-famiglie" role="tablist" aria-label="Famiglie">
+        {FAMIGLIE_TST.map((f) => (
+          <button
+            key={f.colorKey}
+            type="button"
+            role="tab"
+            aria-selected={f.colorKey === attiva.colorKey}
+            className="parole-famiglie__tab"
+            data-famiglia={f.colorKey}
+            onClick={() => { setColore(f.colorKey); setAperte([]) }}
+          >
+            {f.nome}
+            {f === tua ? <span className="parole-famiglie__tua">la tua famiglia</span> : null}
+          </button>
+        ))}
+      </div>
+      <div className="parole-pannello" role="tabpanel" data-famiglia={attiva.colorKey}>
+        <p className="parole-pannello__guida">Tocca una parola per vedere a quale natura appartiene e aprirne la definizione.</p>
+        {attiva.nature.map((n) => (
+          <Natura key={n.rawKey} natura={n} aperte={aperte} onApri={apri} onChiudi={chiudi} />
+        ))}
       </div>
     </section>
   )

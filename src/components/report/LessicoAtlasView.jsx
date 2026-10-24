@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect, useLayoutEffect, useMemo } from 'react'
 import { GALAXY_THEORY_BY_DISPOSITION } from '../../config/galaxyTheoryContent.ts'
 import { FAMIGLIE_TST } from '../../content/paroleTst.js'
+import SchedaParola from './parole/SchedaParola.jsx'
 
 // ─── Virtual World Dimensions ────────────────────────────────────────────────
 const WORLD_WIDTH = 3400
@@ -642,172 +643,12 @@ function buildConstellationData() {
 const CONSTELLATION_DATA = buildConstellationData()
 const ATLAS_WORDS = CONSTELLATION_DATA.words
 
-// ─── Floating Holographic Slate (Cyber-Astronomy & GTA VI Style) ────────────
-function FloatingHolographicSlate({ word, onClose, onSelectWord, viewModel }) {
-  const closeButtonRef = useRef(null)
-
-  useEffect(() => {
-    closeButtonRef.current?.focus()
-  }, [word?.id])
-
+// ─── Parola aperta: solo famiglia, natura e link alla definizione ─────────
+function SchedaParolaLessico({ word, onClose }) {
   if (!word) return null
-  const meta = FAMILY_CONFIG[word.familyId]
-
-  const dynamicWordInfo = viewModel?.lessicoSituazionale?.find(
-    (p) =>
-      p.parola.toLowerCase() === word.nome.toLowerCase() &&
-      ATLAS_FAMILY_ID_BY_KEY[p.familyKey] === word.familyId &&
-      p.correnteKey === word.subcurrentId,
-  )
-
-  const isSituational = Boolean(dynamicWordInfo)
-
   return (
-    <aside
-      id="lessico-dictionary-popover"
-      className="lessico-holo-slate"
-      style={{ '--slate-color': word.color || meta?.baseColor }}
-      aria-label="Tavoletta olografica lessicale"
-    >
-      <div className="lessico-holo-slate__bezel">
-        <header className="lessico-holo-slate__head">
-          <div className="lessico-holo-slate__head-tag">
-            <span className="lessico-holo-slate__status-dot" />
-            <span className="lessico-holo-slate__kicker">PAROLE PER TST</span>
-          </div>
-          <button
-            ref={closeButtonRef}
-            type="button"
-            className="lessico-holo-slate__close"
-            onClick={onClose}
-            aria-label="Chiudi scheda olografica"
-          >
-            ✕
-          </button>
-        </header>
-
-        <div className="lessico-holo-slate__body">
-          {/* Word Title & Pulsing Badge */}
-          <div className="lessico-holo-slate__hero">
-            <h2 className="lessico-holo-slate__word">{word.nome}</h2>
-            <div className="lessico-holo-slate__badge-wrap">
-              <span
-                className={`lessico-holo-slate__badge${
-                  isSituational ? ' is-situational' : ' is-stable'
-                }`}
-              >
-                {isSituational ? 'EMERSA DAL TEST' : word.isIntersection ? 'NODO D’INCROCIO' : 'AGGETTIVO DELLA NATURA'}
-              </span>
-              {dynamicWordInfo?.conteggio && (
-                <span className="lessico-holo-slate__count-pill">
-                  {dynamicWordInfo.conteggio} {dynamicWordInfo.conteggio === 1 ? 'risposta' : 'risposte'}
-                </span>
-              )}
-            </div>
-          </div>
-
-          {word.isIntersection && word.connectedNatures?.length > 1 ? (
-            <div className="lessico-holo-slate__intersection-block">
-              <div className="lessico-holo-slate__intersection-badge">
-                <span className="lessico-holo-slate__intersection-icon">☍</span>
-                <span>NODO D’INCROCIO // {word.connectedFamilies?.map((f) => f.label.toUpperCase()).join(' & ')}</span>
-              </div>
-              <div className="lessico-holo-slate__intersection-list">
-                {word.connectedNatures.map((nat, nIdx) => (
-                  <div key={`${nat.subcurrentId}-${nIdx}`} className="lessico-holo-slate__intersection-item">
-                    <span
-                      className="lessico-holo-slate__dot"
-                      style={{ backgroundColor: FAMILY_CONFIG[nat.familyId]?.baseColor || '#38bdf8' }}
-                      aria-hidden="true"
-                    />
-                    <strong>{nat.familyLabel}</strong>: <span>{nat.title}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : null}
-
-          <dl className="lessico-holo-slate__specs">
-            <div className="lessico-holo-slate__spec-row">
-              <dt>FAMIGLIA</dt>
-              <dd>
-                <span
-                  className="lessico-holo-slate__dot"
-                  style={{ backgroundColor: meta?.baseColor }}
-                  aria-hidden="true"
-                />
-                {word.familyLabel}
-              </dd>
-            </div>
-            <div className="lessico-holo-slate__spec-row">
-              <dt>NATURA</dt>
-              <dd>{word.subcurrentTitle}</dd>
-            </div>
-            {dynamicWordInfo?.fileKeys && dynamicWordInfo.fileKeys.length > 0 && (
-              <div className="lessico-holo-slate__spec-row">
-                <dt>NEL TEST</dt>
-                <dd className="lessico-holo-slate__tracks">
-                  {dynamicWordInfo.fileKeys.map((f) => (
-                    <span key={f} className="lessico-holo-slate__track-badge">
-                      {f.replace('File_', 'Traccia ')}
-                    </span>
-                  ))}
-                </dd>
-              </div>
-            )}
-          </dl>
-
-          {word.keyNote ? (
-            <div className="lessico-holo-slate__desc">
-              <h3>Significato</h3>
-              <p>{word.keyNote}</p>
-            </div>
-          ) : null}
-
-          {word.famiglieCollegate?.length > 0 ? (
-            <div className="lessico-holo-slate__desc">
-              <h3>Collegata alle famiglie</h3>
-              <p>{word.famiglieCollegate.join(' · ')}</p>
-            </div>
-          ) : null}
-
-          {word.sostantiviSintesi?.length > 0 ? (
-            <div className="lessico-holo-slate__desc">
-              <h3>Sostantivi di sintesi della natura</h3>
-              <p>{word.sostantiviSintesi.join(' · ')}</p>
-            </div>
-          ) : null}
-
-          {/* Altre parole della stessa natura */}
-          {word.nearbyWords.length > 0 && (
-            <div className="lessico-holo-slate__constellation">
-              <h3>Altre parole della natura</h3>
-              <div className="lessico-holo-slate__satellites">
-                {word.nearbyWords.map((nome) => {
-                  const w = ATLAS_WORDS.find(
-                    (v) =>
-                      v.nome === nome &&
-                      v.familyId === word.familyId &&
-                      v.subcurrentId === word.subcurrentId,
-                  )
-                  return (
-                    <button
-                      key={nome}
-                      type="button"
-                      className="lessico-holo-slate__satellite-node"
-                      style={{ '--sat-color': w?.color || meta?.baseColor }}
-                      onClick={() => w && onSelectWord(w)}
-                    >
-                      <span className="lessico-holo-slate__satellite-dot" />
-                      <span>{nome}</span>
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
+    <aside id="lessico-dictionary-popover" className="lessico-parola-popover" aria-label={`Parola ${word.nome}`}>
+      <SchedaParola parola={word.nome} onChiudi={onClose} compatta />
     </aside>
   )
 }
@@ -2572,12 +2413,7 @@ export default function LessicoAtlasView({
 
       {/* ── Floating Holographic Slate or Advanced Dashboard ────────────── */}
       {selectedWord ? (
-        <FloatingHolographicSlate
-          word={selectedWord}
-          onClose={closeDictionary}
-          onSelectWord={handleSelectWord}
-          viewModel={viewModel}
-        />
+        <SchedaParolaLessico word={selectedWord} onClose={closeDictionary} />
       ) : null}
     </div>
   )

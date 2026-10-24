@@ -1,180 +1,121 @@
-/* Stanza 05 — Parole (ParoleStatiAnimo.jsx)
-   Impianto editoriale: indice delle famiglie a sinistra, lessico tipografico a destra.
-   Nessuna card: il contenuto scorre sul fondo della stanza, separato da filetti. */
+/* Parole: famiglie → nature → parole apribili. Nessuna card intermedia attorno al testo. */
 
-.parole-tst {
-  width: 100%;
-  box-sizing: border-box;
-  color: var(--tst-color-text-secondary);
-  font-family: var(--tst-font-body);
-}
+[data-famiglia='blu'] { --parola-colore: var(--tst-family-blu); }
+[data-famiglia='rosso'] { --parola-colore: var(--tst-family-rosso); }
+[data-famiglia='verde'] { --parola-colore: var(--tst-family-verde); }
+[data-famiglia='giallo'] { --parola-colore: var(--tst-family-giallo); }
+[data-famiglia='grigio'] { --parola-colore: var(--tst-family-grigio); }
 
-.parole-lex {
-  display: grid;
-  grid-template-columns: minmax(12rem, 16rem) minmax(0, 1fr);
-  gap: var(--tst-space-2xl);
-  align-items: start;
-}
-
-/* Indice delle famiglie */
-.parole-lex__index {
+.parole-famiglie {
   display: flex;
-  flex-direction: column;
-  border-top: 1px solid var(--tst-color-border-subtle);
+  gap: var(--space-xs, 8px);
+  overflow-x: auto;
+  padding-bottom: 4px;
+  margin-bottom: var(--space-md, 32px);
 }
 
-.parole-lex__tab {
-  position: relative;
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--tst-space-xs);
-  min-height: 48px;
-  padding: var(--tst-space-sm) 0 var(--tst-space-sm) var(--tst-space-md);
-  background: none;
-  border: 0;
-  border-bottom: 1px solid var(--tst-color-border-subtle);
-  color: var(--tst-color-text-muted);
-  font: inherit;
-  font-size: var(--tst-step-0);
-  text-align: left;
+.parole-famiglie__tab {
+  flex: none;
+  min-height: 44px;
+  padding: 0 var(--space-sm, 16px);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs, 8px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: 600 0.95rem/1 var(--tst-font-body);
   cursor: pointer;
-  transition: color 160ms ease;
-}
-
-.parole-lex__tab::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 50%;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--tab-colore);
-  opacity: 0.45;
-  transform: translateY(-50%);
-  transition: opacity 160ms ease, transform 160ms ease;
-}
-
-.parole-lex__tab:hover {
-  color: var(--tst-color-text-primary);
-}
-
-.parole-lex__tab.is-selected {
-  color: var(--tst-color-text-primary);
-  font-weight: 600;
-}
-
-.parole-lex__tab.is-selected::before {
-  opacity: 1;
-  transform: translateY(-50%) scale(1.4);
-}
-
-.parole-lex__tab:focus-visible {
-  outline: 2px solid var(--tst-color-border-focus);
-  outline-offset: 2px;
-}
-
-.parole-lex__tab-note {
-  color: var(--tab-colore);
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.02em;
   white-space: nowrap;
 }
 
-/* Lessico della famiglia attiva */
-.parole-lex__panel {
-  min-width: 0;
-  animation: parole-lex-in 240ms ease both;
-}
+.parole-famiglie__tab[aria-selected='true'] { background: var(--parola-colore); border-color: var(--parola-colore); color: #0b1020; }
+.parole-famiglie__tua { font-size: 0.75rem; font-weight: 500; opacity: 0.8; }
+.parole-famiglie__tab:focus-visible,
+.parole-parola:focus-visible,
+.parole-natura__altre:focus-visible { outline: 2px solid var(--parola-colore, #fff); outline-offset: 2px; }
 
-.parole-lex__title {
+.parole-pannello { display: flex; flex-direction: column; gap: var(--space-md, 32px); }
+.parole-pannello__guida { margin: 0; max-width: 65ch; line-height: 1.65; color: var(--tst-color-text-secondary, rgba(248, 250, 252, 0.7)); }
+
+.parole-natura { display: flex; flex-direction: column; gap: var(--space-sm, 16px); }
+.parole-natura__nome {
   margin: 0;
-  color: var(--tst-color-text-primary);
   font-family: var(--tst-font-display);
-  font-size: var(--tst-step-4);
-  font-weight: 400;
-  line-height: 1.1;
-  letter-spacing: -0.015em;
+  font-weight: 500;
+  font-size: clamp(1.3rem, 2.4vw, 1.6rem);
+  color: var(--parola-colore);
 }
 
-.parole-lex__motto {
-  max-width: var(--tst-measure);
-  margin: var(--tst-space-sm) 0 0;
-  color: var(--tst-color-text-secondary);
-  font-size: var(--tst-step-1);
-  line-height: 1.45;
+.parole-natura__parole { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: var(--space-xs, 8px); }
+
+.parole-parola {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: 500 0.95rem/1 var(--tst-font-body);
+  cursor: pointer;
 }
 
-.parole-lex__words {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
-  margin: var(--tst-space-xl) 0 0;
+.parole-parola:hover { border-color: var(--parola-colore); }
+.parole-parola[aria-expanded='true'] { border-color: var(--parola-colore); color: var(--parola-colore); }
+
+.parole-natura__altre {
+  align-self: flex-start;
+  min-height: 40px;
   padding: 0;
-  list-style: none;
-  border-top: 1px solid color-mix(in srgb, var(--lex-colore) 55%, transparent);
-  counter-reset: parola;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: 600 0.9rem/1 var(--tst-font-body);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
 }
 
-.parole-lex__word {
+.parole-natura__schede { display: flex; flex-wrap: wrap; gap: var(--space-sm, 16px); }
+
+/* Riquadro di una parola aperta (condiviso con Lessico e Galassia) */
+.scheda-parola {
+  --parola-colore: var(--tst-family-grigio);
+  width: min(320px, 100%);
+  padding: var(--space-sm, 16px);
   display: flex;
-  align-items: baseline;
-  gap: var(--tst-space-sm);
-  padding: var(--tst-space-md) var(--tst-space-md) var(--tst-space-md) 0;
-  border-bottom: 1px solid var(--tst-color-border-subtle);
-  color: var(--tst-color-text-primary);
-  font-family: var(--tst-font-display);
-  font-size: var(--tst-step-1);
-  font-style: italic;
-  counter-increment: parola;
+  flex-direction: column;
+  gap: var(--space-xs, 8px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 3px solid var(--parola-colore);
+  border-radius: 14px;
+  background: rgba(10, 14, 30, 0.92);
+  color: var(--tst-color-text-primary, #f8fafc);
 }
+.scheda-parola[data-famiglia='blu'] { --parola-colore: var(--tst-family-blu); }
+.scheda-parola[data-famiglia='rosso'] { --parola-colore: var(--tst-family-rosso); }
+.scheda-parola[data-famiglia='verde'] { --parola-colore: var(--tst-family-verde); }
+.scheda-parola[data-famiglia='giallo'] { --parola-colore: var(--tst-family-giallo); }
+.scheda-parola__testa { display: flex; justify-content: space-between; align-items: center; gap: var(--space-xs, 8px); }
+.scheda-parola__parola { font-family: var(--tst-font-display); font-size: 1.35rem; }
+.scheda-parola__chiudi { width: 32px; height: 32px; border: 0; border-radius: 50%; background: rgba(255, 255, 255, 0.06); color: inherit; cursor: pointer; }
+.scheda-parola__dove { margin: 0; padding: 0; list-style: none; font-size: 0.92rem; line-height: 1.5; }
+.scheda-parola__dove li { color: var(--parola-colore); }
+.scheda-parola__dove li[data-famiglia='blu'] { --parola-colore: var(--tst-family-blu); }
+.scheda-parola__dove li[data-famiglia='rosso'] { --parola-colore: var(--tst-family-rosso); }
+.scheda-parola__dove li[data-famiglia='verde'] { --parola-colore: var(--tst-family-verde); }
+.scheda-parola__dove li[data-famiglia='giallo'] { --parola-colore: var(--tst-family-giallo); }
+.scheda-parola__dove li[data-famiglia='grigio'] { --parola-colore: var(--tst-family-grigio); }
+.scheda-parola__link { color: inherit; font-size: 0.92rem; text-decoration: underline; text-underline-offset: 3px; }
+.scheda-parola--compatta { width: min(280px, 100%); }
 
-.parole-lex__word::before {
-  content: counter(parola, decimal-leading-zero);
-  color: var(--lex-colore);
-  font-family: var(--tst-font-mono);
-  font-size: 0.75rem;
-  font-style: normal;
-}
-
-@keyframes parole-lex-in {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: none; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .parole-lex__panel { animation: none; }
-}
-
-/* Mobile e tablet stretto: indice in riga scorrevole sopra il lessico */
-@media (max-width: 760px) {
-  .parole-lex {
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--tst-space-xl);
-  }
-
-  .parole-lex__index {
-    flex-direction: row;
-    overflow-x: auto;
-    border-top: 0;
-    border-bottom: 1px solid var(--tst-color-border-subtle);
-    scrollbar-width: none;
-  }
-
-  .parole-lex__index::-webkit-scrollbar { display: none; }
-
-  .parole-lex__tab {
-    flex: 0 0 auto;
-    flex-direction: column;
-    gap: 0;
-    padding: var(--tst-space-sm) var(--tst-space-md);
-    border-bottom: 2px solid transparent;
-  }
-
-  .parole-lex__tab::before { display: none; }
-
-  .parole-lex__tab.is-selected { border-bottom-color: var(--tab-colore); }
-
-  .parole-lex__words { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.lessico-parola-popover {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right, 0px));
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  z-index: 80;
+  width: min(300px, calc(100vw - 32px));
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+  border-radius: 14px;
 }
