@@ -123,6 +123,7 @@ export default function ReportShell({
   const [glossaryFocusId, setGlossaryFocusId] = useState(null)
   const [loaded, setLoaded] = useState(false)
   const [scientificScopeOpen, setScientificScopeOpen] = useState(true)
+  const [fullscreenMode, setFullscreenMode] = useState(false)
   const [rapportiSlideActive, setRapportiSlideActive] = useState(false)
   const heroRef = useRef(null)
   const progressBarRef = useRef(null)
@@ -401,6 +402,15 @@ export default function ReportShell({
   }, [])
 
   useEffect(() => {
+    if (!fullscreenMode) return undefined
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') setFullscreenMode(false)
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [fullscreenMode])
+
+  useEffect(() => {
     if (!isAlternateMode) return undefined
     const prevOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
@@ -445,7 +455,7 @@ export default function ReportShell({
 
   return (
     <div
-      className="report-tst"
+      className={`report-tst${fullscreenMode ? ' report-tst--fullscreen' : ''}`}
       data-time-of-day={timeOfDay}
       data-weather={weather}
       data-sky-tone={visualProfile.tone}
@@ -540,6 +550,8 @@ export default function ReportShell({
         </div>
 
         <NavbarTST
+          fullscreenMode={fullscreenMode}
+          onFullscreenChange={setFullscreenMode}
           forceVisible={modalita !== 'report'}
           modalita={modalita}
           onModalitaChange={changeModalita}
