@@ -1,12 +1,9 @@
 import React from 'react'
-import { FAMIGLIE_MUSICA, ORDINE_FAMIGLIE, STANZE } from '../../../content/musicistiStanze.js'
+import { FAMIGLIE_MUSICA, STANZE } from '../../../content/musicistiStanze.js'
 
-/** Ingresso: la pianta delle stanze. La famiglia prevalente compare per prima ed è evidenziata. */
+/** Ingresso: la pianta delle stanze. La stanza della famiglia apre sulla famiglia prevalente. */
 export default function PiantaStanze({ famigliaPrevalente, onApri }) {
-  const ordine = famigliaPrevalente && FAMIGLIE_MUSICA[famigliaPrevalente]
-    ? [famigliaPrevalente, ...ORDINE_FAMIGLIE.filter((k) => k !== famigliaPrevalente)]
-    : ORDINE_FAMIGLIE
-
+  const tua = famigliaPrevalente ? FAMIGLIE_MUSICA[famigliaPrevalente] : null
   return (
     <div className="stanze-pianta">
       <header className="stanze-pianta__intro">
@@ -16,31 +13,24 @@ export default function PiantaStanze({ famigliaPrevalente, onApri }) {
           modo di lettura; gli ascolti sono i suoni del test.
         </p>
       </header>
-
-      {STANZE.map((stanza) => (
-        <section key={stanza.id} className="stanze-pianta__stanza" aria-labelledby={`stanza-${stanza.id}`}>
-          <h2 id={`stanza-${stanza.id}`}>{stanza.titolo}</h2>
-          <p>{stanza.descrizione}</p>
-          <div className="stanze-pianta__porte">
-            {ordine.map((key) => {
-              const fam = FAMIGLIE_MUSICA[key]
-              const tua = key === famigliaPrevalente
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  className={`stanze-porta${tua ? ' is-tua' : ''}`}
-                  data-famiglia={fam.colorKey}
-                  onClick={() => onApri(stanza.id, key)}
-                >
-                  <span className="stanze-porta__nome">{fam.nome}</span>
-                  {tua ? <span className="stanze-porta__nota">La tua famiglia</span> : null}
-                </button>
-              )
-            })}
-          </div>
-        </section>
-      ))}
+      <div className="stanze-pianta__porte">
+        {STANZE.map((stanza) => {
+          const evidenziata = stanza.id === 'famiglia' && tua
+          return (
+            <button
+              key={stanza.id}
+              type="button"
+              className={`stanze-porta${evidenziata ? ' is-tua' : ''}`}
+              data-famiglia={evidenziata ? tua.colorKey : undefined}
+              onClick={() => onApri(stanza.id)}
+            >
+              <span className="stanze-porta__nome">{stanza.titolo}</span>
+              <span className="stanze-porta__descrizione">{stanza.descrizione}</span>
+              {evidenziata ? <span className="stanze-porta__nota">Si apre sulla famiglia {tua.nome}</span> : null}
+            </button>
+          )
+        })}
+      </div>
     </div>
   )
 }
