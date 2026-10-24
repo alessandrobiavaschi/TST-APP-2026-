@@ -90,7 +90,7 @@ const PANELS_DATA = [
       "la tua natura di base, il rapporto con te stesso, il rapporto con l'altro e il rapporto con l'agire, insieme alla rappresentazione visiva della tua complessità temperamentale.",
       'Può essere il punto di partenza per una reale e profonda autoconoscenza di Sé.',
       'Aiuta a osservare con maggiore oggettività l\'importanza e il ruolo della sfera emotiva nella vita reale, dall\'ambizione individuale al rapporto con lo studio, il lavoro e il mondo delle relazioni.',
-      'Data la speciale natura del Test abbiamo aggiunto restituzioni ancora più specifiche, che possono essere viste da tutti anche per mera curiosità, nell\'area "For Musicians".',
+      'Data la speciale natura del Test abbiamo aggiunto restituzioni ancora più specifiche, che possono essere viste da tutti anche per mera curiosità, nell\'area "For Musicians & Music Lovers".',
     ],
   },
   {
