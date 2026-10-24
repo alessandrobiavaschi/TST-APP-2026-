@@ -1,0 +1,254 @@
+/* Report per musicisti a stanze. Classi con prefisso "stanze-"/"stanza-": nessuna collisione con report-tst.css. */
+
+.stanze-musicisti {
+  --sm-xs: var(--space-xs, 8px);
+  --sm-sm: var(--space-sm, 16px);
+  --sm-md: var(--space-md, 32px);
+  --sm-lg: var(--space-lg, 64px);
+  min-height: 100%;
+  color: var(--tst-color-text-primary, #f8fafc);
+  font-family: var(--tst-font-body);
+  padding-bottom: 96px;
+}
+
+/* ── Cornice fissa ── */
+.stanze-cornice {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--sm-xs);
+  padding: var(--sm-xs) max(var(--sm-sm), env(safe-area-inset-left, 0px));
+  background: rgba(3, 7, 18, 0.88);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.stanze-cornice__sinistra,
+.stanze-cornice__destra {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sm-xs);
+}
+
+.stanze-cornice__btn {
+  min-height: 44px;
+  padding: 0 var(--sm-sm);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: 600 0.9rem/1 var(--tst-font-body);
+  cursor: pointer;
+}
+
+.stanze-cornice__btn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.08); }
+.stanze-cornice__btn:disabled { opacity: 0.35; cursor: default; }
+.stanze-cornice__btn:focus-visible,
+.stanze-porta:focus-visible,
+.stanza-suono:focus-visible,
+.stanze-lettore button:focus-visible {
+  outline: 2px solid var(--stanza-accento);
+  outline-offset: 2px;
+}
+
+.stanze-musicisti__contenuto {
+  width: min(1120px, calc(100% - 2 * var(--sm-sm)));
+  margin: 0 auto;
+}
+
+/* ── Pianta ── */
+.stanze-pianta {
+  padding-block: var(--sm-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sm-lg);
+}
+
+.stanze-pianta__intro h1,
+.stanza-famiglia__titolo {
+  margin: 0 0 var(--sm-sm);
+  font-family: var(--tst-font-display);
+  font-weight: 500;
+  font-size: clamp(2.4rem, 6vw, 4.5rem);
+  line-height: 1.05;
+  text-wrap: balance;
+}
+
+.stanze-pianta__intro p,
+.stanze-pianta__stanza > p {
+  margin: 0;
+  max-width: 65ch;
+  line-height: 1.65;
+  color: var(--tst-color-text-secondary, rgba(248, 250, 252, 0.75));
+}
+
+.stanze-pianta__stanza h2,
+.stanza-famiglia__sezione h2,
+.stanza-famiglia__test h2 {
+  margin: 0 0 var(--sm-xs);
+  font-family: var(--tst-font-display);
+  font-weight: 500;
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  line-height: 1.15;
+}
+
+.stanze-pianta__porte {
+  margin-top: var(--sm-md);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--sm-sm);
+}
+
+.stanze-porta {
+  min-height: 120px;
+  padding: var(--sm-sm);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 4px;
+  text-align: left;
+  color: inherit;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 4px solid var(--porta-colore);
+  border-radius: 16px;
+  cursor: pointer;
+}
+
+.stanze-porta:hover { background: rgba(255, 255, 255, 0.08); }
+.stanze-porta.is-tua { box-shadow: 0 0 0 1px var(--porta-colore) inset; }
+.stanze-porta__nome { font-family: var(--tst-font-display); font-size: 1.5rem; }
+.stanze-porta__nota { font-size: 0.85rem; color: var(--porta-colore); }
+
+[data-famiglia='blu'] { --porta-colore: var(--tst-family-blu); }
+[data-famiglia='rosso'] { --porta-colore: var(--tst-family-rosso); }
+[data-famiglia='verde'] { --porta-colore: var(--tst-family-verde); }
+[data-famiglia='giallo'] { --porta-colore: var(--tst-family-giallo); }
+[data-famiglia='grigio'] { --porta-colore: var(--tst-family-grigio); }
+
+/* ── Stanza della famiglia ── */
+.stanza-famiglia__apertura {
+  padding-block: var(--sm-lg) var(--sm-md);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.stanza-famiglia__titolo em { font-style: italic; color: var(--porta-colore); }
+
+.stanza-famiglia__lead {
+  margin: 0;
+  max-width: 40ch;
+  font-family: var(--tst-font-display);
+  font-size: clamp(1.25rem, 2.4vw, 1.6rem);
+  line-height: 1.4;
+}
+
+.stanza-famiglia__corpo {
+  padding-block: var(--sm-md) var(--sm-lg);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sm-lg);
+  align-items: flex-start;
+}
+
+.stanza-famiglia__testo {
+  flex: 999 1 520px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sm-md);
+}
+
+.stanza-famiglia__sezione p,
+.stanza-famiglia__test p {
+  margin: 0;
+  max-width: 65ch;
+  line-height: 1.65;
+}
+
+.stanza-famiglia__suoni {
+  margin-top: var(--sm-sm);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sm-xs);
+}
+
+.stanza-suono {
+  min-height: 44px;
+  padding: 0 var(--sm-sm);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
+  font: 600 0.9rem/1 var(--tst-font-body);
+  cursor: pointer;
+}
+
+.stanza-suono:hover { background: rgba(255, 255, 255, 0.08); }
+.stanza-suono[aria-pressed='true'] { border-color: var(--porta-colore); color: var(--porta-colore); }
+
+.stanza-famiglia__test {
+  flex: 1 1 280px;
+  min-width: 0;
+  padding: var(--sm-sm);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.stanza-famiglia__test h2 { font-size: 1.3rem; }
+.stanza-famiglia__test p { font-size: 0.9rem; color: var(--tst-color-text-secondary, rgba(248, 250, 252, 0.75)); }
+
+.stanza-famiglia__test ul {
+  margin: var(--sm-sm) 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.9rem;
+}
+
+.stanza-famiglia__test li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sm-sm);
+  padding-block: var(--sm-xs);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.stanza-famiglia__passo { flex: none; color: var(--tst-color-text-secondary, rgba(248, 250, 252, 0.65)); }
+
+/* ── Lettore ── */
+.stanze-lettore {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--sm-sm) + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  z-index: 60;
+  width: min(520px, calc(100% - 2 * var(--sm-sm)));
+  padding: var(--sm-xs);
+  display: flex;
+  align-items: center;
+  gap: var(--sm-sm);
+  background: rgba(15, 23, 42, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+}
+
+.stanze-lettore button {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  color: inherit;
+  cursor: pointer;
+}
+
+.stanze-lettore__play { background: var(--stanza-accento); color: #0b1020 !important; font-weight: 700; }
+.stanze-lettore__chiudi { background: transparent; }
+.stanze-lettore__testo { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.stanze-lettore__nome { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.stanze-lettore__nota { font-size: 0.8rem; color: var(--tst-color-text-secondary, rgba(248, 250, 252, 0.7)); }
