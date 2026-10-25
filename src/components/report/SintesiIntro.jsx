@@ -3,17 +3,16 @@ import InfoTip from './InfoTip.jsx'
 import { normalizeFamigliaName } from '../../content/reportRestitution.js'
 import { buildProgressiveContentViewModel } from '../../utils/buildProgressiveContentViewModel.js'
 import { NATURE as NATURE_TST } from '../../config/tstSistema.js'
-import { getTestoNatura } from '../../content/testiFissiTemperamenti.js'
+import { getSintesiFamiglia, getTestoNatura } from '../../content/testiFissiTemperamenti.js'
 import { naturePdfDiFamiglia } from '../../utils/naturePdf.js'
 import { FAMILY_THEME } from '../../config/reportFamilyTheme.js'
 
 /**
  * Apertura della sezione 01: il risultato, detto una volta sola.
- *  1. famiglia prevalente;
+ *  1. famiglia prevalente, con la sintesi della famiglia (prima frase dei Testi fissi);
  *  2. nature della famiglia e natura emersa dal test;
  *  3. famiglie presenti nel profilo, con la loro quota.
- * Che cosa rappresenta la famiglia NON si ripete qui: lo dice il testo fisso
- * di Franco Mussida nella sezione 02 (capitolo «La famiglia …»).
+ * Il testo fisso completo della famiglia resta nella sezione 02 (capitolo «La famiglia …»).
  */
 
 const FAMILY_LABEL = { Blu: 'Malinconica', Giallo: 'Entusiasta', Rosso: 'Marziale', Verde: 'Flemmatica', Grigio: 'Razionale' }
@@ -100,6 +99,7 @@ export default function SintesiIntro({
   const familyName = normalizeFamigliaName(famiglia)
   const familyLabel = FAMILY_LABEL[familyName] || FAMILY_LABEL.Verde
   const nature = natureFamigliaPdf(familyName)
+  const sintesiFamiglia = getSintesiFamiglia(familyName)
   const norm = (v) => String(v || '').trim().toLowerCase()
   const naturaEmersa = nature.find((n) => norm(n.nome) === norm(sottodisposizione)) || nature[0] || null
 
@@ -145,6 +145,7 @@ export default function SintesiIntro({
         La tua famiglia emotiva prevalente è{' '}
         <strong className="sintesi-editorial-highlight">{familyLabel}</strong>.
       </p>
+      {sintesiFamiglia ? <p className="sintesi-intro__famiglia">{sintesiFamiglia}</p> : null}
       {nature.length > 1 && naturaEmersa ? (
         <p>
           Al suo interno si distinguono nature legate {joinNodes(natureNodes.map((node) => <React.Fragment key={node.key}>alla {node}</React.Fragment>))}.
