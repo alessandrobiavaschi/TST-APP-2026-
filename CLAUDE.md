@@ -70,6 +70,8 @@ I nuovi componenti e le nuove funzioni restano sotto le ~200 righe.
 
 - Mai commit o push diretti su `master` / `main`. Lavora su un branch dedicato.
 - Mai force push.
+- Più chat in parallelo: ogni chat lavora su un proprio branch (e su una propria copia della cartella, mai due chat nella stessa), lo pubblica su GitHub e chiude con una pull request verso `master`. Si unisce una PR alla volta; dopo ogni merge gli altri branch si aggiornano da `master` e rieseguono i test. Ciò che non è su `master` non esiste.
+- Il sito pubblicato si costruisce solo da `master` aggiornato, dopo l'ultimo merge: mai dal branch di una singola chat.
 - Mai deploy (Firebase, Netlify) senza richiesta esplicita dell'utente e verifica del target.
 - Mai esporre `.env`, chiavi o dati personali dei test (sono dati psicologici).
 - Gli handoff di workflow multi-agente vanno in `docs/handoff/`, non nella root. Quelli vecchi sono in `docs/archivio/`.
