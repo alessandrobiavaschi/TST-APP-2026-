@@ -7449,7 +7449,9 @@
 @media (max-width: 900px) {
   .galassia-view {
     --galassia-chrome-offset: 0px;
-    --galassia-chrome-height: auto !important;
+    /* Valore numerico: «auto» dentro il calc di --galassia-map-top rendeva nullo
+       l'inset della mappa, che collassava a larghezza zero e sovrapponeva i pianeti. */
+    --galassia-chrome-height: 104px !important;
   }
 
   .galassia-view__chrome {

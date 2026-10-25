@@ -16,7 +16,7 @@ import {
   requestPasswordReset as authRequestPasswordReset,
   getGoogleAuthDiagnosticEventName,
 } from '../auth.js'
-import '../styles/landing-nebula.css'
+// CSS caricato in App.jsx (vedi commento lì)
 
 const HERO_TITLE = 'TST'
 const HERO_SUBTITLE = "Test Sonoro Temperamentale per la Rilevazione dell'Identità Emotiva"

@@ -7,7 +7,7 @@ import {
   VERSIONE_MODELLO_LEGACY,
 } from '../config/tstSistema.js'
 import { calcolaCeste, percentualeNatura } from './cesteTst.js'
-import { leggiTestStorico } from './testStorici.js'
+import { leggiTestStorico, massimiDelTest } from './testStorici.js'
 
 /** Etichetta salvata in Disposizione_Prevalente: nome della famiglia dal PDF. */
 export const DISPOSITION_LABEL_BY_COLOR = Object.freeze(
@@ -53,7 +53,7 @@ export function getDominantDisposition(record = {}) {
 export function getDominantSubdisposition(record = {}) {
   const colorKey = getDominantDispositionKey(record)
   const currentKey = findPositiveMaximum(
-    (CURRENT_KEYS_BY_COLOR[colorKey] || []).map((key) => [key, percentualeNatura(key, record[key])]),
+    (CURRENT_KEYS_BY_COLOR[colorKey] || []).map((key) => [key, percentualeNatura(key, record[key], massimiDelTest(record) || undefined)]),
   )
   return SUBDISPOSITION_LABEL_BY_KEY[currentKey] || ''
 }
@@ -111,14 +111,14 @@ export function ricalcolaRecordTst(record = {}) {
 /**
  * Prepara un record salvato per la lettura (report, archivio risultati).
  * - Test del modello corrente: ricalcolati dalle risposte grezze.
- * - Test di versioni precedenti (o senza `versione_modello`): restituiti con i
- *   punteggi e le prevalenze salvati, così i risultati storici non cambiano.
+ * - Test di versioni precedenti (o senza `versione_modello`): letti con le
+ *   regole della loro epoca solo se riproducono i punti salvati, altrimenti
+ *   con i totali salvati (vedi testStorici.js). I risultati storici non cambiano.
  * Non scrive mai su Firestore.
  */
 export function normalizzaRecordTst(record = {}) {
   if (!record || typeof record !== 'object') return record
   const versione = versioneModelloDi(record)
-  if (versione === VERSIONE_MODELLO_LEGACY) return { ...leggiTestStorico(record), versione_modello: versione }
-  if (versione !== VERSIONE_MODELLO) return { ...record, versione_modello: versione }
+  if (versione !== VERSIONE_MODELLO) return { ...leggiTestStorico(record), versione_modello: versione }
   return ricalcolaRecordTst(record)
 }

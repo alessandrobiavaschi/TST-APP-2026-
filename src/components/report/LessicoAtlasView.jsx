@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect, useLayoutEffect, useMemo } from 'react'
 import { GALAXY_THEORY_BY_DISPOSITION } from '../../config/galaxyTheoryContent.ts'
 import { FAMIGLIE_TST } from '../../content/paroleTst.js'
-import { useUiSounds } from '../../UiSoundProvider.jsx'
+import SchedaParola from './parole/SchedaParola.jsx'
 
 // ─── Virtual World Dimensions ────────────────────────────────────────────────
 const WORLD_WIDTH = 3400
@@ -643,377 +643,12 @@ function buildConstellationData() {
 const CONSTELLATION_DATA = buildConstellationData()
 const ATLAS_WORDS = CONSTELLATION_DATA.words
 
-// ─── TST Web Audio Harmonic Synthesizer ──────────────────────────────────────
-const INTERVAL_SEMITONES = {
-  'unisono': 0,
-  'seconda minore': 1,
-  'seconda maggiore': 2,
-  'terza minore': 3,
-  'terza maggiore': 4,
-  'quarta giusta': 5,
-  'tritono': 6,
-  'quinta diminuita': 6,
-  'quinta giusta': 7,
-  'sesta minore': 8,
-  'sesta maggiore': 9,
-  'settima minore': 10,
-  'settima maggiore': 11,
-  'ottava': 12,
-}
-
-const FAMILY_BASE_FREQS = {
-  malinconica_nostalgica: 220,   // La (A3)
-  collerico_volitiva: 330,       // Mi (E4)
-  flemmatica: 261.63,            // Do (C4)
-  entusiasmo: 392,               // Sol (G4)
-  agnostica_anaffettiva: 293.66, // Re (D4)
-}
-
-let atlasAudioCtx = null
-function getAtlasAudioContext() {
-  if (typeof window === 'undefined') return null
-  const AudioCtx = window.AudioContext || window.webkitAudioContext
-  if (!AudioCtx) return null
-  if (!atlasAudioCtx) {
-    atlasAudioCtx = new AudioCtx()
-  }
-  if (atlasAudioCtx.state === 'suspended') {
-    atlasAudioCtx.resume().catch(() => {})
-  }
-  return atlasAudioCtx
-}
-
-function playHarmonicChime(intervalName, familyId, isSoundEnabled) {
-  if (!isSoundEnabled) return
-  const ctx = getAtlasAudioContext()
-  if (!ctx) return
-
-  const f1 = FAMILY_BASE_FREQS[familyId] || 261.63
-  const norm = (intervalName || '').toLowerCase().trim()
-  let semitones = 7
-  for (const [key, val] of Object.entries(INTERVAL_SEMITONES)) {
-    if (norm.includes(key)) {
-      semitones = val
-      break
-    }
-  }
-  const f2 = f1 * Math.pow(2, semitones / 12)
-
-  const now = ctx.currentTime
-  const duration = 0.35
-
-  try {
-    const osc1 = ctx.createOscillator()
-    const osc2 = ctx.createOscillator()
-    const gain1 = ctx.createGain()
-    const gain2 = ctx.createGain()
-
-    osc1.type = 'sine'
-    osc1.frequency.setValueAtTime(f1, now)
-    gain1.gain.setValueAtTime(0.0001, now)
-    gain1.gain.linearRampToValueAtTime(0.12, now + 0.02)
-    gain1.gain.exponentialRampToValueAtTime(0.0001, now + duration)
-
-    osc2.type = 'triangle'
-    osc2.frequency.setValueAtTime(f2, now + 0.035)
-    gain2.gain.setValueAtTime(0.0001, now)
-    gain2.gain.setValueAtTime(0.0001, now + 0.035)
-    gain2.gain.linearRampToValueAtTime(0.09, now + 0.055)
-    gain2.gain.exponentialRampToValueAtTime(0.0001, now + duration)
-
-    osc1.connect(gain1)
-    gain1.connect(ctx.destination)
-    osc2.connect(gain2)
-    gain2.connect(ctx.destination)
-
-    osc1.start(now)
-    osc2.start(now + 0.035)
-    osc1.stop(now + duration + 0.05)
-    osc2.stop(now + duration + 0.05)
-  } catch {
-    // ignore audio context errors
-  }
-}
-
-// ─── Mini-Oscilloscopio Audio Waveform ───────────────────────────────────────
-function OscilloscopeCanvas({ intervalName, familyColor }) {
-  const canvasRef = useRef(null)
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return undefined
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return undefined
-
-    const norm = (intervalName || '').toLowerCase().trim()
-    let semitones = 7
-    for (const [key, val] of Object.entries(INTERVAL_SEMITONES)) {
-      if (norm.includes(key)) {
-        semitones = val
-        break
-      }
-    }
-
-    let animId = null
-    let t = 0
-    const color = familyColor || '#38bdf8'
-
-    const render = () => {
-      t += 0.04
-      const w = canvas.width
-      const h = canvas.height
-      ctx.clearRect(0, 0, w, h)
-
-      // Zero-crossing central guide
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)'
-      ctx.lineWidth = 1
-      ctx.beginPath()
-      ctx.moveTo(0, h / 2)
-      ctx.lineTo(w, h / 2)
-      ctx.stroke()
-
-      // Primary sine wave (fundamental)
-      ctx.save()
-      ctx.strokeStyle = color
-      ctx.lineWidth = 2
-      ctx.shadowColor = color
-      ctx.shadowBlur = 8
-      ctx.beginPath()
-      const midY = h / 2
-      const amp1 = 12
-      const freq1 = 0.038
-      for (let x = 0; x < w; x++) {
-        const y = midY + Math.sin(x * freq1 + t) * amp1
-        if (x === 0) ctx.moveTo(x, y)
-        else ctx.lineTo(x, y)
-      }
-      ctx.stroke()
-      ctx.restore()
-
-      // Secondary harmonic wave (interval ratio)
-      ctx.save()
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)'
-      ctx.lineWidth = 1.2
-      ctx.shadowColor = '#ffffff'
-      ctx.shadowBlur = 4
-      ctx.beginPath()
-      const amp2 = 7.5
-      const freq2 = 0.038 * (1 + semitones / 12)
-      for (let x = 0; x < w; x++) {
-        const y = midY + Math.sin(x * freq2 - t * 1.25) * amp2
-        if (x === 0) ctx.moveTo(x, y)
-        else ctx.lineTo(x, y)
-      }
-      ctx.stroke()
-      ctx.restore()
-
-      animId = requestAnimationFrame(render)
-    }
-
-    animId = requestAnimationFrame(render)
-    return () => {
-      if (animId) cancelAnimationFrame(animId)
-    }
-  }, [intervalName, familyColor])
-
-  return (
-    <canvas
-      ref={canvasRef}
-      width={280}
-      height={48}
-      className="lessico-holo-slate__oscilloscope"
-      aria-hidden="true"
-    />
-  )
-}
-
-// ─── Floating Holographic Slate (Cyber-Astronomy & GTA VI Style) ────────────
-function FloatingHolographicSlate({ word, onClose, onSelectWord, viewModel }) {
-  const closeButtonRef = useRef(null)
-
-  useEffect(() => {
-    closeButtonRef.current?.focus()
-  }, [word?.id])
-
+// ─── Parola aperta: solo famiglia, natura e link alla definizione ─────────
+function SchedaParolaLessico({ word, onClose }) {
   if (!word) return null
-  const meta = FAMILY_CONFIG[word.familyId]
-
-  const dynamicWordInfo = viewModel?.lessicoSituazionale?.find(
-    (p) =>
-      p.parola.toLowerCase() === word.nome.toLowerCase() &&
-      ATLAS_FAMILY_ID_BY_KEY[p.familyKey] === word.familyId &&
-      p.correnteKey === word.subcurrentId,
-  )
-
-  const isSituational = Boolean(dynamicWordInfo)
-
   return (
-    <aside
-      id="lessico-dictionary-popover"
-      className="lessico-holo-slate"
-      style={{ '--slate-color': word.color || meta?.baseColor }}
-      aria-label="Tavoletta olografica lessicale"
-    >
-      <div className="lessico-holo-slate__bezel">
-        <header className="lessico-holo-slate__head">
-          <div className="lessico-holo-slate__head-tag">
-            <span className="lessico-holo-slate__status-dot" />
-            <span className="lessico-holo-slate__kicker">PAROLE PER TST</span>
-          </div>
-          <button
-            ref={closeButtonRef}
-            type="button"
-            className="lessico-holo-slate__close"
-            onClick={onClose}
-            aria-label="Chiudi scheda olografica"
-          >
-            ✕
-          </button>
-        </header>
-
-        <div className="lessico-holo-slate__body">
-          {/* Word Title & Pulsing Badge */}
-          <div className="lessico-holo-slate__hero">
-            <h2 className="lessico-holo-slate__word">{word.nome}</h2>
-            <div className="lessico-holo-slate__badge-wrap">
-              <span
-                className={`lessico-holo-slate__badge${
-                  isSituational ? ' is-situational' : ' is-stable'
-                }`}
-              >
-                {isSituational ? 'EMERSA DAL TEST' : word.isIntersection ? 'NODO D’INCROCIO' : 'AGGETTIVO DELLA NATURA'}
-              </span>
-              {dynamicWordInfo?.conteggio && (
-                <span className="lessico-holo-slate__count-pill">
-                  {dynamicWordInfo.conteggio} {dynamicWordInfo.conteggio === 1 ? 'risposta' : 'risposte'}
-                </span>
-              )}
-            </div>
-          </div>
-
-          {word.isIntersection && word.connectedNatures?.length > 1 ? (
-            <div className="lessico-holo-slate__intersection-block">
-              <div className="lessico-holo-slate__intersection-badge">
-                <span className="lessico-holo-slate__intersection-icon">☍</span>
-                <span>NODO D’INCROCIO // {word.connectedFamilies?.map((f) => f.label.toUpperCase()).join(' & ')}</span>
-              </div>
-              <div className="lessico-holo-slate__intersection-list">
-                {word.connectedNatures.map((nat, nIdx) => (
-                  <div key={`${nat.subcurrentId}-${nIdx}`} className="lessico-holo-slate__intersection-item">
-                    <span
-                      className="lessico-holo-slate__dot"
-                      style={{ backgroundColor: FAMILY_CONFIG[nat.familyId]?.baseColor || '#38bdf8' }}
-                      aria-hidden="true"
-                    />
-                    <strong>{nat.familyLabel}</strong>: <span>{nat.title}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : null}
-
-          {/* Suono dell'intervallo della natura (dal PDF), se indicato */}
-          {word.subcurrentInterval ? (
-            <div className="lessico-holo-slate__scope-wrap">
-              <div className="lessico-holo-slate__scope-header">
-                <span className="lessico-holo-slate__scope-title">
-                  INTERVALLO // {word.subcurrentInterval.toUpperCase()}
-                </span>
-              </div>
-              <OscilloscopeCanvas
-                intervalName={word.subcurrentInterval}
-                familyColor={word.color || meta?.baseColor}
-              />
-            </div>
-          ) : null}
-
-          <dl className="lessico-holo-slate__specs">
-            <div className="lessico-holo-slate__spec-row">
-              <dt>FAMIGLIA</dt>
-              <dd>
-                <span
-                  className="lessico-holo-slate__dot"
-                  style={{ backgroundColor: meta?.baseColor }}
-                  aria-hidden="true"
-                />
-                {word.familyLabel}
-              </dd>
-            </div>
-            <div className="lessico-holo-slate__spec-row">
-              <dt>NATURA</dt>
-              <dd>{word.subcurrentTitle}</dd>
-            </div>
-            {word.subcurrentInterval ? (
-              <div className="lessico-holo-slate__spec-row">
-                <dt>INTERVALLO</dt>
-                <dd>{word.subcurrentInterval}</dd>
-              </div>
-            ) : null}
-            {dynamicWordInfo?.fileKeys && dynamicWordInfo.fileKeys.length > 0 && (
-              <div className="lessico-holo-slate__spec-row">
-                <dt>NEL TEST</dt>
-                <dd className="lessico-holo-slate__tracks">
-                  {dynamicWordInfo.fileKeys.map((f) => (
-                    <span key={f} className="lessico-holo-slate__track-badge">
-                      {f.replace('File_', 'Traccia ')}
-                    </span>
-                  ))}
-                </dd>
-              </div>
-            )}
-          </dl>
-
-          {word.keyNote ? (
-            <div className="lessico-holo-slate__desc">
-              <h3>Significato</h3>
-              <p>{word.keyNote}</p>
-            </div>
-          ) : null}
-
-          {word.famiglieCollegate?.length > 0 ? (
-            <div className="lessico-holo-slate__desc">
-              <h3>Collegata alle famiglie</h3>
-              <p>{word.famiglieCollegate.join(' · ')}</p>
-            </div>
-          ) : null}
-
-          {word.sostantiviSintesi?.length > 0 ? (
-            <div className="lessico-holo-slate__desc">
-              <h3>Sostantivi di sintesi della natura</h3>
-              <p>{word.sostantiviSintesi.join(' · ')}</p>
-            </div>
-          ) : null}
-
-          {/* Altre parole della stessa natura */}
-          {word.nearbyWords.length > 0 && (
-            <div className="lessico-holo-slate__constellation">
-              <h3>Altre parole della natura</h3>
-              <div className="lessico-holo-slate__satellites">
-                {word.nearbyWords.map((nome) => {
-                  const w = ATLAS_WORDS.find(
-                    (v) =>
-                      v.nome === nome &&
-                      v.familyId === word.familyId &&
-                      v.subcurrentId === word.subcurrentId,
-                  )
-                  return (
-                    <button
-                      key={nome}
-                      type="button"
-                      className="lessico-holo-slate__satellite-node"
-                      style={{ '--sat-color': w?.color || meta?.baseColor }}
-                      onClick={() => w && onSelectWord(w)}
-                    >
-                      <span className="lessico-holo-slate__satellite-dot" />
-                      <span>{nome}</span>
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
+    <aside id="lessico-dictionary-popover" className="lessico-parola-popover" aria-label={`Parola ${word.nome}`}>
+      <SchedaParola parola={word.nome} onChiudi={onClose} compatta />
     </aside>
   )
 }
@@ -1153,7 +788,6 @@ export default function LessicoAtlasView({
   isMobile = false,
   viewModel = null,
 }) {
-  const uiSounds = useUiSounds()
   const [selectedWord, setSelectedWord] = useState(null)
   const [hoveredWordId, setHoveredWordId] = useState(null)
   const [hoveredWord, setHoveredWord] = useState(null)
@@ -1388,11 +1022,8 @@ export default function LessicoAtlasView({
         setShockwave(null)
         setShockwaveActiveIds(new Set())
       }, 450)
-
-      // 3. Audio harmonic chime
-      playHarmonicChime(word.subcurrentInterval, word.familyId, uiSounds.enabled)
     },
-    [focusWord, uiSounds.enabled],
+    [focusWord],
   )
 
   // Intelligent search: auto fly-to matching word
@@ -2702,11 +2333,6 @@ export default function LessicoAtlasView({
                     ? ` · ${userPercentages[ATLAS_FAMILY_KEY_BY_ID[hoveredWord.familyId]]}%`
                     : ''}
                 </span>
-                {hoveredWord.subcurrentInterval && (
-                  <span className="lessico-atlas__tooltip-interval">
-                    {hoveredWord.subcurrentInterval}
-                  </span>
-                )}
               </div>
               {hoveredWord.keyNote && (
                 <p className="lessico-atlas__tooltip-desc">{hoveredWord.keyNote}</p>
@@ -2787,12 +2413,7 @@ export default function LessicoAtlasView({
 
       {/* ── Floating Holographic Slate or Advanced Dashboard ────────────── */}
       {selectedWord ? (
-        <FloatingHolographicSlate
-          word={selectedWord}
-          onClose={closeDictionary}
-          onSelectWord={handleSelectWord}
-          viewModel={viewModel}
-        />
+        <SchedaParolaLessico word={selectedWord} onClose={closeDictionary} />
       ) : null}
     </div>
   )

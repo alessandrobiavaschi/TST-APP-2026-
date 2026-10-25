@@ -300,7 +300,8 @@
 .hero-screen {
   position: relative;
   overflow: hidden;
-  min-height: min(86svh, 860px);
+  width: 100%;
+  min-height: calc(100svh - var(--app-header-offset, 56px));
   background: transparent;
 }
 
@@ -308,10 +309,10 @@
   position: absolute;
   inset: 0;
   background-size: cover;
-  background-position: center 25%;
+  background-position: center 35%;
   background-repeat: no-repeat;
-  opacity: 0.72;
-  filter: saturate(1.25) brightness(1.02);
+  opacity: 0.65;
+  filter: saturate(1.15) brightness(0.95);
   pointer-events: none;
   z-index: 0;
   transition: opacity 0.5s ease;
@@ -358,7 +359,7 @@
   position: absolute;
   inset: 0;
   z-index: 1;
-  background: rgba(127, 20, 20, 0.45);
+  background: rgba(2, 8, 23, 0.38);
   pointer-events: none;
 }
 
@@ -5336,7 +5337,6 @@
 }
 
 .report-tst .sintesi-correnti__narrative-p,
-.report-tst .sintesi-correnti__row-name,
 .report-tst .sintesi-correnti__card-value {
   font-family: var(--font-body);
   font-style: normal;
@@ -5624,12 +5624,15 @@
 .report-tst .profilo-panel__paragraph,
 .report-tst .profilo-panel__lead,
 .report-tst .profilo-panel__connector {
+  /* Colonna di lettura allineata al bordo del suo contenitore (non centrata):
+     un solo asse per stanza, vedi report-rooms.css. Colore e corpo del testo
+     di lettura da design-tokens.css (DESIGN.md §2.3, §3.2). */
   max-width: 68ch !important;
-  margin-left: auto;
-  margin-right: auto;
-  color: var(--report-text-muted) !important;
+  margin-left: 0;
+  margin-right: 0;
+  color: var(--tst-color-text-secondary) !important;
   font-family: var(--font-body) !important;
-  font-size: var(--text-body) !important;
+  font-size: var(--tst-step-0) !important;
   line-height: 1.65 !important;
   text-align: left !important;
 }
@@ -6241,4 +6244,73 @@
   .report-tst-portato__mesh line {
     animation: none !important;
   }
+}
+
+
+/* ── FULLSCREEN MODE ──────────────────────────────────────────────────── */
+.report-tst--fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  max-width: 100vw;
+  max-height: 100vh;
+  overflow: hidden;
+}
+
+.report-tst--fullscreen .navbar-tst {
+  display: none;
+}
+
+.report-tst--fullscreen .report-scientific-scope {
+  display: none;
+}
+
+.report-tst--fullscreen .report-tst-layout {
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.report-tst--fullscreen .report-tst-layout__main {
+  height: auto;
+}
+
+.report-tst--fullscreen .report-xp-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+}
+
+/* Bottone fullscreen nella navbar */
+.navbar-tst__fullscreen {
+  padding: 0.5rem 0.625rem;
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--report-structural-accent, #a78bfa);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.navbar-tst__fullscreen:hover {
+  opacity: 0.7;
+}
+
+.navbar-tst__fullscreen:focus {
+  outline: 2px solid var(--report-structural-accent, #a78bfa);
+  outline-offset: 2px;
+}
+
+.navbar-tst__fullscreen:active {
+  opacity: 0.5;
 }

@@ -8,16 +8,16 @@
 export const colors = {
   // Fondali e Superfici (Dark / Default)
   bgCanvas: '#06080e',
-  bgSurfaceSubtle: 'rgba(13, 17, 26, 0.55)',
-  bgSurface: 'rgba(16, 22, 34, 0.78)',
-  bgSurfaceElevated: 'rgba(22, 30, 48, 0.90)',
-  bgHover: 'rgba(255, 255, 255, 0.07)',
-  bgActive: 'rgba(255, 255, 255, 0.12)',
+  bgSurfaceSubtle: 'rgba(15, 23, 38, 0.42)',
+  bgSurface: 'rgba(18, 26, 42, 0.62)',
+  bgSurfaceElevated: 'rgba(22, 32, 52, 0.78)',
+  bgHover: 'rgba(255, 255, 255, 0.08)',
+  bgActive: 'rgba(255, 255, 255, 0.14)',
 
   // Bordi
-  borderSubtle: 'rgba(255, 255, 255, 0.08)',
-  borderDefault: 'rgba(255, 255, 255, 0.15)',
-  borderStrong: 'rgba(255, 255, 255, 0.28)',
+  borderSubtle: 'rgba(255, 255, 255, 0.10)',
+  borderDefault: 'rgba(255, 255, 255, 0.18)',
+  borderStrong: 'rgba(255, 255, 255, 0.32)',
   borderFocus: '#38bdf8',
 
   // Testi
@@ -77,7 +77,7 @@ export const colors = {
   info: '#38bdf8',
 
   // Compatibilità legacy per primitive preesistenti
-  surface: 'rgba(16, 22, 34, 0.78)',
+  surface: 'rgba(18, 26, 42, 0.62)',
   border: 'rgba(255, 255, 255, 0.15)',
   text: '#f8fafc',
   primary: '#38bdf8',

@@ -8,7 +8,7 @@ import {
   resolveProfileFamilyLabel,
 } from '../src/utils/reportTitleUtils.js'
 
-test('aggiunge la natura (caratteristica emotiva) al titolo del profilo', () => {
+test('aggiunge la natura al titolo del profilo', () => {
   assert.equal(
     buildProfileSectionTitle(
       'La tua natura emotiva di appartenenza',

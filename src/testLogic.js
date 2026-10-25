@@ -6,7 +6,6 @@
 
 import {
   CAMPI_NATURE,
-  CAMPI_PER_COLORE,
   NATURE,
   PORTATI,
   REGOLE_RISPOSTE,
@@ -29,8 +28,8 @@ const PORTATO_CAMPO_BY_ID = Object.fromEntries(PORTATI.map((p) => [p.id, p.campo
 
 function toLegacyEntry(regola) {
   return {
-    correnteKey: NATURA_CAMPO_BY_ID[regola.natura],
-    portatoKey: PORTATO_CAMPO_BY_ID[regola.portato],
+    correnteKey: NATURA_CAMPO_BY_ID[regola.natura] || null,
+    portatoKey: PORTATO_CAMPO_BY_ID[regola.portato] || null,
     baseValue: regola.punti,
   }
 }
@@ -95,6 +94,7 @@ export function getAudioFileForStep(fileNumber) {
 }
 
 // Calcola il delta di punteggio per una risposta: una sola cesta (natura × portato).
+// Se la regola non ha natura (o portato), il delta contiene solo l'altro campo.
 export function computeScoreDeltaForAnswer({
   fileNumber,
   answerLabel,
@@ -106,11 +106,11 @@ export function computeScoreDeltaForAnswer({
     risposta: answerLabel || affinitaOptionId,
     isConfirmation,
   })
-  if (!cesta) return {}
-  return {
-    [cesta.natura.campoDb]: cesta.punti,
-    [cesta.portato.campoDb]: cesta.punti,
-  }
+  if (!cesta || !cesta.punti) return {}
+  const delta = {}
+  if (cesta.natura) delta[cesta.natura.campoDb] = cesta.punti
+  if (cesta.portato) delta[cesta.portato.campoDb] = cesta.punti
+  return delta
 }
 
 /** Massimo sommabile per ogni corrente (natura) se ogni passo contribuisse al meglio. */
@@ -118,12 +118,8 @@ export const THEORETICAL_MAX_SCORE_BY_CORRENTE_KEY = Object.freeze(
   Object.fromEntries(CAMPI_NATURE.map((campo) => [campo, MASSIMI_TEORICI.naturePerCampo[campo] || 0])),
 )
 
-/** Totali teorici per famiglia colore (somma delle nature della famiglia). */
-export const THEORETICAL_MAX_COLOR_TOTALS = Object.freeze(
-  Object.fromEntries(
-    Object.entries(CAMPI_PER_COLORE).map(([colorKey, campi]) => [
-      colorKey,
-      campi.reduce((sum, campo) => sum + (THEORETICAL_MAX_SCORE_BY_CORRENTE_KEY[campo] || 0), 0),
-    ]),
-  ),
-)
+/**
+ * Totali teorici per famiglia colore: punti che la famiglia può davvero ricevere
+ * (modello corrente). Per i test storici usare massimiPerRecord (testStorici.js).
+ */
+export const THEORETICAL_MAX_COLOR_TOTALS = Object.freeze({ ...MASSIMI_TEORICI.famiglie })

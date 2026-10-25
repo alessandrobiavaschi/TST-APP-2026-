@@ -43,7 +43,9 @@ Terminologia: "famiglia" è il livello colore, "natura" il sotto-livello. "Tempe
 
 ### Versioni del modello e dati storici
 
-- Ogni test salva `versione_modello` (corrente: `VERSIONE_MODELLO` in `tstSistema.js`, oggi `2026_v3`: affinità per suono, vedi `AFFINITA_PER_PASSO`).
+- Ogni test salva `versione_modello` (corrente: `VERSIONE_MODELLO` in `tstSistema.js`, oggi `2026_v4`: regole del documento «TST domanda per domanda» del 23/10/2026; affinità solo natura, «Mi è indifferente» negli intervalli solo portato, passo 42 = Groove 57 con le sensazioni).
+- I test `2026_v2` e `2026_v3` si leggono con le regole della loro epoca (`REGOLE_STORICHE_2026` in `src/utils/testStorici.js`) solo se riproducono i punti salvati, e si normalizzano sui massimi di allora (`massimiPerRecord`). Per mostrare percentuali usa sempre `massimiPerRecord(record)`, mai i massimi correnti.
+- Controllo indipendente contro il documento: `test/fonteDomandaPerDomanda.test.js`.
 - I test senza versione valgono come `2025_v1` (modello a 11 correnti). `normalizzaRecordTst()` li restituisce con i punteggi salvati e non li ricalcola.
 - Se cambi nature, pesi o regole: incrementa `VERSIONE_MODELLO` e non ricalcolare i test delle versioni precedenti senza una decisione esplicita dell'utente.
 - Il report legge e non scrive su Firestore. Non scrivere script che modificano documenti in `test_results`.
@@ -68,6 +70,8 @@ I nuovi componenti e le nuove funzioni restano sotto le ~200 righe.
 
 - Mai commit o push diretti su `master` / `main`. Lavora su un branch dedicato.
 - Mai force push.
+- Più chat in parallelo: ogni chat lavora su un proprio branch (e su una propria copia della cartella, mai due chat nella stessa), lo pubblica su GitHub e chiude con una pull request verso `master`. Si unisce una PR alla volta; dopo ogni merge gli altri branch si aggiornano da `master` e rieseguono i test. Ciò che non è su `master` non esiste.
+- Il sito pubblicato si costruisce solo da `master` aggiornato, dopo l'ultimo merge: mai dal branch di una singola chat.
 - Mai deploy (Firebase, Netlify) senza richiesta esplicita dell'utente e verifica del target.
 - Mai esporre `.env`, chiavi o dati personali dei test (sono dati psicologici).
 - Gli handoff di workflow multi-agente vanno in `docs/handoff/`, non nella root. Quelli vecchi sono in `docs/archivio/`.

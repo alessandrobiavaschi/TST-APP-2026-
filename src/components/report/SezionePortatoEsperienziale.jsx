@@ -61,7 +61,10 @@ export default function SezionePortatoEsperienziale({
     ? viewData.dimensions.find((dimension) => dimension.key === portato.prevalente)
     : null
   const leadText = portato?.descrizione || interpretation
+  // Nel caso «prevalente» la sintesi ripete il testo principale e le quote del triangolo:
+  // l'approfondimento compare solo quando aggiunge una lettura (quote vicine o miste).
   const hasApprofondimento = Boolean(portato?.descrizione) && Boolean(interpretation) && interpretation !== leadText
+    && portato?.sintesiTipo !== 'prevalente'
   const chartSummary = viewData.dimensions
     .map((dimension) => `${dimension.ui.label}: ${formatPoints(dimension.value)}, ${dimension.percentage} per cento`)
     .join('; ')

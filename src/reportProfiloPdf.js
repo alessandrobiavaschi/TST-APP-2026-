@@ -47,15 +47,15 @@ export const PROFILE_PDF_BLOCKS = {
     restituzione_caratteri_estesi:
       'Nella famiglia Marziale emerge il piacere del fare, di realizzare ciò che si desidera, di governarsi e mettersi alla prova. Le nature Volitiva e Collerica prediligono costanza, sincerità e impegno nel qui e ora, con orientamento al presente.',
     natura_paragrafi: [
-      'Da Est verso Ovest si muove l’energia che segue l’azione vitale sul percorso del Sole. Sul piano emotivo diventa il flusso Volitivo — colore Rosso, intervallo di prima —: il piacere del fare, impulso che agisce nel presente.',
+      'Da Est verso Ovest si muove l’energia che segue l’azione vitale sul percorso del Sole. Sul piano emotivo diventa il flusso Volitivo — colore Rosso —: il piacere del fare, impulso che agisce nel presente.',
       'Nel rapporto con te stesso, chi ama agire sente l’Io come alleato: responsabilità, prove da superare, sicurezza nel qui e ora. Sport e Musica condividono la sincerità dell’emozione autentica; dopo l’adolescenza quel finalizzatore sei tu, governatore di te stesso.',
       'Questa corrente ha una direzione orizzontale e concreta: vuole misurarsi con ostacoli, decisioni, risultati. Non cerca prima di tutto il riparo o l’introspezione, ma il punto in cui l’energia emotiva può diventare gesto efficace.',
       'Nel carattere il Rosso non vive da solo: ha bisogno dei «gregari» interiori — calma, entusiasmo, riflessività — per non trasformare il governo di sé in dominio. Quando dialoga con le altre correnti, la volontà diventa forza organizzatrice e non semplice durezza.',
     ].join('\n'),
     descrizione_estesa: [
       'L’energia dell’Io matura e si mostra pienamente intorno al ventesimo anno: governatore di sé e delle disposizioni diventate carattere. I «gregari» — le altre correnti — contano sulla saldezza e sulla volontà di realizzare il futuro desiderato.',
-      'Nella famiglia Marziale convivono due nature: la fermezza volitiva (Rosso, prima) con stabilità, schiettezza, coraggio; la collera (Amaranto, quarta e quarta eccedente) con rabbia e reattività quando il dialogo si inceppa.',
-      'Sul piano dell’ascolto questa natura cerca spesso timbri concreti, centrali, decisi: suoni che svegliano, incidono, dichiarano una presenza. Può amare la forza di percussioni, fiati, pianoforte, batteria e unisoni capaci di dare forma immediata all’energia.',
+      'Nella famiglia Marziale convivono due nature: la fermezza volitiva (Rosso) con stabilità, schiettezza, coraggio; la collera (Amaranto) con rabbia e reattività quando il dialogo si inceppa.',
+      'Sul piano dell’esperienza emotiva questa natura cerca concretezza, incisività e decisione: stimoli che svegliano, incidono e dichiarano una presenza autentica.',
       'La Musica viene vissuta come campo di prova: ritmo stabile, melodie memorabili, testi chiari, improvvisazione osservata con interesse ma anche bisogno di struttura. Quando l’energia è equilibrata, il Rosso trova nel suono una disciplina vitale; quando si irrigidisce, fatica a lasciarsi andare.',
     ].join('\n'),
     risorse: [
@@ -89,9 +89,9 @@ export const PROFILE_PDF_BLOCKS = {
     ].join('\n'),
     descrizione_estesa: [
       'Il primo periodo d’esistenza lascia la traccia di un piacere impresso nel carattere: tranquillità e moderazione «come il pane» nella vita quotidiana.',
-      'La Calma flemmatica si lega agli intervalli di quinta. Gli stati d’animo vanno dal rilassato, calmo, contemplativo fino ad annoiato, pigro, oziante — due versanti della stessa qualità di riposo. La Flemma smussa eccessi di collera, entusiasmo o introspezione troppo intensa.',
-      'Nell’ascolto tende a preferire timbri scuri, quieti, non aggressivi: suoni medio-bassi, morbidi, puliti, capaci di modulare l’aria senza ferire. Armonie sospese, pochi movimenti di accordi e melodie rarefatte possono dare forma al suo bisogno di clima.',
-      'Il piacere musicale flemmatico passa spesso dall’armonia più che dalla prestazione: ascoltare o suonare insieme, stare dentro un insieme timbrico delicato, lasciarsi sostenere dal respiro e dal battito costante. L’improvvisazione esposta può invece creare imbarazzo perché chiede di uscire dalla discrezione.',
+      'La Calma flemmatica si manifesta nella distensione e nel respiro. Gli stati d’animo vanno dal rilassato, calmo, contemplativo fino ad annoiato, pigro, oziante — due versanti della stessa qualità di riposo. La Flemma smussa eccessi di collera, entusiasmo o introspezione troppo intensa.',
+      'Nel sentire tende a preferire climi quieti, accoglienti e non aggressivi: atmosfere morbide, pulite e capaci di avvolgere senza ferire, dando forma al suo bisogno di serenità.',
+      'Il piacere flemmatico passa spesso dalla continuità più che dalla prestazione: stare dentro un insieme delicato, lasciarsi sostenere dal respiro e dalla calma costante. L’esposizione improvvisa può invece creare imbarazzo perché chiede di uscire dalla discrezione.',
     ].join('\n'),
     risorse: [
       'In questa corrente la calma regola il ritmo interno ed esterno e offre spazio per recuperare stabilità.',
@@ -99,7 +99,7 @@ export const PROFILE_PDF_BLOCKS = {
       '- Predisposizione a creare climi di protezione e silenzio in cui le cose maturano senza fretta.',
       '- Moderazione, prudenza e gentilezza gratuita nella ricerca di armonia relazionale.',
       '- Funzione equilibratrice che smussa gli eccessi delle altre correnti emotive.',
-      '- Sensibilità per armonie ampie, timbri morbidi e spazi sonori che favoriscono respiro.',
+      '- Sensibilità per atmosfere ampie, spazi distesi e climi interiori che favoriscono il respiro.',
       '- Capacità di stare nel gruppo con discrezione, continuità e cura dell’insieme.',
     ].join('\n'),
     ombre: [
@@ -125,8 +125,8 @@ export const PROFILE_PDF_BLOCKS = {
     descrizione_estesa: [
       'Nel pre-infantile la curiosità è piacere da esercitare: registra gesti e li associa agli effetti, guidato dal ritmo. La soddisfazione per ciò che si è riusciti a fare accende l’Entusiasmo come continente interiore.',
       'Convivono la Gioia e l’Entusiasmo (stati da Gioioso a Irrefrenabile) e l’Entusiasmo volitivo passionale (Innamorato, Appassionato, Ardente). I climi dell’Entusiasmo sono antidoto all’apatia e al gelo intellettuale.',
-      'Nell’ascolto questa natura tende verso timbri chiari, brillanti, medio-alti o alti: percussioni leggere, piatti, strumenti luminosi, trombe, violini, canto. Cerca melodie riconoscibili, ritmo, positività, possibilità di muoversi o partecipare.',
-      'La Musica è vissuta come energia in azione: il corpo risponde, il canto viene naturale, la danza non spaventa. Il rischio è annoiarsi quando la forma resta troppo ferma o quando il suono chiede una riflessione lenta e continuativa.',
+      'Nel sentire questa natura tende verso sfumature chiare, luminose e solari: slancio positivo, vivacità e desiderio di muoversi e partecipare con spontaneità.',
+      'L’energia è vissuta in azione: il corpo risponde, l’espressione viene naturale, il coinvolgimento non spaventa. Il rischio è annoiarsi quando l’esperienza resta troppo ferma o quando la situazione chiede una riflessione lenta e continuativa.',
     ].join('\n'),
     risorse: [
       'In questa corrente la gioia del movimento spinge a esplorare il mondo con slancio diretto.',
@@ -160,8 +160,8 @@ export const PROFILE_PDF_BLOCKS = {
     descrizione_estesa: [
       'Il sorgere della malinconia si avverte nell’adolescenza: attorno ai nove-dieci anni una «seconda nascita» affettiva, luce riflessa della Luna rispetto al Sole dell’età adulta.',
       'Le correnti BLU articolano la famiglia nelle nature Lunare Introspettiva, Lunare Depressiva, Solare e Nostalgica.',
-      'Nell’ascolto questa natura è sensibile all’identità del timbro: archi, doppie ance, frequenze medie e medio-basse, suoni corposi e scuri, pianoforte pastoso o arpa possono favorire un contatto intimo con il mondo interno.',
-      'Il piacere musicale passa dalla melodia, dagli intervalli e dalle tonalità capaci di muovere memoria e sentimento. Cerca musica profonda, testi poetici o umanistici, ritmi non invasivi, cambi armonici che permettano di sostare e riflettere senza essere spinti fuori da sé.',
+      'Nel sentire questa natura è sensibile alle sfumature più intime e raccolte: chiaroscuri, profondità emotiva e delicatezza favoriscono un contatto autentico con il mondo interiore.',
+      'Il suo sentire si nutre di risonanze interiori capaci di muovere memoria e sentimento: cerca profondità, riflessione e spazi che permettano di sostare con sé stessi senza essere spinti fuori.',
     ].join('\n'),
     risorse: [
       'In questa corrente il piacere dell’introspezione orienta l’energia verso senso, profondità e autenticità.',
@@ -169,7 +169,7 @@ export const PROFILE_PDF_BLOCKS = {
       '- La solitudine scelta può essere spazio di ascolto interiore, non punizione.',
       '- La nostalgia, nella forma di saudade, può trasformare la perdita in ricordo e riconoscenza.',
       '- La malinconia solare apre una breccia verso fiducia e compassione mantenendo la delicatezza lunare.',
-      '- La sensibilità timbrica aiuta a riconoscere identità, sincerità e qualità espressiva.',
+      '- La sensibilità interiore aiuta a riconoscere identità, sincerità e qualità espressiva.',
       '- La riflessione può restituire senso alle esperienze senza cancellarne la complessità emotiva.',
     ].join('\n'),
     ombre: [

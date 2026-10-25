@@ -10,22 +10,23 @@ import {
 } from '../src/content/reportRestitution.js'
 import { REPORT_SECTIONS } from '../src/components/report/reportSectionsConfig.js'
 
-test('usa natura (caratteristica emotiva) nel copy principale del report', () => {
-  assert.match(CONTEXT.body.join(' '), /natura \(caratteristica emotiva\)/)
+test('usa «natura» senza «caratteristica» nel copy principale del report', () => {
+  assert.match(CONTEXT.body.join(' '), /natura/)
+  assert.doesNotMatch(CONTEXT.body.join(' '), /caratteristic/i)
   assert.equal(
     GLOSSARY.find((entry) => entry.id === 'corrente-emotiva')?.term,
-    'Natura (caratteristica emotiva)',
+    'Natura',
   )
   assert.equal(
     REPORT_SECTIONS.find((section) => section.id === 'report-tst-sintesi')?.label,
-    'Natura (caratteristica emotiva)',
+    'Natura',
   )
 
   assert.equal(
     buildProfiloThreadLine({
       profilo: { famigliaLabel: 'Marziale', disposizione: 'Volitivo-collerica' },
     }),
-    'Famiglia prevalente: Marziale. Natura (caratteristica emotiva): Volitivo-collerica.',
+    'Famiglia prevalente: Marziale. Natura: Volitivo-collerica.',
   )
 
   const facts = buildSintesiKeyFacts({
@@ -33,7 +34,7 @@ test('usa natura (caratteristica emotiva) nel copy principale del report', () =>
   })
   assert.equal(
     facts.find((fact) => fact.id === 'natura')?.label,
-    'Natura (caratteristica emotiva)',
+    'Natura',
   )
 
   const heroSource = readFileSync(
@@ -46,6 +47,5 @@ test('usa natura (caratteristica emotiva) nel copy principale del report', () =>
   )
   // La prima schermata mostra solo la famiglia: la natura è nella sezione successiva.
   assert.doesNotMatch(heroSource, /Caratteristica emotiva \(natura\)/)
-  assert.match(summarySource, /nature \(caratteristiche emotive\)/)
-  assert.doesNotMatch(summarySource, /caratteristica emotiva\s*\n\s*\(natura\)/i)
+  assert.doesNotMatch(summarySource, /caratteristic/i)
 })

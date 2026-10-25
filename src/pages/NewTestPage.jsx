@@ -91,8 +91,8 @@ const STORAGE_KEY_TEST_DRAFT = 'tst_test_draft_v1'
 
 function getMacroSectionLabel(fileNumber) {
   if (fileNumber >= 1 && fileNumber <= 28) return 'Timbro'
-  if (fileNumber >= 29 && fileNumber <= 42) return 'Intervalli'
-  if (fileNumber >= 43 && fileNumber <= 51) return 'Ritmo'
+  if (fileNumber >= 29 && fileNumber <= 41) return 'Intervalli'
+  if (fileNumber >= 42 && fileNumber <= 51) return 'Ritmo'
   if (fileNumber >= 52 && fileNumber <= 58) return 'Melodia'
   if (fileNumber >= 59 && fileNumber <= 72) return 'Armonia'
   return ''
@@ -109,12 +109,9 @@ function getQuestionTitleForFile(fileNumber) {
     return 'B) Ascolta le combinazioni di due suoni e scegli un solo aggettivo tra quelli proposti.'
   }
   if (fileNumber === 41) {
-    return 'B) Prima riconferma: riascolta e conferma in modo istintivo.'
+    return 'B) Riconferma: riascolta e conferma in modo istintivo.'
   }
-  if (fileNumber === 42) {
-    return 'B) Seconda riconferma: riascolta e conferma in modo istintivo.'
-  }
-  if (fileNumber === 43 || fileNumber === 44 || fileNumber === 45) {
+  if (fileNumber >= 42 && fileNumber <= 45) {
     return 'C1a) Ascolta i groove e scegli la sensazione che meglio descrive la tua percezione musicale.'
   }
   if (fileNumber === 46) {
@@ -143,6 +140,24 @@ function formatAudioTime(seconds) {
   const mins = Math.floor(safeSeconds / 60)
   const secs = safeSeconds % 60
   return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
+}
+
+// Opzioni di affinità per i passi a scelta tra suoni (unica definizione,
+// usata sia per disegnare i bottoni sia per riconoscere passi con le stesse risposte).
+const getAffinitaOptionsForFile = (file) => {
+  if (file >= 1 && file <= 4) return { key: 'affinita-base', options: AFFINITA_BASE_OPZIONI }
+  if (file === 46) return { key: 'affinita-eccezione', options: AFFINITA_ECCEZIONE_OPZIONI }
+  if (file === 51 || file === 58) return { key: 'affinita-standard', options: AFFINITA_STANDARD_OPZIONI }
+  return { key: null, options: [] }
+}
+
+// Identifica l'insieme di bottoni di un passo: se due passi consecutivi
+// hanno lo stesso insieme, i bottoni restano fermi invece di riapparire.
+const getAnswerSetKey = (file) => {
+  const group = getQuestionGroupForFile(file)
+  if (group === 'B') return 'dizionario-1'
+  if (group === 'C' || group === 'C_BIS') return 'dizionario-2'
+  return getAffinitaOptionsForFile(file).key || `passo-${file}`
 }
 
 function NewTestPage() {
@@ -195,6 +210,7 @@ function NewTestPage() {
   const [isReviewingTestSteps, setIsReviewingTestSteps] = useState(false)
   const audioRef = useRef(null)
   const answersZoneRef = useRef(null)
+  const previousAnswerSetRef = useRef(null)
   const preloadRef = useRef(null)
   const previewAudioRef = useRef(null)
   const nextStepTimerRef = useRef(null)
@@ -345,7 +361,10 @@ function NewTestPage() {
 
   useEffect(() => {
     setAudioError(null)
-    setIsChoicesVisible(false)
+    const answerSetKey = getAnswerSetKey(currentFile)
+    const sameAnswerSet = previousAnswerSetRef.current === answerSetKey
+    previousAnswerSetRef.current = answerSetKey
+    if (!sameAnswerSet) setIsChoicesVisible(false)
     setNavigationHint('')
     if (resetTimerRef.current) {
       window.clearTimeout(resetTimerRef.current)
@@ -898,14 +917,7 @@ function NewTestPage() {
       )
     }
 
-    let options = []
-    if (currentFile >= 1 && currentFile <= 4) {
-      options = AFFINITA_BASE_OPZIONI
-    } else if (currentFile === 46) {
-      options = AFFINITA_ECCEZIONE_OPZIONI
-    } else if (currentFile === 51 || currentFile === 58) {
-      options = AFFINITA_STANDARD_OPZIONI
-    }
+    const { options } = getAffinitaOptionsForFile(currentFile)
 
     if (options.length > 0) {
       return (
@@ -1435,13 +1447,13 @@ function NewTestPage() {
                     <audio ref={preloadRef} style={{ display: 'none' }} preload="auto" />
                   </section>
                 )}
-                <div className="test-stage-step-content" key={currentFile}>
-                  <section className="test-stage-question-zone">
+                <div className="test-stage-step-content">
+                  <section className="test-stage-question-zone" key={`domanda-${currentFile}`}>
                     <h2 className="test-threshold-question-title test-threshold-question-title--compact">
                       {getQuestionTitleForFile(currentFile)}
                     </h2>
                   </section>
-                  <section className="test-stage-answers-shell">
+                  <section className="test-stage-answers-shell" key={`risposte-${getAnswerSetKey(currentFile)}`}>
                     <div
                       ref={answersZoneRef}
                       className={`test-stage-answers-zone ${isChoicesVisible ? 'is-revealed' : 'is-hidden'}`}

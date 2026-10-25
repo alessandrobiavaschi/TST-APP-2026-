@@ -1,6 +1,7 @@
 import { GROUP_INTROS } from '../../content/reportRestitution.js'
 import { FAMILY_THEME } from '../../config/reportFamilyTheme.js'
 import { shouldShowEmotionalIntegrations } from './reportFeatureFlags.js'
+import { PROFILO_UI } from './reportUiCopy.js'
 
 const REPORT_NAV_SECTION_IDS = new Set([
   'report-tst-sintesi',
@@ -35,9 +36,9 @@ export const REPORT_SECTIONS = [
 
   // 1. Risultati del test
   { id: 'report-group-profilo-generale', label: 'Risultati del test', groupId: 'report-group-profilo-generale' },
-  { id: 'report-tst-sintesi', label: 'Natura (caratteristica emotiva)', navStep: '1.1', groupId: 'report-group-profilo-generale', isSub: true },
+  { id: 'report-tst-sintesi', label: 'Natura', navStep: '1.1', groupId: 'report-group-profilo-generale', isSub: true },
   { id: 'report-tst-grafici', label: 'Grafici dei risultati', navStep: '1.2', groupId: 'report-group-profilo-generale', isSub: true },
-  { id: 'report-tst-famiglia', label: 'La tua natura emotiva di appartenenza', navStep: '1.3', groupId: 'report-group-profilo-generale', isSub: true },
+  { id: 'report-tst-famiglia', label: PROFILO_UI.title, navStep: '1.3', groupId: 'report-group-profilo-generale', isSub: true },
   { id: 'report-chapter-natura', label: 'Natura', groupId: 'report-group-profilo-generale', isSub: true, isSubSub: true },
   { id: 'report-chapter-racconto', label: 'Memoria, Esperienza, Essere Musica', groupId: 'report-group-profilo-generale', isSub: true, isSubSub: true },
   { id: 'report-chapter-risorse', label: 'Risorse', groupId: 'report-group-profilo-generale', isSub: true, isSubSub: true },
@@ -109,10 +110,10 @@ export const REPORT_GROUPS = [
   {
     id: 'report-group-educazione',
     title: 'Parole',
-    subtitle: 'Aggettivi, sostantivi, parole di sintesi e collegamenti tra le famiglie',
+    subtitle: 'Il vocabolario essenziale delle 5 macro-emozioni',
     intro: GROUP_INTROS['report-group-educazione'] || '',
     stepLabel: '5',
-    readingFocus: 'Parole chiave, aggettivi e sostantivi di ogni natura, parole collegate alle altre famiglie.',
+    readingFocus: 'Le parole chiave e gli stati d’animo essenziali delle 5 famiglie.',
     defaultOpen: false,
   },
   {

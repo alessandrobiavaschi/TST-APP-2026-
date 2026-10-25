@@ -101,7 +101,7 @@ export default function HeroScreen({
 
   const colorKey = useMemo(() => {
     const totals = computeColorTotals(rawRecord)
-    const { dominantKey } = getDominantColorInfo(totals)
+    const { dominantKey } = getDominantColorInfo(totals, rawRecord)
     return dominantKey
   }, [rawRecord])
 
@@ -127,7 +127,8 @@ export default function HeroScreen({
     '--corrente-media': colors.media,
     '--hero-edge': edgeColor,
     position: 'relative',
-    minHeight: '100vh',
+    width: '100%',
+    minHeight: 'calc(100svh - var(--app-header-offset, 56px))',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',

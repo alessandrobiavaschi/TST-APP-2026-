@@ -28,19 +28,19 @@ Il sistema colore è rigorosamente semantico. È vietato l'uso di codici HEX o R
 | Token Semantico | Valore Dark (Default) | Valore Light | Ruolo / Utilizzo |
 | :--- | :--- | :--- | :--- |
 | `--tst-color-bg-canvas` | `#06080e` | `#f8fafc` | Sfondo profondo dietro ai video atmosferici |
-| `--tst-color-bg-surface-subtle` | `rgba(13, 17, 26, 0.55)` | `rgba(255, 255, 255, 0.70)` | Card secondarie, container ampi, rail di navigazione |
-| `--tst-color-bg-surface` | `rgba(16, 22, 34, 0.78)` | `rgba(255, 255, 255, 0.92)` | Card primarie di contenuto, pannelli interattivi |
-| `--tst-color-bg-surface-elevated`| `rgba(22, 30, 48, 0.90)` | `#ffffff` | Modali, drawer, dropdown, tooltip |
-| `--tst-color-bg-hover` | `rgba(255, 255, 255, 0.07)` | `rgba(15, 23, 42, 0.05)` | Stato hover su superfici cliccabili neutre |
-| `--tst-color-bg-active` | `rgba(255, 255, 255, 0.12)` | `rgba(15, 23, 42, 0.09)` | Stato pressed / selected |
+| `--tst-color-bg-surface-subtle` | `rgba(15, 23, 38, 0.42)` | `rgba(255, 255, 255, 0.70)` | Card secondarie, container ampi, rail di navigazione |
+| `--tst-color-bg-surface` | `rgba(18, 26, 42, 0.62)` | `rgba(255, 255, 255, 0.92)` | Card primarie di contenuto, pannelli interattivi |
+| `--tst-color-bg-surface-elevated`| `rgba(22, 32, 52, 0.78)` | `#ffffff` | Modali, drawer, dropdown, tooltip |
+| `--tst-color-bg-hover` | `rgba(255, 255, 255, 0.08)` | `rgba(15, 23, 42, 0.05)` | Stato hover su superfici cliccabili neutre |
+| `--tst-color-bg-active` | `rgba(255, 255, 255, 0.14)` | `rgba(15, 23, 42, 0.09)` | Stato pressed / selected |
 
 ### 2.2 Bordi e Separatori
 
 | Token Semantico | Valore Dark | Valore Light | Ruolo / Utilizzo |
 | :--- | :--- | :--- | :--- |
-| `--tst-color-border-subtle` | `rgba(255, 255, 255, 0.08)` | `rgba(15, 23, 42, 0.08)` | Delimitazione leggera card, righe di tabelle |
-| `--tst-color-border-default`| `rgba(255, 255, 255, 0.15)` | `rgba(15, 23, 42, 0.16)` | Bordi card primarie, input a riposo |
-| `--tst-color-border-strong` | `rgba(255, 255, 255, 0.28)` | `rgba(15, 23, 42, 0.30)` | Input in hover, controlli attivi, badge evidenziati |
+| `--tst-color-border-subtle` | `rgba(255, 255, 255, 0.10)` | `rgba(15, 23, 42, 0.08)` | Delimitazione leggera card, righe di tabelle |
+| `--tst-color-border-default`| `rgba(255, 255, 255, 0.18)` | `rgba(15, 23, 42, 0.16)` | Bordi card primarie, input a riposo |
+| `--tst-color-border-strong` | `rgba(255, 255, 255, 0.32)` | `rgba(15, 23, 42, 0.30)` | Input in hover, controlli attivi, badge evidenziati |
 | `--tst-color-border-focus` | `#38bdf8` | `#0284c7` | Ring di focus accessibile (WCAG AA) |
 
 ### 2.3 Tipografia e Testi
@@ -168,6 +168,14 @@ Ogni schermata ammette **una sola CTA Primaria**. Tutti gli altri controlli sono
   * Report e Dashboard: `1120px` (permette affiancamento grafici e schede analitiche).
   * Landing Page / Galassia: `1320px` (respiro immersivo).
 * **Centratura:** `margin-inline: auto`, padding laterale minimo `1rem` su mobile, `2rem` su desktop.
+
+### 5.3 Stanze del report (impaginazione e testi introduttivi)
+* **Un solo bordo sinistro per stanza.** Contenitore largo `--tst-page` (72rem) con margine `--tst-gutter`; i moduli (schede, grafici) usano tutta la larghezza, il testo di lettura si ferma a `--tst-measure` (40rem, ~65 caratteri). Regole in `src/styles/report-rooms.css`.
+* **Apertura unica:** componente `RoomOpening` (occhiello numerico, titolo, sommario da `REPORT_GROUPS[].subtitle`, testo introduttivo opzionale). Da 1024px, se c'è un testo introduttivo, titolo e testo si affiancano.
+* **Livelli di testo** (scala fluida `--tst-step-*`, metodo Utopia, sezione 8b di `design-tokens.css`): etichetta `step--1` maiuscoletto; testo `step-0` (17→19px) in `--tst-color-text-secondary`; frase chiave e sommario `step-1` (20→24px); titolo di stanza `step-4` (35→46px).
+* **Mobile (≤640px):** niente superfici attorno al testo, colonna a tutta larghezza con 20px di margine, filetto tra le stanze.
+* **Ogni cosa si dice una volta:** una stanza aggiunge informazioni, non riassume le precedenti. La descrizione della famiglia vive solo nel testo fisso della stanza 02; la composizione del profilo (famiglie e quote) solo nell'apertura della 01.
+* **Aperto:** §3.1 prescrive Newsreader per i titoli, ma `tst-mobile.css` imposta oggi il font di sistema (`--tst-font-display`). Decisione da prendere.
 
 ---
 

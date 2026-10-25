@@ -4,13 +4,53 @@ import { useUiSounds } from '../../UiSoundProvider.jsx'
 
 void motion
 
-// Angoli e posizioni esatte basate sul design del modello CPM fornito
+// Parametri geometrici e psicofisiologici delle 5 famiglie (Modello Franco Mussida / TST)
 const FAMILY_PARAMS = {
-  Giallo: { color: '#EAB308', angle: -90 }, // Entusiasmo: Alto (ore 12)
-  Grigio: { color: '#9CA3AF', angle: -30 }, // Anaffettività: Alto Destra (ore 2)
-  Blu:    { color: '#3B82F6', angle: 30 },  // Malinconia: Basso Destra (ore 4)
-  Verde:  { color: '#22C55E', angle: 90 },  // Calma: Basso (ore 6)
-  Rosso:  { color: '#EF4444', angle: 180 }, // Volitività: Sinistra (ore 9)
+  Giallo: {
+    color: '#fde047',
+    angle: -90, // Ore 12: Polo Espansione
+    polarity: 'Espansione & Gioia',
+    description: 'Apertura relazionale espansiva, vitalità e naturale propensione alla condivisione gioiosa.',
+    labelX: 600,
+    labelY: 110,
+    textAnchor: 'middle',
+  },
+  Grigio: {
+    color: '#94a3b8',
+    angle: -30, // Ore 2: Polo Analisi
+    polarity: 'Analisi & Lucidità',
+    description: 'Distacco analitico, lucidità intellettuale, visione strutturata e discernimento obiettivo.',
+    labelX: 1010,
+    labelY: 355,
+    textAnchor: 'start',
+  },
+  Blu: {
+    color: '#60a5fa',
+    angle: 30, // Ore 4: Polo Introspezione
+    polarity: 'Introspezione & Ascolto',
+    description: 'Sensibilità intimista, profondità del dialogo interiore e ascolto delle risonanze affettive.',
+    labelX: 1010,
+    labelY: 845,
+    textAnchor: 'start',
+  },
+  Verde: {
+    color: '#4ade80',
+    angle: 90, // Ore 6: Polo Radicamento
+    polarity: 'Radicamento & Calma',
+    description: 'Forza portante radicata nella calma fisiologica, nel riposo e nella capacità di ascolto contemplativo.',
+    labelX: 600,
+    labelY: 1085,
+    textAnchor: 'middle',
+  },
+  Rosso: {
+    color: '#f87171',
+    angle: 180, // Ore 9: Polo Azione
+    polarity: 'Azione & Volontà',
+    description: 'Spinta dinamica orientata all\'azione decisa, alla volontà, alla presenza e alla determinazione.',
+    labelX: 125,
+    labelY: 600,
+    textAnchor: 'end',
+  },
 }
 
 const NOMI_FAMIGLIE = {
@@ -18,14 +58,15 @@ const NOMI_FAMIGLIE = {
   Grigio: 'Razionale',
   Blu: 'Malinconica',
   Verde: 'Flemmatica',
-  Rosso: 'Marziale'
+  Rosso: 'Marziale',
 }
 
 const CENTER_X = 600
 const CENTER_Y = 600
-const GRID_BASE_RADIUS = 155
-const GRID_STEP = 42
+const GRID_BASE_RADIUS = 135
+const GRID_STEP = 36
 const MIN_VISIBLE_TAGLIA = 1
+const PETAL_THICKNESS_RY = 50 // Larghezza trasversale costante: scalatura dell'area rigorosamente lineare
 
 function formatScaleScore(score) {
   const roundedScore = Math.round((Number(score) || 0) * 10) / 10
@@ -34,13 +75,14 @@ function formatScaleScore(score) {
 
 export default function EmotionalShape({
   familiesData = [],
-  height = 'clamp(440px, 42vw, 560px)',
+  height = 'clamp(460px, 46vw, 620px)',
   activeFamilyKey = null,
   onFamilySelect = null,
   onFamilyHover = null,
 }) {
   const uiSounds = useUiSounds()
   const [hoveredFamily, setHoveredFamily] = useState(null)
+  const [hoveredCore, setHoveredCore] = useState(false)
   const [localSelectedFamily, setLocalSelectedFamily] = useState(null)
   const prefersReducedMotion = useReducedMotion()
 
@@ -66,7 +108,7 @@ export default function EmotionalShape({
     if (onFamilySelect) {
       onFamilySelect(familyKey.toLowerCase())
     } else {
-      setLocalSelectedFamily(prev => prev === familyKey ? null : familyKey)
+      setLocalSelectedFamily((prev) => (prev === familyKey ? null : familyKey))
     }
   }
 
@@ -82,7 +124,7 @@ export default function EmotionalShape({
 
   const maxScore = Math.max(...familiesData.map((f) => Number(f.peso) || 0), 1)
 
-  // Dati derivati condivisi da petali SVG e legenda esterna.
+  // Calcolo delle righe con metriche allineate
   const familyRows = familiesData.map((data) => {
     const familyKey = data.family || 'Verde'
     const params = FAMILY_PARAMS[familyKey] || FAMILY_PARAMS.Verde
@@ -94,18 +136,28 @@ export default function EmotionalShape({
       label: NOMI_FAMIGLIE[familyKey] || familyKey,
       color: params.color,
       angle: params.angle,
+      polarity: params.polarity,
+      description: params.description,
+      labelX: params.labelX,
+      labelY: params.labelY,
+      textAnchor: params.textAnchor,
       normalizedTaglia,
       visibleTaglia,
     }
   })
+
+  // Famiglia attiva per la scheda di approfondimento contestuale
+  const activeRow = familyRows.find(
+    (r) => r.familyKey === (hoveredFamily || selectedFamily)
+  ) || familyRows[0]
 
   return (
     <div
       className="emotional-shape-container"
       style={{
         width: '100%',
-        maxWidth: 940,
-        height,
+        maxWidth: 960,
+        minHeight: height,
         margin: '0 auto',
         display: 'flex',
         flexDirection: 'column',
@@ -114,7 +166,7 @@ export default function EmotionalShape({
       <div className="emotional-shape-canvas">
         <svg
           className="sintesi-correnti__svg sintesi-correnti__svg--ellipses"
-          viewBox="40 40 1120 1120"
+          viewBox="0 0 1200 1200"
           width="100%"
           height="100%"
           preserveAspectRatio="xMidYMid meet"
@@ -126,33 +178,124 @@ export default function EmotionalShape({
             maxHeight: '100%',
             margin: '0 auto',
           }}
+          aria-label="La Geometria Emotiva: silhouette a 5 petali che mappa intensità e polarità psicofisiologiche"
         >
           <defs>
             <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
               <feGaussianBlur stdDeviation="12" result="blur" />
               <feComposite in="SourceGraphic" in2="blur" operator="over" />
             </filter>
+            <radialGradient id="coreAura" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.35" />
+              <stop offset="60%" stopColor="#38bdf8" stopOpacity="0.1" />
+              <stop offset="100%" stopColor="#38bdf8" stopOpacity="0" />
+            </radialGradient>
           </defs>
 
-          {/* Griglia di metratura 1-7 di sfondo (proporzionale dal centro), senza numeri: la scala esatta è nella legenda sotto. */}
+          {/* Guide degli Assi Polari Psicofisiologici (Mussida CPM) */}
+          <g className="emotional-shape-polar-guides" opacity="0.75">
+            {/* Asse Verticale: Espansione (Alto) ↔ Radicamento (Basso) */}
+            <line
+              x1="600"
+              y1="60"
+              x2="600"
+              y2="1140"
+              stroke="rgba(255, 255, 255, 0.08)"
+              strokeWidth="1"
+              strokeDasharray="4 6"
+            />
+            <text
+              x="600"
+              y="48"
+              textAnchor="middle"
+              fill="rgba(253, 224, 71, 0.75)"
+              fontSize="16"
+              fontWeight="600"
+              letterSpacing="0.08em"
+              fontFamily="var(--font-body, system-ui, sans-serif)"
+            >
+              Espansione
+            </text>
+            <text
+              x="600"
+              y="1165"
+              textAnchor="middle"
+              fill="rgba(74, 222, 128, 0.75)"
+              fontSize="16"
+              fontWeight="600"
+              letterSpacing="0.08em"
+              fontFamily="var(--font-body, system-ui, sans-serif)"
+            >
+              Calma e Radicamento
+            </text>
+
+            {/* Asse Orizzontale: Azione (Sinistra) ↔ Riflessione (Destra) */}
+            <line
+              x1="60"
+              y1="600"
+              x2="1140"
+              y2="600"
+              stroke="rgba(255, 255, 255, 0.08)"
+              strokeWidth="1"
+              strokeDasharray="4 6"
+            />
+            <text
+              x="60"
+              y="572"
+              textAnchor="start"
+              fill="rgba(248, 113, 113, 0.75)"
+              fontSize="16"
+              fontWeight="600"
+              letterSpacing="0.08em"
+              fontFamily="var(--font-body, system-ui, sans-serif)"
+            >
+              Azione
+            </text>
+            <text
+              x="1140"
+              y="572"
+              textAnchor="end"
+              fill="rgba(96, 165, 250, 0.75)"
+              fontSize="16"
+              fontWeight="600"
+              letterSpacing="0.08em"
+              fontFamily="var(--font-body, system-ui, sans-serif)"
+            >
+              Riflessione
+            </text>
+          </g>
+
+          {/* Griglia circolare dei livelli di intensità */}
           <g className="emotional-shape-grid">
-            {[1, 2, 3, 4, 5, 6, 7].map(t => {
+            {[1, 2, 3, 4, 5, 6, 7].map((t) => {
               const r = GRID_BASE_RADIUS + (t - 1) * GRID_STEP
+              const isMax = t === 7
+              const isMedian = t === 4
               return (
-                <circle key={`grid-${t}`} cx={CENTER_X} cy={CENTER_Y} r={r} fill="none" stroke="#334155" strokeWidth="1" strokeDasharray="4 6" opacity="0.4" />
+                <circle
+                  key={`grid-${t}`}
+                  cx={CENTER_X}
+                  cy={CENTER_Y}
+                  r={r}
+                  fill="none"
+                  stroke={isMax ? 'rgba(255, 255, 255, 0.16)' : isMedian ? 'rgba(255, 255, 255, 0.09)' : 'rgba(255, 255, 255, 0.05)'}
+                  strokeWidth={isMax ? 1.2 : 1}
+                  strokeDasharray={isMax ? 'none' : isMedian ? '4 4' : '2 5'}
+                />
               )
             })}
           </g>
 
+          {/* Fascio dei Petali Emotivi */}
           <g style={{ mixBlendMode: 'screen' }}>
             {familyRows.map((row, idx) => {
               const { familyKey, color, angle, visibleTaglia, label } = row
 
               const outerTip = GRID_BASE_RADIUS + (visibleTaglia - 1) * GRID_STEP
-              const overlapCentro = 20 // I petali si incrociano al centro di 20 pixel costanti
+              const overlapCentro = 20 // Intersezione centrale per continuità organica
               const rx = (outerTip + overlapCentro) / 2
               const offset = rx - overlapCentro
-              const ry = 50 + (visibleTaglia - 1) * 8
+              const ry = PETAL_THICKNESS_RY // Larghezza trasversale costante: scalatura dell'area lineare
 
               // Calcolo coordinate del centro del petalo
               const rad = angle * (Math.PI / 180)
@@ -160,18 +303,20 @@ export default function EmotionalShape({
               const cy = CENTER_Y + Math.sin(rad) * offset
 
               // Opacità interna proporzionale alla taglia e stato hover/selezionato
-              const baseOpacity = 0.40 + (row.normalizedTaglia / 7) * 0.35
+              const baseOpacity = 0.38 + (row.normalizedTaglia / 7) * 0.34
               const isHighlighted = (hoveredFamily === familyKey) || (selectedFamily === familyKey)
-              const fillOpacity = isHighlighted ? Math.min(baseOpacity + 0.25, 1) : baseOpacity
+              const fillOpacity = isHighlighted ? Math.min(baseOpacity + 0.28, 0.95) : baseOpacity
 
-              const transition = prefersReducedMotion ? { duration: 0 } : { duration: 1.0, ease: "easeOut", delay: idx * 0.1 }
+              const transition = prefersReducedMotion
+                ? { duration: 0 }
+                : { duration: 1.0, ease: 'easeOut', delay: idx * 0.1 }
 
               return (
                 <g
                   key={`petal-${familyKey}`}
                   tabIndex={0}
                   role="button"
-                  aria-label={`Petalo ${label}, valore normalizzato ${formatScaleScore(row.normalizedTaglia)} su 7`}
+                  aria-label={`Petalo ${label}, punteggio ${formatScaleScore(row.normalizedTaglia)} su 7`}
                   onFocus={() => handleFamilyHover(familyKey)}
                   onBlur={() => handleFamilyHover(null)}
                   onKeyDown={(e) => {
@@ -183,19 +328,22 @@ export default function EmotionalShape({
                   style={{ outline: 'none' }}
                 >
                   <g transform={`rotate(${angle} ${cx} ${cy})`}>
-                    {/* Ellisse di glow esterno (leggermente ridotto lo spessore per non impastare) */}
+                    {/* Ellisse di glow esterno */}
                     <motion.ellipse
-                      cx={cx} cy={cy} rx={rx} ry={ry}
+                      cx={cx}
+                      cy={cy}
+                      rx={rx}
+                      ry={ry}
                       fill="none"
                       stroke={color}
-                      strokeWidth={4}
+                      strokeWidth={isHighlighted ? 4 : 2}
                       filter="url(#glow)"
-                      opacity={isHighlighted ? 0.9 : 0.6}
+                      opacity={isHighlighted ? 0.9 : 0.5}
                       style={{ transformOrigin: `${cx}px ${cy}px` }}
                       initial={{ scale: 0.8, opacity: 0 }}
                       animate={{
-                        scale: (isHighlighted && !prefersReducedMotion) ? [1, 1.04, 1] : 1,
-                        opacity: isHighlighted ? 0.7 : 0.4
+                        scale: (isHighlighted && !prefersReducedMotion) ? [1, 1.03, 1] : 1,
+                        opacity: isHighlighted ? 0.85 : 0.45,
                       }}
                       transition={
                         (isHighlighted && !prefersReducedMotion)
@@ -212,17 +360,20 @@ export default function EmotionalShape({
                         e.stopPropagation()
                         handleFamilySelect(familyKey)
                       }}
-                      cx={cx} cy={cy} rx={rx} ry={ry}
+                      cx={cx}
+                      cy={cy}
+                      rx={rx}
+                      ry={ry}
                       fill={color}
                       fillOpacity={fillOpacity}
                       stroke={color}
-                      strokeWidth={1.5}
+                      strokeWidth={isHighlighted ? 2 : 1.2}
                       style={{ transformOrigin: `${cx}px ${cy}px`, cursor: 'pointer' }}
                       initial={{ scale: 0.8, opacity: 0, fillOpacity: 0 }}
                       animate={{
-                        scale: (isHighlighted && !prefersReducedMotion) ? [1, 1.025, 1] : 1,
+                        scale: (isHighlighted && !prefersReducedMotion) ? [1, 1.02, 1] : 1,
                         opacity: 1,
-                        fillOpacity
+                        fillOpacity,
                       }}
                       transition={
                         (isHighlighted && !prefersReducedMotion)
@@ -235,39 +386,172 @@ export default function EmotionalShape({
               )
             })}
           </g>
+
+          {/* Nucleo Centrale di Equilibrio (Baricentro / Convergenza Armonica) */}
+          <g
+            className="emotional-shape-core"
+            tabIndex={0}
+            role="button"
+            aria-label="Nucleo centrale di equilibrio: punto in cui tutte le 5 energie emotive si radicano e convivono"
+            onMouseEnter={() => setHoveredCore(true)}
+            onMouseLeave={() => setHoveredCore(false)}
+            onClick={() => {
+              if (uiSounds?.enabled) uiSounds.playSoftTap()
+              setLocalSelectedFamily(null)
+            }}
+            style={{ cursor: 'pointer', outline: 'none' }}
+          >
+            {/* Alone soffuso del nucleo */}
+            <circle cx={CENTER_X} cy={CENTER_Y} r={48} fill="url(#coreAura)" pointerEvents="none" />
+            
+            {/* Corpo satinato centrale */}
+            <circle
+              cx={CENTER_X}
+              cy={CENTER_Y}
+              r={28}
+              fill="rgba(10, 16, 28, 0.88)"
+              stroke={hoveredCore ? '#38bdf8' : 'rgba(255, 255, 255, 0.22)'}
+              strokeWidth={hoveredCore ? 2 : 1.5}
+              style={{ transition: 'stroke 0.2s ease, stroke-width 0.2s ease' }}
+            />
+            {/* Punto di gravità centrale */}
+            <circle cx={CENTER_X} cy={CENTER_Y} r={5} fill="#38bdf8" />
+          </g>
+
+          {/* Ancore Visive Dirette sul Grafico (Qualitative e senza box) */}
+          <g className="emotional-shape-direct-labels">
+            {familyRows.map((row) => {
+              const {
+                familyKey,
+                label,
+                color,
+                polarity,
+                labelX,
+                labelY,
+                textAnchor,
+              } = row
+              const isHighlighted = (hoveredFamily === familyKey) || (selectedFamily === familyKey)
+
+              return (
+                <g
+                  key={`direct-label-${familyKey}`}
+                  className={`emotional-shape-onchart-label${isHighlighted ? ' is-active' : ''}`}
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`${label}, ${polarity}`}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleFamilySelect(familyKey)
+                  }}
+                  onMouseEnter={() => handleFamilyHover(familyKey)}
+                  onMouseLeave={() => handleFamilyHover(null)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      handleFamilySelect(familyKey)
+                    }
+                  }}
+                  style={{ cursor: 'pointer', outline: 'none' }}
+                >
+                  {/* Riga 1: Nome Famiglia qualitativo */}
+                  <text
+                    x={labelX}
+                    y={labelY - 6}
+                    textAnchor={textAnchor}
+                    fill="#f8fafc"
+                    fontSize="26"
+                    fontWeight="800"
+                    fontFamily="var(--font-body, system-ui, sans-serif)"
+                    style={{
+                      textShadow: '0 3px 14px rgba(0, 0, 0, 0.95), 0 0 24px rgba(0, 0, 0, 0.9)',
+                      transition: 'fill 0.2s ease',
+                    }}
+                  >
+                    {label}
+                  </text>
+
+                  {/* Riga 2: Polarità psicofisiologica */}
+                  <text
+                    x={labelX}
+                    y={labelY + 22}
+                    textAnchor={textAnchor}
+                    fill={color}
+                    fontSize="16"
+                    fontWeight="600"
+                    letterSpacing="0.04em"
+                    fontFamily="var(--font-body, system-ui, sans-serif)"
+                    style={{
+                      textShadow: '0 2px 10px rgba(0, 0, 0, 0.95)',
+                      opacity: isHighlighted ? 1 : 0.9,
+                    }}
+                  >
+                    {polarity}
+                  </text>
+                </g>
+              )
+            })}
+          </g>
         </svg>
       </div>
 
-      <ul className="emotional-shape-legend" aria-hidden="false">
-        {familyRows.map((row) => {
-          const isHighlighted = (hoveredFamily === row.familyKey) || (selectedFamily === row.familyKey)
-          return (
-            <li
-              key={`legend-${row.familyKey}`}
-              className={`emotional-shape-legend__item${isHighlighted ? ' emotional-shape-legend__item--active' : ''}`}
-              style={{ '--legend-color': row.color }}
-              tabIndex={0}
-              role="button"
-              aria-label={`${row.label}, valore ${formatScaleScore(row.normalizedTaglia)} su 7`}
-              onMouseEnter={() => handleFamilyHover(row.familyKey)}
-              onMouseLeave={() => handleFamilyHover(null)}
-              onClick={() => handleFamilySelect(row.familyKey)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault()
-                  handleFamilySelect(row.familyKey)
-                }
-              }}
-            >
-              <span className="emotional-shape-legend__dot" style={{ backgroundColor: row.color }} aria-hidden="true" />
-              <span className="emotional-shape-legend__name">{row.label}</span>
-              <span className="emotional-shape-legend__score">
-                {formatScaleScore(row.normalizedTaglia)}<span className="emotional-shape-legend__max">/7</span>
+      {/* Scheda interpretativa e punteggi racchiusi in cassetto nerd chiuso di default */}
+      <details className="emotional-shape-nerd-accordion">
+        <summary className="emotional-shape-nerd-summary">
+          <span
+            className="emotional-shape-nerd-summary-dot"
+            style={{ backgroundColor: activeRow ? activeRow.color : '#38bdf8' }}
+          />
+          <span>Dettagli e punteggi delle 5 famiglie</span>
+          <span className="emotional-shape-nerd-chevron" aria-hidden="true">▾</span>
+        </summary>
+        <div className="emotional-shape-nerd-content">
+          <div
+            className="emotional-shape-insight"
+            style={{ '--insight-color': hoveredCore ? '#38bdf8' : (activeRow ? activeRow.color : '#38bdf8') }}
+            role="region"
+            aria-label="Interpretazione della silhouette emotiva"
+          >
+            <div className="emotional-shape-insight__header">
+              <span
+                className="emotional-shape-insight__dot"
+                style={{ backgroundColor: hoveredCore ? '#38bdf8' : (activeRow ? activeRow.color : '#38bdf8') }}
+                aria-hidden="true"
+              />
+              <span className="emotional-shape-insight__badge">
+                {hoveredCore
+                  ? 'Baricentro Armonico'
+                  : (activeRow ? `Famiglia ${activeRow.label}` : 'Silhouette Emotiva')}
               </span>
-            </li>
-          )
-        })}
-      </ul>
+              {activeRow && !hoveredCore && (
+                <span className="emotional-shape-insight__polarity">
+                  {activeRow.polarity}
+                </span>
+              )}
+            </div>
+            <p className="emotional-shape-insight__desc">
+              {hoveredCore
+                ? 'Punto di convergenza in cui tutte e 5 le energie emotive si radicano e convivono in equilibrio interiore.'
+                : (activeRow ? activeRow.description : 'Seleziona o passa con il cursore su un petalo per approfondirne il significato.')}
+            </p>
+          </div>
+
+          <ul className="emotional-shape-legend" aria-label="Punteggi delle 5 famiglie">
+            {familyRows.map((row) => (
+              <li
+                key={row.familyKey}
+                className={`emotional-shape-legend__item${(hoveredFamily === row.familyKey || selectedFamily === row.familyKey) ? ' emotional-shape-legend__item--active' : ''}`}
+                style={{ '--legend-color': row.color }}
+                onClick={() => handleFamilySelect(row.familyKey)}
+              >
+                <span className="emotional-shape-legend__dot" style={{ backgroundColor: row.color }} />
+                <span className="emotional-shape-legend__name">{row.label}</span>
+                <span className="emotional-shape-legend__score">{formatScaleScore(row.normalizedTaglia)}</span>
+                <span className="emotional-shape-legend__max">/7</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </details>
     </div>
   )
 }

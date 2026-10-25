@@ -6,7 +6,7 @@
  *
  * I colori sono soltanto una convenzione visiva per le 5 famiglie emotive.
  * `family` è il nome della famiglia; `characteristic`/`nature` descrivono
- * la natura (caratteristica emotiva). Non invertire questi due livelli.
+ * la natura. Non invertire questi due livelli.
  *
  * Nomi delle nature SOLO dal PDF «Parole per TST»: una famiglia ha più nature,
  * quindi `characteristic`/`nature`/`disposition` elencano le nature della famiglia

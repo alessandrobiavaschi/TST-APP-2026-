@@ -25,6 +25,15 @@ export const DISTANZE = Object.freeze([
   { file: 41, nome: 'Ottava', semitoni: 12, clima: 'La stessa nota, più alta: il punto d’arrivo.' },
 ])
 
+/** Le distanze raggruppate in cinque tappe del percorso dal buio alla luce (numeri di file). */
+export const TAPPE_DISTANZE = Object.freeze([
+  { titolo: 'Dal buio', file: [29, 31, 30] },
+  { titolo: 'Luce riflessa', file: [33, 32] },
+  { titolo: 'Sospensione', file: [34, 35] },
+  { titolo: 'Piena luce', file: [36, 38, 37] },
+  { titolo: 'Verso l’origine', file: [39, 40, 41] },
+])
+
 /* ── Stanza 3 · I timbri ── */
 export const GRUPPI_TIMBRI = Object.freeze([
   { titolo: 'Fiati', file: [5, 6, 7, 8, 9, 10, 11, 12] },

@@ -1,60 +1,60 @@
 import React, { useState } from 'react'
 import { GRUPPI_TIMBRI, TIMBRI_FAMIGLIA } from '../../../content/musicistiContenuti.js'
 import { FAMIGLIE_MUSICA, NOMI_SUONI, ORDINE_FAMIGLIE } from '../../../content/musicistiStanze.js'
+import SchedeScorrevoli from './SchedeScorrevoli.jsx'
+import Finestra, { Finestre } from './Finestra.jsx'
 
-/** Stanza 3: atlante degli strumenti del test, filtrabile per famiglia. */
+/** Stanza dei timbri: tre gruppi di strumenti chiusi, con la famiglia scelta evidenziata. */
 export default function StanzaTimbri({ famigliaPrevalente, fileInAscolto, onAscolta }) {
-  const [filtro, setFiltro] = useState(famigliaPrevalente || null)
-  const vicini = filtro ? new Set(TIMBRI_FAMIGLIA[filtro]?.file || []) : null
+  const [famiglia, setFamiglia] = useState(famigliaPrevalente || 'Verde')
+  const vicini = new Set(TIMBRI_FAMIGLIA[famiglia]?.file || [])
 
   return (
     <div className="stanza-generica">
       <header className="stanza-generica__apertura">
         <h1>I timbri</h1>
-        <p>Gli strumenti ascoltati nel test. Scegli una famiglia per vedere quelli a cui le fonti la avvicinano.</p>
+        <p>Gli strumenti ascoltati nel test. Scegli una famiglia: si illuminano quelli a cui tende ad avvicinarsi.</p>
       </header>
 
-      <div className="stanza-filtri" role="group" aria-label="Famiglia">
-        <button type="button" className="stanza-filtro" aria-pressed={!filtro} onClick={() => setFiltro(null)}>
-          Tutti
-        </button>
-        {ORDINE_FAMIGLIE.map((k) => (
-          <button
-            key={k}
-            type="button"
-            className="stanza-filtro"
-            data-famiglia={FAMIGLIE_MUSICA[k].colorKey}
-            aria-pressed={filtro === k}
-            onClick={() => setFiltro(k)}
-          >
-            {FAMIGLIE_MUSICA[k].nome}
-          </button>
-        ))}
-      </div>
-      {filtro ? <p className="stanza-generica__nota">{TIMBRI_FAMIGLIA[filtro]?.zona}</p> : null}
+      <SchedeScorrevoli
+        etichetta="Famiglia"
+        schede={ORDINE_FAMIGLIE.map((k) => ({ id: k, titolo: FAMIGLIE_MUSICA[k].nome, colorKey: FAMIGLIE_MUSICA[k].colorKey }))}
+        attiva={famiglia}
+        onCambia={setFamiglia}
+      />
+      <p className="stanza-generica__nota">{TIMBRI_FAMIGLIA[famiglia]?.zona}</p>
 
-      {GRUPPI_TIMBRI.map((gruppo) => (
-        <section key={gruppo.titolo} className="stanza-atlante">
-          <h2>{gruppo.titolo}</h2>
-          <div className="stanza-atlante__griglia">
-            {gruppo.file.map((file) => {
-              const acceso = !vicini || vicini.has(file)
-              return (
-                <button
-                  key={file}
-                  type="button"
-                  className={`stanza-strumento${acceso ? '' : ' is-spento'}`}
-                  data-famiglia={filtro && acceso ? FAMIGLIE_MUSICA[filtro].colorKey : undefined}
-                  aria-pressed={fileInAscolto === file}
-                  onClick={() => onAscolta(file)}
-                >
-                  <span aria-hidden="true">▶</span> {NOMI_SUONI[file]}
-                </button>
-              )
-            })}
-          </div>
-        </section>
-      ))}
+      <Finestre>
+        {GRUPPI_TIMBRI.map((g) => {
+          const accesi = g.file.filter((f) => vicini.has(f)).length
+          return (
+            <Finestra
+              key={g.titolo}
+              titolo={g.titolo}
+              nota={accesi ? `${accesi} vicini alla famiglia ${FAMIGLIE_MUSICA[famiglia].nome}` : `${g.file.length} strumenti`}
+              gruppo="timbri"
+            >
+              <div className="stanza-atlante__griglia">
+                {g.file.map((file) => {
+                  const acceso = vicini.has(file)
+                  return (
+                    <button
+                      key={file}
+                      type="button"
+                      className={`stanza-strumento${acceso ? '' : ' is-spento'}`}
+                      data-famiglia={acceso ? FAMIGLIE_MUSICA[famiglia].colorKey : undefined}
+                      aria-pressed={fileInAscolto === file}
+                      onClick={() => onAscolta(file)}
+                    >
+                      <span aria-hidden="true">▶</span> {NOMI_SUONI[file]}
+                    </button>
+                  )
+                })}
+              </div>
+            </Finestra>
+          )
+        })}
+      </Finestre>
     </div>
   )
 }

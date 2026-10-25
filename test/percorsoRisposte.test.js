@@ -20,7 +20,8 @@ test('ogni passo porta famiglia e portato della regola scelta', () => {
     File_10: 'risposta non prevista',
   })
   assert.equal(passiLeggibili(percorso), 3)
-  assert.equal(percorso[0].portato, 'simpatia')
+  assert.equal(percorso[0].portato, '', 'le affinità danno punti solo alla natura (2026_v4)')
+  assert.equal(percorso[0].famiglia, 'giallo')
   assert.equal(percorso[4].famiglia, 'giallo')
   assert.equal(percorso[4].portato, 'antipatia')
   assert.equal(percorso[4].sezione, 'Timbro')

@@ -1,135 +1,91 @@
-import React, { useEffect, useMemo, useState } from 'react'
-import { PAROLE_UI } from './reportUiCopy.js'
+import React, { useState } from 'react'
 import ReportPassageHeader from './ReportPassageHeader.jsx'
-import ParoleNatura from './ParoleNatura.jsx'
 import { FAMIGLIE_TST } from '../../content/paroleTst.js'
-import { NATURE } from '../../config/tstSistema.js'
-import { FAMILY_THEME } from '../../config/reportFamilyTheme.js'
+import SchedaParola from './parole/SchedaParola.jsx'
+import { nomeNatura } from './parole/definizioneParola.js'
 import './ParoleStatiAnimo.css'
 
+const paroleChiave = (natura) => (natura.paroleChiave || []).map((k) => (typeof k === 'string' ? k : k.parola))
+const tutteLeParole = (natura) => [...new Set([...(natura.aggettivi || []), ...(natura.sostantivi || [])])]
+
+function Natura({ natura, aperte, onApri, onChiudi }) {
+  const [tutte, setTutte] = useState(false)
+  const chiave = paroleChiave(natura)
+  const elenco = tutte ? tutteLeParole(natura) : chiave.length ? chiave : tutteLeParole(natura).slice(0, 8)
+  const totale = tutteLeParole(natura).length
+  const aperteQui = aperte.filter((p) => elenco.includes(p))
+
+  return (
+    <section className="parole-natura">
+      <h4 className="parole-natura__nome">{nomeNatura(natura)}</h4>
+      <ul className="parole-natura__parole">
+        {elenco.map((parola) => (
+          <li key={parola}>
+            <button
+              type="button"
+              className="parole-parola"
+              aria-expanded={aperte.includes(parola)}
+              onClick={() => (aperte.includes(parola) ? onChiudi(parola) : onApri(parola))}
+            >
+              {parola}
+            </button>
+          </li>
+        ))}
+      </ul>
+      {aperteQui.length ? (
+        <div className="parole-natura__schede">
+          {aperteQui.map((p) => <SchedaParola key={p} parola={p} onChiudi={() => onChiudi(p)} />)}
+        </div>
+      ) : null}
+      {totale > elenco.length || tutte ? (
+        <button type="button" className="parole-natura__altre" onClick={() => setTutte((v) => !v)}>
+          {tutte ? 'Mostra solo le parole chiave' : `Mostra tutte le parole (${totale})`}
+        </button>
+      ) : null}
+    </section>
+  )
+}
+
 /**
- * Stanza 05 — Parole.
- * Tutti i testi visibili vengono da «Parole per TST» (content/paroleTst.js):
- * famiglia → natura → parole chiave, aggettivi/sostantivi/sintesi in chip, parole collegate alle altre famiglie.
- * La famiglia e la natura prevalenti della persona sono segnalate graficamente.
+ * Parole: le parole delle famiglie, dal lessico «Parole per TST».
+ * Si parte dalle parole chiave; si possono aprire tutte le parole e aprire più
+ * parole insieme, ognuna con famiglia, natura e link alla definizione.
  */
+export default function ParoleStatiAnimo({ famiglia = '', step = '5' }) {
+  const norm = String(famiglia || '').toLowerCase().trim()
+  const tua = FAMIGLIE_TST.find((f) => f.colorKey === norm || f.nome.toLowerCase() === norm)
+  const [colore, setColore] = useState(tua?.colorKey || FAMIGLIE_TST[0].colorKey)
+  const [aperte, setAperte] = useState([])
+  const attiva = FAMIGLIE_TST.find((f) => f.colorKey === colore) || FAMIGLIE_TST[0]
 
-const COLORE_PER_CHIAVE = Object.fromEntries(Object.values(FAMILY_THEME).map((t) => [t.key, t.dot]))
-
-/** Il report passa la famiglia come etichetta colore ('Rosso') e la natura come nome maiuscolo ('VOLITIVA'). */
-function rawKeyNaturaPrevalente(naturaPrevalente) {
-  const nome = String(naturaPrevalente || '').trim().toUpperCase()
-  if (!nome) return ''
-  return NATURE.find((n) => n.nome.toUpperCase() === nome)?.campoDb || ''
-}
-
-function naturaIniziale(fam, rawKey) {
-  return fam?.nature.find((n) => n.rawKey === rawKey)?.rawKey || fam?.nature[0]?.rawKey || ''
-}
-
-export default function ParoleStatiAnimo({ famiglia = '', naturaPrevalente = '', step = '5' }) {
-  const colorKeyPrevalente = String(famiglia || '').trim().toLowerCase()
-  const rawKeyPrevalente = rawKeyNaturaPrevalente(naturaPrevalente)
-
-  const famiglie = useMemo(() => {
-    const prima = FAMIGLIE_TST.filter((f) => f.colorKey === colorKeyPrevalente)
-    return [...prima, ...FAMIGLIE_TST.filter((f) => f.colorKey !== colorKeyPrevalente)]
-  }, [colorKeyPrevalente])
-
-  const [famigliaId, setFamigliaId] = useState(famiglie[0]?.id || '')
-  const [naturaKey, setNaturaKey] = useState(() => naturaIniziale(famiglie[0], rawKeyPrevalente))
-
-  useEffect(() => {
-    if (colorKeyPrevalente) {
-      const prima = FAMIGLIE_TST.find((f) => f.colorKey === colorKeyPrevalente)
-      if (prima) {
-        setFamigliaId(prima.id)
-        setNaturaKey(naturaIniziale(prima, rawKeyPrevalente))
-      }
-    }
-  }, [colorKeyPrevalente, rawKeyPrevalente])
-
-  const famigliaAttiva = famiglie.find((f) => f.id === famigliaId) || famiglie[0]
-  const naturaAttiva =
-    famigliaAttiva?.nature.find((n) => n.rawKey === naturaKey) || famigliaAttiva?.nature[0]
-
-  const scegliFamiglia = (fam) => {
-    setFamigliaId(fam.id)
-    setNaturaKey(naturaIniziale(fam, rawKeyPrevalente))
-  }
-
-  if (!famigliaAttiva) return null
+  const apri = (p) => setAperte((v) => (v.includes(p) ? v : [...v, p]))
+  const chiudi = (p) => setAperte((v) => v.filter((x) => x !== p))
 
   return (
     <section aria-labelledby="parole-tst-title" className="parole-tst">
-      <ReportPassageHeader
-        step={step}
-        title={PAROLE_UI.title}
-        titleVisuallyHidden
-        lead={PAROLE_UI.educazioneSubtitle}
-        titleId="parole-tst-title"
-      />
-
-      <div role="tablist" aria-label="Famiglie" className="parole-tst__famiglie">
-        {famiglie.map((fam) => {
-          const attiva = fam.id === famigliaAttiva.id
-          const prevalente = fam.colorKey === colorKeyPrevalente
-          return (
-            <button
-              key={fam.id}
-              type="button"
-              role="tab"
-              aria-selected={attiva}
-              className="parole-tst__famiglia"
-              style={{ '--famiglia-colore': COLORE_PER_CHIAVE[fam.colorKey] }}
-              onClick={() => scegliFamiglia(fam)}
-            >
-              <span
-                aria-hidden="true"
-                className={`parole-tst__pallino${prevalente ? ' parole-tst__pallino--prevalente' : ''}`}
-              />
-              {fam.nome}
-              {prevalente ? <span className="sr-only"> (famiglia prevalente)</span> : null}
-            </button>
-          )
-        })}
+      <ReportPassageHeader step={step} title="Parole" titleVisuallyHidden titleId="parole-tst-title" />
+      <div className="parole-famiglie" role="tablist" aria-label="Famiglie">
+        {FAMIGLIE_TST.map((f) => (
+          <button
+            key={f.colorKey}
+            type="button"
+            role="tab"
+            aria-selected={f.colorKey === attiva.colorKey}
+            className="parole-famiglie__tab"
+            data-famiglia={f.colorKey}
+            onClick={() => { setColore(f.colorKey); setAperte([]) }}
+          >
+            {f.nome}
+            {f === tua ? <span className="parole-famiglie__tua">la tua famiglia</span> : null}
+          </button>
+        ))}
       </div>
-
-      <div className="parole-tst__nature" role="tablist" aria-label="Nature">
-        {famigliaAttiva.nature.map((n) => {
-          const attiva = n.rawKey === naturaAttiva.rawKey
-          const prevalente = n.rawKey === rawKeyPrevalente
-          return (
-            <button
-              key={n.rawKey}
-              type="button"
-              role="tab"
-              aria-selected={attiva}
-              className="parole-tst__natura"
-              style={{ '--famiglia-colore': COLORE_PER_CHIAVE[famigliaAttiva.colorKey] }}
-              onClick={() => setNaturaKey(n.rawKey)}
-            >
-              <span className="parole-tst__natura-nome">
-                {prevalente ? (
-                  <span aria-hidden="true" className="parole-tst__pallino parole-tst__pallino--prevalente" />
-                ) : null}
-                {n.nome}
-                {prevalente ? <span className="sr-only"> (natura prevalente)</span> : null}
-              </span>
-              {n.sottotitoloFonte ? (
-                <span className="parole-tst__natura-sotto">{n.sottotitoloFonte}</span>
-              ) : null}
-            </button>
-          )
-        })}
+      <div className="parole-pannello" role="tabpanel" data-famiglia={attiva.colorKey}>
+        <p className="parole-pannello__guida">Tocca una parola per vedere a quale natura appartiene e aprirne la definizione.</p>
+        {attiva.nature.map((n) => (
+          <Natura key={n.rawKey} natura={n} aperte={aperte} onApri={apri} onChiudi={chiudi} />
+        ))}
       </div>
-
-      <ParoleNatura
-        key={naturaAttiva.rawKey}
-        natura={naturaAttiva}
-        coloreFamiglia={COLORE_PER_CHIAVE[famigliaAttiva.colorKey]}
-        colorePerChiave={COLORE_PER_CHIAVE}
-      />
     </section>
   )
 }

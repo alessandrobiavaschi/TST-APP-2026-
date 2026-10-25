@@ -2,27 +2,15 @@ import React from 'react'
 import { COPPIE_ARMONIA, COPPIE_MELODIA, MODI_FAMIGLIA } from '../../../content/musicistiContenuti.js'
 import { FAMIGLIE_MUSICA } from '../../../content/musicistiStanze.js'
 import BottoneSuono from './BottoneSuono.jsx'
+import Finestra, { Finestre } from './Finestra.jsx'
 
-function Coppie({ titolo, coppie, fileInAscolto, onAscolta }) {
-  return (
-    <section className="stanza-atlante">
-      <h2>{titolo}</h2>
-      <div className="stanza-coppie">
-        {coppie.map((c) => (
-          <div key={c.titolo} className="stanza-coppia">
-            <h3>{c.titolo}</h3>
-            <div className="stanza-coppia__ab">
-              <BottoneSuono file={c.a} fileInAscolto={fileInAscolto} onAscolta={onAscolta} />
-              <BottoneSuono file={c.b} fileInAscolto={fileInAscolto} onAscolta={onAscolta} />
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  )
-}
+const SCHEDE = [
+  { id: 'melodia', titolo: 'Melodia', coppie: COPPIE_MELODIA },
+  { id: 'armonia', titolo: 'Armonia', coppie: COPPIE_ARMONIA },
+  { id: 'famiglie', titolo: 'Le famiglie' },
+]
 
-/** Stanza 5: confronti A/B tra le arpe e tra le coppie di accordi del test. */
+/** Stanza melodia e armonia: confronti A/B in finestre chiuse, una aperta alla volta. */
 export default function StanzaMelodia({ famigliaPrevalente, fileInAscolto, onAscolta }) {
   return (
     <div className="stanza-generica">
@@ -30,18 +18,42 @@ export default function StanzaMelodia({ famigliaPrevalente, fileInAscolto, onAsc
         <h1>Melodia e armonia</h1>
         <p>Ascolta le due versioni una dopo l’altra: la differenza tra le due è ciò che conta.</p>
       </header>
-      <Coppie titolo="Melodia" coppie={COPPIE_MELODIA} fileInAscolto={fileInAscolto} onAscolta={onAscolta} />
-      <Coppie titolo="Armonia: andata e ritorno" coppie={COPPIE_ARMONIA} fileInAscolto={fileInAscolto} onAscolta={onAscolta} />
-      <section className="stanza-atlante">
-        <h2>Dove ogni famiglia può sentirsi a casa</h2>
-        <ul className="stanza-generica__elenco">
-          {MODI_FAMIGLIA.map((m) => (
-            <li key={m.famiglia} className={m.famiglia === famigliaPrevalente ? 'is-tua' : ''}>
-              <b>{FAMIGLIE_MUSICA[m.famiglia].nome}</b>: {m.testo}
-            </li>
-          ))}
-        </ul>
-      </section>
+      <Finestre>
+        {SCHEDE.map((scheda) => (
+          <Finestra
+            key={scheda.id}
+            titolo={scheda.titolo}
+            nota={scheda.coppie ? `${scheda.coppie.length} confronti` : 'Il modo di ogni famiglia'}
+            gruppo="melodia"
+          >
+            <div className="stanza-riquadri">
+              {scheda.coppie
+                ? scheda.coppie.map((c) => (
+                    <section key={c.titolo} className="stanza-riquadro">
+                      <h2>{c.titolo}</h2>
+                      <div className="stanza-coppia__ab">
+                        <BottoneSuono file={c.a} fileInAscolto={fileInAscolto} onAscolta={onAscolta} />
+                        <BottoneSuono file={c.b} fileInAscolto={fileInAscolto} onAscolta={onAscolta} />
+                      </div>
+                    </section>
+                  ))
+                : MODI_FAMIGLIA.map((m) => {
+                    const fam = FAMIGLIE_MUSICA[m.famiglia]
+                    return (
+                      <section
+                        key={m.famiglia}
+                        className={`stanza-riquadro${m.famiglia === famigliaPrevalente ? ' is-tua' : ''}`}
+                        data-famiglia={fam.colorKey}
+                      >
+                        <h2>{fam.nome}</h2>
+                        <p>{m.testo}</p>
+                      </section>
+                    )
+                  })}
+            </div>
+          </Finestra>
+        ))}
+      </Finestre>
     </div>
   )
 }

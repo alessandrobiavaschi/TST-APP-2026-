@@ -16,6 +16,7 @@ import { createEmptyTestRecord } from '../dbSchema.js'
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js'
 import { normalizzaRecordTst } from '../utils/testRecordProcessing.js'
 import '../styles/report-tst.css'
+import '../styles/report-rooms.css'
 
 // Record di esempio per /report-preview: stessa pipeline di calcolo dei report
 // reali (buildReportData, computeColorTotals, ecc.), nessun dato inventato nei
@@ -89,7 +90,7 @@ function ReportPage() {
   if (!record || !record.raw || typeof record.raw !== 'object') {
     return (
       <div className="page report-page-empty">
-        <section className="page-card">
+        <section className="page-card tst-error-boundary-card">
           <h1 className="report-display-title">Report non disponibile</h1>
           <p className="results-empty-message">
             Non ho trovato i dati del report in questa sessione. Apri un test dalla pagina risultati per visualizzarlo.
@@ -117,7 +118,7 @@ function ReportPage() {
 
   const { blu, rosso, verde, giallo, grigio } = computeColorTotals(record.raw)
   const totalsByKey = { blu, rosso, verde, giallo, grigio }
-  const { dominantKey, dominantColorName } = getDominantColorInfo(totalsByKey)
+  const { dominantKey, dominantColorName } = getDominantColorInfo(totalsByKey, record.raw)
   const textBlock =
     getMergedReportBlock(dominantColorName) || reportContent[dominantColorName] || reportContent.Giallo
   const restituzione = textBlock.restituzione_natura
@@ -212,7 +213,7 @@ function ReportPage() {
     console.error('buildReportData failed:', err)
     return (
       <div className="page report-page-empty">
-        <section className="page-card">
+        <section className="page-card tst-error-boundary-card">
           <h1 className="report-display-title">Report non disponibile</h1>
           <p className="results-empty-message">
             Non è stato possibile preparare il report per questo test. Torna ai risultati e riprova; se il problema

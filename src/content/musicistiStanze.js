@@ -34,15 +34,24 @@ export const NOMI_SUONI = Object.freeze({
   71: 'Do → Sol', 72: 'Sol → Do',
 })
 
-/** Le stanze, nell'ordine consigliato. */
+/** Le stanze (livello medio). */
 export const STANZE = Object.freeze([
   { id: 'famiglia', titolo: 'La famiglia nella musica', descrizione: 'Timbri, tempo, armonia e modo di suonare, famiglia per famiglia.' },
-  { id: 'distanze', titolo: 'Le distanze', descrizione: 'I tredici intervalli, dall’unisono all’ottava, da salire gradino per gradino.' },
+  { id: 'scelte', titolo: 'Le tue scelte nel test', descrizione: 'Le tue risposte, sezione per sezione, e le famiglie a cui sono andate.' },
   { id: 'timbri', titolo: 'I timbri', descrizione: 'Gli strumenti del test e le famiglie a cui si avvicinano.' },
-  { id: 'tempo', titolo: 'Il tempo e il ritmo', descrizione: 'Un righello dei bpm con la fascia di ogni famiglia.' },
+  { id: 'tempo', titolo: 'Il tempo e il ritmo', descrizione: 'La velocità con cui ogni famiglia tende ad accordarsi.' },
   { id: 'melodia', titolo: 'Melodia e armonia', descrizione: 'Ascolti a confronto: salire o scendere, andata e ritorno di un accordo.' },
+  { id: 'distanze', titolo: 'Le distanze', descrizione: 'I tredici intervalli in cinque tappe, dal buio alla luce.' },
   { id: 'ascolto', titolo: 'Ascolto guidato', descrizione: 'Cinque elementi e dieci brani: prima le domande, poi l’ascolto.' },
   { id: 'glossario', titolo: 'Glossario', descrizione: 'Le parole della musica, con il rimando alla stanza dove si ascoltano.' },
+])
+
+/** Le aree d'ingresso (livello alto): ognuna raccoglie poche stanze. */
+export const AREE = Object.freeze([
+  { id: 'tu', titolo: 'Tu e la musica', descrizione: 'La tua famiglia e le tue risposte.', stanze: ['famiglia', 'scelte'] },
+  { id: 'suono', titolo: 'Il suono', descrizione: 'Timbro, tempo, melodia e armonia.', stanze: ['timbri', 'tempo', 'melodia'] },
+  { id: 'distanze', titolo: 'Le distanze', descrizione: 'Gli intervalli, dal buio alla luce.', stanze: ['distanze'] },
+  { id: 'studio', titolo: 'Per studiare', descrizione: 'Ascolto guidato e glossario.', stanze: ['ascolto', 'glossario'] },
 ])
 
 export const ORDINE_FAMIGLIE = Object.freeze(['Blu', 'Rosso', 'Verde', 'Giallo', 'Grigio'])

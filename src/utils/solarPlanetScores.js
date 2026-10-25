@@ -1,4 +1,5 @@
-import { CORRENTE_KEYS, THEORETICAL_MAX_SCORE_BY_CORRENTE_KEY } from '../testLogic.js'
+import { CORRENTE_KEYS } from '../testLogic.js'
+import { massimiPerRecord } from './testStorici.js'
 
 function toPct(value, max) {
   if (!max || max <= 0) return 0
@@ -9,11 +10,9 @@ function sumRawScores(record, keys) {
   return keys.reduce((acc, key) => acc + (Number(record?.[key]) || 0), 0)
 }
 
-function maxTheoreticalForKeys(keys) {
-  return keys.reduce(
-    (acc, key) => acc + (THEORETICAL_MAX_SCORE_BY_CORRENTE_KEY[key] || 0),
-    0,
-  )
+function maxTheoreticalForKeys(keys, rawRecord) {
+  const massimi = massimiPerRecord(rawRecord).naturePerCampo
+  return keys.reduce((acc, key) => acc + (massimi[key] || 0), 0)
 }
 
 const BLU_LUNARE_KEYS = [
@@ -44,12 +43,12 @@ export function getSolarPlanetScore(planetId, { correnti = [], rawRecord = {} } 
     case 'malinconia-lunare':
       return toPct(
         sumRawScores(rawRecord, BLU_LUNARE_KEYS),
-        maxTheoreticalForKeys(BLU_LUNARE_KEYS),
+        maxTheoreticalForKeys(BLU_LUNARE_KEYS, rawRecord),
       )
     case 'malinconia-solare':
       return toPct(
         rawRecord?.[CORRENTE_KEYS.BLU_4] || 0,
-        THEORETICAL_MAX_SCORE_BY_CORRENTE_KEY[CORRENTE_KEYS.BLU_4] || 1,
+        massimiPerRecord(rawRecord).naturePerCampo[CORRENTE_KEYS.BLU_4] || 1,
       )
     default:
       return 0

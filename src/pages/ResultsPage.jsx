@@ -40,6 +40,7 @@ import { parseMatriceCsv } from '../utils/matriceCsv.js'
 import { CAMPI_PER_COLORE, NATURE, colorKeyDaEtichetta } from '../config/tstSistema.js'
 import { normalizzaRecordTst } from '../utils/testRecordProcessing.js'
 import { percentualeNatura } from '../utils/cesteTst.js'
+import { massimiPerRecord } from '../utils/testStorici.js'
 import { MALINCONICA_NOSTALGICA_LABEL, formatSubcategoryLabel } from '../utils/reportTaxonomy.js'
 
 export function computeAgeFromBirthDate(dateValue) {
@@ -157,7 +158,7 @@ function getResolvedSottodisposizione(raw = {}) {
   let bestKey = ''
   let bestValue = -Infinity
   candidateKeys.forEach((key) => {
-    const value = percentualeNatura(key, raw[key])
+    const value = percentualeNatura(key, raw[key], massimiPerRecord(raw))
     if (value > bestValue) {
       bestValue = value
       bestKey = key

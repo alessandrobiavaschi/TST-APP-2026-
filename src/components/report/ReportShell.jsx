@@ -10,6 +10,8 @@ import RoomRevealContent from './RoomRevealContent'
 import { getReportGroups, REPORT_GROUPS, SECTION_TO_GROUP } from './reportSectionsConfig'
 import { SHOW_TRACCE_SECTION, shouldShowEmotionalIntegrations } from './reportFeatureFlags.js'
 import { resolveReportScrollTarget, scrollToReportSection } from './reportSectionNavUtils'
+import RoomOpening from './RoomOpening.jsx'
+import SintesiIntro from './SintesiIntro.jsx'
 import ReportHelpModal from './ReportHelpModal'
 import ReportGlossaryDrawer from './ReportGlossaryDrawer'
 import ProfiloEmotivo from './ProfiloEmotivo'
@@ -123,6 +125,7 @@ export default function ReportShell({
   const [glossaryFocusId, setGlossaryFocusId] = useState(null)
   const [loaded, setLoaded] = useState(false)
   const [scientificScopeOpen, setScientificScopeOpen] = useState(true)
+  const [fullscreenMode, setFullscreenMode] = useState(false)
   const [rapportiSlideActive, setRapportiSlideActive] = useState(false)
   const heroRef = useRef(null)
   const progressBarRef = useRef(null)
@@ -271,6 +274,7 @@ export default function ReportShell({
     utente = { nome: '' },
     profilo = {},
     correnti = [],
+    correntiByPeso = [],
     sottocorrenti = [],
     profiloEmotivo = { sezioni: [] },
     rapporti = [],
@@ -400,6 +404,15 @@ export default function ReportShell({
   }, [])
 
   useEffect(() => {
+    if (!fullscreenMode) return undefined
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') setFullscreenMode(false)
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [fullscreenMode])
+
+  useEffect(() => {
     if (!isAlternateMode) return undefined
     const prevOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
@@ -432,7 +445,7 @@ export default function ReportShell({
   if (!hasReportData) {
     return (
       <div className="page" lang="it">
-        <section className="page-card">
+        <section className="page-card tst-error-boundary-card">
           <h1 className="report-display-title">{REPORT_SHELL_UI.unavailableTitle}</h1>
           <p className="results-empty-message">
             {REPORT_SHELL_UI.unavailableMessage}
@@ -444,7 +457,7 @@ export default function ReportShell({
 
   return (
     <div
-      className="report-tst"
+      className={`report-tst${fullscreenMode ? ' report-tst--fullscreen' : ''}`}
       data-time-of-day={timeOfDay}
       data-weather={weather}
       data-sky-tone={visualProfile.tone}
@@ -539,6 +552,8 @@ export default function ReportShell({
         </div>
 
         <NavbarTST
+          fullscreenMode={fullscreenMode}
+          onFullscreenChange={setFullscreenMode}
           forceVisible={modalita !== 'report'}
           modalita={modalita}
           onModalitaChange={changeModalita}
@@ -569,21 +584,24 @@ export default function ReportShell({
 
               {/* ── STANZA 01: OVERVIEW FULLSCREEN (Sintesi + Grafici) ── */}
               <section id="report-group-profilo-generale" className="report-room-section report-room-section--overview">
-                <header className="report-room-header">
-                  <span className="report-room-badge">0{roomMetaById['report-group-profilo-generale']?.stepLabel}</span>
-                  <h2
-                    id="report-group-profilo-generale-heading"
-                    className="report-room-title"
-                    tabIndex="-1"
-                  >
-                    {roomMetaById['report-group-profilo-generale']?.title || SINTESI_UI.title}
-                  </h2>
-                </header>
+                <RoomOpening
+                  step={roomMetaById['report-group-profilo-generale']?.stepLabel}
+                  title={roomMetaById['report-group-profilo-generale']?.title || SINTESI_UI.title}
+                  lead={roomMetaById['report-group-profilo-generale']?.subtitle}
+                  headingId="report-group-profilo-generale-heading"
+                  headingTabIndex="-1"
+                >
+                  <SintesiIntro
+                    famiglia={profilo?.famiglia || ''}
+                    sottodisposizione={sottodisposizionePrevalente}
+                    globalProfileContract={globalProfileContract}
+                    contentCards={profiloEmotivo?.contentCards}
+                  />
+                </RoomOpening>
                 <RoomRevealContent id="report-tst-sintesi" className="report-tst-section-anchor">
                   <Suspense fallback={<TstLoader variant="inline" tone="dark" color={correnteColore} label={REPORT_SHELL_UI.loadingInline} />}>
                     <SintesiCorrenti
                       correnti={correnti}
-                      correnteDominante={profilo?.correnteDominante || ''}
                       focus={profilo?.focus || ''}
                       userName={utente?.nome || ''}
                       correnteColore={correnteColore}
@@ -596,11 +614,8 @@ export default function ReportShell({
                       totalScores={colorTotals}
                       sottocorrenti={sottocorrenti}
                       onOpenGlossary={openGlossary}
-                      sottodisposizione={sottodisposizionePrevalente}
                       portato={portato}
                       stepPrefix="1"
-                      globalProfileContract={globalProfileContract}
-                      contentCards={profiloEmotivo?.contentCards}
                       rawRecord={rawRecord}
                     />
                   </Suspense>
@@ -611,12 +626,12 @@ export default function ReportShell({
 
               {/* ── STANZA 02: IDENTITÀ EMOTIVA E NATURA ────────────────── */}
               <section id="stanza-identita" className="report-room-section report-room-section--identita">
-                <header className="report-room-header">
-                  <span className="report-room-badge">0{roomMetaById['stanza-identita']?.stepLabel}</span>
-                  <h2 id="pe-section-title" className="report-room-title">
-                    {roomMetaById['stanza-identita']?.title}
-                  </h2>
-                </header>
+                <RoomOpening
+                  step={roomMetaById['stanza-identita']?.stepLabel}
+                  title={roomMetaById['stanza-identita']?.title}
+                  lead={roomMetaById['stanza-identita']?.subtitle}
+                  headingId="pe-section-title"
+                />
                 <RoomRevealContent id="report-tst-famiglia" className="report-tst-section-anchor">
                   <ProfiloEmotivo
                     sezioni={profiloEmotivo?.sezioni || []}
@@ -637,10 +652,11 @@ export default function ReportShell({
 
               {/* ── STANZA 03: I QUATTRO RAPPORTI ───────────────────────── */}
               <section id="report-tst-rapporti" className="report-room-section report-room-section--rapporti">
-                <header className="report-room-header">
-                  <span className="report-room-badge">0{roomMetaById['report-tst-rapporti']?.stepLabel}</span>
-                  <h2 className="report-room-title">{roomMetaById['report-tst-rapporti']?.title}</h2>
-                </header>
+                <RoomOpening
+                  step={roomMetaById['report-tst-rapporti']?.stepLabel}
+                  title={roomMetaById['report-tst-rapporti']?.title}
+                  lead={roomMetaById['report-tst-rapporti']?.subtitle}
+                />
                 <div id="stanza-rapporti" ref={rapportiAnchorRef} className="report-tst-section-anchor">
                   <RoomRevealContent>
                     <Suspense fallback={<TstLoader variant="inline" tone="dark" color={correnteColore} label={REPORT_SHELL_UI.loadingInline} />}>
@@ -660,10 +676,11 @@ export default function ReportShell({
 
               {/* ── STANZA 04: PORTATO ESPERIENZIALE E VITALITÀ ─────────── */}
               <section id="report-group-forza-correnti" className="report-room-section report-room-section--portato">
-                <header className="report-room-header">
-                  <span className="report-room-badge">0{roomMetaById['report-group-forza-correnti']?.stepLabel}</span>
-                  <h2 className="report-room-title">{roomMetaById['report-group-forza-correnti']?.title}</h2>
-                </header>
+                <RoomOpening
+                  step={roomMetaById['report-group-forza-correnti']?.stepLabel}
+                  title={roomMetaById['report-group-forza-correnti']?.title}
+                  lead={roomMetaById['report-group-forza-correnti']?.subtitle}
+                />
                 <RoomRevealContent id="report-tst-portato" className="report-tst-section-anchor">
                   <SezionePortatoEsperienziale
                     portato={portato}
@@ -682,10 +699,11 @@ export default function ReportShell({
 
               {/* ── STANZA 05: LESSICO EMOTIVO E PAROLE ─────────────────── */}
               <section id="report-group-educazione" className="report-room-section report-room-section--lessico">
-                <header className="report-room-header">
-                  <span className="report-room-badge">0{roomMetaById['report-group-educazione']?.stepLabel}</span>
-                  <h2 className="report-room-title">{roomMetaById['report-group-educazione']?.title}</h2>
-                </header>
+                <RoomOpening
+                  step={roomMetaById['report-group-educazione']?.stepLabel}
+                  title={roomMetaById['report-group-educazione']?.title}
+                  lead={roomMetaById['report-group-educazione']?.subtitle}
+                />
                 <RoomRevealContent id="report-tst-parole" className="report-tst-section-anchor">
                   <ParoleStatiAnimo
                     famiglia={profilo?.famiglia || ''}
@@ -700,10 +718,11 @@ export default function ReportShell({
 
                   {/* ── STANZA 06: FAMIGLIE EMOTIVE IN RELAZIONE ────────────── */}
                   <section id="report-group-relazioni" className="report-room-section report-room-section--preview">
-                    <header className="report-room-header">
-                      <span className="report-room-badge">0{roomMetaById['report-group-relazioni']?.stepLabel}</span>
-                      <h2 className="report-room-title">{roomMetaById['report-group-relazioni']?.title}</h2>
-                    </header>
+                    <RoomOpening
+                      step={roomMetaById['report-group-relazioni']?.stepLabel}
+                      title={roomMetaById['report-group-relazioni']?.title}
+                      lead={roomMetaById['report-group-relazioni']?.subtitle}
+                    />
                     <RoomRevealContent>
                       <p className="report-room-preview-lead">{SECTION_INTROS.mappa.intro}</p>
                       <button
@@ -924,7 +943,10 @@ export default function ReportShell({
             filtroMusicale={filtroMusicale}
             portato={portato}
             colorTotals={colorTotals}
+            correntiByPeso={correntiByPeso}
+            correnti={correnti}
             accentColor={correnteColore}
+            rawRecord={rawRecord}
             onClose={() => changeModalita('report')}
             backButtonRef={musiciansBackButtonRef}
           />

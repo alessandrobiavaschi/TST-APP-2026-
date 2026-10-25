@@ -6,8 +6,6 @@ import { RAPPORTI_UI } from './reportUiCopy.js'
 import { FAMILY_THEME } from '../../config/reportFamilyTheme.js'
 import SectionNumber from './SectionNumber.jsx'
 import CalculationDisclosure from './CalculationDisclosure.jsx'
-import { CompositionFamilyCards } from './CompositionContentCards.jsx'
-import { buildProgressiveContentViewModel } from '../../utils/buildProgressiveContentViewModel.js'
 import {
   ResponsiveContainer,
   RadarChart,
@@ -221,7 +219,7 @@ function RapportiHelpModal({ onClose }) {
 export default function QuattroRapporti({
   rapporti = [],
   coloriCorrenti = {},
-  sottocorrenti = [],
+  _sottocorrenti = [],
 }) {
   const reduceMotion = useReducedMotion()
   const [selectedIndex, setSelectedIndex] = useState(0)
@@ -256,25 +254,6 @@ export default function QuattroRapporti({
 
   const selectedFamilyKey =
     selectedFamilyByRapporto[active?.id] || active?.correntePrincipale?.familyKey || radarData[0]?.familyKey
-  const selectedFamily =
-    radarData.find((item) => item.familyKey === selectedFamilyKey) || radarData[0] || null
-  const selectedShades = sottocorrenti.filter(
-    (item) => item.familyKey === selectedFamily?.familyKey && item.misurabile !== false,
-  )
-  const ranking = active?.graduatoria?.length
-    ? active.graduatoria.map(normalizeFamilyDatum)
-    : [...radarData].sort((a, b) => b.valore - a.valore || b.rawValue - a.rawValue)
-  const agoDellaBilancia = active?.agoDellaBilancia || null
-  const relationBreakdown = active?.relationBreakdown || null
-  // Schede famiglia per QUESTO rapporto: primary/companion nell'approfondimento contestuale,
-  // marginal soltanto nella composizione completa. displayPriority segue sempre localRanking.
-  const rapportoViewModel = useMemo(
-    () => buildProgressiveContentViewModel({
-      ranking: active?.relationContract?.localRanking,
-      contentCards: active?.contentCards || {},
-    }),
-    [active],
-  )
 
   const selectFamily = (familyKey) => {
     if (!active?.id || !familyKey) return
@@ -300,75 +279,77 @@ export default function QuattroRapporti({
       style={{ '--qr-accent': activeColor }}
     >
       <div className="quattro-rapporti-section__inner">
-        <div className="quattro-rapporti-heading-row">
-          <div className="quattro-rapporti-pager" role="group" aria-label="Naviga tra i quattro rapporti">
-            <button
-              type="button"
-              className="quattro-rapporti-pager__btn"
-              aria-label="Rapporto precedente"
-              disabled={activeIndex === 0}
-              onClick={() => selectRapporto(Math.max(activeIndex - 1, 0))}
-            >
-              ‹
-            </button>
-            <span className="quattro-rapporti-pager__count">
-              {activeIndex + 1} di {rapporti.length}
-            </span>
-            <button
-              type="button"
-              className="quattro-rapporti-pager__btn"
-              aria-label="Rapporto successivo"
-              disabled={activeIndex === rapporti.length - 1}
-              onClick={() => selectRapporto(Math.min(activeIndex + 1, rapporti.length - 1))}
-            >
-              ›
-            </button>
-          </div>
-          <button
-            type="button"
-            className="quattro-rapporti-help-trigger"
-            aria-label="Apri la guida su come vengono calcolati i quattro rapporti"
-            onClick={() => setIsHelpOpen(true)}
-          >
-            ?
-          </button>
-        </div>
-
         <p className="quattro-rapporti-intro">
           La famiglia prevalente nel singolo rapporto può essere diversa da quella generale: non è una
           contraddizione, mostra come le diverse correnti assumono pesi differenti nei diversi ambiti
           dell’esperienza sonora.
         </p>
 
-        <div
-          role="tablist"
-          aria-label={RAPPORTI_UI.tablistAria}
-          className={`quattro-rapporti-tabs${approfondimentoOpen ? ' quattro-rapporti-tabs--sticky' : ''}`}
-        >
-          {rapporti.map((r, i) => {
-            const selected = i === activeIndex
-            const color = ensureContrast(r?.correntePrincipale?.colore || FALLBACK_COLOR)
-            return (
+        <div className={`quattro-rapporti-toolbar${approfondimentoOpen ? ' quattro-rapporti-toolbar--sticky' : ''}`}>
+          <div
+            role="tablist"
+            aria-label={RAPPORTI_UI.tablistAria}
+            className="quattro-rapporti-tabs"
+          >
+            {rapporti.map((r, i) => {
+              const selected = i === activeIndex
+              const color = ensureContrast(r?.correntePrincipale?.colore || FALLBACK_COLOR)
+              return (
+                <button
+                  key={r?.id ?? i}
+                  type="button"
+                  role="tab"
+                  id={`quattro-rapporti-tab-${r?.id ?? i}`}
+                  aria-selected={selected}
+                  aria-controls={`quattro-rapporti-panel-${r?.id ?? i}`}
+                  tabIndex={selected ? 0 : -1}
+                  className={`quattro-rapporti-tab${selected ? ' quattro-rapporti-tab--selected' : ''}`}
+                  style={{ '--qr-tab-color': color }}
+                  onClick={() => selectRapporto(i)}
+                >
+                  <SectionNumber value={i + 1} size="sm" className="quattro-rapporti-tab__index" />
+                  <span className="quattro-rapporti-tab__name">{r?.nome}</span>
+                </button>
+              )
+            })}
+          </div>
+
+          <div className="quattro-rapporti-toolbar__aside">
+            <div className="quattro-rapporti-pager" role="group" aria-label="Naviga tra i quattro rapporti">
               <button
-                key={r?.id ?? i}
                 type="button"
-                role="tab"
-                id={`quattro-rapporti-tab-${r?.id ?? i}`}
-                aria-selected={selected}
-                aria-controls={`quattro-rapporti-panel-${r?.id ?? i}`}
-                tabIndex={selected ? 0 : -1}
-                className={`quattro-rapporti-tab${selected ? ' quattro-rapporti-tab--selected' : ''}`}
-                style={{ '--qr-tab-color': color }}
-                onClick={() => selectRapporto(i)}
+                className="quattro-rapporti-pager__btn"
+                aria-label="Rapporto precedente"
+                disabled={activeIndex === 0}
+                onClick={() => selectRapporto(Math.max(activeIndex - 1, 0))}
               >
-                <SectionNumber value={i + 1} size="sm" className="quattro-rapporti-tab__index" />
-                <span className="quattro-rapporti-tab__name">{r?.nome}</span>
+                ‹
               </button>
-            )
-          })}
+              <span className="quattro-rapporti-pager__count">
+                {activeIndex + 1} di {rapporti.length}
+              </span>
+              <button
+                type="button"
+                className="quattro-rapporti-pager__btn"
+                aria-label="Rapporto successivo"
+                disabled={activeIndex === rapporti.length - 1}
+                onClick={() => selectRapporto(Math.min(activeIndex + 1, rapporti.length - 1))}
+              >
+                ›
+              </button>
+            </div>
+            <button
+              type="button"
+              className="quattro-rapporti-help-trigger"
+              aria-label="Apri la guida su come vengono calcolati i quattro rapporti"
+              onClick={() => setIsHelpOpen(true)}
+            >
+              ?
+            </button>
+          </div>
         </div>
 
-        <div className="quattro-rapporti-main">
+        <div className="quattro-rapporti-main quattro-rapporti-stage">
           <div className="quattro-rapporti-radar-wrap">
             <div
               className="quattro-rapporti-radar"
@@ -469,199 +450,6 @@ export default function QuattroRapporti({
                         ))}
                       </div>
                     ) : null}
-
-                    {rapportoViewModel.primaryFamilies.length || rapportoViewModel.hasCompanion ? (
-                      <div className="quattro-rapporti-read__block quattro-rapporti-read__block--composition">
-                        {rapportoViewModel.primaryFamilies.length ? (
-                          <CompositionFamilyCards cards={rapportoViewModel.primaryFamilies} />
-                        ) : null}
-                        {rapportoViewModel.hasCompanion ? (
-                          <CompositionFamilyCards cards={rapportoViewModel.companionFamilies} />
-                        ) : null}
-                      </div>
-                    ) : null}
-
-                    <CalculationDisclosure
-                      label="Vedi calcoli e relazioni tra le famiglie"
-                      className="quattro-rapporti-toggle"
-                    >
-                      <div className="qr-toggle-section">
-              <h4>Da cosa nasce questo rapporto</h4>
-              {active.composizioneSemplice ? <p>{active.composizioneSemplice}</p> : null}
-              {active.composizione && active.id !== 'agire' ? (
-                <p>
-                  <strong>{RAPPORTI_UI.readLabels?.composizione || 'Aree sonore usate'}:</strong> {active.composizione}
-                </p>
-              ) : null}
-            </div>
-
-            <div className="qr-toggle-section">
-              <h4>Come leggere il grafico</h4>
-              <p className="quattro-rapporti-radar-caption">{RAPPORTI_UI.radarCaption}</p>
-              <p className="quattro-rapporti-radar-scale">{RAPPORTI_UI.radarScaleNote}</p>
-            </div>
-
-            <div className="qr-toggle-section">
-              <h4>Classifica delle famiglie</h4>
-              <p className="quattro-rapporti-ranking__summary">
-                {active.esitoComposizione || 'Confronta tutti i valori della lente.'}
-              </p>
-              <div className="quattro-rapporti-ranking__list">
-                {ranking.map((item, index) => {
-                  const sameGraphLevel = index > 0 && item.valore === ranking[index - 1].valore
-                  const tied = sameGraphLevel && item.rawValue === ranking[index - 1].rawValue
-                  return (
-                    <button
-                      key={item.familyKey}
-                      type="button"
-                      className={`quattro-rapporti-ranking__item${item.familyKey === selectedFamilyKey ? ' quattro-rapporti-ranking__item--selected' : ''}`}
-                      style={{ '--qr-family-color': ensureContrast(item.colore || FALLBACK_COLOR) }}
-                      aria-pressed={item.familyKey === selectedFamilyKey}
-                      onClick={() => selectFamily(item.familyKey)}
-                    >
-                      <span>
-                        {index + 1}ª · {item.corrente}
-                        {tied ? ' · pari punti' : sameGraphLevel ? ' · stesso livello grafico' : ''}
-                      </span>
-                      <strong>{item.valore}/7</strong>
-                      {active.id !== 'agire' ? (
-                        <small>
-                          {item.rawValue} punti · {item.distributionPercent}% della lente
-                        </small>
-                      ) : null}
-                    </button>
-                  )
-                })}
-              </div>
-              {selectedFamily ? (
-                <div className="qr-toggle-family-detail">
-                  {selectedShades.length ? (
-                    <div className="quattro-rapporti-shades">
-                      <p>Sfumature di {selectedFamily.corrente} nel profilo complessivo</p>
-                      <ul>
-                        {selectedShades.map((shade) => (
-                          <li key={shade.rawKey}>
-                            <span>{shade.nome}</span>
-                            <strong>{shade.percentuale}%</strong>
-                          </li>
-                        ))}
-                      </ul>
-                      <small>
-                        Queste percentuali non appartengono alla singola lente: indicano l'attivazione
-                        complessiva di ogni sfumatura sul suo massimo teorico. Sono indipendenti e non
-                        devono sommare a 100%.
-                      </small>
-                    </div>
-                  ) : null}
-                  {active.id === 'agire' ? (
-                    <p className="calculation-disclosure__formula">
-                      Il valore va da 1 a 7: indica la vivacità di questa esperienza e viene
-                      rappresentato graficamente nel triangolo.
-                    </p>
-                  ) : selectedFamily.maxRawPoints > 0 && selectedFamily.rawValue > 0 ? (
-                    <p className="calculation-disclosure__formula">
-                      Formula: {selectedFamily.rawValue ?? 0} ÷ {selectedFamily.maxRawPoints} × 7,
-                      arrotondata all'intero più vicino. La famiglia con più punti vale quindi 7;
-                      le altre sono proporzionate allo stesso massimo. Il{' '}
-                      {selectedFamily.distributionPercent ?? 0}% indica invece la quota di{' '}
-                      {selectedFamily.rawValue ?? 0} punti sui {selectedFamily.totalRawPoints ?? 0}{' '}
-                      complessivi della lente. Più famiglie possono raggiungere 7 per effetto
-                      dell'arrotondamento: i punti grezzi permettono di distinguere un vero pari merito.
-                      Un 7, un 6 e un 5 restano tutti visibili e descrivono un profilo composto.
-                    </p>
-                  ) : selectedFamily.maxRawPoints > 0 ? (
-                    <p className="calculation-disclosure__formula">
-                      Questa famiglia ha ottenuto 0 punti e rappresenta lo 0% della lente. Per la
-                      sola leggibilità del poligono, il radar mostra il minimo visuale 1/7: non è
-                      un punto ottenuto né una presenza misurata.
-                    </p>
-                  ) : (
-                    <p className="calculation-disclosure__formula">
-                      Non ci sono punti sufficienti per calcolare questa lente.
-                    </p>
-                  )}
-                </div>
-              ) : null}
-            </div>
-
-            {/* Blocco tecnico "ago della bilancia" volutamente non renderizzato in questa fase
-                (Fase 2B): agoDellaBilancia/relationBreakdown restano disponibili internamente
-                per una futura UX basata su referenceFamily/relationContract. */}
-
-            {relationBreakdown?.others?.length ? (
-              <div className="qr-toggle-section">
-                <h4>Influenze</h4>
-                <ul className="qr-toggle-list">
-                  {relationBreakdown.others.map((item) => (
-                    <li key={item.familyKey}>
-                      <strong>{item.corrente}</strong> — {item.distributionPercent}% (distanza di{' '}
-                      {item.gap} punti percentuali da {agoDellaBilancia?.nome}): influenza{' '}
-                      {item.influenceDescriptor}.
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ) : null}
-
-            <div className="qr-toggle-section">
-              <h4>Relazioni e tensioni</h4>
-              {relationBreakdown?.tensions?.length ? (
-                <ul className="qr-toggle-list">
-                  {relationBreakdown.tensions.map((item) => (
-                    <li key={item.familyKey}>
-                      {agoDellaBilancia?.nome} e {item.corrente}: {item.relation.copy} Distanza di{' '}
-                      {item.gap} punti percentuali — tensione {item.tensionDescriptor}.
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p>
-                  {relationBreakdown?.supportsStrongReference === false
-                    ? 'La componente di riferimento è troppo debole per mettere in primo piano un\'opposizione teorica.'
-                    : 'Nessuna tensione significativa rilevata in base alla matrice delle famiglie per questo rapporto.'}
-                </p>
-              )}
-            </div>
-
-            <div className="qr-toggle-section">
-              <h4>Armonia</h4>
-              {relationBreakdown?.harmony ? (
-                <>
-                  <p className="calculation-disclosure__formula">
-                    Distanza {agoDellaBilancia?.nome}–{relationBreakdown.others[0]?.corrente}:{' '}
-                    {relationBreakdown.others[0]?.gap} punti · Distanza {agoDellaBilancia?.nome}–
-                    {relationBreakdown.others[1]?.corrente}: {relationBreakdown.others[1]?.gap} punti ·
-                    Media: {relationBreakdown.harmony.gap} punti
-                  </p>
-                  <p>
-                    Il risultato indica {relationBreakdown.harmony.descriptor} tra le componenti di
-                    questo rapporto.
-                  </p>
-                </>
-              ) : (
-                <p>
-                  Non ci sono abbastanza famiglie misurabili per calcolare l'armonia complessiva di
-                  questo rapporto.
-                </p>
-              )}
-            </div>
-
-                    {active.levelLabel ? (
-                      <div className="qr-toggle-section">
-                        <h4>Come si arriva alla frase finale</h4>
-                        <p>Per questo il risultato viene descritto come «{active.levelLabel}».</p>
-                      </div>
-                    ) : null}
-
-                    {rapportoViewModel.marginalFamilies.length || rapportoViewModel.theoreticalFamilies.length ? (
-                      <div className="qr-toggle-section">
-                        <h4>Composizione completa</h4>
-                        <CompositionFamilyCards
-                          cards={[...rapportoViewModel.theoreticalFamilies, ...rapportoViewModel.marginalFamilies]}
-                        />
-                      </div>
-                    ) : null}
-                    </CalculationDisclosure>
                   </CalculationDisclosure>
                 </motion.div>
               )}

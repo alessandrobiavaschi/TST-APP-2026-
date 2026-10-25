@@ -2,7 +2,7 @@ import { testSchema } from '../dbSchema.js'
 import { FAMILY_ORDER, FAMILY_THEME } from '../config/reportFamilyTheme.js'
 import { CAMPI_PER_COLORE, PASSI, SEZIONI } from '../config/tstSistema.js'
 import { MASSIMI_TEORICI, calcolaCeste, normalizzaSuMassimo } from './cesteTst.js'
-import { regoleDelTest } from './testStorici.js'
+import { massimiDelTest, massimiPerRecord, opzioniCalcoloDelTest } from './testStorici.js'
 
 const REPORT_SECTION_DEFS = SEZIONI.map((s) => ({ key: s.id, label: s.nome, from: s.da, to: s.a }))
 
@@ -36,13 +36,14 @@ function colorTotalsToChartRow(label, totals) {
  * `rapportiPunteggi` = stessi totali portati sul massimo teorico di ogni rapporto (0–100).
  */
 export function computeSezioniTotalsFromRaw(rawRecord = {}) {
-  const { perSezione, rapporti } = calcolaCeste(rawRecord, { regolePerPasso: regoleDelTest(rawRecord) })
+  const { perSezione, rapporti } = calcolaCeste(rawRecord, opzioniCalcoloDelTest(rawRecord))
+  const massimi = massimiDelTest(rawRecord) || MASSIMI_TEORICI
   const sezioniTotals = Object.fromEntries(REPORT_SECTION_DEFS.map((section) => [section.key, perSezione[section.key]]))
   const sezioniData = REPORT_SECTION_DEFS.map((section) =>
     colorTotalsToChartRow(section.label, sezioniTotals[section.key]),
   )
   const rapportiPunteggi = Object.fromEntries(
-    Object.entries(rapporti).map(([id, tot]) => [id, normalizzaSuMassimo(tot, MASSIMI_TEORICI.rapporti[id])]),
+    Object.entries(rapporti).map(([id, tot]) => [id, normalizzaSuMassimo(tot, massimi.rapporti[id])]),
   )
   return { sezioniTotals, sezioniData, rapporti, rapportiPunteggi }
 }
@@ -74,7 +75,7 @@ export function formatDateShort(value) {
 export function computeColorTotals(record = {}) {
   const storica = record?._letturaStorica
   if (storica && !storica.verificato) return { ...storica.famiglie }
-  if (hasRawAnswers(record)) return { ...calcolaCeste(record, { regolePerPasso: regoleDelTest(record) }).famiglie }
+  if (hasRawAnswers(record)) return { ...calcolaCeste(record, opzioniCalcoloDelTest(record)).famiglie }
   const n = (value) => Number(value) || 0
   return Object.fromEntries(
     Object.entries(CAMPI_PER_COLORE).map(([colorKey, campi]) => [
@@ -86,7 +87,7 @@ export function computeColorTotals(record = {}) {
 
 /** Punteggio 0–100 di ogni famiglia sul proprio massimo teorico (base per prevalenze e confronti). */
 export function computeColorScores(record = {}) {
-  return normalizzaSuMassimo(computeColorTotals(record))
+  return normalizzaSuMassimo(computeColorTotals(record), (massimiDelTest(record) || MASSIMI_TEORICI).famiglie)
 }
 
 export function allocateRoundedPercentages(values = []) {
@@ -147,9 +148,12 @@ export const DOMINANT_COLOR_NAME_BY_KEY = {
  */
 const TIE_BREAK_KEY_ORDER = FAMILY_ORDER.map((familyName) => FAMILY_THEME[familyName].key)
 
-/** Famiglia prevalente: confronto sui punteggi normalizzati sul massimo teorico. */
-export function getDominantColorInfo(totals = {}) {
-  const scores = normalizzaSuMassimo(totals)
+/**
+ * Famiglia prevalente: confronto sui punteggi normalizzati sul massimo teorico.
+ * `record` (facoltativo) sceglie i massimi del modello con cui è stato fatto il test.
+ */
+export function getDominantColorInfo(totals = {}, record) {
+  const scores = normalizzaSuMassimo(totals, massimiPerRecord(record).famiglie)
   let dominantKey = TIE_BREAK_KEY_ORDER[0]
   let dominantValue = Number(scores[dominantKey]) || 0
   for (let i = 1; i < TIE_BREAK_KEY_ORDER.length; i += 1) {

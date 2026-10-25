@@ -1,41 +1,58 @@
 import React from 'react'
-import { DISTANZE } from '../../../content/musicistiContenuti.js'
+import { DISTANZE, TAPPE_DISTANZE } from '../../../content/musicistiContenuti.js'
 import { FAMIGLIE_MUSICA } from '../../../content/musicistiStanze.js'
 import BottoneSuono from './BottoneSuono.jsx'
+import Finestra, { Finestre } from './Finestra.jsx'
 
-/** Stanza 2: una scala da salire, dall'ottava in alto all'unisono in basso. */
+const PER_FILE = Object.fromEntries(DISTANZE.map((d) => [d.file, d]))
+
+/** Stanza delle distanze: cinque tappe chiuse, ognuna con due o tre intervalli. */
 export default function StanzaDistanze({ famigliaPrevalente, fileInAscolto, onAscolta }) {
-  const gradini = [...DISTANZE].reverse()
   return (
     <div className="stanza-generica">
       <header className="stanza-generica__apertura">
         <h1>Le distanze</h1>
         <p>
-          Due note che vibrano insieme: la più bassa resta ferma, l’altra sale. A ogni gradino il clima può cambiare,
-          dal buio della seconda alla luce dell’ottava.
+          Due note che vibrano insieme: la più bassa resta ferma, l’altra sale. Il percorso va dal buio alla luce, in
+          cinque tappe.
         </p>
       </header>
-      <ol className="stanza-scala">
-        {gradini.map((g) => {
-          const fam = g.famiglia ? FAMIGLIE_MUSICA[g.famiglia] : null
-          const tua = g.famiglia && g.famiglia === famigliaPrevalente
+
+      <Finestre>
+        {TAPPE_DISTANZE.map((tappa) => {
+          const voci = tappa.file.map((f) => PER_FILE[f])
+          const tua = voci.some((d) => d.famiglia && d.famiglia === famigliaPrevalente)
           return (
-            <li
-              key={g.file}
-              className={`stanza-scala__gradino${tua ? ' is-tua' : ''}`}
-              data-famiglia={fam?.colorKey}
+            <Finestra
+              key={tappa.titolo}
+              titolo={tappa.titolo}
+              nota={voci.map((d) => d.nome).join(' · ')}
+              gruppo="distanze"
+              tua={tua}
+              famiglia={tua ? FAMIGLIE_MUSICA[famigliaPrevalente]?.colorKey : undefined}
             >
-              <span className="stanza-scala__semitoni" aria-label={`${g.semitoni} semitoni`}>{g.semitoni}</span>
-              <div className="stanza-scala__testo">
-                <h2>{g.nome}</h2>
-                {g.clima ? <p>{g.clima}</p> : null}
-                {fam ? <p className="stanza-scala__natura">Vicina alla natura {g.natura} · {fam.nome}</p> : null}
+              <div className="stanza-riquadri">
+                {voci.map((d) => {
+                  const fam = d.famiglia ? FAMIGLIE_MUSICA[d.famiglia] : null
+                  return (
+                    <section
+                      key={d.file}
+                      className={`stanza-riquadro${d.famiglia && d.famiglia === famigliaPrevalente ? ' is-tua' : ''}`}
+                      data-famiglia={fam?.colorKey}
+                    >
+                      <h2>{d.nome}</h2>
+                      <p className="stanza-riquadro__dato">{d.semitoni} semitoni</p>
+                      {d.clima ? <p>{d.clima}</p> : null}
+                      {fam ? <p className="stanza-riquadro__famiglia">Vicina alla natura {d.natura} · {fam.nome}</p> : null}
+                      <BottoneSuono file={d.file} etichetta="Ascolta" fileInAscolto={fileInAscolto} onAscolta={onAscolta} />
+                    </section>
+                  )
+                })}
               </div>
-              <BottoneSuono file={g.file} etichetta="Ascolta" fileInAscolto={fileInAscolto} onAscolta={onAscolta} />
-            </li>
+            </Finestra>
           )
         })}
-      </ol>
+      </Finestre>
     </div>
   )
 }

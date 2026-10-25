@@ -8,16 +8,16 @@
 [data-theme='dark'] {
   /* ── 1. Fondali e Superfici (Acoustic Glass System) ── */
   --tst-color-bg-canvas: #06080e;
-  --tst-color-bg-surface-subtle: rgba(13, 17, 26, 0.55);
-  --tst-color-bg-surface: rgba(16, 22, 34, 0.78);
-  --tst-color-bg-surface-elevated: rgba(22, 30, 48, 0.90);
-  --tst-color-bg-hover: rgba(255, 255, 255, 0.07);
-  --tst-color-bg-active: rgba(255, 255, 255, 0.12);
+  --tst-color-bg-surface-subtle: rgba(15, 23, 38, 0.42);
+  --tst-color-bg-surface: rgba(18, 26, 42, 0.62);
+  --tst-color-bg-surface-elevated: rgba(22, 32, 52, 0.78);
+  --tst-color-bg-hover: rgba(255, 255, 255, 0.08);
+  --tst-color-bg-active: rgba(255, 255, 255, 0.14);
 
   /* ── 2. Bordi e Separatori ── */
-  --tst-color-border-subtle: rgba(255, 255, 255, 0.08);
-  --tst-color-border-default: rgba(255, 255, 255, 0.15);
-  --tst-color-border-strong: rgba(255, 255, 255, 0.28);
+  --tst-color-border-subtle: rgba(255, 255, 255, 0.10);
+  --tst-color-border-default: rgba(255, 255, 255, 0.18);
+  --tst-color-border-strong: rgba(255, 255, 255, 0.32);
   --tst-color-border-focus: #38bdf8;
 
   /* ── 3. Tipografia e Testi ── */
@@ -25,6 +25,9 @@
   --tst-color-text-secondary: rgba(248, 250, 252, 0.82);
   --tst-color-text-muted: rgba(248, 250, 252, 0.60);
   --tst-color-text-ghost: rgba(248, 250, 252, 0.35);
+  /* Etichette su pannelli scuri (viola quasi bianco) e testo su superfici bianche (tabelle) */
+  --tst-color-text-label: #ede9fe;
+  --tst-color-text-on-light: #0b0b14;
 
   /* ── 4. Accento Neutro di Sistema ── */
   --tst-color-accent-system: #38bdf8;
@@ -73,6 +76,19 @@
   --tst-text-body-sm: 0.875rem;
   --tst-text-caption: 0.75rem;
   --tst-text-mono: 0.8125rem;
+
+  /* ── 8b. Scala fluida di lettura (report) ──
+     Metodo Utopia (utopia.fyi): da 360px (base 17px, rapporto 1.2)
+     a 1440px (base 19px, rapporto 1.25). Un solo clamp per passo. */
+  --tst-step--1: clamp(0.8854rem, 0.8639rem + 0.0957vw, 0.95rem);   /* 14→15px etichette */
+  --tst-step-0:  clamp(1.0625rem, 1.0208rem + 0.1852vw, 1.1875rem); /* 17→19px testo */
+  --tst-step-1:  clamp(1.275rem, 1.2052rem + 0.3102vw, 1.4844rem);  /* 20→24px sommario, frase chiave */
+  --tst-step-4:  clamp(2.2032rem, 1.9712rem + 1.0311vw, 2.8992rem); /* 35→46px titolo di stanza */
+  --tst-space-flow-m: clamp(1.25rem, 1rem + 1vw, 2rem);
+  --tst-space-flow-l: clamp(2rem, 1.5rem + 2vw, 3.5rem);
+  --tst-gutter: clamp(1.25rem, 0.5rem + 3vw, 3rem);
+  --tst-measure: 40rem;   /* colonna di lettura, ~65 caratteri */
+  --tst-page: 72rem;      /* larghezza dei moduli del report */
 
   /* ── 9. Scala Spaziature ── */
   --tst-space-3xs: 0.125rem; /* 2px */
@@ -129,6 +145,8 @@
   --tst-color-text-secondary: #334155;
   --tst-color-text-muted: #64748b;
   --tst-color-text-ghost: #94a3b8;
+  --tst-color-text-label: #4a4a74;
+  --tst-color-text-on-light: #0b0b14;
 
   --tst-shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.06);
   --tst-shadow-md: 0 4px 20px rgba(15, 23, 42, 0.08);
@@ -148,9 +166,9 @@
   background-color: var(--tst-color-bg-surface);
   backdrop-filter: var(--tst-blur-md);
   -webkit-backdrop-filter: var(--tst-blur-md);
-  border: 1px solid var(--tst-color-border-subtle);
+  border: 1px solid var(--tst-color-border-default);
   border-radius: var(--tst-radius-lg);
-  box-shadow: var(--tst-shadow-md);
+  box-shadow: var(--tst-shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.10);
   color: var(--tst-color-text-primary);
   transition: border-color var(--tst-transition-fast), box-shadow var(--tst-transition-fast);
 }
@@ -163,7 +181,7 @@
 
 .tst-card--elevated {
   background-color: var(--tst-color-bg-surface-elevated);
-  box-shadow: var(--tst-shadow-lg);
+  box-shadow: var(--tst-shadow-lg), inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 /* ── Bottoni Standard ── */
@@ -214,7 +232,7 @@
   align-items: center;
   justify-content: center;
   gap: var(--tst-space-xs);
-  background-color: var(--tst-color-bg-surface);
+  background-color: rgba(255, 255, 255, 0.08);
   color: var(--tst-color-text-primary);
   font-family: var(--tst-font-body);
   font-size: var(--tst-text-body-sm);
@@ -231,9 +249,9 @@
 }
 
 .tst-button-secondary:hover:not(:disabled) {
-  background-color: var(--tst-color-bg-hover);
+  background-color: rgba(255, 255, 255, 0.16);
   border-color: var(--tst-color-border-strong);
-  color: var(--tst-color-text-primary);
+  color: #ffffff;
 }
 
 .tst-button-secondary:active:not(:disabled) {
