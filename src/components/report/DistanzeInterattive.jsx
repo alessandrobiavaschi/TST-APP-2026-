@@ -147,7 +147,7 @@ export default function DistanzeInterattive({
 
                   {isUserDominantFamily && (
                     <span className="fm-distanza-card__profile-badge" style={{ color: dist.coloreFamiglia }}>
-                      ✦ Nel tuo profilo prevalente
+                      Nel tuo profilo prevalente
                     </span>
                   )}
                 </div>
