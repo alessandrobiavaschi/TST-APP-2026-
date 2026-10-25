@@ -1,22 +1,26 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import ReportPassageHeader from './ReportPassageHeader.jsx'
 import { FAMIGLIE_TST } from '../../content/paroleTst.js'
 import SchedaParola from './parole/SchedaParola.jsx'
 import { nomeNatura } from './parole/definizioneParola.js'
 import './ParoleStatiAnimo.css'
 
-const paroleChiave = (natura) => (natura.paroleChiave || []).map((k) => (typeof k === 'string' ? k : k.parola))
+// «Nero / Negativo» nel documento è una coppia: la mostro come due parole, come negli aggettivi.
+const paroleChiave = (natura) => [...new Set((natura.paroleChiave || [])
+  .flatMap((k) => (typeof k === 'string' ? k : k.parola).split('/').map((p) => p.trim()))
+  .filter(Boolean))]
 const tutteLeParole = (natura) => [...new Set([...(natura.aggettivi || []), ...(natura.sostantivi || [])])]
 
 function Natura({ natura, aperte, onApri, onChiudi }) {
   const [tutte, setTutte] = useState(false)
+  const ref = useRef(null)
   const chiave = paroleChiave(natura)
   const elenco = tutte ? tutteLeParole(natura) : chiave.length ? chiave : tutteLeParole(natura).slice(0, 8)
   const totale = tutteLeParole(natura).length
   const aperteQui = aperte.filter((p) => elenco.includes(p))
 
   return (
-    <section className="parole-natura">
+    <section ref={ref} className="parole-natura">
       <h4 className="parole-natura__nome">{nomeNatura(natura)}</h4>
       <ul className="parole-natura__parole">
         {elenco.map((parola) => (
@@ -38,7 +42,11 @@ function Natura({ natura, aperte, onApri, onChiudi }) {
         </div>
       ) : null}
       {totale > elenco.length || tutte ? (
-        <button type="button" className="parole-natura__altre" onClick={() => setTutte((v) => !v)}>
+        <button type="button" className="parole-natura__altre" onClick={() => {
+          // Richiudendo una lista lunga, riporto la vista all'inizio della natura.
+          if (tutte) ref.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+          setTutte(!tutte)
+        }}>
           {tutte ? 'Mostra solo le parole chiave' : `Mostra tutte le parole (${totale})`}
         </button>
       ) : null}
