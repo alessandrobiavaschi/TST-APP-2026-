@@ -63,10 +63,26 @@ const NOMI_FAMIGLIE = {
 
 const CENTER_X = 600
 const CENTER_Y = 600
-const GRID_BASE_RADIUS = 135
-const GRID_STEP = 36
-const MIN_VISIBLE_TAGLIA = 1
+// Righello dei petali: lo 0 coincide con il bordo del nucleo, il 7 con l'anello esterno.
+// Un punteggio sopra zero sporge sempre dal nucleo; una famiglia a zero non ha petalo.
+const SCALE_ZERO_RADIUS = 48
+const SCALE_MAX_RADIUS = 351
+const GRID_STEP = (SCALE_MAX_RADIUS - SCALE_ZERO_RADIUS) / 7
+const radiusForScore = (score) => SCALE_ZERO_RADIUS + score * GRID_STEP
 const PETAL_THICKNESS_RY = 50 // Larghezza trasversale costante: scalatura dell'area rigorosamente lineare
+
+/**
+ * Punteggio 0–7 del petalo: lo stesso valore del radar delle famiglie (scala1a7),
+ * con 0 riservato alle famiglie senza punti.
+ */
+function petalScore(data, maxPeso) {
+  const raw = 'valoreAssoluto' in data ? Number(data.valoreAssoluto) || 0 : Number(data.peso) || 0
+  if (raw <= 0) return 0
+  const scala = Number(data.scala1a7)
+  if (Number.isFinite(scala) && scala > 0) return Math.min(7, scala)
+  const peso = Number(data.peso) || 0
+  return Math.min(7, Math.max(1, Math.round((peso / maxPeso) * 7)))
+}
 
 function formatScaleScore(score) {
   const roundedScore = Math.round((Number(score) || 0) * 10) / 10
@@ -128,9 +144,7 @@ export default function EmotionalShape({
   const familyRows = familiesData.map((data) => {
     const familyKey = data.family || 'Verde'
     const params = FAMILY_PARAMS[familyKey] || FAMILY_PARAMS.Verde
-    const score = Number(data.peso) || 0
-    const normalizedTaglia = 1 + (score / maxScore) * 6
-    const visibleTaglia = Math.max(normalizedTaglia, MIN_VISIBLE_TAGLIA)
+    const normalizedTaglia = petalScore(data, maxScore)
     return {
       familyKey,
       label: NOMI_FAMIGLIE[familyKey] || familyKey,
@@ -142,7 +156,6 @@ export default function EmotionalShape({
       labelY: params.labelY,
       textAnchor: params.textAnchor,
       normalizedTaglia,
-      visibleTaglia,
     }
   })
 
@@ -268,7 +281,7 @@ export default function EmotionalShape({
           {/* Griglia circolare dei livelli di intensità */}
           <g className="emotional-shape-grid">
             {[1, 2, 3, 4, 5, 6, 7].map((t) => {
-              const r = GRID_BASE_RADIUS + (t - 1) * GRID_STEP
+              const r = radiusForScore(t)
               const isMax = t === 7
               const isMedian = t === 4
               return (
@@ -289,13 +302,15 @@ export default function EmotionalShape({
           {/* Fascio dei Petali Emotivi */}
           <g style={{ mixBlendMode: 'screen' }}>
             {familyRows.map((row, idx) => {
-              const { familyKey, color, angle, visibleTaglia, label } = row
+              const { familyKey, color, angle, normalizedTaglia, label } = row
+              if (normalizedTaglia <= 0) return null
 
-              const outerTip = GRID_BASE_RADIUS + (visibleTaglia - 1) * GRID_STEP
+              const outerTip = radiusForScore(normalizedTaglia)
               const overlapCentro = 20 // Intersezione centrale per continuità organica
               const rx = (outerTip + overlapCentro) / 2
               const offset = rx - overlapCentro
-              const ry = PETAL_THICKNESS_RY // Larghezza trasversale costante: scalatura dell'area lineare
+              // Spessore costante; solo i petali corti si assottigliano per restare leggibili come petali.
+              const ry = Math.min(PETAL_THICKNESS_RY, rx * 0.6)
 
               // Calcolo coordinate del centro del petalo
               const rad = angle * (Math.PI / 180)
