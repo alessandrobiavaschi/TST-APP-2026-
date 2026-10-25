@@ -502,7 +502,7 @@ function App() {
         <header
           className={`app-header${location.pathname === '/' ? ' app-header--landing' : ''}${
             isReportPage || isTestFlowPage ? ' app-header--report' : ''
-          }`}
+          }${authReady ? '' : ' app-header--auth-pending'}`}
         >
             <div className="app-header-inner">
             <button

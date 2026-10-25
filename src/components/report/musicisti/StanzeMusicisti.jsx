@@ -26,11 +26,14 @@ const STANZA_BY_ID = Object.fromEntries(STANZE.map((s) => [s.id, s]))
 const areaDiStanza = (id) => AREE.find((a) => a.stanze.includes(id))
 
 /**
- * For Musicians & Music Lovers: tre livelli. Ingresso con quattro aree, ogni area con
- * poche stanze, ogni stanza divisa in piccoli riquadri. Cornice fissa e lettore comune.
+ * For Musicians & Music Lovers: si apre sulla lettura della famiglia prevalente.
+ * L'indice (quattro aree, ognuna con poche stanze) resta a un tocco dalla cornice fissa.
+ * Senza famiglia prevalente si parte dall'indice. Lettore comune a tutte le stanze.
  */
 export default function StanzeMusicisti({ famigliaPrevalente, accentColor, rawRecord, onClose, backButtonRef }) {
-  const [vista, setVista] = useState({ area: null, stanza: null })
+  const [vista, setVista] = useState(() =>
+    famigliaPrevalente ? { area: areaDiStanza('famiglia')?.id || null, stanza: 'famiglia' } : { area: null, stanza: null },
+  )
   const [famiglia, setFamiglia] = useState(famigliaPrevalente || ORDINE_FAMIGLIE[0])
   const [fileInAscolto, setFileInAscolto] = useState(null)
   const rootRef = useRef(null)
@@ -60,10 +63,7 @@ export default function StanzeMusicisti({ famigliaPrevalente, accentColor, rawRe
             </button>
           ) : null}
           {vista.area ? (
-            <button type="button" className="stanze-cornice__btn" onClick={() => vai(null)}>Ingresso</button>
-          ) : null}
-          {vista.stanza && area && area.stanze.length > 1 ? (
-            <button type="button" className="stanze-cornice__btn" onClick={() => vai(area.id)}>{area.titolo}</button>
+            <button type="button" className="stanze-cornice__btn" onClick={() => vai(null)}>Indice</button>
           ) : null}
         </div>
         {vista.stanza && area && area.stanze.length > 1 ? (

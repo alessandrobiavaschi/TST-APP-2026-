@@ -144,6 +144,19 @@
   gap: 0.5rem;
 }
 
+/* Finché Firebase non dice se l'utente è collegato, voci e pulsanti dell'header
+   restano invisibili: prima comparivano «Crea account / Login» e poi cambiavano. */
+.app-header-nav,
+.app-header-account {
+  transition: opacity 0.2s ease;
+}
+
+.app-header--auth-pending .app-header-nav,
+.app-header--auth-pending .app-header-account {
+  opacity: 0;
+  pointer-events: none;
+}
+
 .header-register-button,
 .header-login-button,
 .header-landing-start-button,
