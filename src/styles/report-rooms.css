@@ -52,8 +52,26 @@
 }
 
 .report-tst .profilo-chapter-block {
-  max-width: calc(var(--tst-measure) + 4rem);
+  /* Famiglia emotiva: il capitolo occupa tutta la larghezza della stanza,
+     allineato alle schede di navigazione sopra. */
+  width: 100%;
+  max-width: none;
   margin-inline: 0;
+}
+
+.report-tst .profilo-chapter-block .profilo-chapter-block__panel {
+  width: 100%;
+  max-width: none;
+}
+
+.report-tst .profilo-chapter-block :is(
+  .profilo-panel__paragraph,
+  .profilo-panel__lead,
+  .profilo-panel__connector,
+  .profilo-panel__list,
+  p:not([class])
+) {
+  max-width: none !important;
 }
 
 /* ── Apertura ─────────────────────────────────────────────────────── */
