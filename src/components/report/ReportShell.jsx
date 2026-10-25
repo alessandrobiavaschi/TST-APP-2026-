@@ -671,7 +671,7 @@ export default function ReportShell({
                       onClick={(event) => openModalita('rapporti', event)}
                       aria-label="Apri i quattro rapporti a schermo intero"
                     >
-                      <span>⛶ Apri a pagina intera</span>
+                      <span>Apri a pagina intera</span>
                     </button>
                   </div>
                   <RoomRevealContent>
@@ -826,7 +826,6 @@ export default function ReportShell({
               >
                 ← Torna al report principale
               </button>
-              <p className="report-dettaglio-eyebrow">TST — Livello di Approfondimento</p>
               <h1 className="report-dettaglio-title">{FAMIGLIE_GROUP?.title}</h1>
               {SECTION_INTROS.mappa.intro ? (
                 <p className="report-dettaglio-lead">{SECTION_INTROS.mappa.intro}</p>
@@ -875,7 +874,6 @@ export default function ReportShell({
             >
               ← Torna al report principale
             </button>
-            <p className="report-dettaglio-eyebrow">TST — Livello di Approfondimento</p>
             <h1 className="report-dettaglio-title">I quattro rapporti</h1>
             <p className="report-dettaglio-lead">
               Come la tua natura emotiva si esprime nei quattro ambiti: natura di base, rapporto con te stesso, rapporto con l'altro e rapporto con l'agire.
@@ -928,7 +926,6 @@ export default function ReportShell({
               >
                 ← Torna al report principale
               </button>
-              <p className="report-dettaglio-eyebrow">TST — Livello di Approfondimento</p>
               <h1 className="report-dettaglio-title">{COMPOSIZIONE_UI.title}</h1>
               <p className="report-dettaglio-lead">{COMPOSIZIONE_UI.lead}</p>
             </header>

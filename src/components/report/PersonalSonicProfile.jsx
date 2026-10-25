@@ -48,7 +48,6 @@ export default function PersonalSonicProfile({
   return (
     <section id="fm-impronta" className="fm-section fm-personal-profile" aria-labelledby="fm-impronta-title">
       <div className="fm-profile-hero">
-        <p className="fm-kicker">Sezione 1 · Impronta sonora</p>
         <h2 id="fm-impronta-title">La tua impronta nel suono</h2>
         <p className="fm-section-lead">
           La sintesi acustica del tuo test: la combinazione di risonanze ed energie emotive che orienta il tuo modo di ascoltare e produrre musica.
@@ -116,7 +115,6 @@ export default function PersonalSonicProfile({
 
       {/* 4 Pilastri del Suono della Famiglia */}
       <div className="fm-family-sound__head" style={{ marginTop: '48px' }}>
-        <p className="fm-kicker">Codice della Famiglia Prevalente · {schedaSuono.famiglia}</p>
         <h3 className="fm-family-sound__heading">I 4 pilastri del tuo suono</h3>
         <p className="fm-section-lead">
           «{schedaSuono.motto}». I timbri, il ritmo, le armonie e l'attitudine che definiscono il tuo approccio.

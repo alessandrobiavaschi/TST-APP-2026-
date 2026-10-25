@@ -45,7 +45,6 @@ export default function DistanzeInterattive({
   return (
     <section id="fm-distanze" className="fm-section fm-distanze" aria-labelledby="fm-distanze-title">
       <div className="fm-distanze__head">
-        <p className="fm-kicker">Sezione 3 · I 13 Intervalli sonori</p>
         <h2 id="fm-distanze-title">I 13 Intervalli musicali</h2>
         <p className="fm-section-lead">
           Dall'unisono all'ottava. Tocca «Ascolta» per attivare il sintetizzatore
@@ -89,7 +88,15 @@ export default function DistanzeInterattive({
                   aria-label={`Ascolta l'intervallo ${dist.nome}`}
                 >
                   <span className="fm-distanza-card__play-icon" aria-hidden="true">
-                    {isPlaying ? '■' : '▶'}
+                    {isPlaying ? (
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
+                        <rect x="2" y="2" width="8" height="8" rx="1" />
+                      </svg>
+                    ) : (
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
+                        <path d="M3 2.5v7l6-3.5-6-3.5z" />
+                      </svg>
+                    )}
                   </span>
                   <span className="fm-distanza-card__play-text">
                     {isPlaying ? 'In riproduzione…' : 'Ascolta'}
@@ -157,7 +164,7 @@ export default function DistanzeInterattive({
                     <span className="fm-distanza-card__status-indicator" />
                     <span>{dist.stato === 'in verifica' ? 'In verifica' : 'Consolidato'}</span>
                     <span className="fm-distanza-card__info-icon" aria-hidden="true">
-                      {isExpanded ? '▲' : 'ℹ'}
+                      {isExpanded ? 'Chiudi' : 'Note'}
                     </span>
                   </button>
                 </div>

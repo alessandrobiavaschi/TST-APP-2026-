@@ -22,7 +22,6 @@ export default function AreeMusicaliSection({ sezioniTest, plainLanguage = false
   return (
     <section className="fm-areas" aria-labelledby="fm-areas-heading">
       <div className="fm-areas__head">
-        <p className="fm-kicker">{APPROFONDIMENTO_UI.areeSectionEyebrow}</p>
         <h2 id="fm-areas-heading">{APPROFONDIMENTO_UI.areeSectionTitle}</h2>
         <p className="fm-section-lead">{APPROFONDIMENTO_UI.areeSectionIntro}</p>
       </div>

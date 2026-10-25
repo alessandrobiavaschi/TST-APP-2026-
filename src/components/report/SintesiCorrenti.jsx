@@ -7,7 +7,6 @@ import { REPORT_CRITERION, SINTESI_UI, formatAttivazione } from './reportUiCopy.
 import { normalizeFamigliaName } from '../../content/reportRestitution.js'
 import { FAMILY_THEME } from '../../config/reportFamilyTheme.js'
 import { GlossaryLink } from './ReportGlossaryDrawer.jsx'
-import PercorsoRisposte from './PercorsoRisposte.jsx'
 import FamigliePresenti from './FamigliePresenti.jsx'
 import MobileChartsViewer from './MobileChartsViewer.jsx'
 import { colors } from '../../design-tokens'
@@ -227,7 +226,7 @@ export default function SintesiCorrenti({
   sottocorrenti = [],
   onOpenGlossary: _onOpenGlossary,
   stepPrefix = '1',
-  rawRecord = null,
+  rawRecord: _rawRecord = null,
   globalProfileContract = null,
   contentCards = null,
 }) {
@@ -367,12 +366,6 @@ export default function SintesiCorrenti({
       tabLabel: 'Nature del Profilo',
       title: 'Le Nature delle Famiglie',
       subtitle: `Le sfumature qualitative emerse dal test: in evidenza la famiglia prevalente, ${dominantPresenceLabel.title}, insieme alle altre manifestazioni del profilo.`,
-    },
-    {
-      id: 'percorso',
-      tabLabel: 'Percorso Risposte',
-      title: 'Il Percorso dell’Ascolto',
-      subtitle: 'Tracciabilità delle 72 risposte sonore date durante la somministrazione del test.',
     },
   ]
 
@@ -680,12 +673,6 @@ export default function SintesiCorrenti({
                       Nessuna informazione aggiuntiva disponibile sulle nature per questa combinazione.
                     </p>
                   )}
-                </div>
-              )}
-
-              {currentSlide.id === 'percorso' && (
-                <div className="sintesi-slide-single-chart">
-                  <PercorsoRisposte record={rawRecord} />
                 </div>
               )}
             </div>

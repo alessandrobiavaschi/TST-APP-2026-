@@ -52,9 +52,6 @@ export default function MusiciansCompassNav({
                 className={`fm-compass-nav__tab ${isActive ? 'is-active' : ''}`}
                 onClick={() => handleClickRoom(room.id)}
               >
-                <span className="fm-compass-nav__icon" aria-hidden="true">
-                  {room.icon}
-                </span>
                 <span className="fm-compass-nav__label-full">{room.label}</span>
                 <span className="fm-compass-nav__label-short">{room.shortLabel}</span>
               </button>

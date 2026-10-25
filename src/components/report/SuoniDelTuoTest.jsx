@@ -2,7 +2,7 @@ import React, { useState, useMemo, useRef } from 'react'
 import { ASCOLTI_72_TEST } from '../../content/musicaPerMusicisti.js'
 
 const SEZIONI_CONFIG = [
-  { key: 'all', label: 'Tutti i 72 passi', icon: '✦', count: 72 },
+  { key: 'all', label: 'Tutti i 72 passi', count: 72 },
   { key: 'A_TIMBRO', label: 'Timbro', sub: '1–28', color: '#eab308', count: 28 },
   { key: 'B_INTERVALLI', label: 'Intervalli', sub: '29–41', color: '#60a5fa', count: 13 },
   { key: 'C_RITMO', label: 'Ritmo', sub: '42–51', color: '#f87171', count: 10 },
@@ -49,10 +49,8 @@ export default function SuoniDelTuoTest({
 }) {
   const [selectedSezione, setSelectedSezione] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
-  const [viewMode, setViewMode] = useState('list') // 'list' | 'grid'
   const [onlyAnswered, setOnlyAnswered] = useState(false)
   const [expandedSteps, setExpandedSteps] = useState({})
-  const [activeStepHighlight, setActiveStepHighlight] = useState(null)
   const stepRefs = useRef({})
 
   // Calcola statistiche risposte
@@ -64,36 +62,33 @@ export default function SuoniDelTuoTest({
       }
     })
     return {
-      total: 72,
       answered: answeredCount,
+      total: 72,
       pct: Math.round((answeredCount / 72) * 100),
     }
   }, [rawRecord])
 
-  // Filtraggio avanzato
+  // Filtra la lista dei 72 ascolti
   const filteredAscolti = useMemo(() => {
     return ASCOLTI_72_TEST.filter((ascolto) => {
-      const matchSezione =
-        selectedSezione === 'all' || ascolto.sezione === selectedSezione
-      if (!matchSezione) return false
-
+      if (selectedSezione !== 'all' && ascolto.sezione !== selectedSezione) {
+        return false
+      }
       const userResponse = getAnswerForStep(rawRecord, ascolto.passo)
-      if (onlyAnswered && !userResponse) return false
-
-      if (!searchQuery.trim()) return true
-
-      const q = searchQuery.toLowerCase().trim()
-      const passoStr = String(ascolto.passo)
-      const risposta = String(userResponse || '').toLowerCase()
-      const titolo = ascolto.titoloTecnico.toLowerCase()
-      const spiegazione = ascolto.spiegazione.toLowerCase()
-
-      return (
-        passoStr.includes(q) ||
-        titolo.includes(q) ||
-        spiegazione.includes(q) ||
-        risposta.includes(q)
-      )
+      if (onlyAnswered && !userResponse) {
+        return false
+      }
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase()
+        const matchTitle = ascolto.titoloTecnico.toLowerCase().includes(q)
+        const matchExpl = ascolto.spiegazione.toLowerCase().includes(q)
+        const matchResp = userResponse ? userResponse.toLowerCase().includes(q) : false
+        const matchPasso = String(ascolto.passo) === q.replace(/^p(asso)?\s*/i, '')
+        if (!matchTitle && !matchExpl && !matchResp && !matchPasso) {
+          return false
+        }
+      }
+      return true
     })
   }, [selectedSezione, searchQuery, onlyAnswered, rawRecord])
 
@@ -105,36 +100,23 @@ export default function SuoniDelTuoTest({
   }
 
   const expandAll = () => {
-    const all = {}
+    const next = {}
     filteredAscolti.forEach((a) => {
-      all[a.passo] = true
+      next[a.passo] = true
     })
-    setExpandedSteps(all)
+    setExpandedSteps(next)
   }
 
   const collapseAll = () => {
     setExpandedSteps({})
   }
 
-  const scrollToStep = (passo) => {
-    setActiveStepHighlight(passo)
-    const el = stepRefs.current[passo]
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    }
-    setExpandedSteps((prev) => ({ ...prev, [passo]: true }))
-  }
-
   return (
     <section id="fm-passi" className="fm-section fm-test-sounds" aria-labelledby="fm-test-sounds-title">
-      {/* Header Stanza */}
       <div className="fm-test-sounds__head">
-        <p className="fm-kicker">Sezione 4 · I 72 Ascolti del test</p>
-        <h2 id="fm-test-sounds-title">I 72 suoni del tuo test</h2>
+        <h2 id="fm-test-sounds-title">I 72 ascolti del test</h2>
         <p className="fm-section-lead">
-          La mappa tecnica di tutti i 72 brani e stimoli acustici ascoltati durante la prova:
-          il nome compositivo formale, il principio armonico e la risposta che hai
-          indicato durante la tua sessione.
+          La rassegna di tutti i 72 stimoli sonori del test con la struttura formale, il principio armonico e la risposta che hai indicato.
         </p>
       </div>
 
@@ -158,45 +140,7 @@ export default function SuoniDelTuoTest({
         </div>
       </div>
 
-      {/* Scrubber / Matrice visiva a 72 passi */}
-      <div className="fm-scrubber-wrapper" aria-label="Navigazione rapida a 72 passi">
-        <div className="fm-scrubber-header">
-          <span className="fm-scrubber-title">Indice cronologico dei 72 ascolti:</span>
-          <span className="fm-scrubber-hint">Seleziona un passo per saltare direttamente al dettaglio sonoro</span>
-        </div>
-        <div className="fm-scrubber-strip" role="list">
-          {ASCOLTI_72_TEST.map((ascolto) => {
-            const hasResp = Boolean(getAnswerForStep(rawRecord, ascolto.passo))
-            const isActive = activeStepHighlight === ascolto.passo
-            let secColor = '#94a3b8'
-            if (ascolto.sezione === 'A_TIMBRO') secColor = '#eab308'
-            if (ascolto.sezione === 'B_INTERVALLI') secColor = '#60a5fa'
-            if (ascolto.sezione === 'C_RITMO') secColor = '#f87171'
-            if (ascolto.sezione === 'D_MELODIA') secColor = '#4ade80'
-            if (ascolto.sezione === 'E_ARMONIA') secColor = '#c084fc'
-
-            return (
-              <button
-                key={ascolto.passo}
-                type="button"
-                className={`fm-scrubber-pip${hasResp ? ' is-answered' : ' is-empty'}${isActive ? ' is-active' : ''}`}
-                style={{
-                  '--step-color': secColor,
-                  ...(isActive ? { borderColor: accentColor, boxShadow: `0 0 10px ${accentColor}40` } : {}),
-                }}
-                onClick={() => scrollToStep(ascolto.passo)}
-                title={`Passo ${ascolto.passo} (${ascolto.sezioneNome}): ${ascolto.titoloTecnico}${hasResp ? ' · Risposta salvata' : ''}`}
-                aria-label={`Passo ${ascolto.passo}`}
-              >
-                {ascolto.passo}
-                {hasResp && <span className="fm-scrubber-pip__dot" style={{ backgroundColor: secColor }} />}
-              </button>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* Toolbar: Filtri per Sezione, Ricerca, Toggle Risposte e Modalità Vista */}
+      {/* Toolbar: Filtri per Sezione, Ricerca, Toggle Risposte */}
       <div className="fm-test-sounds__toolbar">
         <div className="fm-test-sounds__filters" role="tablist" aria-label="Filtra per area musicale">
           {SEZIONI_CONFIG.map((filtro) => {
@@ -240,47 +184,25 @@ export default function SuoniDelTuoTest({
               <span>Solo con risposta</span>
             </label>
 
-            <div className="fm-test-sounds__view-switcher" role="group" aria-label="Modalità di visualizzazione">
-              <button
-                type="button"
-                className={`fm-view-btn${viewMode === 'list' ? ' is-active' : ''}`}
-                onClick={() => setViewMode('list')}
-                title="Vista Elenco Compatto"
-              >
-                ☰ Elenco compatto
+            <div className="fm-test-sounds__bulk-expand">
+              <button type="button" className="fm-bulk-btn" onClick={expandAll}>
+                Espandi note
               </button>
-              <button
-                type="button"
-                className={`fm-view-btn${viewMode === 'grid' ? ' is-active' : ''}`}
-                onClick={() => setViewMode('grid')}
-                title="Vista Schede"
-              >
-                ⊞ Schede
+              <button type="button" className="fm-bulk-btn" onClick={collapseAll}>
+                Comprimi
               </button>
             </div>
-
-            {viewMode === 'list' && (
-              <div className="fm-test-sounds__bulk-expand">
-                <button type="button" className="fm-bulk-btn" onClick={expandAll}>
-                  Espandi note
-                </button>
-                <button type="button" className="fm-bulk-btn" onClick={collapseAll}>
-                  Comprimi
-                </button>
-              </div>
-            )}
           </div>
         </div>
       </div>
 
-      {/* ── RENDERING RISULTATI ── */}
-      {viewMode === 'list' ? (
+      {/* ── Box a scorrimento dei 72 passi ── */}
+      <div className="fm-test-sounds__scroll-container">
         <div className="fm-sounds-list" role="list">
           {filteredAscolti.map((ascolto) => {
             const userResponse = getAnswerForStep(rawRecord, ascolto.passo)
             const hasResponse = Boolean(userResponse)
             const isExpanded = Boolean(expandedSteps[ascolto.passo])
-            const isHighlighted = activeStepHighlight === ascolto.passo
 
             let secBadgeColor = '#94a3b8'
             if (ascolto.sezione === 'A_TIMBRO') secBadgeColor = '#eab308'
@@ -292,8 +214,8 @@ export default function SuoniDelTuoTest({
             return (
               <div
                 key={ascolto.passo}
-                ref={(el) => (stepRefs.current[ascolto.passo] = el)}
-                className={`fm-sound-row${isExpanded ? ' is-expanded' : ''}${isHighlighted ? ' is-highlighted' : ''}`}
+                ref={(el) => { stepRefs.current[ascolto.passo] = el }}
+                className={`fm-sound-row${isExpanded ? ' is-expanded' : ''}`}
                 role="listitem"
               >
                 <div
@@ -327,7 +249,7 @@ export default function SuoniDelTuoTest({
                     <h3 className="fm-sound-row__title">{ascolto.titoloTecnico}</h3>
                   </div>
 
-                  {/* Risposta dell'utente: chip compatto ed evidente */}
+                  {/* Risposta dell'utente */}
                   <div className="fm-sound-row__response">
                     {hasResponse ? (
                       <span className="fm-resp-pill is-filled" style={{ borderColor: `${accentColor}55` }}>
@@ -344,10 +266,10 @@ export default function SuoniDelTuoTest({
                     )}
                   </div>
 
-                  {/* Chevron per svelare la nota tecnica */}
+                  {/* Azione toggle nota */}
                   <div className="fm-sound-row__action">
-                    <span className="fm-sound-row__chevron" aria-hidden="true">
-                      {isExpanded ? '▲' : '▼'}
+                    <span className="fm-sound-row__toggle-text" aria-hidden="true">
+                      {isExpanded ? 'Chiudi' : 'Dettagli'}
                     </span>
                   </div>
                 </div>
@@ -357,7 +279,7 @@ export default function SuoniDelTuoTest({
                   <div className="fm-sound-row__details">
                     <div className="fm-sound-row__details-content">
                       <p className="fm-sound-row__explanation-text">
-                        <strong className="fm-sound-row__details-lead">Principio sonoro & armonico:</strong>{' '}
+                        <strong className="fm-sound-row__details-lead">Principio sonoro:</strong>{' '}
                         {ascolto.spiegazione}
                       </p>
                     </div>
@@ -367,60 +289,7 @@ export default function SuoniDelTuoTest({
             )
           })}
         </div>
-      ) : (
-        <div className="fm-test-sounds__grid" role="list">
-          {filteredAscolti.map((ascolto) => {
-            const userResponse = getAnswerForStep(rawRecord, ascolto.passo)
-            const hasResponse = Boolean(userResponse)
-            const isHighlighted = activeStepHighlight === ascolto.passo
-
-            let secColor = '#94a3b8'
-            if (ascolto.sezione === 'A_TIMBRO') secColor = '#eab308'
-            if (ascolto.sezione === 'B_INTERVALLI') secColor = '#60a5fa'
-            if (ascolto.sezione === 'C_RITMO') secColor = '#f87171'
-            if (ascolto.sezione === 'D_MELODIA') secColor = '#4ade80'
-            if (ascolto.sezione === 'E_ARMONIA') secColor = '#c084fc'
-
-            return (
-              <article
-                key={ascolto.passo}
-                ref={(el) => (stepRefs.current[ascolto.passo] = el)}
-                role="listitem"
-                className={`fm-sound-card-v2${isHighlighted ? ' is-highlighted' : ''}`}
-              >
-                <div className="fm-sound-card-v2__top">
-                  <div className="fm-sound-card-v2__badges">
-                    <span className="fm-sound-card-v2__step" style={{ color: secColor, borderColor: `${secColor}40` }}>
-                      Passo {String(ascolto.passo).padStart(2, '0')}
-                    </span>
-                    <span className="fm-sound-card-v2__section-tag">
-                      {ascolto.sezioneNome}
-                    </span>
-                  </div>
-
-                  <div className="fm-sound-card-v2__resp">
-                    {hasResponse ? (
-                      <span className="fm-resp-pill is-filled is-mini" style={{ borderColor: `${accentColor}55` }}>
-                        <span className="fm-resp-pill__label">Scelta:</span>
-                        <strong className="fm-resp-pill__value" style={{ color: accentColor }}>
-                          «{userResponse}»
-                        </strong>
-                      </span>
-                    ) : (
-                      <span className="fm-resp-pill is-empty is-mini">
-                        <span className="fm-resp-pill__empty-text">Non indicata</span>
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <h3 className="fm-sound-card-v2__title">{ascolto.titoloTecnico}</h3>
-                <p className="fm-sound-card-v2__explanation">{ascolto.spiegazione}</p>
-              </article>
-            )
-          })}
-        </div>
-      )}
+      </div>
 
       {filteredAscolti.length === 0 && (
         <div className="fm-test-sounds__empty">
