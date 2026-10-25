@@ -18,8 +18,6 @@ const LERP_FACTOR = 0.45
 const LOD_EDGES = [0.48, 0.85, 1.4]
 const LOD_TIERS = ['macro', 'meso-wide', 'meso', 'micro']
 const LOD_SETTLE_MS = 140
-// Dopo quanto tempo di mappa ferma la si ridisegna alla risoluzione giusta.
-const CANVAS_REST_MS = 220
 
 // Exact Cubic-Bezier solver for fly-to transitions: cubic-bezier(0.16, 1, 0.3, 1)
 function solveCubicBezier(x1, y1, x2, y2) {
@@ -812,6 +810,105 @@ function FloatingHolographicSlate({ word, onClose, onSelectWord, viewModel }) {
   )
 }
 
+// ─── Modal Guida Informativa "Cos'è la Galassia Lessicale" ──────────────────
+function LessicoMapGuideModal({ isOpen, onClose }) {
+  useEffect(() => {
+    if (!isOpen) return undefined
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isOpen, onClose])
+
+  if (!isOpen) return null
+
+  return (
+    <div
+      className="lessico-guide-overlay"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Guida alla Galassia Lessicale"
+    >
+      <div className="lessico-guide-card" onClick={(e) => e.stopPropagation()}>
+        <header className="lessico-guide-header">
+          <div>
+            <span className="lessico-guide-kicker">TST 2026 · GUIDA ALLA MAPPA</span>
+            <h2 className="lessico-guide-title">Che cos'è la Galassia Lessicale?</h2>
+          </div>
+          <button
+            type="button"
+            className="lessico-guide-close"
+            onClick={onClose}
+            aria-label="Chiudi guida"
+          >
+            ✕
+          </button>
+        </header>
+
+        <div className="lessico-guide-body">
+          <p className="lessico-guide-lead">
+            La <strong>Galassia Lessicale</strong> è la rappresentazione visiva dell'universo emotivo e psicofonico del TST ideata da <strong>Franco Mussida</strong> («Parole per TST»). Mappa le <strong>285 parole</strong> che descrivono le sfumature dell'animo umano, distribuite nei campi gravitazionali delle <strong>5 Famiglie Emotive</strong> e collegate ai nuclei delle <strong>12 Nature temperamentali</strong>.
+          </p>
+
+          <div className="lessico-guide-grid">
+            <div className="lessico-guide-item">
+              <span className="lessico-guide-icon" style={{ color: '#60a5fa' }} aria-hidden="true">●</span>
+              <div>
+                <h3>I 5 Ammassi Emotivi</h3>
+                <p>
+                  Le 5 regioni celesti corrispondono alle famiglie <em>Malinconica</em> (Blu), <em>Marziale</em> (Rosso), <em>Flemmatica</em> (Verde), <em>Entusiasta</em> (Giallo) e <em>Razionale</em> (Grigio). Le percentuali indicano la risonanza calcolata dal tuo test.
+                </p>
+              </div>
+            </div>
+
+            <div className="lessico-guide-item">
+              <span className="lessico-guide-icon" style={{ color: '#38bdf8' }} aria-hidden="true">✦</span>
+              <div>
+                <h3>Parole emerse dal tuo test</h3>
+                <p>
+                  I nodi più <strong>luminosi e pulsanti</strong> sono le parole emerse direttamente dalle tue scelte durante l'ascolto dei 72 brani: costituiscono la tua impronta lessicale personale.
+                </p>
+              </div>
+            </div>
+
+            <div className="lessico-guide-item">
+              <span className="lessico-guide-icon" style={{ color: '#a78bfa' }} aria-hidden="true">☍</span>
+              <div>
+                <h3>Nodi d'incrocio e costellazioni</h3>
+                <p>
+                  I filamenti collegano le parole ai nuclei delle 12 Nature. I nodi d'incrocio (simbolo ☍) sono parole ponte condivise tra più famiglie emotive differenti.
+                </p>
+              </div>
+            </div>
+
+            <div className="lessico-guide-item">
+              <span className="lessico-guide-icon" style={{ color: '#34d399' }} aria-hidden="true">✥</span>
+              <div>
+                <h3>Come esplorare</h3>
+                <p>
+                  Trascina per muoverti, scorri o usa i tasti <strong>+</strong> e <strong>−</strong> per zoomare. Clicca su qualsiasi parola per aprire la scheda di dettaglio e scoprire le tracce del test collegate.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="lessico-guide-actions">
+            <button
+              type="button"
+              className="lessico-guide-btn-primary"
+              onClick={onClose}
+            >
+              Ho capito, esplora la mappa
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── Tactical HUD Frequency Spectrum Filters ────────────────────────────────
 function AtlasLegend({ filterFamily, onFilterChange, viewModel }) {
   const totalWords = ATLAS_WORDS.length
@@ -958,6 +1055,7 @@ export default function LessicoAtlasView({
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1)
   const [showSearch, setShowSearch] = useState(false)
   const [expandedMobileFamily, setExpandedMobileFamily] = useState(null)
+  const [showInfoGuide, setShowInfoGuide] = useState(false)
 
   const canvasRef = useRef(null)
   const layerRef = useRef(null)
@@ -1777,8 +1875,6 @@ export default function LessicoAtlasView({
 
     let rafId = null
     let lastTransform = ''
-    let lastCameraMoveAt = 0
-    let canvasRested = false
     let lastInvScale = ''
     let lastScale = cameraRef.current.scale
     let lastScaleChangeAt = 0
@@ -1834,31 +1930,16 @@ export default function LessicoAtlasView({
       if (Math.abs(tgt.scale - cur.scale) < 0.0005) cur.scale = tgt.scale
       else cur.scale += (tgt.scale - cur.scale) * LERP_FACTOR
 
-      // 3. Transform Canvas
+      // 3. Transform Canvas — GPU hardware composited costante, zero tile dropout
       if (canvasRef.current) {
         const canvasEl = canvasRef.current
         const tx = cur.x.toFixed(2)
         const ty = cur.y.toFixed(2)
         const ts = cur.scale.toFixed(4)
         const cameraKey = `${tx}|${ty}|${ts}`
-        const nowMs = performance.now()
         if (cameraKey !== lastTransform) {
           lastTransform = cameraKey
-          lastCameraMoveAt = nowMs
-          if (canvasRested) {
-            canvasRested = false
-            canvasEl.style.willChange = 'transform'
-          }
           canvasEl.style.transform = `translate3d(${tx}px, ${ty}px, 0px) scale(${ts})`
-        } else if (!canvasRested && nowMs - lastCameraMoveAt > CANVAS_REST_MS) {
-          // Mappa ferma: trasformazione 2D e niente will-change, così il
-          // browser la ridisegna alla risoluzione dello zoom attuale. Senza
-          // questo passaggio, dopo uno zoom profondo teneva in memoria la
-          // mappa alla risoluzione massima (~1 GB): tasselli mancanti, blocchi
-          // neri e parole sparite tornando alla vista generale.
-          canvasRested = true
-          canvasEl.style.willChange = 'auto'
-          canvasEl.style.transform = `translate(${tx}px, ${ty}px) scale(${ts})`
         }
         // Le etichette di famiglia restano leggibili anche a zoom basso.
         // La variabile va scritta SOLO sulle 5 targhette: scritta sulla tela
@@ -1873,16 +1954,11 @@ export default function LessicoAtlasView({
         }
       }
 
-      // 4. Parallax Layers (deep starfield and nebulae)
+      // 4. Parallax Layers (deep starfield ancorato alla viewport a dimensione schermo)
       if (starfieldRef.current) {
-        const sX = -cur.x * 0.06
-        const sY = -cur.y * 0.06
-        starfieldRef.current.style.transform = `translate3d(${sX.toFixed(2)}px, ${sY.toFixed(2)}px, 0px) scale(1.2)`
-      }
-      if (nebulaeRef.current) {
-        const nX = -cur.x * 0.14
-        const nY = -cur.y * 0.14
-        nebulaeRef.current.style.transform = `translate3d(${nX.toFixed(2)}px, ${nY.toFixed(2)}px, 0px) scale(1.12)`
+        const sX = (-cur.x * 0.04).toFixed(2)
+        const sY = (-cur.y * 0.04).toFixed(2)
+        starfieldRef.current.style.transform = `translate3d(${sX}px, ${sY}px, 0px)`
       }
 
       // 5. Livello di dettaglio (LOD). Ogni cambio di livello ridisegna tutte
@@ -1970,17 +2046,34 @@ export default function LessicoAtlasView({
     >
       {/* Filtri per famiglia e ricerca */}
       <div className="lessico-atlas__controls lessico-atlas__controls--tactical">
+        <div className="lessico-atlas__identity">
+          <span className="lessico-atlas__identity-title">GALASSIA LESSICALE</span>
+          <span className="lessico-atlas__identity-sub">Atlante degli Stati d'Animo</span>
+        </div>
+
         <AtlasLegend
           filterFamily={filterFamily}
           onFilterChange={handleFilterChange}
           viewModel={viewModel}
         />
 
-        {/* Search & Dashboard toggle */}
-        <div
-          className="lessico-atlas__search-wrap"
-          style={{ display: 'flex', gap: '8px', alignItems: 'center' }}
-        >
+        <div className="lessico-atlas__actions-cluster">
+          <button
+            type="button"
+            className={`lessico-atlas__guide-pill${showInfoGuide ? ' is-active' : ''}`}
+            onClick={() => setShowInfoGuide((v) => !v)}
+            aria-label="Che cos'è la Galassia Lessicale?"
+            title="Che cos'è questa mappa?"
+          >
+            <span className="lessico-atlas__guide-pill-badge">?</span>
+            <span className="lessico-atlas__guide-pill-text">Cos'è</span>
+          </button>
+
+          {/* Search & Dashboard toggle */}
+          <div
+            className="lessico-atlas__search-wrap"
+            style={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+          >
           {showSearch && (
             <>
               <input
@@ -2081,6 +2174,7 @@ export default function LessicoAtlasView({
             {showSearch ? '✕' : '⌕'}
           </button>
         </div>
+        </div>
       </div>
 
       {!isMobile ? (
@@ -2158,21 +2252,22 @@ export default function LessicoAtlasView({
             {emergedWordIds.size ? ` · ${emergedWordIds.size} parole emerse dal test` : ''}
           </p>
 
+          {/* Layer 0: Deep Starfield ancorato al viewport (zero overflow, zero tile dropouts) */}
+          <div ref={starfieldRef} className="lessico-atlas__layer-stars" aria-hidden>
+            <div className="lessico-atlas__deep-stars" />
+            <div className="lessico-atlas__cosmic-dust" />
+          </div>
+
           <div
             ref={canvasRef}
             className="lessico-atlas__canvas"
           >
-            {/* Layer 0: Deep Starfield (Z-Depth -400px, 0.12x Parallax) */}
-            <div ref={starfieldRef} className="lessico-atlas__layer-stars" aria-hidden>
-              <div className="lessico-atlas__deep-stars" />
-              <div className="lessico-atlas__cosmic-dust" />
-            </div>
-
-            {/* Layer 1: Volumetric Gas Nebulae (Z-Depth -200px, 0.35x Parallax) */}
+            {/* Layer 1: Volumetric Gas Nebulae (Inside world canvas) */}
             <div ref={nebulaeRef} className="lessico-atlas__layer-nebulae" aria-hidden>
               {CONSTELLATION_DATA.spheres.map((sphere) => {
                 const isDimmed = filterFamily && filterFamily !== sphere.id
                 const isFocused = activeFamilyId === sphere.id
+                const radius = sphere.radius || 460
                 return (
                   <div
                     key={`nebula-${sphere.id}`}
@@ -2182,6 +2277,8 @@ export default function LessicoAtlasView({
                     style={{
                       left: `${sphere.x}px`,
                       top: `${sphere.y}px`,
+                      width: `${radius * 2}px`,
+                      height: `${radius * 2}px`,
                       '--nebula-color': sphere.color,
                     }}
                   />
@@ -2579,6 +2676,12 @@ export default function LessicoAtlasView({
           viewModel={viewModel}
         />
       ) : null}
+
+      {/* ── Modal Guida Informativa "Cos'è la Galassia Lessicale" ─────── */}
+      <LessicoMapGuideModal
+        isOpen={showInfoGuide}
+        onClose={() => setShowInfoGuide(false)}
+      />
     </div>
   )
 }
