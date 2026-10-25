@@ -1821,11 +1821,6 @@
   transform: translate(-50%, -4px);
 }
 
-.galassia-view--zoomed .galassia-view__planet-wrap--dimmed {
-  opacity: 0.1;
-  pointer-events: none;
-}
-
 .galassia-view__guide-star-label {
   width: max-content;
   min-width: 8rem;
@@ -2237,17 +2232,6 @@
 
 .galassia-view__guide-star-label {
   display: none !important;
-}
-
-.galassia-view--zoomed .galassia-view__planet-wrap--selected {
-  opacity: 1;
-  pointer-events: auto;
-  z-index: 22;
-}
-
-.galassia-view--zoomed .galassia-view__planet-wrap--dimmed {
-  opacity: 0.1 !important;
-  pointer-events: none;
 }
 
 .galassia-view__crt {
@@ -2877,20 +2861,6 @@
   --galassia-panel-height: clamp(200px, 28vh, 280px);
 }
 
-/* In zoom: nascondi solo i pianeti non selezionati; il selezionato anima verso il centro. */
-.galassia-view--zoomed .galassia-view__planet-wrap--dimmed {
-  opacity: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-}
-
-.galassia-view--zoomed .galassia-view__planet-wrap--selected {
-  z-index: 12;
-  opacity: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-}
-
 .galassia-view--zoomed .galassia-view__constellation {
   transform-origin: center center;
 }
@@ -2965,11 +2935,13 @@
   animation: none;
 }
 
-.galassia-view--zoomed .galassia-view__planet-wrap--dimmed {
-  opacity: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-  transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+/* Zoom su un pianeta: la costellazione sostituisce tutti i pianeti.
+   L'opacità la anima solo GalassiaView (planetLayout); qui si toglie l'interazione
+   e, a dissolvenza finita, il focus da tastiera. Al ritorno visibility torna subito. */
+.galassia-view--zoomed .galassia-view__planet-wrap {
+  visibility: hidden;
+  pointer-events: none;
+  transition: visibility 0s linear 0.22s;
 }
 
 .galassia-view {

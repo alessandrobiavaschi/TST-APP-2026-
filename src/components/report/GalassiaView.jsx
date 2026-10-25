@@ -3140,8 +3140,9 @@ export default function GalassiaView({
     pinchGestureRef.current = null
     mouseDragRef.current = null
     webkitGestureRef.current = null
-    const needsCameraReset =
-      isZoomedView || camera.scale !== 1 || camera.x !== 0 || camera.y !== 0
+    // In zoom la camera è già al centro (selectPlanet la azzera): aspettare solo se è stata spostata a mano.
+    const cam = cameraRef.current
+    const needsCameraReset = cam.scale !== 1 || cam.x !== 0 || cam.y !== 0
 
     if (needsCameraReset) {
       beginCameraAnimation()
@@ -3156,7 +3157,7 @@ export default function GalassiaView({
       setHoveredSubId(null)
       setHoveredCore(false)
     }, delay)
-  }, [beginCameraAnimation, reducedMotion, isZoomedView, camera])
+  }, [beginCameraAnimation, reducedMotion])
 
   const beginPinchGesture = () => {
     const layer = mapLayerRef.current
@@ -3353,6 +3354,20 @@ export default function GalassiaView({
     }
   }, [mapW, mapH, updateCanvasTransform])
 
+  // React registra onWheel come listener passivo: preventDefault non ha effetto e il gesto
+  // muoveva insieme mappa e pagina (il pizzico ingrandiva tutta la pagina). Listener nativo.
+  const wheelHandlerRef = useRef(handleMapWheel)
+  useEffect(() => {
+    wheelHandlerRef.current = handleMapWheel
+  })
+  useEffect(() => {
+    const layer = mapLayerRef.current
+    if (!layer) return undefined
+    const onWheel = (event) => wheelHandlerRef.current(event)
+    layer.addEventListener('wheel', onWheel, { passive: false })
+    return () => layer.removeEventListener('wheel', onWheel)
+  }, [isMobile, mapMode])
+
   const zoomCameraByStep = (direction) => {
     const viewport = mapCanvasRef.current || mapLayerRef.current
     if (!viewport) return
@@ -3474,7 +3489,9 @@ export default function GalassiaView({
       const scaleCap =
         mapH > 0 && mapH < 700 ? Math.min(selectedScale, 1.15) : selectedScale
       let scale = isZoomedView ? (isSelected ? scaleCap : 0.58) : effectiveSelectedId === node.id ? 1.08 : 1
-      let opacity = isZoomedView ? (isSelected ? 1 : 0.16) : effectiveSelectedId && effectiveSelectedId !== node.id ? 0.72 : 1
+      // In zoom la costellazione sostituisce i pianeti: sfumano tutti qui, in un solo punto
+      // (prima le regole CSS !important e questa animazione si contendevano l'opacità e i pianeti lampeggiavano).
+      let opacity = isZoomedView ? 0 : effectiveSelectedId && effectiveSelectedId !== node.id ? 0.72 : 1
 
       if (isZoomedView && isSelected) {
         pos = focusCenter
@@ -3892,7 +3909,6 @@ export default function GalassiaView({
         <div
           ref={mapLayerRef}
           className="galassia-view__map-layer relative z-10 h-full w-full"
-          onWheel={handleMapWheel}
           onPointerDown={handleMapPointerDown}
           onPointerMove={handleMapPointerMove}
           onPointerUp={endPointerGesture}
@@ -4082,9 +4098,9 @@ export default function GalassiaView({
                   height: constellationSize,
                   '--constellation-color': selectedNode.colore,
                 }}
-                initial={{ opacity: 0, scale: 0.28 }}
+                initial={{ opacity: 0, scale: 0.72 }}
                 animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.4 }}
+                exit={{ opacity: 0, scale: 0.72 }}
                 transition={
                   reducedMotion
                     ? { duration: 0 }
