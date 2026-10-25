@@ -7,6 +7,8 @@ import HeroScreen from './HeroScreen'
 import NavbarTST from './NavbarTST'
 import ReportSectionController from './ReportSectionController'
 import RoomRevealContent from './RoomRevealContent'
+import ReportChaptersIndex from './ReportChaptersIndex.jsx'
+import { ReportChapterTopBar, ReportChapterBottomNav } from './ReportChapterBar.jsx'
 import { getReportGroups, REPORT_GROUPS, SECTION_TO_GROUP } from './reportSectionsConfig'
 import { SHOW_TRACCE_SECTION, shouldShowEmotionalIntegrations } from './reportFeatureFlags.js'
 import { resolveReportScrollTarget, scrollToReportSection } from './reportSectionNavUtils'
@@ -259,7 +261,11 @@ export default function ReportShell({
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [modalita, changeModalita])
 
+  const [viewMode, setViewMode] = useState('capitoli')
+  const [activeChapterId, setActiveChapterId] = useState(null)
+
   const enterReport = useCallback(() => {
+    setActiveChapterId('report-group-profilo-generale')
     const target = document.getElementById('report-group-profilo-generale')
     if (target) {
       target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' })
@@ -329,6 +335,89 @@ export default function ReportShell({
       return true
     })
   }, [profiloEmotivo?.dominantFamilyKey, profiloEmotivo?.contentCards, globalProfileContract?.ranking])
+
+  const chaptersList = useMemo(() => {
+    const list = [
+      {
+        id: 'report-group-profilo-generale',
+        step: 1,
+        title: 'Il profilo in sintesi',
+        subtitle: 'Risultato e distribuzione delle famiglie emotive',
+        readingFocus: 'Distribuzione ed Energie',
+        intro: 'La composizione e il radar delle 5 famiglie emotive misurate dal test.',
+      },
+      {
+        id: 'stanza-identita',
+        step: 2,
+        title: 'Identità emotiva e natura',
+        subtitle: 'Natura, racconto, risorse e ombre',
+        readingFocus: 'Il Temperamento Profondo',
+        intro: 'Come la natura emotiva prende forma nel racconto personale, con i suoi punti di forza e le sue ombre.',
+      },
+      {
+        id: 'report-tst-rapporti',
+        step: 3,
+        title: 'I quattro rapporti',
+        subtitle: 'Natura emotiva di base, sé, altro, agire',
+        readingFocus: 'Le 4 Relazioni',
+        intro: 'Come abiti il dialogo con te stesso, con l’altro, con il mondo e con l’ignoto.',
+      },
+      {
+        id: 'report-group-forza-correnti',
+        step: 4,
+        title: 'Come hai vissuto il test',
+        subtitle: 'Il portato esperienziale: simpatia, antipatia, indifferenza',
+        readingFocus: 'Portato Esperienziale',
+        intro: 'Le tre quote che misurano la tua attitudine di accoglienza, rifiuto o neutralità durante l’ascolto.',
+      },
+      {
+        id: 'report-group-educazione',
+        step: 5,
+        title: 'Le parole degli stati d’animo',
+        subtitle: 'Il vocabolario delle tue emozioni nelle 5 famiglie',
+        readingFocus: 'Lessico Emotivo',
+        intro: 'L’alfabeto emotivo di 285 parole organizzato per famiglie e nature emotive.',
+      },
+    ]
+
+    if (showEmotionalIntegrations) {
+      list.push({
+        id: 'report-group-relazioni',
+        step: 6,
+        title: 'Famiglie in relazione',
+        subtitle: 'Le cinque famiglie emotive in dialogo',
+        readingFocus: 'Dinamiche tra Famiglie',
+        intro: 'Come le diverse componenti emotive del tuo profilo dialogano o entrano in tensione tra loro.',
+      })
+    }
+
+    return list
+  }, [showEmotionalIntegrations])
+
+  const currentChapterIndex = useMemo(() => {
+    if (!activeChapterId) return 0
+    const idx = chaptersList.findIndex((c) => c.id === activeChapterId)
+    return idx >= 0 ? idx : 0
+  }, [activeChapterId, chaptersList])
+
+  const currentChapter = chaptersList[currentChapterIndex]
+  const prevChapter = currentChapterIndex > 0 ? chaptersList[currentChapterIndex - 1] : null
+  const nextChapter = currentChapterIndex < chaptersList.length - 1 ? chaptersList[currentChapterIndex + 1] : null
+
+  const handleSelectChapter = useCallback((chapterId) => {
+    setActiveChapterId(chapterId)
+    if (chapterId) {
+      window.history.pushState(null, '', `#${chapterId}`)
+      window.requestAnimationFrame(() => {
+        const el = document.getElementById(chapterId)
+        if (el) {
+          el.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' })
+        }
+      })
+    } else {
+      window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' })
+    }
+  }, [reduceMotion])
 
   const correntData = useMemo(
     () => buildCorrentDataFromRecord(rawRecord || {}),
@@ -435,6 +524,10 @@ export default function ReportShell({
         onScrollComplete?.()
         return
       }
+      const targetChap = chaptersList.find((c) => c.id === groupId || c.id === sectionId)
+      if (targetChap) {
+        setActiveChapterId(targetChap.id)
+      }
       const targetId = SCROLL_ANCHOR_BY_GROUP[groupId]
         || resolveReportScrollTarget(sectionId, { groupOpen: STATIC_GROUP_OPEN })
       scrollToReportSection(targetId, {
@@ -444,7 +537,7 @@ export default function ReportShell({
         },
       })
     },
-    [changeModalita],
+    [changeModalita, chaptersList],
   )
 
   if (!hasReportData) {
@@ -585,10 +678,62 @@ export default function ReportShell({
             <p className="report-tst-layout-hint sr-only">{REPORT_NAV_UI.layoutHint}</p>
             <div className="report-tst-body__groups report-rooms-container">
 
-              <ReportPartDivider index={1} title="La tua identità emotiva" />
+              {/* ── INDICE DEI CAPITOLI (Modalità Programma) ── */}
+              {viewMode === 'capitoli' && activeChapterId === null && (
+                <ReportChaptersIndex
+                  chapters={chaptersList}
+                  onSelectChapter={handleSelectChapter}
+                  onOpenModalita={(mode) => openModalita(mode)}
+                  onSwitchToContinuous={() => setViewMode('continuo')}
+                  accentColor={correnteColore}
+                  userName={utente?.nome || ''}
+                  dominantFamily={profilo?.correnteDominante || ''}
+                  dominantNature={profilo?.disposizione || ''}
+                />
+              )}
+
+              {/* ── TOPBAR SINGOLO CAPITOLO (Modalità Programma) ── */}
+              {viewMode === 'capitoli' && activeChapterId !== null && (
+                <ReportChapterTopBar
+                  currentIndex={currentChapterIndex}
+                  totalChapters={chaptersList.length}
+                  currentTitle={currentChapter?.title || ''}
+                  onBackToIndex={() => {
+                    setActiveChapterId(null)
+                    window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' })
+                  }}
+                  onPrevChapter={() => prevChapter && handleSelectChapter(prevChapter.id)}
+                  onNextChapter={() => nextChapter && handleSelectChapter(nextChapter.id)}
+                  onSwitchToContinuous={() => setViewMode('continuo')}
+                  accentColor={correnteColore}
+                />
+              )}
+
+              {/* ── BANNER MODALITÀ CONTINUA ── */}
+              {viewMode === 'continuo' && (
+                <div className="report-continuous-mode-banner">
+                  <span>Modalità continua attiva (scorrimento unico di tutto il report)</span>
+                  <button
+                    type="button"
+                    className="report-continuous-mode-btn"
+                    onClick={() => {
+                      setViewMode('capitoli')
+                      setActiveChapterId(null)
+                    }}
+                  >
+                    Passa a lettura per capitoli
+                  </button>
+                </div>
+              )}
+
+              {viewMode === 'continuo' ? <ReportPartDivider index={1} title="La tua identità emotiva" /> : null}
 
               {/* ── STANZA 01: OVERVIEW FULLSCREEN (Sintesi + Grafici) ── */}
-              <section id="report-group-profilo-generale" className="report-room-section report-room-section--overview">
+              <section
+                id="report-group-profilo-generale"
+                className={`report-room-section report-room-section--overview${activeChapterId === 'report-group-profilo-generale' ? ' is-active-chapter' : ''}`}
+                style={viewMode === 'capitoli' && activeChapterId !== 'report-group-profilo-generale' ? { display: 'none' } : undefined}
+              >
                 <RoomOpening
                   step={roomMetaById['report-group-profilo-generale']?.stepLabel}
                   title={roomMetaById['report-group-profilo-generale']?.title || SINTESI_UI.title}
@@ -625,12 +770,28 @@ export default function ReportShell({
                     />
                   </Suspense>
                 </RoomRevealContent>
+                {viewMode === 'capitoli' && activeChapterId === 'report-group-profilo-generale' && (
+                  <ReportChapterBottomNav
+                    prevChapter={null}
+                    nextChapter={chaptersList[1]}
+                    onSelectChapter={handleSelectChapter}
+                    onBackToIndex={() => {
+                      setActiveChapterId(null)
+                      window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' })
+                    }}
+                    accentColor={correnteColore}
+                  />
+                )}
               </section>
 
-              <SectionDivider />
+              {viewMode === 'continuo' ? <SectionDivider /> : null}
 
               {/* ── STANZA 02: IDENTITÀ EMOTIVA E NATURA ────────────────── */}
-              <section id="stanza-identita" className="report-room-section report-room-section--identita">
+              <section
+                id="stanza-identita"
+                className={`report-room-section report-room-section--identita${activeChapterId === 'stanza-identita' ? ' is-active-chapter' : ''}`}
+                style={viewMode === 'capitoli' && activeChapterId !== 'stanza-identita' ? { display: 'none' } : undefined}
+              >
                 <RoomOpening
                   step={roomMetaById['stanza-identita']?.stepLabel}
                   title={roomMetaById['stanza-identita']?.title}
@@ -651,12 +812,28 @@ export default function ReportShell({
                     allFamiliesEntryBtnRef={tutteFamiglieEntryBtnRef}
                   />
                 </RoomRevealContent>
+                {viewMode === 'capitoli' && activeChapterId === 'stanza-identita' && (
+                  <ReportChapterBottomNav
+                    prevChapter={chaptersList[0]}
+                    nextChapter={chaptersList[2]}
+                    onSelectChapter={handleSelectChapter}
+                    onBackToIndex={() => {
+                      setActiveChapterId(null)
+                      window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' })
+                    }}
+                    accentColor={correnteColore}
+                  />
+                )}
               </section>
 
-              <ReportPartDivider index={2} title="Come cambia nei diversi ambiti" />
+              {viewMode === 'continuo' ? <ReportPartDivider index={2} title="Come cambia nei diversi ambiti" /> : null}
 
               {/* ── STANZA 03: I QUATTRO RAPPORTI ───────────────────────── */}
-              <section id="report-tst-rapporti" className="report-room-section report-room-section--rapporti">
+              <section
+                id="report-tst-rapporti"
+                className={`report-room-section report-room-section--rapporti${activeChapterId === 'report-tst-rapporti' ? ' is-active-chapter' : ''}`}
+                style={viewMode === 'capitoli' && activeChapterId !== 'report-tst-rapporti' ? { display: 'none' } : undefined}
+              >
                 <RoomOpening
                   step={roomMetaById['report-tst-rapporti']?.stepLabel}
                   title={roomMetaById['report-tst-rapporti']?.title}
@@ -686,12 +863,28 @@ export default function ReportShell({
                     </Suspense>
                   </RoomRevealContent>
                 </div>
+                {viewMode === 'capitoli' && activeChapterId === 'report-tst-rapporti' && (
+                  <ReportChapterBottomNav
+                    prevChapter={chaptersList[1]}
+                    nextChapter={chaptersList[3]}
+                    onSelectChapter={handleSelectChapter}
+                    onBackToIndex={() => {
+                      setActiveChapterId(null)
+                      window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' })
+                    }}
+                    accentColor={correnteColore}
+                  />
+                )}
               </section>
 
-              <SectionDivider />
+              {viewMode === 'continuo' ? <SectionDivider /> : null}
 
               {/* ── STANZA 04: PORTATO ESPERIENZIALE E VITALITÀ ─────────── */}
-              <section id="report-group-forza-correnti" className="report-room-section report-room-section--portato">
+              <section
+                id="report-group-forza-correnti"
+                className={`report-room-section report-room-section--portato${activeChapterId === 'report-group-forza-correnti' ? ' is-active-chapter' : ''}`}
+                style={viewMode === 'capitoli' && activeChapterId !== 'report-group-forza-correnti' ? { display: 'none' } : undefined}
+              >
                 <RoomOpening
                   step={roomMetaById['report-group-forza-correnti']?.stepLabel}
                   title={roomMetaById['report-group-forza-correnti']?.title}
@@ -709,12 +902,28 @@ export default function ReportShell({
                     <TracceReport correnteColore={correnteColore} />
                   </>
                 ) : null}
+                {viewMode === 'capitoli' && activeChapterId === 'report-group-forza-correnti' && (
+                  <ReportChapterBottomNav
+                    prevChapter={chaptersList[2]}
+                    nextChapter={chaptersList[4]}
+                    onSelectChapter={handleSelectChapter}
+                    onBackToIndex={() => {
+                      setActiveChapterId(null)
+                      window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' })
+                    }}
+                    accentColor={correnteColore}
+                  />
+                )}
               </section>
 
-              <SectionDivider />
+              {viewMode === 'continuo' ? <SectionDivider /> : null}
 
               {/* ── STANZA 05: LESSICO EMOTIVO E PAROLE ─────────────────── */}
-              <section id="report-group-educazione" className="report-room-section report-room-section--lessico">
+              <section
+                id="report-group-educazione"
+                className={`report-room-section report-room-section--lessico${activeChapterId === 'report-group-educazione' ? ' is-active-chapter' : ''}`}
+                style={viewMode === 'capitoli' && activeChapterId !== 'report-group-educazione' ? { display: 'none' } : undefined}
+              >
                 <RoomOpening
                   step={roomMetaById['report-group-educazione']?.stepLabel}
                   title={roomMetaById['report-group-educazione']?.title}
@@ -726,14 +935,30 @@ export default function ReportShell({
                     naturaPrevalente={profilo?.disposizione || ''}
                   />
                 </RoomRevealContent>
+                {viewMode === 'capitoli' && activeChapterId === 'report-group-educazione' && (
+                  <ReportChapterBottomNav
+                    prevChapter={chaptersList[3]}
+                    nextChapter={chaptersList[5] || null}
+                    onSelectChapter={handleSelectChapter}
+                    onBackToIndex={() => {
+                      setActiveChapterId(null)
+                      window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' })
+                    }}
+                    accentColor={correnteColore}
+                  />
+                )}
               </section>
 
               {showEmotionalIntegrations ? (
                 <>
-                  <SectionDivider />
+                  {viewMode === 'continuo' ? <SectionDivider /> : null}
 
                   {/* ── STANZA 06: FAMIGLIE EMOTIVE IN RELAZIONE ────────────── */}
-                  <section id="report-group-relazioni" className="report-room-section report-room-section--preview">
+                  <section
+                    id="report-group-relazioni"
+                    className={`report-room-section report-room-section--preview${activeChapterId === 'report-group-relazioni' ? ' is-active-chapter' : ''}`}
+                    style={viewMode === 'capitoli' && activeChapterId !== 'report-group-relazioni' ? { display: 'none' } : undefined}
+                  >
                     <RoomOpening
                       step={roomMetaById['report-group-relazioni']?.stepLabel}
                       title={roomMetaById['report-group-relazioni']?.title}
@@ -750,6 +975,18 @@ export default function ReportShell({
                         Apri Famiglie in relazione
                       </button>
                     </RoomRevealContent>
+                    {viewMode === 'capitoli' && activeChapterId === 'report-group-relazioni' && (
+                      <ReportChapterBottomNav
+                        prevChapter={chaptersList[4]}
+                        nextChapter={null}
+                        onSelectChapter={handleSelectChapter}
+                        onBackToIndex={() => {
+                          setActiveChapterId(null)
+                          window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' })
+                        }}
+                        accentColor={correnteColore}
+                      />
+                    )}
                   </section>
                 </>
               ) : null}
@@ -760,6 +997,7 @@ export default function ReportShell({
                 as="section"
                 className="report-final-views"
                 aria-label="Altre letture del report"
+                style={viewMode === 'capitoli' ? { display: 'none' } : undefined}
               >
                 <button
                   ref={musiciansEntryBtnRef}
