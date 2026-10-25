@@ -8,6 +8,7 @@ import { normalizeFamigliaName } from '../../content/reportRestitution.js'
 import { FAMILY_THEME } from '../../config/reportFamilyTheme.js'
 import { GlossaryLink } from './ReportGlossaryDrawer.jsx'
 import PercorsoRisposte from './PercorsoRisposte.jsx'
+import FamigliePresenti from './FamigliePresenti.jsx'
 import MobileChartsViewer from './MobileChartsViewer.jsx'
 import { colors } from '../../design-tokens'
 import './SintesiCorrenti.css'
@@ -227,6 +228,8 @@ export default function SintesiCorrenti({
   onOpenGlossary: _onOpenGlossary,
   stepPrefix = '1',
   rawRecord = null,
+  globalProfileContract = null,
+  contentCards = null,
 }) {
   const prefersReducedMotion = useReducedMotion()
   const [activeDetailFamily, setActiveDetailFamily] = useState(null)
@@ -417,6 +420,7 @@ export default function SintesiCorrenti({
               title={SINTESI_UI.distribuzioneTitle}
               accentColor={accentColor}
             />
+            <FamigliePresenti globalProfileContract={globalProfileContract} contentCards={contentCards} />
           </div>
 
           {/* Sottocorrenti racchiuse in cassetto nerd chiuso di default */}
@@ -503,6 +507,7 @@ export default function SintesiCorrenti({
               title={SINTESI_UI.distribuzioneTitle}
               accentColor={accentColor}
             />
+            <FamigliePresenti globalProfileContract={globalProfileContract} contentCards={contentCards} />
           </div>
 
           <div className="sintesi-charts-slides-container">

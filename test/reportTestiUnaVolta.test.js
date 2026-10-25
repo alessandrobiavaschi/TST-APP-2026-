@@ -28,11 +28,16 @@ test('le frasi ridondanti eliminate non ricompaiono nel report', async () => {
   }
 })
 
-test('la composizione del profilo è descritta solo nell’apertura della stanza 01', async () => {
+// Decisione del 25/10/2026: le quote delle famiglie stanno nei grafici (1.2);
+// l'apertura della stanza 01 dice solo la famiglia prevalente e la sua sintesi.
+test('la composizione del profilo è descritta solo nei grafici della stanza 01', async () => {
   const profilo = await read('src/components/report/ProfiloEmotivo.jsx')
   assert.ok(!profilo.includes('composizioneSintesi'), 'la stanza 02 non deve ripetere la composizione')
+  const presenti = await read('src/components/report/FamigliePresenti.jsx')
+  assert.match(presenti, /Nel tuo profilo sono presenti le famiglie/)
   const intro = await read('src/components/report/SintesiIntro.jsx')
-  assert.match(intro, /Nel tuo profilo sono presenti le famiglie/)
+  assert.doesNotMatch(intro, /Nel tuo profilo sono presenti le famiglie/)
+  assert.match(intro, /getSintesiFamiglia/)
 })
 
 test('il sommario di ogni stanza ha una sola fonte (REPORT_GROUPS)', async () => {

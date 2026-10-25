@@ -592,8 +592,6 @@ export default function ReportShell({
                   <SintesiIntro
                     famiglia={profilo?.famiglia || ''}
                     sottodisposizione={sottodisposizionePrevalente}
-                    globalProfileContract={globalProfileContract}
-                    contentCards={profiloEmotivo?.contentCards}
                   />
                 </RoomOpening>
                 <RoomRevealContent id="report-tst-sintesi" className="report-tst-section-anchor">
@@ -615,6 +613,8 @@ export default function ReportShell({
                       portato={portato}
                       stepPrefix="1"
                       rawRecord={rawRecord}
+                      globalProfileContract={globalProfileContract}
+                      contentCards={profiloEmotivo?.contentCards}
                     />
                   </Suspense>
                 </RoomRevealContent>
