@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import ReportPassageHeader from './ReportPassageHeader.jsx'
 import EmotionalShape from './EmotionalShape.jsx'
@@ -238,6 +238,19 @@ export default function SintesiCorrenti({
   const [isMobileViewport, setIsMobileViewport] = useState(false)
   const [chartsViewerOpen, setChartsViewerOpen] = useState(false)
   const [desktopSlideIndex, setDesktopSlideIndex] = useState(0)
+  // Altezza reale dello stage dei grafici su desktop: il radar la riceve in px
+  // così il grafico occupa lo spazio disponibile senza sforare lo schermo.
+  const chartStageRef = useRef(null)
+  const [chartStageHeight, setChartStageHeight] = useState(0)
+  useEffect(() => {
+    const node = chartStageRef.current
+    if (!node || typeof ResizeObserver === 'undefined') return undefined
+    const update = () => setChartStageHeight(Math.round(node.clientHeight))
+    update()
+    const observer = new ResizeObserver(update)
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [isMobileViewport])
   const closeChartsViewer = useCallback(() => setChartsViewerOpen(false), [])
   React.useEffect(() => {
     if (typeof window === 'undefined') return undefined
@@ -491,6 +504,18 @@ export default function SintesiCorrenti({
     )
   }
 
+  const lastSlideIndex = desktopSlides.length - 1
+  const goToSlide = (idx) => setDesktopSlideIndex(Math.min(lastSlideIndex, Math.max(0, idx)))
+  const handleTabsKeyDown = (event) => {
+    const step = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[event.key]
+    if (!step) return
+    event.preventDefault()
+    const next = Math.min(lastSlideIndex, Math.max(0, desktopSlideIndex + step))
+    goToSlide(next)
+    event.currentTarget.querySelectorAll('[role="tab"]')[next]?.focus()
+  }
+  const radarHeight = chartStageHeight > 0 ? Math.max(300, chartStageHeight) : 420
+
   return (
     <section
       id="prima-sintesi-risultato"
@@ -500,7 +525,7 @@ export default function SintesiCorrenti({
     >
       <div className="sintesi-correnti__summary">
         <div id="report-tst-grafici" className="report-tst-section-anchor sintesi-correnti__container sintesi-correnti__order-visuals">
-          <div className="sintesi-family-intro" style={{ borderBottom: 'none', paddingBottom: 0 }}>
+          <div className="sintesi-family-intro sintesi-family-intro--charts">
             <ReportPassageHeader
               step={`${stepPrefix}.2`}
               eyebrow="Distribuzione"
@@ -510,187 +535,159 @@ export default function SintesiCorrenti({
             <FamigliePresenti globalProfileContract={globalProfileContract} contentCards={contentCards} />
           </div>
 
-          <div className="sintesi-charts-slides-container">
-            {/* Navigatore Tabs in alto */}
-            <div className="sintesi-charts-tabs" role="tablist" aria-label="Grafici della sintesi">
-              {desktopSlides.map((slide, idx) => (
+          {/* Tavola dei grafici: comandi a sinistra, grafico a destra, tutto in una schermata */}
+          <div className="sintesi-charts-board">
+            <div className="sintesi-charts-board__side">
+              <div
+                className="sintesi-charts-tabs sintesi-charts-tabs--vertical"
+                role="tablist"
+                aria-label="Grafici della sintesi"
+                aria-orientation="vertical"
+                onKeyDown={handleTabsKeyDown}
+              >
+                {desktopSlides.map((slide, idx) => (
+                  <button
+                    key={slide.id}
+                    id={`sintesi-chart-tab-${slide.id}`}
+                    type="button"
+                    role="tab"
+                    aria-selected={desktopSlideIndex === idx}
+                    aria-controls="sintesi-chart-panel"
+                    tabIndex={desktopSlideIndex === idx ? 0 : -1}
+                    className={`sintesi-charts-tab-btn${desktopSlideIndex === idx ? ' is-active' : ''}`}
+                    onClick={() => goToSlide(idx)}
+                  >
+                    {slide.tabLabel}
+                  </button>
+                ))}
+              </div>
+
+              <div className="sintesi-charts-board__caption">
+                <h3 className="sintesi-chart-slide-title">{currentSlide.title}</h3>
+                <p className="sintesi-chart-slide-subtitle">{currentSlide.subtitle}</p>
+              </div>
+
+              <div className="sintesi-charts-board__nav">
                 <button
-                  key={slide.id}
                   type="button"
-                  role="tab"
-                  aria-selected={desktopSlideIndex === idx}
-                  className={`sintesi-charts-tab-btn${desktopSlideIndex === idx ? ' is-active' : ''}`}
-                  onClick={() => setDesktopSlideIndex(idx)}
+                  className="sintesi-chart-arrow-btn"
+                  onClick={() => goToSlide(desktopSlideIndex - 1)}
+                  disabled={desktopSlideIndex === 0}
+                  aria-label="Grafico precedente"
                 >
-                  {slide.tabLabel}
+                  ‹
                 </button>
-              ))}
+                <span className="sintesi-charts-board__counter" aria-live="polite">
+                  {desktopSlideIndex + 1} di {desktopSlides.length}
+                </span>
+                <button
+                  type="button"
+                  className="sintesi-chart-arrow-btn"
+                  onClick={() => goToSlide(desktopSlideIndex + 1)}
+                  disabled={desktopSlideIndex === lastSlideIndex}
+                  aria-label="Grafico successivo"
+                >
+                  ›
+                </button>
+              </div>
             </div>
 
-            {/* Stage della slide */}
-            <div className="sintesi-chart-slide-stage">
-              {/* Header */}
-              <div className="sintesi-chart-slide-header">
-                <div className="sintesi-chart-slide-header-left">
-                  <h3 className="sintesi-chart-slide-title">{currentSlide.title}</h3>
-                  <p className="sintesi-chart-slide-subtitle">{currentSlide.subtitle}</p>
+            <div
+              ref={chartStageRef}
+              id="sintesi-chart-panel"
+              role="tabpanel"
+              aria-labelledby={`sintesi-chart-tab-${currentSlide.id}`}
+              className={`sintesi-charts-board__stage sintesi-charts-board__stage--${currentSlide.id}`}
+            >
+              {currentSlide.id === 'geometria' && (
+                <div className="sintesi-charts-board__fill">
+                  <EmotionalShape
+                    familiesData={ordered}
+                    height="100%"
+                    activeFamilyKey={hoveredFamilyKey || activeDetailFamily?.familyKey}
+                    onFamilySelect={selectFamilyByKey}
+                    onFamilyHover={setHoveredFamilyKey}
+                  />
                 </div>
-                <div className="sintesi-chart-slide-arrows">
-                  <button
-                    type="button"
-                    className="sintesi-chart-arrow-btn"
-                    onClick={() => setDesktopSlideIndex((prev) => Math.max(0, prev - 1))}
-                    disabled={desktopSlideIndex === 0}
-                    aria-label="Slide precedente"
-                  >
-                    ‹
-                  </button>
-                  <button
-                    type="button"
-                    className="sintesi-chart-arrow-btn"
-                    onClick={() => setDesktopSlideIndex((prev) => Math.min(desktopSlides.length - 1, prev + 1))}
-                    disabled={desktopSlideIndex === desktopSlides.length - 1}
-                    aria-label="Slide successiva"
-                  >
-                    ›
-                  </button>
+              )}
+
+              {currentSlide.id === 'radar' && (
+                <div className="sintesi-correnti__total-radar sintesi-charts-board__fill">
+                  <ReportRadarChart
+                    data={totalScoreRadarData}
+                    color={accentColor}
+                    height={radarHeight}
+                    outerRadius="76%"
+                    domain={[1, 7]}
+                    className="sintesi-correnti__total-radar-chart"
+                    ariaLabel="Grafico radar del total score delle cinque famiglie emotive"
+                    onFamilySelect={selectFamilyByKey}
+                  />
                 </div>
-              </div>
+              )}
 
-              {/* Contenuto della slide */}
-              <div className="sintesi-chart-slide-content">
-                {currentSlide.id === 'geometria' && (
-                  <div className="sintesi-slide-single-chart">
-                    <div style={{ width: '100%', maxWidth: 640, minHeight: 480 }}>
-                      <EmotionalShape 
-                        familiesData={ordered} 
-                        height="100%"
-                        activeFamilyKey={hoveredFamilyKey || activeDetailFamily?.familyKey}
-                        onFamilySelect={(key) => {
-                          const radarItem = totalScoreRadarData.find((d) => d.familyKey === key)
-                          if (radarItem) setActiveDetailFamily(radarItem)
-                        }}
-                        onFamilyHover={setHoveredFamilyKey}
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {currentSlide.id === 'radar' && (
-                  <div className="sintesi-slide-single-chart">
-                    <div className="sintesi-correnti__total-radar" style={{ width: '100%', maxWidth: 580 }}>
-                      <ReportRadarChart
-                        data={totalScoreRadarData}
-                        color={accentColor}
-                        height={420}
-                        outerRadius="72%"
-                        domain={[1, 7]}
-                        className="sintesi-correnti__total-radar-chart"
-                        ariaLabel="Grafico radar del total score delle cinque famiglie emotive"
-                        onFamilySelect={(key) => {
-                          const radarItem = totalScoreRadarData.find((d) => d.familyKey === key)
-                          if (radarItem) setActiveDetailFamily(radarItem)
-                        }}
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {currentSlide.id === 'nature' && (
-                  <div className="sintesi-slide-single-chart" style={{ width: '100%' }}>
-                    {natureGroups.length > 0 ? (
-                      <div className="sintesi-correnti__nature-grid">
-                        {natureGroups.map((group) => (
-                          <div
-                            key={group.family}
-                            className={`sintesi-correnti__subcurrents${group.isDominant ? ' is-dominant' : ''}`}
-                            style={{ width: '100%', marginTop: 0, '--nature-accent': FAMILY_REF[group.family]?.color }}
-                          >
-                            <div className="sintesi-correnti__subcurrents-head">
-                              <span className="sintesi-correnti__subcurrents-title">
-                                {group.title}
-                                {group.isDominant ? <span className="sintesi-correnti__nature-tag">prevalente</span> : null}
-                              </span>
-                              <span className="sintesi-correnti__subcurrents-count" title="Peso della famiglia sul totale del profilo">
-                                {Math.round(group.peso)}%
-                              </span>
-                            </div>
-                            <ul className="sintesi-correnti__subcurrents-list">
-                              {group.subs.map((sub) => (
-                                <li key={sub.rawKey} className="sintesi-correnti__subcurrent">
-                                  <div className="sintesi-correnti__subcurrent-info">
-                                    <span
-                                      className="sintesi-correnti__subcurrent-dot"
-                                      style={{ backgroundColor: sub.colore }}
-                                      aria-hidden="true"
-                                    />
-                                    <span className="sintesi-correnti__subcurrent-name">{sottocorrenteDisplayName(sub.nome)}</span>
-                                    <span className="sintesi-correnti__subcurrent-value" title={sub.misurabile !== false ? REPORT_CRITERION.attivazione : "Non misurabile nel test"}>
-                                      {sub.misurabile !== false ? pctAttivazione(sub.percentuale) : 'N.D.'}
-                                    </span>
-                                  </div>
-                                  <div className="sintesi-correnti__subcurrent-track">
-                                    <motion.div
-                                      className="sintesi-correnti__subcurrent-fill"
-                                      style={{ backgroundColor: sub.colore }}
-                                      initial={prefersReducedMotion ? false : { width: '0%' }}
-                                      whileInView={{ width: `${sub.misurabile !== false ? Math.min(100, Math.max(0, sub.percentuale)) : 0}%` }}
-                                      viewport={viewport}
-                                      transition={{ duration: 0.5, ease: "easeOut" }}
-                                    />
-                                  </div>
-                                </li>
-                              ))}
-                            </ul>
+              {currentSlide.id === 'nature' && (
+                <div className="sintesi-slide-single-chart" style={{ width: '100%' }}>
+                  {natureGroups.length > 0 ? (
+                    <div className="sintesi-correnti__nature-grid">
+                      {natureGroups.map((group) => (
+                        <div
+                          key={group.family}
+                          className={`sintesi-correnti__subcurrents${group.isDominant ? ' is-dominant' : ''}`}
+                          style={{ width: '100%', marginTop: 0, '--nature-accent': FAMILY_REF[group.family]?.color }}
+                        >
+                          <div className="sintesi-correnti__subcurrents-head">
+                            <span className="sintesi-correnti__subcurrents-title">
+                              {group.title}
+                              {group.isDominant ? <span className="sintesi-correnti__nature-tag">prevalente</span> : null}
+                            </span>
+                            <span className="sintesi-correnti__subcurrents-count" title="Peso della famiglia sul totale del profilo">
+                              {Math.round(group.peso)}%
+                            </span>
                           </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p style={{ color: 'rgba(248, 250, 252, 0.7)', textAlign: 'center', padding: '2rem 1rem' }}>
-                        Nessuna informazione aggiuntiva disponibile sulle nature per questa combinazione.
-                      </p>
-                    )}
-                  </div>
-                )}
-
-                {currentSlide.id === 'percorso' && (
-                  <div className="sintesi-slide-single-chart" style={{ width: '100%' }}>
-                    <PercorsoRisposte record={rawRecord} />
-                  </div>
-                )}
-              </div>
-
-              {/* Footer della slide */}
-              <div className="sintesi-chart-slide-footer">
-                <button
-                  type="button"
-                  className="sintesi-chart-nav-text-btn"
-                  onClick={() => setDesktopSlideIndex((prev) => Math.max(0, prev - 1))}
-                  disabled={desktopSlideIndex === 0}
-                >
-                  ← Precedente
-                </button>
-                <div className="sintesi-chart-slide-dots" aria-label="Indicatori slide">
-                  {desktopSlides.map((slide, idx) => (
-                    <button
-                      key={slide.id}
-                      type="button"
-                      className={`sintesi-chart-dot${desktopSlideIndex === idx ? ' is-active' : ''}`}
-                      onClick={() => setDesktopSlideIndex(idx)}
-                      aria-label={`Vai a slide ${idx + 1}: ${slide.tabLabel}`}
-                      aria-current={desktopSlideIndex === idx ? 'true' : undefined}
-                    />
-                  ))}
+                          <ul className="sintesi-correnti__subcurrents-list">
+                            {group.subs.map((sub) => (
+                              <li key={sub.rawKey} className="sintesi-correnti__subcurrent">
+                                <div className="sintesi-correnti__subcurrent-info">
+                                  <span
+                                    className="sintesi-correnti__subcurrent-dot"
+                                    style={{ backgroundColor: sub.colore }}
+                                    aria-hidden="true"
+                                  />
+                                  <span className="sintesi-correnti__subcurrent-name">{sottocorrenteDisplayName(sub.nome)}</span>
+                                  <span className="sintesi-correnti__subcurrent-value" title={sub.misurabile !== false ? REPORT_CRITERION.attivazione : "Non misurabile nel test"}>
+                                    {sub.misurabile !== false ? pctAttivazione(sub.percentuale) : 'N.D.'}
+                                  </span>
+                                </div>
+                                <div className="sintesi-correnti__subcurrent-track">
+                                  <motion.div
+                                    className="sintesi-correnti__subcurrent-fill"
+                                    style={{ backgroundColor: sub.colore }}
+                                    initial={prefersReducedMotion ? false : { width: '0%' }}
+                                    whileInView={{ width: `${sub.misurabile !== false ? Math.min(100, Math.max(0, sub.percentuale)) : 0}%` }}
+                                    viewport={viewport}
+                                    transition={{ duration: 0.5, ease: "easeOut" }}
+                                  />
+                                </div>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p style={{ color: 'rgba(248, 250, 252, 0.7)', textAlign: 'center', padding: '2rem 1rem' }}>
+                      Nessuna informazione aggiuntiva disponibile sulle nature per questa combinazione.
+                    </p>
+                  )}
                 </div>
-                <button
-                  type="button"
-                  className="sintesi-chart-nav-text-btn"
-                  onClick={() => setDesktopSlideIndex((prev) => Math.min(desktopSlides.length - 1, prev + 1))}
-                  disabled={desktopSlideIndex === desktopSlides.length - 1}
-                >
-                  Successiva →
-                </button>
-              </div>
+              )}
+
+              {currentSlide.id === 'percorso' && (
+                <div className="sintesi-slide-single-chart">
+                  <PercorsoRisposte record={rawRecord} />
+                </div>
+              )}
             </div>
           </div>
         </div>

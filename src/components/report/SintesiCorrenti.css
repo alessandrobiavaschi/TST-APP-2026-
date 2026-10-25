@@ -1636,33 +1636,59 @@
 }
 
 /* =====================================================================
-   SINTESI CHARTS SLIDES CONTAINER — Acoustic Glass Carousel
+   TAVOLA DEI GRAFICI (desktop) — comandi a sinistra, grafico a destra.
+   Altezza agganciata allo schermo: si studia il grafico senza scorrere.
    ===================================================================== */
 
-.sintesi-charts-slides-container {
-  width: 100%;
-  max-width: 1080px;
-  margin: 1.5rem auto 2.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
+.sintesi-family-intro--charts {
+  margin-bottom: 0;
 }
 
-/* Navigatore Tabs in alto */
+.sintesi-family-intro--charts .report-passage-header {
+  margin-bottom: 0;
+}
+
+.sintesi-charts-board {
+  --sc-board-h: clamp(22rem, calc(100svh - var(--report-sticky-offset, 120px) - 7rem), 42rem);
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto var(--space-md, 32px);
+  display: grid;
+  grid-template-columns: minmax(14rem, 17rem) minmax(0, 1fr);
+  gap: var(--space-md, 32px);
+  align-items: stretch;
+}
+
+/* Se sopra c'è la frase sulle famiglie presenti, il grafico cede l'altezza di quelle righe */
+.sintesi-correnti__order-visuals:has(.famiglie-presenti) .sintesi-charts-board {
+  --sc-board-h: clamp(22rem, calc(100svh - var(--report-sticky-offset, 120px) - 10.5rem), 42rem);
+}
+
+.sintesi-family-intro--charts .famiglie-presenti {
+  margin: var(--space-xs, 8px) 0 0;
+}
+
+.sintesi-charts-board__side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm, 16px);
+  min-width: 0;
+}
+
+/* Schede */
 .sintesi-charts-tabs {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  padding: 0.35rem;
+  gap: var(--space-xs, 8px);
+  padding: var(--space-xs, 8px);
   background: rgba(13, 17, 26, 0.6);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 999px;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  width: fit-content;
-  margin: 0 auto;
+}
+
+.sintesi-charts-tabs--vertical {
+  flex-direction: column;
+  border-radius: 16px;
 }
 
 .sintesi-charts-tab-btn {
@@ -1670,10 +1696,11 @@
   border: 1px solid transparent;
   color: rgba(248, 250, 252, 0.7);
   font-family: var(--font-body, 'Manrope', sans-serif);
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  padding: 0.45rem 1rem;
-  border-radius: 999px;
+  text-align: left;
+  padding: var(--space-xs, 8px) var(--space-sm, 16px);
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.25s ease;
 }
@@ -1683,6 +1710,11 @@
   background: rgba(255, 255, 255, 0.06);
 }
 
+.sintesi-charts-tab-btn:focus-visible {
+  outline: 2px solid var(--sc-accent, #38bdf8);
+  outline-offset: 2px;
+}
+
 .sintesi-charts-tab-btn.is-active {
   background: color-mix(in srgb, var(--sc-accent, #38bdf8) 22%, rgba(255, 255, 255, 0.12));
   border-color: color-mix(in srgb, var(--sc-accent, #38bdf8) 60%, rgba(255, 255, 255, 0.3));
@@ -1690,51 +1722,19 @@
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
 }
 
-/* Stage della slide — Senza box di riempimento nidificati (max un livello) */
-.sintesi-chart-slide-stage {
-  position: relative;
-  background: transparent;
-  border: none;
-  border-radius: 0;
-  padding: 0.5rem 0;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  box-shadow: none;
+/* Titolo e descrizione del grafico corrente */
+.sintesi-charts-board__caption {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  min-height: 520px;
-}
-
-/* Header della slide */
-.sintesi-chart-slide-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding-bottom: 1rem;
-}
-
-.sintesi-chart-slide-header-left {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-}
-
-.sintesi-chart-slide-badge {
-  font-family: var(--font-body, 'Manrope', sans-serif);
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--sc-accent, #38bdf8);
+  gap: var(--space-xs, 8px);
+  padding-top: var(--space-sm, 16px);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .sintesi-chart-slide-title {
   margin: 0;
   font-family: var(--font-display, 'Newsreader', serif);
-  font-size: clamp(1.3rem, 2vw, 1.7rem);
+  font-size: clamp(1.2rem, 1.6vw, 1.5rem);
   font-weight: 500;
   color: #ffffff;
   line-height: 1.25;
@@ -1744,15 +1744,21 @@
   margin: 0;
   font-size: 0.88rem;
   color: rgba(248, 250, 252, 0.65);
-  line-height: 1.4;
-  max-width: 680px;
+  line-height: 1.55;
 }
 
-.sintesi-chart-slide-arrows {
+/* Frecce */
+.sintesi-charts-board__nav {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  flex-shrink: 0;
+  gap: var(--space-sm, 16px);
+  margin-top: auto;
+}
+
+.sintesi-charts-board__counter {
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+  color: rgba(248, 250, 252, 0.6);
 }
 
 .sintesi-chart-arrow-btn {
@@ -1782,13 +1788,36 @@
   cursor: not-allowed;
 }
 
-/* Contenuto della slide */
-.sintesi-chart-slide-content {
-  flex: 1;
+/* Stage del grafico: altezza fissa = una schermata */
+.sintesi-charts-board__stage {
+  position: relative;
+  height: var(--sc-board-h);
+  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+}
+
+/* Le liste (Nature, Percorso) scorrono dentro lo stage se mai non entrano */
+.sintesi-charts-board__stage--nature,
+.sintesi-charts-board__stage--percorso {
+  align-items: flex-start;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.sintesi-charts-board__fill {
   width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sintesi-charts-board__fill .emotional-shape-container {
+  height: 100%;
 }
 
 .sintesi-slide-single-chart {
@@ -1799,62 +1828,52 @@
   justify-content: center;
 }
 
-/* Footer slide con dot */
-.sintesi-chart-slide-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding-top: 0.85rem;
+.sintesi-charts-board__stage--percorso .sintesi-slide-single-chart {
+  min-height: 100%;
 }
 
-.sintesi-chart-nav-text-btn {
-  background: transparent;
-  border: none;
-  color: rgba(248, 250, 252, 0.7);
-  font-family: var(--font-body, 'Manrope', sans-serif);
-  font-size: 0.82rem;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 0.4rem 0.8rem;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-}
+/* Schermi stretti o bassi: comandi in alto, grafico sotto */
+@media (max-width: 1023px) {
+  .sintesi-charts-board {
+    --sc-board-h: clamp(20rem, calc(100svh - var(--report-sticky-offset, 120px) - 15rem), 36rem);
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-sm, 16px);
+  }
 
-.sintesi-chart-nav-text-btn:hover:not(:disabled) {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.06);
-}
+  .sintesi-correnti__order-visuals:has(.famiglie-presenti) .sintesi-charts-board {
+    --sc-board-h: clamp(20rem, calc(100svh - var(--report-sticky-offset, 120px) - 18rem), 36rem);
+  }
 
-.sintesi-chart-nav-text-btn:disabled {
-  opacity: 0.2;
-  cursor: not-allowed;
-}
+  .sintesi-charts-board__side {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
 
-.sintesi-chart-slide-dots {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
+  .sintesi-charts-tabs--vertical {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    border-radius: 999px;
+    width: fit-content;
+    margin: 0 auto;
+  }
 
-.sintesi-chart-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  transition: all 0.25s ease;
-}
+  .sintesi-charts-tabs--vertical .sintesi-charts-tab-btn {
+    border-radius: 999px;
+    text-align: center;
+  }
 
-.sintesi-chart-dot.is-active {
-  background: var(--sc-accent, #38bdf8);
-  width: 22px;
-  border-radius: 999px;
-  box-shadow: 0 0 8px var(--sc-accent, #38bdf8);
-}
+  .sintesi-charts-board__caption {
+    padding-top: 0;
+    border-top: none;
+  }
 
+  .sintesi-charts-board__nav {
+    margin-top: 0;
+  }
+}
 
 /* Slide «Nature»: una scheda per ogni famiglia */
 .sintesi-correnti__nature-grid {
@@ -1895,4 +1914,10 @@
 .sintesi-correnti__nature-grid .sintesi-correnti__subcurrents-count {
   min-width: 2.6rem;
   padding: 0 0.4rem;
+}
+
+@media (min-width: 1024px) {
+  .sintesi-charts-board__stage--nature .sintesi-correnti__nature-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
