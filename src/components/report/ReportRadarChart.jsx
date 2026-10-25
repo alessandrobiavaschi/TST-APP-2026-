@@ -108,6 +108,7 @@ export function ReportRadarAxisTick({ x, y, payload, textAnchor, cx, cy }) {
  * @param {string} [ariaLabel]
  * @param {string} [scaleLabel] — didascalia unità (es. "Attivazione %")
  * @param {[number, number]} [domain] — dominio assi radiali
+ * @param {number} [tickCount] — numero di anelli della griglia (es. 8 per 0–7 a passo 1)
  */
 export default function ReportRadarChart({
   data = [],
@@ -118,6 +119,7 @@ export default function ReportRadarChart({
   ariaLabel = 'Grafico radar delle cinque correnti emotive',
   scaleLabel = '',
   domain = null,
+  tickCount = undefined,
   onFamilySelect = null,
   // true nel visore a tutto schermo: usa height/outerRadius così come arrivano
   fullscreen = false,
@@ -185,6 +187,7 @@ export default function ReportRadarChart({
             <PolarRadiusAxis
               angle={90}
               domain={domain}
+              tickCount={tickCount}
               tick={{ fill: '#64748b', fontSize: isMobile ? 12 : 10 }}
               axisLine={false}
             />

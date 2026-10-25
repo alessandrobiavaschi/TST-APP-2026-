@@ -140,7 +140,9 @@ function buildTotalScoreRadarData(totalScores = {}, correnti = [], assignedFamil
     return TOTAL_SCORE_RADAR_AXES.map((axis) => {
       const c = correnti.find(item => String(item.familyKey || '').toLowerCase() === axis.key.toLowerCase())
       const rawValue = c ? (Number(c.valoreAssoluto) || 0) : 0
-      const valore = c ? (Number(c.scala1a7) || 0) : 1
+      // Il centro del radar vale 0: lo occupa solo una famiglia senza punti.
+      // Ogni punteggio sopra zero resta visibile, ad almeno 1/7 del raggio.
+      const valore = rawValue > 0 ? (Number(c.scala1a7) || 1) : 0
       const distributionPercent = c ? (Number(c.peso) || 0) : 0
       return {
         corrente: axis.corrente,
@@ -181,7 +183,7 @@ function buildTotalScoreRadarData(totalScores = {}, correnti = [], assignedFamil
 
   return TOTAL_SCORE_RADAR_AXES.map((axis) => {
     const rawValue = valuesByKey[axis.key] || 0
-    const valore = max > 0 ? Math.min(7, Math.max(1, Math.round((rawValue / max) * 7))) : 1
+    const valore = max > 0 && rawValue > 0 ? Math.min(7, Math.max(1, Math.round((rawValue / max) * 7))) : 0
     const distributionPercent = sumRaw > 0 ? Number(((rawValue / sumRaw) * 100).toFixed(1)) : 0
     const familyLabels = {
       blu: 'Malinconica',
@@ -398,7 +400,8 @@ export default function SintesiCorrenti({
               color={accentColor}
               height={460}
               outerRadius="80%"
-              domain={[1, 7]}
+              domain={[0, 7]}
+              tickCount={8}
               fullscreen
               className="sintesi-correnti__total-radar-chart"
               ariaLabel="Grafico radar del total score delle cinque famiglie emotive"
@@ -611,7 +614,8 @@ export default function SintesiCorrenti({
                     color={accentColor}
                     height={radarHeight}
                     outerRadius="76%"
-                    domain={[1, 7]}
+                    domain={[0, 7]}
+                    tickCount={8}
                     className="sintesi-correnti__total-radar-chart"
                     ariaLabel="Grafico radar del total score delle cinque famiglie emotive"
                     onFamilySelect={selectFamilyByKey}
