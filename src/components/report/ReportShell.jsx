@@ -58,6 +58,7 @@ function readModalitaFromHash() {
   }
   if (window.location.hash === '#for-musicians') return 'for-musicians'
   if (window.location.hash === '#famiglie') return 'famiglie'
+  if (window.location.hash === '#rapporti') return 'rapporti'
   if (window.location.hash === '#tutte-famiglie') return 'tutte-famiglie'
   if (window.location.hash === '#grafici' || window.location.hash === '#visore-grafici') return 'grafici'
   return 'report'
@@ -106,6 +107,8 @@ export default function ReportShell({
   // Refs for accessibility focus restoration
   const famiglieEntryBtnRef = useRef(null)
   const famiglieBackButtonRef = useRef(null)
+  const rapportiEntryBtnRef = useRef(null)
+  const rapportiBackButtonRef = useRef(null)
   const tutteFamiglieEntryBtnRef = useRef(null)
   const tutteFamiglieBackButtonRef = useRef(null)
   const musiciansEntryBtnRef = useRef(null)
@@ -205,6 +208,8 @@ export default function ReportShell({
     if (modalita === 'report') {
       if (previousMode === 'famiglie') {
         requestAnimationFrame(() => famiglieEntryBtnRef.current?.focus())
+      } else if (previousMode === 'rapporti') {
+        requestAnimationFrame(() => rapportiEntryBtnRef.current?.focus())
       } else if (previousMode === 'tutte-famiglie') {
         requestAnimationFrame(() => tutteFamiglieEntryBtnRef.current?.focus())
       } else if (previousMode === 'for-musicians') {
@@ -216,6 +221,8 @@ export default function ReportShell({
       requestAnimationFrame(() => musiciansBackButtonRef.current?.focus())
     } else if (modalita === 'famiglie') {
       requestAnimationFrame(() => famiglieBackButtonRef.current?.focus())
+    } else if (modalita === 'rapporti') {
+      requestAnimationFrame(() => rapportiBackButtonRef.current?.focus())
     } else if (modalita === 'tutte-famiglie') {
       requestAnimationFrame(() => tutteFamiglieBackButtonRef.current?.focus())
     } else if (modalita === 'galassia') {
@@ -656,6 +663,17 @@ export default function ReportShell({
                   lead={roomMetaById['report-tst-rapporti']?.subtitle}
                 />
                 <div id="stanza-rapporti" ref={rapportiAnchorRef} className="report-tst-section-anchor">
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+                    <button
+                      ref={rapportiEntryBtnRef}
+                      type="button"
+                      className="report-room-expand-btn"
+                      onClick={(event) => openModalita('rapporti', event)}
+                      aria-label="Apri i quattro rapporti a schermo intero"
+                    >
+                      <span>⛶ Apri a pagina intera</span>
+                    </button>
+                  </div>
                   <RoomRevealContent>
                     <Suspense fallback={<TstLoader variant="inline" tone="dark" color={correnteColore} label={REPORT_SHELL_UI.loadingInline} />}>
                       <QuattroRapporti
@@ -835,6 +853,58 @@ export default function ReportShell({
           </div>
         </div>
       ) : null}
+
+      {/* ── STANZA SEPARATA: I QUATTRO RAPPORTI A TUTTO SCHERMO ─────────── */}
+      <div
+        tabIndex="-1"
+        className={`report-tst-dettaglio-layer${modalita === 'rapporti' ? ' is-open' : ''}`}
+        data-report-mode="rapporti"
+        role="dialog"
+        aria-modal={modalita === 'rapporti'}
+        aria-label="I quattro rapporti"
+        aria-hidden={modalita !== 'rapporti'}
+        inert={modalita !== 'rapporti' ? true : undefined}
+      >
+        <div className="report-tst-dettaglio-container">
+          <header className="report-dettaglio-header">
+            <button
+              ref={rapportiBackButtonRef}
+              type="button"
+              className="report-dettaglio-back-btn"
+              onClick={() => changeModalita('report')}
+            >
+              ← Torna al report principale
+            </button>
+            <p className="report-dettaglio-eyebrow">TST — Livello di Approfondimento</p>
+            <h1 className="report-dettaglio-title">I quattro rapporti</h1>
+            <p className="report-dettaglio-lead">
+              Come la tua natura emotiva si esprime nei quattro ambiti: natura di base, rapporto con te stesso, rapporto con l'altro e rapporto con l'agire.
+            </p>
+          </header>
+
+          <div className="report-detail-navigation__workspace">
+            <Suspense fallback={<TstLoader variant="inline" tone="dark" color={correnteColore} label={REPORT_SHELL_UI.loadingInline} />}>
+              <QuattroRapporti
+                rapporti={rapporti}
+                coloriCorrenti={coloriCorrenti}
+                profilo={profilo}
+                sottocorrenti={sottocorrenti}
+                step="3"
+              />
+            </Suspense>
+          </div>
+
+          <footer className="report-dettaglio-footer">
+            <button
+              type="button"
+              className="report-dettaglio-back-btn report-dettaglio-back-btn--bottom"
+              onClick={() => changeModalita('report')}
+            >
+              ← Torna al report principale
+            </button>
+          </footer>
+        </div>
+      </div>
 
       {/* ── STANZA SEPARATA: LE ALTRE FAMIGLIE DEL PROFILO ──────────────────── */}
       {allOtherFamilies.length > 0 ? (

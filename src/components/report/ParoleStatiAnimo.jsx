@@ -1,58 +1,90 @@
-import React, { useRef, useState } from 'react'
+import React, { useId, useRef, useState } from 'react'
 import ReportPassageHeader from './ReportPassageHeader.jsx'
-import { FAMIGLIA_BY_COLOR } from '../../config/tstSistema.js'
+import { FAMIGLIA_BY_COLOR, nomeNatura } from '../../config/tstSistema.js'
+import { getFamigliaByColorKey } from '../../content/paroleTst.js'
 import './ParoleStatiAnimo.css'
 
-const MACRO_EMOZIONI = [
-  {
-    id: 'giallo',
-    nome: 'Entusiasmo & Festa',
-    motto: 'L’energia viva che accende il movimento e contagia chi ti circonda.',
-    parole: ['Spontaneo', 'Esuberante', 'Radioso', 'Esplosivo', 'Ardente', 'Curioso', 'Vitale', 'Coinvolgente'],
-  },
-  {
-    id: 'rosso',
-    nome: 'Grinta & Azione',
-    motto: 'La determinazione che affronta le sfide senza indietreggiare.',
-    parole: ['Determinato', 'Impavido', 'Incisivo', 'Diretto', 'Focoso', 'Solido', 'Tenace', 'Intrepido'],
-  },
-  {
-    id: 'blu',
-    nome: 'Introspezione & Poesia',
-    motto: 'La ricerca del senso profondo, la bellezza dolce-amara e l’ascolto intimo.',
-    parole: ['Profondo', 'Nostalgico', 'Sensibile', 'Raccolto', 'Lirico', 'Empatico', 'Delicato', 'Sincero'],
-  },
-  {
-    id: 'verde',
-    nome: 'Calma & Zen',
-    motto: 'Il respiro largo, l’armonia silenziosa e la pace che accoglie.',
-    parole: ['Sereno', 'Pacifico', 'Paziente', 'Equilibrato', 'Mite', 'Rilassato', 'Rassicurante', 'Gentile'],
-  },
-  {
-    id: 'grigio',
-    nome: 'Lucidità & Focus',
-    motto: 'Lo sguardo dall’alto, la mente chiara e il piacere dell’analisi.',
-    parole: ['Lucido', 'Analitico', 'Curioso', 'Distaccato', 'Essenziale', 'Metodico', 'Discreto', 'Osservatore'],
-  },
-].map((m) => ({ ...m, famiglia: FAMIGLIA_BY_COLOR[m.id]?.nome || m.id }))
+// Solo il nome della famiglia: titoli e motti inventati («Calma & Zen»…) sono stati tolti
+// perché non hanno riscontro in docs/fonti-scientifiche.
+const FAMIGLIE = ['giallo', 'rosso', 'blu', 'verde', 'grigio'].map((id) => ({
+  id,
+  famiglia: FAMIGLIA_BY_COLOR[id]?.nome || id,
+}))
+
+/** Per ogni natura: prima le parole chiave del documento di Franco, poi gli altri aggettivi. */
+function lessicoDellaFamiglia(colorKey) {
+  return (getFamigliaByColorKey(colorKey)?.nature || []).map((natura) => {
+    // «Nero / Negativo» nel documento è una coppia: la mostro come due parole, come negli aggettivi.
+    const chiave = (natura.paroleChiave || []).flatMap((p) => p.parola.split('/').map((x) => x.trim()))
+    const tutte = [...new Set([...chiave, ...natura.aggettivi])]
+    return { rawKey: natura.rawKey, nome: nomeNatura(natura.rawKey), chiave, tutte }
+  })
+}
+
+function LessicoNature({ colorKey }) {
+  const [aperto, setAperto] = useState(false)
+  const listId = useId()
+  const listRef = useRef(null)
+  const nature = lessicoDellaFamiglia(colorKey)
+  const totale = nature.reduce((n, natura) => n + natura.tutte.length, 0)
+  const nascoste = nature.some((natura) => natura.tutte.length > natura.chiave.length)
+
+  return (
+    <>
+      <div id={listId} ref={listRef} className="parole-lex__nature">
+        {nature.map((natura) => {
+          const parole = aperto || !natura.chiave.length ? natura.tutte : natura.chiave
+          return (
+            <div key={natura.rawKey} className="parole-lex__natura">
+              <p className="parole-lex__natura-nome">
+                {natura.nome}
+                <span className="parole-lex__natura-conta">{natura.tutte.length}</span>
+              </p>
+              <ul className="parole-lex__words">
+                {parole.map((parola) => (
+                  <li key={parola} className="parole-lex__word">{parola}</li>
+                ))}
+              </ul>
+            </div>
+          )
+        })}
+      </div>
+      {nascoste ? (
+        <button
+          type="button"
+          className="parole-lex__toggle"
+          aria-expanded={aperto}
+          aria-controls={listId}
+          onClick={() => {
+            // Richiudendo una lista lunga, riporto la vista all'inizio del lessico.
+            if (aperto) listRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+            setAperto(!aperto)
+          }}
+        >
+          {aperto ? 'Mostra solo le parole chiave' : `Mostra tutte le ${totale} parole`}
+        </button>
+      ) : null}
+    </>
+  )
+}
 
 export default function ParoleStatiAnimo({ famiglia = '', step = '5' }) {
   const normFamiglia = String(famiglia || '').toLowerCase().trim()
   const isUtente = (m) => m.id === normFamiglia || m.famiglia.toLowerCase() === normFamiglia
-  const defaultId = MACRO_EMOZIONI.find(isUtente)?.id || 'giallo'
+  const defaultId = FAMIGLIE.find(isUtente)?.id || 'giallo'
 
   const [selectedId, setSelectedId] = useState(defaultId)
   const tabRefs = useRef([])
-  const attiva = MACRO_EMOZIONI.find((m) => m.id === selectedId) || MACRO_EMOZIONI[0]
+  const attiva = FAMIGLIE.find((m) => m.id === selectedId) || FAMIGLIE[0]
 
   const onKeyDown = (event, index) => {
     const delta = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[event.key]
-    let next = delta ? (index + delta + MACRO_EMOZIONI.length) % MACRO_EMOZIONI.length : null
+    let next = delta ? (index + delta + FAMIGLIE.length) % FAMIGLIE.length : null
     if (event.key === 'Home') next = 0
-    if (event.key === 'End') next = MACRO_EMOZIONI.length - 1
+    if (event.key === 'End') next = FAMIGLIE.length - 1
     if (next === null) return
     event.preventDefault()
-    setSelectedId(MACRO_EMOZIONI[next].id)
+    setSelectedId(FAMIGLIE[next].id)
     tabRefs.current[next]?.focus()
   }
 
@@ -62,7 +94,7 @@ export default function ParoleStatiAnimo({ famiglia = '', step = '5' }) {
 
       <div className="parole-lex" style={{ '--lex-colore': `var(--tst-family-${attiva.id})` }}>
         <div className="parole-lex__index" role="tablist" aria-orientation="vertical" aria-label="Famiglie emotive">
-          {MACRO_EMOZIONI.map((m, index) => {
+          {FAMIGLIE.map((m, index) => {
             const isSelected = m.id === attiva.id
             return (
               <button
@@ -93,13 +125,8 @@ export default function ParoleStatiAnimo({ famiglia = '', step = '5' }) {
           aria-labelledby={`parole-tab-${attiva.id}`}
           key={attiva.id}
         >
-          <h3 className="parole-lex__title">{attiva.nome}</h3>
-          <p className="parole-lex__motto">{attiva.motto}</p>
-          <ol className="parole-lex__words">
-            {attiva.parole.map((parola) => (
-              <li key={parola} className="parole-lex__word">{parola}</li>
-            ))}
-          </ol>
+          <h3 className="parole-lex__title">{attiva.famiglia}</h3>
+          <LessicoNature colorKey={attiva.id} />
         </div>
       </div>
     </section>

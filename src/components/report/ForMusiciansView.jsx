@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react'
 import MusiciansCompassNav from './MusiciansCompassNav.jsx'
+import { MUSICIAN_ROOMS } from '../../config/musiciansConfig.js'
 import PersonalSonicProfile from './PersonalSonicProfile.jsx'
 import DistanzeInterattive from './DistanzeInterattive.jsx'
 import SuoniDelTuoTest from './SuoniDelTuoTest.jsx'
 import ApprofondimentoSezioni from './ApprofondimentoSezioni.jsx'
-import MussidaBookAtlas from './MussidaBookAtlas.jsx'
+import BraniConfronto from './BraniConfronto.jsx'
+import GuidaFamiglieSuono from './GuidaFamiglieSuono.jsx'
 import { MUSICISTI_INTRO, MUSICISTI_SCHEDE } from '../../content/musicaDisposizione.js'
 import '../../styles/sezione-musica.css'
 
@@ -26,9 +28,16 @@ export default function ForMusiciansView({
   const scheda = MUSICISTI_SCHEDE[profilo?.famiglia || '']
   const introMusicale = scheda?.introMusicale || MUSICISTI_INTRO
 
-  // ScrollSpy per aggiornare la bussola sticky durante lo scroll
+  // ScrollSpy per aggiornare la bussola sticky durante lo scroll sui 6 blocchi
   useEffect(() => {
-    const sectionIds = ['fm-impronta', 'fm-distanze', 'fm-passi', 'fm-atlante']
+    const sectionIds = [
+      'fm-impronta',
+      'fm-aree',
+      'fm-distanze',
+      'fm-passi',
+      'fm-confronti',
+      'fm-famiglie',
+    ]
     const handleScroll = () => {
       const scrollPos = window.scrollY + 180
       for (let i = sectionIds.length - 1; i >= 0; i--) {
@@ -61,7 +70,7 @@ export default function ForMusiciansView({
       className="for-musicians-view"
       style={{ '--music-accent': accentColor }}
     >
-      {/* 🧭 Bussola Sticky di Navigazione */}
+      {/* 🧭 Bussola Sticky di Navigazione (6 stanze) */}
       <MusiciansCompassNav
         activeRoom={activeRoom}
         onSelectRoom={handleSelectRoom}
@@ -71,7 +80,34 @@ export default function ForMusiciansView({
       />
 
       <div className="for-musicians-view__content">
-        {/* ── STANZA 1: LA TUA IMPRONTA SONORA (Snapshot quantitativo + 4 Pilastri) ── */}
+        {/* 🧭 Hub iniziale di orientamento con 6 tessere direzionali */}
+        <section className="fm-hub-directions" aria-label="Indice sezioni musicali">
+          <p className="fm-hub-kicker">Lettura musicale analitica</p>
+          <h1 className="fm-hub-title">Mappa dei 6 ambiti sonori</h1>
+          <p className="fm-hub-lead">
+            Un percorso completo per musicisti e appassionati: dalla tua risonanza iniziale all'analisi tecnica dei parametri acustici.
+          </p>
+
+          <div className="fm-hub-grid" role="list">
+            {MUSICIAN_ROOMS.map((r) => (
+              <button
+                key={r.id}
+                type="button"
+                className="fm-hub-card"
+                onClick={() => handleSelectRoom(r.id)}
+              >
+                <div className="fm-hub-card__top">
+                  <span className="fm-hub-card__icon" aria-hidden="true">{r.icon}</span>
+                  <span className="fm-hub-card__num">{r.label.split('.')[0]}</span>
+                </div>
+                <strong className="fm-hub-card__label">{r.shortLabel}</strong>
+                <span className="fm-hub-card__cta">Vai alla sezione →</span>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        {/* ── SEZIONE 1: LA TUA IMPRONTA SONORA ── */}
         <PersonalSonicProfile
           profilo={profilo}
           colorTotals={colorTotals}
@@ -81,34 +117,45 @@ export default function ForMusiciansView({
           introMusicale={introMusicale}
         />
 
-        {/* ── STANZA 2: IL CODICE DELLE 13 DISTANZE MUSICALI (Synth interattivo) ── */}
+        {/* ── SEZIONE 2: LE 5 AREE MUSICALI DEL TEST ── */}
+        <section id="fm-aree" className="fm-section fm-sound-areas" aria-labelledby="fm-sound-areas-title">
+          <div className="fm-sound-areas__head">
+            <p className="fm-kicker">Sezione 2 · Le 5 Aree musicali del test</p>
+            <h2 id="fm-sound-areas-title">Aree musicali e percentuali</h2>
+            <p className="fm-section-lead">
+              Come le tue risposte si sono distribuite lungo i cinque parametri dell'esperienza sonora:
+              Timbro, Intervalli, Ritmo, Melodia e Accordi.
+            </p>
+          </div>
+          <ApprofondimentoSezioni
+            sezioniData={approfondimento?.sezioniData}
+            sezioniTest={approfondimento?.sezioniTest}
+            filtroMusicale={filtroMusicale}
+            correnteColore={accentColor}
+            plainLanguage={false}
+          />
+        </section>
+
+        {/* ── SEZIONE 3: I 13 INTERVALLI SONORI ── */}
         <DistanzeInterattive
           profilo={profilo}
           accentColor={accentColor}
           colorTotals={colorTotals}
         />
 
-        {/* ── STANZA 3: LA MACCHINA DEL TEST (72 ascolti decodificati + Aree sonore) ── */}
-        <div id="fm-passi-wrapper">
-          <SuoniDelTuoTest
-            rawRecord={rawRecord}
-            accentColor={accentColor}
-          />
-
-          <div className="for-musicians-view__sound-areas">
-            <h3 className="for-musicians-view__sound-title">Aree sonore e percentuali del test</h3>
-            <ApprofondimentoSezioni
-              sezioniData={approfondimento?.sezioniData}
-              sezioniTest={approfondimento?.sezioniTest}
-              filtroMusicale={filtroMusicale}
-              correnteColore={accentColor}
-            />
-          </div>
-        </div>
-
-        {/* ── STANZA 4: L'ATLANTE DEL PIANETA DELLA MUSICA (Ascolti polari + Enciclopedia) ── */}
-        <MussidaBookAtlas
+        {/* ── SEZIONE 4: I 72 ASCOLTI DEL TEST ── */}
+        <SuoniDelTuoTest
+          rawRecord={rawRecord}
           accentColor={accentColor}
+        />
+
+        {/* ── SEZIONE 5: BRANI A CONFRONTO ── */}
+        <BraniConfronto
+          accentColor={accentColor}
+        />
+
+        {/* ── SEZIONE 6: GUIDA ALLE FAMIGLIE MUSICALI ── */}
+        <GuidaFamiglieSuono
           userDominantFamily={profilo?.famiglia || 'Blu'}
         />
 

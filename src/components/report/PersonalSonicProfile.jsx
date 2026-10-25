@@ -16,7 +16,7 @@ export default function PersonalSonicProfile({
   correntiByPeso = [],
   correnti: _correnti = [],
   accentColor = '#4ade80',
-  introMusicale = '',
+  introMusicale: _introMusicale = '',
 }) {
   const famigliaKey = profilo?.famiglia || 'Blu'
   const schedaSuono = SUONO_PER_FAMIGLIA[famigliaKey] || SUONO_PER_FAMIGLIA.Blu
@@ -48,10 +48,10 @@ export default function PersonalSonicProfile({
   return (
     <section id="fm-impronta" className="fm-section fm-personal-profile" aria-labelledby="fm-impronta-title">
       <div className="fm-profile-hero">
-        <p className="fm-kicker">Stanza 1 · Impronta sonora &amp; Temperamento</p>
+        <p className="fm-kicker">Sezione 1 · Impronta sonora</p>
         <h2 id="fm-impronta-title">La tua impronta nel suono</h2>
         <p className="fm-section-lead">
-          {introMusicale || 'Secondo il modello psicofisiologico di Franco Mussida, ogni persona ha una firma acustica unica: una combinazione di risonanze emotive che orienta il modo in cui percepisce e produce musica.'}
+          La sintesi acustica del tuo test: la combinazione di risonanze ed energie emotive che orienta il tuo modo di ascoltare e produrre musica.
         </p>
       </div>
 

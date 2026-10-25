@@ -1,11 +1,5 @@
 import React from 'react'
-
-const MUSICIAN_ROOMS = [
-  { id: 'fm-impronta', label: '1. La tua Impronta', shortLabel: 'Impronta', icon: '✦' },
-  { id: 'fm-distanze', label: '2. Le 13 Distanze', shortLabel: '13 Distanze', icon: '𝄞' },
-  { id: 'fm-passi', label: '3. I 72 Passi', shortLabel: '72 Passi', icon: '𝄢' },
-  { id: 'fm-atlante', label: '4. Atlante Mussida', shortLabel: 'Atlante', icon: '𝄡' },
-]
+import { MUSICIAN_ROOMS } from '../../config/musiciansConfig.js'
 
 export default function MusiciansCompassNav({
   activeRoom = 'fm-impronta',

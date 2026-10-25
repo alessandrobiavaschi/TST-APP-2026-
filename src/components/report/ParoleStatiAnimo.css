@@ -86,6 +86,8 @@
 /* Lessico della famiglia attiva */
 .parole-lex__panel {
   min-width: 0;
+  display: flex;
+  flex-direction: column;
   animation: parole-lex-in 240ms ease both;
 }
 
@@ -99,43 +101,98 @@
   letter-spacing: -0.015em;
 }
 
-.parole-lex__motto {
-  max-width: var(--tst-measure);
-  margin: var(--tst-space-sm) 0 0;
+.parole-lex__nature {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tst-space-xl);
+  margin: var(--tst-space-lg) 0 0;
+  max-height: 480px;
+  overflow-y: auto;
+  padding-right: var(--tst-space-sm);
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--lex-colore) 40%, transparent) transparent;
+}
+
+.parole-lex__nature::-webkit-scrollbar {
+  width: 6px;
+}
+
+.parole-lex__nature::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.parole-lex__nature::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--lex-colore) 40%, transparent);
+  border-radius: 999px;
+}
+
+@media (max-width: 768px) {
+  .parole-lex__nature {
+    max-height: 400px;
+  }
+}
+
+.parole-lex__natura {
+  border-top: 1px solid color-mix(in srgb, var(--lex-colore) 55%, transparent);
+}
+
+.parole-lex__natura-nome {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--tst-space-sm);
+  margin: 0;
+  padding: var(--tst-space-sm) 0 0;
   color: var(--tst-color-text-secondary);
-  font-size: var(--tst-step-1);
-  line-height: 1.45;
+  font-size: var(--tst-step-0);
+  font-weight: 600;
+}
+
+.parole-lex__natura-conta {
+  color: var(--lex-colore);
+  font-family: var(--tst-font-mono);
+  font-size: 0.75rem;
+  font-weight: 400;
 }
 
 .parole-lex__words {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
-  margin: var(--tst-space-xl) 0 0;
+  grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+  margin: var(--tst-space-xs) 0 0;
   padding: 0;
   list-style: none;
-  border-top: 1px solid color-mix(in srgb, var(--lex-colore) 55%, transparent);
-  counter-reset: parola;
 }
 
 .parole-lex__word {
-  display: flex;
-  align-items: baseline;
-  gap: var(--tst-space-sm);
-  padding: var(--tst-space-md) var(--tst-space-md) var(--tst-space-md) 0;
+  padding: var(--tst-space-sm) var(--tst-space-md) var(--tst-space-sm) 0;
   border-bottom: 1px solid var(--tst-color-border-subtle);
   color: var(--tst-color-text-primary);
   font-family: var(--tst-font-display);
   font-size: var(--tst-step-1);
   font-style: italic;
-  counter-increment: parola;
 }
 
-.parole-lex__word::before {
-  content: counter(parola, decimal-leading-zero);
-  color: var(--lex-colore);
-  font-family: var(--tst-font-mono);
-  font-size: 0.75rem;
-  font-style: normal;
+.parole-lex__toggle {
+  min-height: 44px;
+  margin-top: var(--tst-space-lg);
+  padding: var(--tst-space-xs) var(--tst-space-lg);
+  background: none;
+  border: 1px solid var(--tst-color-border-subtle);
+  border-radius: 999px;
+  color: var(--tst-color-text-primary);
+  font: inherit;
+  font-size: var(--tst-step-0);
+  cursor: pointer;
+  transition: border-color 160ms ease;
+}
+
+.parole-lex__toggle:hover {
+  border-color: var(--lex-colore);
+}
+
+.parole-lex__toggle:focus-visible {
+  outline: 2px solid var(--tst-color-border-focus);
+  outline-offset: 2px;
 }
 
 @keyframes parole-lex-in {

@@ -14,16 +14,6 @@ function BulletList({ items }) {
   )
 }
 
-function SoundModule({ kicker, text }) {
-  if (!text) return null
-  return (
-    <div className="fm-landscape__module">
-      <p className="fm-kicker">{kicker}</p>
-      <p>{text}</p>
-    </div>
-  )
-}
-
 function PracticeItem({ index, title, text }) {
   if (!text) return null
   return (
@@ -78,7 +68,7 @@ export default function SezioneMusica({ profilo = {} }) {
   return (
     <>
       <section className="fm-section" aria-labelledby="fm-profile-title">
-        <h2 id="fm-profile-title">Il suo modo di incontrare la Musica</h2>
+        <h2 id="fm-profile-title">Il modo di vivere la Musica</h2>
         <div className={`fm-narrative${scheda.pullQuote ? ' fm-narrative--with-quote' : ''}`}>
           <div className="fm-narrative__main">
             {narrativa.map((paragrafo) => <p key={paragrafo}>{paragrafo}</p>)}
@@ -92,23 +82,10 @@ export default function SezioneMusica({ profilo = {} }) {
         </div>
       </section>
 
-      {scheda.linguaggioMusicale ? (
-        <section className="fm-section" aria-labelledby="fm-landscape-title">
-          <h2 id="fm-landscape-title">Il suo paesaggio sonoro</h2>
-          <div className="fm-landscape">
-            <SoundModule kicker="Timbri" text={scheda.linguaggioMusicale.timbri} />
-            <SoundModule kicker="Ritmo" text={scheda.linguaggioMusicale.ritmo} />
-            <SoundModule kicker="Melodia" text={scheda.linguaggioMusicale.melodiaArmonia} />
-          </div>
-        </section>
-      ) : null}
-
-      <Intervals data={scheda.intervalli} />
-
       {scheda.fareMusica ? (
         <section className="fm-section" aria-labelledby="fm-practice-title">
           <h2 id="fm-practice-title">Quando ascolta e fa Musica</h2>
-          <p className="fm-section-lead">Il rapporto con la pratica musicale</p>
+          <p className="fm-section-lead">Il rapporto con l'ascolto e la pratica musicale</p>
           <div className="fm-practice">
             <PracticeItem index="01" title="Eseguire" text={scheda.fareMusica.suonare} />
             <PracticeItem index="02" title="Interpretare" text={scheda.fareMusica.interpretare} />
@@ -119,27 +96,21 @@ export default function SezioneMusica({ profilo = {} }) {
       ) : null}
 
       <section className="fm-section fm-section--summary" aria-labelledby="fm-summary-title">
-        <h2 id="fm-summary-title">In sintesi</h2>
+        <h2 id="fm-summary-title">Attitudini e consigli pratici</h2>
         {hasSummaryLists ? (
           <div className="fm-summary__grid">
             {scheda.valorizza?.length ? (
               <div>
-                <h3>Cosa valorizza</h3>
+                <h3>Cosa valorizzare</h3>
                 <BulletList items={scheda.valorizza} />
               </div>
             ) : null}
             {scheda.difficolta?.length ? (
               <div>
-                <h3>Attenzioni</h3>
+                <h3>Punti di attenzione</h3>
                 <BulletList items={scheda.difficolta} />
               </div>
             ) : null}
-          </div>
-        ) : null}
-        {scheda.paroleChiave?.length ? (
-          <div className="sezione-musica__keyword-block">
-            <p className="fm-kicker">Parole chiave</p>
-            <p className="sezione-musica__keywords">{scheda.paroleChiave.join(' · ')}</p>
           </div>
         ) : null}
       </section>

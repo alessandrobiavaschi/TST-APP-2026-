@@ -110,7 +110,7 @@ export const REPORT_GROUPS = [
   {
     id: 'report-group-educazione',
     title: 'Parole',
-    subtitle: 'Il vocabolario essenziale delle 5 macro-emozioni',
+    subtitle: '',
     intro: GROUP_INTROS['report-group-educazione'] || '',
     stepLabel: '5',
     readingFocus: 'Le parole chiave e gli stati d’animo essenziali delle 5 famiglie.',

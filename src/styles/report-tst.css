@@ -5859,6 +5859,32 @@
   transform: translateY(-1px);
 }
 
+.report-room-expand-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border: 1px solid var(--tst-color-border-subtle, rgba(255, 255, 255, 0.12));
+  border-radius: 999px;
+  background: rgba(16, 22, 34, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--tst-color-text-secondary, #cbd5e1);
+  font-family: var(--tst-font-sans, inherit);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 180ms ease;
+}
+
+.report-room-expand-btn:hover,
+.report-room-expand-btn:focus-visible {
+  border-color: var(--tst-color-accent-system, #38bdf8);
+  color: var(--tst-color-text-primary, #f8fafc);
+  background: rgba(24, 32, 48, 0.85);
+  transform: translateY(-1px);
+}
+
 .report-room--overview .report-section-open__inner,
 .report-room--narrative .report-section-open__inner {
   width: 100%;
