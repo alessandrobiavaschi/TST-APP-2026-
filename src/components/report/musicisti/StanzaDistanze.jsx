@@ -1,16 +1,13 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { DISTANZE, TAPPE_DISTANZE } from '../../../content/musicistiContenuti.js'
 import { FAMIGLIE_MUSICA } from '../../../content/musicistiStanze.js'
 import BottoneSuono from './BottoneSuono.jsx'
-import SchedeScorrevoli from './SchedeScorrevoli.jsx'
+import Finestra, { Finestre } from './Finestra.jsx'
 
 const PER_FILE = Object.fromEntries(DISTANZE.map((d) => [d.file, d]))
 
-/** Stanza delle distanze: cinque tappe, una alla volta, ognuna con due o tre intervalli. */
+/** Stanza delle distanze: cinque tappe chiuse, ognuna con due o tre intervalli. */
 export default function StanzaDistanze({ famigliaPrevalente, fileInAscolto, onAscolta }) {
-  const [tappa, setTappa] = useState(TAPPE_DISTANZE[0].titolo)
-  const attuale = TAPPE_DISTANZE.find((t) => t.titolo === tappa)
-
   return (
     <div className="stanza-generica">
       <header className="stanza-generica__apertura">
@@ -21,32 +18,41 @@ export default function StanzaDistanze({ famigliaPrevalente, fileInAscolto, onAs
         </p>
       </header>
 
-      <SchedeScorrevoli
-        etichetta="Tappe"
-        schede={TAPPE_DISTANZE.map((t) => ({ id: t.titolo, titolo: t.titolo }))}
-        attiva={tappa}
-        onCambia={setTappa}
-      />
-
-      <div className="stanza-riquadri" role="tabpanel">
-        {attuale.file.map((file) => {
-          const d = PER_FILE[file]
-          const fam = d.famiglia ? FAMIGLIE_MUSICA[d.famiglia] : null
+      <Finestre>
+        {TAPPE_DISTANZE.map((tappa) => {
+          const voci = tappa.file.map((f) => PER_FILE[f])
+          const tua = voci.some((d) => d.famiglia && d.famiglia === famigliaPrevalente)
           return (
-            <section
-              key={file}
-              className={`stanza-riquadro${d.famiglia && d.famiglia === famigliaPrevalente ? ' is-tua' : ''}`}
-              data-famiglia={fam?.colorKey}
+            <Finestra
+              key={tappa.titolo}
+              titolo={tappa.titolo}
+              nota={voci.map((d) => d.nome).join(' · ')}
+              gruppo="distanze"
+              tua={tua}
+              famiglia={tua ? FAMIGLIE_MUSICA[famigliaPrevalente]?.colorKey : undefined}
             >
-              <h2>{d.nome}</h2>
-              <p className="stanza-riquadro__dato">{d.semitoni} semitoni</p>
-              {d.clima ? <p>{d.clima}</p> : null}
-              {fam ? <p className="stanza-riquadro__famiglia">Vicina alla natura {d.natura} · {fam.nome}</p> : null}
-              <BottoneSuono file={file} etichetta="Ascolta" fileInAscolto={fileInAscolto} onAscolta={onAscolta} />
-            </section>
+              <div className="stanza-riquadri">
+                {voci.map((d) => {
+                  const fam = d.famiglia ? FAMIGLIE_MUSICA[d.famiglia] : null
+                  return (
+                    <section
+                      key={d.file}
+                      className={`stanza-riquadro${d.famiglia && d.famiglia === famigliaPrevalente ? ' is-tua' : ''}`}
+                      data-famiglia={fam?.colorKey}
+                    >
+                      <h2>{d.nome}</h2>
+                      <p className="stanza-riquadro__dato">{d.semitoni} semitoni</p>
+                      {d.clima ? <p>{d.clima}</p> : null}
+                      {fam ? <p className="stanza-riquadro__famiglia">Vicina alla natura {d.natura} · {fam.nome}</p> : null}
+                      <BottoneSuono file={d.file} etichetta="Ascolta" fileInAscolto={fileInAscolto} onAscolta={onAscolta} />
+                    </section>
+                  )
+                })}
+              </div>
+            </Finestra>
           )
         })}
-      </div>
+      </Finestre>
     </div>
   )
 }

@@ -31,7 +31,7 @@ export default function StanzaScelte({ rawRecord = {}, onAscolta, fileInAscolto 
           passi.forEach((p) => { if (p?.famiglia) conteggi[p.famiglia] = (conteggi[p.famiglia] || 0) + 1 })
           const totale = Object.values(conteggi).reduce((a, b) => a + b, 0)
           return (
-            <details key={sez.id} className="stanza-riquadro stanza-sezione">
+            <details key={sez.id} name="scelte" className="stanza-riquadro stanza-sezione">
               <summary>
                 <span className="stanza-sezione__nome">{sez.nome}</span>
                 <span className="stanza-riquadro__dato">{sez.a - sez.da + 1} ascolti</span>
