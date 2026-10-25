@@ -584,6 +584,12 @@
   transition: all 0.2s ease;
 }
 
+/* Il pulsante fluttuante sta sopra l'angolo in alto a sinistra della Galassia:
+   il titolo della scena parte dopo il pulsante invece di finirci sotto. */
+.report-tst-galassia-layer .galassia-view__scene-head-copy {
+  padding-left: 10.75rem;
+}
+
 .report-galassia-back-btn:hover {
   background: rgba(30, 41, 59, 0.95);
   border-color: #38bdf8;
