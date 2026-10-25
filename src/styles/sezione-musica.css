@@ -2030,3 +2030,14 @@
 }
 
 
+
+/* Lettura per capitoli: indice e barra del capitolo dentro il layer che scorre */
+.for-musicians-view__index-back {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.for-musicians-view .report-chapter-topbar {
+  top: 0;
+}
