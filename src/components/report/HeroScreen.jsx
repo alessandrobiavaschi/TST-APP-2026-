@@ -169,7 +169,7 @@ export default function HeroScreen({
     <section
       style={rootStyle}
       aria-label={HERO_UI.ariaSection}
-      className="hero-screen relative w-full min-h-screen flex flex-col justify-center items-center"
+      className="hero-screen relative w-full flex flex-col justify-start items-center"
     >
       <div className="hero-screen__backdrop" aria-hidden="true">
         {bgImage && (
@@ -192,7 +192,7 @@ export default function HeroScreen({
         />
       </div>
 
-      <div className="report-tst-hero__content hero-screen__content flex w-full flex-col items-center justify-center px-6 py-10 z-10">
+      <div className="report-tst-hero__content hero-screen__content flex w-full flex-col items-center justify-start px-6 pt-4 pb-10 z-10">
         <div className="report-tst-hero__inner report-tst-hero__identity flex w-full max-w-4xl flex-col items-center">
           {/* Metadata dell'ascoltatore */}
           {(userName || formattedTestDate) && (

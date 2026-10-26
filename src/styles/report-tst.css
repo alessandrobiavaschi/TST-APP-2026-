@@ -309,7 +309,7 @@
   position: absolute;
   inset: 0;
   background-size: cover;
-  background-position: center 35%;
+  background-position: center 25%;
   background-repeat: no-repeat;
   opacity: 0.65;
   filter: saturate(1.15) brightness(0.95);
@@ -375,6 +375,7 @@
 .hero-screen__content {
   position: relative;
   z-index: 3;
+  padding-top: clamp(0.75rem, 2.5vh, 2rem);
 }
 
 /* Offset header app globale sul report (NavbarTST sticky sotto l'header) */
@@ -633,13 +634,13 @@
 
 .report-tst-hero__content {
   box-sizing: border-box;
-  min-height: min(86svh, 860px);
+  min-height: auto;
 }
 
 @media (max-width: 760px) {
   .report-tst-hero__content {
-    min-height: min(82svh, 720px);
-    padding-top: 2rem;
+    min-height: auto;
+    padding-top: 0.75rem;
     padding-bottom: 2rem;
   }
 
@@ -5552,12 +5553,12 @@
 .report-scientific-scope {
   position: relative;
   z-index: 2;
-  max-width: 72rem;
+  max-width: 58rem;
   margin: 0 auto;
-  padding: 0.75rem 3.25rem 0.75rem 1.25rem;
-  color: rgba(255, 255, 255, 0.78);
-  font-size: 0.82rem;
-  line-height: 1.65;
+  padding: 0.35rem 2.25rem 0.35rem 1rem;
+  color: rgba(255, 255, 255, 0.76);
+  font-size: 0.74rem;
+  line-height: 1.35;
   text-align: center;
 }
 
@@ -5568,17 +5569,17 @@
 .report-scientific-scope__close {
   position: absolute;
   top: 50%;
-  right: 0.75rem;
+  right: 0.5rem;
   display: grid;
-  width: 2rem;
-  height: 2rem;
+  width: 1.4rem;
+  height: 1.4rem;
   padding: 0;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.06);
   color: rgba(255, 255, 255, 0.86);
   font: inherit;
-  font-size: 1.35rem;
+  font-size: 1.1rem;
   line-height: 1;
   cursor: pointer;
   place-items: center;
@@ -5761,9 +5762,16 @@
    ESPERIENZA A STANZE — scroll nativo, ambienti verticali fullscreen
    ===================================================================== */
 .report-tst-hero-wrap,
-.hero-screen,
-.report-tst-hero__content {
+.hero-screen {
   min-height: calc(100svh - var(--app-header-offset, 56px));
+}
+
+.report-tst-hero__content {
+  min-height: auto;
+}
+
+.report-tst .video-bg-toggle {
+  display: none !important;
 }
 
 .report-room,

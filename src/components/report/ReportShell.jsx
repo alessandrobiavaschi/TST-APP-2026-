@@ -477,7 +477,7 @@ export default function ReportShell({
       <div className="report-tst-scroll-bg" aria-hidden="true" />
       <motion.div className="report-tst-cosmic-bg" aria-hidden="true" />
       <motion.div className="report-page-wrapper__stars" aria-hidden="true" />
-      <VideoBackground0311 showOverlay className="report-page-wrapper__video" />
+      <VideoBackground0311 showOverlay showToggle={false} className="report-page-wrapper__video" />
       <div className="report-xp-progress" aria-hidden="true">
         <div ref={progressBarRef} className="report-xp-progress-bar" style={{ width: '0%' }} />
       </div>

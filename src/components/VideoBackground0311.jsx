@@ -35,7 +35,7 @@ function getInitialPaused() {
   return false
 }
 
-function VideoBackground0311({ className = '', showOverlay = false, style }) {
+function VideoBackground0311({ className = '', showOverlay = false, showToggle = true, style }) {
   const videoRef = useRef(null)
   // true da subito: finché il video carica si vede il poster (niente schermo nero)
   const [isReady, setIsReady] = useState(true)
@@ -175,17 +175,19 @@ function VideoBackground0311({ className = '', showOverlay = false, style }) {
         />
         {showOverlay && <div className="page-video-overlay" />}
       </motion.div>
-      <button
-        type="button"
-        className="nav-button ghost video-bg-toggle"
-        aria-pressed={isPaused}
-        aria-label={isPaused ? 'Riproduci video di sfondo' : 'Metti in pausa il video di sfondo'}
-        title={isPaused ? 'Riproduci video di sfondo' : 'Metti in pausa il video di sfondo'}
-        onClick={togglePause}
-      >
-        <span aria-hidden="true">{isPaused ? '▶' : '⏸'}</span>
-        <span>{isPaused ? 'Riproduci sfondo' : 'Pausa sfondo'}</span>
-      </button>
+      {showToggle && (
+        <button
+          type="button"
+          className="nav-button ghost video-bg-toggle"
+          aria-pressed={isPaused}
+          aria-label={isPaused ? 'Riproduci video di sfondo' : 'Metti in pausa il video di sfondo'}
+          title={isPaused ? 'Riproduci video di sfondo' : 'Metti in pausa il video di sfondo'}
+          onClick={togglePause}
+        >
+          <span aria-hidden="true">{isPaused ? '▶' : '⏸'}</span>
+          <span>{isPaused ? 'Riproduci sfondo' : 'Pausa sfondo'}</span>
+        </button>
+      )}
     </>
   )
 }
