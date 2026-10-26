@@ -103,7 +103,7 @@ export default function ReportChaptersIndex({
               </div>
               <h4 className="report-chapter-card__title">Lettura per Musicisti</h4>
               <p className="report-chapter-card__desc">
-                Il tuo test nel codice musicale e le pagine di «Il Pianeta della Musica» su timbro, ritmo, melodia, intervallo e armonia, fino ai 72 ascolti del test.
+                La tua famiglia nella Musica, con eseguire, interpretare e comporre, e le altre famiglie da leggere. In fondo i dati delle tue risposte.
               </p>
               <div className="report-chapter-card__footer">
                 <span className="report-chapter-card__cta">

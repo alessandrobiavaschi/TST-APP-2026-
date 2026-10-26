@@ -2042,22 +2042,80 @@
   top: 0;
 }
 
-/* Capitoli tratti dal libro: fonte e testo trascritto */
-.fm-capitolo-libro__fonte {
-  margin: 10px 0 0;
-  color: color-mix(in srgb, var(--music-accent, #4ade80) 70%, #f8fafc);
-  font-size: 0.82rem;
-  letter-spacing: 0.02em;
+/* ── La famiglia nella Musica: scelta della famiglia da leggere ── */
+.fm-famiglia-musicale__switch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 22px 0 26px;
 }
 
-.fm-capitolo-libro__testo {
-  max-width: 68ch;
-  margin-top: clamp(20px, 3vw, 32px);
+.fm-famiglia-musicale__chip {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(226, 232, 240, 0.78);
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
 }
 
-.fm-capitolo-libro__testo p {
-  margin: 0 0 1.1em;
-  color: rgba(226, 232, 240, 0.86);
-  font-size: 1.02rem;
-  line-height: 1.75;
+.fm-famiglia-musicale__chip:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #f8fafc;
+}
+
+.fm-famiglia-musicale__chip.is-active {
+  border-color: var(--chip-color, #fff);
+  background: rgba(255, 255, 255, 0.07);
+  color: #f8fafc;
+}
+
+.fm-famiglia-musicale__chip:focus-visible {
+  outline: 2px solid var(--chip-color, #fff);
+  outline-offset: 2px;
+}
+
+.fm-famiglia-musicale__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--chip-color, #94a3b8);
+}
+
+.fm-famiglia-musicale__tua {
+  font-size: 0.72rem;
+  color: var(--chip-color, #94a3b8);
+}
+
+.fm-section .fm-famiglia-musicale__testo {
+  max-width: 72ch;
+  margin: 0 0 30px;
+  color: rgba(226, 232, 240, 0.9);
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+/* ── Dati per nerd ── */
+.fm-dati-nerd__ascolti {
+  margin-top: 32px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 18px;
+}
+
+.fm-dati-nerd__ascolti > summary {
+  cursor: pointer;
+  color: #f8fafc;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.fm-dati-nerd__ascolti > summary:focus-visible {
+  outline: 2px solid var(--music-accent, #fff);
+  outline-offset: 4px;
 }
