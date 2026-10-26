@@ -19,8 +19,9 @@
 }
 
 .quattro-rapporti-section__inner {
-  max-width: 1200px;
-  margin: 0 auto;
+  max-width: none;
+  width: 100%;
+  margin: 0;
 }
 
 .quattro-rapporti-heading-row {
@@ -952,12 +953,11 @@
 /* ── Stage: radar | lettura ─────────────────────────────────────────── */
 .report-tst .quattro-rapporti-section .quattro-rapporti-stage {
   grid-template-columns: minmax(0, 5fr) 1px minmax(0, 6fr) !important;
-  gap: clamp(1.5rem, 3vw, 3rem) !important;
+  gap: clamp(2rem, 4vw, 4rem) !important;
   align-items: start;
-  padding: clamp(1.25rem, 2.6vw, 2.25rem);
-  border: 1px solid var(--report-border, rgba(255, 255, 255, 0.1));
-  border-radius: var(--report-card-radius, 16px);
-  background: rgba(255, 255, 255, 0.02);
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
 }
 
 /* Il radar resta in vista mentre si legge l'approfondimento. */
@@ -967,11 +967,11 @@
 }
 
 .quattro-rapporti-stage .quattro-rapporti-radar {
-  height: clamp(320px, 30vw, 440px);
+  height: clamp(380px, 36vw, 560px);
 }
 
 .quattro-rapporti-stage .quattro-rapporti-divider {
-  min-height: clamp(320px, 30vw, 440px);
+  min-height: clamp(380px, 36vw, 560px);
 }
 
 /* ── Colonna di lettura ─────────────────────────────────────────────── */

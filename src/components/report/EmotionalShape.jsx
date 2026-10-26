@@ -169,7 +169,7 @@ export default function EmotionalShape({
       className="emotional-shape-container"
       style={{
         width: '100%',
-        maxWidth: 960,
+        maxWidth: '100%',
         minHeight: height,
         margin: '0 auto',
         display: 'flex',

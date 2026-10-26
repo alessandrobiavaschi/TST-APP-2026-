@@ -1654,19 +1654,19 @@
 }
 
 .sintesi-charts-board {
-  --sc-board-h: clamp(22rem, calc(100svh - var(--report-sticky-offset, 120px) - 7rem), 42rem);
+  --sc-board-h: clamp(28rem, calc(100svh - var(--report-sticky-offset, 120px) - 3rem), 56rem);
   width: 100%;
-  max-width: 1080px;
-  margin: 0 auto var(--space-md, 32px);
+  max-width: none;
+  margin: 0 0 var(--space-md, 32px);
   display: grid;
-  grid-template-columns: minmax(14rem, 17rem) minmax(0, 1fr);
-  gap: var(--space-md, 32px);
+  grid-template-columns: minmax(18rem, 22rem) minmax(0, 1fr);
+  gap: clamp(2rem, 3.5vw, 4rem);
   align-items: stretch;
 }
 
 /* Se sopra c'è la frase sulle famiglie presenti, il grafico cede l'altezza di quelle righe */
 .sintesi-correnti__order-visuals:has(.famiglie-presenti) .sintesi-charts-board {
-  --sc-board-h: clamp(22rem, calc(100svh - var(--report-sticky-offset, 120px) - 10.5rem), 42rem);
+  --sc-board-h: clamp(28rem, calc(100svh - var(--report-sticky-offset, 120px) - 5rem), 56rem);
 }
 
 .sintesi-family-intro--charts .famiglie-presenti {
@@ -1793,15 +1793,16 @@
   cursor: not-allowed;
 }
 
-/* Stage del grafico: altezza fissa = una schermata */
+/* Stage del grafico: altezza generosa ed espansiva, senza ritaglio */
 .sintesi-charts-board__stage {
   position: relative;
-  height: var(--sc-board-h);
+  min-height: var(--sc-board-h);
+  height: auto;
   min-width: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* Le liste (Nature, Percorso) scorrono dentro lo stage se mai non entrano */
@@ -1815,14 +1816,17 @@
 .sintesi-charts-board__fill {
   width: 100%;
   height: 100%;
-  min-height: 0;
+  min-height: var(--sc-board-h);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .sintesi-charts-board__fill .emotional-shape-container {
+  width: 100%;
+  max-width: 100%;
   height: 100%;
+  min-height: var(--sc-board-h);
 }
 
 .sintesi-slide-single-chart {
@@ -1883,8 +1887,8 @@
 /* Slide «Nature»: una scheda per ogni famiglia */
 .sintesi-correnti__nature-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
-  gap: 0.85rem;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: 1.15rem;
   width: 100%;
   align-items: start;
 }
@@ -1923,6 +1927,6 @@
 
 @media (min-width: 1024px) {
   .sintesi-charts-board__stage--nature .sintesi-correnti__nature-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
   }
 }

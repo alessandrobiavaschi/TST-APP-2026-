@@ -41,7 +41,7 @@ function formatNaturaResult(value = '') {
  */
 export default function NavbarTST({
   fullscreenMode = false,
-  onFullscreenChange,
+  onToggleFullscreen,
   forceVisible = false,
   modalita = 'report',
   onModalitaChange,
@@ -270,26 +270,30 @@ export default function NavbarTST({
         {/* ── Destra: corrente + scarica + aiuto ──────────────────── */}
         <div className="navbar-tst__right">
           {famigliaResult || naturaDisplayResult ? (
-            <span className="navbar-tst__corrente" title={correnteTitle}>
-              <span className="navbar-tst__corrente-label">famiglia</span>
-              {famigliaResult ? (
-                <span className="navbar-tst__corrente-family">{famigliaResult}</span>
-              ) : null}
-              {naturaDisplayResult ? (
-                <span className="navbar-tst__corrente-name">{naturaDisplayResult}</span>
-              ) : null}
-            </span>
+            <>
+              <span className="navbar-tst__corrente" title={correnteTitle}>
+                <span className="navbar-tst__corrente-label">famiglia</span>
+                {famigliaResult ? (
+                  <span className="navbar-tst__corrente-family">{famigliaResult}</span>
+                ) : null}
+                {naturaDisplayResult ? (
+                  <span className="navbar-tst__corrente-name">{naturaDisplayResult}</span>
+                ) : null}
+              </span>
+              <span className="navbar-tst__sep navbar-tst__sep--right" aria-hidden="true" />
+            </>
           ) : null}
-          <span className="navbar-tst__sep navbar-tst__sep--right" aria-hidden="true" />
-          <button
-            type="button"
-            onClick={() => onFullscreenChange?.(!fullscreenMode)}
-            aria-label={fullscreenMode ? 'Esci da fullscreen' : 'Entra in fullscreen'}
-            className="navbar-tst__fullscreen"
-            title={fullscreenMode ? 'Esci da fullscreen (ESC)' : 'Fullscreen'}
-          >
-            {fullscreenMode ? '⛶' : '⛶'}
-          </button>
+          {onToggleFullscreen ? (
+            <button
+              type="button"
+              onClick={onToggleFullscreen}
+              aria-label={fullscreenMode ? 'Esci da schermo intero' : 'Schermo intero'}
+              className="navbar-tst__fullscreen"
+              title={fullscreenMode ? 'Esci da schermo intero (ESC)' : 'Schermo intero'}
+            >
+              ⛶
+            </button>
+          ) : null}
           <button
             type="button"
             onClick={onDownload}

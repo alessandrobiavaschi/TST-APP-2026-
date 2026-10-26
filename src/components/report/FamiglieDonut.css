@@ -54,16 +54,16 @@
 
 .famiglie-donut__body {
   display: grid;
-  grid-template-columns: minmax(0, 300px) minmax(0, 1fr);
+  grid-template-columns: minmax(280px, 420px) minmax(0, 1fr);
   align-items: center;
-  gap: var(--space-md, 32px);
+  gap: clamp(2rem, 4vw, 4rem);
 }
 
 .famiglie-donut__chart {
   position: relative;
   width: 100%;
   aspect-ratio: 1;
-  max-width: 300px;
+  max-width: 420px;
 }
 
 .famiglie-donut__center {

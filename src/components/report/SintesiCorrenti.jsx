@@ -531,7 +531,7 @@ export default function SintesiCorrenti({
     goToSlide(next)
     event.currentTarget.querySelectorAll('[role="tab"]')[next]?.focus()
   }
-  const radarHeight = chartStageHeight > 0 ? Math.max(300, chartStageHeight) : 420
+  const radarHeight = chartStageHeight > 0 ? Math.max(480, chartStageHeight) : 540
 
   return (
     <section
@@ -646,7 +646,7 @@ export default function SintesiCorrenti({
                     data={totalScoreRadarData}
                     color={accentColor}
                     height={radarHeight}
-                    outerRadius="76%"
+                    outerRadius="82%"
                     domain={[0, 7]}
                     tickCount={8}
                     className="sintesi-correnti__total-radar-chart"

@@ -1098,12 +1098,12 @@
 .report-tst-layout {
   display: grid;
   width: 100%;
-  margin: 0 auto;
+  margin: 0;
   grid-template-columns: minmax(0, 1fr);
   align-items: start;
   box-sizing: border-box;
-  max-width: 1680px;
-  padding: 64px clamp(20px, 4vw, 32px) 0;
+  max-width: none;
+  padding: 24px 0 0;
 }
 
 .report-tst-layout__main {
@@ -1465,11 +1465,11 @@
 
   .report-tst-layout {
     box-sizing: border-box;
-    margin-top: 0.35rem;
-    padding: 24px var(--space-md) 0;
+    margin-top: 0;
+    padding: 24px 0 0;
     grid-template-columns: 1fr;
-    max-width: 1280px;
-    margin: 0 auto;
+    max-width: none;
+    margin: 0;
     border-top: 0;
   }
 
@@ -3173,10 +3173,11 @@
 }
 
 .report-tst-profilo .pe-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding-left: 24px;
-  padding-right: 24px;
+  max-width: none;
+  width: 100%;
+  margin: 0;
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .profilo-section-header__nav-hint {
@@ -3940,8 +3941,9 @@
   background: transparent;
 }
 .report-tst-portato__inner {
-  max-width: 1200px;
-  margin: 0 auto;
+  max-width: none;
+  width: 100%;
+  margin: 0;
 }
 .report-tst-portato__eyebrow {
   font-family: var(--font-mono);
@@ -4293,9 +4295,10 @@
 .report-tst .emotional-integrations__method,
 .report-tst .emotional-integrations__solar-grid,
 .report-tst .emotional-integrations__relations-grid {
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
+  max-width: none;
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
 }
 
 .report-tst .emotional-integrations__intro {
@@ -5784,15 +5787,7 @@
 
 .report-room::before,
 .report-room-section::before {
-  content: '';
-  position: absolute;
-  inset: var(--space-sm) calc(-1 * var(--space-sm));
-  z-index: -1;
-  border-radius: var(--report-card-radius);
-  background:
-    radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--corrente-primaria) 8%, transparent), transparent 58%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.018), transparent 24%, transparent 76%, rgba(0, 0, 0, 0.14));
-  pointer-events: none;
+  display: none !important;
 }
 
 .report-room--overview,

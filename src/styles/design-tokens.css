@@ -88,7 +88,7 @@
   --tst-space-flow-l: clamp(2rem, 1.5rem + 2vw, 3.5rem);
   --tst-gutter: clamp(1.25rem, 0.5rem + 3vw, 3rem);
   --tst-measure: 40rem;   /* colonna di lettura, ~65 caratteri */
-  --tst-page: 72rem;      /* larghezza dei moduli del report */
+  --tst-page: 100%;       /* larghezza piena full screen per i moduli del report */
 
   /* ── 9. Scala Spaziature ── */
   --tst-space-3xs: 0.125rem; /* 2px */

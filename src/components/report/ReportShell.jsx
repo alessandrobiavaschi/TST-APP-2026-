@@ -410,14 +410,21 @@ export default function ReportShell({
     return () => window.removeEventListener('hashchange', onHashChange)
   }, [])
 
-  useEffect(() => {
-    if (!fullscreenMode) return undefined
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape') setFullscreenMode(false)
+  const toggleFullscreen = useCallback(() => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen?.().catch(() => {})
+      setFullscreenMode(true)
+    } else {
+      document.exitFullscreen?.().catch(() => {})
+      setFullscreenMode(false)
     }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [fullscreenMode])
+  }, [])
+
+  useEffect(() => {
+    const onFsChange = () => setFullscreenMode(!!document.fullscreenElement)
+    document.addEventListener('fullscreenchange', onFsChange)
+    return () => document.removeEventListener('fullscreenchange', onFsChange)
+  }, [])
 
   useEffect(() => {
     if (!isAlternateMode) return undefined
@@ -471,7 +478,7 @@ export default function ReportShell({
 
   return (
     <div
-      className={`report-tst${fullscreenMode ? ' report-tst--fullscreen' : ''}`}
+      className="report-tst"
       data-time-of-day={timeOfDay}
       data-weather={weather}
       data-sky-tone={visualProfile.tone}
@@ -567,7 +574,7 @@ export default function ReportShell({
 
         <NavbarTST
           fullscreenMode={fullscreenMode}
-          onFullscreenChange={setFullscreenMode}
+          onToggleFullscreen={toggleFullscreen}
           forceVisible={modalita !== 'report'}
           modalita={modalita}
           onModalitaChange={changeModalita}
