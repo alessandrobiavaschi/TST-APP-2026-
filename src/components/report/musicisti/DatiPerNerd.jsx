@@ -3,14 +3,21 @@ import ApprofondimentoSezioni from '../ApprofondimentoSezioni.jsx'
 import SuoniDelTuoTest from '../SuoniDelTuoTest.jsx'
 
 /**
- * Dati per nerd: le macro risposte del test in un'unica stanza.
+ * Dati analitici: le macro risposte del test per musicisti e ricercatori.
  * Grafico delle cinque aree sonore con le risposte finali, poi i 72 ascolti.
  */
 export default function DatiPerNerd({ approfondimento = {}, filtroMusicale = {}, rawRecord = {}, accentColor }) {
   return (
     <section id="fm-dati" className="fm-section fm-dati-nerd" aria-labelledby="fm-dati-title">
-      <h2 id="fm-dati-title">Dati per nerd</h2>
-      <p className="fm-section-lead">Le macro risposte del test, area per area. In fondo i 72 ascolti con la risposta data.</p>
+      <div className="fm-dati-nerd__head">
+        <p className="fm-kicker">Metriche & Registro completo</p>
+        <h2 id="fm-dati-title">Dati analitici del test</h2>
+        <p className="fm-section-lead">
+          La distribuzione dei tuoi punteggi nelle 5 aree del codice musicale
+          (Timbro, Intervalli, Ritmo, Melodia, Accordi) e il registro dettagliato di ciascuno dei 72 ascolti del test con le risposte date.
+        </p>
+      </div>
+
       <ApprofondimentoSezioni
         sezioniData={approfondimento?.sezioniData}
         sezioniTest={null}
@@ -18,10 +25,21 @@ export default function DatiPerNerd({ approfondimento = {}, filtroMusicale = {},
         correnteColore={accentColor}
         plainLanguage={false}
       />
-      <details className="fm-dati-nerd__ascolti">
-        <summary>I 72 ascolti del test</summary>
-        <SuoniDelTuoTest rawRecord={rawRecord} accentColor={accentColor} />
-      </details>
+
+      <div className="fm-dati-nerd__ascolti-wrap">
+        <details className="fm-dati-nerd__ascolti">
+          <summary className="fm-dati-nerd__summary">
+            <span className="fm-dati-nerd__summary-main">
+              <span className="fm-dati-nerd__summary-icon" aria-hidden="true">🎼</span>
+              <span className="fm-dati-nerd__summary-title">Registro dei 72 ascolti del test</span>
+            </span>
+            <span className="fm-dati-nerd__summary-hint">Espandi per consultare tutte le 72 tracce ▾</span>
+          </summary>
+          <div className="fm-dati-nerd__ascolti-content">
+            <SuoniDelTuoTest rawRecord={rawRecord} accentColor={accentColor} />
+          </div>
+        </details>
+      </div>
     </section>
   )
 }

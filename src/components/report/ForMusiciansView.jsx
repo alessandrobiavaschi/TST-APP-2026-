@@ -62,6 +62,28 @@ export default function ForMusiciansView({
       />
 
       <div className="for-musicians-view__content">
+        <header className="for-musicians-view__hero">
+          <p className="fm-kicker">Guida applicata · Prospettiva per musicisti</p>
+          <h1 className="for-musicians-view__hero-title">La tua impronta emotiva nella Musica</h1>
+          <p className="for-musicians-view__hero-lead">
+            Come la tua disposizione temperamentale guida l'espressione, l'ascolto, l'improvvisazione e la pratica musicale:
+            una traduzione diretta tra psicologia del suono e fare musica.
+          </p>
+          {famigliaUtente ? (
+            <div className="for-musicians-view__user-badge">
+              <span className="for-musicians-view__user-badge-label">Profilo emerso dal test:</span>
+              <span className="for-musicians-view__user-badge-tag">
+                <span className="for-musicians-view__user-badge-dot" style={{ backgroundColor: accentColor }} aria-hidden="true" />
+                Famiglia {profilo?.famigliaNome || famigliaUtente}
+                {profilo?.naturaNome ? ` · Natura ${profilo.naturaNome}` : ''}
+              </span>
+              <span className="for-musicians-view__user-badge-hint">
+                Puoi esplorare e confrontare liberamente tutte le 5 famiglie emotive.
+              </span>
+            </div>
+          ) : null}
+        </header>
+
         <FamigliaMusicale famigliaUtente={famigliaUtente} attiva={famigliaAttiva} onChange={setFamigliaAttiva} />
         <SchedaMusicista famigliaUtente={famigliaUtente} famigliaAttiva={famigliaAttiva} />
         <AscoltiEArtisti accentColor={accentColor} />

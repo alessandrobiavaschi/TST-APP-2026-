@@ -13,7 +13,7 @@ export const MUSICIAN_ROOMS = [
   { id: 'fm-famiglia', label: 'La famiglia nella Musica', shortLabel: 'Famiglia' },
   { id: 'fm-scheda', label: 'Scheda del musicista', shortLabel: 'Scheda' },
   { id: 'fm-ascolti', label: 'Ascolti consigliati', shortLabel: 'Ascolti' },
-  { id: 'fm-dati', label: 'Dati per nerd', shortLabel: 'Dati' },
+  { id: 'fm-dati', label: 'Dati analitici', shortLabel: 'Dati' },
 ]
 
 export const MUSICIAN_INDEX_UI = {

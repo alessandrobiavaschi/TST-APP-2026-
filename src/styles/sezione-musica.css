@@ -2217,38 +2217,286 @@
   color: var(--chip-color, #94a3b8);
 }
 
-.fm-section .fm-famiglia-musicale__testo {
+/* ── Hero for musicians ── */
+.for-musicians-view__hero {
+  margin-bottom: clamp(28px, 4vw, 44px);
+  padding: clamp(24px, 4vw, 36px);
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+}
+
+.for-musicians-view__hero-title {
+  margin: 6px 0 12px;
+  color: #f8fafc;
+  font-family: var(--font-display, Georgia, serif);
+  font-size: clamp(2rem, 4vw, 2.85rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.for-musicians-view__hero-lead {
+  margin: 0;
   max-width: 72ch;
-  margin: 0 0 30px;
+  color: rgba(226, 232, 240, 0.85);
+  font-size: clamp(1rem, 1.8vw, 1.1rem);
+  line-height: 1.65;
+}
+
+.for-musicians-view__user-badge {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+  padding: 12px 18px;
+  background: rgba(2, 6, 23, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+}
+
+.for-musicians-view__user-badge-label {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(248, 250, 252, 0.55);
+}
+
+.for-musicians-view__user-badge-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.for-musicians-view__user-badge-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.for-musicians-view__user-badge-hint {
+  font-size: 0.82rem;
+  color: rgba(226, 232, 240, 0.65);
+  margin-left: auto;
+}
+
+/* ── La famiglia nella musica: layout migliorato ── */
+.fm-famiglia-musicale__intro-box {
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 22px 26px;
+  margin-bottom: 28px;
+}
+
+.fm-famiglia-musicale__testo {
+  margin: 0;
   color: rgba(226, 232, 240, 0.9);
   font-size: 1.05rem;
   line-height: 1.7;
 }
 
-/* ── Dati per nerd ── */
-.fm-dati-nerd__ascolti {
-  margin-top: 32px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding-top: 18px;
+.fm-pullquote--featured {
+  margin: 24px 0 32px;
+  padding: 16px 20px 16px 22px;
+  background: rgba(15, 23, 42, 0.4);
+  border-left: 3px solid var(--music-accent, #38bdf8);
+  border-radius: 0 10px 10px 0;
 }
 
-.fm-dati-nerd__ascolti > summary {
-  cursor: pointer;
+/* I 4 modi di fare musica */
+.fm-practices-block {
+  margin-top: 32px;
+}
+
+.fm-practices-block__title {
+  margin: 0 0 4px;
+  font-family: var(--font-display, Georgia, serif);
+  font-size: 1.35rem;
   color: #f8fafc;
+}
+
+.fm-practices-block__subtitle {
+  margin: 0 0 18px;
+  font-size: 0.92rem;
+  color: rgba(226, 232, 240, 0.7);
+}
+
+.fm-practice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.fm-practice-card {
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.fm-practice-card:hover {
+  border-color: rgba(255, 255, 255, 0.22);
+  transform: translateY(-2px);
+}
+
+.fm-practice-card__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.fm-practice-card__icon {
+  font-size: 1.35rem;
+}
+
+.fm-practice-card__index {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--music-accent, #38bdf8);
+  letter-spacing: 0.08em;
+}
+
+.fm-practice-card__title {
+  margin: 0;
+  font-size: 1.12rem;
+  color: #f8fafc;
+  font-weight: 700;
+}
+
+.fm-practice-card__text {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: rgba(226, 232, 240, 0.82);
+}
+
+/* Attitudini: cosa valorizza / aree di attenzione */
+.fm-attitudes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px;
+  margin-top: 28px;
+}
+
+.fm-attitude-card {
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 12px;
+  padding: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.fm-attitude-card--strength {
+  border-left: 3px solid #34d399;
+}
+
+.fm-attitude-card--alert {
+  border-left: 3px solid #fbbf24;
+}
+
+.fm-attitude-card__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.fm-attitude-card__icon {
+  font-weight: 700;
   font-size: 1.05rem;
+}
+
+.fm-attitude-card--strength .fm-attitude-card__icon {
+  color: #34d399;
+}
+
+.fm-attitude-card--alert .fm-attitude-card__icon {
+  color: #fbbf24;
+}
+
+.fm-attitude-card__head h4 {
+  margin: 0;
+  font-size: 1.02rem;
+  color: #f8fafc;
   font-weight: 600;
 }
 
-.fm-dati-nerd__ascolti > summary:focus-visible {
-  outline: 2px solid var(--music-accent, #fff);
-  outline-offset: 4px;
+.fm-attitude-card__list {
+  margin: 0;
+  padding-left: 18px;
+  color: rgba(226, 232, 240, 0.82);
+  font-size: 0.9rem;
+  line-height: 1.6;
 }
 
-/* ── Scheda del musicista: tabella per famiglia o a confronto ── */
+.fm-attitude-card__list li + li {
+  margin-top: 8px;
+}
+
+/* Parole chiave del musicista */
+.fm-keywords-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 26px;
+  padding: 14px 18px;
+  background: rgba(0, 0, 0, 0.28);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.fm-keywords-bar__label {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(248, 250, 252, 0.55);
+}
+
+.fm-keywords-bar__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.fm-keyword-pill {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--music-accent, #38bdf8);
+  font-size: 0.82rem;
+  font-family: var(--font-mono, monospace);
+  font-weight: 500;
+}
+
+/* ── Scheda del musicista: card singole o tabella a confronto ── */
 .fm-scheda__head {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 24px;
@@ -2259,34 +2507,110 @@
   padding: 3px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 999px;
+  background: rgba(10, 15, 26, 0.4);
 }
 
 .fm-scheda__toggle button {
   appearance: none;
-  padding: 6px 14px;
+  padding: 7px 16px;
   border: 0;
   border-radius: 999px;
   background: transparent;
-  color: rgba(226, 232, 240, 0.7);
+  color: rgba(226, 232, 240, 0.72);
   font: inherit;
   font-size: 0.85rem;
+  font-weight: 600;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .fm-scheda__toggle button.is-active {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.14);
   color: #f8fafc;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .fm-scheda__toggle button:focus-visible {
-  outline: 2px solid var(--music-accent, #fff);
+  outline: 2px solid var(--music-accent, #38bdf8);
   outline-offset: 2px;
 }
 
+/* Grid per vista singola */
+.fm-scheda-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 18px;
+}
+
+.fm-scheda-card {
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.fm-scheda-card:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.fm-scheda-card__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.fm-scheda-card__icon {
+  font-size: 1.15rem;
+}
+
+.fm-scheda-card__label {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--music-accent, #38bdf8);
+}
+
+.fm-scheda-card__title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #f8fafc;
+  line-height: 1.35;
+}
+
+.fm-scheda-card__text {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.65;
+  color: rgba(226, 232, 240, 0.82);
+}
+
+.fm-scheda-card__source {
+  margin-top: auto;
+  padding-top: 8px;
+  font-size: 0.76rem;
+  color: rgba(226, 232, 240, 0.5);
+  font-style: italic;
+}
+
+/* Tabella per confronto */
 .fm-scheda__scroll {
   overflow-x: auto;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .fm-scheda__table {
@@ -2320,22 +2644,36 @@
 .fm-scheda__table tbody th {
   width: 190px;
   color: var(--music-accent, #f87171);
-  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-family: var(--font-mono, monospace);
   font-size: 0.74rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
+.fm-scheda__row-icon {
+  margin-right: 8px;
+  font-size: 0.95rem;
+}
+
 .fm-scheda__table thead th {
   color: #f8fafc;
   font-size: 0.95rem;
   border-top: 3px solid var(--col-color, transparent);
+  background: rgba(2, 6, 23, 0.4);
+}
+
+.fm-scheda__col-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
 }
 
 .fm-scheda__table thead th.is-active,
 .fm-scheda__table td.is-active {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .fm-scheda__tua {
@@ -2368,6 +2706,74 @@
 .fm-scheda__vuoto {
   color: rgba(226, 232, 240, 0.45);
   font-style: italic;
+}
+
+/* ── Dati analitici (Dati per nerd) ── */
+.fm-dati-nerd__ascolti-wrap {
+  margin-top: 36px;
+}
+
+.fm-dati-nerd__ascolti {
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 20px 24px;
+  transition: all 0.2s ease;
+}
+
+.fm-dati-nerd__ascolti[open] {
+  background: rgba(15, 23, 42, 0.75);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.fm-dati-nerd__summary {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  user-select: none;
+  list-style: none;
+}
+
+.fm-dati-nerd__summary::-webkit-details-marker {
+  display: none;
+}
+
+.fm-dati-nerd__summary-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.fm-dati-nerd__summary-icon {
+  font-size: 1.25rem;
+}
+
+.fm-dati-nerd__summary-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.fm-dati-nerd__summary-hint {
+  font-size: 0.82rem;
+  color: rgba(226, 232, 240, 0.65);
+  font-family: var(--font-mono, monospace);
+}
+
+.fm-dati-nerd__summary:focus-visible {
+  outline: 2px solid var(--music-accent, #38bdf8);
+  outline-offset: 4px;
+}
+
+.fm-dati-nerd__ascolti-content {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 @media (max-width: 640px) {
