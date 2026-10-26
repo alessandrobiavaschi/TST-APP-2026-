@@ -128,7 +128,6 @@ export default function ReportShell({
   const [glossaryFocusId, setGlossaryFocusId] = useState(null)
   const [loaded, setLoaded] = useState(false)
   const [scientificScopeOpen, setScientificScopeOpen] = useState(true)
-  const [fullscreenMode, setFullscreenMode] = useState(false)
   const [rapportiSlideActive, setRapportiSlideActive] = useState(false)
   const heroRef = useRef(null)
   const progressBarRef = useRef(null)
@@ -410,22 +409,6 @@ export default function ReportShell({
     return () => window.removeEventListener('hashchange', onHashChange)
   }, [])
 
-  const toggleFullscreen = useCallback(() => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen?.().catch(() => {})
-      setFullscreenMode(true)
-    } else {
-      document.exitFullscreen?.().catch(() => {})
-      setFullscreenMode(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    const onFsChange = () => setFullscreenMode(!!document.fullscreenElement)
-    document.addEventListener('fullscreenchange', onFsChange)
-    return () => document.removeEventListener('fullscreenchange', onFsChange)
-  }, [])
-
   useEffect(() => {
     if (!isAlternateMode) return undefined
     const prevOverflow = document.body.style.overflow
@@ -573,8 +556,6 @@ export default function ReportShell({
         </div>
 
         <NavbarTST
-          fullscreenMode={fullscreenMode}
-          onToggleFullscreen={toggleFullscreen}
           forceVisible={modalita !== 'report'}
           modalita={modalita}
           onModalitaChange={changeModalita}

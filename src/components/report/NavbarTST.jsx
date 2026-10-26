@@ -40,8 +40,6 @@ function formatNaturaResult(value = '') {
  * Su mobile: convertita in bottom navigation bar fixed in basso con 4 azioni.
  */
 export default function NavbarTST({
-  fullscreenMode = false,
-  onToggleFullscreen,
   forceVisible = false,
   modalita = 'report',
   onModalitaChange,
@@ -282,17 +280,6 @@ export default function NavbarTST({
               </span>
               <span className="navbar-tst__sep navbar-tst__sep--right" aria-hidden="true" />
             </>
-          ) : null}
-          {onToggleFullscreen ? (
-            <button
-              type="button"
-              onClick={onToggleFullscreen}
-              aria-label={fullscreenMode ? 'Esci da schermo intero' : 'Schermo intero'}
-              className="navbar-tst__fullscreen"
-              title={fullscreenMode ? 'Esci da schermo intero (ESC)' : 'Schermo intero'}
-            >
-              ⛶
-            </button>
           ) : null}
           <button
             type="button"
