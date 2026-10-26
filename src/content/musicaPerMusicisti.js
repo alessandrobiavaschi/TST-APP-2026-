@@ -864,7 +864,9 @@ export const COPPIE_ARTISTI_MUSSIDA = [
   {
     dimensione: 'Timbro',
     elemento: 'Terra sonora',
-    domandaGuida: 'Questa musica ti porta verso la leggerezza aerea o verso il peso e la profondità della terra?',
+    sottotitolo: 'Consistenza, peso e materia del suono',
+    descrizione: 'Il timbro definisce il corpo e la consistenza fisica della musica: dalla trasparenza aerea e lieve degli strumenti a fiato fino alla densità corporea e profonda delle corde terrene.',
+    domandaGuida: 'Questa musica ti porta verso la leggerezza aerea o verso il peso e la profondità della materia?',
     coppia: [
       {
         artista: 'Nicola Piovani',
@@ -883,6 +885,8 @@ export const COPPIE_ARTISTI_MUSSIDA = [
   {
     dimensione: 'Ritmo',
     elemento: 'Acqua sonora',
+    sottotitolo: 'Flusso del tempo, velocità e movimento',
+    descrizione: 'Il ritmo regola la velocità con cui scorre il nostro tempo interiore: dall\'andamento calmo e contemplativo di un grande fiume alla scansione viva e incalzante di un torrente.',
     domandaGuida: 'Lo scorrere del tempo ti porta verso la contemplazione lenta di un fiume o verso l\'eccitazione veloce di un torrente?',
     coppia: [
       {
@@ -902,6 +906,8 @@ export const COPPIE_ARTISTI_MUSSIDA = [
   {
     dimensione: 'Melodia',
     elemento: 'Aria sonora',
+    sottotitolo: 'Traiettoria espressiva, respiro e narrazione',
+    descrizione: 'La melodia traccia la direzione del nostro sentire: può guidare lo sguardo verso una fierezza solare ed energica, oppure raccogliersi in un\'intima e commovente nostalgia.',
     domandaGuida: 'La traiettoria della linea melodica ti guida verso una fierezza gioiosa o verso una commovente fermezza nostalgica?',
     coppia: [
       {
@@ -921,6 +927,8 @@ export const COPPIE_ARTISTI_MUSSIDA = [
   {
     dimensione: 'Intervallo',
     elemento: 'Luce sonora',
+    sottotitolo: 'Distanza tra le note, tensione e chiaroscuro',
+    descrizione: 'La distanza tra due note genera contrasti di tensione e distensione: intervalli aperti e luminosi rischiarano l\'animo, mentre distanze strette aprono a una penombra intima e riflessiva.',
     domandaGuida: 'L\'intervallo armonico accende una luce diretta e solare oppure una luce riflessa e lunare?',
     coppia: [
       {
@@ -940,6 +948,8 @@ export const COPPIE_ARTISTI_MUSSIDA = [
   {
     dimensione: 'Armonia',
     elemento: 'Calore sonoro',
+    sottotitolo: 'Architettura degli accordi e coralità',
+    descrizione: 'L\'armonia unisce le voci in una risonanza comune: può orientare l\'ascolto verso il raccoglimento spirituale interiore (il Noi interiore) o verso l\'abbraccio corale di una comunità in cammino (il Noi sociale).',
     domandaGuida: 'Gli accordi e l\'insieme delle voci orientano il calore verso il Noi interiore o verso il Noi sociale?',
     coppia: [
       {

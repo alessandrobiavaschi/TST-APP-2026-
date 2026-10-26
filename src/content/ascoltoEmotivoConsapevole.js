@@ -11,7 +11,7 @@
  */
 
 export const ASCOLTO_INTRO =
-  'Un metodo del libro per allenare l’ascolto emotivo: cinque elementi del suono, ciascuno raccontato attraverso due brani reali agli estremi opposti di una stessa sensazione.'
+  'Un metodo per allenare l’ascolto emotivo: cinque elementi del suono, ciascuno raccontato attraverso due brani reali agli estremi opposti di una stessa sensazione.'
 
 export const ELEMENTI_ASCOLTO = [
   {

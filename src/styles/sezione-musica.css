@@ -1454,7 +1454,7 @@
   }
 }
 
-/* ── 4. Ascolti e Artisti: le 5 coppie del libro ─────────────────────────── */
+/* ── 4. Ascolti e Artisti: i 5 contrasti sonori ─────────────────────────── */
 .fm-artists-list__container {
   display: flex;
   flex-direction: column;
@@ -1463,18 +1463,79 @@
 }
 
 .fm-artist-pair-card {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
   padding: 26px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 22px;
 }
 
 .fm-artist-pair-card__header {
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding-bottom: 16px;
+  padding-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fm-artist-pair-card__meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.fm-artist-pair-card__badge {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid currentColor;
+}
+
+.fm-artist-pair-card__subtitle {
+  font-family: var(--font-sans, system-ui, sans-serif);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: rgba(248, 250, 252, 0.88);
+}
+
+.fm-artist-pair-card__desc {
+  margin: 0;
+  font-family: var(--font-sans, system-ui, sans-serif);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: rgba(226, 232, 240, 0.82);
+}
+
+.fm-artist-pair-card__prompt {
+  background: rgba(0, 0, 0, 0.28);
+  border-left: 3px solid var(--music-accent, #4ade80);
+  border-radius: 0 8px 8px 0;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.fm-artist-pair-card__prompt-label {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--music-accent, #4ade80);
 }
 
 .fm-artist-pair-card__dimension {
@@ -1492,55 +1553,118 @@
   font-family: var(--font-display, Georgia, serif);
   font-size: 1.15rem;
   color: #f8fafc;
-  line-height: 1.4;
+  line-height: 1.45;
   font-style: italic;
 }
 
 .fm-artist-pair-card__dual-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 24px;
+  gap: 20px;
 }
 
 .fm-artist-track {
-  background: rgba(2, 6, 23, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 8px;
-  padding: 20px;
+  background: rgba(2, 6, 23, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  padding: 22px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.fm-artist-track:hover {
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.fm-artist-track__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 2px;
+}
+
+.fm-artist-track__pole-tag {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(248, 250, 252, 0.45);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2px 6px;
+  border-radius: 4px;
 }
 
 .fm-artist-track__pole {
   font-family: var(--font-mono, monospace);
-  font-size: 0.7rem;
+  font-size: 0.74rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: #38bdf8;
-  margin-bottom: 4px;
 }
 
 .fm-artist-track__title {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   color: #f8fafc;
   font-weight: 700;
+  line-height: 1.35;
 }
 
 .fm-artist-track__author {
-  margin: 0 0 10px;
+  margin: 0 0 6px;
   font-size: 0.88rem;
-  color: rgba(226, 232, 240, 0.6);
+  color: rgba(226, 232, 240, 0.65);
   font-family: var(--font-mono, monospace);
 }
 
 .fm-artist-track__analysis {
-  margin: 0;
-  font-size: 0.9rem;
+  margin: 0 0 16px;
+  font-size: 0.92rem;
   line-height: 1.6;
-  color: rgba(226, 232, 240, 0.8);
+  color: rgba(226, 232, 240, 0.82);
+  flex-grow: 1;
+}
+
+.fm-artist-track__actions {
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+.fm-artist-track__listen-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #f8fafc;
+  font-family: var(--font-sans, system-ui, sans-serif);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.fm-artist-track__listen-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.24);
+  color: #ffffff;
+}
+
+.fm-artist-track__play-icon {
+  font-size: 0.72rem;
+  color: var(--music-accent, #38bdf8);
+}
+
+.fm-artist-track__ext-arrow {
+  font-size: 0.78rem;
+  opacity: 0.65;
 }
 
 /* ── 🧭 BUSSOLA STICKY DI NAVIGAZIONE (MusiciansCompassNav) ───────────────── */
