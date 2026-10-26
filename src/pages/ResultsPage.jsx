@@ -1566,7 +1566,7 @@ function ResultsPage() {
                 </div>
 
                 {importError && <p className="auth-error" style={{ marginTop: '1rem' }}>{importError}</p>}
-                {importSuccess && <p style={{ marginTop: '1rem', color: 'var(--primary-dark)', fontWeight: 'bold' }}>{importSuccess}</p>}
+                {importSuccess && <p className="results-import-modal-success">{importSuccess}</p>}
 
                 <div className="modal-actions" style={{ marginTop: '2rem' }}>
                   <button type="button" className="nav-button secondary" onClick={closeImportModal} disabled={importing}>
