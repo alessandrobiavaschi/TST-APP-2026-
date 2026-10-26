@@ -981,16 +981,6 @@ export default function ReportShell({
           aria-hidden={modalita !== 'galassia'}
           inert={modalita !== 'galassia' ? true : undefined}
         >
-          <div className="report-galassia-floating-header">
-            <button
-              type="button"
-              className="report-dettaglio-back-btn report-galassia-back-btn"
-              onClick={() => changeModalita('report')}
-              aria-label="Torna al report principale"
-            >
-              ← Torna al Report
-            </button>
-          </div>
           <div className="report-tst-galassia">
             <Suspense fallback={<TstLoader variant="inline" tone="dark" color={correnteColore} label={REPORT_SHELL_UI.loadingInline} />}>
               <GalassiaView
