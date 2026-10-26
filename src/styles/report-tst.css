@@ -2143,9 +2143,11 @@
 }
 
 .for-musicians-view {
-  width: min(1080px, calc(100% - 40px));
-  margin: 0 auto;
-  padding: clamp(48px, 7vw, 90px) 0 100px;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: clamp(36px, 4vw, 56px) clamp(24px, 4.5vw, 64px) 100px;
+  box-sizing: border-box;
 }
 
 .for-musicians-view__hero {
@@ -2369,8 +2371,10 @@
   }
 
   .for-musicians-view {
-    width: min(100% - 28px, 1120px);
-    padding-top: 38px;
+    width: 100%;
+    max-width: 100%;
+    padding: 28px clamp(16px, 3vw, 24px) 80px;
+    box-sizing: border-box;
   }
 
   .navbar-tst__switch-btn {
@@ -6090,8 +6094,10 @@
   }
 
   .for-musicians-view {
-    width: calc(100% - (2 * var(--space-sm)));
-    padding: var(--space-md) 0 var(--space-lg);
+    width: 100%;
+    max-width: 100%;
+    padding: var(--space-md) var(--space-sm) var(--space-lg);
+    box-sizing: border-box;
   }
 
   .for-musicians-view__section {

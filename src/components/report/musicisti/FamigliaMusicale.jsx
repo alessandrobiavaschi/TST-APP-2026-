@@ -64,12 +64,10 @@ export default function FamigliaMusicale({ famigliaUtente = '', attiva, onChange
         {haFareMusica ? (
           <div className="fm-article__practices">
             <h3 className="fm-article__subheading">L'espressione e il fare musica</h3>
-            <p className="fm-article__p">
-              {fareMusica.suonare && <span>{fareMusica.suonare} </span>}
-              {fareMusica.interpretare && <span>{fareMusica.interpretare} </span>}
-              {fareMusica.comporre && <span>{fareMusica.comporre} </span>}
-              {fareMusica.improvvisare && <span>{fareMusica.improvvisare}</span>}
-            </p>
+            {fareMusica.suonare && <p className="fm-article__p">{fareMusica.suonare}</p>}
+            {fareMusica.interpretare && <p className="fm-article__p">{fareMusica.interpretare}</p>}
+            {fareMusica.comporre && <p className="fm-article__p">{fareMusica.comporre}</p>}
+            {fareMusica.improvvisare && <p className="fm-article__p">{fareMusica.improvvisare}</p>}
           </div>
         ) : null}
 
