@@ -2,6 +2,7 @@ import React from 'react'
 import { formatSubcategoryLabel } from '../utils/reportTaxonomy.js'
 import TstLoader from './primitives/TstLoader.jsx'
 import { radarFamiglie } from '../design-tokens'
+import { getSingleRecordMatrixFilename } from '../utils/reportRecordUtils.js'
 
 const RADAR_FAMIGLIE = radarFamiglie
 
@@ -449,6 +450,14 @@ function ResultsArchiveMobile({
                         >
                           Apri report
                         </button>
+                        <IconDownload
+                          compact
+                          title="Scarica matrice CSV"
+                          onClick={() => {
+                            const filename = getSingleRecordMatrixFilename(r)
+                            downloadCsvFromRecords([r], filename)
+                          }}
+                        />
                         <IconEdit compact onClick={() => openReport(r)} />
                         {inTrash ? (
                           <button
@@ -478,6 +487,24 @@ function ResultsArchiveMobile({
         )}
       </div>
     </section>
+  )
+}
+
+function IconDownload({ compact, title = 'Scarica matrice', onClick }) {
+  return (
+    <button
+      type="button"
+      className={`results-table-icon-btn results-table-icon-btn--download ${compact ? 'results-archive-mobile-tap-target' : ''}`.trim()}
+      onClick={onClick}
+      title={title}
+      aria-label={title}
+    >
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+        <polyline points="7 10 12 15 17 10" />
+        <line x1="12" y1="15" x2="12" y2="3" />
+      </svg>
+    </button>
   )
 }
 

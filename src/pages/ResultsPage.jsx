@@ -37,6 +37,7 @@ import {
   downloadCsvSingleRecord,
   downloadResearchMatrixCsv,
   formatCellValue,
+  getSingleRecordMatrixFilename,
 } from '../utils/reportRecordUtils.js'
 import { parseMatriceCsv } from '../utils/matriceCsv.js'
 import { CAMPI_PER_COLORE, NATURE, colorKeyDaEtichetta } from '../config/tstSistema.js'
@@ -162,6 +163,24 @@ function getResolvedSottodisposizione(raw = {}) {
   })
   if (!bestKey || bestValue <= 0) return ''
   return formatSubcategoryLabel(SOTTOCORRENTE_LABEL_BY_KEY[bestKey] || bestKey)
+}
+
+function IconDownload({ title, onClick, className = '' }) {
+  return (
+    <button
+      type="button"
+      className={`results-table-icon-btn results-table-icon-btn--download ${className}`.trim()}
+      onClick={onClick}
+      title={title}
+      aria-label={title}
+    >
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+        <polyline points="7 10 12 15 17 10" />
+        <line x1="12" y1="15" x2="12" y2="3" />
+      </svg>
+    </button>
+  )
 }
 
 function IconEdit({ title, onClick, className = '' }) {
@@ -791,6 +810,20 @@ function ResultsPage() {
     navigate('/risultati/report', { state: { record } })
   }
 
+  const handleDownloadSingleRecord = (record, e) => {
+    if (e) {
+      e.stopPropagation()
+      e.preventDefault()
+    }
+    if (!record || !record.raw) return
+    if (e?.shiftKey) {
+      downloadCsvSingleRecord(record)
+      return
+    }
+    const filename = getSingleRecordMatrixFilename(record)
+    downloadCsvFromRecords([record], filename)
+  }
+
   useEffect(() => {
     if (guestRecord) return
     if (!authReady || !currentUser) {
@@ -1187,7 +1220,17 @@ function ResultsPage() {
     ? 'tst_matrice_cestino.csv'
     : selectedAreaId
       ? `tst_matrice_${(selectedAreaName || 'area').replace(/\s+/g, '_')}.csv`
-      : 'tst_matrice_archivio_totale.csv'
+      : filteredRecords.length === 1
+        ? getSingleRecordMatrixFilename(filteredRecords[0])
+        : 'tst_matrice_archivio_totale.csv'
+
+  const downloadArchiveLabel = showTrash
+    ? 'Scarica matrice (cestino)'
+    : selectedAreaId
+      ? `Scarica matrice (${selectedAreaName})`
+      : filteredRecords.length === 1 && records.length > 1
+        ? 'Scarica matrice (1 test filtrato)'
+        : 'Scarica matrice (archivio totale)'
 
   return (
     <div className="page page-results-with-archives">
@@ -1431,7 +1474,7 @@ function ResultsPage() {
                 disabled={!filteredRecords.length}
                 title={selectedAreaId ? `Scarica matrice per area "${selectedAreaName}"` : 'Scarica matrice archivio totale'}
               >
-                {selectedAreaId ? `Scarica matrice (${selectedAreaName})` : 'Scarica matrice (archivio totale)'}
+                {downloadArchiveLabel}
               </button>
               <button
                 type="button"
@@ -1623,6 +1666,10 @@ function ResultsPage() {
                           </button>
                         </td>
                         <td className="results-table-actions" onClick={(e) => e.stopPropagation()}>
+                          <IconDownload
+                            title="Scarica matrice CSV (Shift per matrice ricerca)"
+                            onClick={(e) => handleDownloadSingleRecord(r, e)}
+                          />
                           <IconEdit
                             title="Modifica"
                             onClick={(e) => {

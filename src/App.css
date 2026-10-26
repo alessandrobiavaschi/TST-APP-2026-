@@ -7533,6 +7533,10 @@ body {
   color: #111827;
 }
 
+.results-table-icon-btn--download:hover {
+  color: var(--tst-color-accent-system, #38bdf8);
+}
+
 .results-table-icon-btn--edit:hover {
   color: var(--color-accent);
 }

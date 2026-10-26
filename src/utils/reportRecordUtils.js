@@ -498,18 +498,59 @@ export function downloadCsvSingleRecord(record) {
 }
 
 /**
- * Scarica la matrice gestionale completa (backup Firestore con schema originale) di un singolo record.
+ * Calcola il nome file standard per il download della matrice di un singolo record.
  */
-export function downloadCsvSingleRecordGestionale(record, filename = 'tst_matrice_gestionale.csv') {
-  if (!record || !record.raw) return
+export function getSingleRecordMatrixFilename(record) {
+  if (!record || !record.raw) return 'tst_matrice_singola.csv'
+  const idFromRaw = [record.raw.Nome, record.raw.Cognome]
+    .filter(Boolean)
+    .join('_')
+    .trim()
+    .replace(/\s+/g, '_')
+  const safeName = idFromRaw.replace(/[^a-zA-Z0-9à-úÀ-Ú_]/g, '') || 'test'
+  const dateStr = record.raw.Data_Ora_Fine_Test || record.raw.Data_Test
+  let dateSuffix = ''
+  if (dateStr) {
+    if (typeof dateStr?.toDate === 'function') {
+      dateSuffix = `_${dateStr.toDate().toISOString().slice(0, 10)}`
+    } else if (dateStr instanceof Date) {
+      dateSuffix = `_${dateStr.toISOString().slice(0, 10)}`
+    } else {
+      const match = String(dateStr).match(/\d{4}-\d{2}-\d{2}/)
+      if (match) {
+        dateSuffix = `_${match[0]}`
+      } else {
+        const cleaned = String(dateStr).slice(0, 10).replace(/[^0-9]/g, '')
+        if (cleaned) dateSuffix = `_${cleaned}`
+      }
+    }
+  }
+  return `tst_matrice_${safeName}${dateSuffix}.csv`
+}
+
+/**
+ * Genera il contenuto CSV per la matrice di un singolo record conforme a testSchema (con areaId).
+ */
+export function buildSingleRecordMatrixCsv(record) {
+  if (!record || !record.raw) return ''
   const headerKeys = Object.keys(testSchema)
-  const header = ['id', ...headerKeys]
+  const header = ['id', 'areaId', ...headerKeys]
 
   const idFromRaw = (raw) =>
     [raw?.Nome, raw?.Cognome].filter((v) => v != null && String(v).trim()).join(' ').trim() || ''
   const id = formatCellValue(idFromRaw(record.raw))
-  const row = [id, ...headerKeys.map((key) => formatCellValue(record.raw[key]))].join(',')
-  const csvContent = [header.join(','), row].join('\n')
+  const areaId = formatCellValue(record.raw.areaId || '')
+  const row = [id, areaId, ...headerKeys.map((key) => formatCellValue(record.raw[key]))].join(',')
+  return [header.join(','), row].join('\n')
+}
+
+/**
+ * Scarica la matrice gestionale completa (backup Firestore con schema originale) di un singolo record.
+ */
+export function downloadCsvSingleRecordGestionale(record, customFilename) {
+  if (!record || !record.raw) return
+  const filename = customFilename || getSingleRecordMatrixFilename(record)
+  const csvContent = buildSingleRecordMatrixCsv(record)
 
   if (typeof document === 'undefined') return csvContent
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
