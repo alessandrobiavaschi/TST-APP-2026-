@@ -2119,3 +2119,139 @@
   outline: 2px solid var(--music-accent, #fff);
   outline-offset: 4px;
 }
+
+/* ── Scheda del musicista: tabella per famiglia o a confronto ── */
+.fm-scheda__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.fm-scheda__toggle {
+  display: inline-flex;
+  padding: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+}
+
+.fm-scheda__toggle button {
+  appearance: none;
+  padding: 6px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(226, 232, 240, 0.7);
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.fm-scheda__toggle button.is-active {
+  background: rgba(255, 255, 255, 0.12);
+  color: #f8fafc;
+}
+
+.fm-scheda__toggle button:focus-visible {
+  outline: 2px solid var(--music-accent, #fff);
+  outline-offset: 2px;
+}
+
+.fm-scheda__scroll {
+  overflow-x: auto;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+}
+
+.fm-scheda__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.fm-scheda__scroll--confronto .fm-scheda__table {
+  min-width: 1100px;
+  table-layout: fixed;
+}
+
+.fm-scheda__scroll--confronto thead th:first-child {
+  width: 150px;
+}
+
+.fm-scheda__table th,
+.fm-scheda__table td {
+  padding: 16px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: left;
+  vertical-align: top;
+}
+
+.fm-scheda__table tr:last-child th,
+.fm-scheda__table tr:last-child td {
+  border-bottom: 0;
+}
+
+.fm-scheda__table tbody th {
+  width: 190px;
+  color: var(--music-accent, #f87171);
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.fm-scheda__table thead th {
+  color: #f8fafc;
+  font-size: 0.95rem;
+  border-top: 3px solid var(--col-color, transparent);
+}
+
+.fm-scheda__table thead th.is-active,
+.fm-scheda__table td.is-active {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.fm-scheda__tua {
+  color: var(--col-color, #94a3b8);
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.fm-scheda__titolo {
+  display: block;
+  margin-bottom: 6px;
+  color: #f8fafc;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.fm-scheda__testo {
+  display: block;
+  color: rgba(226, 232, 240, 0.8);
+  line-height: 1.6;
+}
+
+.fm-scheda__fonte {
+  display: block;
+  margin-top: 6px;
+  color: rgba(226, 232, 240, 0.5);
+  font-size: 0.78rem;
+}
+
+.fm-scheda__vuoto {
+  color: rgba(226, 232, 240, 0.45);
+  font-style: italic;
+}
+
+@media (max-width: 640px) {
+  .fm-scheda__table tbody th {
+    width: 110px;
+  }
+  .fm-scheda__table th,
+  .fm-scheda__table td {
+    padding: 12px;
+  }
+}

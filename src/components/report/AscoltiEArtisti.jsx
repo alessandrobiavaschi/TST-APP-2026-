@@ -3,10 +3,10 @@ import { COPPIE_ARTISTI_MUSSIDA } from '../../content/musicaPerMusicisti.js'
 
 export default function AscoltiEArtisti({ accentColor = '#4ade80' }) {
   return (
-    <section className="fm-section fm-artists-list" aria-labelledby="fm-artists-title">
+    <section id="fm-ascolti" className="fm-section fm-artists-list" aria-labelledby="fm-artists-title">
       <div className="fm-artists-list__head">
         <p className="fm-kicker">Metodo di ascolto · Il Pianeta della Musica</p>
-        <h2 id="fm-artists-title">Ascolti e artisti: le 5 coppie del libro</h2>
+        <h2 id="fm-artists-title">Ascolti consigliati: le 5 coppie del libro</h2>
         <p className="fm-section-lead">
           Le cinque dimensioni fondamentali del codice musicale raccontate attraverso dieci brani reali
           agli estremi opposti di una stessa sensazione. L'analisi esperienziale di Franco Mussida

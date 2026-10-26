@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef, useCallback } from 'react'
 import MusiciansCompassNav from './MusiciansCompassNav.jsx'
 import FamigliaMusicale from './musicisti/FamigliaMusicale.jsx'
 import DatiPerNerd from './musicisti/DatiPerNerd.jsx'
+import SchedaMusicista from './musicisti/SchedaMusicista.jsx'
+import AscoltiEArtisti from './AscoltiEArtisti.jsx'
+import { MUSICISTI_SCHEDE } from '../../content/musicaDisposizione.js'
 import { MUSICIAN_ROOMS, MUSICIAN_INDEX_UI } from '../../config/musiciansConfig.js'
 import '../../styles/sezione-musica.css'
 
@@ -9,8 +12,8 @@ import '../../styles/sezione-musica.css'
 const findScroller = (node) => node?.closest?.('.report-tst-musicians-layer') || null
 
 /**
- * Lettura per musicisti, in due stanze: la famiglia nella Musica (con le altre
- * famiglie da leggere) e i dati per nerd con le macro risposte del test.
+ * Lettura per musicisti: la famiglia nella Musica (con le altre famiglie da
+ * leggere), la scheda del musicista, gli ascolti consigliati, i dati per nerd.
  */
 export default function ForMusiciansView({
   profilo = {},
@@ -22,6 +25,8 @@ export default function ForMusiciansView({
   backButtonRef,
 }) {
   const [activeRoom, setActiveRoom] = useState(MUSICIAN_ROOMS[0].id)
+  const famigliaUtente = profilo?.famiglia || ''
+  const [famigliaAttiva, setFamigliaAttiva] = useState(MUSICISTI_SCHEDE[famigliaUtente] ? famigliaUtente : 'Rosso')
   const viewContainerRef = useRef(null)
 
   useEffect(() => {
@@ -57,7 +62,9 @@ export default function ForMusiciansView({
       />
 
       <div className="for-musicians-view__content">
-        <FamigliaMusicale famigliaUtente={profilo?.famiglia || ''} />
+        <FamigliaMusicale famigliaUtente={famigliaUtente} attiva={famigliaAttiva} onChange={setFamigliaAttiva} />
+        <SchedaMusicista famigliaUtente={famigliaUtente} famigliaAttiva={famigliaAttiva} />
+        <AscoltiEArtisti accentColor={accentColor} />
         <DatiPerNerd
           approfondimento={approfondimento}
           filtroMusicale={filtroMusicale}
