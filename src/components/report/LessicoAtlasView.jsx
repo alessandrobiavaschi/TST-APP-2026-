@@ -3,8 +3,8 @@ import { GALAXY_THEORY_BY_DISPOSITION } from '../../config/galaxyTheoryContent.t
 import { FAMIGLIE_TST } from '../../content/paroleTst.js'
 
 // ─── Virtual World Dimensions ────────────────────────────────────────────────
-const WORLD_WIDTH = 3400
-const WORLD_HEIGHT = 2400
+const WORLD_WIDTH = 3600
+const WORLD_HEIGHT = 2700
 
 const CAMERA_MIN_SCALE = 0.22
 const CAMERA_MAX_SCALE = 2.8
@@ -15,7 +15,7 @@ const BASE_PITCH = 0
 const FOCUS_PITCH = 0
 const LERP_FACTOR = 0.45
 // Livelli di dettaglio del Lessico: soglie di zoom e attesa prima del cambio.
-const LOD_EDGES = [0.48, 0.85, 1.4]
+const LOD_EDGES = [0.42, 0.72, 1.25]
 const LOD_TIERS = ['macro', 'meso-wide', 'meso', 'micro']
 const LOD_SETTLE_MS = 140
 
@@ -52,11 +52,11 @@ const FAMILY_CONFIG = {
     label: 'Entusiasta',
     colors: ['#fbbf24', '#f59e0b', '#d97706', '#fcd34d', '#f97316', '#fb923c'],
     baseColor: '#f59e0b',
-    glowColor: 'rgba(245, 158, 11, 0.24)',
-    x: 1700,
-    y: 440,
-    radius: 440,
-    subSpread: 240,
+    glowColor: 'rgba(245, 158, 11, 0.35)',
+    x: 1800,
+    y: 540,
+    radius: 460,
+    subSpread: 250,
     compass: '',
   },
   flemmatica: {
@@ -64,11 +64,11 @@ const FAMILY_CONFIG = {
     label: 'Flemmatica',
     colors: ['#4ade80', '#22c55e', '#16a34a', '#34d399', '#0d9488', '#2dd4bf'],
     baseColor: '#22c55e',
-    glowColor: 'rgba(34, 197, 94, 0.22)',
-    x: 1700,
-    y: 1300,
-    radius: 420,
-    subSpread: 210,
+    glowColor: 'rgba(34, 197, 94, 0.32)',
+    x: 1800,
+    y: 1350,
+    radius: 440,
+    subSpread: 220,
     compass: '',
   },
   agnostica_anaffettiva: {
@@ -76,11 +76,11 @@ const FAMILY_CONFIG = {
     label: 'Razionale',
     colors: ['#94a3b8', '#64748b', '#cbd5e1', '#9ca3af', '#475569', '#e2e8f0'],
     baseColor: '#94a3b8',
-    glowColor: 'rgba(148, 163, 184, 0.22)',
-    x: 1700,
+    glowColor: 'rgba(148, 163, 184, 0.32)',
+    x: 1800,
     y: 2160,
-    radius: 400,
-    subSpread: 230,
+    radius: 430,
+    subSpread: 240,
     compass: '',
   },
   malinconica_nostalgica: {
@@ -88,11 +88,11 @@ const FAMILY_CONFIG = {
     label: 'Malinconica',
     colors: ['#818cf8', '#6366f1', '#7c3aed', '#a5b4fc', '#4338ca', '#c084fc'],
     baseColor: '#6366f1',
-    glowColor: 'rgba(99, 102, 241, 0.24)',
-    x: 680,
-    y: 1300,
-    radius: 660,
-    subSpread: 350,
+    glowColor: 'rgba(99, 102, 241, 0.35)',
+    x: 760,
+    y: 1350,
+    radius: 680,
+    subSpread: 360,
     compass: '',
   },
   collerico_volitiva: {
@@ -100,11 +100,11 @@ const FAMILY_CONFIG = {
     label: 'Marziale',
     colors: ['#f87171', '#ef4444', '#dc2626', '#fb7185', '#be123c', '#c026d3'],
     baseColor: '#ef4444',
-    glowColor: 'rgba(239, 68, 68, 0.24)',
-    x: 2720,
-    y: 1300,
-    radius: 540,
-    subSpread: 290,
+    glowColor: 'rgba(239, 68, 68, 0.35)',
+    x: 2840,
+    y: 1350,
+    radius: 560,
+    subSpread: 300,
     compass: '',
   },
 }
@@ -407,15 +407,29 @@ function buildConstellationData() {
       interval: o.subcurrentInterval,
     }))
 
-    // Calculate node coordinates: if intersection across families, position at barycenter of hubs
+    // Calculate node coordinates: words have real 3D depth layers (Z-axis)
     let targetX = first.wx
     let targetY = first.wy
+    const targetZ = first.ringIndex === 0 ? 28 : first.ringIndex === 1 ? 8 : -14
+
     if (isIntersection) {
       if (famIds.length > 1) {
-        const avgHubX = occurrences.reduce((s, o) => s + o.hubX, 0) / occurrences.length
-        const avgHubY = occurrences.reduce((s, o) => s + o.hubY, 0) / occurrences.length
-        targetX = Math.round(avgHubX)
-        targetY = Math.round(avgHubY)
+        // Find vector from first hub to the secondary hub
+        const otherOcc = occurrences.find((o) => o.hubId !== first.hubId) || occurrences[1]
+        const dx = otherOcc.hubX - first.hubX
+        const dy = otherOcc.hubY - first.hubY
+        const dist = Math.hypot(dx, dy)
+        if (dist > 0.001) {
+          // Place smoothly along the bridge corridor towards the companion family,
+          // constrained to orbit perimeter so words never shoot into empty void
+          const angle = Math.atan2(dy, dx)
+          const bridgeDist = Math.min(dist * 0.38, Math.max(220, (first.orbitRadius || 240) * 1.08))
+          targetX = Math.round(first.hubX + Math.cos(angle) * bridgeDist)
+          targetY = Math.round(first.hubY + Math.sin(angle) * bridgeDist)
+        } else {
+          targetX = first.wx
+          targetY = first.wy
+        }
       } else {
         targetX = Math.round(occurrences.reduce((s, o) => s + o.wx, 0) / occurrences.length)
         targetY = Math.round(occurrences.reduce((s, o) => s + o.wy, 0) / occurrences.length)
@@ -448,6 +462,7 @@ function buildConstellationData() {
       hubY: first.hubY,
       x: targetX,
       y: targetY,
+      z: isIntersection ? 20 : targetZ,
       width: Math.max(...occurrences.map((o) => o.estWidth)) + (isIntersection ? 16 : 0),
       height: Math.max(...occurrences.map((o) => o.estHeight)) + (isIntersection ? 4 : 0),
       fontSize: isIntersection ? 13.5 : first.fontSize,
@@ -1088,8 +1103,6 @@ export default function LessicoAtlasView({
     }
   }, [])
 
-  const activeFamilyId = filterFamily || 'malinconica_nostalgica'
-
   const normalizedSearch = searchQuery.trim().toLowerCase()
 
   const userPercentages = useMemo(() => {
@@ -1298,7 +1311,7 @@ export default function LessicoAtlasView({
     return () => clearTimeout(timer)
   }, [normalizedSearch, focusWord])
 
-  // Smoothly glide camera to frame a specific family sphere without 3D wobble
+  // Smoothly glide camera to frame a specific family sphere without clipping any words
   const focusFamily = useCallback(
     (familyId) => {
       const vp = layerRef.current
@@ -1310,21 +1323,52 @@ export default function LessicoAtlasView({
         return
       }
 
-      const padding = 1.35
-      const targetScale = clamp(
-        Math.min(rect.width / (fam.radius * 2 * padding), rect.height / (fam.radius * 2 * padding)),
-        1.1,
-        1.55,
+      // Collect all words belonging to this family to compute exact cluster bounds
+      const famWords = CONSTELLATION_DATA.words.filter(
+        (w) => w.connectedFamilyIds?.includes(familyId) || w.familyId === familyId,
       )
 
-      const targetX = rect.width / 2 - WORLD_WIDTH / 2 - (fam.x - WORLD_WIDTH / 2) * targetScale
-      const targetY = rect.height / 2 - WORLD_HEIGHT / 2 - (fam.y - WORLD_HEIGHT / 2) * targetScale
+      let minX = fam.x - fam.radius
+      let maxX = fam.x + fam.radius
+      let minY = fam.y - fam.radius
+      let maxY = fam.y + fam.radius
+
+      if (famWords.length > 0) {
+        famWords.forEach((w) => {
+          const halfW = (w.width || 120) / 2
+          const halfH = (w.height || 36) / 2
+          minX = Math.min(minX, w.x - halfW)
+          maxX = Math.max(maxX, w.x + halfW)
+          minY = Math.min(minY, w.y - halfH)
+          maxY = Math.max(maxY, w.y + halfH)
+        })
+      }
+
+      // Include badge top with extra space
+      const badgeTop = fam.y - fam.radius - 40
+      minY = Math.min(minY, badgeTop)
+
+      // Generous safety margin (at least 90px on each side)
+      const marginX = 90
+      const marginY = 90
+      const spanX = Math.max(fam.radius * 2, maxX - minX) + marginX * 2
+      const spanY = Math.max(fam.radius * 2, maxY - minY) + marginY * 2
+
+      const centerX = (minX + maxX) / 2
+      const centerY = (minY + maxY) / 2
+
+      // Fit the entire cluster into the viewport so zero words can ever clip
+      const fitScale = Math.min(rect.width / spanX, rect.height / spanY)
+      const targetScale = clamp(fitScale, 0.46, 1.25)
+
+      const targetX = rect.width / 2 - WORLD_WIDTH / 2 - (centerX - WORLD_WIDTH / 2) * targetScale
+      const targetY = rect.height / 2 - WORLD_HEIGHT / 2 - (centerY - WORLD_HEIGHT / 2) * targetScale
 
       velocityRef.current = { vx: 0, vy: 0 }
       flightRef.current = {
         active: true,
         startTime: performance.now(),
-        duration: 600,
+        duration: 650,
         startCamera: { ...cameraRef.current },
         endCamera: {
           x: targetX,
@@ -1911,8 +1955,8 @@ export default function LessicoAtlasView({
           vel.vy = 0
         }
         // Safety bound clamping
-        targetCameraRef.current.x = clamp(targetCameraRef.current.x, -2600, 2600)
-        targetCameraRef.current.y = clamp(targetCameraRef.current.y, -2000, 2000)
+        targetCameraRef.current.x = clamp(targetCameraRef.current.x, -3200, 3200)
+        targetCameraRef.current.y = clamp(targetCameraRef.current.y, -2500, 2500)
       }
 
       // 2. Camera Lerp Damping
@@ -1999,8 +2043,10 @@ export default function LessicoAtlasView({
         const vpW = viewportSizeRef.current.w
         const vpH = viewportSizeRef.current.h
         const scale = cur.scale
-        const wx1 = 1700 - (1700 + cur.x) / scale
-        const wy1 = 1200 - (1200 + cur.y) / scale
+        const halfW = WORLD_WIDTH / 2
+        const halfH = WORLD_HEIGHT / 2
+        const wx1 = halfW - (halfW + cur.x) / scale
+        const wy1 = halfH - (halfH + cur.y) / scale
         const worldW = vpW / scale
         const worldH = vpH / scale
 
@@ -2266,7 +2312,7 @@ export default function LessicoAtlasView({
             <div ref={nebulaeRef} className="lessico-atlas__layer-nebulae" aria-hidden>
               {CONSTELLATION_DATA.spheres.map((sphere) => {
                 const isDimmed = filterFamily && filterFamily !== sphere.id
-                const isFocused = activeFamilyId === sphere.id
+                const isFocused = filterFamily === sphere.id
                 const radius = sphere.radius || 460
                 return (
                   <div
@@ -2359,7 +2405,7 @@ export default function LessicoAtlasView({
                 })}
               </svg>
 
-              {/* 2. 5 Celestial Star Cores (Clean Harmonic Planetary Nuclei) */}
+              {/* 2. 5 Celestial Star Cores & 3D Volumetric Galaxies */}
               {CONSTELLATION_DATA.spheres.map((sphere) => {
                 const isDimmed = filterFamily && filterFamily !== sphere.id
                 const isFocused = filterFamily === sphere.id
@@ -2368,24 +2414,43 @@ export default function LessicoAtlasView({
                 return (
                   <div
                     key={sphere.id}
-                    className={`lessico-atlas__sphere${isDimmed ? ' is-dimmed' : ''}${
+                    className={`lessico-atlas__sphere lessico-galaxy-3d${isDimmed ? ' is-dimmed' : ''}${
                       isFocused ? ' is-focused-family' : ''
-                    }`}
+                    } lessico-galaxy--${sphere.id}`}
                     style={{
                       left: `${sphere.x}px`,
                       top: `${sphere.y}px`,
                       width: `${diam}px`,
                       height: `${diam}px`,
                       '--sphere-color': sphere.color,
+                      '--galaxy-glow': sphere.glowColor,
                     }}
                     aria-hidden
                   >
-                    {/* Atmospheric Stellar Halo */}
-                    <div className="lessico-nucleus__halo" />
+                    {/* Deep Volumetric Galaxy Nebula Cloud */}
+                    <div className="lessico-galaxy__nebula-deep" />
+                    <div className="lessico-galaxy__nebula-mid" />
+
+                    {/* 3D Tilted Galactic Disc & Accretion Rings */}
+                    <div className="lessico-galaxy__ring-system">
+                      <div className="lessico-galaxy__ring-disc" />
+                      <div className="lessico-galaxy__ring-dust" />
+                    </div>
+
                     {/* Orbital Boundary Ring */}
                     <div className="lessico-nucleus__ring" />
-                    {/* Radiant Core Star */}
-                    <div className="lessico-nucleus__core" />
+
+                    {/* Gravitational Wave Pulse */}
+                    <div className="lessico-galaxy__pulse-wave" />
+
+                    {/* 3D Volumetric Celestial Core Sphere */}
+                    <div className="lessico-galaxy__core-wrap">
+                      <div className="lessico-galaxy__corona" />
+                      <div className="lessico-galaxy__globe">
+                        <div className="lessico-galaxy__specular" />
+                      </div>
+                      <div className="lessico-galaxy__pulsar-beacon" />
+                    </div>
                   </div>
                 )
               })}
@@ -2495,6 +2560,7 @@ export default function LessicoAtlasView({
                       fontSize: `${word.fontSize}px`,
                       fontWeight: word.fontWeight,
                       '--word-color': word.color,
+                      '--word-z': `${word.z || 0}px`,
                     }}
                     onMouseEnter={(e) => {
                       hoveredWordIdRef.current = word.id
