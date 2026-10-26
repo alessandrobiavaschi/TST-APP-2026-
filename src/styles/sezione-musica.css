@@ -2366,22 +2366,19 @@
 
 /* ── Hero for musicians ── */
 .for-musicians-view__hero {
-  margin-bottom: clamp(28px, 4vw, 44px);
-  padding: clamp(24px, 4vw, 36px);
-  background: rgba(15, 23, 42, 0.65);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 16px;
+  margin-bottom: clamp(24px, 3.5vw, 40px);
+  padding: 0;
+  background: transparent;
+  border: none;
 }
 
 .for-musicians-view__hero-title {
-  margin: 6px 0 12px;
+  margin: 0;
   color: #f8fafc;
   font-family: var(--font-display, Georgia, serif);
-  font-size: clamp(2rem, 4vw, 2.85rem);
-  line-height: 1.15;
-  letter-spacing: -0.02em;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
 }
 
 .for-musicians-view__hero-lead {

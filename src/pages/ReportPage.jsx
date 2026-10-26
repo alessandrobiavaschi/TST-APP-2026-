@@ -15,6 +15,7 @@ import { getMergedReportBlock } from '../reportContentMerged.js'
 import { createEmptyTestRecord } from '../dbSchema.js'
 import { useDocumentTitle } from '../hooks/useDocumentTitle.js'
 import { normalizzaRecordTst } from '../utils/testRecordProcessing.js'
+import TstLoader from '../components/primitives/TstLoader.jsx'
 import '../styles/report-tst.css'
 import '../styles/report-rooms.css'
 
