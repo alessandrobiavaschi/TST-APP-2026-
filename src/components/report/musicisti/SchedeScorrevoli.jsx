@@ -7,7 +7,7 @@ import React from 'react'
 export default function SchedeScorrevoli({ schede, attiva, onCambia, etichetta }) {
   return (
     <div className="stanza-schede" role="tablist" aria-label={etichetta}>
-      {schede.map((s, i) => (
+      {schede.map((s) => (
         <button
           key={s.id}
           type="button"
@@ -17,7 +17,6 @@ export default function SchedeScorrevoli({ schede, attiva, onCambia, etichetta }
           data-famiglia={s.colorKey}
           onClick={() => onCambia(s.id)}
         >
-          <span className="stanza-scheda__numero">{i + 1}</span>
           {s.titolo}
         </button>
       ))}

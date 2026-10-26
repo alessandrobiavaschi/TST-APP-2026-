@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { HERO_UI } from './reportUiCopy.js'
 import { getFlowerStillByColor } from '../../colorAssets.js'
@@ -109,6 +109,22 @@ export default function HeroScreen({
     return getFlowerStillByColor(colorKey)
   }, [colorKey])
 
+  // La foto entra in dissolvenza solo quando è scaricata: prima appariva di colpo
+  // sopra lo sfondo a tinta unita della famiglia.
+  const [loadedImage, setLoadedImage] = useState(null)
+  useEffect(() => {
+    if (!bgImage) return undefined
+    let alive = true
+    const img = new Image()
+    const done = () => { if (alive) setLoadedImage(bgImage) }
+    img.onload = done
+    img.onerror = done
+    img.src = bgImage
+    if (img.complete) done()
+    return () => { alive = false }
+  }, [bgImage])
+  const bgLoaded = loadedImage === bgImage
+
   const edgeColor = useMemo(() => {
     return darken(correnteColore, 0.75)
   }, [correnteColore])
@@ -174,7 +190,7 @@ export default function HeroScreen({
       <div className="hero-screen__backdrop" aria-hidden="true">
         {bgImage && (
           <div
-            className="hero-screen__nature-bg"
+            className={`hero-screen__nature-bg${bgLoaded ? ' is-loaded' : ''}`}
             style={{ backgroundImage: `url(${bgImage})` }}
           />
         )}

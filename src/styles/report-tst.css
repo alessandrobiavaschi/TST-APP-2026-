@@ -318,6 +318,10 @@
   transition: opacity 0.5s ease;
 }
 
+.hero-screen__nature-bg:not(.is-loaded) {
+  opacity: 0;
+}
+
 .hero-screen__backdrop {
   position: absolute;
   inset: 0;
