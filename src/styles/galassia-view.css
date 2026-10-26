@@ -5934,25 +5934,30 @@
 /* 3D Depth Hierarchy (Rings 0, 1, 2) */
 .lessico-atlas__word[data-ring="0"] {
   z-index: 26;
-  border-color: color-mix(in srgb, var(--word-color) 55%, rgba(255, 255, 255, 0.25));
+  opacity: 1;
+  border-color: color-mix(in srgb, var(--word-color) 65%, rgba(255, 255, 255, 0.25));
   box-shadow:
     0 8px 22px rgba(0, 0, 0, 0.75),
-    0 0 12px color-mix(in srgb, var(--word-color) 35%, transparent),
-    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+    0 0 14px color-mix(in srgb, var(--word-color) 40%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
 .lessico-atlas__word[data-ring="1"] {
   z-index: 22;
-  opacity: 0.94;
+  opacity: 1;
+  border-color: color-mix(in srgb, var(--word-color) 50%, rgba(255, 255, 255, 0.20));
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.70),
+    0 0 8px color-mix(in srgb, var(--word-color) 25%, transparent);
 }
 
 .lessico-atlas__word[data-ring="2"] {
   z-index: 18;
-  opacity: 0.82;
-  border-color: color-mix(in srgb, var(--word-color) 28%, rgba(255, 255, 255, 0.10));
+  opacity: 0.98;
+  border-color: color-mix(in srgb, var(--word-color) 42%, rgba(255, 255, 255, 0.16));
   box-shadow:
-    0 3px 10px rgba(0, 0, 0, 0.6),
-    0 0 6px color-mix(in srgb, var(--word-color) 15%, transparent);
+    0 4px 12px rgba(0, 0, 0, 0.65),
+    0 0 6px color-mix(in srgb, var(--word-color) 20%, transparent);
 }
 
 .lessico-atlas__word[data-ring="2"]:hover,
@@ -6744,44 +6749,24 @@
   transform: scale(calc(var(--atlas-hub-scale, 1) * 0.95));
 }
 
-/* Emerged words and Cardine (Ring 0) words show full readable pills with labels */
-.lessico-atlas--lod-meso-wide .lessico-atlas__word.is-emerged,
-.lessico-atlas--lod-meso-wide .lessico-atlas__word[data-ring="0"] {
+/* Tutte le parole mostrano il badge pill integro e leggibile */
+.lessico-atlas--lod-meso-wide .lessico-atlas__word,
+.lessico-atlas--lod-meso .lessico-atlas__word,
+.lessico-atlas--lod-micro .lessico-atlas__word {
   opacity: 1;
-  padding: 0.18rem 0.52rem;
-  background: rgba(10, 16, 32, 0.88);
-  border-color: color-mix(in srgb, var(--word-color) 60%, rgba(255, 255, 255, 0.16));
-  box-shadow: 0 0 12px color-mix(in srgb, var(--word-color) 40%, transparent);
+  padding: 0.22rem 0.65rem;
+  background: linear-gradient(145deg, rgba(14, 22, 42, 0.94), rgba(6, 10, 24, 0.98));
+  border: 1px solid color-mix(in srgb, var(--word-color) 40%, rgba(255, 255, 255, 0.16));
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7);
 }
 
-.lessico-atlas--lod-meso-wide .lessico-atlas__word.is-emerged .lessico-atlas__word-label,
-.lessico-atlas--lod-meso-wide .lessico-atlas__word[data-ring="0"] .lessico-atlas__word-label {
-  opacity: 1;
-  transform: scale(1);
-  pointer-events: auto;
-}
-
-/* Remaining satellite words are refined glowing star dots */
-.lessico-atlas--lod-meso-wide .lessico-atlas__word:not(.is-emerged):not([data-ring="0"]):not(:hover):not(.is-hovered):not(.is-selected):not(.is-search-matched) {
-  background: transparent;
-  border-color: transparent;
-  box-shadow: none;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  padding: 0;
-}
-
-.lessico-atlas--lod-meso-wide .lessico-atlas__word:not(.is-emerged):not([data-ring="0"]):not(:hover):not(.is-hovered):not(.is-selected):not(.is-search-matched) .lessico-atlas__word-label {
-  opacity: 0;
-  transform: scale(0.85);
-  pointer-events: none;
-}
-
-.lessico-atlas--lod-meso-wide .lessico-atlas__word:not(.is-emerged):not([data-ring="0"]):not(:hover):not(.is-hovered):not(.is-selected):not(.is-search-matched) .lessico-atlas__word-dot {
-  width: 5px;
-  height: 5px;
-  opacity: 0.70;
-  box-shadow: 0 0 7px var(--word-color);
+.lessico-atlas--lod-meso-wide .lessico-atlas__word-label,
+.lessico-atlas--lod-meso .lessico-atlas__word-label,
+.lessico-atlas--lod-micro .lessico-atlas__word-label {
+  opacity: 1 !important;
+  transform: scale(1) !important;
+  pointer-events: auto !important;
+  display: inline !important;
 }
 
 .lessico-atlas--lod-meso-wide .lessico-atlas__edge--hub-word:not(.is-emerged):not(.is-highlighted) {
@@ -8919,23 +8904,6 @@
 
 .lessico-atlas__word-dot {
   transition: opacity 0.25s ease;
-}
-
-.lessico-atlas--lod-meso .lessico-atlas__word[data-ring='2']:not(.is-emerged):not(:hover):not(.is-hovered):not(.is-selected):not(.is-search-matched) {
-  padding: 0;
-  background: transparent;
-  border-color: transparent;
-  box-shadow: none;
-}
-
-.lessico-atlas--lod-meso .lessico-atlas__word[data-ring='2']:not(.is-emerged):not(:hover):not(.is-hovered):not(.is-selected):not(.is-search-matched) .lessico-atlas__word-label {
-  display: none;
-}
-
-.lessico-atlas--lod-meso .lessico-atlas__word[data-ring='2']:not(.is-emerged):not(:hover):not(.is-hovered):not(.is-selected):not(.is-search-matched) .lessico-atlas__word-dot {
-  width: 5px;
-  height: 5px;
-  opacity: 0.75;
 }
 
 .lessico-atlas--lod-micro .lessico-atlas__word-tag {

@@ -46,18 +46,13 @@ function clamp(v, min, max) {
 }
 
 function computeAtlasWordScale(scale) {
-  // Target screen scale for words and nature badges:
-  // - At low zoom (< 0.65): words scale down gracefully with zoom so the world view stays clear and uncluttered.
-  // - At normal zoom (0.75 - 1.1): words are at ideal reading size (~0.85x - 0.92x screen scale).
-  // - At high zoom (> 1.2 up to 3.0): screen size settles strictly at ~0.90x - 0.93x and NEVER balloons into
-  //   giant billboards. This enables the physical distance between words to expand up to 300% on screen,
-  //   giving words immense breathing room and effortless clarity ("più zoomo più deve diventare facile da leggere").
+  // Keep words at a crisp, prominent, comfortable reading size across all zoom levels
   const clampedScale = Math.max(scale, 0.15)
   if (clampedScale <= 0.65) {
-    return Math.min(1.02, Math.max(0.68, Math.pow(0.75 / clampedScale, 0.35))).toFixed(3)
+    return '1.000'
   }
-  const targetScreenScale = clamp(0.38 + 0.52 * Math.pow(clampedScale, 0.20), 0.75, 0.93)
-  const wordScale = clamp(targetScreenScale / clampedScale, 0.26, 1.02)
+  // At zoom, gently dampen so they never shrink into tiny text: min 0.92
+  const wordScale = clamp(Math.pow(1 / clampedScale, 0.10), 0.92, 1.05)
   return wordScale.toFixed(3)
 }
 
@@ -325,10 +320,10 @@ function buildConstellationData() {
           ringIndex = 2
         }
 
-        const fontSize = ringIndex === 0 ? 15 : ringIndex === 1 ? 13 : 11.5
-        const fontWeight = ringIndex === 0 ? 700 : ringIndex === 1 ? 600 : 500
-        const estWidth = state.length * fontSize * 0.62 + 30
-        const estHeight = fontSize * 1.30 + 12
+        const fontSize = ringIndex === 0 ? 15.5 : ringIndex === 1 ? 14 : 13
+        const fontWeight = ringIndex === 0 ? 700 : ringIndex === 1 ? 600 : 550
+        const estWidth = state.length * fontSize * 0.65 + 32
+        const estHeight = fontSize * 1.32 + 14
 
         ringAssignments.push({
           state,
@@ -342,20 +337,20 @@ function buildConstellationData() {
       })
 
       const maxAllowedR = numCurrents > 2
-        ? (cfg.subSpread * Math.sin(Math.PI / numCurrents)) * 1.25
+        ? (cfg.subSpread * Math.sin(Math.PI / numCurrents)) * 0.82
         : numCurrents === 2
-          ? cfg.subSpread * 1.05
-          : cfg.radius * 0.95
-      const baseR = Math.min(maxAllowedR, numCurrents === 1 ? cfg.radius * 0.95 : cfg.subSpread * 0.95)
-      const maxR = Math.max(240, Math.min(maxAllowedR, baseR + (numStates > 8 ? (numStates - 8) * 14 : 0)))
+          ? cfg.subSpread * 0.78
+          : cfg.radius * 0.84
+      const baseR = Math.min(maxAllowedR, numCurrents === 1 ? cfg.radius * 0.84 : cfg.subSpread * 0.78)
+      const maxR = Math.max(170, Math.min(maxAllowedR, baseR + (numStates > 8 ? (numStates - 8) * 6 : 0)))
 
       for (let rIdx = 0; rIdx <= 2; rIdx++) {
         const ringWords = ringAssignments.filter((item) => item.ringIndex === rIdx)
         if (ringWords.length === 0) continue
 
-        const ringFactor = rIdx === 0 ? 0.54 : rIdx === 1 ? 0.92 : 1.34
+        const ringFactor = rIdx === 0 ? 0.42 : rIdx === 1 ? 0.70 : 0.96
         const r = maxR * ringFactor
-        const yFlatten = 0.92
+        const yFlatten = 0.90
 
         const totalRingWeight = ringWords.reduce((sum, item) => sum + item.estWidth, 0)
         const ringPhaseOffset =
@@ -575,13 +570,13 @@ function buildConstellationData() {
 
   // Separazione rigida fra TUTTE le etichette (anche di famiglie diverse) e
   // contro le targhette fisse delle nature: garantisce zero collisioni ed etichette perfettamente leggibili.
-  const GAP_X = 42
-  const GAP_Y = 32
+  const GAP_X = 28
+  const GAP_Y = 18
   const hubBoxes = hubs.map((h) => ({
     x: h.x,
     y: h.y + 12,
-    w: String(h.title || '').length * 8 + 36,
-    h: 44,
+    w: String(h.title || '').length * 7.5 + 24,
+    h: 36,
   }))
   for (let pass = 0; pass < 120; pass++) {
     let moved = false
