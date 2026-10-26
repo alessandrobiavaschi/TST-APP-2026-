@@ -16,11 +16,21 @@ const BASE_PITCH = 0
 const FOCUS_PITCH = 0
 const LERP_FACTOR = 0.45
 // Livelli di dettaglio del Lessico: soglie di zoom e attesa prima del cambio.
-const LOD_EDGES = [0.48, 0.85, 1.4]
+// Il terzo anello compare da 1.1: con il testo compensato (sotto) le parole
+// restano più piccole della mappa e c'è spazio prima di arrivare allo zoom massimo.
+const LOD_EDGES = [0.48, 0.85, 1.1]
 const LOD_TIERS = ['macro', 'meso-wide', 'meso', 'micro']
 const LOD_SETTLE_MS = 140
 // Dopo quanto tempo di mappa ferma la si ridisegna alla risoluzione giusta.
 const CANVAS_REST_MS = 220
+// Oltre lo zoom 1 le parole crescono meno della mappa: dimensione a schermo ∝ scala^0.35
+// (a 2.8× sono 1,43 volte la misura base invece di 2,8). A scatti di 0,04 per non
+// ricalcolare lo stile di tutte le parole a ogni fotogramma.
+const TEXT_ZOOM_EXPONENT = 0.65
+function textZoomCompensation(scale) {
+  if (scale <= 1) return '1'
+  return (Math.round(Math.pow(scale, -TEXT_ZOOM_EXPONENT) * 25) / 25).toFixed(2)
+}
 
 // Exact Cubic-Bezier solver for fly-to transitions: cubic-bezier(0.16, 1, 0.3, 1)
 function solveCubicBezier(x1, y1, x2, y2) {
@@ -1621,6 +1631,7 @@ export default function LessicoAtlasView({
     let lastCameraMoveAt = 0
     let canvasRested = false
     let lastInvScale = ''
+    let lastTextComp = ''
     let lastScale = cameraRef.current.scale
     let lastScaleChangeAt = 0
 
@@ -1711,6 +1722,14 @@ export default function LessicoAtlasView({
           canvasRef.current
             .querySelectorAll('.lessico-atlas__family-badge')
             .forEach((el) => el.style.setProperty('--atlas-inv-scale', nextInv))
+        }
+        const nextTextComp = textZoomCompensation(cur.scale)
+        if (nextTextComp !== lastTextComp) {
+          lastTextComp = nextTextComp
+          wordsLayerRef.current?.style.setProperty('--atlas-text-comp', nextTextComp)
+          canvasRef.current
+            .querySelectorAll('.lessico-atlas__hub-label')
+            .forEach((el) => el.style.setProperty('--atlas-text-comp', nextTextComp))
         }
       }
 

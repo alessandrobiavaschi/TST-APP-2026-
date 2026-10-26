@@ -8624,6 +8624,17 @@
     opacity 0.25s ease;
 }
 
+/* Zoom leggibile: oltre 1× parole ed etichette delle nature crescono meno della
+   mappa (--atlas-text-comp, scritta da LessicoAtlasView a scatti di 0,04). */
+.lessico-atlas__word {
+  scale: var(--atlas-text-comp, 1);
+}
+
+.lessico-atlas__hub-label {
+  scale: var(--atlas-text-comp, 1);
+  transform-origin: 50% 0;
+}
+
 .lessico-atlas__word-dot {
   transition: opacity 0.25s ease;
 }
@@ -8694,4 +8705,7 @@
 .lessico-atlas__family-badge,
 .lessico-atlas__family-badge:hover {
   transform: translate(-50%, -50%) scale(min(3.2, var(--atlas-inv-scale, 1)));
+  /* Niente transizione sulla trasformazione: la contro-scala cambia a ogni
+     fotogramma e l'animazione lasciava il testo sfocato a zoom alto. */
+  transition: border-color 0.2s ease, background-color 0.2s ease;
 }
