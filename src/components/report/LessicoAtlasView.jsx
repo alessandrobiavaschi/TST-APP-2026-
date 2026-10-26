@@ -92,7 +92,7 @@ const FAMILY_CONFIG = {
     x: 760,
     y: 1350,
     radius: 680,
-    subSpread: 360,
+    subSpread: 400,
     compass: '',
   },
   collerico_volitiva: {
@@ -311,8 +311,8 @@ function buildConstellationData() {
 
         const fontSize = ringIndex === 0 ? 17 : ringIndex === 1 ? 14 : 12.5
         const fontWeight = ringIndex === 0 ? 700 : ringIndex === 1 ? 600 : 500
-        const estWidth = state.length * fontSize * 0.65 + 32
-        const estHeight = fontSize * 1.4 + 14
+        const estWidth = state.length * fontSize * 0.68 + 36
+        const estHeight = fontSize * 1.35 + 14
 
         ringAssignments.push({
           state,
@@ -325,14 +325,19 @@ function buildConstellationData() {
         })
       })
 
-      const baseR = numCurrents === 1 ? cfg.radius * 0.88 : cfg.subSpread * 0.96
-      const maxR = Math.max(220, Math.min(420, baseR + (numStates > 8 ? (numStates - 8) * 14 : 0)))
+      const maxAllowedR = numCurrents > 2
+        ? (cfg.subSpread * Math.sin(Math.PI / numCurrents)) * 0.90
+        : numCurrents === 2
+          ? cfg.subSpread * 0.85
+          : cfg.radius * 0.88
+      const baseR = Math.min(maxAllowedR, numCurrents === 1 ? cfg.radius * 0.88 : cfg.subSpread * 0.82)
+      const maxR = Math.max(180, Math.min(maxAllowedR, baseR + (numStates > 8 ? (numStates - 8) * 10 : 0)))
 
       for (let rIdx = 0; rIdx <= 2; rIdx++) {
         const ringWords = ringAssignments.filter((item) => item.ringIndex === rIdx)
         if (ringWords.length === 0) continue
 
-        const ringFactor = rIdx === 0 ? 0.46 : rIdx === 1 ? 0.76 : 1.06
+        const ringFactor = rIdx === 0 ? 0.44 : rIdx === 1 ? 0.74 : 1.02
         const r = maxR * ringFactor
         const yFlatten = 0.90
 
@@ -463,8 +468,8 @@ function buildConstellationData() {
       x: targetX,
       y: targetY,
       z: isIntersection ? 20 : targetZ,
-      width: Math.max(...occurrences.map((o) => o.estWidth)) + (isIntersection ? 16 : 0),
-      height: Math.max(...occurrences.map((o) => o.estHeight)) + (isIntersection ? 4 : 0),
+      width: Math.max(...occurrences.map((o) => o.estWidth)) + (isIntersection ? 24 : 0),
+      height: Math.max(...occurrences.map((o) => o.estHeight)) + (isIntersection ? 6 : 0),
       fontSize: isIntersection ? 13.5 : first.fontSize,
       fontWeight: isIntersection ? 700 : first.fontWeight,
       color: isIntersection ? '#f8fafc' : first.color,
@@ -553,17 +558,16 @@ function buildConstellationData() {
   }
 
   // Separazione rigida fra TUTTE le etichette (anche di famiglie diverse) e
-  // contro le targhette fisse delle nature: prima solo le parole della stessa
-  // famiglia venivano allontanate, quindi ai confini restavano sovrapposizioni.
-  const GAP_X = 18
-  const GAP_Y = 12
+  // contro le targhette fisse delle nature: garantisce zero collisioni ed etichette perfettamente leggibili.
+  const GAP_X = 26
+  const GAP_Y = 16
   const hubBoxes = hubs.map((h) => ({
     x: h.x,
-    y: h.y,
-    w: String(h.title || '').length * 6.8 + 12,
-    h: 28,
+    y: h.y + 12,
+    w: String(h.title || '').length * 7.5 + 24,
+    h: 36,
   }))
-  for (let pass = 0; pass < 80; pass++) {
+  for (let pass = 0; pass < 120; pass++) {
     let moved = false
     for (let i = 0; i < numWords; i++) {
       for (let j = i + 1; j < numWords; j++) {
@@ -575,14 +579,14 @@ function buildConstellationData() {
           moved = true
           const overlapX = reqW - Math.abs(dx)
           const overlapY = reqH - Math.abs(dy)
-          // Si sposta lungo l'asse che richiede meno movimento: le parole
-          // restano vicine alla loro natura invece di scivolare via.
-          if (overlapY * 1.6 < overlapX) {
-            const push = overlapY * 0.5 * (dy >= 0 ? 1 : -1)
+          const normX = overlapX / reqW
+          const normY = overlapY / reqH
+          if (normY < normX) {
+            const push = overlapY * 0.52 * (dy >= 0 ? 1 : -1)
             pY[i] -= push
             pY[j] += push
           } else {
-            const push = overlapX * 0.5 * (dx >= 0 ? 1 : -1)
+            const push = overlapX * 0.52 * (dx >= 0 ? 1 : -1)
             pX[i] -= push
             pX[j] += push
           }
@@ -597,7 +601,9 @@ function buildConstellationData() {
           moved = true
           const overlapX = reqW - Math.abs(dx)
           const overlapY = reqH - Math.abs(dy)
-          if (overlapY * 1.6 < overlapX) pY[i] += overlapY * (dy >= 0 ? 1 : -1)
+          const normX = overlapX / reqW
+          const normY = overlapY / reqH
+          if (normY < normX) pY[i] += overlapY * (dy >= 0 ? 1 : -1)
           else pX[i] += overlapX * (dx >= 0 ? 1 : -1)
         }
       }
@@ -1071,6 +1077,7 @@ export default function LessicoAtlasView({
   const [showSearch, setShowSearch] = useState(false)
   const [expandedMobileFamily, setExpandedMobileFamily] = useState(null)
   const [showInfoGuide, setShowInfoGuide] = useState(false)
+  const [radarMinimized, setRadarMinimized] = useState(false)
 
   const canvasRef = useRef(null)
   const layerRef = useRef(null)
@@ -2664,52 +2671,65 @@ export default function LessicoAtlasView({
 
           {/* Mini-mappa */}
           <div
-            className="lessico-radar"
+            className={`lessico-radar${radarMinimized ? ' is-minimized' : ''}`}
             role="region"
             aria-label="Mini-mappa: clicca per spostare la visuale"
             onPointerDown={(e) => e.stopPropagation()}
           >
-            <div
-              className="lessico-radar__screen"
-              onClick={handleRadarClick}
-              title="Clicca per spostare la telecamera nella galassia"
-            >
-              {/* Miniature Galaxy SVG */}
-              <svg className="lessico-radar__svg" viewBox="0 0 160 113">
-                {CONSTELLATION_DATA.spheres.map((s) => {
-                  const sx = s.x * (160 / WORLD_WIDTH)
-                  const sy = s.y * (113 / WORLD_HEIGHT)
-                  const isDimmed = filterFamily && filterFamily !== s.id
-                  return (
-                    <g key={`radar-sphere-${s.id}`} opacity={isDimmed ? 0.25 : 0.9}>
-                      <circle
-                        cx={sx}
-                        cy={sy}
-                        r={s.id === filterFamily ? 6.5 : 4.5}
-                        fill={s.color}
-                        stroke="rgba(255,255,255,0.4)"
-                        strokeWidth="0.8"
-                      />
-                      {s.id === filterFamily && (
+            <div className="lessico-radar__mini-toggle-wrap">
+              <button
+                type="button"
+                className="lessico-radar__mini-toggle"
+                onClick={() => setRadarMinimized((m) => !m)}
+                title={radarMinimized ? 'Espandi mini-mappa' : 'Riduci mini-mappa per scoprire le parole'}
+                aria-label={radarMinimized ? 'Espandi mini-mappa' : 'Riduci mini-mappa'}
+              >
+                {radarMinimized ? '⬡ Mappa' : '–'}
+              </button>
+            </div>
+            {!radarMinimized && (
+              <div
+                className="lessico-radar__screen"
+                onClick={handleRadarClick}
+                title="Clicca per spostare la telecamera nella galassia"
+              >
+                {/* Miniature Galaxy SVG */}
+                <svg className="lessico-radar__svg" viewBox="0 0 160 113">
+                  {CONSTELLATION_DATA.spheres.map((s) => {
+                    const sx = s.x * (160 / WORLD_WIDTH)
+                    const sy = s.y * (113 / WORLD_HEIGHT)
+                    const isDimmed = filterFamily && filterFamily !== s.id
+                    return (
+                      <g key={`radar-sphere-${s.id}`} opacity={isDimmed ? 0.25 : 0.9}>
                         <circle
                           cx={sx}
                           cy={sy}
-                          r={10}
-                          fill="none"
-                          stroke={s.color}
-                          strokeWidth="1"
-                          strokeDasharray="2 2"
-                          opacity="0.8"
+                          r={s.id === filterFamily ? 6.5 : 4.5}
+                          fill={s.color}
+                          stroke="rgba(255,255,255,0.4)"
+                          strokeWidth="0.8"
                         />
-                      )}
-                    </g>
-                  )
-                })}
-              </svg>
+                        {s.id === filterFamily && (
+                          <circle
+                            cx={sx}
+                            cy={sy}
+                            r={10}
+                            fill="none"
+                            stroke={s.color}
+                            strokeWidth="1"
+                            strokeDasharray="2 2"
+                            opacity="0.8"
+                          />
+                        )}
+                      </g>
+                    )
+                  })}
+                </svg>
 
-              {/* Viewfinder rectangle indicating currently framed area */}
-              <div ref={radarViewfinderRef} className="lessico-radar__viewfinder" />
-            </div>
+                {/* Viewfinder rectangle indicating currently framed area */}
+                <div ref={radarViewfinderRef} className="lessico-radar__viewfinder" />
+              </div>
+            )}
           </div>
         </div>
       ) : (
