@@ -26,8 +26,15 @@ function DonutTooltip({ active, payload }) {
   )
 }
 
-export default function FamiglieDonut({ data = [], activeFamilyKey = null, onFamilySelect, onFamilyHover }) {
-  const [variant, setVariant] = useState('donut')
+export default function FamiglieDonut({
+  data = [],
+  activeFamilyKey = null,
+  onFamilySelect,
+  onFamilyHover,
+  initialVariant = 'pie',
+  showCaption = true,
+}) {
+  const [variant, setVariant] = useState(initialVariant)
   const prefersReducedMotion = useReducedMotion()
 
   const slices = useMemo(
@@ -53,11 +60,13 @@ export default function FamiglieDonut({ data = [], activeFamilyKey = null, onFam
   return (
     <figure className="famiglie-donut" aria-label="Distribuzione delle cinque famiglie emotive">
       <div className="famiglie-donut__head">
-        <figcaption className="famiglie-donut__caption">
-          Quanto pesa ogni famiglia sul totale delle tue risposte.
-        </figcaption>
+        {showCaption ? (
+          <figcaption className="famiglie-donut__caption">
+            Quanto pesa ogni famiglia sul totale delle tue risposte.
+          </figcaption>
+        ) : <span />}
         <div className="famiglie-donut__toggle" role="group" aria-label="Tipo di grafico">
-          {[['donut', 'Ciambella'], ['pie', 'Torta']].map(([v, label]) => (
+          {[['pie', 'Torta'], ['donut', 'Ciambella']].map(([v, label]) => (
             <button
               key={v}
               type="button"
@@ -111,7 +120,24 @@ export default function FamiglieDonut({ data = [], activeFamilyKey = null, onFam
           )}
         </div>
 
-        
+        <ul className="famiglie-donut__legend" aria-label="Quota di ogni famiglia">
+          {slices.map((s) => (
+            <li key={s.key} className={s.key === activeFamilyKey ? 'is-active' : ''}>
+              <button
+                type="button"
+                onClick={() => onFamilySelect?.(s.key)}
+                onMouseEnter={() => onFamilyHover?.(s.key)}
+                onMouseLeave={() => onFamilyHover?.(null)}
+                onFocus={() => onFamilyHover?.(s.key)}
+                onBlur={() => onFamilyHover?.(null)}
+              >
+                <span className="famiglie-donut__dot" style={{ background: s.color }} aria-hidden="true" />
+                <span>{s.name}</span>
+                <span className="famiglie-donut__value">{fmt(s.value)}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
       </div>
     </figure>
   )

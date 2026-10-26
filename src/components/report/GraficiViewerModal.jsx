@@ -85,12 +85,15 @@ export default function GraficiViewerModal({
       const name = c.nome || c.label || c.key || ''
       const val = Number(c.valore ?? c.punti ?? c.value ?? c.peso ?? 0)
       const max = Number(c.maxTeorico ?? 18)
+      // Nature: quota sul totale del profilo, così sommano alla percentuale della famiglia.
       const pct =
-        c.percentuale != null
-          ? Number(c.percentuale)
-          : max > 0
-            ? Math.round(Math.min(100, Math.max(0, (val / max) * 100)))
-            : 0
+        c.quotaProfilo != null
+          ? Number(c.quotaProfilo)
+          : c.percentuale != null
+            ? Number(c.percentuale)
+            : max > 0
+              ? Math.round(Math.min(100, Math.max(0, (val / max) * 100)))
+              : 0
 
       const isDominant = Boolean(
         c.isDominant ||

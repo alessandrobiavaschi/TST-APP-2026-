@@ -116,6 +116,25 @@ export function allocateRoundedPercentages(values = []) {
 }
 
 /**
+ * Divide un totale intero (es. la percentuale di una famiglia) tra più voci in
+ * proporzione ai loro valori, con arrotondamento a resto maggiore: le parti intere
+ * sommano sempre esattamente a `totale`. Se tutti i valori sono 0 restituisce zeri.
+ */
+export function ripartisciTotaleIntero(values = [], totale = 0) {
+  const safe = values.map((v) => (Number.isFinite(Number(v)) && Number(v) > 0 ? Number(v) : 0))
+  const sum = safe.reduce((a, b) => a + b, 0)
+  const target = Math.max(0, Math.round(Number(totale) || 0))
+  if (sum <= 0 || target <= 0) return safe.map(() => 0)
+  const raw = safe.map((v) => (v / sum) * target)
+  const out = raw.map((r) => Math.floor(r))
+  const resti = raw.map((r, idx) => ({ idx, frac: r - out[idx] }))
+    .sort((a, b) => b.frac - a.frac || a.idx - b.idx)
+  const diff = target - out.reduce((a, b) => a + b, 0)
+  for (let i = 0; i < diff; i++) out[resti[i].idx] += 1
+  return out
+}
+
+/**
  * Peso relativo delle famiglie come in un grafico a torta: punti della famiglia
  * diviso punti totali, × 100. Le 5 percentuali sommano sempre a 100 (arrotondamento
  * a resto maggiore). Il radar 1-7 è un calcolo separato (normalizeLevels).

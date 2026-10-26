@@ -8,6 +8,7 @@ import { normalizeFamigliaName } from '../../content/reportRestitution.js'
 import { FAMILY_THEME } from '../../config/reportFamilyTheme.js'
 import { GlossaryLink } from './ReportGlossaryDrawer.jsx'
 import FamigliePresenti from './FamigliePresenti.jsx'
+import FamiglieDonut from './FamiglieDonut.jsx'
 import MobileChartsViewer from './MobileChartsViewer.jsx'
 import { colors } from '../../design-tokens'
 import './SintesiCorrenti.css'
@@ -332,7 +333,7 @@ export default function SintesiCorrenti({
         peso: pesoOf(fam),
         isDominant: fam === dominantFamilyName,
         subs: [...subs].sort((a, b) =>
-          (Number(b.percentuale) || 0) - (Number(a.percentuale) || 0) || (Number(b.valore) || 0) - (Number(a.valore) || 0)),
+          (Number(b.quotaProfilo) || 0) - (Number(a.quotaProfilo) || 0) || (Number(b.valore) || 0) - (Number(a.valore) || 0)),
       }))
       .sort((a, b) => (b.isDominant - a.isDominant) || (b.peso - a.peso) || (FAMILY_ORDER.indexOf(a.family) - FAMILY_ORDER.indexOf(b.family)))
   })()
@@ -351,6 +352,12 @@ export default function SintesiCorrenti({
   }
 
   const desktopSlides = [
+    {
+      id: 'torta',
+      tabLabel: 'Torta delle Famiglie',
+      title: 'Le Famiglie sul totale',
+      subtitle: 'Quanto pesa ogni famiglia sul totale delle tue risposte: le fette sommano a 100.',
+    },
     {
       id: 'geometria',
       tabLabel: 'Forma Emotiva',
@@ -376,6 +383,20 @@ export default function SintesiCorrenti({
   // Grafici della sezione 1.2 per il visore mobile: stessi componenti e stessi dati del desktop.
   const mobileChartSlides = isMobileViewport
     ? [
+        {
+          id: 'torta',
+          title: 'Torta delle famiglie',
+          caption: 'Quanto pesa ogni famiglia sul totale delle tue risposte: le fette sommano a 100. Tocca una fetta o una voce per evidenziarla.',
+          content: (
+            <FamiglieDonut
+              showCaption={false}
+              data={totalScoreRadarData}
+              activeFamilyKey={hoveredFamilyKey || activeDetailFamily?.familyKey}
+              onFamilyHover={setHoveredFamilyKey}
+              onFamilySelect={selectFamilyByKey}
+            />
+          ),
+        },
         {
           id: 'forma',
           title: 'Forma emotiva',
@@ -450,7 +471,7 @@ export default function SintesiCorrenti({
                         />
                         <span className="sintesi-mobile-subcurrent-name">{sottocorrenteDisplayName(sub.nome)}</span>
                         <span className="sintesi-mobile-subcurrent-val" title={sub.misurabile !== false ? REPORT_CRITERION.attivazione : "Non misurabile nel test"}>
-                          {sub.misurabile !== false ? pctAttivazione(sub.percentuale) : 'N.D.'}
+                          {sub.misurabile !== false ? pctAttivazione(sub.quotaProfilo) : 'N.D.'}
                         </span>
                       </div>
                       <div className="sintesi-mobile-subcurrent-track">
@@ -458,7 +479,7 @@ export default function SintesiCorrenti({
                           className="sintesi-mobile-subcurrent-fill"
                           style={{ backgroundColor: sub.colore }}
                           initial={prefersReducedMotion ? false : { width: '0%' }}
-                          whileInView={{ width: `${sub.misurabile !== false ? Math.min(100, Math.max(0, sub.percentuale)) : 0}%` }}
+                          whileInView={{ width: `${sub.misurabile !== false ? Math.min(100, Math.max(0, Number(sub.quotaProfilo) || 0)) : 0}%` }}
                           viewport={viewport}
                           transition={{ duration: 0.5, ease: "easeOut" }}
                         />
@@ -595,6 +616,18 @@ export default function SintesiCorrenti({
               aria-labelledby={`sintesi-chart-tab-${currentSlide.id}`}
               className={`sintesi-charts-board__stage sintesi-charts-board__stage--${currentSlide.id}`}
             >
+              {currentSlide.id === 'torta' && (
+                <div className="sintesi-charts-board__fill">
+                  <FamiglieDonut
+                    showCaption={false}
+                    data={totalScoreRadarData}
+                    activeFamilyKey={hoveredFamilyKey || activeDetailFamily?.familyKey}
+                    onFamilyHover={setHoveredFamilyKey}
+                    onFamilySelect={selectFamilyByKey}
+                  />
+                </div>
+              )}
+
               {currentSlide.id === 'geometria' && (
                 <div className="sintesi-charts-board__fill">
                   <EmotionalShape
@@ -653,7 +686,7 @@ export default function SintesiCorrenti({
                                   />
                                   <span className="sintesi-correnti__subcurrent-name">{sottocorrenteDisplayName(sub.nome)}</span>
                                   <span className="sintesi-correnti__subcurrent-value" title={sub.misurabile !== false ? REPORT_CRITERION.attivazione : "Non misurabile nel test"}>
-                                    {sub.misurabile !== false ? pctAttivazione(sub.percentuale) : 'N.D.'}
+                                    {sub.misurabile !== false ? pctAttivazione(sub.quotaProfilo) : 'N.D.'}
                                   </span>
                                 </div>
                                 <div className="sintesi-correnti__subcurrent-track">
@@ -661,7 +694,7 @@ export default function SintesiCorrenti({
                                     className="sintesi-correnti__subcurrent-fill"
                                     style={{ backgroundColor: sub.colore }}
                                     initial={prefersReducedMotion ? false : { width: '0%' }}
-                                    whileInView={{ width: `${sub.misurabile !== false ? Math.min(100, Math.max(0, sub.percentuale)) : 0}%` }}
+                                    whileInView={{ width: `${sub.misurabile !== false ? Math.min(100, Math.max(0, Number(sub.quotaProfilo) || 0)) : 0}%` }}
                                     viewport={viewport}
                                     transition={{ duration: 0.5, ease: "easeOut" }}
                                   />

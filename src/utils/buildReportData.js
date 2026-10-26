@@ -37,6 +37,7 @@
  *     misurabile,                      // false se maxTeorico è 0: nessuna risposta del test può valorizzare questa corrente
  *                                       // (oggi tutte le 11 correnti sono misurabili) — non trattare come "0% di presenza reale"
  *     percentuale, intervalNote,
+ *     quotaProfilo,                    // quota % sul totale del profilo: le nature di una famiglia sommano al suo peso
  *   }],
  *   profiloEmotivo: { sezioni: [{ id, label, titolo, testo, correnteColore, correnteSecondaria? }] },
  *   approfondimento: { sezioniData, sezioniTest },
@@ -64,6 +65,7 @@ import {
   computeSezioniTotalsFromRaw,
   computeRelativePercentages,
   normalizeLevels,
+  ripartisciTotaleIntero,
 } from './reportRecordUtils.js'
 import {
   FAMILY_ORDER,
@@ -283,6 +285,22 @@ function buildSottocorrenti(rawRecord = {}) {
     if (b.percentuale !== a.percentuale) return b.percentuale - a.percentuale
     return b.valore - a.valore
   })
+}
+
+/**
+ * Quota di ogni natura sul totale del profilo, sulla stessa scala delle famiglie:
+ * la percentuale della famiglia (peso) si divide tra le sue nature in proporzione
+ * ai punti, così le nature di una famiglia sommano esattamente alla famiglia
+ * (es. Razionale 14% = Distaccata 12% + Anaffettiva 2%).
+ */
+function conQuotaProfilo(sottocorrenti = [], correnti = []) {
+  const quote = new Map()
+  correnti.forEach((famiglia) => {
+    const nature = sottocorrenti.filter((sub) => sub.familyKey === famiglia.familyKey)
+    const parti = ripartisciTotaleIntero(nature.map((sub) => sub.valore), famiglia.peso)
+    nature.forEach((sub, i) => quote.set(sub.rawKey, parti[i]))
+  })
+  return sottocorrenti.map((sub) => ({ ...sub, quotaProfilo: quote.get(sub.rawKey) ?? 0 }))
 }
 
 function buildFiltroMusicale(rawRecord = {}) {
@@ -646,7 +664,7 @@ export function buildReportData({
       distributionPercent: item.peso,
     })),
   )
-  const sottocorrenti = buildSottocorrenti(rawRecord)
+  const sottocorrenti = conQuotaProfilo(buildSottocorrenti(rawRecord), correnti)
   const sottodisposizionePrevalente = resolveSottodisposizionePrevalente(
     rawRecord,
     dominantColorName,

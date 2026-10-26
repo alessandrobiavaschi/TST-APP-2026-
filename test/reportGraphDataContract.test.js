@@ -625,3 +625,26 @@ test('i risultati storici derivano i totali dal record e rispettano la sottodisp
   assert.equal(report.correnti.length, 5)
   assert.equal(report.correnti.reduce((sum, item) => sum + item.peso, 0), 100)
 })
+
+test('le nature di ogni famiglia sommano alla percentuale della famiglia', () => {
+  // Profilo come quello segnalato dal cliente: Razionale 14% con Distaccata 14% e
+  // Anaffettiva 2% (16%) quando le nature erano calcolate sul proprio massimo.
+  const raw = {
+    ROSSO_1_Assertivita: 9, ROSSO_2_Dubbio_Collera: 10,
+    BLU_1_Depressiva: 4, BLU_2_Lunare: 2, BLU_3_Nostalgia: 6, BLU_4_Solare: 4,
+    VERDE_1_CalmaContemplativa: 5, VERDE_2_CalmaFisica: 9,
+    GIALLO_1_Gioia_Entusiasmo: 5, GIALLO_2_Volitivo_Passionale: 0,
+    GRIGIO_1_Anaffettiva: 1, GRIGIO_2_Distaccata: 8,
+  }
+  const report = buildReportData({ record: { raw }, dominantColorName: 'Rosso' })
+
+  for (const famiglia of report.correnti) {
+    const nature = report.sottocorrenti.filter((sub) => sub.familyKey === famiglia.familyKey)
+    const somma = nature.reduce((sum, sub) => sum + sub.quotaProfilo, 0)
+    assert.equal(somma, famiglia.peso, `${famiglia.familyKey}: nature ${somma} ≠ famiglia ${famiglia.peso}`)
+    for (const sub of nature) assert.ok(Number.isInteger(sub.quotaProfilo), sub.rawKey)
+  }
+  assert.equal(report.sottocorrenti.reduce((sum, sub) => sum + sub.quotaProfilo, 0), 100)
+  const zero = report.sottocorrenti.find((sub) => sub.rawKey === 'GIALLO_2_Volitivo_Passionale')
+  assert.equal(zero.quotaProfilo, 0)
+})

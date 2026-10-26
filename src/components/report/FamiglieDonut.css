@@ -164,3 +164,17 @@
     width: 100%;
   }
 }
+
+/* Nella tavola dei grafici (sezione 1.2) la torta occupa lo stage */
+.sintesi-charts-board__stage--torta .famiglie-donut {
+  width: 100%;
+  margin: 0;
+}
+.sintesi-charts-board__stage--torta .famiglie-donut__body {
+  grid-template-columns: minmax(0, 420px) minmax(200px, 280px);
+  justify-content: center;
+}
+.sintesi-charts-board__stage--torta .famiglie-donut__chart {
+  max-width: min(420px, calc(var(--sc-board-h, 520px) - 120px));
+  justify-self: center;
+}

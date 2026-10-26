@@ -1555,7 +1555,12 @@
 .sintesi-correnti__subcurrent-info {
   display: flex;
   align-items: center;
+  gap: 0.5rem;
   width: 100%;
+}
+.sintesi-correnti__subcurrent-info .sintesi-correnti__subcurrent-value {
+  margin-left: auto;
+  flex-shrink: 0;
 }
 .sintesi-correnti__subcurrent-track {
   width: 100%;
