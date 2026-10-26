@@ -326,18 +326,18 @@ function buildConstellationData() {
       })
 
       const maxAllowedR = numCurrents > 2
-        ? (cfg.subSpread * Math.sin(Math.PI / numCurrents)) * 0.90
+        ? (cfg.subSpread * Math.sin(Math.PI / numCurrents)) * 1.15
         : numCurrents === 2
-          ? cfg.subSpread * 0.85
-          : cfg.radius * 0.88
-      const baseR = Math.min(maxAllowedR, numCurrents === 1 ? cfg.radius * 0.88 : cfg.subSpread * 0.82)
-      const maxR = Math.max(180, Math.min(maxAllowedR, baseR + (numStates > 8 ? (numStates - 8) * 10 : 0)))
+          ? cfg.subSpread * 0.95
+          : cfg.radius * 0.92
+      const baseR = Math.min(maxAllowedR, numCurrents === 1 ? cfg.radius * 0.92 : cfg.subSpread * 0.90)
+      const maxR = Math.max(210, Math.min(maxAllowedR, baseR + (numStates > 8 ? (numStates - 8) * 12 : 0)))
 
       for (let rIdx = 0; rIdx <= 2; rIdx++) {
         const ringWords = ringAssignments.filter((item) => item.ringIndex === rIdx)
         if (ringWords.length === 0) continue
 
-        const ringFactor = rIdx === 0 ? 0.44 : rIdx === 1 ? 0.74 : 1.02
+        const ringFactor = rIdx === 0 ? 0.50 : rIdx === 1 ? 0.84 : 1.20
         const r = maxR * ringFactor
         const yFlatten = 0.90
 
@@ -415,7 +415,7 @@ function buildConstellationData() {
     // Calculate node coordinates: words have real 3D depth layers (Z-axis)
     let targetX = first.wx
     let targetY = first.wy
-    const targetZ = first.ringIndex === 0 ? 28 : first.ringIndex === 1 ? 8 : -14
+    const targetZ = first.ringIndex === 0 ? 65 : first.ringIndex === 1 ? 15 : -40
 
     if (isIntersection) {
       if (famIds.length > 1) {
@@ -467,7 +467,7 @@ function buildConstellationData() {
       hubY: first.hubY,
       x: targetX,
       y: targetY,
-      z: isIntersection ? 20 : targetZ,
+      z: isIntersection ? 80 : targetZ,
       width: Math.max(...occurrences.map((o) => o.estWidth)) + (isIntersection ? 24 : 0),
       height: Math.max(...occurrences.map((o) => o.estHeight)) + (isIntersection ? 6 : 0),
       fontSize: isIntersection ? 13.5 : first.fontSize,
@@ -533,7 +533,7 @@ function buildConstellationData() {
         if (!isPeerFamily && !w.isIntersection && !words[j].isIntersection) continue
         const dx = pX[j] - pX[i]
         const dy = pY[j] - pY[i]
-        const minDist = (w.width + words[j].width) * 0.5 + 26
+        const minDist = (w.width + words[j].width) * 0.5 + 34
         if (Math.abs(dx) > minDist) continue
         const scaledDy = dy * aspect
         if (Math.abs(scaledDy) > minDist) continue
@@ -559,13 +559,13 @@ function buildConstellationData() {
 
   // Separazione rigida fra TUTTE le etichette (anche di famiglie diverse) e
   // contro le targhette fisse delle nature: garantisce zero collisioni ed etichette perfettamente leggibili.
-  const GAP_X = 26
-  const GAP_Y = 16
+  const GAP_X = 36
+  const GAP_Y = 22
   const hubBoxes = hubs.map((h) => ({
     x: h.x,
     y: h.y + 12,
-    w: String(h.title || '').length * 7.5 + 24,
-    h: 36,
+    w: String(h.title || '').length * 8 + 32,
+    h: 42,
   }))
   for (let pass = 0; pass < 120; pass++) {
     let moved = false
@@ -1572,6 +1572,10 @@ export default function LessicoAtlasView({
 
         if (canvasRef.current) {
           canvasRef.current.style.transform = `translate3d(${initX.toFixed(2)}px, ${initY.toFixed(2)}px, 0px) scale(${fitScale.toFixed(4)})`
+          if (wordsLayerRef.current) {
+            const initWordScale = Math.min(1.05, Math.max(0.44, Math.pow(0.82 / Math.max(fitScale, 0.1), 0.46))).toFixed(3)
+            wordsLayerRef.current.style.setProperty('--atlas-word-scale', initWordScale)
+          }
         }
       }
     }
@@ -2002,6 +2006,13 @@ export default function LessicoAtlasView({
           canvasRef.current
             .querySelectorAll('.lessico-atlas__family-badge')
             .forEach((el) => el.style.setProperty('--atlas-inv-scale', nextInv))
+          if (wordsLayerRef.current) {
+            // Counter-scale words so badges don't blow up into giant billboard text when zooming in;
+            // this allows the physical distance between words to expand dramatically on screen
+            // providing spacious breathing room and true 3D constellation clarity.
+            const wordScale = Math.min(1.05, Math.max(0.44, Math.pow(0.82 / Math.max(cur.scale, 0.1), 0.46))).toFixed(3)
+            wordsLayerRef.current.style.setProperty('--atlas-word-scale', wordScale)
+          }
         }
       }
 
@@ -2549,6 +2560,8 @@ export default function LessicoAtlasView({
                   ) ||
                   emergedWords.fallback.has(normalizedName)
 
+                const wordZ = isEmerged ? 85 : word.isIntersection ? 80 : (word.z || 0)
+
                 return (
                   <button
                     key={word.id}
@@ -2567,7 +2580,7 @@ export default function LessicoAtlasView({
                       fontSize: `${word.fontSize}px`,
                       fontWeight: word.fontWeight,
                       '--word-color': word.color,
-                      '--word-z': `${word.z || 0}px`,
+                      '--word-z': `${wordZ}px`,
                     }}
                     onMouseEnter={(e) => {
                       hoveredWordIdRef.current = word.id

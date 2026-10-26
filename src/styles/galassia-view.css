@@ -5456,10 +5456,16 @@
   transform-origin: 50% 50%;
   will-change: transform;
   backface-visibility: hidden;
+  transform-style: preserve-3d;
+}
+
+.lessico-atlas__layer-constellation {
+  transform-style: preserve-3d;
 }
 
 .lessico-atlas__layer-words {
-  /* Clean 2D compositing */
+  /* Clean 3D GPU-accelerated compositing */
+  transform-style: preserve-3d;
 }
 
 .lessico-atlas__canvas--animating {
@@ -5684,24 +5690,26 @@
     ellipse at center,
     transparent 0%,
     transparent 48%,
-    color-mix(in srgb, var(--sphere-color) 25%, rgba(255, 255, 255, 0.12)) 49%,
-    color-mix(in srgb, var(--sphere-color) 65%, #ffffff 35%) 58%,
+    color-mix(in srgb, var(--sphere-color) 20%, rgba(255, 255, 255, 0.08)) 49%,
+    color-mix(in srgb, var(--sphere-color) 45%, rgba(255, 255, 255, 0.12)) 58%,
     transparent 62%,
-    color-mix(in srgb, var(--sphere-color) 35%, transparent) 68%,
+    color-mix(in srgb, var(--sphere-color) 25%, transparent) 68%,
     transparent 76%
   );
-  box-shadow: 0 0 24px color-mix(in srgb, var(--sphere-color) 40%, transparent);
-  opacity: 0.82;
+  box-shadow: 0 0 14px color-mix(in srgb, var(--sphere-color) 20%, transparent);
+  opacity: 0.26;
   animation: celestialRingShimmer 18s linear infinite;
+  transition: opacity 0.4s ease;
 }
 
 .lessico-galaxy__ring-dust {
   position: absolute;
   inset: 6%;
   border-radius: 50%;
-  border: 1.5px dashed color-mix(in srgb, var(--sphere-color) 50%, rgba(255, 255, 255, 0.35));
-  opacity: 0.50;
+  border: 1px dashed color-mix(in srgb, var(--sphere-color) 35%, rgba(255, 255, 255, 0.18));
+  opacity: 0.22;
   animation: galaxyRingRotate 55s linear infinite;
+  transition: opacity 0.4s ease;
 }
 
 /* 3. Anello di Confine Orbitale (Orbital Boundary) */
@@ -5709,9 +5717,9 @@
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  border: 1px dashed color-mix(in srgb, var(--sphere-color) 45%, rgba(255, 255, 255, 0.22));
+  border: 1px dashed color-mix(in srgb, var(--sphere-color) 30%, rgba(255, 255, 255, 0.14));
   pointer-events: none;
-  opacity: 0.40;
+  opacity: 0.20;
 }
 
 /* 4. Onda Gravitazionale a Impulso (Gravitational Pulse Wave) */
@@ -5719,7 +5727,7 @@
   position: absolute;
   inset: -8%;
   border-radius: 50%;
-  border: 1.5px solid var(--sphere-color);
+  border: 1px solid color-mix(in srgb, var(--sphere-color) 35%, transparent);
   opacity: 0;
   animation: celestialPulseWave 4.2s cubic-bezier(0.2, 0.8, 0.4, 1) infinite;
   pointer-events: none;
@@ -5740,14 +5748,15 @@
   align-items: center;
   justify-content: center;
   pointer-events: none;
+  transition: opacity 0.4s ease;
 }
 
 .lessico-galaxy__corona {
   position: absolute;
   inset: -20px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, var(--sphere-color) 42%, color-mix(in srgb, var(--sphere-color) 25%, transparent) 65%, transparent 80%);
-  opacity: 0.88;
+  background: radial-gradient(circle, color-mix(in srgb, var(--sphere-color) 60%, rgba(255, 255, 255, 0.35)) 0%, var(--sphere-color) 30%, transparent 75%);
+  opacity: 0.40;
   pointer-events: none;
 }
 
@@ -5757,12 +5766,13 @@
   height: 32px;
   border-radius: 50%;
   overflow: hidden;
-  background: radial-gradient(circle at 30% 28%, #ffffff 0%, var(--sphere-color) 45%, color-mix(in srgb, var(--sphere-color) 70%, #000) 80%, #020817 100%);
+  background: radial-gradient(circle at 30% 28%, color-mix(in srgb, var(--sphere-color) 70%, #ffffff 25%) 0%, var(--sphere-color) 50%, color-mix(in srgb, var(--sphere-color) 70%, #000) 80%, #020817 100%);
   box-shadow:
-    inset -5px -5px 10px rgba(0, 0, 0, 0.85),
-    inset 2px 2px 4px rgba(255, 255, 255, 0.65),
-    0 0 20px var(--sphere-color);
+    inset -4px -4px 8px rgba(0, 0, 0, 0.80),
+    inset 1.5px 1.5px 3px rgba(255, 255, 255, 0.40),
+    0 0 12px color-mix(in srgb, var(--sphere-color) 35%, transparent);
   z-index: 2;
+  opacity: 0.85;
 }
 
 .lessico-galaxy__specular {
@@ -5772,7 +5782,7 @@
   width: 44%;
   height: 38%;
   border-radius: 50%;
-  background: radial-gradient(ellipse at 35% 30%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.3) 35%, transparent 70%);
+  background: radial-gradient(ellipse at 35% 30%, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.15) 35%, transparent 70%);
 }
 
 .lessico-galaxy__pulsar-beacon {
@@ -5783,9 +5793,10 @@
   height: 10px;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: #ffffff;
-  box-shadow: 0 0 12px #ffffff, 0 0 24px var(--sphere-color);
+  background: color-mix(in srgb, var(--sphere-color) 45%, #ffffff);
+  box-shadow: 0 0 6px #ffffff, 0 0 12px var(--sphere-color);
   z-index: 4;
+  opacity: 0.65;
 }
 
 /* ── Badge titolo famiglia ─────────────────────────────────────────────────── */
@@ -5843,8 +5854,8 @@
 
 .lessico-atlas__hub {
   position: absolute;
-  transform: translate(-50%, -50%);
-  z-index: 12;
+  transform: translate3d(-50%, -50%, 25px);
+  z-index: 24;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -5884,11 +5895,11 @@
   margin-top: 1px;
 }
 
-/* ── Nodi parola (costellazione) ───────────────────────────────────────────── */
+/* ── Nodi parola (costellazione con profondità 3D e distanziamento) ────────── */
 
 .lessico-atlas__word {
   position: absolute;
-  transform: translate(-50%, -50%);
+  transform: translate3d(-50%, -50%, var(--word-z, 0px)) scale(var(--atlas-word-scale, 1));
   border-radius: 999px;
   padding: 0.22rem 0.65rem;
   border: 1px solid color-mix(in srgb, var(--word-color) 40%, rgba(255, 255, 255, 0.16));
@@ -5914,6 +5925,36 @@
     0 4px 14px rgba(0, 0, 0, 0.7),
     0 0 10px color-mix(in srgb, var(--word-color) 25%, transparent),
     inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+/* 3D Depth Hierarchy (Rings 0, 1, 2) */
+.lessico-atlas__word[data-ring="0"] {
+  z-index: 26;
+  border-color: color-mix(in srgb, var(--word-color) 55%, rgba(255, 255, 255, 0.25));
+  box-shadow:
+    0 8px 22px rgba(0, 0, 0, 0.75),
+    0 0 12px color-mix(in srgb, var(--word-color) 35%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+.lessico-atlas__word[data-ring="1"] {
+  z-index: 22;
+  opacity: 0.94;
+}
+
+.lessico-atlas__word[data-ring="2"] {
+  z-index: 18;
+  opacity: 0.82;
+  border-color: color-mix(in srgb, var(--word-color) 28%, rgba(255, 255, 255, 0.10));
+  box-shadow:
+    0 3px 10px rgba(0, 0, 0, 0.6),
+    0 0 6px color-mix(in srgb, var(--word-color) 15%, transparent);
+}
+
+.lessico-atlas__word[data-ring="2"]:hover,
+.lessico-atlas__word[data-ring="2"].is-hovered,
+.lessico-atlas__word[data-ring="2"].is-selected {
+  opacity: 1 !important;
 }
 
 .lessico-atlas__word-dot {
@@ -5969,7 +6010,7 @@
 
 .lessico-atlas__word:hover,
 .lessico-atlas__word.is-hovered {
-  transform: translate(-50%, -50%) scale(1.12);
+  transform: translate3d(-50%, -50%, 110px) scale(calc(var(--atlas-word-scale, 1) * 1.15)) !important;
   background: linear-gradient(145deg, rgba(22, 34, 64, 0.96), rgba(10, 16, 36, 0.98));
   border-color: var(--word-color);
   color: #fff;
@@ -5977,33 +6018,34 @@
     0 0 22px color-mix(in srgb, var(--word-color) 75%, transparent),
     0 8px 24px rgba(0, 0, 0, 0.8),
     inset 0 1px 0 #ffffff;
-  z-index: 100;
+  z-index: 200 !important;
 }
 
 .lessico-atlas__word.is-selected {
-  transform: translate(-50%, -50%) scale(1.18);
+  transform: translate3d(-50%, -50%, 120px) scale(calc(var(--atlas-word-scale, 1) * 1.20)) !important;
   background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(2, 6, 23, 0.96));
   border: 1.5px solid #fff;
   color: #fff;
   box-shadow:
     0 0 28px var(--word-color),
     0 8px 24px rgba(0, 0, 0, 0.6);
-  z-index: 150;
+  z-index: 250 !important;
 }
 
 .lessico-atlas__word.is-emerged {
   border-width: 1.5px;
   border-color: color-mix(in srgb, var(--word-color) 75%, #fff);
-  box-shadow: 0 0 12px color-mix(in srgb, var(--word-color) 45%, transparent);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--word-color) 50%, transparent);
   font-weight: 700;
+  z-index: 30;
 }
 
 .lessico-atlas__word.is-emerged.is-selected {
-  transform: translate(-50%, -50%) scale(1.18);
+  transform: translate3d(-50%, -50%, 120px) scale(calc(var(--atlas-word-scale, 1) * 1.20)) !important;
 }
 
 .lessico-atlas__word.is-emerged:hover {
-  transform: translate(-50%, -50%) scale(1.12);
+  transform: translate3d(-50%, -50%, 110px) scale(calc(var(--atlas-word-scale, 1) * 1.15)) !important;
 }
 
 .lessico-atlas__word.is-dimmed {
@@ -6023,6 +6065,22 @@
 .lessico-atlas__word.is-family-active {
   opacity: 1 !important;
   filter: drop-shadow(0 0 8px color-mix(in srgb, var(--word-color) 50%, transparent));
+}
+
+/* Attenuazione cerchi e anelli galattici quando ci si avvicina alle parole */
+.lessico-atlas--lod-meso .lessico-galaxy__ring-disc,
+.lessico-atlas--lod-micro .lessico-galaxy__ring-disc {
+  opacity: 0.10;
+}
+
+.lessico-atlas--lod-meso .lessico-galaxy__ring-dust,
+.lessico-atlas--lod-micro .lessico-galaxy__ring-dust {
+  opacity: 0.08;
+}
+
+.lessico-atlas--lod-meso .lessico-galaxy__core-wrap,
+.lessico-atlas--lod-micro .lessico-galaxy__core-wrap {
+  opacity: 0.50;
 }
 
 /* ── Tactical Holographic Flight Helm (GTA VI / Cyber-Astronomy) ──────────── */
@@ -7857,14 +7915,14 @@
     ellipse at center,
     transparent 0%,
     transparent 52%,
-    var(--planet-ring-inner, rgba(255, 255, 255, 0.12)) 53%,
-    var(--planet-ring-mid, rgba(255, 255, 255, 0.45)) 64%,
+    var(--planet-ring-inner, rgba(255, 255, 255, 0.08)) 53%,
+    var(--planet-ring-mid, rgba(255, 255, 255, 0.18)) 64%,
     transparent 67%,
-    var(--planet-ring-outer, rgba(255, 255, 255, 0.22)) 70%,
+    var(--planet-ring-outer, rgba(255, 255, 255, 0.10)) 70%,
     transparent 78%
   );
-  box-shadow: 0 0 16px var(--planet-glow, rgba(56, 189, 248, 0.25));
-  opacity: 0.82;
+  box-shadow: 0 0 10px var(--planet-glow, rgba(56, 189, 248, 0.16));
+  opacity: 0.32;
   animation: celestialRingShimmer 16s linear infinite;
 }
 
@@ -8289,7 +8347,7 @@
 }
 
 @keyframes celestialPulseWave {
-  0% { transform: scale(0.9); opacity: 0.85; }
+  0% { transform: scale(0.9); opacity: 0.28; }
   100% { transform: scale(2.4); opacity: 0; }
 }
 
