@@ -714,6 +714,7 @@ export function buildReportData({
     natura: naturaDominante ? `NATURA ${naturaDominante.toUpperCase()}` : '',
     disposizione: naturaDominante ? naturaDominante.toUpperCase() : '',
     famiglia: dominantColorName || domTheme.label,
+    famigliaNome: domTheme.family,
     correnteDominante: domTheme.corrente,
     fraseChiave,
     descrizioneEstesa: (textBlock?.descrizione_estesa || pdfEarly?.descrizione_estesa || '').trim(),

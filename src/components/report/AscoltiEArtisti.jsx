@@ -4,14 +4,6 @@ import { COPPIE_ARTISTI_MUSSIDA } from '../../content/musicaPerMusicisti.js'
 
 void motion
 
-const DIMENSION_ICONS = {
-  Timbro: '🎻',
-  Ritmo: '🥁',
-  Melodia: '🎷',
-  Intervallo: '🌓',
-  Armonia: '🎼',
-}
-
 const DIMENSION_SHORT_FOCUS = {
   Timbro: 'Materia & Peso',
   Ritmo: 'Tempo & Flusso',
@@ -22,18 +14,18 @@ const DIMENSION_SHORT_FOCUS = {
 
 const slideVariants = {
   enter: (dir) => ({
-    x: dir > 0 ? 40 : -40,
+    x: dir > 0 ? 30 : -30,
     opacity: 0,
   }),
   center: {
     x: 0,
     opacity: 1,
-    transition: { duration: 0.26, ease: [0.16, 1, 0.3, 1] },
+    transition: { duration: 0.24, ease: [0.16, 1, 0.3, 1] },
   },
   exit: (dir) => ({
-    x: dir > 0 ? -40 : 40,
+    x: dir > 0 ? -30 : 30,
     opacity: 0,
-    transition: { duration: 0.18, ease: [0.16, 1, 0.3, 1] },
+    transition: { duration: 0.16, ease: [0.16, 1, 0.3, 1] },
   }),
 }
 
@@ -52,23 +44,13 @@ export default function AscoltiEArtisti({ accentColor = '#4ade80' }) {
   }
 
   const handlePrev = () => {
-    if (activeIndex > 0) {
-      setDirection(-1)
-      setActiveIndex((prev) => prev - 1)
-    } else {
-      setDirection(-1)
-      setActiveIndex(total - 1)
-    }
+    setDirection(-1)
+    setActiveIndex((prev) => (prev > 0 ? prev - 1 : total - 1))
   }
 
   const handleNext = () => {
-    if (activeIndex < total - 1) {
-      setDirection(1)
-      setActiveIndex((prev) => prev + 1)
-    } else {
-      setDirection(1)
-      setActiveIndex(0)
-    }
+    setDirection(1)
+    setActiveIndex((prev) => (prev < total - 1 ? prev + 1 : 0))
   }
 
   const handleKeyDown = (e) => {
@@ -79,8 +61,6 @@ export default function AscoltiEArtisti({ accentColor = '#4ade80' }) {
     }
   }
 
-  const num = String(activeIndex + 1).padStart(2, '0')
-
   return (
     <section
       id="fm-ascolti"
@@ -90,21 +70,18 @@ export default function AscoltiEArtisti({ accentColor = '#4ade80' }) {
       style={{ '--ascolti-accent': accentColor }}
     >
       <div className="fm-artists-list__head">
-        <p className="fm-kicker">Guida all'ascolto consapevole · I 5 codici musicali</p>
-        <h2 id="fm-artists-title">Ascolti consigliati: i 5 contrasti sonori</h2>
+        <h2 id="fm-artists-title">Ascolti consigliati: i cinque contrasti sonori</h2>
         <p className="fm-section-lead">
           La musica comunica con le nostre emozioni attraverso cinque parametri fondamentali:
           {' '}<strong>Timbro</strong>, <strong>Ritmo</strong>, <strong>Melodia</strong>, <strong>Intervallo</strong> e <strong>Armonia</strong>.
-          Sfoglia le 5 dimensioni in orizzontale per esplorare come ciascuna orienta la percezione ed esplorare due brani d'autore a polarità opposte.
+          Ciascuna dimensione orienta la percezione ed esplora due brani d'autore a polarità opposte.
         </p>
       </div>
 
-      {/* ── BARRA DI SELEZIONE ORIZZONTALE DELLE 5 DIMENSIONI ── */}
+      {/* ── BARRA DELLE 5 DIMENSIONI (SENZA EMOJI E NUMERAZIONI RIDONDANTI) ── */}
       <div className="fm-dimensions-bar" role="tablist" aria-label="Seleziona la dimensione sonora da esplorare">
         {COPPIE_ARTISTI_MUSSIDA.map((coppiaObj, idx) => {
           const isActive = idx === activeIndex
-          const tabNum = String(idx + 1).padStart(2, '0')
-          const icon = DIMENSION_ICONS[coppiaObj.dimensione] || '🎵'
           const shortFocus = DIMENSION_SHORT_FOCUS[coppiaObj.dimensione] || ''
 
           return (
@@ -119,18 +96,14 @@ export default function AscoltiEArtisti({ accentColor = '#4ade80' }) {
               style={isActive ? { '--dim-accent': accentColor } : undefined}
               onClick={() => handleSelect(idx)}
             >
-              <div className="fm-dimensions-bar__tab-top">
-                <span className="fm-dimensions-bar__tab-icon" aria-hidden="true">{icon}</span>
-                <span className="fm-dimensions-bar__tab-num">{tabNum}</span>
-              </div>
               <span className="fm-dimensions-bar__tab-name">{coppiaObj.dimensione}</span>
-              <span className="fm-dimensions-bar__tab-focus">{shortFocus}</span>
+              {shortFocus ? <span className="fm-dimensions-bar__tab-focus">{shortFocus}</span> : null}
             </button>
           )
         })}
       </div>
 
-      {/* ── CONTROLLI SFOGLIO ORIZZONTALE + INDICATORE STEP ── */}
+      {/* ── CONTROLLI SFOGLIO + INDICATORE STEP ── */}
       <div className="fm-carousel-controls">
         <button
           type="button"
@@ -144,7 +117,7 @@ export default function AscoltiEArtisti({ accentColor = '#4ade80' }) {
 
         <div className="fm-carousel-indicator">
           <span className="fm-carousel-indicator__text">
-            Dimensione <strong>{num}</strong> di <strong>{String(total).padStart(2, '0')}</strong> · <span className="fm-carousel-indicator__name">{current.dimensione}</span>
+            {current.dimensione} · <strong>{activeIndex + 1}</strong> di <strong>{total}</strong>
           </span>
           <div className="fm-carousel-dots" role="presentation">
             {COPPIE_ARTISTI_MUSSIDA.map((_, dotIdx) => (
@@ -170,7 +143,7 @@ export default function AscoltiEArtisti({ accentColor = '#4ade80' }) {
         </button>
       </div>
 
-      {/* ── PANNELLO ATTIVO SFOGLIABILE ── */}
+      {/* ── PANNELLO ATTIVO EDITORIALE ── */}
       <div className="fm-carousel-viewport" ref={cardRef}>
         <AnimatePresence mode="wait" custom={direction}>
           <motion.article
@@ -185,44 +158,37 @@ export default function AscoltiEArtisti({ accentColor = '#4ade80' }) {
             aria-labelledby={`dimension-tab-${current.dimensione}`}
             className="fm-artist-pair-card fm-artist-pair-card--carousel"
           >
-            <header className="fm-artist-pair-card__header">
-              <div className="fm-artist-pair-card__meta">
-                <span className="fm-artist-pair-card__badge" style={{ borderColor: accentColor, color: accentColor }}>
-                  {DIMENSION_ICONS[current.dimensione]} Dimensione {num} · {current.dimensione}
-                </span>
-                {current.sottotitolo ? (
-                  <span className="fm-artist-pair-card__subtitle">
-                    {current.sottotitolo}
-                  </span>
-                ) : null}
-              </div>
-
-              {current.descrizione ? (
-                <p className="fm-artist-pair-card__desc">
-                  {current.descrizione}
-                </p>
+            {/* Header editoriale: testo in prosa, privo di badge rigidi e box artificiali */}
+            <header className="fm-dimension-editorial-header">
+              <h3 className="fm-dimension-editorial-title">{current.dimensione}</h3>
+              {current.sottotitolo ? (
+                <p className="fm-dimension-editorial-subtitle">{current.sottotitolo}</p>
               ) : null}
 
-              <div className="fm-artist-pair-card__prompt">
-                <span className="fm-artist-pair-card__prompt-label">Chiave di ascolto</span>
-                <p className="fm-artist-pair-card__question">«{current.domandaGuida}»</p>
+              <div className="fm-dimension-editorial-body">
+                {current.descrizione ? (
+                  <p className="fm-dimension-editorial-desc">{current.descrizione}</p>
+                ) : null}
+                {current.domandaGuida ? (
+                  <p className="fm-dimension-editorial-guide">
+                    <em>«{current.domandaGuida}»</em>
+                  </p>
+                ) : null}
               </div>
             </header>
 
+            {/* Tracce a confronto: fluide, pulite, senza micro-kicker gridati */}
             <div className="fm-artist-pair-card__dual-grid">
-              {current.coppia.map((traccia, trackIdx) => {
-                const poleLabel = trackIdx === 0 ? 'Polo A' : 'Polo B'
+              {current.coppia.map((traccia) => {
                 const youtubeUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(`${traccia.artista} ${traccia.brano}`)}`
 
                 return (
                   <div key={traccia.artista + traccia.brano} className="fm-artist-track">
                     <div className="fm-artist-track__header">
-                      <span className="fm-artist-track__pole-tag">{poleLabel}</span>
-                      <span className="fm-artist-track__pole">{traccia.polo}</span>
+                      <span className="fm-artist-track__orientation">{traccia.polo}</span>
+                      <h4 className="fm-artist-track__title">{traccia.brano}</h4>
+                      <p className="fm-artist-track__author">{traccia.artista}</p>
                     </div>
-
-                    <h3 className="fm-artist-track__title">{traccia.brano}</h3>
-                    <p className="fm-artist-track__author">{traccia.artista}</p>
 
                     <p className="fm-artist-track__analysis">{traccia.analisi}</p>
 
@@ -247,7 +213,7 @@ export default function AscoltiEArtisti({ accentColor = '#4ade80' }) {
         </AnimatePresence>
       </div>
 
-      {/* ── NAVIGATORE INFERIORE DI CONTINUITÀ ── */}
+      {/* ── NAVIGATORE INFERIORE ── */}
       <div className="fm-carousel-footer-nav">
         <button
           type="button"

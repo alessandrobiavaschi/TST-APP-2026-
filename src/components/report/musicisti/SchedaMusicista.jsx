@@ -22,42 +22,36 @@ const RIGHE = [
     id: 'timbri',
     label: 'Timbri preferiti',
     shortLabel: 'Timbri',
-    icon: '🎧',
     voce: (s) => ({ titolo: s?.timbri?.titolo }),
   },
   {
     id: 'strumenti',
     label: 'Strumenti e tessiture',
     shortLabel: 'Strumenti',
-    icon: '🎸',
     voce: (s) => ({ testo: s?.timbri?.descrizione }),
   },
   {
     id: 'bpm',
     label: 'Tempo e andamento BPM',
     shortLabel: 'Tempo / BPM',
-    icon: '⏱',
     voce: (s) => ({ titolo: s?.ritmoBpm?.titolo, testo: s?.ritmoBpm?.descrizione }),
   },
   {
     id: 'armonia',
     label: 'Armonie, scale e modi',
     shortLabel: 'Armonie',
-    icon: '🎼',
     voce: (s) => ({ titolo: s?.armonieModi?.titolo, testo: s?.armonieModi?.descrizione }),
   },
   {
     id: 'musicista',
     label: 'Il musicista che sei',
     shortLabel: 'Ruolo ed espressione',
-    icon: '👤',
     voce: (s) => ({ titolo: s?.ilMusicistaCheSei?.titolo, testo: s?.ilMusicistaCheSei?.descrizione }),
   },
   {
     id: 'gruppo',
     label: 'Come suona in gruppo',
     shortLabel: 'Interplay',
-    icon: '👥',
     voce: (_s, fam) => {
       const g = MUSICISTI_IN_GRUPPO[fam]
       return g ? { testo: g.testo, fonte: `Approfondimento metodologico (p. ${g.pagine})` } : {}
@@ -67,7 +61,7 @@ const RIGHE = [
 
 /**
  * Scheda del musicista: timbri, strumenti, BPM, armonie, ruolo e
- * suonare in gruppo. Mostra la famiglia scelta come card dedicate o a confronto tra tutte e cinque.
+ * suonare in gruppo. Mostra la famiglia scelta in forma chiara e pulita, senza emoji o elementi superflui.
  */
 export default function SchedaMusicista({ famigliaAttiva, famigliaUtente = '' }) {
   const [confronta, setConfronta] = useState(false)
@@ -78,7 +72,6 @@ export default function SchedaMusicista({ famigliaAttiva, famigliaUtente = '' })
     <section id="fm-scheda" className="fm-section fm-scheda" aria-labelledby="fm-scheda-title">
       <div className="fm-scheda__head">
         <div>
-          <p className="fm-kicker">Parametri compositivi & attitudini</p>
           <h2 id="fm-scheda-title">La scheda del musicista</h2>
         </div>
         <div className="fm-scheda__toggle" role="group" aria-label="Vista della scheda">
@@ -109,7 +102,6 @@ export default function SchedaMusicista({ famigliaAttiva, famigliaUtente = '' })
             return (
               <article key={riga.id} className="fm-scheda-card">
                 <header className="fm-scheda-card__header">
-                  <span className="fm-scheda-card__icon" aria-hidden="true">{riga.icon}</span>
                   <span className="fm-scheda-card__label">{riga.label}</span>
                 </header>
                 {v.titolo ? <h3 className="fm-scheda-card__title">{v.titolo}</h3> : null}
@@ -143,7 +135,6 @@ export default function SchedaMusicista({ famigliaAttiva, famigliaUtente = '' })
               {RIGHE.map((riga) => (
                 <tr key={riga.id}>
                   <th scope="row">
-                    <span className="fm-scheda__row-icon" aria-hidden="true">{riga.icon}</span>
                     <span>{riga.shortLabel || riga.label}</span>
                   </th>
                   {colonne.map((fam) => (

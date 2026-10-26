@@ -1459,7 +1459,7 @@
   position: relative;
 }
 
-/* ── Barra di selezione delle 5 Dimensioni ── */
+/* ── Barra di selezione delle 5 Dimensioni (pulita, senza emoji o numeri artificiali) ── */
 .fm-dimensions-bar {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -1490,7 +1490,7 @@
   transition: all 0.2s ease;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
   min-width: 140px;
 }
 
@@ -1511,39 +1511,16 @@
   outline-offset: 2px;
 }
 
-.fm-dimensions-bar__tab-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 2px;
-}
-
-.fm-dimensions-bar__tab-icon {
-  font-size: 1.25rem;
-}
-
-.fm-dimensions-bar__tab-num {
-  font-family: var(--font-mono, monospace);
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: rgba(248, 250, 252, 0.45);
-}
-
-.fm-dimensions-bar__tab.is-active .fm-dimensions-bar__tab-num {
-  color: var(--dim-accent, #38bdf8);
-}
-
 .fm-dimensions-bar__tab-name {
   font-family: var(--font-sans, system-ui, sans-serif);
   font-size: 0.96rem;
   font-weight: 700;
   color: #f8fafc;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.02em;
 }
 
 .fm-dimensions-bar__tab-focus {
-  font-size: 0.76rem;
+  font-size: 0.78rem;
   color: rgba(226, 232, 240, 0.65);
   white-space: nowrap;
   overflow: hidden;
@@ -1665,77 +1642,53 @@
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
 }
 
-.fm-artist-pair-card__header {
+.fm-dimension-editorial-header {
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding-bottom: 18px;
+  padding-bottom: 22px;
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.fm-artist-pair-card__meta {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.fm-artist-pair-card__badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--font-mono, monospace);
-  font-size: 0.76rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  padding: 5px 14px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid currentColor;
-}
-
-.fm-artist-pair-card__subtitle {
-  font-family: var(--font-sans, system-ui, sans-serif);
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: rgba(248, 250, 252, 0.88);
-}
-
-.fm-artist-pair-card__desc {
-  margin: 0;
-  font-family: var(--font-sans, system-ui, sans-serif);
-  font-size: 0.95rem;
-  line-height: 1.6;
-  color: rgba(226, 232, 240, 0.82);
-}
-
-.fm-artist-pair-card__prompt {
-  background: rgba(0, 0, 0, 0.28);
-  border-left: 3px solid var(--ascolti-accent, #38bdf8);
-  border-radius: 0 8px 8px 0;
-  padding: 12px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-top: 4px;
-}
-
-.fm-artist-pair-card__prompt-label {
-  font-family: var(--font-mono, monospace);
-  font-size: 0.68rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--ascolti-accent, #38bdf8);
-}
-
-.fm-artist-pair-card__question {
+.fm-dimension-editorial-title {
   margin: 0;
   font-family: var(--font-display, Georgia, serif);
-  font-size: 1.15rem;
+  font-size: clamp(1.8rem, 3vw, 2.35rem);
   color: #f8fafc;
-  line-height: 1.45;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.fm-dimension-editorial-subtitle {
+  margin: 0;
+  font-family: var(--font-sans, system-ui, sans-serif);
+  font-size: 1.05rem;
+  color: var(--ascolti-accent, #38bdf8);
+  font-weight: 600;
+}
+
+.fm-dimension-editorial-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 76ch;
+}
+
+.fm-dimension-editorial-desc {
+  margin: 0;
+  font-family: var(--font-sans, system-ui, sans-serif);
+  font-size: 1.02rem;
+  line-height: 1.7;
+  color: rgba(226, 232, 240, 0.9);
+}
+
+.fm-dimension-editorial-guide {
+  margin: 0;
+  font-family: var(--font-display, Georgia, serif);
+  font-size: 1.12rem;
+  line-height: 1.55;
+  color: #f8fafc;
   font-style: italic;
 }
 
@@ -1746,55 +1699,44 @@
 }
 
 .fm-artist-track {
-  background: rgba(2, 6, 23, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 10px;
-  padding: 22px;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   transition: border-color 0.2s ease, transform 0.2s ease;
 }
 
 .fm-artist-track:hover {
-  border-color: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.18);
+  transform: translateY(-2px);
 }
 
 .fm-artist-track__header {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 2px;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.fm-artist-track__pole-tag {
-  font-family: var(--font-mono, monospace);
-  font-size: 0.68rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: rgba(248, 250, 252, 0.45);
-  background: rgba(255, 255, 255, 0.05);
-  padding: 2px 6px;
-  border-radius: 4px;
-}
-
-.fm-artist-track__pole {
-  font-family: var(--font-mono, monospace);
-  font-size: 0.74rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #38bdf8;
+.fm-artist-track__orientation {
+  font-family: var(--font-sans, system-ui, sans-serif);
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--ascolti-accent, #38bdf8);
+  margin-bottom: 4px;
 }
 
 .fm-artist-track__title {
   margin: 0;
-  font-size: 1.1rem;
+  font-family: var(--font-display, Georgia, serif);
+  font-size: 1.25rem;
   color: #f8fafc;
-  font-weight: 700;
-  line-height: 1.35;
+  font-weight: 600;
+  line-height: 1.3;
 }
 
 .fm-artist-track__author {
@@ -1806,9 +1748,9 @@
 
 .fm-artist-track__analysis {
   margin: 0 0 16px;
-  font-size: 0.92rem;
-  line-height: 1.6;
-  color: rgba(226, 232, 240, 0.82);
+  font-size: 0.94rem;
+  line-height: 1.65;
+  color: rgba(226, 232, 240, 0.85);
   flex-grow: 1;
 }
 
@@ -2488,117 +2430,57 @@
   margin-left: auto;
 }
 
-/* ── La famiglia nella musica: layout migliorato ── */
-.fm-famiglia-musicale__intro-box {
-  background: rgba(15, 23, 42, 0.5);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  padding: 22px 26px;
-  margin-bottom: 28px;
+/* ── La famiglia nella musica: articolo editoriale continuo ── */
+.fm-famiglia-musicale__article {
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 76ch;
 }
 
-.fm-famiglia-musicale__testo {
+.fm-article__lead {
   margin: 0;
-  color: rgba(226, 232, 240, 0.9);
-  font-size: 1.05rem;
-  line-height: 1.7;
+  color: #f8fafc;
+  font-size: 1.15rem;
+  line-height: 1.75;
+  font-weight: 400;
 }
 
-.fm-pullquote--featured {
-  margin: 24px 0 32px;
-  padding: 16px 20px 16px 22px;
-  background: rgba(15, 23, 42, 0.4);
-  border-left: 3px solid var(--music-accent, #38bdf8);
-  border-radius: 0 10px 10px 0;
+.fm-article__p {
+  margin: 0;
+  color: rgba(226, 232, 240, 0.86);
+  font-size: 1.02rem;
+  line-height: 1.75;
 }
 
-/* I 4 modi di fare musica */
-.fm-practices-block {
-  margin-top: 32px;
+.fm-article__practices {
+  margin-top: 14px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.fm-practices-block__title {
-  margin: 0 0 4px;
+.fm-article__subheading {
+  margin: 0 0 12px;
   font-family: var(--font-display, Georgia, serif);
   font-size: 1.35rem;
   color: #f8fafc;
+  font-weight: 500;
+  letter-spacing: -0.01em;
 }
 
-.fm-practices-block__subtitle {
-  margin: 0 0 18px;
-  font-size: 0.92rem;
-  color: rgba(226, 232, 240, 0.7);
-}
-
-.fm-practice-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 16px;
-}
-
-.fm-practice-card {
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 22px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  transition: border-color 0.2s ease, transform 0.2s ease;
-}
-
-.fm-practice-card:hover {
-  border-color: rgba(255, 255, 255, 0.22);
-  transform: translateY(-2px);
-}
-
-.fm-practice-card__top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 4px;
-}
-
-.fm-practice-card__icon {
-  font-size: 1.35rem;
-}
-
-.fm-practice-card__index {
-  font-family: var(--font-mono, monospace);
-  font-size: 0.74rem;
-  font-weight: 700;
-  color: var(--music-accent, #38bdf8);
-  letter-spacing: 0.08em;
-}
-
-.fm-practice-card__title {
-  margin: 0;
-  font-size: 1.12rem;
-  color: #f8fafc;
-  font-weight: 700;
-}
-
-.fm-practice-card__text {
-  margin: 0;
-  font-size: 0.92rem;
-  line-height: 1.6;
-  color: rgba(226, 232, 240, 0.82);
-}
-
-/* Attitudini: cosa valorizza / aree di attenzione */
-.fm-attitudes-grid {
+/* Approfondimenti schematici: facili, puliti e poco pieni */
+.fm-article__insights {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 18px;
-  margin-top: 28px;
+  gap: 20px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.fm-attitude-card {
-  background: rgba(15, 23, 42, 0.55);
+.fm-article__insight-col {
+  background: rgba(15, 23, 42, 0.45);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-radius: 12px;
@@ -2606,90 +2488,24 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.fm-attitude-card--strength {
-  border-left: 3px solid #34d399;
-}
-
-.fm-attitude-card--alert {
-  border-left: 3px solid #fbbf24;
-}
-
-.fm-attitude-card__head {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 14px;
-}
-
-.fm-attitude-card__icon {
-  font-weight: 700;
-  font-size: 1.05rem;
-}
-
-.fm-attitude-card--strength .fm-attitude-card__icon {
-  color: #34d399;
-}
-
-.fm-attitude-card--alert .fm-attitude-card__icon {
-  color: #fbbf24;
-}
-
-.fm-attitude-card__head h4 {
-  margin: 0;
-  font-size: 1.02rem;
-  color: #f8fafc;
+.fm-article__insight-title {
+  margin: 0 0 14px;
+  font-family: var(--font-sans, system-ui, sans-serif);
+  font-size: 1rem;
   font-weight: 600;
+  color: #f8fafc;
 }
 
-.fm-attitude-card__list {
+.fm-article__insight-list {
   margin: 0;
   padding-left: 18px;
   color: rgba(226, 232, 240, 0.82);
-  font-size: 0.9rem;
-  line-height: 1.6;
+  font-size: 0.92rem;
+  line-height: 1.65;
 }
 
-.fm-attitude-card__list li + li {
+.fm-article__insight-list li + li {
   margin-top: 8px;
-}
-
-/* Parole chiave del musicista */
-.fm-keywords-bar {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 26px;
-  padding: 14px 18px;
-  background: rgba(0, 0, 0, 0.28);
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.fm-keywords-bar__label {
-  font-family: var(--font-mono, monospace);
-  font-size: 0.74rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: rgba(248, 250, 252, 0.55);
-}
-
-.fm-keywords-bar__list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.fm-keyword-pill {
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: var(--music-accent, #38bdf8);
-  font-size: 0.82rem;
-  font-family: var(--font-mono, monospace);
-  font-weight: 500;
 }
 
 /* ── Scheda del musicista: card singole o tabella a confronto ── */

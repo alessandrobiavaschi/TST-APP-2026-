@@ -4,24 +4,21 @@ import { FAMILY_THEME } from '../../../config/reportFamilyTheme.js'
 
 const ORDINE_FAMIGLIE = ['Rosso', 'Blu', 'Verde', 'Giallo', 'Grigio']
 
-const PRATICHE = [
-  { key: 'suonare', titolo: 'Eseguire', icon: '🎹' },
-  { key: 'interpretare', titolo: 'Interpretare', icon: '🎭' },
-  { key: 'comporre', titolo: 'Comporre', icon: '🎼' },
-  { key: 'improvvisare', titolo: 'Improvvisare', icon: '✨' },
-]
-
 /**
- * La famiglia nella Musica: un paragrafo musicale sulla famiglia, la scheda
- * eseguire / interpretare / comporre / improvvisare, cosa valorizza e aree di attenzione.
- * La famiglia letta (attiva) è condivisa con la scheda del musicista: si parte dalla prevalente del test.
+ * La famiglia nella Musica:
+ * Presentazione editoriale e narrativa del rapporto tra temperamento e fare musica,
+ * organizzata in prosa fluida e priva di schematismi artificiali o box ridondanti.
  */
 export default function FamigliaMusicale({ famigliaUtente = '', attiva, onChange }) {
   const prima = MUSICISTI_SCHEDE[famigliaUtente] ? famigliaUtente : ORDINE_FAMIGLIE[0]
   const famiglie = [prima, ...ORDINE_FAMIGLIE.filter((f) => f !== prima)]
   const scheda = MUSICISTI_SCHEDE[attiva]
   const colore = FAMILY_THEME[attiva]?.dot
-  const pratiche = PRATICHE.filter((p) => scheda?.fareMusica?.[p.key])
+
+  const fareMusica = scheda?.fareMusica || {}
+  const haFareMusica = Boolean(
+    fareMusica.suonare || fareMusica.interpretare || fareMusica.comporre || fareMusica.improvvisare
+  )
 
   return (
     <section
@@ -31,11 +28,10 @@ export default function FamigliaMusicale({ famigliaUtente = '', attiva, onChange
       style={colore ? { '--music-accent': colore } : undefined}
     >
       <div className="fm-famiglia-musicale__header">
-        <p className="fm-kicker">Dimensioni espressive · La tua natura al suonare</p>
         <h2 id="fm-famiglia-title">La famiglia {scheda?.label} nella Musica</h2>
       </div>
 
-      <div className="fm-famiglia-musicale__switch" role="group" aria-label="Leggi un'altra famiglia">
+      <div className="fm-famiglia-musicale__switch" role="group" aria-label="Seleziona la famiglia da esplorare">
         {famiglie.map((fam) => (
           <button
             key={fam}
@@ -52,85 +48,57 @@ export default function FamigliaMusicale({ famigliaUtente = '', attiva, onChange
         ))}
       </div>
 
-      {scheda?.cosaCerca ? (
-        <div className="fm-famiglia-musicale__intro-box">
-          <p className="fm-famiglia-musicale__testo">{scheda.cosaCerca}</p>
-        </div>
-      ) : null}
+      <article className="fm-famiglia-musicale__article">
+        {scheda?.cosaCerca ? (
+          <p className="fm-article__lead">{scheda.cosaCerca}</p>
+        ) : null}
 
-      {scheda?.pullQuote ? (
-        <aside className="fm-pullquote fm-pullquote--featured">
-          <p className="fm-pullquote__title">{scheda.pullQuote.titolo}</p>
-          <p className="fm-pullquote__text">{scheda.pullQuote.testo}</p>
-        </aside>
-      ) : null}
+        {scheda?.piaceriAscolto ? (
+          <p className="fm-article__p">{scheda.piaceriAscolto}</p>
+        ) : null}
 
-      {pratiche.length ? (
-        <div className="fm-practices-block">
-          <div className="fm-practices-block__header">
-            <h3 className="fm-practices-block__title">I modi di fare Musica</h3>
-            <p className="fm-practices-block__subtitle">
-              Come questa propensione interiore orienta l'approccio allo strumento, al testo e alla creatività:
+        {scheda?.profiloEmotivo && scheda.profiloEmotivo !== scheda.cosaCerca ? (
+          <p className="fm-article__p">{scheda.profiloEmotivo}</p>
+        ) : null}
+
+        {haFareMusica ? (
+          <div className="fm-article__practices">
+            <h3 className="fm-article__subheading">L'espressione e il fare musica</h3>
+            <p className="fm-article__p">
+              {fareMusica.suonare && <span>{fareMusica.suonare} </span>}
+              {fareMusica.interpretare && <span>{fareMusica.interpretare} </span>}
+              {fareMusica.comporre && <span>{fareMusica.comporre} </span>}
+              {fareMusica.improvvisare && <span>{fareMusica.improvvisare}</span>}
             </p>
           </div>
+        ) : null}
 
-          <div className="fm-practice-grid" aria-label="Eseguire, interpretare, comporre, improvvisare">
-            {pratiche.map((p, i) => (
-              <div key={p.key} className="fm-practice-card">
-                <div className="fm-practice-card__top">
-                  <span className="fm-practice-card__icon" aria-hidden="true">{p.icon}</span>
-                  <span className="fm-practice-card__index">{String(i + 1).padStart(2, '0')}</span>
-                </div>
-                <h4 className="fm-practice-card__title">{p.titolo}</h4>
-                <p className="fm-practice-card__text">{scheda.fareMusica[p.key]}</p>
+        {(scheda?.valorizza?.length || scheda?.difficolta?.length) ? (
+          <div className="fm-article__insights">
+            {scheda?.valorizza?.length ? (
+              <div className="fm-article__insight-col">
+                <h4 className="fm-article__insight-title">Cosa valorizza naturalmente</h4>
+                <ul className="fm-article__insight-list">
+                  {scheda.valorizza.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
               </div>
-            ))}
+            ) : null}
+
+            {scheda?.difficolta?.length ? (
+              <div className="fm-article__insight-col">
+                <h4 className="fm-article__insight-title">Aree di attenzione ed espressività</h4>
+                <ul className="fm-article__insight-list">
+                  {scheda.difficolta.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
           </div>
-        </div>
-      ) : null}
-
-      {(scheda?.valorizza?.length || scheda?.difficolta?.length) ? (
-        <div className="fm-attitudes-grid">
-          {scheda?.valorizza?.length ? (
-            <div className="fm-attitude-card fm-attitude-card--strength">
-              <div className="fm-attitude-card__head">
-                <span className="fm-attitude-card__icon" aria-hidden="true">✓</span>
-                <h4>Cosa valorizza naturalmente</h4>
-              </div>
-              <ul className="fm-attitude-card__list">
-                {scheda.valorizza.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
-
-          {scheda?.difficolta?.length ? (
-            <div className="fm-attitude-card fm-attitude-card--alert">
-              <div className="fm-attitude-card__head">
-                <span className="fm-attitude-card__icon" aria-hidden="true">✦</span>
-                <h4>Aree di attenzione ed espressività</h4>
-              </div>
-              <ul className="fm-attitude-card__list">
-                {scheda.difficolta.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
-        </div>
-      ) : null}
-
-      {scheda?.paroleChiave?.length ? (
-        <div className="fm-keywords-bar">
-          <span className="fm-keywords-bar__label">Tratti sonori chiave:</span>
-          <div className="fm-keywords-bar__list">
-            {scheda.paroleChiave.map((kw) => (
-              <span key={kw} className="fm-keyword-pill">#{kw}</span>
-            ))}
-          </div>
-        </div>
-      ) : null}
+        ) : null}
+      </article>
     </section>
   )
 }

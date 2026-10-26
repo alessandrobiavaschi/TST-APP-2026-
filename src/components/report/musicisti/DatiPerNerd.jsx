@@ -10,7 +10,6 @@ export default function DatiPerNerd({ approfondimento = {}, filtroMusicale = {},
   return (
     <section id="fm-dati" className="fm-section fm-dati-nerd" aria-labelledby="fm-dati-title">
       <div className="fm-dati-nerd__head">
-        <p className="fm-kicker">Metriche & Registro completo</p>
         <h2 id="fm-dati-title">Dati analitici del test</h2>
         <p className="fm-section-lead">
           La distribuzione dei tuoi punteggi nelle 5 aree del codice musicale
@@ -30,7 +29,6 @@ export default function DatiPerNerd({ approfondimento = {}, filtroMusicale = {},
         <details className="fm-dati-nerd__ascolti">
           <summary className="fm-dati-nerd__summary">
             <span className="fm-dati-nerd__summary-main">
-              <span className="fm-dati-nerd__summary-icon" aria-hidden="true">🎼</span>
               <span className="fm-dati-nerd__summary-title">Registro dei 72 ascolti del test</span>
             </span>
             <span className="fm-dati-nerd__summary-hint">Espandi per consultare tutte le 72 tracce ▾</span>

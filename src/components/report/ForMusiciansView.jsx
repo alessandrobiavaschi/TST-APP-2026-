@@ -29,6 +29,11 @@ export default function ForMusiciansView({
   const [famigliaAttiva, setFamigliaAttiva] = useState(MUSICISTI_SCHEDE[famigliaUtente] ? famigliaUtente : 'Rosso')
   const viewContainerRef = useRef(null)
 
+  const nomeFamiglia =
+    MUSICISTI_SCHEDE[famigliaUtente]?.label ||
+    (profilo?.famigliaNome && !['Verde', 'Rosso', 'Blu', 'Giallo', 'Grigio'].includes(profilo.famigliaNome) ? profilo.famigliaNome : null) ||
+    'Flemmatica'
+
   useEffect(() => {
     const scroller = findScroller(viewContainerRef.current)
     const target = scroller || window
@@ -63,7 +68,6 @@ export default function ForMusiciansView({
 
       <div className="for-musicians-view__content">
         <header className="for-musicians-view__hero">
-          <p className="fm-kicker">Guida applicata · Prospettiva per musicisti</p>
           <h1 className="for-musicians-view__hero-title">La tua impronta emotiva nella Musica</h1>
           <p className="for-musicians-view__hero-lead">
             Come la tua disposizione temperamentale guida l'espressione, l'ascolto, l'improvvisazione e la pratica musicale:
@@ -74,11 +78,8 @@ export default function ForMusiciansView({
               <span className="for-musicians-view__user-badge-label">Profilo emerso dal test:</span>
               <span className="for-musicians-view__user-badge-tag">
                 <span className="for-musicians-view__user-badge-dot" style={{ backgroundColor: accentColor }} aria-hidden="true" />
-                Famiglia {profilo?.famigliaNome || famigliaUtente}
+                Famiglia {nomeFamiglia}
                 {profilo?.naturaNome ? ` · Natura ${profilo.naturaNome}` : ''}
-              </span>
-              <span className="for-musicians-view__user-badge-hint">
-                Puoi esplorare e confrontare liberamente tutte le 5 famiglie emotive.
               </span>
             </div>
           ) : null}

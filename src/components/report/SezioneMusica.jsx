@@ -35,7 +35,6 @@ function Intervals({ data }) {
       <div className="fm-interval-list">
         {data.correnti.map((item, index) => (
           <article className="fm-interval-item" key={`${item.intervallo}-${index}`}>
-            <p className="fm-kicker">Intervallo musicale di riferimento</p>
             <p className="fm-interval-item__name">{item.intervallo}</p>
             {item.nome ? <p className="fm-interval-item__subtitle">{item.nome}</p> : null}
             {item.significato ? (
