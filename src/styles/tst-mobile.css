@@ -140,13 +140,14 @@
     bottom: 0 !important;
     left: 0 !important;
     right: auto !important;
-    width: 84% !important;
+    width: 86% !important;
     max-width: 320px !important;
-    max-height: none !important;
+    max-height: 100dvh !important;
     height: 100% !important;
-    background: var(--tst-bg-elev) !important;
+    height: 100dvh !important;
+    background: var(--tst-bg-elev, #0d1322) !important;
     border: none !important;
-    border-right: 1px solid var(--tst-border) !important;
+    border-right: 1px solid var(--tst-border, rgba(255, 255, 255, 0.12)) !important;
     border-radius: 0 !important;
     box-shadow: 4px 0 32px rgba(0, 0, 0, 0.5) !important;
     transform: translateX(-100%) !important;
@@ -157,6 +158,7 @@
     gap: 0 !important;
     overflow: hidden !important;
     will-change: transform !important;
+    box-sizing: border-box !important;
   }
 
   .app-mobile-nav-layer.is-open .app-mobile-nav-drawer {
@@ -166,14 +168,15 @@
   /* Scrollable content wrapper inside drawer */
   .app-mobile-drawer-scroll {
     flex: 1 1 auto;
+    min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
-    padding: 0 16px calc(16px + env(safe-area-inset-bottom, 0px));
+    padding: 12px 16px calc(16px + env(safe-area-inset-bottom, 0px));
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 8px;
   }
 
   /* ── Drawer inner components ── */
@@ -190,9 +193,13 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 18px 16px 14px;
-    border-bottom: 1px solid var(--tst-divider);
-    color: var(--tst-text);
+    padding-top: calc(max(18px, env(safe-area-inset-top, 0px)) + 12px) !important;
+    padding-bottom: 14px !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    border-bottom: 1px solid var(--tst-divider, rgba(255, 255, 255, 0.08)) !important;
+    color: var(--tst-text, #f8fafc) !important;
+    box-sizing: border-box !important;
   }
 
   .app-mobile-drawer-user-block {
@@ -243,24 +250,34 @@
   }
 
   .app-mobile-drawer-guest-label {
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 600;
     color: var(--tst-text);
   }
 
   .app-mobile-drawer-close {
-    width: 40px !important;
-    height: 40px !important;
-    border-radius: 10px !important;
-    background: var(--tst-surface);
-    border: 1px solid var(--tst-border);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--tst-text-soft);
-    font-size: 14px;
-    cursor: pointer;
-    flex-shrink: 0;
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    border-radius: 12px !important;
+    background: var(--tst-surface, rgba(255, 255, 255, 0.08)) !important;
+    border: 1px solid var(--tst-border, rgba(255, 255, 255, 0.16)) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: var(--tst-text-soft, rgba(248, 250, 252, 0.82)) !important;
+    font-size: 16px !important;
+    cursor: pointer !important;
+    flex-shrink: 0 !important;
+    touch-action: manipulation !important;
+    transition: background 0.15s, border-color 0.15s, color 0.15s !important;
+  }
+
+  .app-mobile-drawer-close:hover,
+  .app-mobile-drawer-close:active {
+    background: var(--tst-surface-hover, rgba(255, 255, 255, 0.18)) !important;
+    color: #ffffff !important;
   }
 
   /* Section headers inside drawer */
@@ -390,8 +407,10 @@
   /* Logout button */
   .app-mobile-drawer-footer {
     flex-shrink: 0;
-    padding: 12px 16px calc(16px + env(safe-area-inset-bottom, 0px));
-    border-top: 1px solid var(--tst-divider);
+    padding: 12px 16px calc(max(16px, env(safe-area-inset-bottom, 0px)) + 14px) !important;
+    border-top: 1px solid var(--tst-divider) !important;
+    background: var(--tst-bg-elev, #0d1322) !important;
+    box-sizing: border-box !important;
   }
 
   .app-mobile-drawer-logout {
@@ -706,74 +725,168 @@
   }
 
   /* ── Redesign Audio Test Player & Questions Grid (Mobile) ── */
+  .app-shell--test-session-active .app-main {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    min-height: 0 !important;
+  }
+
+  .app-shell--test-session-active .app-main-inner {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: none !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
   .nuovo-test-flow.nuovo-test-page--session-active {
-    padding: 0.5rem 0.5rem calc(0.65rem + env(safe-area-inset-bottom, 0px)) !important;
-    height: calc(100svh - var(--app-header-offset, 56px)) !important;
-    max-height: calc(100svh - var(--app-header-offset, 56px)) !important;
+    padding: calc(3.15rem + env(safe-area-inset-top, 0px)) 0.5rem calc(0.45rem + env(safe-area-inset-bottom, 0px)) !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    min-height: 0 !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
   }
+
   .nuovo-test-flow.nuovo-test-page--session-active .test-stage-main-card {
-    gap: 0.65rem !important;
-    padding: 0.8rem 0.75rem !important;
+    gap: 0.45rem !important;
+    padding: 0.65rem 0.65rem 0.55rem !important;
     border-radius: 16px !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
   }
+
   .nuovo-test-flow .test-stage-step-label {
     font-size: 0.82rem !important;
-    padding: 0.28rem 0.8rem !important;
+    padding: 0.24rem 0.75rem !important;
   }
+
+  .nuovo-test-flow .answers-c-bis {
+    flex-shrink: 0 !important;
+    margin-bottom: 0.2rem !important;
+    gap: 0.15rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+
+  .nuovo-test-flow .answers-c-bis-title {
+    font-size: 0.76rem !important;
+    margin: 0 !important;
+  }
+
+  .nuovo-test-flow .answers-c-bis-hint {
+    padding: 0.35rem 0.55rem !important;
+    font-size: 0.78rem !important;
+    line-height: 1.3 !important;
+    margin: 0 !important;
+  }
+
   .nuovo-test-flow .test-stage-audio-zone--menu-tab.player-card--bottom-dock {
-    padding: 0.55rem 0.65rem 0.6rem !important;
-    gap: 0.28rem !important;
+    padding: 0.45rem 0.6rem 0.5rem !important;
+    gap: 0.22rem !important;
+    flex-shrink: 0 !important;
   }
+
   .nuovo-test-flow .player-controls {
-    gap: 0.75rem !important;
+    gap: 0.65rem !important;
+    padding-top: 0.05rem !important;
   }
+
   .nuovo-test-flow .player-button {
-    width: 2.75rem !important;
-    height: 2.75rem !important;
-    min-width: 2.75rem !important;
-    min-height: 2.75rem !important;
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+    min-width: 2.5rem !important;
+    min-height: 2.5rem !important;
   }
+
   .nuovo-test-flow .player-controls .player-button:first-child {
-    width: 3.1rem !important;
-    height: 3.1rem !important;
-    min-width: 3.1rem !important;
-    min-height: 3.1rem !important;
+    width: 2.85rem !important;
+    height: 2.85rem !important;
+    min-width: 2.85rem !important;
+    min-height: 2.85rem !important;
   }
+
   .nuovo-test-flow .player-progress {
-    height: 20px !important;
+    height: 16px !important;
   }
+
+  .nuovo-test-flow .test-stage-step-content {
+    flex: 1 1 0% !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    gap: 0.35rem !important;
+    width: 100% !important;
+  }
+
   .nuovo-test-flow .test-stage-question-zone {
-    padding: 0.15rem 0 !important;
+    padding: 0.1rem 0 !important;
+    flex-shrink: 0 !important;
   }
+
   .nuovo-test-flow .test-stage-question-zone .test-threshold-question-title {
-    font-size: clamp(1.05rem, 4.4vw, 1.22rem) !important;
+    font-size: clamp(0.98rem, 4vw, 1.15rem) !important;
     line-height: 1.25 !important;
   }
+
   .nuovo-test-flow .test-stage-answers-shell {
-    min-height: 140px !important;
-    flex: 1 !important;
+    flex: 1 1 0% !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    width: 100% !important;
   }
+
   .nuovo-test-flow .test-stage-answers-zone {
-    padding: 0.1rem 0 !important;
+    flex: 1 1 0% !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    padding: 0.1rem 0.15rem 0.25rem !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
   }
+
   .nuovo-test-flow .test-stage .answer-button,
   .nuovo-test-flow.nuovo-test-page--session-active .answer-button,
   .nuovo-test-flow.nuovo-test-page--session-active .answers-grid--dense .answer-button {
-    min-height: 48px !important;
-    border-radius: 24px !important;
+    min-height: 44px !important;
+    border-radius: 22px !important;
     font-size: 0.92rem !important;
-    padding: 0.55rem 1rem !important;
+    padding: 0.45rem 0.85rem !important;
     box-shadow: none !important;
   }
+
   .nuovo-test-flow .test-stage-footer {
-    padding-top: 0.45rem !important;
+    padding-top: 0.35rem !important;
+    flex-shrink: 0 !important;
+    margin-top: auto !important;
+    width: 100% !important;
   }
+
   .nuovo-test-flow .test-stage-footer-row {
     gap: 0.5rem !important;
   }
+
   .nuovo-test-flow .test-stage-footer-row .nav-button {
-    min-height: 44px !important;
+    min-height: 42px !important;
     font-size: 0.88rem !important;
+    padding: 0.45rem 0.8rem !important;
+  }
+
+  .nuovo-test-flow .test-stage-footer-row .nav-button.ghost {
+    font-size: 0.78rem !important;
+    min-width: 0 !important;
+    padding: 0.3rem 0.4rem !important;
   }
 
   /* ── Redesign Results Loading Screen (Mobile) ── */

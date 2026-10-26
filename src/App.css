@@ -16157,20 +16157,23 @@ body {
 
 .feedback-help-close {
   position: absolute;
-  top: 0.66rem;
-  right: 0.68rem;
-  width: 2rem;
-  height: 2rem;
+  top: max(0.66rem, env(safe-area-inset-top, 0px));
+  right: max(0.68rem, env(safe-area-inset-right, 0px));
+  width: 2.75rem;
+  height: 2.75rem;
+  min-width: 44px;
+  min-height: 44px;
   border: 1px solid rgba(167, 139, 250, 0.35);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.92);
   color: #4b5563;
-  font-size: 1.35rem;
+  font-size: 1.5rem;
   line-height: 1;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  touch-action: manipulation;
   transition: border-color 0.16s ease, background-color 0.16s ease, color 0.16s ease;
 }
 

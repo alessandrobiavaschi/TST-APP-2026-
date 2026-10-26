@@ -304,7 +304,7 @@ function App() {
   }, [])
 
   useDialogFocus(mobileNavDrawerRef, {
-    open: !testSessionActive && mobileNavOpen,
+    open: mobileNavOpen,
     onClose: () => setMobileNavOpen(false),
   })
 
@@ -489,7 +489,7 @@ function App() {
           isReportPage || isTestFlowPage ? ' app-shell--immersive' : ''
         }${isReportPage ? ' app-shell--report' : ''}${
           isTestFlowPage ? ' app-shell--test-flow' : ''
-        }`}
+        }${testSessionActive ? ' app-shell--test-session-active' : ''}`}
         data-sky-tone={skyTone}
         data-sky-warmth={skyWarmth}
       >
@@ -698,8 +698,8 @@ function App() {
             </div>
           </header>
         <div
-          className={`app-mobile-nav-layer ${!testSessionActive && mobileNavOpen ? 'is-open' : ''}`}
-          aria-hidden={testSessionActive || !mobileNavOpen}
+          className={`app-mobile-nav-layer ${mobileNavOpen ? 'is-open' : ''}`}
+          aria-hidden={!mobileNavOpen}
         >
           <button
             type="button"
@@ -738,8 +738,8 @@ function App() {
                 onClick={() => setMobileNavOpen(false)}
                 aria-label="Chiudi menu"
               >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
                   <path d="M6 6l12 12M18 6L6 18"/>
                 </svg>
               </button>

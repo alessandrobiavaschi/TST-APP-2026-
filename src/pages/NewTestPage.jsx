@@ -966,6 +966,14 @@ function NewTestPage() {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [profilingDone, testCompleted, showAreasHelp, showExitConfirm, isChoicesVisible, currentFile])
 
+  // All'avanzare del passo o alla navigazione avanti/indietro,
+  // riporta l'area di scorrimento delle risposte in cima.
+  useEffect(() => {
+    if (answersZoneRef.current) {
+      answersZoneRef.current.scrollTop = 0
+    }
+  }, [currentFile])
+
   const adaptiveTransitionStyle = {
     opacity: 1,
     transform: 'none',

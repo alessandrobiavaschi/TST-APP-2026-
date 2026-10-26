@@ -175,6 +175,21 @@
   color: var(--tst-color-text-ghost);
 }
 
+/* ── Reset app-main per la sessione attiva del test a tutta altezza ── */
+.app-shell--test-session-active .app-main {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  min-height: 0 !important;
+}
+
+.app-shell--test-session-active .app-main-inner {
+  padding: 0 !important;
+  margin: 0 !important;
+  max-width: none !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
 /* ── Sessione test attiva: card chiara, player integrato ──────────── */
 .nuovo-test-flow.nuovo-test-page--session-active {
   --tst-session-text: #102033;
@@ -197,10 +212,11 @@
 
   position: relative;
   isolation: isolate;
-  height: calc(100svh - var(--app-header-offset, 64px));
-  max-height: calc(100svh - var(--app-header-offset, 64px));
-  padding: clamp(0.5rem, 2vh, 1.25rem) clamp(0.85rem, 3vw, 1.5rem)
-    calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  height: 100dvh;
+  max-height: 100dvh;
+  min-height: 0;
+  padding: calc(3.4rem + env(safe-area-inset-top, 0px)) clamp(0.5rem, 2vw, 1.25rem)
+    calc(0.55rem + env(safe-area-inset-bottom, 0px));
   color: var(--tst-session-text);
   background: transparent;
   display: flex;
@@ -256,10 +272,10 @@
   width: 100%;
   height: 100%;
   max-height: 100%;
-  display: grid;
-  grid-template-rows: auto auto auto minmax(0, 1fr) auto;
-  gap: clamp(0.65rem, 1.6vh, 1.05rem);
-  padding: clamp(1rem, 2vw, 1.35rem);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.45rem, 1.2vh, 0.85rem);
+  padding: clamp(0.85rem, 2vw, 1.35rem);
   border-top: 3px solid rgba(15, 118, 110, 0.7);
   border-left: 1px solid var(--tst-session-border);
   border-right: 1px solid var(--tst-session-border);
@@ -273,23 +289,72 @@
   -webkit-backdrop-filter: blur(24px) saturate(130%);
   box-sizing: border-box;
   min-height: 0;
-  justify-items: center;
+  overflow: hidden;
+  align-items: center;
 }
 
 .nuovo-test-flow.nuovo-test-page--session-active .test-stage-progress-block {
-  grid-row: 1;
+  flex-shrink: 0;
+  width: 100%;
 }
+
+.nuovo-test-flow.nuovo-test-page--session-active .answers-c-bis {
+  flex-shrink: 0;
+  width: 100%;
+  max-width: var(--tst-content-max, min(100%, 52rem));
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
 .nuovo-test-flow.nuovo-test-page--session-active .test-stage-audio-zone {
-  grid-row: 2;
+  flex-shrink: 0;
+  width: 100%;
 }
+
+.nuovo-test-flow.nuovo-test-page--session-active .test-stage-step-content {
+  flex: 1 1 0%;
+  min-height: 0;
+  width: 100%;
+  max-width: var(--tst-content-max, min(100%, 52rem));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  gap: 0.35rem;
+}
+
 .nuovo-test-flow.nuovo-test-page--session-active .test-stage-question-zone {
-  grid-row: 3;
+  flex-shrink: 0;
+  width: 100%;
 }
+
 .nuovo-test-flow.nuovo-test-page--session-active .test-stage-answers-shell {
-  grid-row: 4;
+  flex: 1 1 0%;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
+
+.nuovo-test-flow.nuovo-test-page--session-active .test-stage-answers-zone {
+  flex: 1 1 0%;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding: 0.15rem 0.25rem 0.35rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(117, 139, 146, 0.42) transparent;
+}
+
 .nuovo-test-flow.nuovo-test-page--session-active .test-stage-footer {
-  grid-row: 5;
+  flex-shrink: 0;
+  width: 100%;
+  margin-top: auto;
 }
 
 .nuovo-test-flow .test-stage-progress-block {
@@ -751,8 +816,22 @@
 }
 
 .nuovo-test-flow .answers-c-bis {
-  display: grid;
-  gap: 0.78rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  width: 100%;
+  max-width: var(--tst-content-max, min(100%, 52rem));
+  flex-shrink: 0;
+}
+
+.nuovo-test-flow .answers-c-bis-title {
+  margin: 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tst-session-accent, #0f766e);
+  font-weight: 700;
+  text-align: center;
 }
 
 .nuovo-test-flow .answers-c-bis-hint,
@@ -761,23 +840,26 @@
   margin: 0;
   color: var(--tst-session-muted);
   font-family: var(--font-body);
-  font-size: 0.92rem;
-  line-height: 1.55;
+  font-size: 0.88rem;
+  line-height: 1.4;
 }
 
 .nuovo-test-flow .answers-c-bis-hint {
-  padding: 0.78rem 0.88rem;
+  padding: 0.45rem 0.75rem;
   border: 1px solid rgba(137, 154, 166, 0.22);
   border-radius: 8px;
-  background: rgba(247, 251, 250, 0.82);
+  background: rgba(247, 251, 250, 0.88);
+  text-align: center;
 }
 
 .nuovo-test-flow .answers-c-bis .nav-button.secondary {
-  justify-self: start;
+  justify-self: center;
+  align-self: center;
 }
 
 .nuovo-test-flow .answers-c-bis-note {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
+  text-align: center;
 }
 
 .nuovo-test-flow .test-stage-footer {
