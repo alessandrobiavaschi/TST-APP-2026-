@@ -2,6 +2,7 @@ import React from 'react'
 import { MUSICIAN_ROOMS } from '../../config/musiciansConfig.js'
 
 export default function MusiciansCompassNav({
+  rooms = MUSICIAN_ROOMS,
   activeRoom = 'fm-impronta',
   onSelectRoom,
   onClose,
@@ -40,7 +41,7 @@ export default function MusiciansCompassNav({
         )}
 
         <div className="fm-compass-nav__rooms" role="tablist">
-          {MUSICIAN_ROOMS.map((room) => {
+          {rooms.map((room) => {
             const isActive = activeRoom === room.id
             return (
               <button

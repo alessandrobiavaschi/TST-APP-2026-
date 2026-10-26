@@ -103,7 +103,7 @@ export default function ReportChaptersIndex({
               </div>
               <h4 className="report-chapter-card__title">Lettura per Musicisti</h4>
               <p className="report-chapter-card__desc">
-                Come la tua risonanza si traduce in timbri, ritmo, modi armonici, 13 intervalli musicali e la rassegna dei 72 ascolti del test.
+                Il tuo test nel codice musicale e le pagine di «Il Pianeta della Musica» su timbro, ritmo, melodia, intervallo e armonia, fino ai 72 ascolti del test.
               </p>
               <div className="report-chapter-card__footer">
                 <span className="report-chapter-card__cta">

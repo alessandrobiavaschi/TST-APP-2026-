@@ -2041,3 +2041,23 @@
 .for-musicians-view .report-chapter-topbar {
   top: 0;
 }
+
+/* Capitoli tratti dal libro: fonte e testo trascritto */
+.fm-capitolo-libro__fonte {
+  margin: 10px 0 0;
+  color: color-mix(in srgb, var(--music-accent, #4ade80) 70%, #f8fafc);
+  font-size: 0.82rem;
+  letter-spacing: 0.02em;
+}
+
+.fm-capitolo-libro__testo {
+  max-width: 68ch;
+  margin-top: clamp(20px, 3vw, 32px);
+}
+
+.fm-capitolo-libro__testo p {
+  margin: 0 0 1.1em;
+  color: rgba(226, 232, 240, 0.86);
+  font-size: 1.02rem;
+  line-height: 1.75;
+}

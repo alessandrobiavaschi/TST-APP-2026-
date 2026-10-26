@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import MusiciansCompassNav from './MusiciansCompassNav.jsx'
 import ReportChaptersIndex from './ReportChaptersIndex.jsx'
 import { ReportChapterTopBar, ReportChapterBottomNav } from './ReportChapterBar.jsx'
@@ -7,7 +7,8 @@ import DistanzeInterattive from './DistanzeInterattive.jsx'
 import SuoniDelTuoTest from './SuoniDelTuoTest.jsx'
 import ApprofondimentoSezioni from './ApprofondimentoSezioni.jsx'
 import { MUSICISTI_INTRO, MUSICISTI_SCHEDE } from '../../content/musicaDisposizione.js'
-import { MUSICIAN_ROOMS, MUSICIAN_INDEX_UI } from '../../config/musiciansConfig.js'
+import { getMusicianRooms, MUSICIAN_INDEX_UI } from '../../config/musiciansConfig.js'
+import CapitoloLibro from './musicisti/CapitoloLibro.jsx'
 import '../../styles/sezione-musica.css'
 
 // La vista vive dentro un layer fixed che scorre da sé: scroll e scrollspy passano da lì.
@@ -25,9 +26,10 @@ export default function ForMusiciansView({
   onClose,
   backButtonRef,
 }) {
+  const MUSICIAN_ROOMS = useMemo(() => getMusicianRooms(profilo?.famiglia || ''), [profilo?.famiglia])
   const [viewMode, setViewMode] = useState('capitoli')
   const [activeChapterId, setActiveChapterId] = useState(null)
-  const [activeRoom, setActiveRoom] = useState(MUSICIAN_ROOMS[0].id)
+  const [activeRoom, setActiveRoom] = useState('fm-impronta')
   const viewContainerRef = useRef(null)
 
   const scheda = MUSICISTI_SCHEDE[profilo?.famiglia || '']
@@ -77,7 +79,7 @@ export default function ForMusiciansView({
     }
     target.addEventListener('scroll', handleScroll, { passive: true })
     return () => target.removeEventListener('scroll', handleScroll)
-  }, [viewMode])
+  }, [viewMode, MUSICIAN_ROOMS])
 
   const handleSelectRoom = (roomId) => {
     setActiveRoom(roomId)
@@ -85,33 +87,34 @@ export default function ForMusiciansView({
   }
 
   const chapterContent = {
+    // 1. Il tuo test nel codice musicale: impronta e aree musicali insieme.
     'fm-impronta': (
-      <PersonalSonicProfile
-        profilo={profilo}
-        colorTotals={colorTotals}
-        correntiByPeso={correntiByPeso}
-        correnti={correnti}
-        accentColor={accentColor}
-        introMusicale={introMusicale}
-      />
-    ),
-    'fm-aree': (
-      <section id="fm-aree" className="fm-section fm-sound-areas" aria-labelledby="fm-sound-areas-title">
-        <div className="fm-sound-areas__head">
-          <h2 id="fm-sound-areas-title">Aree musicali e percentuali</h2>
-          <p className="fm-section-lead">
-            Come le tue risposte si sono distribuite lungo i cinque parametri dell'esperienza sonora:
-            Timbro, Intervalli, Ritmo, Melodia e Accordi.
-          </p>
-        </div>
-        <ApprofondimentoSezioni
-          sezioniData={approfondimento?.sezioniData}
-          sezioniTest={approfondimento?.sezioniTest}
-          filtroMusicale={filtroMusicale}
-          correnteColore={accentColor}
-          plainLanguage={false}
+      <>
+        <PersonalSonicProfile
+          profilo={profilo}
+          colorTotals={colorTotals}
+          correntiByPeso={correntiByPeso}
+          correnti={correnti}
+          accentColor={accentColor}
+          introMusicale={introMusicale}
         />
-      </section>
+        <section id="fm-aree" className="fm-section fm-sound-areas" aria-labelledby="fm-sound-areas-title">
+          <div className="fm-sound-areas__head">
+            <h2 id="fm-sound-areas-title">Aree musicali e percentuali</h2>
+            <p className="fm-section-lead">
+              Come le tue risposte si sono distribuite lungo i cinque parametri dell'esperienza sonora:
+              Timbro, Intervalli, Ritmo, Melodia e Accordi.
+            </p>
+          </div>
+          <ApprofondimentoSezioni
+            sezioniData={approfondimento?.sezioniData}
+            sezioniTest={approfondimento?.sezioniTest}
+            filtroMusicale={filtroMusicale}
+            correnteColore={accentColor}
+            plainLanguage={false}
+          />
+        </section>
+      </>
     ),
     'fm-distanze': (
       <DistanzeInterattive profilo={profilo} accentColor={accentColor} colorTotals={colorTotals} />
@@ -125,6 +128,7 @@ export default function ForMusiciansView({
     <div ref={viewContainerRef} className="for-musicians-view" style={{ '--music-accent': accentColor }}>
       {!isChapters && (
         <MusiciansCompassNav
+          rooms={MUSICIAN_ROOMS}
           activeRoom={activeRoom}
           onSelectRoom={handleSelectRoom}
           onClose={onClose ? handleClose : undefined}
@@ -179,7 +183,7 @@ export default function ForMusiciansView({
       <div className="for-musicians-view__content">
         {MUSICIAN_ROOMS.map((room) => (
           <div key={room.id} className="for-musicians-view__chapter" hidden={!isVisible(room.id)}>
-            {chapterContent[room.id]}
+            {chapterContent[room.id] || <CapitoloLibro capitolo={room} />}
           </div>
         ))}
 
