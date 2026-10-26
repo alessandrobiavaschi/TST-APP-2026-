@@ -35,6 +35,8 @@ import {
   normalizeLevels,
   formatDateShort,
   downloadCsvSingleRecord,
+  downloadResearchMatrixCsv,
+  formatCellValue,
 } from '../utils/reportRecordUtils.js'
 import { parseMatriceCsv } from '../utils/matriceCsv.js'
 import { CAMPI_PER_COLORE, NATURE, colorKeyDaEtichetta } from '../config/tstSistema.js'
@@ -62,28 +64,22 @@ export function computeAgeFromBirthDate(dateValue) {
   return age
 }
 
-export { computeColorTotals, normalizeLevels, formatDateShort, downloadCsvSingleRecord }
+export {
+  computeColorTotals,
+  normalizeLevels,
+  formatDateShort,
+  downloadCsvSingleRecord,
+  downloadResearchMatrixCsv,
+}
 
 function downloadCsvFromRecords(records, filename = 'tst_matrice_archivio.csv') {
   if (!records.length) return
   const headerKeys = Object.keys(testSchema)
   const header = ['id', 'areaId', ...headerKeys]
 
-  const escapeValue = (value) => {
-    if (value == null) return ''
-    if (value.toDate) {
-      return value.toDate().toISOString()
-    }
-    const str = String(value)
-    if (str.includes(',') || str.includes('"') || str.includes('\n')) {
-      return `"${str.replace(/"/g, '""')}"`
-    }
-    return str
-  }
-
   const idFromRaw = (raw) => [raw?.Nome, raw?.Cognome].filter((v) => v != null && String(v).trim()).join(' ').trim() || ''
   const rows = records.map((r) =>
-    [escapeValue(idFromRaw(r.raw)), escapeValue(r.raw.areaId || ''), ...headerKeys.map((key) => escapeValue(r.raw[key]))].join(','),
+    [formatCellValue(idFromRaw(r.raw)), formatCellValue(r.raw.areaId || ''), ...headerKeys.map((key) => formatCellValue(r.raw[key]))].join(','),
   )
 
   const csvContent = [header.join(','), ...rows].join('\n')
@@ -1436,6 +1432,22 @@ function ResultsPage() {
                 title={selectedAreaId ? `Scarica matrice per area "${selectedAreaName}"` : 'Scarica matrice archivio totale'}
               >
                 {selectedAreaId ? `Scarica matrice (${selectedAreaName})` : 'Scarica matrice (archivio totale)'}
+              </button>
+              <button
+                type="button"
+                className="nav-button secondary"
+                onClick={() =>
+                  downloadResearchMatrixCsv(
+                    filteredRecords,
+                    selectedAreaId
+                      ? `tst_matrice_ricerca_${(selectedAreaName || 'area').replace(/\s+/g, '_')}.csv`
+                      : 'tst_matrice_ricerca_archivio.csv',
+                  )
+                }
+                disabled={!filteredRecords.length}
+                title="Esporta matrice anonima conforme allo standard sociologico di ricerca (SPSS, R, Stata)"
+              >
+                Esporta ricerca (SPSS/R)
               </button>
               <button
                 ref={importTriggerRef}

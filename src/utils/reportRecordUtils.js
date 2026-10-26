@@ -3,6 +3,11 @@ import { FAMILY_ORDER, FAMILY_THEME } from '../config/reportFamilyTheme.js'
 import { CAMPI_PER_COLORE, PASSI, SEZIONI } from '../config/tstSistema.js'
 import { MASSIMI_TEORICI, calcolaCeste, normalizzaSuMassimo } from './cesteTst.js'
 import { massimiDelTest, massimiPerRecord, opzioniCalcoloDelTest } from './testStorici.js'
+import {
+  STATO_ANIMO_FINALE_OPTIONS,
+  DIFFICOLTA_DETTAGLIO_OPTIONS,
+  AREE_TEST,
+} from '../config/domandeFinali.js'
 
 const REPORT_SECTION_DEFS = SEZIONI.map((s) => ({ key: s.id, label: s.nome, from: s.da, to: s.a }))
 
@@ -206,35 +211,315 @@ export function normalizeLevels(totals) {
   return result
 }
 
-/** Scarica la matrice dati (100 colonne) del singolo test come CSV. */
-export function downloadCsvSingleRecord(record) {
-  if (!record || !record.raw) return
-  const headerKeys = Object.keys(testSchema)
-  const header = ['id', ...headerKeys]
+/**
+ * Formatta un valore di cella conforme allo standard RFC 4180.
+ * Risolve bug di serializzazione come [object Object] per Timestamp Firestore e Date.
+ */
+export function formatCellValue(value) {
+  if (value == null) return ''
+  if (typeof value?.toDate === 'function') {
+    return value.toDate().toISOString()
+  }
+  if (value instanceof Date) {
+    return Number.isNaN(value.getTime()) ? '' : value.toISOString()
+  }
+  if (typeof value === 'object' && ('seconds' in value || '_seconds' in value)) {
+    const s = value.seconds ?? value._seconds
+    const ms = ('nanoseconds' in value ? value.nanoseconds : (value._nanoseconds || 0)) / 1e6
+    const d = new Date(s * 1000 + ms)
+    return Number.isNaN(d.getTime()) ? '' : d.toISOString()
+  }
+  if (typeof value === 'object') {
+    return ''
+  }
+  const str = String(value)
+  if (str === '[object Object]') return ''
+  if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
+    return `"${str.replace(/"/g, '""')}"`
+  }
+  return str
+}
 
-  const escapeValue = (value) => {
-    if (value == null) return ''
-    if (value.toDate) {
-      return value.toDate().toISOString()
+/**
+ * Calcola l'età esatta in anni compiuti al momento del test.
+ */
+export function computeAge(birthDate, testDate) {
+  if (!birthDate) return ''
+  let b = null
+  if (typeof birthDate?.toDate === 'function') b = birthDate.toDate()
+  else if (birthDate instanceof Date) b = birthDate
+  else if (typeof birthDate === 'object' && ('seconds' in birthDate || '_seconds' in birthDate)) {
+    b = new Date((birthDate.seconds ?? birthDate._seconds) * 1000)
+  } else {
+    b = new Date(birthDate)
+  }
+  if (!b || Number.isNaN(b.getTime())) return ''
+
+  let ref = null
+  if (testDate) {
+    if (typeof testDate?.toDate === 'function') ref = testDate.toDate()
+    else if (testDate instanceof Date) ref = testDate
+    else if (typeof testDate === 'object' && ('seconds' in testDate || '_seconds' in testDate)) {
+      ref = new Date((testDate.seconds ?? testDate._seconds) * 1000)
+    } else {
+      ref = new Date(testDate)
     }
-    const str = String(value)
-    if (str.includes(',') || str.includes('"') || str.includes('\n')) {
-      return `"${str.replace(/"/g, '""')}"`
+  }
+  if (!ref || Number.isNaN(ref.getTime())) ref = new Date()
+
+  let age = ref.getFullYear() - b.getFullYear()
+  const m = ref.getMonth() - b.getMonth()
+  if (m < 0 || (m === 0 && ref.getDate() < b.getDate())) {
+    age -= 1
+  }
+  return age >= 0 ? age : ''
+}
+
+/**
+ * Ricava un ID pseudonimizzato e anonimo (GDPR compliant).
+ * Non restituisce MAI nome o cognome in chiaro.
+ */
+export function getPseudonymId(record = {}) {
+  const raw = record?.raw || record || {}
+  const candidate = String(record?.id || raw.ID_Utente || '').trim()
+  const fullName = [raw.Nome, raw.Cognome].filter(Boolean).map((s) => String(s).trim()).join(' ')
+  if (candidate && (!fullName || (candidate !== fullName && !candidate.includes(fullName)))) {
+    return candidate
+  }
+  const seed = `${fullName}_${raw.Data_Test || ''}_${raw.Data_Nascita || ''}`
+  let hash = 0
+  for (let i = 0; i < seed.length; i += 1) {
+    hash = ((hash << 5) - hash + seed.charCodeAt(i)) | 0
+  }
+  const hex = Math.abs(hash).toString(16).padStart(6, '0').slice(-6).toUpperCase()
+  return `SUBJ_${hex}`
+}
+
+/**
+ * Intestazioni canoniche per la Matrice Dati Standard di Ricerca Sociale (SPSS / R / Stata).
+ */
+export const RESEARCH_MATRIX_HEADERS = Object.freeze([
+  'ID_Soggetto',
+  'Data_Test',
+  'Data_Nascita',
+  'Eta',
+  'Titolo_Studio',
+  'Pratica_Musicale',
+  'Strumento_Suonato',
+  // 72 item grezzi
+  ...Array.from({ length: 72 }, (_, i) => `File_${String(i + 1).padStart(2, '0')}`),
+  // Portato esperienziale
+  'PE_Simpatia',
+  'PE_Antipatia',
+  'PE_Indifferenza',
+  'Portato_Esperienziale_Prevalente',
+  // 12 nature emotive
+  'BLU_1_Depressiva',
+  'BLU_2_Lunare',
+  'BLU_3_Nostalgia',
+  'BLU_4_Solare',
+  'ROSSO_1_Assertivita',
+  'ROSSO_2_Dubbio_Collera',
+  'VERDE_1_CalmaContemplativa',
+  'VERDE_2_CalmaFisica',
+  'GIALLO_1_Gioia_Entusiasmo',
+  'GIALLO_2_Volitivo_Passionale',
+  'GRIGIO_1_Anaffettiva',
+  'GRIGIO_2_Distaccata',
+  // 5 totali di famiglia colore
+  'Totale_BLU',
+  'Totale_ROSSO',
+  'Totale_VERDE',
+  'Totale_GIALLO',
+  'Totale_GRIGIO',
+  // Disposizioni sintetiche
+  'Disposizione_Prevalente',
+  'Sottodisposizione_Prevalente',
+  // Stato d animo e dummy dicotomiche 0/1
+  'Stato_Animo_Finale',
+  ...STATO_ANIMO_FINALE_OPTIONS.map((o) => o.value),
+  // Difficoltà test e dummy dicotomiche 0/1
+  'Difficolta_Test',
+  'Difficolta_Dettaglio',
+  ...DIFFICOLTA_DETTAGLIO_OPTIONS.map((o) => o.value),
+  // Aree agio e dummy dicotomiche 0/1
+  'Area_Maggior_Agio',
+  ...AREE_TEST.map((a) => `Area_Maggior_Agio_${a.value}`),
+  'Area_Minor_Agio',
+  ...AREE_TEST.map((a) => `Area_Minor_Agio_${a.value}`),
+  // Feedback e metadati
+  'Qualita_Suoni',
+  'Osservazioni_Finali',
+  'Data_Ora_Fine_Test',
+  'versione_modello',
+])
+
+/**
+ * Costruisce una riga per la Matrice Dati Standard di Ricerca Sociale.
+ */
+export function buildResearchMatrixRow(record = {}) {
+  const raw = record?.raw || record || {}
+  const colorTotals = computeColorTotals(raw)
+  const idSoggetto = getPseudonymId(record)
+  const eta = computeAge(raw.Data_Nascita, raw.Data_Test)
+
+  const parseCodes = (str) =>
+    String(str || '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+
+  const statiAnimo = parseCodes(raw.Stato_Animo_Finale)
+  const difficoltaDettagli = parseCodes(raw.Difficolta_Dettaglio)
+  const areeMaggiorAgio = parseCodes(raw.Area_Maggior_Agio).map((c) => c.toUpperCase())
+  const areeMinorAgio = parseCodes(raw.Area_Minor_Agio).map((c) => c.toUpperCase())
+
+  const formatDateOnly = (val) => {
+    if (val == null) return ''
+    if (typeof val?.toDate === 'function') return val.toDate().toISOString().slice(0, 10)
+    if (val instanceof Date) return Number.isNaN(val.getTime()) ? '' : val.toISOString().slice(0, 10)
+    if (typeof val === 'object' && ('seconds' in val || '_seconds' in val)) {
+      const s = val.seconds ?? val._seconds
+      const d = new Date(s * 1000)
+      return Number.isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10)
     }
-    return str
+    const str = String(val).trim()
+    if (str === '[object Object]') return ''
+    return str.slice(0, 10)
   }
 
-  const idFromRaw = (raw) => [raw?.Nome, raw?.Cognome].filter((v) => v != null && String(v).trim()).join(' ').trim() || ''
-  const id = escapeValue(idFromRaw(record.raw))
-  const row = [id, ...headerKeys.map((key) => escapeValue(record.raw[key]))].join(',')
-  const csvContent = [header.join(','), row].join('\n')
+  const rowMap = {
+    ID_Soggetto: idSoggetto,
+    Data_Test: formatDateOnly(raw.Data_Test),
+    Data_Nascita: formatDateOnly(raw.Data_Nascita),
+    Eta: eta,
+    Titolo_Studio: raw.Titolo_Studio || '',
+    Pratica_Musicale: raw.Pratica_Musicale || '',
+    Strumento_Suonato: raw.Strumento_Suonato || '',
+  }
+
+  for (let i = 1; i <= 72; i += 1) {
+    const key = `File_${String(i).padStart(2, '0')}`
+    rowMap[key] = raw[key] ?? ''
+  }
+
+  rowMap.PE_Simpatia = raw.PE_Simpatia ?? 0
+  rowMap.PE_Antipatia = raw.PE_Antipatia ?? 0
+  rowMap.PE_Indifferenza = raw.PE_Indifferenza ?? 0
+  rowMap.Portato_Esperienziale_Prevalente = raw.Portato_Esperienziale_Prevalente || ''
+
+  rowMap.BLU_1_Depressiva = raw.BLU_1_Depressiva ?? 0
+  rowMap.BLU_2_Lunare = raw.BLU_2_Lunare ?? 0
+  rowMap.BLU_3_Nostalgia = raw.BLU_3_Nostalgia ?? 0
+  rowMap.BLU_4_Solare = raw.BLU_4_Solare ?? 0
+  rowMap.ROSSO_1_Assertivita = raw.ROSSO_1_Assertivita ?? 0
+  rowMap.ROSSO_2_Dubbio_Collera = raw.ROSSO_2_Dubbio_Collera ?? 0
+  rowMap.VERDE_1_CalmaContemplativa = raw.VERDE_1_CalmaContemplativa ?? 0
+  rowMap.VERDE_2_CalmaFisica = raw.VERDE_2_CalmaFisica ?? 0
+  rowMap.GIALLO_1_Gioia_Entusiasmo = raw.GIALLO_1_Gioia_Entusiasmo ?? 0
+  rowMap.GIALLO_2_Volitivo_Passionale = raw.GIALLO_2_Volitivo_Passionale ?? 0
+  rowMap.GRIGIO_1_Anaffettiva = raw.GRIGIO_1_Anaffettiva ?? 0
+  rowMap.GRIGIO_2_Distaccata = raw.GRIGIO_2_Distaccata ?? 0
+
+  rowMap.Totale_BLU = colorTotals.blu ?? 0
+  rowMap.Totale_ROSSO = colorTotals.rosso ?? 0
+  rowMap.Totale_VERDE = colorTotals.verde ?? 0
+  rowMap.Totale_GIALLO = colorTotals.giallo ?? 0
+  rowMap.Totale_GRIGIO = colorTotals.grigio ?? 0
+
+  rowMap.Disposizione_Prevalente = raw.Disposizione_Prevalente || ''
+  rowMap.Sottodisposizione_Prevalente = raw.Sottodisposizione_Prevalente || ''
+
+  rowMap.Stato_Animo_Finale = raw.Stato_Animo_Finale || ''
+  STATO_ANIMO_FINALE_OPTIONS.forEach((opt) => {
+    rowMap[opt.value] = statiAnimo.includes(opt.value) ? 1 : 0
+  })
+
+  rowMap.Difficolta_Test = raw.Difficolta_Test || ''
+  rowMap.Difficolta_Dettaglio = raw.Difficolta_Dettaglio || ''
+  DIFFICOLTA_DETTAGLIO_OPTIONS.forEach((opt) => {
+    rowMap[opt.value] = difficoltaDettagli.includes(opt.value) ? 1 : 0
+  })
+
+  rowMap.Area_Maggior_Agio = raw.Area_Maggior_Agio || ''
+  AREE_TEST.forEach((area) => {
+    rowMap[`Area_Maggior_Agio_${area.value}`] = areeMaggiorAgio.includes(area.value) ? 1 : 0
+  })
+
+  rowMap.Area_Minor_Agio = raw.Area_Minor_Agio || ''
+  AREE_TEST.forEach((area) => {
+    rowMap[`Area_Minor_Agio_${area.value}`] = areeMinorAgio.includes(area.value) ? 1 : 0
+  })
+
+  rowMap.Qualita_Suoni = raw.Qualita_Suoni || ''
+  rowMap.Osservazioni_Finali = raw.Osservazioni_Finali || ''
+  rowMap.Data_Ora_Fine_Test = formatCellValue(raw.Data_Ora_Fine_Test)
+  rowMap.versione_modello = raw.versione_modello || ''
+
+  return RESEARCH_MATRIX_HEADERS.map((header) => formatCellValue(rowMap[header]))
+}
+
+/**
+ * Genera il contenuto testuale CSV della matrice di ricerca per uno o più record.
+ */
+export function buildResearchMatrixCsv(records = []) {
+  const safeRecords = Array.isArray(records) ? records : [records].filter(Boolean)
+  const rows = safeRecords.map((r) => buildResearchMatrixRow(r).join(','))
+  return [RESEARCH_MATRIX_HEADERS.join(','), ...rows].join('\n')
+}
+
+/**
+ * Scarica il file CSV conforme alla Matrice Dati Standard di Ricerca Sociale.
+ */
+export function downloadResearchMatrixCsv(records = [], filename = 'tst_matrice_ricerca_standard.csv') {
+  const csvContent = buildResearchMatrixCsv(records)
+  if (typeof document === 'undefined') return csvContent
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
   link.href = url
-  link.setAttribute('download', 'tst_matrice_dati.csv')
+  link.setAttribute('download', filename)
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
   URL.revokeObjectURL(url)
+  return csvContent
+}
+
+/**
+ * Scarica la matrice dati del singolo test conforme allo Standard di Ricerca Sociale
+ * (anonima, con Età calcolata, variabili dummy 0/1 per risposte multiple, date ISO RFC 4180).
+ */
+export function downloadCsvSingleRecord(record) {
+  if (!record || !record.raw) return
+  const id = getPseudonymId(record)
+  const safeFilename = `tst_matrice_ricerca_${id}.csv`
+  return downloadResearchMatrixCsv([record], safeFilename)
+}
+
+/**
+ * Scarica la matrice gestionale completa (backup Firestore con schema originale) di un singolo record.
+ */
+export function downloadCsvSingleRecordGestionale(record, filename = 'tst_matrice_gestionale.csv') {
+  if (!record || !record.raw) return
+  const headerKeys = Object.keys(testSchema)
+  const header = ['id', ...headerKeys]
+
+  const idFromRaw = (raw) =>
+    [raw?.Nome, raw?.Cognome].filter((v) => v != null && String(v).trim()).join(' ').trim() || ''
+  const id = formatCellValue(idFromRaw(record.raw))
+  const row = [id, ...headerKeys.map((key) => formatCellValue(record.raw[key]))].join(',')
+  const csvContent = [header.join(','), row].join('\n')
+
+  if (typeof document === 'undefined') return csvContent
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.setAttribute('download', filename)
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
+  return csvContent
 }
