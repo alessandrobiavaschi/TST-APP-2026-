@@ -6,8 +6,8 @@ import { FAMIGLIE_TST } from '../../content/paroleTst.js'
 const WORLD_WIDTH = 3600
 const WORLD_HEIGHT = 2700
 
-const CAMERA_MIN_SCALE = 0.22
-const CAMERA_MAX_SCALE = 2.8
+const CAMERA_MIN_SCALE = 0.20
+const CAMERA_MAX_SCALE = 3.0
 const CAMERA_ZOOM_STEP = 1.28
 const WHEEL_ZOOM_INTENSITY = 0.024
 const PINCH_DAMPING = 0.70
@@ -15,7 +15,7 @@ const BASE_PITCH = 0
 const FOCUS_PITCH = 0
 const LERP_FACTOR = 0.45
 // Livelli di dettaglio del Lessico: soglie di zoom e attesa prima del cambio.
-const LOD_EDGES = [0.42, 0.72, 1.25]
+const LOD_EDGES = [0.38, 0.65, 0.88]
 const LOD_TIERS = ['macro', 'meso-wide', 'meso', 'micro']
 const LOD_SETTLE_MS = 140
 
@@ -43,6 +43,22 @@ function createCamera(x = 0, y = 0, scale = 0.5, pitch = BASE_PITCH, yaw = 0, ro
 
 function clamp(v, min, max) {
   return Math.max(min, Math.min(max, v))
+}
+
+function computeAtlasWordScale(scale) {
+  // Target screen scale for words and nature badges:
+  // - At low zoom (< 0.65): words scale down gracefully with zoom so the world view stays clear and uncluttered.
+  // - At normal zoom (0.75 - 1.1): words are at ideal reading size (~0.85x - 0.92x screen scale).
+  // - At high zoom (> 1.2 up to 3.0): screen size settles strictly at ~0.90x - 0.93x and NEVER balloons into
+  //   giant billboards. This enables the physical distance between words to expand up to 300% on screen,
+  //   giving words immense breathing room and effortless clarity ("più zoomo più deve diventare facile da leggere").
+  const clampedScale = Math.max(scale, 0.15)
+  if (clampedScale <= 0.65) {
+    return Math.min(1.02, Math.max(0.68, Math.pow(0.75 / clampedScale, 0.35))).toFixed(3)
+  }
+  const targetScreenScale = clamp(0.38 + 0.52 * Math.pow(clampedScale, 0.20), 0.75, 0.93)
+  const wordScale = clamp(targetScreenScale / clampedScale, 0.26, 1.02)
+  return wordScale.toFixed(3)
 }
 
 // ─── Family Metadata & Constellation Anchor Positions (Rosa dei Venti) ───────
@@ -309,10 +325,10 @@ function buildConstellationData() {
           ringIndex = 2
         }
 
-        const fontSize = ringIndex === 0 ? 17 : ringIndex === 1 ? 14 : 12.5
+        const fontSize = ringIndex === 0 ? 15 : ringIndex === 1 ? 13 : 11.5
         const fontWeight = ringIndex === 0 ? 700 : ringIndex === 1 ? 600 : 500
-        const estWidth = state.length * fontSize * 0.68 + 36
-        const estHeight = fontSize * 1.35 + 14
+        const estWidth = state.length * fontSize * 0.62 + 30
+        const estHeight = fontSize * 1.30 + 12
 
         ringAssignments.push({
           state,
@@ -326,20 +342,20 @@ function buildConstellationData() {
       })
 
       const maxAllowedR = numCurrents > 2
-        ? (cfg.subSpread * Math.sin(Math.PI / numCurrents)) * 1.15
+        ? (cfg.subSpread * Math.sin(Math.PI / numCurrents)) * 1.25
         : numCurrents === 2
-          ? cfg.subSpread * 0.95
-          : cfg.radius * 0.92
-      const baseR = Math.min(maxAllowedR, numCurrents === 1 ? cfg.radius * 0.92 : cfg.subSpread * 0.90)
-      const maxR = Math.max(210, Math.min(maxAllowedR, baseR + (numStates > 8 ? (numStates - 8) * 12 : 0)))
+          ? cfg.subSpread * 1.05
+          : cfg.radius * 0.95
+      const baseR = Math.min(maxAllowedR, numCurrents === 1 ? cfg.radius * 0.95 : cfg.subSpread * 0.95)
+      const maxR = Math.max(240, Math.min(maxAllowedR, baseR + (numStates > 8 ? (numStates - 8) * 14 : 0)))
 
       for (let rIdx = 0; rIdx <= 2; rIdx++) {
         const ringWords = ringAssignments.filter((item) => item.ringIndex === rIdx)
         if (ringWords.length === 0) continue
 
-        const ringFactor = rIdx === 0 ? 0.50 : rIdx === 1 ? 0.84 : 1.20
+        const ringFactor = rIdx === 0 ? 0.54 : rIdx === 1 ? 0.92 : 1.34
         const r = maxR * ringFactor
-        const yFlatten = 0.90
+        const yFlatten = 0.92
 
         const totalRingWeight = ringWords.reduce((sum, item) => sum + item.estWidth, 0)
         const ringPhaseOffset =
@@ -470,7 +486,7 @@ function buildConstellationData() {
       z: isIntersection ? 80 : targetZ,
       width: Math.max(...occurrences.map((o) => o.estWidth)) + (isIntersection ? 24 : 0),
       height: Math.max(...occurrences.map((o) => o.estHeight)) + (isIntersection ? 6 : 0),
-      fontSize: isIntersection ? 13.5 : first.fontSize,
+      fontSize: isIntersection ? 14 : first.fontSize,
       fontWeight: isIntersection ? 700 : first.fontWeight,
       color: isIntersection ? '#f8fafc' : first.color,
       ringIndex: Math.min(...occurrences.map((o) => o.ringIndex)),
@@ -533,7 +549,7 @@ function buildConstellationData() {
         if (!isPeerFamily && !w.isIntersection && !words[j].isIntersection) continue
         const dx = pX[j] - pX[i]
         const dy = pY[j] - pY[i]
-        const minDist = (w.width + words[j].width) * 0.5 + 34
+        const minDist = (w.width + words[j].width) * 0.5 + 40
         if (Math.abs(dx) > minDist) continue
         const scaledDy = dy * aspect
         if (Math.abs(scaledDy) > minDist) continue
@@ -559,13 +575,13 @@ function buildConstellationData() {
 
   // Separazione rigida fra TUTTE le etichette (anche di famiglie diverse) e
   // contro le targhette fisse delle nature: garantisce zero collisioni ed etichette perfettamente leggibili.
-  const GAP_X = 36
-  const GAP_Y = 22
+  const GAP_X = 42
+  const GAP_Y = 32
   const hubBoxes = hubs.map((h) => ({
     x: h.x,
     y: h.y + 12,
-    w: String(h.title || '').length * 8 + 32,
-    h: 42,
+    w: String(h.title || '').length * 8 + 36,
+    h: 44,
   }))
   for (let pass = 0; pass < 120; pass++) {
     let moved = false
@@ -1566,15 +1582,18 @@ export default function LessicoAtlasView({
         const initial = createCamera(initX, initY, fitScale, 0, 0, 0, 0)
         initialCameraRef.current = initial
         targetCameraRef.current = initial
-        const initialTier =
-          fitScale < 0.48 ? 'macro' : fitScale < 0.85 ? 'meso-wide' : fitScale < 1.40 ? 'meso' : 'micro'
+        const initialTierIdx = LOD_EDGES.filter((edge) => fitScale >= edge).length
+        const initialTier = LOD_TIERS[initialTierIdx] || 'macro'
         currentLodTierRef.current = initialTier
 
         if (canvasRef.current) {
           canvasRef.current.style.transform = `translate3d(${initX.toFixed(2)}px, ${initY.toFixed(2)}px, 0px) scale(${fitScale.toFixed(4)})`
+          const initWordScale = computeAtlasWordScale(fitScale)
           if (wordsLayerRef.current) {
-            const initWordScale = Math.min(1.05, Math.max(0.44, Math.pow(0.82 / Math.max(fitScale, 0.1), 0.46))).toFixed(3)
             wordsLayerRef.current.style.setProperty('--atlas-word-scale', initWordScale)
+          }
+          if (constellationLayerRef.current) {
+            constellationLayerRef.current.style.setProperty('--atlas-hub-scale', initWordScale)
           }
         }
       }
@@ -2006,12 +2025,12 @@ export default function LessicoAtlasView({
           canvasRef.current
             .querySelectorAll('.lessico-atlas__family-badge')
             .forEach((el) => el.style.setProperty('--atlas-inv-scale', nextInv))
+          const wordScale = computeAtlasWordScale(cur.scale)
           if (wordsLayerRef.current) {
-            // Counter-scale words so badges don't blow up into giant billboard text when zooming in;
-            // this allows the physical distance between words to expand dramatically on screen
-            // providing spacious breathing room and true 3D constellation clarity.
-            const wordScale = Math.min(1.05, Math.max(0.44, Math.pow(0.82 / Math.max(cur.scale, 0.1), 0.46))).toFixed(3)
             wordsLayerRef.current.style.setProperty('--atlas-word-scale', wordScale)
+          }
+          if (constellationLayerRef.current) {
+            constellationLayerRef.current.style.setProperty('--atlas-hub-scale', wordScale)
           }
         }
       }
