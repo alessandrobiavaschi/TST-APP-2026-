@@ -445,7 +445,7 @@ export default function SintesiCorrenti({
         <div id="report-tst-grafici" className="report-tst-section-anchor sintesi-mobile-activation">
           <div className="sintesi-family-intro" style={{ borderBottom: 'none', paddingBottom: 0 }}>
             <ReportPassageHeader
-              step={`${stepPrefix}.2`}
+              step={`${stepPrefix}.1`}
               eyebrow="Distribuzione"
               title={SINTESI_UI.distribuzioneTitle}
               accentColor={accentColor}
@@ -544,7 +544,7 @@ export default function SintesiCorrenti({
         <div id="report-tst-grafici" className="report-tst-section-anchor sintesi-correnti__container sintesi-correnti__order-visuals">
           <div className="sintesi-family-intro sintesi-family-intro--charts">
             <ReportPassageHeader
-              step={`${stepPrefix}.2`}
+              step={`${stepPrefix}.1`}
               eyebrow="Distribuzione"
               title={SINTESI_UI.distribuzioneTitle}
               accentColor={accentColor}
