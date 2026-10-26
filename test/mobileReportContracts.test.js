@@ -30,20 +30,20 @@ test('mantiene ordine, id e struttura desktop dei macro-blocchi', () => {
   assert.deepEqual(groups.map(({ id }) => id), [
     'report-group-hero',
     'report-group-profilo-generale',
+    'report-group-relazioni',
     'stanza-identita',
     'report-tst-rapporti',
     'report-group-forza-correnti',
     'report-group-educazione',
-    'report-group-relazioni',
   ])
   assert.deepEqual(getDefaultGroupOpenState(), {
     'report-group-hero': false,
     'report-group-profilo-generale': true,
+    'report-group-relazioni': false,
     'stanza-identita': false,
     'report-tst-rapporti': false,
     'report-group-forza-correnti': false,
     'report-group-educazione': false,
-    'report-group-relazioni': false,
   })
   assert.deepEqual(groups.slice(1).map(({ stepLabel }) => stepLabel), ['1', '2', '3', '4', '5', '6'])
   assert.deepEqual(getVisibleReportSections(PROFILO_CON_FAMIGLIA_SECONDARIA).map(({ id }) => id), [

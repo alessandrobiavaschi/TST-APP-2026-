@@ -337,10 +337,9 @@ export default function ReportShell({
   }, [profiloEmotivo?.dominantFamilyKey, profiloEmotivo?.contentCards, globalProfileContract?.ranking])
 
   const chaptersList = useMemo(() => {
-    const list = [
+    const base = [
       {
         id: 'report-group-profilo-generale',
-        step: 1,
         title: 'Il profilo in sintesi',
         subtitle: 'Risultato e distribuzione delle famiglie emotive',
         readingFocus: 'Distribuzione ed Energie',
@@ -348,7 +347,6 @@ export default function ReportShell({
       },
       {
         id: 'stanza-identita',
-        step: 2,
         title: 'Identità emotiva e natura',
         subtitle: 'Natura, racconto, risorse e ombre',
         readingFocus: 'Il Temperamento Profondo',
@@ -356,7 +354,6 @@ export default function ReportShell({
       },
       {
         id: 'report-tst-rapporti',
-        step: 3,
         title: 'I quattro rapporti',
         subtitle: 'Natura emotiva di base, sé, altro, agire',
         readingFocus: 'Le 4 Relazioni',
@@ -364,7 +361,6 @@ export default function ReportShell({
       },
       {
         id: 'report-group-forza-correnti',
-        step: 4,
         title: 'Come hai vissuto il test',
         subtitle: 'Il portato esperienziale: simpatia, antipatia, indifferenza',
         readingFocus: 'Portato Esperienziale',
@@ -372,7 +368,6 @@ export default function ReportShell({
       },
       {
         id: 'report-group-educazione',
-        step: 5,
         title: 'Le parole degli stati d’animo',
         subtitle: 'Il vocabolario delle tue emozioni nelle 5 famiglie',
         readingFocus: 'Lessico Emotivo',
@@ -380,18 +375,20 @@ export default function ReportShell({
       },
     ]
 
-    if (showEmotionalIntegrations) {
-      list.push({
-        id: 'report-group-relazioni',
-        step: 6,
-        title: 'Famiglie in relazione',
-        subtitle: 'Le cinque famiglie emotive in dialogo',
-        readingFocus: 'Dinamiche tra Famiglie',
-        intro: 'Come le diverse componenti emotive del tuo profilo dialogano o entrano in tensione tra loro.',
-      })
-    }
-
-    return list
+    // Le relazioni tra temperamenti seguono subito la prima restituzione.
+    const relazioni = showEmotionalIntegrations
+      ? [
+          {
+            id: 'report-group-relazioni',
+            title: 'Famiglie in relazione',
+            subtitle: 'Le cinque famiglie emotive in dialogo',
+            readingFocus: 'Dinamiche tra Famiglie',
+            intro: 'Come le diverse componenti emotive del tuo profilo dialogano o entrano in tensione tra loro.',
+          },
+        ]
+      : []
+    const list = [base[0], ...relazioni, ...base.slice(1)]
+    return list.map((chapter, index) => ({ ...chapter, step: index + 1 }))
   }, [showEmotionalIntegrations])
 
   const currentChapterIndex = useMemo(() => {
@@ -401,6 +398,14 @@ export default function ReportShell({
   }, [activeChapterId, chaptersList])
 
   const currentChapter = chaptersList[currentChapterIndex]
+  // Capitolo precedente e successivo per id: l'ordine dei capitoli vive solo in chaptersList.
+  const chapterNeighbors = (chapterId) => {
+    const idx = chaptersList.findIndex((c) => c.id === chapterId)
+    return {
+      prev: idx > 0 ? chaptersList[idx - 1] : null,
+      next: idx >= 0 ? chaptersList[idx + 1] || null : null,
+    }
+  }
   const prevChapter = currentChapterIndex > 0 ? chaptersList[currentChapterIndex - 1] : null
   const nextChapter = currentChapterIndex < chaptersList.length - 1 ? chaptersList[currentChapterIndex + 1] : null
 
@@ -772,8 +777,8 @@ export default function ReportShell({
                 </RoomRevealContent>
                 {viewMode === 'capitoli' && activeChapterId === 'report-group-profilo-generale' && (
                   <ReportChapterBottomNav
-                    prevChapter={null}
-                    nextChapter={chaptersList[1]}
+                    prevChapter={chapterNeighbors('report-group-profilo-generale').prev}
+                    nextChapter={chapterNeighbors('report-group-profilo-generale').next}
                     onSelectChapter={handleSelectChapter}
                     onBackToIndex={() => {
                       setActiveChapterId(null)
@@ -783,6 +788,48 @@ export default function ReportShell({
                   />
                 )}
               </section>
+
+              {showEmotionalIntegrations ? (
+                <>
+                  {viewMode === 'continuo' ? <SectionDivider /> : null}
+
+                  {/* ── STANZA 01b: FAMIGLIE IN RELAZIONE, subito dopo la prima restituzione ── */}
+                  <section
+                    id="report-group-relazioni"
+                    className={`report-room-section report-room-section--preview${activeChapterId === 'report-group-relazioni' ? ' is-active-chapter' : ''}`}
+                    style={viewMode === 'capitoli' && activeChapterId !== 'report-group-relazioni' ? { display: 'none' } : undefined}
+                  >
+                    <RoomOpening
+                      step={roomMetaById['report-group-relazioni']?.stepLabel}
+                      title={roomMetaById['report-group-relazioni']?.title}
+                      lead={roomMetaById['report-group-relazioni']?.subtitle}
+                    />
+                    <RoomRevealContent>
+                      <p className="report-room-preview-lead">{SECTION_INTROS.mappa.intro}</p>
+                      <button
+                        ref={famiglieEntryBtnRef}
+                        type="button"
+                        className="report-room-preview-cta"
+                        onClick={(event) => openModalita('famiglie', event)}
+                      >
+                        Apri Famiglie in relazione
+                      </button>
+                    </RoomRevealContent>
+                    {viewMode === 'capitoli' && activeChapterId === 'report-group-relazioni' && (
+                      <ReportChapterBottomNav
+                        prevChapter={chapterNeighbors('report-group-relazioni').prev}
+                        nextChapter={chapterNeighbors('report-group-relazioni').next}
+                        onSelectChapter={handleSelectChapter}
+                        onBackToIndex={() => {
+                          setActiveChapterId(null)
+                          window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' })
+                        }}
+                        accentColor={correnteColore}
+                      />
+                    )}
+                  </section>
+                </>
+              ) : null}
 
               {viewMode === 'continuo' ? <SectionDivider /> : null}
 
@@ -814,8 +861,8 @@ export default function ReportShell({
                 </RoomRevealContent>
                 {viewMode === 'capitoli' && activeChapterId === 'stanza-identita' && (
                   <ReportChapterBottomNav
-                    prevChapter={chaptersList[0]}
-                    nextChapter={chaptersList[2]}
+                    prevChapter={chapterNeighbors('stanza-identita').prev}
+                    nextChapter={chapterNeighbors('stanza-identita').next}
                     onSelectChapter={handleSelectChapter}
                     onBackToIndex={() => {
                       setActiveChapterId(null)
@@ -865,8 +912,8 @@ export default function ReportShell({
                 </div>
                 {viewMode === 'capitoli' && activeChapterId === 'report-tst-rapporti' && (
                   <ReportChapterBottomNav
-                    prevChapter={chaptersList[1]}
-                    nextChapter={chaptersList[3]}
+                    prevChapter={chapterNeighbors('report-tst-rapporti').prev}
+                    nextChapter={chapterNeighbors('report-tst-rapporti').next}
                     onSelectChapter={handleSelectChapter}
                     onBackToIndex={() => {
                       setActiveChapterId(null)
@@ -904,8 +951,8 @@ export default function ReportShell({
                 ) : null}
                 {viewMode === 'capitoli' && activeChapterId === 'report-group-forza-correnti' && (
                   <ReportChapterBottomNav
-                    prevChapter={chaptersList[2]}
-                    nextChapter={chaptersList[4]}
+                    prevChapter={chapterNeighbors('report-group-forza-correnti').prev}
+                    nextChapter={chapterNeighbors('report-group-forza-correnti').next}
                     onSelectChapter={handleSelectChapter}
                     onBackToIndex={() => {
                       setActiveChapterId(null)
@@ -937,8 +984,8 @@ export default function ReportShell({
                 </RoomRevealContent>
                 {viewMode === 'capitoli' && activeChapterId === 'report-group-educazione' && (
                   <ReportChapterBottomNav
-                    prevChapter={chaptersList[3]}
-                    nextChapter={chaptersList[5] || null}
+                    prevChapter={chapterNeighbors('report-group-educazione').prev}
+                    nextChapter={chapterNeighbors('report-group-educazione').next}
                     onSelectChapter={handleSelectChapter}
                     onBackToIndex={() => {
                       setActiveChapterId(null)
@@ -949,47 +996,6 @@ export default function ReportShell({
                 )}
               </section>
 
-              {showEmotionalIntegrations ? (
-                <>
-                  {viewMode === 'continuo' ? <SectionDivider /> : null}
-
-                  {/* ── STANZA 06: FAMIGLIE EMOTIVE IN RELAZIONE ────────────── */}
-                  <section
-                    id="report-group-relazioni"
-                    className={`report-room-section report-room-section--preview${activeChapterId === 'report-group-relazioni' ? ' is-active-chapter' : ''}`}
-                    style={viewMode === 'capitoli' && activeChapterId !== 'report-group-relazioni' ? { display: 'none' } : undefined}
-                  >
-                    <RoomOpening
-                      step={roomMetaById['report-group-relazioni']?.stepLabel}
-                      title={roomMetaById['report-group-relazioni']?.title}
-                      lead={roomMetaById['report-group-relazioni']?.subtitle}
-                    />
-                    <RoomRevealContent>
-                      <p className="report-room-preview-lead">{SECTION_INTROS.mappa.intro}</p>
-                      <button
-                        ref={famiglieEntryBtnRef}
-                        type="button"
-                        className="report-room-preview-cta"
-                        onClick={(event) => openModalita('famiglie', event)}
-                      >
-                        Apri Famiglie in relazione
-                      </button>
-                    </RoomRevealContent>
-                    {viewMode === 'capitoli' && activeChapterId === 'report-group-relazioni' && (
-                      <ReportChapterBottomNav
-                        prevChapter={chaptersList[4]}
-                        nextChapter={null}
-                        onSelectChapter={handleSelectChapter}
-                        onBackToIndex={() => {
-                          setActiveChapterId(null)
-                          window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' })
-                        }}
-                        accentColor={correnteColore}
-                      />
-                    )}
-                  </section>
-                </>
-              ) : null}
 
               <SectionDivider />
 
