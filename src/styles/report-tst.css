@@ -1002,26 +1002,6 @@
   color: #ffffff;
 }
 
-.navbar-tst__help {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: transparent;
-  border-radius: 50%;
-  font-family: var(--font-body);
-  font-size: 15px;
-  font-weight: 600;
-  color: #f2f2f5;
-  flex: 0 0 auto;
-}
-.navbar-tst__help:hover {
-  border-color: rgba(196, 181, 253, 0.5);
-  background: rgba(255, 255, 255, 0.06);
-  color: #ffffff;
-}
 
 /* =====================================================================
    SUB-NAV SEZIONI REPORT (sticky sotto navbar)

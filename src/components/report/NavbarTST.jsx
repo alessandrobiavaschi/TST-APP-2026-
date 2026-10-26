@@ -265,7 +265,7 @@ export default function NavbarTST({
           </div>
         )}
 
-        {/* ── Destra: corrente + scarica + aiuto ──────────────────── */}
+        {/* ── Destra: corrente + scarica ──────────────────────────── */}
         <div className="navbar-tst__right">
           {famigliaResult || naturaDisplayResult ? (
             <>
@@ -287,14 +287,6 @@ export default function NavbarTST({
             className="navbar-tst__download"
           >
             {NAVBAR_UI.download}
-          </button>
-          <button
-            type="button"
-            onClick={onOpenHelp}
-            aria-label={NAVBAR_UI.helpAria}
-            className="navbar-tst__help"
-          >
-            ?
           </button>
         </div>
       </div>
