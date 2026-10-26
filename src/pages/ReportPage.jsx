@@ -71,6 +71,32 @@ function ReportPage() {
   const playSubmitTransition = fromSubmit && !skipReportTransition
   const [transitionPhase, setTransitionPhase] = useState(playSubmitTransition ? 'video' : 'none')
   const [resultRevealPhase, setResultRevealPhase] = useState(playSubmitTransition ? 'hold' : 'visible')
+  const [fontsReady, setFontsReady] = useState(() => {
+    if (typeof document === 'undefined' || !document.fonts) return true
+    return document.fonts.status === 'loaded'
+  })
+
+  useEffect(() => {
+    if (fontsReady) return
+    let active = true
+    if (typeof document !== 'undefined' && document.fonts) {
+      document.fonts.ready
+        .then(() => {
+          if (active) setFontsReady(true)
+        })
+        .catch(() => {
+          if (active) setFontsReady(true)
+        })
+    }
+    const fallbackTimer = window.setTimeout(() => {
+      if (active) setFontsReady(true)
+    }, 600)
+    return () => {
+      active = false
+      window.clearTimeout(fallbackTimer)
+    }
+  }, [fontsReady])
+
   useEffect(() => {
     if (resultRevealPhase !== 'hold') return undefined
     const timer = window.setTimeout(() => {
@@ -79,7 +105,7 @@ function ReportPage() {
     return () => window.clearTimeout(timer)
   }, [resultRevealPhase])
 
-  const showIntroFrame = resultRevealPhase !== 'visible'
+  const showIntroFrame = resultRevealPhase !== 'visible' || (!fontsReady && !playSubmitTransition)
 
   useEffect(() => {
     if (showIntroFrame) return
@@ -252,6 +278,9 @@ function ReportPage() {
           )}
           {playSubmitTransition && resultRevealPhase === 'hold' && (
             <div className="report-final-reveal-blank" aria-hidden="true" />
+          )}
+          {!playSubmitTransition && (
+            <TstLoader tone="dark" label="Caricamento del report" />
           )}
         </div>
       ) : (

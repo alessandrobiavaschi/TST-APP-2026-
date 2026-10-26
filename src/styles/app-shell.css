@@ -39,3 +39,50 @@
 .app-shell--immersive .app-header {
   z-index: 110;
 }
+
+
+/* Header app sul report (nel CSS critico di shell per prevenire FOUT/FOUC durante il lazy-load):
+   opaco, sopra video/overlay; nav pill scura + testo chiaro. */
+.app-shell--report .app-header.app-header--report {
+  border-bottom: 1px solid var(--report-surface-card-border, rgba(255, 255, 255, 0.08));
+  color: #f8fafc;
+  background: rgba(8, 9, 14, 0.74);
+  border-bottom-color: rgba(255, 255, 255, 0.06);
+  box-shadow: none;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.app-shell--report .app-header--report .app-header-inner {
+  padding: 0.5rem 1rem;
+  min-height: var(--app-header-offset, 56px);
+}
+
+.app-shell--report .app-header--report .app-logo-title {
+  color: rgba(248, 250, 252, 0.92);
+}
+
+.app-shell--report .app-header--report .app-header-nav {
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 999px;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: none;
+}
+
+.app-shell--report .app-header--report .app-header-link {
+  font-weight: 500;
+  color: rgba(242, 242, 245, 0.62);
+}
+
+.app-shell--report .app-header--report .app-header-link:hover,
+.app-shell--report .app-header--report .app-header-link[aria-current='page'] {
+  box-shadow: none;
+  color: #f2f2f5;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.app-shell--report .app-header--report .app-header-link[aria-current='page'] {
+  background: rgba(255, 255, 255, 0.18);
+}
