@@ -24,13 +24,35 @@ function resolvePublicAssetPath(path) {
   return encodeURI(`${normalizedBase}${normalizedPath}`)
 }
 
-export function getFlowerVideoByColor(colorKey) {
+const COLOR_ALIAS = {
+  marziale: 'rosso',
+  malinconica: 'blu',
+  flemmatica: 'verde',
+  entusiasta: 'giallo',
+  razionale: 'grigio',
+  blue: 'blu',
+  red: 'rosso',
+  green: 'verde',
+  yellow: 'giallo',
+  gray: 'grigio',
+  grey: 'grigio',
+}
+
+function normalizeColorKey(colorKey) {
   if (!colorKey) return null
-  return resolvePublicAssetPath(VIDEO_BY_COLOR[colorKey]) || null
+  const raw = String(colorKey).toLowerCase().trim()
+  return COLOR_ALIAS[raw] || raw
+}
+
+export function getFlowerVideoByColor(colorKey) {
+  const key = normalizeColorKey(colorKey)
+  if (!key) return null
+  return resolvePublicAssetPath(VIDEO_BY_COLOR[key]) || null
 }
 
 export function getFlowerStillByColor(colorKey) {
-  if (!colorKey) return null
-  return resolvePublicAssetPath(STILL_BY_COLOR[colorKey]) || null
+  const key = normalizeColorKey(colorKey)
+  if (!key) return null
+  return resolvePublicAssetPath(STILL_BY_COLOR[key]) || null
 }
 

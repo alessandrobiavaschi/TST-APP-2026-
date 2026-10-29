@@ -308,6 +308,10 @@
 .hero-screen__nature-bg {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 25%;
   background-size: cover;
   background-position: center 25%;
   background-repeat: no-repeat;
@@ -5544,6 +5548,15 @@
   font-size: 0.74rem;
   line-height: 1.35;
   text-align: center;
+}
+
+.report-scientific-scope--footer {
+  margin-top: clamp(2rem, 4vh, 3.5rem);
+  margin-bottom: 2rem;
+  padding: 0.75rem 2.5rem 0.75rem 1.25rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .report-scientific-scope__text {

@@ -100,10 +100,18 @@ export default function HeroScreen({
   const reduceMotion = useReducedMotion()
 
   const colorKey = useMemo(() => {
+    if (familyName) {
+      const norm = String(familyName).toLowerCase().trim()
+      if (norm === 'marziale' || norm === 'rosso') return 'rosso'
+      if (norm === 'malinconica' || norm === 'blu') return 'blu'
+      if (norm === 'flemmatica' || norm === 'verde') return 'verde'
+      if (norm === 'entusiasta' || norm === 'giallo') return 'giallo'
+      if (norm === 'razionale' || norm === 'grigio') return 'grigio'
+    }
     const totals = computeColorTotals(rawRecord)
     const { dominantKey } = getDominantColorInfo(totals, rawRecord)
-    return dominantKey
-  }, [rawRecord])
+    return dominantKey || 'rosso'
+  }, [familyName, rawRecord])
 
   const bgImage = useMemo(() => {
     return getFlowerStillByColor(colorKey)
@@ -173,9 +181,13 @@ export default function HeroScreen({
     >
       <div className="hero-screen__backdrop" aria-hidden="true">
         {bgImage && (
-          <div
+          <img
+            src={bgImage}
+            alt=""
             className="hero-screen__nature-bg"
-            style={{ backgroundImage: `url(${bgImage})` }}
+            fetchPriority="high"
+            loading="eager"
+            decoding="sync"
           />
         )}
         <div

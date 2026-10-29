@@ -481,23 +481,6 @@ export default function ReportShell({
       <div className="report-xp-progress" aria-hidden="true">
         <div ref={progressBarRef} className="report-xp-progress-bar" style={{ width: '0%' }} />
       </div>
-      {scientificScopeOpen && (
-        <div className="report-scientific-scope" role="note">
-          <p className="report-scientific-scope__text">
-            Il TST descrive le risposte date agli stimoli sonori in questa somministrazione. Non è uno
-            strumento diagnostico, non sostituisce una valutazione clinica e non definisce in modo fisso
-            personalità o stato psicologico. Le interpretazioni sono ipotesi descrittive interne al modello TST.
-          </p>
-          <button
-            type="button"
-            className="report-scientific-scope__close"
-            aria-label="Chiudi l'avviso sul perimetro scientifico del TST"
-            onClick={() => setScientificScopeOpen(false)}
-          >
-            <span aria-hidden="true">×</span>
-          </button>
-        </div>
-      )}
       <TstLoader active={!loaded} tone="dark" label={REPORT_SHELL_UI.loading} />
 
       <ReportHelpModal
@@ -818,6 +801,24 @@ export default function ReportShell({
                 {REPORT_SHELL_UI.home}
               </button>
             </div>
+
+            {scientificScopeOpen && (
+              <div className="report-scientific-scope report-scientific-scope--footer" role="note">
+                <p className="report-scientific-scope__text">
+                  Il TST descrive le risposte date agli stimoli sonori in questa somministrazione. Non è uno
+                  strumento diagnostico, non sostituisce una valutazione clinica e non definisce in modo fisso
+                  personalità o stato psicologico. Le interpretazioni sono ipotesi descrittive interne al modello TST.
+                </p>
+                <button
+                  type="button"
+                  className="report-scientific-scope__close"
+                  aria-label="Chiudi l'avviso sul perimetro scientifico del TST"
+                  onClick={() => setScientificScopeOpen(false)}
+                >
+                  <span aria-hidden="true">×</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

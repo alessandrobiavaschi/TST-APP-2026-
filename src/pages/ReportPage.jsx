@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import reportContent from '../content_report.json'
 import {
@@ -8,6 +8,7 @@ import {
   getDominantColorInfo,
   computeSezioniTotalsFromRaw,
 } from '../utils/reportRecordUtils.js'
+import { getFlowerStillByColor } from '../colorAssets.js'
 import FinalFlowerTransition from '../components/report/FinalFlowerTransition'
 import ReportShell from '../components/report/ReportShell.jsx'
 import { buildReportData } from '../utils/buildReportData.js'
@@ -66,36 +67,82 @@ function ReportPage() {
         : incomingRecord,
     [incomingRecord],
   )
+  const dominantKey = useMemo(() => {
+    if (!record?.raw || typeof record.raw !== 'object') return 'rosso'
+    const totals = computeColorTotals(record.raw)
+    const { dominantKey: dKey } = getDominantColorInfo(totals, record.raw)
+    return dKey || 'rosso'
+  }, [record])
+
   const fromSubmit = Boolean(location.state?.fromSubmit)
   const skipReportTransition = Boolean(location.state?.skipReportTransition)
   const playSubmitTransition = fromSubmit && !skipReportTransition
   const [transitionPhase, setTransitionPhase] = useState(playSubmitTransition ? 'video' : 'none')
   const [resultRevealPhase, setResultRevealPhase] = useState(playSubmitTransition ? 'hold' : 'visible')
-  const [fontsReady, setFontsReady] = useState(() => {
-    if (typeof document === 'undefined' || !document.fonts) return true
-    return document.fonts.status === 'loaded'
-  })
+  const [heroAssetsReady, setHeroAssetsReady] = useState(false)
+
+  // Resetta lo scroll e disabilita il ripristino automatico prima di dipingere
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined') return
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual'
+    }
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+    document.documentElement.scrollTop = 0
+    document.body.scrollTop = 0
+  }, [record])
 
   useEffect(() => {
-    if (fontsReady) return
     let active = true
-    if (typeof document !== 'undefined' && document.fonts) {
-      document.fonts.ready
-        .then(() => {
-          if (active) setFontsReady(true)
-        })
-        .catch(() => {
-          if (active) setFontsReady(true)
-        })
-    }
+    const stillSrc = getFlowerStillByColor(dominantKey)
+
+    // Precarica l'immagine still dell'hero (così da non dipingere mai senza sfondo)
+    const imagePromise = new Promise((resolve) => {
+      if (!stillSrc || typeof Image === 'undefined') {
+        resolve()
+        return
+      }
+      const img = new Image()
+      img.src = stillSrc
+      if (img.complete) {
+        resolve()
+      } else {
+        img.onload = () => resolve()
+        img.onerror = () => resolve()
+      }
+    })
+
+    // Precarica i font critici (Newsreader, Manrope, JetBrains Mono)
+    const fontsPromise = new Promise((resolve) => {
+      if (typeof document === 'undefined' || !document.fonts) {
+        resolve()
+        return
+      }
+      Promise.allSettled([
+        document.fonts.load('700 2.5rem Manrope'),
+        document.fonts.load('italic 500 1.25rem Newsreader'),
+        document.fonts.load('500 0.85rem "JetBrains Mono"'),
+        document.fonts.ready,
+      ]).then(() => resolve())
+    })
+
     const fallbackTimer = window.setTimeout(() => {
-      if (active) setFontsReady(true)
+      if (active) setHeroAssetsReady(true)
     }, 600)
+
+    Promise.all([imagePromise, fontsPromise]).then(() => {
+      if (active) {
+        window.clearTimeout(fallbackTimer)
+        window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+        setHeroAssetsReady(true)
+      }
+    })
+
     return () => {
       active = false
       window.clearTimeout(fallbackTimer)
     }
-  }, [fontsReady])
+  }, [dominantKey])
 
   useEffect(() => {
     if (resultRevealPhase !== 'hold') return undefined
@@ -105,7 +152,7 @@ function ReportPage() {
     return () => window.clearTimeout(timer)
   }, [resultRevealPhase])
 
-  const showIntroFrame = resultRevealPhase !== 'visible' || (!fontsReady && !playSubmitTransition)
+  const showIntroFrame = resultRevealPhase !== 'visible' || (!heroAssetsReady && !playSubmitTransition)
 
   useEffect(() => {
     if (showIntroFrame) return
@@ -145,7 +192,7 @@ function ReportPage() {
 
   const { blu, rosso, verde, giallo, grigio } = computeColorTotals(record.raw)
   const totalsByKey = { blu, rosso, verde, giallo, grigio }
-  const { dominantKey, dominantColorName } = getDominantColorInfo(totalsByKey, record.raw)
+  const { dominantColorName } = getDominantColorInfo(totalsByKey, record.raw)
   const textBlock =
     getMergedReportBlock(dominantColorName) || reportContent[dominantColorName] || reportContent.Giallo
   const restituzione = textBlock.restituzione_natura
