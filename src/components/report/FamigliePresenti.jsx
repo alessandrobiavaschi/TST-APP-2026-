@@ -44,7 +44,7 @@ export default function FamigliePresenti({ globalProfileContract = null, content
 
   return (
     <p className="sintesi-correnti__narrative-p famiglie-presenti">
-      Nel tuo profilo sono presenti le famiglie {joinNodes(nodes)}, in ordine di intensità
+      Nel tuo profilo sono presenti prevalentemente le famiglie {joinNodes(nodes)}, in ordine di intensità
       {composition.isComposite ? ': la prevalente guida di poco e vanno lette quasi sullo stesso piano.' : '.'}
     </p>
   )

@@ -34,9 +34,9 @@ test('la composizione del profilo è descritta solo nei grafici della stanza 01'
   const profilo = await read('src/components/report/ProfiloEmotivo.jsx')
   assert.ok(!profilo.includes('composizioneSintesi'), 'la stanza 02 non deve ripetere la composizione')
   const presenti = await read('src/components/report/FamigliePresenti.jsx')
-  assert.match(presenti, /Nel tuo profilo sono presenti le famiglie/)
+  assert.match(presenti, /Nel tuo profilo sono presenti prevalentemente le famiglie/)
   const intro = await read('src/components/report/SintesiIntro.jsx')
-  assert.doesNotMatch(intro, /Nel tuo profilo sono presenti le famiglie/)
+  assert.doesNotMatch(intro, /Nel tuo profilo sono presenti prevalentemente le famiglie/)
   assert.match(intro, /getSintesiFamiglia/)
 })
 
