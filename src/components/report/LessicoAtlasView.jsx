@@ -51,9 +51,20 @@ function computeAtlasWordScale(scale) {
   if (clampedScale <= 0.65) {
     return '1.000'
   }
-  // At zoom, gently dampen so they never shrink into tiny text: min 0.92
-  const wordScale = clamp(Math.pow(1 / clampedScale, 0.10), 0.92, 1.05)
+  // At zoom, gently counter-scale so words enlarge comfortably without ballooning: min 0.82
+  const wordScale = clamp(Math.pow(1 / clampedScale, 0.18), 0.82, 1.02)
   return wordScale.toFixed(3)
+}
+
+function computeAtlasBloom(scale) {
+  // Radial blooming expansion on approach (game-like 3D navigation dispersion):
+  // When approaching, words dynamically spread outward from their nature hub,
+  // creating vast breathing room and zero crowding.
+  const clampedScale = Math.max(scale, 0.15)
+  if (clampedScale <= 0.65) return '0.000'
+  const progress = clamp((clampedScale - 0.65) / 1.55, 0, 1)
+  const bloom = progress * 0.38
+  return bloom.toFixed(3)
 }
 
 // ─── Family Metadata & Constellation Anchor Positions (Rosa dei Venti) ───────
@@ -61,7 +72,7 @@ const FAMILY_CONFIG = {
   entusiasmo: {
     id: 'entusiasmo',
     label: 'Entusiasta',
-    colors: ['#fbbf24', '#f59e0b', '#d97706', '#fcd34d', '#f97316', '#fb923c'],
+    colors: ['#fbbf24', '#f59e0b', '#fcd34d', '#fb923c', '#fde047', '#fef08a'],
     baseColor: '#f59e0b',
     glowColor: 'rgba(245, 158, 11, 0.35)',
     x: 1800,
@@ -73,7 +84,7 @@ const FAMILY_CONFIG = {
   flemmatica: {
     id: 'flemmatica',
     label: 'Flemmatica',
-    colors: ['#4ade80', '#22c55e', '#16a34a', '#34d399', '#0d9488', '#2dd4bf'],
+    colors: ['#4ade80', '#22c55e', '#34d399', '#2dd4bf', '#86efac', '#6ee7b7'],
     baseColor: '#22c55e',
     glowColor: 'rgba(34, 197, 94, 0.32)',
     x: 1800,
@@ -85,7 +96,7 @@ const FAMILY_CONFIG = {
   agnostica_anaffettiva: {
     id: 'agnostica_anaffettiva',
     label: 'Razionale',
-    colors: ['#94a3b8', '#64748b', '#cbd5e1', '#9ca3af', '#475569', '#e2e8f0'],
+    colors: ['#94a3b8', '#cbd5e1', '#e2e8f0', '#93c5fd', '#bae6fd', '#d4d4d8'],
     baseColor: '#94a3b8',
     glowColor: 'rgba(148, 163, 184, 0.32)',
     x: 1800,
@@ -97,7 +108,7 @@ const FAMILY_CONFIG = {
   malinconica_nostalgica: {
     id: 'malinconica_nostalgica',
     label: 'Malinconica',
-    colors: ['#818cf8', '#6366f1', '#7c3aed', '#a5b4fc', '#4338ca', '#c084fc'],
+    colors: ['#818cf8', '#6366f1', '#a5b4fc', '#a855f7', '#c084fc', '#93c5fd'],
     baseColor: '#6366f1',
     glowColor: 'rgba(99, 102, 241, 0.35)',
     x: 760,
@@ -109,7 +120,7 @@ const FAMILY_CONFIG = {
   collerico_volitiva: {
     id: 'collerico_volitiva',
     label: 'Marziale',
-    colors: ['#f87171', '#ef4444', '#dc2626', '#fb7185', '#be123c', '#c026d3'],
+    colors: ['#f87171', '#ef4444', '#fb7185', '#f43f5e', '#fb923c', '#fda4af'],
     baseColor: '#ef4444',
     glowColor: 'rgba(239, 68, 68, 0.35)',
     x: 2840,
@@ -320,9 +331,9 @@ function buildConstellationData() {
           ringIndex = 2
         }
 
-        const fontSize = ringIndex === 0 ? 15.5 : ringIndex === 1 ? 14 : 13
-        const fontWeight = ringIndex === 0 ? 700 : ringIndex === 1 ? 600 : 550
-        const estWidth = state.length * fontSize * 0.65 + 32
+        const fontSize = ringIndex === 0 ? 15.5 : ringIndex === 1 ? 14 : 13.5
+        const fontWeight = ringIndex === 0 ? 700 : ringIndex === 1 ? 600 : 600
+        const estWidth = state.length * fontSize * 0.65 + 34
         const estHeight = fontSize * 1.32 + 14
 
         ringAssignments.push({
@@ -426,7 +437,7 @@ function buildConstellationData() {
     // Calculate node coordinates: words have real 3D depth layers (Z-axis)
     let targetX = first.wx
     let targetY = first.wy
-    const targetZ = first.ringIndex === 0 ? 65 : first.ringIndex === 1 ? 15 : -40
+    const targetZ = first.ringIndex === 0 ? 95 : first.ringIndex === 1 ? 35 : -30
 
     if (isIntersection) {
       if (famIds.length > 1) {
@@ -478,7 +489,9 @@ function buildConstellationData() {
       hubY: first.hubY,
       x: targetX,
       y: targetY,
-      z: isIntersection ? 80 : targetZ,
+      z: isIntersection ? 100 : targetZ,
+      hubDx: Math.round(targetX - first.hubX),
+      hubDy: Math.round(targetY - first.hubY),
       width: Math.max(...occurrences.map((o) => o.estWidth)) + (isIntersection ? 24 : 0),
       height: Math.max(...occurrences.map((o) => o.estHeight)) + (isIntersection ? 6 : 0),
       fontSize: isIntersection ? 14 : first.fontSize,
@@ -541,17 +554,19 @@ function buildConstellationData() {
         const isPeerFamily =
           words[j].familyId === w.familyId ||
           w.connectedFamilyIds?.some((fId) => words[j].connectedFamilyIds?.includes(fId))
-        if (!isPeerFamily && !w.isIntersection && !words[j].isIntersection) continue
+        const isDiffFamily = !isPeerFamily && !w.isIntersection && !words[j].isIntersection
+        // Parole di famiglie diverse respingono con un corridoio di separazione interstellare
+        const extraFamilyGap = isDiffFamily ? 65 : 0
+        const minDist = (w.width + words[j].width) * 0.5 + 40 + extraFamilyGap
         const dx = pX[j] - pX[i]
         const dy = pY[j] - pY[i]
-        const minDist = (w.width + words[j].width) * 0.5 + 40
         if (Math.abs(dx) > minDist) continue
         const scaledDy = dy * aspect
         if (Math.abs(scaledDy) > minDist) continue
 
         const d = Math.hypot(dx, scaledDy)
         if (d < minDist && d > 0.001) {
-          const rawF = Math.min(12, 2800 / ((d + 1) * (d + 1)))
+          const rawF = Math.min(12, (isDiffFamily ? 3800 : 2800) / ((d + 1) * (d + 1)))
           const nx = dx / d
           const ny = (scaledDy / d) / aspect
           fx -= nx * rawF
@@ -582,10 +597,14 @@ function buildConstellationData() {
     let moved = false
     for (let i = 0; i < numWords; i++) {
       for (let j = i + 1; j < numWords; j++) {
+        const isPeerFamily =
+          words[j].familyId === words[i].familyId ||
+          words[i].connectedFamilyIds?.some((fId) => words[j].connectedFamilyIds?.includes(fId))
+        const isDiffFamily = !isPeerFamily && !words[i].isIntersection && !words[j].isIntersection
         const dx = pX[j] - pX[i]
         const dy = pY[j] - pY[i]
-        const reqW = (words[i].width + words[j].width) * 0.5 + GAP_X
-        const reqH = (words[i].height + words[j].height) * 0.5 + GAP_Y
+        const reqW = (words[i].width + words[j].width) * 0.5 + (isDiffFamily ? 70 : GAP_X)
+        const reqH = (words[i].height + words[j].height) * 0.5 + (isDiffFamily ? 45 : GAP_Y)
         if (Math.abs(dx) < reqW && Math.abs(dy) < reqH) {
           moved = true
           const overlapX = reqW - Math.abs(dx)
@@ -625,6 +644,8 @@ function buildConstellationData() {
   for (let i = 0; i < numWords; i++) {
     words[i].x = Math.round(pX[i])
     words[i].y = Math.round(pY[i])
+    words[i].hubDx = Math.round(words[i].x - words[i].hubX)
+    words[i].hubDy = Math.round(words[i].y - words[i].hubY)
   }
 
   // Synchronize initial edge endpoints and compute initial Bézier paths
@@ -1944,7 +1965,8 @@ export default function LessicoAtlasView({
 
     let rafId = null
     let lastTransform = ''
-    let lastInvScale = ''
+    let lastReportedScale = -1
+    let cachedBadges = null
     let lastScale = cameraRef.current.scale
     let lastScaleChangeAt = 0
 
@@ -2010,22 +2032,27 @@ export default function LessicoAtlasView({
           lastTransform = cameraKey
           canvasEl.style.transform = `translate3d(${tx}px, ${ty}px, 0px) scale(${ts})`
         }
-        // Le etichette di famiglia restano leggibili anche a zoom basso.
-        // La variabile va scritta SOLO sulle 5 targhette: scritta sulla tela
-        // ricalcolava lo stile di ~2000 elementi a ogni fotogramma di zoom
-        // (~16 ms ciascuno), causa principale del lag.
-        const nextInv = (1 / Math.max(cur.scale, 0.05)).toFixed(2)
-        if (nextInv !== lastInvScale) {
-          lastInvScale = nextInv
-          canvasRef.current
-            .querySelectorAll('.lessico-atlas__family-badge')
-            .forEach((el) => el.style.setProperty('--atlas-inv-scale', nextInv))
+        // Dynamic 3D depth and radial blooming on approach.
+        // Throttled per frame to prevent unnecessary CSS style recalculation on 285 elements.
+        const scaleDelta = Math.abs(cur.scale - lastReportedScale)
+        if (scaleDelta > 0.012 || (cur.scale === tgt.scale && scaleDelta > 0.001)) {
+          lastReportedScale = cur.scale
+          const nextInv = (1 / Math.max(cur.scale, 0.05)).toFixed(2)
+          if (!cachedBadges && canvasRef.current) {
+            cachedBadges = canvasRef.current.querySelectorAll('.lessico-atlas__family-badge')
+          }
+          if (cachedBadges) {
+            cachedBadges.forEach((el) => el.style.setProperty('--atlas-inv-scale', nextInv))
+          }
           const wordScale = computeAtlasWordScale(cur.scale)
+          const bloom = computeAtlasBloom(cur.scale)
           if (wordsLayerRef.current) {
             wordsLayerRef.current.style.setProperty('--atlas-word-scale', wordScale)
+            wordsLayerRef.current.style.setProperty('--atlas-bloom', bloom)
           }
           if (constellationLayerRef.current) {
             constellationLayerRef.current.style.setProperty('--atlas-hub-scale', wordScale)
+            constellationLayerRef.current.style.setProperty('--atlas-bloom', bloom)
           }
         }
       }
@@ -2574,7 +2601,7 @@ export default function LessicoAtlasView({
                   ) ||
                   emergedWords.fallback.has(normalizedName)
 
-                const wordZ = isEmerged ? 85 : word.isIntersection ? 80 : (word.z || 0)
+                const wordZ = isEmerged ? 115 : word.isIntersection ? 100 : (word.z || 0)
 
                 return (
                   <button
@@ -2595,6 +2622,8 @@ export default function LessicoAtlasView({
                       fontWeight: word.fontWeight,
                       '--word-color': word.color,
                       '--word-z': `${wordZ}px`,
+                      '--hub-dx': `${word.hubDx || 0}px`,
+                      '--hub-dy': `${word.hubDy || 0}px`,
                     }}
                     onMouseEnter={(e) => {
                       hoveredWordIdRef.current = word.id
