@@ -3157,7 +3157,7 @@
 /* Profilo — capitoli sempre aperti */
 .report-tst-profilo {
   background-color: transparent;
-  padding: clamp(2rem, 4vw, 3rem) 0;
+  padding: 0 0 clamp(2rem, 4vw, 3rem);
   width: 100%;
 }
 
@@ -3645,10 +3645,10 @@
 .profilo-composition-extra {
   display: flex;
   flex-direction: column;
-  gap: var(--space-md, 32px);
-  margin-top: var(--space-md, 32px);
-  padding-top: var(--space-md, 32px);
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  align-items: flex-start;
+  margin-top: clamp(1.75rem, 3.5vw, 2.5rem);
+  padding-top: 0;
+  border-top: none;
 }
 
 .profilo-panel__connector {

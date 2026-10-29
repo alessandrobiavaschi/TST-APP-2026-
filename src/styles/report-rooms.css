@@ -221,3 +221,72 @@
   font-weight: 500 !important;
   color: var(--tst-color-text-primary) !important;
 }
+
+/* ── Stanza 03 (Identità emotiva e natura) ────────────────────────── */
+.report-tst .report-room-section--identita .report-room-opening {
+  margin-bottom: var(--tst-space-md);
+}
+
+.report-tst .report-room-section--identita .report-tst-profilo {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* CTA Tutte le Famiglie: sempre visibile, staccata, compatta, viola */
+.report-tst .profilo-composition-extra {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-top: clamp(1.75rem, 3.5vw, 2.5rem);
+  padding-top: 0;
+  border-top: none;
+  padding-left: calc(3px + clamp(1.25rem, 3vw, 2rem));
+}
+
+@media (max-width: 768px) {
+  .report-tst .profilo-composition-extra {
+    padding-left: calc(3px + 1rem);
+    margin-top: 1.5rem;
+  }
+}
+
+.report-tst .report-room-preview-cta--viola {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: fit-content;
+  max-width: 100%;
+  padding: 0.7rem 1.6rem;
+  border-radius: var(--tst-radius-pill, 999px);
+  background: rgba(147, 51, 234, 0.16);
+  border: 1px solid rgba(168, 85, 247, 0.45);
+  color: #f3e8ff;
+  font-family: var(--tst-font-sans, 'Manrope', sans-serif);
+  font-size: 0.925rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  box-shadow: 0 4px 16px rgba(126, 34, 206, 0.18);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.report-tst .report-room-preview-cta--viola:hover {
+  background: rgba(147, 51, 234, 0.28);
+  border-color: rgba(192, 132, 252, 0.75);
+  color: #ffffff;
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.4), 0 4px 20px rgba(0, 0, 0, 0.3);
+  transform: translateY(-1px);
+}
+
+.report-tst .report-room-preview-cta--viola:active {
+  transform: translateY(0) scale(0.98);
+  background: rgba(147, 51, 234, 0.36);
+}
+
+.report-tst .report-room-preview-cta--viola:focus-visible {
+  outline: 2px solid #c084fc;
+  outline-offset: 2px;
+}

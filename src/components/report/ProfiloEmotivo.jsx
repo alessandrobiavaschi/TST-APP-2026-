@@ -1,9 +1,8 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { getProfiloPanelDisplay } from '../../utils/profiloDisplayCopy.js'
 import SectionNumber from './SectionNumber.jsx'
 import { PROFILO_CHAPTER_EVENT, chapterAnchorId } from './profiloChapterNav.js'
-import { scrollElementToReportCenter } from './reportSectionNavUtils.js'
 import { getPersonalizedTitles } from '../../config/reportFamilyTheme.js'
 import { PROFILO_UI } from './reportUiCopy.js'
 import { buildProgressiveContentViewModel } from '../../utils/buildProgressiveContentViewModel.js'
@@ -64,7 +63,7 @@ function ChapterComposition({ onOpenAllFamilies, entryBtnRef }) {
       <button
         ref={entryBtnRef}
         type="button"
-        className="report-room-preview-cta"
+        className="report-room-preview-cta report-room-preview-cta--viola"
         onClick={onOpenAllFamilies}
       >
         {PROFILO_UI.compositionCta}
@@ -73,7 +72,7 @@ function ChapterComposition({ onOpenAllFamilies, entryBtnRef }) {
   )
 }
 
-function ChapterBlock({ sezione, index, famiglia, profilo, reduceMotion, title, composition }) {
+function ChapterBlock({ sezione, index, famiglia, profilo, reduceMotion, title }) {
   const accent = sezione.correnteColore || '#4ade80'
   const display = getProfiloPanelDisplay({
     panelId: sezione.id,
@@ -81,7 +80,6 @@ function ChapterBlock({ sezione, index, famiglia, profilo, reduceMotion, title, 
     rawTesto: sezione.testo,
     profilo,
   })
-  const showComposition = sezione.id === 'natura' && composition?.visible
   return (
     <article
       className="profilo-chapter-block"
@@ -100,21 +98,14 @@ function ChapterBlock({ sezione, index, famiglia, profilo, reduceMotion, title, 
 
       <motion.div
         className="profilo-chapter-block__panel"
-        initial={reduceMotion ? false : { opacity: 0, y: 10 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-40px' }}
-        transition={{ duration: reduceMotion ? 0 : 0.35, ease: 'easeOut' }}
+        initial={reduceMotion ? false : { opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: reduceMotion ? 0 : 0.22, ease: 'easeOut' }}
       >
         {display.panelIntro ? (
           <p className="profilo-panel__connector">{display.panelIntro}</p>
         ) : null}
         <PanelBody display={display} />
-        {showComposition ? (
-          <ChapterComposition
-            onOpenAllFamilies={composition.onOpenAllFamilies}
-            entryBtnRef={composition.entryBtnRef}
-          />
-        ) : null}
       </motion.div>
     </article>
   )
@@ -144,6 +135,9 @@ export default function ProfiloEmotivo({
   const hasExtraPrimary = compositionViewModel.primaryFamilies.length > 0
   const hasFullComposition = compositionViewModel.theoreticalFamilies.length > 0
     || compositionViewModel.marginalFamilies.length > 0
+  const compositionVisible = Boolean(
+    onOpenAllFamilies && (hasExtraPrimary || compositionViewModel.hasCompanion || hasFullComposition || (globalRanking && globalRanking.length > 1)),
+  )
   const [activeChapter, setActiveChapter] = useState('natura')
   const [isMobileViewport, setIsMobileViewport] = useState(false)
 
@@ -154,8 +148,6 @@ export default function ProfiloEmotivo({
     media.addEventListener('change', listener)
     return () => media.removeEventListener('change', listener)
   }, [])
-  const chapterContentRef = useRef(null)
-  const shouldCenterChapterRef = useRef(false)
   const personalizedTitles = useMemo(() => getPersonalizedTitles(famiglia), [famiglia])
 
   const ordered = PANEL_ORDER.map((id) => sezioni.find((s) => s && s.id === id)).filter(Boolean)
@@ -167,9 +159,8 @@ export default function ProfiloEmotivo({
   const activeIndex = Math.max(0, list.findIndex((s) => s.id === activeSezione?.id))
 
   const selectChapter = useCallback(
-    (panelId, shouldScroll = false, isExternalEvent = false) => {
+    (panelId, isExternalEvent = false) => {
       if (!PANEL_ORDER.includes(panelId)) return
-      const isAlreadyActive = panelId === activeChapter
       setActiveChapter(panelId)
 
       // Update global helper variable for scrollspy override
@@ -183,31 +174,13 @@ export default function ProfiloEmotivo({
           }),
         )
       }
-
-      if (!shouldScroll) return
-      shouldCenterChapterRef.current = true
-      if (isAlreadyActive) {
-        window.requestAnimationFrame(() => {
-          shouldCenterChapterRef.current = false
-          const target = chapterContentRef.current?.querySelector('.profilo-chapter-block__head')
-            || chapterContentRef.current
-          scrollElementToReportCenter(target, { reduceMotion })
-        })
-      }
     },
-    [activeChapter, reduceMotion],
-  )
-
-  const scrollToChapter = useCallback(
-    (panelId) => {
-      selectChapter(panelId, true, false)
-    },
-    [selectChapter],
+    [],
   )
 
   const activateChapter = useCallback(
     (panelId) => {
-      selectChapter(panelId, false, true)
+      selectChapter(panelId, true)
     },
     [selectChapter],
   )
@@ -222,16 +195,7 @@ export default function ProfiloEmotivo({
   useEffect(() => {
     // Set global helper on mount/activeChapter changes
     window.__tstActiveProfiloChapter = activeChapter
-
-    if (!shouldCenterChapterRef.current) return undefined
-    shouldCenterChapterRef.current = false
-    const raf = window.requestAnimationFrame(() => {
-      const target = chapterContentRef.current?.querySelector('.profilo-chapter-block__head')
-        || chapterContentRef.current
-      scrollElementToReportCenter(target, { reduceMotion })
-    })
-    return () => window.cancelAnimationFrame(raf)
-  }, [activeChapter, reduceMotion])
+  }, [activeChapter])
 
   useEffect(() => {
     const onChapterNav = (event) => {
@@ -255,7 +219,7 @@ export default function ProfiloEmotivo({
                 type="button"
                 className={`profilo-chapter-nav__btn${isActive ? ' profilo-chapter-nav__btn--active' : ''}`}
                 aria-current={isActive ? 'true' : undefined}
-                onClick={() => scrollToChapter(sezione.id)}
+                onClick={() => selectChapter(sezione.id)}
               >
                 <span className="profilo-chapter-nav__num">{index + 1}</span>
                 <span className="profilo-chapter-nav__label">
@@ -278,7 +242,7 @@ export default function ProfiloEmotivo({
           ))}
         </div>
 
-        <div ref={chapterContentRef} className="profilo-chapter-list profilo-chapter-list--tabs">
+        <div className="profilo-chapter-list profilo-chapter-list--tabs">
           {activeSezione ? (
             <ChapterBlock
               key={activeSezione.id}
@@ -288,14 +252,16 @@ export default function ProfiloEmotivo({
               profilo={profilo}
               reduceMotion={reduceMotion}
               title={personalizedTitles[activeSezione.id]}
-              composition={{
-                visible: hasExtraPrimary || compositionViewModel.hasCompanion || hasFullComposition,
-                onOpenAllFamilies,
-                entryBtnRef: allFamiliesEntryBtnRef,
-              }}
             />
           ) : null}
         </div>
+
+        {compositionVisible ? (
+          <ChapterComposition
+            onOpenAllFamilies={onOpenAllFamilies}
+            entryBtnRef={allFamiliesEntryBtnRef}
+          />
+        ) : null}
       </div>
     </section>
   )
