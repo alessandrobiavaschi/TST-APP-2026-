@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { useUiSounds } from '../../UiSoundProvider.jsx'
+import { normalizeFamigliaName } from '../../content/reportRestitution.js'
 
 void motion
 
@@ -91,6 +92,7 @@ function formatScaleScore(score) {
 
 export default function EmotionalShape({
   familiesData = [],
+  dominantFamily = null,
   height = 'clamp(460px, 46vw, 620px)',
   activeFamilyKey = null,
   onFamilySelect = null,
@@ -137,6 +139,26 @@ export default function EmotionalShape({
       onFamilyHover(familyKey ? familyKey.toLowerCase() : null)
     }
   }
+
+  // Identifica con precisione la famiglia con più punti (il major)
+  const majorFamilyKey = useMemo(() => {
+    if (dominantFamily) {
+      return normalizeFamigliaName(dominantFamily)
+    }
+    if (!familiesData || familiesData.length === 0) return null
+    let topFamily = null
+    let topPoints = -Infinity
+    familiesData.forEach((d) => {
+      const pts = ('valoreAssoluto' in d && d.valoreAssoluto != null && !Number.isNaN(Number(d.valoreAssoluto)))
+        ? Number(d.valoreAssoluto)
+        : (Number(d.peso) || 0)
+      if (pts > topPoints) {
+        topPoints = pts
+        topFamily = d.family || (d.familyKey ? (d.familyKey.charAt(0).toUpperCase() + d.familyKey.slice(1).toLowerCase()) : null)
+      }
+    })
+    return topFamily
+  }, [familiesData, dominantFamily])
 
   const maxScore = Math.max(...familiesData.map((f) => Number(f.peso) || 0), 1)
 
@@ -301,7 +323,7 @@ export default function EmotionalShape({
 
           {/* Fascio dei Petali Emotivi */}
           <g style={{ mixBlendMode: 'screen' }}>
-            {familyRows.map((row, idx) => {
+            {familyRows.map((row) => {
               const { familyKey, color, angle, normalizedTaglia, label } = row
               if (normalizedTaglia <= 0) return null
 
@@ -322,9 +344,11 @@ export default function EmotionalShape({
               const isHighlighted = (hoveredFamily === familyKey) || (selectedFamily === familyKey)
               const fillOpacity = isHighlighted ? Math.min(baseOpacity + 0.28, 0.95) : baseOpacity
 
-              const transition = prefersReducedMotion
-                ? { duration: 0 }
-                : { duration: 1.0, ease: 'easeOut', delay: idx * 0.1 }
+              // L'unico a vibrare/muoversi/animarsi è il petalo con più punti (major)
+              const isMajor =
+                Boolean(majorFamilyKey) &&
+                String(familyKey).toLowerCase() === String(majorFamilyKey).toLowerCase() &&
+                normalizedTaglia > 0
 
               return (
                 <g
@@ -342,61 +366,97 @@ export default function EmotionalShape({
                   }}
                   style={{ outline: 'none' }}
                 >
-                  <g transform={`rotate(${angle} ${cx} ${cy})`}>
-                    {/* Ellisse di glow esterno */}
-                    <motion.ellipse
-                      cx={cx}
-                      cy={cy}
-                      rx={rx}
-                      ry={ry}
-                      fill="none"
-                      stroke={color}
-                      strokeWidth={isHighlighted ? 4 : 2}
-                      filter="url(#glow)"
-                      opacity={isHighlighted ? 0.9 : 0.5}
-                      style={{ transformOrigin: `${cx}px ${cy}px` }}
-                      initial={{ scale: 0.8, opacity: 0 }}
-                      animate={{
-                        scale: (isHighlighted && !prefersReducedMotion) ? [1, 1.03, 1] : 1,
-                        opacity: isHighlighted ? 0.85 : 0.45,
-                      }}
-                      transition={
-                        (isHighlighted && !prefersReducedMotion)
-                          ? { repeat: Infinity, duration: 2.2, ease: 'easeInOut' }
-                          : transition
-                      }
-                    />
+                  {isMajor ? (
+                    <g transform={`rotate(${angle} ${cx} ${cy})`}>
+                      {/* Ellisse di glow esterno per il major (l'unico ad animare/vibrare) */}
+                      <motion.ellipse
+                        cx={cx}
+                        cy={cy}
+                        rx={rx}
+                        ry={ry}
+                        fill="none"
+                        stroke={color}
+                        strokeWidth={isHighlighted ? 4 : 2}
+                        filter="url(#glow)"
+                        opacity={isHighlighted ? 0.9 : 0.55}
+                        style={{ transformOrigin: `${cx}px ${cy}px` }}
+                        initial={false}
+                        animate={{
+                          scale: !prefersReducedMotion ? [1, 1.04, 1] : 1,
+                          opacity: isHighlighted ? 0.9 : 0.55,
+                        }}
+                        transition={
+                          !prefersReducedMotion
+                            ? { repeat: Infinity, duration: 2.2, ease: 'easeInOut' }
+                            : { duration: 0 }
+                        }
+                      />
 
-                    {/* Ellisse principale nitida */}
-                    <motion.ellipse
-                      onMouseEnter={() => handleFamilyHover(familyKey)}
-                      onMouseLeave={() => handleFamilyHover(null)}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleFamilySelect(familyKey)
-                      }}
-                      cx={cx}
-                      cy={cy}
-                      rx={rx}
-                      ry={ry}
-                      fill={color}
-                      fillOpacity={fillOpacity}
-                      stroke={color}
-                      strokeWidth={isHighlighted ? 2 : 1.2}
-                      style={{ transformOrigin: `${cx}px ${cy}px`, cursor: 'pointer' }}
-                      initial={{ scale: 0.8, opacity: 0, fillOpacity: 0 }}
-                      animate={{
-                        scale: (isHighlighted && !prefersReducedMotion) ? [1, 1.02, 1] : 1,
-                        opacity: 1,
-                        fillOpacity,
-                      }}
-                      transition={
-                        (isHighlighted && !prefersReducedMotion)
-                          ? { repeat: Infinity, duration: 2.2, ease: 'easeInOut' }
-                          : transition
-                      }
-                    />
-                  </g>
+                      {/* Ellisse principale nitida per il major */}
+                      <motion.ellipse
+                        onMouseEnter={() => handleFamilyHover(familyKey)}
+                        onMouseLeave={() => handleFamilyHover(null)}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleFamilySelect(familyKey)
+                        }}
+                        cx={cx}
+                        cy={cy}
+                        rx={rx}
+                        ry={ry}
+                        fill={color}
+                        fillOpacity={fillOpacity}
+                        stroke={color}
+                        strokeWidth={isHighlighted ? 2.5 : 1.5}
+                        style={{ transformOrigin: `${cx}px ${cy}px`, cursor: 'pointer' }}
+                        initial={false}
+                        animate={{
+                          scale: !prefersReducedMotion ? [1, 1.025, 1] : 1,
+                          opacity: 1,
+                          fillOpacity,
+                        }}
+                        transition={
+                          !prefersReducedMotion
+                            ? { repeat: Infinity, duration: 2.2, ease: 'easeInOut' }
+                            : { duration: 0 }
+                        }
+                      />
+                    </g>
+                  ) : (
+                    <g transform={`rotate(${angle} ${cx} ${cy})`}>
+                      {/* Ellisse di glow esterno statica - NESSUNA vibrazione o movimento */}
+                      <ellipse
+                        cx={cx}
+                        cy={cy}
+                        rx={rx}
+                        ry={ry}
+                        fill="none"
+                        stroke={color}
+                        strokeWidth={isHighlighted ? 3.5 : 1.5}
+                        filter="url(#glow)"
+                        opacity={isHighlighted ? 0.75 : 0.35}
+                      />
+
+                      {/* Ellisse principale nitida statica - NESSUNA vibrazione o movimento */}
+                      <ellipse
+                        onMouseEnter={() => handleFamilyHover(familyKey)}
+                        onMouseLeave={() => handleFamilyHover(null)}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleFamilySelect(familyKey)
+                        }}
+                        cx={cx}
+                        cy={cy}
+                        rx={rx}
+                        ry={ry}
+                        fill={color}
+                        fillOpacity={fillOpacity}
+                        stroke={color}
+                        strokeWidth={isHighlighted ? 2 : 1.2}
+                        style={{ cursor: 'pointer' }}
+                      />
+                    </g>
+                  )}
                 </g>
               )
             })}

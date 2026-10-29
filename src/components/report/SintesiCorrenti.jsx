@@ -297,10 +297,14 @@ export default function SintesiCorrenti({
 
   React.useEffect(() => {
     if (totalScoreRadarData.length > 0 && !activeDetailFamily) {
+      const maxItem = [...totalScoreRadarData].sort((a, b) => (Number(b.rawValue) || 0) - (Number(a.rawValue) || 0))[0]
       const dominant = totalScoreRadarData.find(
-        (d) => d.familyKey.toLowerCase() === (famiglia || '').toLowerCase()
+        (d) =>
+          d.familyKey.toLowerCase() === (famiglia || '').toLowerCase() ||
+          d.corrente.toLowerCase() === (famiglia || '').toLowerCase() ||
+          normalizeFamigliaName(famiglia).toLowerCase() === d.familyKey.toLowerCase()
       )
-      setActiveDetailFamily(dominant || totalScoreRadarData[0])
+      setActiveDetailFamily(dominant || maxItem || totalScoreRadarData[0])
     }
   }, [totalScoreRadarData, famiglia, activeDetailFamily])
 
@@ -353,16 +357,16 @@ export default function SintesiCorrenti({
 
   const desktopSlides = [
     {
-      id: 'torta',
-      tabLabel: 'Identità emotiva - Torta delle percentuali',
-      title: 'Le Famiglie sul totale',
-      subtitle: 'Quanto pesa ogni famiglia sul totale delle tue risposte: le fette sommano a 100.',
-    },
-    {
       id: 'geometria',
       tabLabel: 'Forma Emotiva',
       title: 'La Forma Emotiva',
       subtitle: 'Composizione visiva delle cinque energie temperamentali: l’ampiezza dei petali esprime l’armonia e la presenza delle diverse propensioni.',
+    },
+    {
+      id: 'torta',
+      tabLabel: 'Identità emotiva - Torta delle percentuali',
+      title: 'Le Famiglie sul totale',
+      subtitle: 'Quanto pesa ogni famiglia sul totale delle tue risposte: le fette sommano a 100.',
     },
     {
       id: 'radar',
@@ -384,6 +388,21 @@ export default function SintesiCorrenti({
   const mobileChartSlides = isMobileViewport
     ? [
         {
+          id: 'forma',
+          title: 'Forma emotiva',
+          caption: 'La silhouette delle tue energie: l\'estensione dei petali indica l\'intensità (scala 1–7), mentre il nucleo centrale ne rappresenta l\'equilibrio armonico.',
+          content: (
+            <EmotionalShape
+              familiesData={ordered}
+              dominantFamily={dominantFamilyName}
+              height="min(68vh, 580px)"
+              activeFamilyKey={hoveredFamilyKey || activeDetailFamily?.familyKey}
+              onFamilySelect={selectFamilyByKey}
+              onFamilyHover={setHoveredFamilyKey}
+            />
+          ),
+        },
+        {
           id: 'torta',
           title: 'Identità emotiva - Torta delle percentuali',
           caption: 'Quanto pesa ogni famiglia sul totale delle tue risposte: le fette sommano a 100. Tocca una fetta o una voce per evidenziarla.',
@@ -394,20 +413,6 @@ export default function SintesiCorrenti({
               activeFamilyKey={hoveredFamilyKey || activeDetailFamily?.familyKey}
               onFamilyHover={setHoveredFamilyKey}
               onFamilySelect={selectFamilyByKey}
-            />
-          ),
-        },
-        {
-          id: 'forma',
-          title: 'Forma emotiva',
-          caption: 'La silhouette delle tue energie: l\'estensione dei petali indica l\'intensità (scala 1–7), mentre il nucleo centrale ne rappresenta l\'equilibrio armonico.',
-          content: (
-            <EmotionalShape
-              familiesData={ordered}
-              height="min(68vh, 580px)"
-              activeFamilyKey={hoveredFamilyKey || activeDetailFamily?.familyKey}
-              onFamilySelect={selectFamilyByKey}
-              onFamilyHover={setHoveredFamilyKey}
             />
           ),
         },
@@ -632,6 +637,7 @@ export default function SintesiCorrenti({
                 <div className="sintesi-charts-board__fill">
                   <EmotionalShape
                     familiesData={ordered}
+                    dominantFamily={dominantFamilyName}
                     height="100%"
                     activeFamilyKey={hoveredFamilyKey || activeDetailFamily?.familyKey}
                     onFamilySelect={selectFamilyByKey}
