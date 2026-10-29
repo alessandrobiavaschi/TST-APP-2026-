@@ -31,7 +31,7 @@ export default function FamiglieDonut({
   activeFamilyKey = null,
   onFamilySelect,
   onFamilyHover,
-  initialVariant = 'pie',
+  initialVariant = 'donut',
   showCaption = true,
 }) {
   const [variant, setVariant] = useState(initialVariant)
@@ -66,7 +66,7 @@ export default function FamiglieDonut({
           </figcaption>
         ) : <span />}
         <div className="famiglie-donut__toggle" role="group" aria-label="Tipo di grafico">
-          {[['pie', 'Torta'], ['donut', 'Ciambella']].map(([v, label]) => (
+          {[['donut', 'Ciambella'], ['pie', 'Torta']].map(([v, label]) => (
             <button
               key={v}
               type="button"
