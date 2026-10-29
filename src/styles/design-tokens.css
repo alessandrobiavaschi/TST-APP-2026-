@@ -122,6 +122,10 @@
   --tst-text-shadow-hero: 0 2px 12px rgba(0, 0, 0, 0.65), 0 1px 3px rgba(0, 0, 0, 0.45);
   --tst-text-shadow-body: 0 1px 4px rgba(0, 0, 0, 0.55);
 
+  /* ── 13. Dimensioni Strutturali Globali ── */
+  --app-header-offset: 56px;
+  --app-header-height: 56px;
+
   /* ── Transizioni ── */
   --tst-transition-fast: 160ms cubic-bezier(0.4, 0, 0.2, 1);
   --tst-transition-base: 240ms cubic-bezier(0.22, 1, 0.36, 1);
