@@ -592,6 +592,11 @@ function NewTestPage() {
   }
 
   const handleReturnToFinalQuestions = () => {
+    if (!isCurrentStepAnswered) {
+      uiSounds?.playTestGhostTap?.()
+      setNavigationHint('Seleziona una risposta per continuare.')
+      return
+    }
     uiSounds?.playTestTransition?.()
     stopAudio()
     stopPreviewAudio()
@@ -610,6 +615,7 @@ function NewTestPage() {
 
   const handleNextStep = () => {
     if (!isCurrentStepAnswered) {
+      uiSounds?.playTestGhostTap?.()
       setNavigationHint('Seleziona una risposta per continuare.')
       return
     }
@@ -1495,18 +1501,20 @@ function NewTestPage() {
                     {currentFile >= TOTAL_STEPS && isReviewingTestSteps ? (
                       <button
                         type="button"
-                        className="nav-button primary"
+                        className={`nav-button primary ${!isCurrentStepAnswered ? 'nav-button--unanswered' : ''}`}
                         onClick={handleReturnToFinalQuestions}
-                        disabled={isProcessingNext || !isCurrentStepAnswered}
+                        disabled={isProcessingNext}
+                        aria-disabled={!isCurrentStepAnswered}
                       >
                         Torna alle domande finali
                       </button>
                     ) : (
                       <button
                         type="button"
-                        className="nav-button primary"
+                        className={`nav-button primary ${!isCurrentStepAnswered ? 'nav-button--unanswered' : ''}`}
                         onClick={handleNextStep}
-                        disabled={!canGoNext || isProcessingNext || !isCurrentStepAnswered}
+                        disabled={!canGoNext || isProcessingNext}
+                        aria-disabled={!isCurrentStepAnswered}
                       >
                         Avanti
                       </button>

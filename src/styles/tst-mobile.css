@@ -740,7 +740,7 @@
   }
 
   .nuovo-test-flow.nuovo-test-page--session-active {
-    padding: calc(3.15rem + env(safe-area-inset-top, 0px)) 0.5rem calc(0.45rem + env(safe-area-inset-bottom, 0px)) !important;
+    padding: calc(var(--app-header-offset, 56px) + 0.35rem) 0.5rem calc(0.35rem + env(safe-area-inset-bottom, 0px)) !important;
     height: 100dvh !important;
     max-height: 100dvh !important;
     min-height: 0 !important;
@@ -748,9 +748,25 @@
     overflow: hidden !important;
   }
 
+  @media (max-height: 580px) {
+    .nuovo-test-flow.nuovo-test-page--session-active {
+      height: auto !important;
+      min-height: 100dvh !important;
+      max-height: none !important;
+      overflow-y: auto !important;
+    }
+
+    .nuovo-test-flow.nuovo-test-page--session-active .test-stage-main-card {
+      height: auto !important;
+      min-height: 500px !important;
+      max-height: none !important;
+      overflow: visible !important;
+    }
+  }
+
   .nuovo-test-flow.nuovo-test-page--session-active .test-stage-main-card {
-    gap: 0.45rem !important;
-    padding: 0.65rem 0.65rem 0.55rem !important;
+    gap: 0.35rem !important;
+    padding: 0.55rem 0.55rem 0.45rem !important;
     border-radius: 16px !important;
     height: 100% !important;
     max-height: 100% !important;
@@ -788,8 +804,8 @@
   }
 
   .nuovo-test-flow .test-stage-audio-zone--menu-tab.player-card--bottom-dock {
-    padding: 0.45rem 0.6rem 0.5rem !important;
-    gap: 0.22rem !important;
+    padding: 0.4rem 0.6rem 0.45rem !important;
+    gap: 0.2rem !important;
     flex-shrink: 0 !important;
   }
 
@@ -799,17 +815,17 @@
   }
 
   .nuovo-test-flow .player-button {
-    width: 2.5rem !important;
-    height: 2.5rem !important;
-    min-width: 2.5rem !important;
-    min-height: 2.5rem !important;
+    width: 2.4rem !important;
+    height: 2.4rem !important;
+    min-width: 2.4rem !important;
+    min-height: 2.4rem !important;
   }
 
   .nuovo-test-flow .player-controls .player-button:first-child {
-    width: 2.85rem !important;
-    height: 2.85rem !important;
-    min-width: 2.85rem !important;
-    min-height: 2.85rem !important;
+    width: 2.75rem !important;
+    height: 2.75rem !important;
+    min-width: 2.75rem !important;
+    min-height: 2.75rem !important;
   }
 
   .nuovo-test-flow .player-progress {
@@ -822,7 +838,7 @@
     display: flex !important;
     flex-direction: column !important;
     overflow: hidden !important;
-    gap: 0.35rem !important;
+    gap: 0.3rem !important;
     width: 100% !important;
   }
 
@@ -832,7 +848,7 @@
   }
 
   .nuovo-test-flow .test-stage-question-zone .test-threshold-question-title {
-    font-size: clamp(0.98rem, 4vw, 1.15rem) !important;
+    font-size: clamp(0.95rem, 3.8vw, 1.1rem) !important;
     line-height: 1.25 !important;
   }
 
@@ -843,50 +859,129 @@
     flex-direction: column !important;
     overflow: hidden !important;
     width: 100% !important;
+    animation: none !important;
+    transform: none !important;
+    will-change: auto !important;
+    touch-action: pan-y !important;
   }
 
   .nuovo-test-flow .test-stage-answers-zone {
     flex: 1 1 0% !important;
     min-height: 0 !important;
     height: 100% !important;
-    padding: 0.1rem 0.15rem 0.25rem !important;
+    padding: 0.1rem 0.15rem 0.35rem !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
     -webkit-overflow-scrolling: touch !important;
-    overscroll-behavior: contain !important;
+    touch-action: pan-y !important;
+    overscroll-behavior-y: auto !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent !important;
   }
 
-  .nuovo-test-flow .test-stage .answer-button,
-  .nuovo-test-flow.nuovo-test-page--session-active .answer-button,
-  .nuovo-test-flow.nuovo-test-page--session-active .answers-grid--dense .answer-button {
-    min-height: 44px !important;
-    border-radius: 22px !important;
-    font-size: 0.92rem !important;
-    padding: 0.45rem 0.85rem !important;
+  .nuovo-test-flow .test-stage-answers-zone::-webkit-scrollbar {
+    width: 4px !important;
+    display: block !important;
+  }
+
+  .nuovo-test-flow .test-stage-answers-zone::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.25) !important;
+    border-radius: 4px !important;
+  }
+
+  /* Risposte standard (5 opzioni): 1 colonna */
+  .nuovo-test-flow .test-stage .answers-grid:not(.answers-grid--dense),
+  .nuovo-test-flow.nuovo-test-page--session-active .answers-grid:not(.answers-grid--dense) {
+    grid-template-columns: 1fr !important;
+    gap: 0.48rem !important;
+    touch-action: pan-y !important;
+  }
+
+  .nuovo-test-flow .test-stage .answers-grid:not(.answers-grid--dense) .answer-button,
+  .nuovo-test-flow.nuovo-test-page--session-active .answers-grid:not(.answers-grid--dense) .answer-button {
+    min-height: 46px !important;
+    border-radius: 14px !important;
+    font-size: 0.94rem !important;
+    padding: 0.55rem 0.85rem !important;
     box-shadow: none !important;
+    touch-action: pan-y !important;
+  }
+
+  /* Risposte dense (14/15 opzioni per sensazioni/aggettivi): 2 colonne per evitare liste chilometriche */
+  .nuovo-test-flow .test-stage .answers-grid--dense,
+  .nuovo-test-flow.nuovo-test-page--session-active .answers-grid--dense {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.42rem !important;
+    padding: 0.1rem 0.05rem 0.35rem !important;
+    touch-action: pan-y !important;
+  }
+
+  .nuovo-test-flow .test-stage .answers-grid--dense .answer-button,
+  .nuovo-test-flow.nuovo-test-page--session-active .answers-grid--dense .answer-button {
+    min-height: 42px !important;
+    border-radius: 12px !important;
+    font-size: clamp(0.78rem, 2.5vw, 0.84rem) !important;
+    padding: 0.38rem 0.5rem !important;
+    line-height: 1.25 !important;
+    box-shadow: none !important;
+    text-align: center !important;
+    white-space: normal !important;
+    overflow-wrap: break-word !important;
+    word-break: normal !important;
+    hyphens: auto !important;
+    touch-action: pan-y !important;
+  }
+
+  .nuovo-test-flow .test-stage .answers-grid--dense .answer-button:last-child:nth-child(odd) {
+    grid-column: 1 / -1 !important;
+    max-width: 82% !important;
+    margin-inline: auto !important;
   }
 
   .nuovo-test-flow .test-stage-footer {
     padding-top: 0.35rem !important;
+    padding-bottom: 0.15rem !important;
     flex-shrink: 0 !important;
     margin-top: auto !important;
     width: 100% !important;
   }
 
+  /* Footer a 1 riga compatta: Indietro, Consegna bozza, Avanti sempre visibili e raggiungibili */
   .nuovo-test-flow .test-stage-footer-row {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
     gap: 0.5rem !important;
+    width: 100% !important;
   }
 
-  .nuovo-test-flow .test-stage-footer-row .nav-button {
+  .nuovo-test-flow .test-stage-footer-row .nav-button.secondary {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
     min-height: 42px !important;
     font-size: 0.88rem !important;
-    padding: 0.45rem 0.8rem !important;
+    padding: 0.45rem 0.6rem !important;
   }
 
-  .nuovo-test-flow .test-stage-footer-row .nav-button.ghost {
-    font-size: 0.78rem !important;
+  .nuovo-test-flow .test-stage-footer-row .nav-button.primary {
+    flex: 1 1 0 !important;
     min-width: 0 !important;
-    padding: 0.3rem 0.4rem !important;
+    min-height: 42px !important;
+    font-size: 0.88rem !important;
+    padding: 0.45rem 0.6rem !important;
+  }
+
+  .nuovo-test-flow .test-stage-draft-action {
+    flex: 0 0 auto !important;
+    min-height: 38px !important;
+    padding: 0.35rem 0.5rem !important;
+    font-size: 0.78rem !important;
+    white-space: nowrap !important;
+  }
+
+  .nuovo-test-flow .test-stage-footer-spacer {
+    display: none !important;
   }
 
   /* ── Redesign Results Loading Screen (Mobile) ── */

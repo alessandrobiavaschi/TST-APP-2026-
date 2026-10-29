@@ -447,6 +447,13 @@
     0 1px 0 rgba(255, 255, 255, 0.12) inset;
 }
 
+.nuovo-test-flow .nav-button.primary.nav-button--unanswered,
+.nuovo-test-flow.nuovo-test-page--session-active .nav-button.primary.nav-button--unanswered {
+  opacity: 0.65;
+  box-shadow: none;
+  cursor: pointer;
+}
+
 .nuovo-test-flow.nuovo-test-page--session-active .nav-button.primary:hover:not(:disabled) {
   background: linear-gradient(145deg, var(--tst-session-accent-strong), #096b64);
   border-color: var(--tst-session-accent-strong);
@@ -977,54 +984,112 @@
     font-size: clamp(1.08rem, 4.8vw, 1.35rem);
   }
 
-  .nuovo-test-flow .test-stage .answers-grid,
-  .nuovo-test-flow .test-stage .answers-grid--dense,
-  .nuovo-test-flow.nuovo-test-page--session-active .answers-grid,
-  .nuovo-test-flow.nuovo-test-page--session-active .answers-grid--dense {
+  .nuovo-test-flow .test-stage .answers-grid:not(.answers-grid--dense),
+  .nuovo-test-flow.nuovo-test-page--session-active .answers-grid:not(.answers-grid--dense) {
     grid-template-columns: 1fr;
     gap: 0.55rem;
+  }
+
+  .nuovo-test-flow .test-stage .answers-grid--dense,
+  .nuovo-test-flow.nuovo-test-page--session-active .answers-grid--dense {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.45rem;
+    padding: 0.1rem 0.05rem 0.35rem;
+  }
+
+  .nuovo-test-flow .test-stage .answers-grid--dense .answer-button:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    max-width: 82%;
+    margin-inline: auto;
   }
 
   .nuovo-test-flow .test-stage .answers-grid:not(.answers-grid--dense) .answer-button:last-child:nth-child(odd) {
     grid-column: auto;
   }
 
+  .nuovo-test-flow .test-stage-answers-shell {
+    touch-action: pan-y;
+  }
+
   .nuovo-test-flow .test-stage-answers-zone {
     height: 100%;
     max-height: 100%;
     overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    overscroll-behavior-y: auto;
     padding-right: 0.25rem;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  }
+
+  .nuovo-test-flow .test-stage-answers-zone::-webkit-scrollbar {
+    width: 4px;
+    display: block;
+  }
+
+  .nuovo-test-flow .test-stage-answers-zone::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 4px;
   }
 
   .nuovo-test-flow .test-stage .answer-button,
-  .nuovo-test-flow.nuovo-test-page--session-active .answer-button,
-  .nuovo-test-flow.nuovo-test-page--session-active .answers-grid--dense .answer-button {
+  .nuovo-test-flow.nuovo-test-page--session-active .answer-button {
+    touch-action: pan-y;
+  }
+
+  .nuovo-test-flow .test-stage .answers-grid:not(.answers-grid--dense) .answer-button,
+  .nuovo-test-flow.nuovo-test-page--session-active .answers-grid:not(.answers-grid--dense) .answer-button {
     min-height: 3.25rem;
     padding: 0.66rem 0.8rem;
     font-size: 0.94rem;
   }
 
+  .nuovo-test-flow .test-stage .answers-grid--dense .answer-button,
+  .nuovo-test-flow.nuovo-test-page--session-active .answers-grid--dense .answer-button {
+    min-height: 42px;
+    padding: 0.38rem 0.5rem;
+    font-size: clamp(0.78rem, 2.5vw, 0.84rem);
+    line-height: 1.25;
+    border-radius: 12px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: normal;
+    hyphens: auto;
+    touch-action: pan-y;
+  }
+
   .nuovo-test-flow .test-stage-footer-row {
-    grid-template-columns: 1fr 1fr;
-    grid-template-areas:
-      'back next'
-      'draft draft';
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
   }
 
   .nuovo-test-flow .test-stage-footer-row .nav-button.secondary {
-    grid-area: back;
-    justify-self: stretch;
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 42px;
   }
 
   .nuovo-test-flow .test-stage-footer-row .nav-button.primary {
-    grid-area: next;
-    justify-self: stretch;
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 42px;
   }
 
-  .nuovo-test-flow .test-stage-draft-action,
+  .nuovo-test-flow .test-stage-draft-action {
+    flex: 0 0 auto;
+    min-height: 38px;
+    padding: 0.35rem 0.5rem;
+    font-size: 0.78rem;
+    white-space: nowrap;
+  }
+
   .nuovo-test-flow .test-stage-footer-spacer {
-    grid-area: draft;
-    justify-self: center;
+    display: none;
   }
 }
 
@@ -1202,6 +1267,15 @@
   100% {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 768px) {
+  .test-stage-step-content > .test-stage-question-zone,
+  .test-stage-step-content > .test-stage-answers-shell {
+    animation: none;
+    transform: none;
+    will-change: auto;
   }
 }
 
