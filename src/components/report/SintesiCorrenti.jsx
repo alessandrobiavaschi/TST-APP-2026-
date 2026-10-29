@@ -354,7 +354,7 @@ export default function SintesiCorrenti({
   const desktopSlides = [
     {
       id: 'torta',
-      tabLabel: 'Torta delle Famiglie',
+      tabLabel: 'Identità emotiva - Torta delle percentuali',
       title: 'Le Famiglie sul totale',
       subtitle: 'Quanto pesa ogni famiglia sul totale delle tue risposte: le fette sommano a 100.',
     },
@@ -385,7 +385,7 @@ export default function SintesiCorrenti({
     ? [
         {
           id: 'torta',
-          title: 'Torta delle famiglie',
+          title: 'Identità emotiva - Torta delle percentuali',
           caption: 'Quanto pesa ogni famiglia sul totale delle tue risposte: le fette sommano a 100. Tocca una fetta o una voce per evidenziarla.',
           content: (
             <FamiglieDonut
