@@ -80,10 +80,10 @@ export const REPORT_GROUPS = [
   {
     id: 'report-group-profilo-generale',
     title: 'Il profilo in sintesi',
-    subtitle: 'La famiglia prevalente e la sua natura',
+    subtitle: 'La famiglia prevalente e la sua Natura emotiva temperamentale',
     intro: GROUP_INTROS['report-group-profilo-generale'] || '',
     stepLabel: '1',
-    readingFocus: 'La famiglia prevalente e la natura che emerge dalle risposte.',
+    readingFocus: 'La famiglia prevalente e la Natura emotiva temperamentale che emerge dalle risposte.',
     defaultOpen: true,
   },
   {

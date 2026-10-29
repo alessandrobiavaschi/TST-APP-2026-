@@ -124,7 +124,7 @@ export default function SintesiIntro({
           {nature.length > 1 && naturaEmersa ? (
             <>
               {sintesiFamiglia ? ' ' : ''}Al suo interno si distinguono nature legate {joinNodes(natureNodes.map((node) => <React.Fragment key={node.key}>alla {node}</React.Fragment>))}.
-              {' '}Nel tuo caso, emerge in particolare la natura{' '}
+              {' '}Nel tuo caso, emerge in particolare la Natura emotiva temperamentale{' '}
               <strong className="sintesi-editorial-highlight">{naturaEmersa.nome}</strong>.
             </>
           ) : null}
