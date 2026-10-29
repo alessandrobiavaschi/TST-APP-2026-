@@ -675,7 +675,7 @@ export default function ReportShell({
 
               <SectionDivider />
 
-              {/* ── STANZA 04: PUNTEGGI DEL TEST (grafici + portato) ── */}
+              {/* ── STANZA 04: L'INSIEME DELLA TUA IDENTITÀ EMOTIVA (grafici + portato) ── */}
               <section
                 id="report-group-forza-correnti"
                 className={`report-room-section report-room-section--portato`}

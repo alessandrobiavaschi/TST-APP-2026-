@@ -53,8 +53,8 @@ export const REPORT_SECTIONS = [
   { id: 'report-chapter-risorse', label: 'Risorse', groupId: 'stanza-identita', isSub: true, isSubSub: true },
   { id: 'report-chapter-ombre', label: 'Ombre', groupId: 'stanza-identita', isSub: true, isSubSub: true },
 
-  // 4. I punteggi del test: grafici e portato esperienziale
-  { id: 'report-group-forza-correnti', label: 'I punteggi del test', groupId: 'report-group-forza-correnti' },
+  // 4. L'insieme della tua Identità Emotiva: grafici e portato esperienziale
+  { id: 'report-group-forza-correnti', label: "L'insieme della tua Identità Emotiva", groupId: 'report-group-forza-correnti' },
   { id: 'report-tst-grafici', label: 'Grafici dei risultati', navStep: '4.1', groupId: 'report-group-forza-correnti', isSub: true },
   { id: 'report-tst-portato', label: 'Come hai vissuto il test', navStep: '4.2', groupId: 'report-group-forza-correnti', isSub: true },
 
@@ -106,7 +106,7 @@ export const REPORT_GROUPS = [
   },
   {
     id: 'report-group-forza-correnti',
-    title: 'I punteggi del test',
+    title: "L'insieme della tua Identità Emotiva",
     subtitle: '',
     intro: GROUP_INTROS['report-group-forza-correnti'] || '',
     stepLabel: '4',
