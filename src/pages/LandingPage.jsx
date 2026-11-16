@@ -493,7 +493,7 @@ function LandingPage() {
           className={`tst-nebula-pitch tst-nebula-reveal ${revealed.pitch ? 'is-revealed' : ''}`}
         >
           <p className="tst-nebula-pitch-lead tst-nebula-legible">
-            TST è uno strumento scientifico-artistico musicale che rivela l'intima natura emotiva
+            TST è uno strumento scientifico-artistico musicale che rivela l'intima natura emotiva temperamentale
             individuale.
           </p>
           <p className="tst-nebula-pitch-body tst-nebula-legible">

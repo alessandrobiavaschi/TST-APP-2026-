@@ -421,7 +421,7 @@ export default function ReportShell({
   // Menu hamburger: i capitoli del report, poi le altre letture (aprono la loro stanza).
   const menuSections = useMemo(() => [
     ...getReportNavGroups(profilo, { musicista }),
-    { id: 'report-altra-lettura-musica', title: 'Lettura musicale' },
+    { id: 'report-altra-lettura-musica', title: 'For Musicians' },
     ...(isMobileViewport ? [] : [{ id: 'report-altra-lettura-galassia', title: 'Galassia' }]),
   ], [profilo, musicista, isMobileViewport])
 
@@ -768,7 +768,7 @@ export default function ReportShell({
                   className="report-final-view-card"
                   onClick={(event) => openModalita('for-musicians', event)}
                 >
-                  <span className="report-final-view-card__title">Lettura musicale</span>
+                  <span className="report-final-view-card__title">For Musicians</span>
                   <span className="report-final-view-card__subtitle">
                     Aree sonore e lettura musicale
                   </span>
