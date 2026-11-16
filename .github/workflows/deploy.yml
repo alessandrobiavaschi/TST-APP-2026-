@@ -1,0 +1,77 @@
+# Deploy su Firebase Hosting (progetto tst-2026-database).
+#
+#   pull request verso master  → anteprima con URL temporaneo, scritto nei commenti della PR
+#   push su master (merge)     → sito live
+#   avvio manuale              → da master ripubblica il live, da un altro branch crea un'anteprima
+#                                (GitHub → Actions → Deploy → Run workflow)
+#
+# Prima di pubblicare il workflow controlla lint, test e chiavi Firebase.
+#
+# Configurazione una tantum (GitHub → Settings → Secrets and variables → Actions):
+#   - FIREBASE_SERVICE_ACCOUNT_TST_2026_DATABASE: la crea `npx firebase init hosting:github`
+#   - VITE_FIREBASE_API_KEY, VITE_FIREBASE_AUTH_DOMAIN, VITE_FIREBASE_PROJECT_ID,
+#     VITE_FIREBASE_STORAGE_BUCKET, VITE_FIREBASE_MESSAGING_SENDER_ID, VITE_FIREBASE_APP_ID:
+#     gli stessi valori del file .env locale
+#   - facoltativi: VITE_OPERATOR_ADVANCED_REPORT_KEY, VITE_AUDIO_BASE_URL
+name: Deploy
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+    env:
+      VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+      VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+      VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+      VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
+      VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+      VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+      VITE_OPERATOR_ADVANCED_REPORT_KEY: ${{ secrets.VITE_OPERATOR_ADVANCED_REPORT_KEY }}
+      VITE_AUDIO_BASE_URL: ${{ secrets.VITE_AUDIO_BASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # Senza le chiavi la build riuscirebbe lo stesso, ma il sito andrebbe online senza accesso.
+      - name: Controlla le chiavi Firebase
+        run: |
+          missing=0
+          for name in VITE_FIREBASE_API_KEY VITE_FIREBASE_AUTH_DOMAIN VITE_FIREBASE_PROJECT_ID \
+            VITE_FIREBASE_STORAGE_BUCKET VITE_FIREBASE_MESSAGING_SENDER_ID VITE_FIREBASE_APP_ID; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Manca il secret $name su GitHub (Settings → Secrets and variables → Actions)"
+              missing=1
+            fi
+          done
+          exit $missing
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_TST_2026_DATABASE }}
+          projectId: tst-2026-database
+          # live solo da master; le pull request e gli altri branch ricevono un'anteprima temporanea.
+          channelId: ${{ (github.event_name == 'push' || github.ref_name == 'master') && 'live' || '' }}
