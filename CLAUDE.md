@@ -17,6 +17,8 @@ npm run lint                         # ESLint, tolleranza 0 errori
 npm run build                        # build di produzione in dist/
 ```
 
+Per pubblicare: apri una pull request verso `master` (il workflow pubblica un'anteprima e ne scrive l'URL nella PR), poi il merge pubblica il sito live.
+
 Esiste una test suite (`test/`, runner nativo `node --test`). Va eseguita prima e dopo ogni modifica alla logica di calcolo o al report.
 Alcuni test avviano un server Vite (`galassiaDataContract`, `galassiaLessicoViewModel`, `reportGraphDataContract`): girano solo dove `node_modules` è installato per la piattaforma corrente.
 
@@ -70,7 +72,7 @@ I nuovi componenti e le nuove funzioni restano sotto le ~200 righe.
 
 - Mai commit o push diretti su `master` / `main`. Lavora su un branch dedicato.
 - Mai force push.
-- Mai deploy (Firebase, Netlify) senza richiesta esplicita dell'utente e verifica del target.
+- Deploy solo tramite il workflow `.github/workflows/deploy.yml` (Firebase Hosting, progetto `tst-2026-database`): il merge su `master` pubblica il sito live, una pull request crea un'anteprima. Mai deploy da terminale e mai altri target (Netlify incluso) senza richiesta esplicita dell'utente.
 - Mai esporre `.env`, chiavi o dati personali dei test (sono dati psicologici).
 - Gli handoff di workflow multi-agente vanno in `docs/handoff/`, non nella root. Quelli vecchi sono in `docs/archivio/`.
 - Solo quando l'utente avvia una consegna multi-agente: leggi `AI_TASK.md` e usa `/parallel-delivery`.
