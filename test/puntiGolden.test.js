@@ -27,7 +27,7 @@ const zeroNature = Object.fromEntries(NATURE.map((n) => [n.campoDb, 0]))
 test('profilo tutto Calma Fisica: 78 punti, 70 in simpatia (le affinità non hanno portato)', () => {
   const affinitaCalma = { 1: 'opzione2', 2: 'opzione3', 3: 'opzione3', 4: 'opzione2', 46: 'opzione2', 51: 'opzione3', 58: 'opzione4' }
   const record = profilo((p) =>
-    affinitaCalma[p.numero] || (p.tipoDomanda === 'AGGETTIVI' ? 'Calmo - equilibrato - sognante' : 'Mi rilassa'),
+    affinitaCalma[p.numero] || (p.tipoDomanda === 'AGGETTIVI' ? 'Calmo - equilibrato - sognante' : 'Mi rilassa / mi appaga'),
   )
   const r = calcolaCeste(record)
   assert.equal(r.risposteValide, 72)
@@ -89,7 +89,7 @@ test('500 test casuali: somme coerenti e motore = conteggio indipendente', () =>
 })
 
 test('una risposta che il motore non conosce viene contata come non valida', () => {
-  const record = profilo((p) => (p.tipoDomanda === 'SENSAZIONI' ? 'Mi rilassa' : getRegolePerPasso(p.numero)[0].risposta))
+  const record = profilo((p) => (p.tipoDomanda === 'SENSAZIONI' ? 'Mi rilassa / mi appaga' : getRegolePerPasso(p.numero)[0].risposta))
   record.File_05 = 'Etichetta che non esiste più'
   assert.equal(calcolaCeste(record).risposteValide, 71)
 })

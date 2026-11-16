@@ -8,9 +8,9 @@ import {
 } from '../src/utils/reportRecordUtils.js'
 
 export const CLASSIC_FOUR_RELATIONS_FIXTURE = {
-  File_05: 'Mi dà gioia',
+  File_05: 'Mi dà gioia / mi entusiasma',
   File_29: 'Saldo - sicuro - volitivo',
-  File_43: 'Mi rilassa',
+  File_43: 'Mi rilassa / mi appaga',
   File_52: 'Mi fa riflettere / mi porta a ricordare',
   File_59: 'Mi è indifferente',
 }

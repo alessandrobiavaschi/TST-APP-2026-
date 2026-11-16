@@ -17,6 +17,8 @@ npm run lint                         # ESLint, tolleranza 0 errori
 npm run build                        # build di produzione in dist/
 ```
 
+Per pubblicare: apri una pull request verso `master` (il workflow pubblica un'anteprima e ne scrive l'URL nella PR), poi il merge pubblica il sito live.
+
 Esiste una test suite (`test/`, runner nativo `node --test`). Va eseguita prima e dopo ogni modifica alla logica di calcolo o al report.
 Alcuni test avviano un server Vite (`galassiaDataContract`, `galassiaLessicoViewModel`, `reportGraphDataContract`): girano solo dove `node_modules` è installato per la piattaforma corrente.
 
@@ -43,8 +45,8 @@ Terminologia: "famiglia" è il livello colore, "natura" il sotto-livello. "Tempe
 
 ### Versioni del modello e dati storici
 
-- Ogni test salva `versione_modello` (corrente: `VERSIONE_MODELLO` in `tstSistema.js`, oggi `2026_v4`: regole del documento «TST domanda per domanda» del 23/10/2026; affinità solo natura, «Mi è indifferente» negli intervalli solo portato, passo 42 = Groove 57 con le sensazioni).
-- I test `2026_v2` e `2026_v3` si leggono con le regole della loro epoca (`REGOLE_STORICHE_2026` in `src/utils/testStorici.js`) solo se riproducono i punti salvati, e si normalizzano sui massimi di allora (`massimiPerRecord`). Per mostrare percentuali usa sempre `massimiPerRecord(record)`, mai i massimi correnti.
+- Ogni test salva `versione_modello` (corrente: `VERSIONE_MODELLO` in `tstSistema.js`, oggi `2026_v5`: regole del documento «TST domanda per domanda» del 23/10/2026 con la revisione delle etichette del 16/11/2026 («Angosciato - ansioso - teso» in Antipatia, passo 41 con il proprio audio); affinità solo natura, «Mi è indifferente» negli intervalli solo portato, passo 42 = Groove 57 con le sensazioni).
+- I test `2026_v2`, `2026_v3` e `2026_v4` si leggono con le regole della loro epoca (`REGOLE_STORICHE_2026` in `src/utils/testStorici.js`) solo se riproducono i punti salvati, e si normalizzano sui massimi di allora (`massimiPerRecord`). Per mostrare percentuali usa sempre `massimiPerRecord(record)`, mai i massimi correnti.
 - Controllo indipendente contro il documento: `test/fonteDomandaPerDomanda.test.js`.
 - I test senza versione valgono come `2025_v1` (modello a 11 correnti). `normalizzaRecordTst()` li restituisce con i punteggi salvati e non li ricalcola.
 - Se cambi nature, pesi o regole: incrementa `VERSIONE_MODELLO` e non ricalcolare i test delle versioni precedenti senza una decisione esplicita dell'utente.
@@ -73,6 +75,7 @@ I nuovi componenti e le nuove funzioni restano sotto le ~200 righe.
 - Più chat in parallelo: ogni chat lavora su un proprio branch (e su una propria copia della cartella, mai due chat nella stessa), lo pubblica su GitHub e chiude con una pull request verso `master`. Si unisce una PR alla volta; dopo ogni merge gli altri branch si aggiornano da `master` e rieseguono i test. Ciò che non è su `master` non esiste.
 - Il sito pubblicato si costruisce solo da `master` aggiornato, dopo l'ultimo merge: mai dal branch di una singola chat.
 - Mai deploy (Firebase, Netlify) senza richiesta esplicita dell'utente e verifica del target.
+- Deploy solo tramite il workflow `.github/workflows/deploy.yml` (Firebase Hosting, progetto `tst-2026-database`): il merge su `master` pubblica il sito live, una pull request crea un'anteprima. Mai deploy da terminale e mai altri target (Netlify incluso) senza richiesta esplicita dell'utente.
 - Mai esporre `.env`, chiavi o dati personali dei test (sono dati psicologici).
 - Gli handoff di workflow multi-agente vanno in `docs/handoff/`, non nella root. Quelli vecchi sono in `docs/archivio/`.
 - Solo quando l'utente avvia una consegna multi-agente: leggi `AI_TASK.md` e usa `/parallel-delivery`.
