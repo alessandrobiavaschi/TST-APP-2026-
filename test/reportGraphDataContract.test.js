@@ -314,9 +314,9 @@ test('tutti i quattro rapporti espongono una lettura strutturata coerente con i 
 
 test('le narrative consumano le quote delle combinazioni classiche ricostruite dal raw', () => {
   const raw = {
-    File_05: 'Mi dà gioia',
+    File_05: 'Mi dà gioia / mi entusiasma',
     File_29: 'Saldo - sicuro - volitivo',
-    File_43: 'Mi rilassa',
+    File_43: 'Mi rilassa / mi appaga',
     File_52: 'Mi fa riflettere / mi porta a ricordare',
     File_59: 'Mi è indifferente',
   }

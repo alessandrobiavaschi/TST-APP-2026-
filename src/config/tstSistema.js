@@ -40,8 +40,14 @@ export const FONTE_TEORICA = 'PAROLE PER TST — Franco Mussida, 29 agosto 2026'
  * (23/10/2026, revisione con le colonne «Va bene?»), la fonte più recente.
  * Dove una fonte tace vale il modello Excel 2025. Le regole delle versioni
  * precedenti sono in src/utils/testStorici.js.
+ *
+ * 2026_v5 (16/11/2026): revisione delle etichette richiesta dopo il primo
+ * controllo. Dieci sensazioni cambiano testo (stessa natura e stesso portato);
+ * negli intervalli «Angosciato - ansioso - teso» passa da Indifferenza ad
+ * Antipatia e «Nostalgico - sconsolato - afflitto» cambia solo testo. Il passo
+ * 41 fa ascoltare il proprio file (ottava) e resta riconferma del 29.
  */
-export const VERSIONE_MODELLO = '2026_v4'
+export const VERSIONE_MODELLO = '2026_v5'
 
 /** Versione assunta per i test salvati prima che esistesse `versione_modello` (modello a 11 correnti). */
 export const VERSIONE_MODELLO_LEGACY = '2025_v1'
@@ -120,23 +126,23 @@ const N = Object.fromEntries(NATURE.map((n) => [n.id, n.id]))
 const r = (risposta, naturaId, portato, punti = 1) => Object.freeze({ risposta, natura: naturaId, portato, punti })
 
 export const REGOLE_RISPOSTE = {
-  /** Le 15 sensazioni. Coincidono con «TST domanda per domanda» (23/10/2026, tutte «Va bene? SI») e con il modello Excel 2025. */
+  /** Le 15 sensazioni. Nature e portati da «TST domanda per domanda» (23/10/2026) e dal modello Excel 2025; etichette riviste il 16/11/2026 (2026_v5). */
   SENSAZIONI: Object.freeze([
-    r('Mi dà gioia', N.giallo_entusiasta_gioiosa_solare, 'simpatia'),
-    r('Mi inquieta', N.giallo_entusiasta_sanguigna_operosa, 'antipatia'),
-    r('Mi spegne', N.grigio_razionale_anaffettiva, 'indifferenza'),
-    r('Mi stupisce', N.giallo_entusiasta_gioiosa_solare, 'simpatia'),
-    r('Mi rilassa', N.verde_flemmatica_calma_fisica, 'simpatia'),
-    r('Mi disturba / mi repelle', N.verde_flemmatica_calma_fisica, 'antipatia'),
+    r('Mi dà gioia / mi entusiasma', N.giallo_entusiasta_gioiosa_solare, 'simpatia'),
+    r('Mi inquieta / mi agita', N.giallo_entusiasta_sanguigna_operosa, 'antipatia'),
+    r('Mi deprime / mi spegne', N.grigio_razionale_anaffettiva, 'indifferenza'),
+    r('Mi stupisce / mi sorprende', N.giallo_entusiasta_gioiosa_solare, 'simpatia'),
+    r('Mi rilassa / mi appaga', N.verde_flemmatica_calma_fisica, 'simpatia'),
+    r('Mi disturba / mi infastidisce', N.verde_flemmatica_calma_fisica, 'antipatia'),
     r('Mi è indifferente', N.grigio_razionale_distaccata, 'indifferenza'),
     r('Mi calma / mi fa sognare', N.verde_flemmatica_calma_contemplativa, 'simpatia'),
-    r('Mi accende / mi motiva', N.rosso_marziale_volitiva, 'simpatia'),
-    r('Mi irrita / mi infastidisce', N.rosso_marziale_collerica, 'antipatia'),
+    r('Mi accende / mi arricchisce', N.rosso_marziale_volitiva, 'simpatia'),
+    r('Mi irrita / mi repelle', N.rosso_marziale_collerica, 'antipatia'),
     r('Mi annoia / mi stufa', N.grigio_razionale_distaccata, 'indifferenza'),
     r('Mi completa / mi incoraggia', N.rosso_marziale_volitiva, 'simpatia'),
     r('Mi fa riflettere / mi porta a ricordare', N.blu_malinconica_nostalgica, 'simpatia'),
-    r('Mi arrovella / mi rattrista', N.blu_malinconica_lunare_introspettiva, 'antipatia'),
-    r('Mi accompagna / mi consola', N.blu_malinconica_solare, 'simpatia'),
+    r('Mi rattrista / mi arrovella', N.blu_malinconica_lunare_introspettiva, 'antipatia'),
+    r('Mi consola / mi accompagna', N.blu_malinconica_solare, 'simpatia'),
   ]),
 
   /**
@@ -149,7 +155,7 @@ export const REGOLE_RISPOSTE = {
   AGGETTIVI: Object.freeze([
     r('Saldo - sicuro - volitivo', N.rosso_marziale_volitiva, 'simpatia'),
     r('Inquieto - chiuso - pauroso', N.verde_flemmatica_calma_fisica, 'antipatia'),
-    r('Angosciato - ansioso - indifferente', N.blu_malinconica_lunare_depressiva, 'indifferenza'),
+    r('Angosciato - ansioso - teso', N.blu_malinconica_lunare_depressiva, 'antipatia'),
     r('Sereno - fiducioso - aperto', N.giallo_entusiasta_gioiosa_solare, 'simpatia'),
     r('Malinconico - triste - riflessivo', N.blu_malinconica_lunare_introspettiva, 'simpatia'),
     r('Arrabbiato - distaccato - dubbioso', N.rosso_marziale_collerica, 'antipatia'),
@@ -157,7 +163,7 @@ export const REGOLE_RISPOSTE = {
     r('Calmo - equilibrato - sognante', N.verde_flemmatica_calma_fisica, 'simpatia'),
     r('Gioioso - caloroso - entusiasta', N.giallo_entusiasta_gioiosa_solare, 'simpatia'),
     r('Dinamico - curioso - fluido', N.verde_flemmatica_calma_fisica, 'antipatia'),
-    r('Nostalgico - consolato - afflitto', N.blu_malinconica_nostalgica, 'simpatia'),
+    r('Nostalgico - sconsolato - afflitto', N.blu_malinconica_nostalgica, 'simpatia'),
     r('Desolato - rimpiangente - abbandonato', N.blu_malinconica_nostalgica, 'antipatia'),
     r('Illuminato - amorevole - passionale', null, null, 0), // dato di conferma: nessuna natura, nessun portato
     r('Mi è indifferente', null, 'indifferenza'), // solo portato
@@ -249,7 +255,7 @@ export const RAPPORTI = Object.freeze({
  * Fino al 2026_v3 il passo 42 era la riconferma del 40 con gli aggettivi:
  * quella disposizione serve per rileggere i test salvati allora.
  */
-function costruisciPassi({ riconferme, passoAggettiviFinale }) {
+function costruisciPassi({ riconferme, passoAggettiviFinale, audioProprio = [] }) {
   const tipo = (n) => {
     if (n <= 4) return 'AFFINITA_BASE'
     if (n <= 28) return 'SENSAZIONI'
@@ -269,13 +275,14 @@ function costruisciPassi({ riconferme, passoAggettiviFinale }) {
         tipoDomanda: tipo(numero),
         peso: numero >= 42 && numero <= 46 ? 2 : 1,
         riconferma: numero in riconferme,
-        audio: riconferme[numero] || numero,
+        audio: audioProprio.includes(numero) ? numero : riconferme[numero] || numero,
       })
     }),
   )
 }
 
-export const PASSI = costruisciPassi({ riconferme: Object.freeze({ 41: 29 }), passoAggettiviFinale: 41 })
+/* 2026_v5: il passo 41 riproduce il file 41 (ottava giusta), non più il 29 (unisono). */
+export const PASSI = costruisciPassi({ riconferme: Object.freeze({ 41: 29 }), passoAggettiviFinale: 41, audioProprio: [41] })
 
 /** Disposizione dei passi fino al modello 2026_v3 (42 = riconferma del 40). Solo per i test storici. */
 export const PASSI_FINO_2026_V3 = costruisciPassi({ riconferme: Object.freeze({ 41: 29, 42: 40 }), passoAggettiviFinale: 42 })

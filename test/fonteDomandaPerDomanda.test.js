@@ -1,6 +1,7 @@
 /**
  * Controllo indipendente: il motore a ceste contro il documento «TST domanda per
- * domanda» (23/10/2026) con le correzioni della colonna «Se no, cosa cambiare».
+ * domanda» (23/10/2026) con le correzioni della colonna «Se no, cosa cambiare»
+ * e la revisione delle etichette del 16/11/2026 (modello 2026_v5).
  * La tabella qui sotto è ricopiata dal documento (nomi visibili, non id del codice):
  * se il motore e il documento divergono, questo test lo dice.
  */
@@ -11,20 +12,20 @@ import { NATURE, PASSI, PORTATI, VERSIONE_MODELLO, getRegolePerPasso } from '../
 import { calcolaCeste } from '../src/utils/cesteTst.js'
 
 const SENSAZIONI = [
-  ['Mi dà gioia', 'Gioiosa Solare', 'Simpatia'], ['Mi inquieta', 'Sanguigna Operosa', 'Antipatia'],
-  ['Mi spegne', 'Anaffettiva', 'Indifferenza'], ['Mi stupisce', 'Gioiosa Solare', 'Simpatia'],
-  ['Mi rilassa', 'Calma Fisica', 'Simpatia'], ['Mi disturba / mi repelle', 'Calma Fisica', 'Antipatia'],
+  ['Mi dà gioia / mi entusiasma', 'Gioiosa Solare', 'Simpatia'], ['Mi inquieta / mi agita', 'Sanguigna Operosa', 'Antipatia'],
+  ['Mi deprime / mi spegne', 'Anaffettiva', 'Indifferenza'], ['Mi stupisce / mi sorprende', 'Gioiosa Solare', 'Simpatia'],
+  ['Mi rilassa / mi appaga', 'Calma Fisica', 'Simpatia'], ['Mi disturba / mi infastidisce', 'Calma Fisica', 'Antipatia'],
   ['Mi è indifferente', 'Distaccata', 'Indifferenza'], ['Mi calma / mi fa sognare', 'Calma Contemplativa', 'Simpatia'],
-  ['Mi accende / mi motiva', 'Volitiva', 'Simpatia'], ['Mi irrita / mi infastidisce', 'Collerica', 'Antipatia'],
+  ['Mi accende / mi arricchisce', 'Volitiva', 'Simpatia'], ['Mi irrita / mi repelle', 'Collerica', 'Antipatia'],
   ['Mi annoia / mi stufa', 'Distaccata', 'Indifferenza'], ['Mi completa / mi incoraggia', 'Volitiva', 'Simpatia'],
   ['Mi fa riflettere / mi porta a ricordare', 'Nostalgica', 'Simpatia'],
-  ['Mi arrovella / mi rattrista', 'Lunare Introspettiva', 'Antipatia'], ['Mi accompagna / mi consola', 'Solare', 'Simpatia'],
+  ['Mi rattrista / mi arrovella', 'Lunare Introspettiva', 'Antipatia'], ['Mi consola / mi accompagna', 'Solare', 'Simpatia'],
 ]
 // Passo 29 con le correzioni («COME 29» per i passi 30–41).
 const AGGETTIVI = [
   ['Saldo - sicuro - volitivo', 'Volitiva', 'Simpatia'],
   ['Inquieto - chiuso - pauroso', 'Calma Fisica', 'Antipatia'],
-  ['Angosciato - ansioso - indifferente', 'Lunare Depressiva', 'Indifferenza'],
+  ['Angosciato - ansioso - teso', 'Lunare Depressiva', 'Antipatia'],
   ['Sereno - fiducioso - aperto', 'Gioiosa Solare', 'Simpatia'],
   ['Malinconico - triste - riflessivo', 'Lunare Introspettiva', 'Simpatia'],
   ['Arrabbiato - distaccato - dubbioso', 'Collerica', 'Antipatia'],
@@ -32,7 +33,7 @@ const AGGETTIVI = [
   ['Calmo - equilibrato - sognante', 'Calma Fisica', 'Simpatia'],
   ['Gioioso - caloroso - entusiasta', 'Gioiosa Solare', 'Simpatia'],
   ['Dinamico - curioso - fluido', 'Calma Fisica', 'Antipatia'],
-  ['Nostalgico - consolato - afflitto', 'Nostalgica', 'Simpatia'],
+  ['Nostalgico - sconsolato - afflitto', 'Nostalgica', 'Simpatia'],
   ['Desolato - rimpiangente - abbandonato', 'Nostalgica', 'Antipatia'],
   ['Illuminato - amorevole - passionale', null, null], // dato di conferma: nessun temperamento, nessun portato
   ['Mi è indifferente', null, 'Indifferenza'], // nessun temperamento, solo portato
@@ -60,8 +61,8 @@ function righeDocumento(n) {
 const campoNatura = (nome) => NATURE.find((x) => x.nome === nome).campoDb
 const campoPortato = (nome) => PORTATI.find((x) => x.nome === nome).campoDb
 
-test('il modello corrente è quello del documento del 23/10/2026', () => {
-  assert.equal(VERSIONE_MODELLO, '2026_v4')
+test('il modello corrente è quello del documento del 23/10/2026 con la revisione del 16/11/2026', () => {
+  assert.equal(VERSIONE_MODELLO, '2026_v5')
 })
 
 test('ogni passo offre esattamente le risposte del documento', () => {

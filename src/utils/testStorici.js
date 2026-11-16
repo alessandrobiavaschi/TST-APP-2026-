@@ -1,6 +1,7 @@
 /**
  * Lettura dei test salvati con un modello precedente a quello attuale:
  * - senza `versione_modello` (epoche 2025_v1 e 2025_v2);
+ * - con `versione_modello` 2026_v4 (regole dal 23/10 al 16/11/2026);
  * - con `versione_modello` 2026_v2 o 2026_v3 (regole fino al 10/10/2026 e fino
  *   al 23/10/2026; il 2026_v3 ha avuto due insiemi di regole nello stesso giorno,
  *   «2026_v3a» e «2026_v3», e si prova quale riproduce i punti salvati).
@@ -17,9 +18,11 @@
  * Non scrive mai su Firestore.
  */
 import {
+  AFFINITA_PER_PASSO,
   CAMPI_PER_COLORE,
   FAMIGLIE,
   NATURE,
+  PASSI,
   PASSI_FINO_2026_V3,
   PORTATI,
   VERSIONE_MODELLO,
@@ -56,7 +59,7 @@ export const CAMPI_STORICI_PER_COLORE = Object.freeze({
  * Ogni riga è [risposta, natura, portato, punti?] (punti di default 1).
  * `t.AFFINITA_PER_PASSO` (facoltativo): regole proprie dei passi di affinità.
  */
-function tabella(t) {
+function tabella(t, passi = PASSI_FINO_2026_V3) {
   const righe = (lista, molt = 1) =>
     Object.freeze(lista.map(([risposta, natura, portato, punti = 1]) => Object.freeze({ risposta, natura, portato, punti: punti * molt })))
   const perTipo = {
@@ -67,9 +70,9 @@ function tabella(t) {
     AFFINITA_ECCEZIONE: righe(t.AFFINITA_STANDARD || [], 2),
   }
   const perPasso = Object.fromEntries(Object.entries(t.AFFINITA_PER_PASSO || {}).map(([n, lista]) => [n, righe(lista)]))
-  const regole = (numero) => perPasso[numero] || perTipo[getPasso(numero, PASSI_FINO_2026_V3)?.tipoDomanda] || []
+  const regole = (numero) => perPasso[numero] || perTipo[getPasso(numero, passi)?.tipoDomanda] || []
   // Le regole portano con sé la disposizione dei passi della loro epoca (letta da cesteTst.js).
-  regole.passi = PASSI_FINO_2026_V3
+  regole.passi = passi
   return Object.freeze(regole)
 }
 
@@ -219,6 +222,24 @@ const AGGETTIVI_2026_B = [
   ['Desolato - rimpiangente - abbandonato', NOS, A], ['Illuminato - amorevole - passionale', SAN, S, 0],
   ['Mi è indifferente', DIS, I],
 ]
+/**
+ * 2026_v4 (23/10–16/11/2026): etichette precedenti alla revisione del 16/11/2026.
+ * Sensazioni: stesse assegnazioni del 2026_v3. Aggettivi: «Mi è indifferente» dà
+ * solo portato, «Illuminato» nessun punto, «Angosciato» in Indifferenza.
+ */
+const AGGETTIVI_2026_V4 = [
+  ['Saldo - sicuro - volitivo', VOL, S], ['Inquieto - chiuso - pauroso', FIS, A],
+  ['Angosciato - ansioso - indifferente', DEP, I], ['Sereno - fiducioso - aperto', GIO, S],
+  ['Malinconico - triste - riflessivo', INT, S], ['Arrabbiato - distaccato - dubbioso', COL, A],
+  ['Ambiguo - incerto - equivoco', COL, I], ['Calmo - equilibrato - sognante', FIS, S],
+  ['Gioioso - caloroso - entusiasta', GIO, S], ['Dinamico - curioso - fluido', FIS, A],
+  ['Nostalgico - consolato - afflitto', NOS, S], ['Desolato - rimpiangente - abbandonato', NOS, A],
+  ['Illuminato - amorevole - passionale', null, null, 0], ['Mi è indifferente', null, I],
+]
+/** Affinità 2026_v4: solo natura, nessun portato (le stesse nature di oggi). */
+const AFF_SOLO_NATURA_2026_V4 = Object.fromEntries(
+  Object.entries(AFFINITA_PER_PASSO).map(([n, righe]) => [n, righe.map((x) => [x.risposta, x.natura, null, x.punti])]),
+)
 const AFF_POSIZIONE_BASE = [['opzione1', GIO, S], ['opzione2', FIS, S], ['opzione3', VOL, S], ['opzione4', SOL, S], ['nessuna', ANA, I]]
 const AFF_POSIZIONE_STANDARD = [['opzione1', NOS, S], ['opzione2', VOL, S], ['opzione3', FIS, S], ['opzione4', GIO, S], ['nessuna', ANA, I]]
 /** Affinità per suono (dal 10/10/2026, commit 7d8db71), con il portato di allora. */
@@ -247,12 +268,15 @@ export const REGOLE_STORICHE_2026 = Object.freeze({
   '2026_v3a': tabella({ SENSAZIONI: SENSAZIONI_2026_A, AGGETTIVI: AGGETTIVI_2026_A, AFFINITA_PER_PASSO: AFF_PER_SUONO_2026 }),
   /** 2026_v3 (commit f1cfa53, 10/10–23/10/2026). */
   '2026_v3': tabella({ SENSAZIONI: SENSAZIONI_2026_B, AGGETTIVI: AGGETTIVI_2026_B, AFFINITA_PER_PASSO: AFF_PER_SUONO_2026 }),
+  /** 2026_v4 (23/10–16/11/2026): disposizione dei passi di oggi (42 = Groove 57). */
+  '2026_v4': tabella({ SENSAZIONI: SENSAZIONI_2026_B, AGGETTIVI: AGGETTIVI_2026_V4, AFFINITA_PER_PASSO: AFF_SOLO_NATURA_2026_V4 }, PASSI),
 })
 
 /** Epoche candidate per ogni `versione_modello` salvata (la più probabile prima). */
 const EPOCHE_PER_VERSIONE = Object.freeze({
   '2026_v2': ['2026_v2'],
   '2026_v3': ['2026_v3', '2026_v3a'],
+  '2026_v4': ['2026_v4'],
 })
 
 const TUTTE_LE_REGOLE = { ...REGOLE_STORICHE, ...REGOLE_STORICHE_2026 }
@@ -325,7 +349,8 @@ export function leggiTestStorico(record = {}) {
 
 /** Opzioni di calcolo (regole e disposizione dei passi) di un'epoca storica. */
 function opzioniEpoca(epoca) {
-  return { regolePerPasso: TUTTE_LE_REGOLE[epoca], passi: PASSI_FINO_2026_V3 }
+  const regolePerPasso = TUTTE_LE_REGOLE[epoca]
+  return { regolePerPasso, passi: regolePerPasso.passi }
 }
 
 /** Regole con cui leggere le risposte di un record (undefined = regole attuali). */
@@ -342,22 +367,25 @@ export function opzioniCalcoloDelTest(record) {
   return lettura?.verificato ? opzioniEpoca(lettura.epoca) : {}
 }
 
-let massimiStorici = null
+const massimiStorici = {}
 
 /**
  * Massimi teorici con cui normalizzare un record (null = modello attuale).
- * Tutti i test di versioni precedenti si normalizzano sui massimi del modello
- * 2026_v3, cioè esattamente come venivano mostrati fino al 23/10/2026: il cambio
- * di modello non sposta le percentuali né le prevalenze dei test già consegnati.
+ * I test fino al 2026_v3 si normalizzano sui massimi del modello 2026_v3, cioè
+ * esattamente come venivano mostrati fino al 23/10/2026; i test 2026_v4 sui
+ * massimi del 2026_v4. Così il cambio di modello non sposta le percentuali né
+ * le prevalenze dei test già consegnati.
  */
 export function massimiDelTest(record) {
   const versione = record?.versione_modello || VERSIONE_MODELLO_LEGACY
   if (versione === VERSIONE_MODELLO && !record?._letturaStorica) return null
-  if (!massimiStorici) {
-    const m = calcolaMassimiTeorici(opzioniEpoca('2026_v3'))
-    massimiStorici = Object.freeze({ ...m, famiglie: m.famiglieSommaNature })
+  const epoca = versione === '2026_v4' || record?._letturaStorica?.epoca === '2026_v4' ? '2026_v4' : '2026_v3'
+  if (!massimiStorici[epoca]) {
+    const m = calcolaMassimiTeorici(opzioniEpoca(epoca))
+    // Fino al 2026_v3 le famiglie si normalizzavano sulla somma delle nature; dal 2026_v4 sul massimo di famiglia.
+    massimiStorici[epoca] = Object.freeze(epoca === '2026_v4' ? { ...m } : { ...m, famiglie: m.famiglieSommaNature })
   }
-  return massimiStorici
+  return massimiStorici[epoca]
 }
 
 /** Massimi teorici con cui mostrare un record: i suoi se storico, altrimenti quelli attuali. */
