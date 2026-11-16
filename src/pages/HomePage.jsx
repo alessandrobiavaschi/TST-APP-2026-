@@ -476,7 +476,7 @@ function HomePage() {
                   <div className="landing-flow-section">
                     <p className="landing-flow-kicker">Come funziona</p>
                     <h2 className="landing-flow-chapter-title">
-                      TRE PASSAGGI PER STILARE UNA MAPPA DELLA PROPRIA NATURA EMOTIVA, PER CONOSCERSI INTIMAMENTE
+                      TRE PASSAGGI PER STILARE UNA MAPPA DELLA PROPRIA NATURA EMOTIVA TEMPERAMENTALE, PER CONOSCERSI INTIMAMENTE
                     </h2>
 
                     <div className="landing-flow-steps-grid" aria-label="Card informative">

@@ -56,13 +56,13 @@ function Domanda({ n, title, aside, children }) {
   )
 }
 
-function SceltaMultipla({ name, options, value, onToggle, max, columns = 'auto' }) {
+function SceltaMultipla({ name, options, value, onToggle, max, hint, columns = 'auto' }) {
   const selected = parseCodes(value)
   return (
     <>
       {max && (
         <p className="tst-finale-count" aria-live="polite">
-          {selected.length} di {max} scelte
+          {hint ? `${hint} · ${selected.length} di ${max}` : `${selected.length} di ${max} scelte`}
         </p>
       )}
       <div className={`tst-chip-grid tst-chip-grid--${columns}`}>
@@ -172,7 +172,7 @@ export default function FinalFeedbackStep({
 
         <Domanda
           n={3}
-          title="In quali aree ti sei sentito più a tuo agio?"
+          title="Hai sperimentato i cinque elementi del codice musicale: in quali aree ti sei sentito più a tuo agio?"
           aside={
             <button type="button" className="tst-finale-link" onClick={onOpenAreasHelp}>
               Cosa sono le aree A–E?
@@ -182,6 +182,7 @@ export default function FinalFeedbackStep({
           <SceltaMultipla
             name="area-maggior-agio"
             options={AREE_OPTIONS}
+            hint="Scegli da 1 a 3 risposte"
             value={record.Area_Maggior_Agio}
             onToggle={toggles.areaMaggiorAgio}
             max={max}
@@ -193,6 +194,7 @@ export default function FinalFeedbackStep({
           <SceltaMultipla
             name="area-minor-agio"
             options={AREE_OPTIONS}
+            hint="Scegli da 1 a 3 risposte"
             value={record.Area_Minor_Agio}
             onToggle={toggles.areaMinorAgio}
             max={max}

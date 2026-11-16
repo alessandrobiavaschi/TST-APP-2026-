@@ -22163,6 +22163,30 @@ a:focus-visible {
   color: var(--tst-color-text-on-light);
 }
 
+/* Campi bianchi dell'archivio: testo e segnaposto scuri in ogni tema */
+.results-main-card .filter-field input[type='text'],
+.results-main-card .filter-field input[type='number'],
+.results-main-card .filter-field select,
+.archives-nav-rename-input,
+.results-area-select {
+  color: var(--tst-color-text-on-light, #14142b);
+  -webkit-text-fill-color: var(--tst-color-text-on-light, #14142b);
+  caret-color: var(--tst-color-text-on-light, #14142b);
+  color-scheme: light;
+}
+
+.results-main-card .filter-field input::placeholder,
+.archives-nav-rename-input::placeholder {
+  color: #5b5b78;
+  -webkit-text-fill-color: #5b5b78;
+  opacity: 1;
+}
+
+.results-main-card .filter-field select option {
+  color: #14142b;
+  background: #fff;
+}
+
 .archives-nav-item--trash {
   color: var(--color-text);
 }
