@@ -105,11 +105,8 @@ function getQuestionTitleForFile(fileNumber) {
   if (fileNumber >= 5 && fileNumber <= 28) {
     return 'A2) Ascolta i seguenti suoni e scegli la sensazione che meglio descrive la tua percezione sonora.'
   }
-  if (fileNumber >= 29 && fileNumber <= 40) {
+  if (fileNumber >= 29 && fileNumber <= 41) {
     return 'B) Ascolta le combinazioni di due suoni e scegli un solo aggettivo tra quelli proposti.'
-  }
-  if (fileNumber === 41) {
-    return 'B) Riconferma: riascolta e conferma in modo istintivo.'
   }
   if (fileNumber >= 42 && fileNumber <= 45) {
     return 'C1a) Ascolta i groove e scegli la sensazione che meglio descrive la tua percezione musicale.'
@@ -220,7 +217,7 @@ function NewTestPage() {
 
   // Sample da /audio in locale, oppure da VITE_AUDIO_BASE_URL (streaming, senza MP3 nel deploy).
   const audioSrc = buildTestAudioUrl(currentFile)
-  // Ai passi di riconferma si riascolta il file di riferimento (vedi PASSI in config/tstSistema.js).
+  // File audio del passo (vedi PASSI in config/tstSistema.js): dal 2026_v5 ogni passo ha il proprio.
   const stepAudioFile = getAudioFileForStep(currentFile)
   const reconfirmReferenceFile = stepAudioFile !== currentFile ? stepAudioFile : null
   const playerAudioSrc = reconfirmReferenceFile ? buildTestAudioUrl(reconfirmReferenceFile) : audioSrc

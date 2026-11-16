@@ -10,7 +10,7 @@ import { calcolaCeste } from '../src/utils/cesteTst.js'
 import { computeColorTotals, computeSezioniTotalsFromRaw } from '../src/utils/reportRecordUtils.js'
 import { percorsoRisposte } from '../src/utils/percorsoRisposte.js'
 import { normalizzaRecordTst } from '../src/utils/testRecordProcessing.js'
-import { REGOLE_STORICHE } from '../src/utils/testStorici.js'
+import { REGOLE_STORICHE, REGOLE_STORICHE_2026, massimiPerRecord } from '../src/utils/testStorici.js'
 
 /** Risposte di prova: ad ogni passo una risposta diversa, ciclando sulle regole dell'epoca. */
 function risposte(epoca) {
@@ -116,4 +116,21 @@ test('test 2026_v2: si mostrano i punti consegnati, non un ricalcolo con regole 
   const letto = normalizzaRecordTst({ ...record, ...c.campiNature, ...c.campiPortato, versione_modello: '2026_v2' })
   assert.equal(letto._letturaStorica.verificato, true)
   assert.deepEqual(computeColorTotals(letto), c.famiglie)
+})
+
+test('un test 2026_v4 si rilegge con le etichette e i massimi del 2026_v4', () => {
+  const record = { versione_modello: '2026_v4' }
+  for (const p of PASSI) {
+    const affinita = p.tipoDomanda.startsWith('AFFINITA')
+    record[p.campoDb] = affinita ? 'opzione1' : p.tipoDomanda === 'AGGETTIVI' ? 'Angosciato - ansioso - indifferente' : 'Mi spegne'
+  }
+  const regole = REGOLE_STORICHE_2026['2026_v4']
+  const calcolo = calcolaCeste(record, { regolePerPasso: regole, passi: regole.passi })
+  Object.assign(record, calcolo.campiNature, calcolo.campiPortato)
+  // Nel 2026_v4 «Angosciato - ansioso - indifferente» dava Indifferenza, non Antipatia.
+  assert.equal(record.PE_Antipatia, 0)
+  const letto = normalizzaRecordTst(record)
+  assert.deepEqual({ ...letto._letturaStorica }, { epoca: '2026_v4', verificato: true })
+  assert.equal(letto.PE_Indifferenza, record.PE_Indifferenza)
+  assert.equal(massimiPerRecord(letto).portati.antipatia, 70)
 })
