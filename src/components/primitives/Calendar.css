@@ -32,31 +32,30 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
-  padding: 4px;
-  border: 1px solid var(--cal-border);
-  border-radius: 4px;
-  background: transparent;
-  color: #4b5563;
+  width: 36px;
+  height: 36px;
+  padding: 6px;
+  border: 1px solid var(--tst-color-border-strong, var(--cal-border));
+  border-radius: 8px;
+  background: var(--cal-hover);
+  color: var(--cal-text);
   cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
-.tst-cal__nav:hover { background: #f9fafb; color: #1f2937; }
-.tst-cal__nav:active { background: #f3f4f6; }
+.tst-cal__nav:hover { border-color: var(--cal-accent); background: color-mix(in srgb, var(--cal-accent) 22%, transparent); }
+.tst-cal__nav:active { background: color-mix(in srgb, var(--cal-accent) 34%, transparent); }
 .tst-cal__nav:disabled {
   pointer-events: none;
-  border-color: #e5e7eb;
-  color: var(--cal-muted);
+  opacity: 0.35;
 }
 
 .tst-cal__icon { width: 100%; height: 100%; }
 
 .tst-cal__title {
-  border: 0;
+  border: 1px solid var(--cal-border);
   background: transparent;
-  padding: 4px 8px;
+  padding: 6px 10px;
   border-radius: 4px;
   font: inherit;
   font-weight: 500;
@@ -165,37 +164,54 @@
 /* ── DateField (campo + popover) ─────────────────────────────────────── */
 .tst-datefield { position: relative; }
 
-.tst-datefield__trigger {
+.tst-datefield__control { position: relative; display: flex; align-items: center; }
+
+.tst-datefield .tst-datefield__input {
   width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  padding: 0.65rem var(--tst-space-md);
-  border: 1px solid var(--tst-color-border-default);
-  border-radius: var(--tst-radius-md);
-  background: var(--tst-color-bg-surface-subtle);
-  backdrop-filter: var(--tst-blur-sm);
-  -webkit-backdrop-filter: var(--tst-blur-sm);
-  font: inherit;
-  font-family: var(--tst-font-body);
-  font-size: var(--tst-text-body);
-  color: var(--tst-color-text-primary);
-  text-align: left;
-  cursor: pointer;
-  transition: border-color var(--tst-transition-fast), box-shadow var(--tst-transition-fast), background-color var(--tst-transition-fast);
+  padding-right: 3rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
 }
 
-.tst-datefield__trigger.is-empty { color: var(--tst-color-text-ghost); }
-.tst-datefield__trigger[aria-expanded='true'],
-.tst-datefield__trigger:focus-visible {
+.tst-datefield__control.is-invalid .tst-datefield__input {
+  border-color: var(--tst-color-status-error, #f87171);
+}
+
+.tst-datefield__trigger {
+  position: absolute;
+  top: 50%;
+  right: 0.35rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 1px solid var(--tst-color-border-default);
+  border-radius: var(--tst-radius-sm, 8px);
+  background: var(--tst-color-bg-hover);
+  color: var(--tst-color-text-primary);
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: border-color var(--tst-transition-fast), background-color var(--tst-transition-fast);
+}
+
+.tst-datefield__trigger:hover,
+.tst-datefield__trigger[aria-expanded='true'] {
   border-color: var(--tst-color-border-focus);
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
-  background: var(--tst-color-bg-surface);
+  background: color-mix(in srgb, var(--tst-color-border-focus) 20%, transparent);
 }
 .tst-datefield__trigger:disabled { opacity: 0.45; cursor: not-allowed; }
 
-.tst-datefield__icon { width: 1rem; height: 1rem; flex-shrink: 0; color: var(--tst-color-text-muted); }
+.tst-datefield__icon { width: 1.1rem; height: 1.1rem; flex-shrink: 0; }
+
+.tst-datefield__hint {
+  margin: 0.35rem 0 0;
+  font-size: var(--tst-text-caption, 0.78rem);
+  line-height: 1.35;
+  color: var(--tst-color-text-muted);
+}
+.tst-datefield__hint.is-invalid { color: var(--tst-color-status-error, #f87171); }
 
 .tst-datefield__popover {
   position: absolute;

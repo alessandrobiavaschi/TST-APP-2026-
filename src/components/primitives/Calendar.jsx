@@ -233,12 +233,42 @@ export function Calendar({
  * Sostituisce <input type="date">: stesso `value` 'YYYY-MM-DD', e `onChange`
  * riceve un oggetto { target: { value } } come un evento di input.
  */
+const isoToText = (iso) => {
+  const d = fromIso(iso)
+  return d ? `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}` : ''
+}
+/** Solo cifre → 'gg/mm/aaaa' mentre si scrive. */
+const maskDate = (raw) => {
+  const digits = String(raw).replace(/\D/g, '').slice(0, 8)
+  return [digits.slice(0, 2), digits.slice(2, 4), digits.slice(4)].filter(Boolean).join('/')
+}
+/** 'gg/mm/aaaa' completo e reale → 'YYYY-MM-DD', altrimenti ''. */
+const textToIso = (text) => {
+  const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(text)
+  if (!m) return ''
+  const d = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]))
+  const real = d.getFullYear() === Number(m[3]) && d.getMonth() === Number(m[2]) - 1 && d.getDate() === Number(m[1])
+  return real ? toIso(d) : ''
+}
+
+/**
+ * Campo data: si scrive a mano (gg/mm/aaaa, le barre si inseriscono da sole)
+ * oppure si apre il calendario dal pulsante a destra.
+ */
 export function DateField({ value = '', onChange, placeholder = 'Scegli una data', min, max, enableYearNavigation = true, defaultMonth, disabled, id, locale = 'it-IT' }) {
   const [open, setOpen] = useState(false)
+  // Testo in corso di scrittura; null = mostra la data salvata.
+  const [draft, setDraft] = useState(null)
   const rootRef = useRef(null)
   const btnRef = useRef(null)
-  const d = fromIso(value)
-  const label = d ? new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'long', year: 'numeric' }).format(d) : ''
+  const text = draft ?? isoToText(value)
+  const minD = fromIso(min)
+  const maxD = fromIso(max)
+  const isComplete = text.length === 10
+  const typedIso = textToIso(text)
+  const typedDate = fromIso(typedIso)
+  const outOfRange = Boolean(typedDate && ((minD && typedDate < minD) || (maxD && typedDate > maxD)))
+  const invalid = draft !== null && isComplete && (!typedIso || outOfRange)
 
   useEffect(() => {
     if (!open) return
@@ -252,23 +282,58 @@ export function DateField({ value = '', onChange, placeholder = 'Scegli una data
     }
   }, [open])
 
+  const emit = (iso) => onChange?.({ target: { value: iso } })
+
+  const handleType = (event) => {
+    const next = maskDate(event.target.value)
+    const iso = textToIso(next)
+    const date = fromIso(iso)
+    const ok = Boolean(date) && !(minD && date < minD) && !(maxD && date > maxD)
+    if (ok) {
+      setDraft(null)
+      if (iso !== value) emit(iso)
+      return
+    }
+    setDraft(next)
+    if (value) emit('')
+  }
+
   return (
     <div className="tst-datefield" ref={rootRef}>
-      <button
-        ref={btnRef}
-        id={id}
-        type="button"
-        className={`tst-datefield__trigger${d ? '' : ' is-empty'}`}
-        aria-haspopup="dialog"
-        aria-expanded={open}
-        disabled={disabled}
-        onClick={() => setOpen((o) => !o)}
-      >
-        <span>{label || placeholder}</span>
-        <svg viewBox="0 0 24 24" aria-hidden="true" className="tst-datefield__icon">
-          <path fill="currentColor" d="M9 1v2h6V1h2v2h4a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h4V1h2zm11 10H4v8h16v-8zM7 5H4v4h16V5h-3v2h-2V5H9v2H7V5z" />
-        </svg>
-      </button>
+      <div className={`tst-datefield__control${invalid ? ' is-invalid' : ''}`}>
+        <input
+          id={id}
+          type="text"
+          className="tst-datefield__input"
+          inputMode="numeric"
+          autoComplete="off"
+          placeholder="gg/mm/aaaa"
+          aria-label={`${placeholder} (giorno, mese, anno)`}
+          aria-invalid={invalid || undefined}
+          maxLength={10}
+          value={text}
+          disabled={disabled}
+          onChange={handleType}
+        />
+        <button
+          ref={btnRef}
+          type="button"
+          className="tst-datefield__trigger"
+          aria-haspopup="dialog"
+          aria-expanded={open}
+          aria-label="Apri il calendario"
+          title="Apri il calendario"
+          disabled={disabled}
+          onClick={() => setOpen((o) => !o)}
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true" className="tst-datefield__icon">
+            <path fill="currentColor" d="M9 1v2h6V1h2v2h4a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h4V1h2zm11 10H4v8h16v-8zM7 5H4v4h16V5h-3v2h-2V5H9v2H7V5z" />
+          </svg>
+        </button>
+      </div>
+      <p className={`tst-datefield__hint${invalid ? ' is-invalid' : ''}`} aria-live="polite">
+        {invalid ? 'Data non valida: controlla giorno, mese e anno.' : 'Scrivi la data oppure aprila dal calendario.'}
+      </p>
       {open && (
         <div className="tst-datefield__popover" role="dialog" aria-label={placeholder}>
           <Calendar
@@ -280,7 +345,8 @@ export function DateField({ value = '', onChange, placeholder = 'Scegli una data
             enableYearNavigation={enableYearNavigation}
             autoFocus
             onChange={(v) => {
-              onChange?.({ target: { value: v } })
+              setDraft(null)
+              emit(v)
               setOpen(false)
               btnRef.current?.focus()
             }}

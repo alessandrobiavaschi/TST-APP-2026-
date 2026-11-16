@@ -1161,6 +1161,12 @@ function NewTestPage() {
                 <span>Nome</span>
                 <input
                   type="text"
+                  name="tst-partecipante-search-nome"
+                  autoComplete="off"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  data-1p-ignore="true"
+                  data-lpignore="true"
                   value={testRecord.Nome}
                   onChange={handleProfilazioneChange('Nome')}
                   placeholder="Nome"
@@ -1170,6 +1176,12 @@ function NewTestPage() {
                 <span>Cognome</span>
                 <input
                   type="text"
+                  name="tst-partecipante-search-cognome"
+                  autoComplete="off"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  data-1p-ignore="true"
+                  data-lpignore="true"
                   value={testRecord.Cognome}
                   onChange={handleProfilazioneChange('Cognome')}
                   placeholder="Cognome"
@@ -1189,6 +1201,7 @@ function NewTestPage() {
                 <span>Titolo di studio</span>
                 <input
                   type="text"
+                  autoComplete="off"
                   value={testRecord.Titolo_Studio}
                   onChange={handleProfilazioneChange('Titolo_Studio')}
                   placeholder="Es. Laurea triennale"
