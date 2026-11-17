@@ -105,11 +105,9 @@ function getQuestionTitleForFile(fileNumber) {
   if (fileNumber >= 5 && fileNumber <= 28) {
     return 'A2) Ascolta i seguenti suoni e scegli la sensazione che meglio descrive la tua percezione sonora:'
   }
-  if (fileNumber >= 29 && fileNumber <= 40) {
+  // Il passo 41 riascolta il 29 (riconferma): la domanda resta quella del cartaceo, senza annunciarlo.
+  if (fileNumber >= 29 && fileNumber <= 41) {
     return 'B) Ascolta ad occhi chiusi le vibrazioni che nascono dall’incontro di questi due suoni. Ascolta anche più di una volta il file e scegli, tra quelli proposti, un solo aggettivo: quello che meglio descrive la sensazione emotiva che provi.'
-  }
-  if (fileNumber === 41) {
-    return 'B) Riconferma: riascolta e conferma in modo istintivo.'
   }
   if (fileNumber >= 42 && fileNumber <= 45) {
     return 'C1a) Ascolta i seguenti groove e scegli la sensazione che meglio descrive la tua percezione musicale:'
