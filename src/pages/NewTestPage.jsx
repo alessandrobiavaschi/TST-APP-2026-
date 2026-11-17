@@ -100,37 +100,37 @@ function getMacroSectionLabel(fileNumber) {
 
 function getQuestionTitleForFile(fileNumber) {
   if (fileNumber >= 1 && fileNumber <= 4) {
-    return 'A1) Senti questi quattro suoni e scegli quello più affine alla tua sensibilità musicale.'
+    return 'A1) Senti questi quattro suoni e scegli quello più affine alla tua sensibilità musicale:'
   }
   if (fileNumber >= 5 && fileNumber <= 28) {
-    return 'A2) Ascolta i seguenti suoni e scegli la sensazione che meglio descrive la tua percezione sonora.'
+    return 'A2) Ascolta i seguenti suoni e scegli la sensazione che meglio descrive la tua percezione sonora:'
   }
   if (fileNumber >= 29 && fileNumber <= 40) {
-    return 'B) Ascolta le combinazioni di due suoni e scegli un solo aggettivo tra quelli proposti.'
+    return 'B) Ascolta ad occhi chiusi le vibrazioni che nascono dall’incontro di questi due suoni. Ascolta anche più di una volta il file e scegli, tra quelli proposti, un solo aggettivo: quello che meglio descrive la sensazione emotiva che provi.'
   }
   if (fileNumber === 41) {
     return 'B) Riconferma: riascolta e conferma in modo istintivo.'
   }
   if (fileNumber >= 42 && fileNumber <= 45) {
-    return 'C1a) Ascolta i groove e scegli la sensazione che meglio descrive la tua percezione musicale.'
+    return 'C1a) Ascolta i seguenti groove e scegli la sensazione che meglio descrive la tua percezione musicale:'
   }
   if (fileNumber === 46) {
     return 'C1b) Quale tra le velocità ascoltate hai sentito più affine alla tua sensibilità musicale?'
   }
   if (fileNumber === 47 || fileNumber === 48 || fileNumber === 49 || fileNumber === 50) {
-    return 'C2a) Ascolta gli andamenti ritmici e scegli la sensazione che meglio descrive la tua percezione musicale.'
+    return 'C2a) Ascolta i seguenti andamenti ritmici e scegli la sensazione che meglio descrive la tua percezione musicale:'
   }
   if (fileNumber === 51) {
     return 'C2b) Quale tra gli andamenti ritmici ascoltati hai sentito più affine alla tua sensibilità musicale?'
   }
   if (fileNumber >= 52 && fileNumber <= 57) {
-    return 'D1) Ascolta l’andamento delle note in successione e scegli la sensazione che meglio descrive la tua percezione musicale.'
+    return 'D1) Ascolta l’andamento delle note in successione e scegli la sensazione che meglio descrive la tua percezione musicale:'
   }
   if (fileNumber === 58) {
     return 'D2) Quale tra gli andamenti delle note in successione ascoltate hai sentito più affine alla tua sensibilità musicale?'
   }
   if (fileNumber >= 59 && fileNumber <= 72) {
-    return 'E) Ascolta i movimenti dei flussi musicali e scegli la sensazione che meglio descrive la tua percezione musicale.'
+    return 'E) Ascolta i seguenti movimenti dei flussi musicali e scegli la sensazione che meglio descrive la tua percezione musicale:'
   }
   return ''
 }
@@ -931,7 +931,7 @@ function NewTestPage() {
               onClick={() => handleAnswer({ affinitaOptionId: opt.id })}
             >
               {opt.id === 'nessuna'
-                ? 'Nessuna delle 4'
+                ? (currentFile === 46 ? 'Nessuna delle 4' : 'Nessuno dei 4')
                 : `Suono ${index + 1}`}
             </button>
           ))}
